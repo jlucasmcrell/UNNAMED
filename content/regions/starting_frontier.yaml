@@ -35848,7 +35848,7 @@ terrain:
     - 2.01
     - 2.03
     - 2.05
-    - 2.07
+    - 2.067
     - 2.09
     - 2.118
     - 2.136
@@ -36547,11 +36547,11 @@ terrain:
     - 1.98
     - 2.0
     - 2.01
-    - 2.02
-    - 2.04
-    - 2.06
-    - 2.08
-    - 2.108
+    - 1.967
+    - 1.869
+    - 1.830
+    - 1.896
+    - 2.046
     - 2.136
     - 2.154
     - 2.172
@@ -37247,13 +37247,13 @@ terrain:
     - 1.96
     - 1.98
     - 2.0
-    - 2.01
-    - 2.02
-    - 2.03
-    - 2.05
-    - 2.07
-    - 2.098
-    - 2.126
+    - 1.958
+    - 1.753
+    - 1.585
+    - 1.538
+    - 1.592
+    - 1.791
+    - 2.062
     - 2.154
     - 2.172
     - 2.19
@@ -37948,13 +37948,13 @@ terrain:
     - 1.96
     - 1.98
     - 2.0
-    - 2.01
-    - 2.02
-    - 2.03
-    - 2.04
-    - 2.06
-    - 2.088
-    - 2.116
+    - 1.849
+    - 1.584
+    - 1.500
+    - 1.500
+    - 1.500
+    - 1.595
+    - 1.921
     - 2.144
     - 2.172
     - 2.19
@@ -38648,15 +38648,15 @@ terrain:
     - 1.94
     - 1.96
     - 1.98
-    - 2.0
-    - 2.01
-    - 2.02
-    - 2.03
-    - 2.04
-    - 2.05
-    - 2.078
-    - 2.106
-    - 2.134
+    - 1.998
+    - 1.801
+    - 1.536
+    - 1.500
+    - 1.500
+    - 1.500
+    - 1.540
+    - 1.857
+    - 2.131
     - 2.162
     - 2.19
     - 2.208
@@ -39350,13 +39350,13 @@ terrain:
     - 1.96
     - 1.98
     - 2.0
-    - 1.96
-    - 1.97
-    - 1.98
-    - 1.99
-    - 2.0
-    - 2.052
-    - 2.08
+    - 1.814
+    - 1.576
+    - 1.500
+    - 1.500
+    - 1.500
+    - 1.589
+    - 1.896
     - 2.108
     - 2.136
     - 2.164
@@ -40051,13 +40051,13 @@ terrain:
     - 1.96
     - 1.98
     - 2.0
-    - 1.96
-    - 1.92
-    - 1.93
-    - 1.94
-    - 1.95
-    - 2.002
-    - 2.054
+    - 1.913
+    - 1.705
+    - 1.569
+    - 1.530
+    - 1.573
+    - 1.745
+    - 1.998
     - 2.082
     - 2.11
     - 2.138
@@ -40753,11 +40753,11 @@ terrain:
     - 1.98
     - 2.0
     - 1.96
-    - 1.92
-    - 1.88
-    - 1.89
-    - 1.9
-    - 1.952
+    - 1.877
+    - 1.760
+    - 1.730
+    - 1.773
+    - 1.906
     - 2.004
     - 2.056
     - 2.084
@@ -41456,7 +41456,7 @@ terrain:
     - 1.96
     - 1.92
     - 1.88
-    - 1.84
+    - 1.838
     - 1.85
     - 1.902
     - 1.954
@@ -150901,6 +150901,12 @@ waters:
   level_m: 6.55
   width_m: 2.2
 - key: water.cw_millpond
+# D18: Blackvein's sump - the standing water at the low end of the quarry floor, where the seam drains.
+- key: water.bv_sump
+  kind: pond
+  path_m: [[444.0, 655.0]]
+  level_m: 1.75
+  width_m: 3.2
 stations:
 - key: station.blackvein_forge
   kind: forge
@@ -150977,8 +150983,34 @@ stations:
 - key: station.den_gorge_cookfire
   kind: cookfire
   position_m:
+<<<<<<< HEAD
   - 512.0
   - 776.0
+=======
+  - 977.0
+  - 663.6
+- key: station.cw_tanning
+  kind: tanning_rack
+  position_m:
+  - 982.0
+  - 686.6
+- key: station.cw_archive
+  kind: archive
+  position_m:
+  - 956.2
+  - 639.6
+- key: station.cw_notice_board
+  kind: notice_board
+  position_m:
+  - 956.4
+  - 645.0
+# D18: the miners' forge at the rim of the floor - the Cut's STATION.FORGE hook.
+- key: station.bv_forge
+  kind: forge
+  position_m:
+  - 432.0
+  - 638.0
+>>>>>>> 18c5c9ad (Place Blackvein's sump and forge and the Barrowworks archivist's case)
 switches:
 - key: switch.den_gorge_rope
   structure: tree_101

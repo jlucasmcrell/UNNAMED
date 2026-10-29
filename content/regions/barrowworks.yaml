@@ -244,6 +244,11 @@ doors:
   - { key: door.barrowworks.headworks, flag_ref: world.barrowworks.gate_g3_open, box_m: [48.5, 118.2, 51.5, 119.0], height_m: 2.4, stays_open: true, requirement: { flag_ref: world.barrowworks.ring_custodian_defeated, location_ref: location.barrowworks.r11_measuring_court }, fitted: { item_ref: item.tool.fitting_wedge, count: 1 }, locked_text: 'The court interlock still holds. Stop the Custodian, then fit a wedge into its keyway.' }
   - { key: door.barrowworks.coffer_store, flag_ref: world.barrowworks.coffer_store_open, box_m: [91.2, 62.4, 92.8, 63.2], height_m: 2.2, stays_open: true, lock_tier: 2, locked_text: 'A plate lock, set in fresh wood. The works kept its stores behind a pick, not behind a word.' }
 containers:
+  # D18: the burial crews' ledger and working notebook - the area's TEACHING.BOOK hook.
+  - key: container.barrowworks.archivist_case
+    loot_ref: loot.barrowworks_archivist_case
+    position_m: [74.5, 66.0]
+    stack_slots: 2
   - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }
   - { key: container.barrowworks.codex_fragment, loot_ref: loot.barrowworks.codex_fragment, position_m: [69.0, 63.0], stack_slots: 1, flag_ref: world.barrowworks.codex_fragment_taken }
   - { key: container.barrowworks.lantern_foot, loot_ref: loot.barrowworks.lantern_foot, position_m: [92.0, 62.0], stack_slots: 1, flag_ref: world.barrowworks.lantern_foot_taken }
