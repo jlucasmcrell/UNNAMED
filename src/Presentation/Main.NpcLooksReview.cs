@@ -51,6 +51,16 @@ public partial class Main
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             } while (Time.GetTicksMsec() < until);
         }
+        async Task ReadFrame(string folder,string name,Action? hold=null)
+        {
+            // Vulkan readback can still show the previous camera/pose on the first draw.
+            for(int draw=0;draw<3;draw++)
+            {
+                hold?.Invoke();
+                await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePostDraw);
+            }
+            await Rcd3Shot(folder,name);
+        }
         // The hour has to reach the sky and the light before the first frame is read, as the race-look review lets it.
         await Frames(2);
         // Freeze Main's normal draw loop for this presentation-only fixture. Otherwise NpcsView.Draw
@@ -144,10 +154,18 @@ public partial class Main
                     camera.GlobalPosition = aim + towards.Normalized() * dist;
                     camera.LookAt(aim);
                 }
+                if(fullBody && ArtLibrary.Find<SkinnedModel>(figure) is {} portrait)
+                {
+                    var at=figure.GlobalTransform;
+                    figure.SetRestPose("idle");figure.SetPosture(false,false);
+                    figure.Pose(at.Origin,at.Basis.GetEuler().Y,0,.25);figure.GlobalTransform=at;
+                    portrait.Hold("idle",.3f,0);
+                    ArtLibrary.Find<AnimationPlayer>(figure)?.Pause();portrait.Skeleton.Advance(0);
+                }
                 Face();
                 // A fixture teleport must leave the Orenth's .4-second registration history before its portrait.
                 await Frames(people == PeopleLooks.Orenth ? .6 : .2, Face);
-                await Rcd3Shot(folder, person.Id);
+                await ReadFrame(folder, person.Id);
                 if(root.TryGetProperty("diagnose_layers",out var diagnose) && diagnose.GetBoolean())
                 {
                     var saved=figure.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>()
@@ -192,7 +210,7 @@ public partial class Main
                         camera.GlobalPosition=torso+figure.GlobalBasis.Z*side.Item2*.9f;
                         camera.LookAt(torso);
                         await Frames(.2);
-                        await Rcd3Shot(folder,person.Id+"_"+side.Item1);
+                        await ReadFrame(folder,person.Id+"_"+side.Item1);
                     }
                     // A centre-back close-up fills with the wings. Keep it, plus a wider rear
                     // three-quarter frame that exposes the garment around their roots.
@@ -200,7 +218,7 @@ public partial class Main
                     camera.GlobalPosition=torso-figure.GlobalBasis.Z*1.8f+figure.GlobalBasis.X+Vector3.Up*.35f;
                     camera.LookAt(torso);
                     await Frames(.2);
-                    await Rcd3Shot(folder,person.Id+"_back_context");
+                    await ReadFrame(folder,person.Id+"_back_context");
                 }
                 if (root.TryGetProperty("motion_clips",out var clips))
                     foreach(var clip in clips.EnumerateArray())
@@ -216,8 +234,12 @@ public partial class Main
                         await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePreDraw);
                         model.Hold(state,.45f,0);model.Skeleton.Advance(0);
                         Face();
-                        await Rcd3Shot(folder,person.Id+"_motion_"+clip.GetString());
+                        await ReadFrame(folder,person.Id+"_motion_"+clip.GetString(),()=>{
+                            model.Hold(state,.45f,0);ArtLibrary.Find<AnimationPlayer>(figure)?.Pause();
+                            model.Skeleton.Advance(0);Face();
+                        });
                         poseSamples.Add(new {id=person.Id,requested=state,actual=model.Current,phase=.45f,
+                            bone_names=Enumerable.Range(0,model.Skeleton.GetBoneCount()).Select(model.Skeleton.GetBoneName).ToArray(),
                             bone_origins=Enumerable.Range(0,model.Skeleton.GetBoneCount()).Select(index=>{
                                 var point=model.Skeleton.GetBoneGlobalPose(index).Origin;
                                 return new[]{point.X,point.Y,point.Z};}).ToArray()});

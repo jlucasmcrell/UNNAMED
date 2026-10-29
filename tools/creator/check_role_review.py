@@ -22,6 +22,10 @@ for town in ['ashen_hollow','cairnwold']:
         if {p['requested'] for p in samples}!={'walk','run','crouch_idle','sword_attack_1'}:errors.append(identifier+': motion coverage missing')
         if any(p['requested']!=p['actual'] for p in samples):errors.append(identifier+': wrong held motion')
         if len({json.dumps(p['bone_origins']) for p in samples})!=4:errors.append(identifier+': repeated bone pose')
+        for i,a in enumerate(samples):
+            for b in samples[i+1:]:
+                movement=max(sum((x-y)**2 for x,y in zip(u,v))**.5 for u,v in zip(a['bone_origins'],b['bone_origins']))
+                if movement<.02:errors.append(identifier+': body poses not meaningfully distinct: '+a['requested']+'/'+b['requested'])
         if any(not math.isfinite(v) for p in samples for bone in p['bone_origins'] for v in bone):errors.append(identifier+': nonfinite pose')
         materials=row.get('garment_materials',[])
         if not materials:errors.append(identifier+': material readback missing')
