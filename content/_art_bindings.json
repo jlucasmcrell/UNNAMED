@@ -4730,19 +4730,6 @@
     "run": "scuttle_fast"
    }
   },
-  "creature.beast.elk": {
-   "model": "creature_wm_elk",
-   "clips": "creature.creature_wm_elk",
-   "voice": "",
-   "flesh": "hide",
-   "blow": "gore",
-   "steps": {
-    "walk": "walk",
-    "run": "run",
-    "flee": "flee"
-   },
-   "note": "WildMesh SK_Elk from the 100 MODELS pack, own idle/walk/trot/run/sprint/break takes. Silent."
-  },
   "creature.beast.moose": {
    "model": "creature_wm_moose",
    "clips": "creature.creature_wm_moose",
