@@ -375,6 +375,12 @@ public sealed record ItemDefinition(
     public string? PetCreature { get; init; }
 
     /// <summary>
+    /// The parts this item is assembled from (D21, <c>GEAR_GENERATION.md</c> §2.5): its family, the slots that family has, and the maker that may
+    /// build it. Null for a plain authored item, which stays exactly as it was.
+    /// </summary>
+    public AssemblySpec? Assembly { get; init; }
+
+    /// <summary>
     /// The people whose heritage it is (<c>heritage</c>, owner 2026-10-24): only that people may use, buy, sell, trade or be given it.
     /// Null for everything else.
     /// </summary>
