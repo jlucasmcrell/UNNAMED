@@ -202,3 +202,20 @@ no FINISHED post for carcass and skinning.
 Simulation.Nodes gains a 
 ode.carcass.grey_wolf within reach of the corpse. That is the cheapest real proof of the
 wire; a clip follows once a carcass model exists or a placeholder is agreed.
+
+### Round 9 - the carcass wire moved into the simulation, with a test that still fails
+The presentation-side subscription could only leave a carcass when a view was running, so the body is now left by the
+system that owns the death: Creatures.Die dispatches a new internal LeaveCarcassCommand (declared and handled in
+Crafting.cs, routed on the internal dispatcher next to WoundCreature), and GatheringSystem.LeaveCarcass adds the
+node. Content names the carcass for wolf, alpha wolf, buck, doe and boar. Commits a0be552, plus this round's.
+
+	ests\Application.Tests\CarcassTests.cs has two tests:
+- ACreatureWhoseKindNamesNoCarcass_LeavesNothing - **passes**.
+- AKilledWolf_LeavesACarcass_WhereItFell - **fails**: the kill happens (CreatureKilled seen, 40-200 ticks), but no
+  *new* 
+ode.carcass.grey_wolf node appears. The world already carries authored carcasses, so the test compares keys
+  before and after; it finds none added.
+
+Next diagnostic (do not guess): make LeaveCarcass return the reason it refused - Setup.Nodes.ContainsKey(carcass)
+false (the harness's crafting table may not hold the kind), a duplicate key, or the dispatch never reaching the handler -
+and log it once in the test world. That one line decides whether the fix is in content or in the harness.
