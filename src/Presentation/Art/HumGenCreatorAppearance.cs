@@ -98,6 +98,9 @@ public sealed partial class HumGenCreatorAppearance : Node
         var nativeBase = controller._data.Preset(controller._catalogue.Options(CreatorChoice.Face, sex)
             .First(f => f.Label == "Caucasian 2").Id);
         if (model is SkinnedFigure figure) figure.SetCreatorStature(look.StatureMm, nativeBase.GetProperty("height").GetProperty("set").GetSingle() * 10);
+        // The ladder is attached once the body and its parts are all in place: one level of each piece is drawn, by camera
+        // distance, which is both the quality band and the z-fight fix.
+        if (model is Node3D ladderBody) CreatorLod.Attach(ladderBody);
         return true;
     }
 
@@ -171,14 +174,6 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// Drop the body fragments the worn part covers, using the coverage mask that part's export carries in the body's UV space. A
     /// part without a mask clears the stencil, so no outfit inherits another's holes.
     /// </summary>
-    /// <summary>A mesh of the creator's first level of detail; the export ships four of every piece.</summary>
-    private static bool IsDetailZero(StringName name)
-    {
-        string text = name.ToString();
-        return text.Contains("_LOD0", StringComparison.Ordinal)
-            || (!text.Contains("_LOD", StringComparison.Ordinal) && !text.Contains("_lining", StringComparison.Ordinal));
-    }
-
     private static void Stencil(ArtLibrary art, Node model, string? part)
     {
         Texture2D? mask = null;
@@ -188,8 +183,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null) continue;
-            // The same four-LOD rule for the body itself: the extra LODs are coincident copies that z-fight through the cloth.
-            if (!IsDetailZero(mesh.Name)) mesh.Visible = false;
+            // The body's own four levels are the ladder's business (CreatorLod): one level is drawn, never two.
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin) continue;
@@ -502,13 +496,12 @@ public sealed partial class HumGenCreatorAppearance : Node
                 {
                     // The lining is a fix for garment openings, and on these outfits its copies ship as ribbons: hidden until the
                     // export is corrected, while the body-coverage mask (baked per part) hides the covered body instead.
-                    // A part ships four LODs of every piece and they are near-coincident surfaces that z-fight into pale slivers,
-                    // so only LOD0 is ever drawn.
-                    if (!IsDetailZero(drawn.Name))
-                        drawn.Visible = false;
+                    // A part ships four LODs of every piece; the ladder draws one of them (CreatorLod), so nothing z-fights.
                 }
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
                 Outfit.NameSkinBinds(added, rig);
+                // The new pieces join the ladder, which draws exactly one level of each.
+                CreatorLod.Attach(model as Node3D ?? body);
                 // A long style brings its own bone chains: join them to the body skeleton and let them swing (brief D12).
                 if (part.RootElement.TryGetProperty("hair_chains", out var chains))
                 {
