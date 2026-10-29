@@ -253,7 +253,7 @@ hooks:
   # THE WORLD ITSELF â€” weather, shelter, ambience, and what the region has to declare
   # ---------------------------------------------------------------------------------------------
   - { id: HOOK.WEATHER.SHELTER, class: placeable, scope: area, skills: [skill.survival], evidence: {unmodelled: {why: "roofs are geometry, not content; no sheltermark exists for 'no rain indoors'"}}, min: {town: 1, water: 2}, band_scaled: false, note: "A roof that stops the rain and changes the audio under it (brief D2)." }
-  - { id: HOOK.AMBIENT.BINDING, class: sfx, scope: area, skills: [], evidence: {unmodelled: {why: "audio assets exist but no content binds an ambience to a place"}}, min: {town: 1, wilderness: 1, dungeon: 1, water: 1}, band_scaled: false, note: "The sound of a place, bound to the place." }
+  - { id: HOOK.AMBIENT.BINDING, class: sfx, scope: area, skills: [], evidence: {ambience: {}}, min: {town: 1, wilderness: 1, dungeon: 1, water: 1}, band_scaled: false, note: "The sound of a place, bound to the place." }
   - { id: HOOK.VFX.SCHOOL, class: vfx, scope: content, skills: [skill.force, skill.warding, skill.vital, skill.othercraft], evidence: {unmodelled: {why: "effects are conditions (bleeding, root, sleep); no cast-school VFX recipe is content"}}, min: {}, band_scaled: false, note: "A cast that looks like its school: 0 spell meshes exist (SKILLS Â§10.4)." }
 
 # Hooks the SYSTEMS_CHECKLIST implies but no skill claims yet. Not audited: they have no evidence form until their

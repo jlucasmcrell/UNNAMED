@@ -5858,6 +5858,56 @@
      "radius_m": 110
     }
    }
+  },
+  "ambience": {
+   "places": {
+    "location.foldscar": {
+     "bed": "amb.foldscar_ruin.01",
+     "details": [
+      "sfx.amb.foldscar.stone_resonance.01",
+      "sfx.amb.foldscar.tone_displacement.01",
+      "sfx.amb.charwood.branch_movement.01"
+     ],
+     "surface": "puddle",
+     "at_m": [
+      553.0,
+      648.0
+     ],
+     "radius_m": 26.0,
+     "gain": 0.9,
+     "note": "generated from content/ambience/foldscar.yaml - edit that file, not this one"
+    },
+    "location.den_gorge": {
+     "bed": "amb.blackvein_cut.01",
+     "details": [
+      "sfx.amb.blackvein.pebble_fall.01",
+      "sfx.amb.blackvein.rock_shift.01"
+     ],
+     "surface": "stone",
+     "at_m": [
+      540.0,
+      797.0
+     ],
+     "radius_m": 30.0,
+     "gain": 0.85,
+     "note": "generated from content/ambience/den_gorge.yaml - edit that file, not this one"
+    },
+    "location.outpost": {
+     "bed": "amb.ashen_hollow.waystation.01",
+     "details": [
+      "sfx.amb.ashen_hollow.timber_creak.01",
+      "sfx.amb.ashen_hollow.settlement_activity.01"
+     ],
+     "surface": "dirt",
+     "at_m": [
+      700.0,
+      658.0
+     ],
+     "radius_m": 34.0,
+     "gain": 0.7,
+     "note": "generated from content/ambience/rim_road.yaml - edit that file, not this one"
+    }
+   }
   }
  },
  "ground_items": {

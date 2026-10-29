@@ -572,7 +572,8 @@ public partial class Main : Node3D
         AddChild(_sounds);
         // Phase B: the environmental audio hooks (wind, rain, the river, insects...), silent until their audio exists.
         if (VisualOptions.All.GetValueOrDefault("hooks") == "on" && _ground is not null)
-            AddChild(new Audio.AmbientAudio(_sounds, _ground) { FoldGain = at =>
+        {
+            var ambience = new Audio.AmbientAudio(_sounds, _ground) { FoldGain = at =>
             {
                 var simulation = _session.Simulation;
                 if (simulation is null || simulation.ActiveLayout.SpaceId != _session.Setup.Layout.SpaceId) return 0;
@@ -590,7 +591,11 @@ public partial class Main : Node3D
                     gain = Math.Max(gain, .8f*Mathf.Clamp(1-(distance-12)/70,0,1));
                 }
                 return gain;
-            } });
+            } };
+            // Content binds an ambience to a place (D18 SYSTEMS, needed-2): one looping bed per place it names.
+            ambience.AddPlaces(_bindings.AmbiencePlaces);
+            AddChild(ambience);
+        }
         _soundEvents = new Audio.SoundEvents { Name = "SoundEvents" };
         AddChild(_soundEvents);
         _soundEvents.Bind(_session, _bindings, _sounds, _ground);

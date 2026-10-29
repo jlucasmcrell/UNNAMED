@@ -427,6 +427,11 @@ public static class WorldHookChecks
             }
             case "readable_field":
                 return placed.Count(p => p.Section == "readables" && Has(p.Node, Scalar(argument, "field")));
+            case "ambience":
+            {
+                // A place's own sound, bound in content (D18 SYSTEMS, needed-2): one `ambience` definition per place.
+                return facts.AmbiencePlaces;
+            }
             case "node_tier":
             {
                 // A node of a given grade: "a second and third ore grade" is a tier, and the build states it on the node
@@ -517,6 +522,9 @@ public static class WorldHookChecks
         public Dictionary<string, (int Tier, bool Hidden, string Skill)> Nodes { get; } = new(StringComparer.Ordinal);
         public List<(string Id, int Tier, bool Hidden, string Skill)> NodeList { get; } = [];
 
+        /// <summary>How many places content binds an ambience to (the `ambience` kind).</summary>
+        public int AmbiencePlaces { get; private set; }
+
         public WorldFacts(ContentLoader loader)
         {
             foreach (var definition in loader.Definitions.Values)
@@ -537,6 +545,9 @@ public static class WorldHookChecks
                             Scalar(root, "hidden") is { } hiddenText && string.Equals(hiddenText, "true", StringComparison.OrdinalIgnoreCase),
                             Scalar(root, "harvest_skill") ?? "");
                         NodeList.Add((definition.Id, Nodes[definition.Id].Tier, Nodes[definition.Id].Hidden, Nodes[definition.Id].Skill));
+                        break;
+                    case "ambience":
+                        AmbiencePlaces++;
                         break;
                     case "npc":
                         NpcTeaches[definition.Id] = Maps(root, "teaches").Select(entry => Scalar(entry, "kind")).ToList();

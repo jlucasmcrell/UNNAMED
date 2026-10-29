@@ -1,0 +1,18 @@
+id: ambience.den_gorge
+kind: ambience
+schema: 1
+display_key: ambience.den_gorge.name
+tags: [ambience]
+name: Den Gorge
+notes: "The gorge's floor: water below, rock shifting above. Uses the cut's stone bed until a gorge river bed exists in the sound set."
+location_ref: location.den_gorge
+at_m:
+  - 540.0
+  - 797.0
+radius_m: 30.0
+gain: 0.85
+bed: amb.blackvein_cut.01
+details:
+  - sfx.amb.blackvein.pebble_fall.01
+  - sfx.amb.blackvein.rock_shift.01
+surface: stone

@@ -1,0 +1,19 @@
+id: ambience.foldscar
+kind: ambience
+schema: 1
+display_key: ambience.foldscar.name
+tags: [ambience]
+name: Foldscar
+notes: "The scar's own air: three stones standing round something that is not quite there, and the tone displacement between them. The bed is the one the art bindings already hold for this cell."
+location_ref: location.foldscar
+at_m:
+  - 553.0
+  - 648.0
+radius_m: 26.0
+gain: 0.9
+bed: amb.foldscar_ruin.01
+details:
+  - sfx.amb.foldscar.stone_resonance.01
+  - sfx.amb.foldscar.tone_displacement.01
+  - sfx.amb.charwood.branch_movement.01
+surface: puddle

@@ -349,6 +349,15 @@ public static class ContentKindRegistry
             IdPrefix: "lore"
         );
 
+        // 36. ambience - a place's own sound: the bed it is heard with, its details, and where it stands (D18 SYSTEMS,
+        // needed-2; HOOK.AMBIENT.BINDING). Content owns the binding; the game reads it through the art bindings.
+        kinds["ambience"] = new ContentKindDefinition(
+            Kind: "ambience",
+            FullKind: "ambience",
+            Directory: "ambience",
+            IdPrefix: "ambience"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)
