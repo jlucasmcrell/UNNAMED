@@ -733,6 +733,115 @@
       ],
       "note": "fab_build.py over the region's own wall runs (0.4 m blockers), door gaps from the runs (door.longhouse +x); Fab kit pieces, see ready/bld_fab_ah_waystation/bld_fab_ah_waystation_meta.json kit_pieces. No 'surface' (own 2K maps).",
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
+    },
+    "oh_housea_": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            4.128,
+            7.333,
+            -1.25
+          ]
+        }
+      ],
+      "note": "Gate 2: THE STEPS' own house, from the Cairnwold kit - door on +Z, to the water."
+    },
+    "oh_houseb_": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            4.128,
+            7.333,
+            -1.25
+          ]
+        }
+      ],
+      "note": "Gate 2: the smaller house of the pair."
+    },
+    "oh_long_survey_": {
+      "model": "bld_fab_cw_long_lodge",
+      "material": "wood",
+      "interior_light": {
+        "at": [
+          3.2,
+          1.6,
+          1.62
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.38
+        ],
+        "energy": 1.5,
+        "range": 13,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.45,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: the Long Survey's headquarters, in the waystation's lodge kit."
+    },
+    "oh_exchange_": {
+      "model": "bld_fab_cw_granary",
+      "material": "wood",
+      "note": "Gate 2: the Tidepearl Exchange's granary."
+    },
+    "oh_harbour_smithy": {
+      "model": "bld_fab_cw_smithy",
+      "material": "stone",
+      "emitters": [
+        {
+          "recipe": "chimney_smoke",
+          "at": [
+            3.0,
+            5.4,
+            -1.0
+          ]
+        }
+      ],
+      "note": "Gate 2: the harbour's workshops."
     }
   },
   "roof_groups": [
@@ -3885,312 +3994,6 @@
       "model": "piece_bp_timber_pad",
       "material": "wood",
       "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
-    },
-    "oh_house_000": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_001": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_002": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_003": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_004": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_005": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_006": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_007": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_008": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_009": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_010": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_011": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_012": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_013": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_014": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_015": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_016": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_017": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_018": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_019": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_020": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_021": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_022": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_023": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_024": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_025": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_026": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_027": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_028": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_029": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_030": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_031": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_032": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_033": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_034": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_035": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_036": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_037": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_038": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_039": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_040": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_041": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_042": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_043": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_044": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_045": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_046": {
-      "model": "cw_house_timber_b",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_house_047": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: a district house on the terrace, door to the water (+Z face south)."
-    },
-    "oh_long_survey_hq": {
-      "model": "cw_house_timber_a",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: the Long Survey's headquarters - every survey plaque in the frontier answers to this body."
-    },
-    "oh_exchange_granary": {
-      "model": "cw_granary_staddled",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: the Tidepearl Exchange's granary, the city's own scale of trade."
-    },
-    "oh_harbour_smithy": {
-      "model": "cw_smithy",
-      "material": "wood",
-      "yaw": 180,
-      "note": "Gate 2: the harbour's workshops, where the quay's ironwork is mended."
     },
     "oh_quay_prop_000": {
       "model": "prop_ph_wooden_crate_01",

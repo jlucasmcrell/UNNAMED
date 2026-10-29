@@ -110,148 +110,148 @@ generation:
     amplitude_mm: 0
     samples_per_axis: 2
 structures:
-- id: oh_house_000
+- id: oh_housea_000
   box_m: [1334.0, 584.0, 1342.0, 590.0]
   height_m: 6.5
-- id: oh_house_001
+- id: oh_houseb_000
   box_m: [1373.5, 585.0, 1378.5, 589.0]
   height_m: 4.4
-- id: oh_house_002
+- id: oh_housea_001
   box_m: [1410.0, 584.0, 1418.0, 590.0]
   height_m: 6.5
-- id: oh_house_003
+- id: oh_houseb_001
   box_m: [1595.5, 585.0, 1600.5, 589.0]
   height_m: 4.4
-- id: oh_house_004
+- id: oh_housea_002
   box_m: [1632.0, 584.0, 1640.0, 590.0]
   height_m: 6.5
-- id: oh_house_005
+- id: oh_houseb_002
   box_m: [1671.5, 585.0, 1676.5, 589.0]
   height_m: 4.4
-- id: oh_house_006
+- id: oh_housea_003
   box_m: [1708.0, 584.0, 1716.0, 590.0]
   height_m: 6.5
-- id: oh_house_007
+- id: oh_houseb_003
   box_m: [1747.5, 585.0, 1752.5, 589.0]
   height_m: 4.4
-- id: oh_house_008
+- id: oh_housea_004
   box_m: [1335.5, 615.0, 1340.5, 619.0]
   height_m: 4.4
-- id: oh_house_009
+- id: oh_houseb_004
   box_m: [1372.0, 614.0, 1380.0, 620.0]
   height_m: 6.5
-- id: oh_house_010
+- id: oh_housea_005
   box_m: [1411.5, 615.0, 1416.5, 619.0]
   height_m: 4.4
-- id: oh_house_011
+- id: oh_houseb_005
   box_m: [1594.0, 614.0, 1602.0, 620.0]
   height_m: 6.5
-- id: oh_house_012
+- id: oh_housea_006
   box_m: [1633.5, 615.0, 1638.5, 619.0]
   height_m: 4.4
-- id: oh_house_013
+- id: oh_houseb_006
   box_m: [1670.0, 614.0, 1678.0, 620.0]
   height_m: 6.5
-- id: oh_house_014
+- id: oh_housea_007
   box_m: [1709.5, 615.0, 1714.5, 619.0]
   height_m: 4.4
-- id: oh_house_015
+- id: oh_houseb_007
   box_m: [1746.0, 614.0, 1754.0, 620.0]
   height_m: 6.5
-- id: oh_house_016
+- id: oh_housea_008
   box_m: [1334.0, 644.0, 1342.0, 650.0]
   height_m: 6.5
-- id: oh_house_017
+- id: oh_houseb_008
   box_m: [1373.5, 645.0, 1378.5, 649.0]
   height_m: 4.4
-- id: oh_house_018
+- id: oh_housea_009
   box_m: [1410.0, 644.0, 1418.0, 650.0]
   height_m: 6.5
-- id: oh_house_019
+- id: oh_houseb_009
   box_m: [1595.5, 645.0, 1600.5, 649.0]
   height_m: 4.4
-- id: oh_house_020
+- id: oh_housea_010
   box_m: [1632.0, 644.0, 1640.0, 650.0]
   height_m: 6.5
-- id: oh_house_021
+- id: oh_houseb_010
   box_m: [1671.5, 645.0, 1676.5, 649.0]
   height_m: 4.4
-- id: oh_house_022
+- id: oh_housea_011
   box_m: [1708.0, 644.0, 1716.0, 650.0]
   height_m: 6.5
-- id: oh_house_023
+- id: oh_houseb_011
   box_m: [1747.5, 645.0, 1752.5, 649.0]
   height_m: 4.4
-- id: oh_house_024
+- id: oh_housea_012
   box_m: [1335.5, 675.0, 1340.5, 679.0]
   height_m: 4.4
-- id: oh_house_025
+- id: oh_houseb_012
   box_m: [1372.0, 674.0, 1380.0, 680.0]
   height_m: 6.5
-- id: oh_house_026
+- id: oh_housea_013
   box_m: [1411.5, 675.0, 1416.5, 679.0]
   height_m: 4.4
-- id: oh_house_027
+- id: oh_houseb_013
   box_m: [1594.0, 674.0, 1602.0, 680.0]
   height_m: 6.5
-- id: oh_house_028
+- id: oh_housea_014
   box_m: [1633.5, 675.0, 1638.5, 679.0]
   height_m: 4.4
-- id: oh_house_029
+- id: oh_houseb_014
   box_m: [1670.0, 674.0, 1678.0, 680.0]
   height_m: 6.5
-- id: oh_house_030
+- id: oh_housea_015
   box_m: [1709.5, 675.0, 1714.5, 679.0]
   height_m: 4.4
-- id: oh_house_031
+- id: oh_houseb_015
   box_m: [1746.0, 674.0, 1754.0, 680.0]
   height_m: 6.5
-- id: oh_house_032
+- id: oh_housea_016
   box_m: [1334.0, 704.0, 1342.0, 710.0]
   height_m: 6.5
-- id: oh_house_033
+- id: oh_houseb_016
   box_m: [1373.5, 705.0, 1378.5, 709.0]
   height_m: 4.4
-- id: oh_house_034
+- id: oh_housea_017
   box_m: [1410.0, 704.0, 1418.0, 710.0]
   height_m: 6.5
-- id: oh_house_035
+- id: oh_houseb_017
   box_m: [1595.5, 705.0, 1600.5, 709.0]
   height_m: 4.4
-- id: oh_house_036
+- id: oh_housea_018
   box_m: [1632.0, 704.0, 1640.0, 710.0]
   height_m: 6.5
-- id: oh_house_037
+- id: oh_houseb_018
   box_m: [1671.5, 705.0, 1676.5, 709.0]
   height_m: 4.4
-- id: oh_house_038
+- id: oh_housea_019
   box_m: [1708.0, 704.0, 1716.0, 710.0]
   height_m: 6.5
-- id: oh_house_039
+- id: oh_houseb_019
   box_m: [1747.5, 705.0, 1752.5, 709.0]
   height_m: 4.4
-- id: oh_house_040
+- id: oh_housea_020
   box_m: [1335.5, 735.0, 1340.5, 739.0]
   height_m: 4.4
-- id: oh_house_041
+- id: oh_houseb_020
   box_m: [1372.0, 734.0, 1380.0, 740.0]
   height_m: 6.5
-- id: oh_house_042
+- id: oh_housea_021
   box_m: [1411.5, 735.0, 1416.5, 739.0]
   height_m: 4.4
-- id: oh_house_043
+- id: oh_houseb_021
   box_m: [1594.0, 734.0, 1602.0, 740.0]
   height_m: 6.5
-- id: oh_house_044
+- id: oh_housea_022
   box_m: [1633.5, 735.0, 1638.5, 739.0]
   height_m: 4.4
-- id: oh_house_045
+- id: oh_houseb_022
   box_m: [1670.0, 734.0, 1678.0, 740.0]
   height_m: 6.5
-- id: oh_house_046
+- id: oh_housea_023
   box_m: [1709.5, 735.0, 1714.5, 739.0]
   height_m: 4.4
-- id: oh_house_047
+- id: oh_houseb_023
   box_m: [1746.0, 734.0, 1754.0, 740.0]
   height_m: 6.5
 - id: oh_long_survey_hq
