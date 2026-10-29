@@ -117,6 +117,7 @@ public sealed class VisualAudit
     private static readonly string[] HairArms = { "A", "A2", "B", "A3", "B2" };
     private readonly int _settleExtra;
     private bool _entered;
+    private bool _pumped;
     private readonly string? _enter;
     private readonly string? _hairGlb;
     private readonly string _hairFrom;
@@ -364,6 +365,15 @@ public sealed class VisualAudit
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
         if (_wait == 0)
         {
+            // A session that booted inside a space has its creature view built but not yet drawn - the figures are made on
+            // the frame that runs, and a frozen capture can reach this line first. Draw them here, once per view, so a
+            // near shot of a cave or a ring finds the boss instead of nothing.
+            if (_pumped == false && _session.Simulation is { } live)
+            {
+                _pumped = true;
+                foreach (var view in _root.FindChildren("*", nameof(Greybox.CreaturesView), true, false).OfType<Greybox.CreaturesView>())
+                    view.Draw(live, 0, 0);
+            }
             // A capture that must stand inside a space (the Barrowworks ring) asks for the portal once, and then waits
             // longer than the settle so the interior has been built and lit before the picture is taken.
             if (_enter is { Length: > 0 } portal && _entered == false && _session.Simulation is { } running)
