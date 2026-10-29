@@ -122,6 +122,60 @@ public class GearMakerTests
         }
     }
 
+
+    [Fact]
+    public void ThePlacePicksTheMaker_EachRegionNamesTheWorkshopsWhoseWorkDropsThere()
+    {
+        // GEAR_GENERATION section 11: the place picks the maker. Every region names makers, and every named maker builds something an item in that
+        // region could be assembled from - otherwise the region's list is decoration.
+        var loader = Game();
+        var makers = GearContent.BuildMakers(loader);
+        var regions = loader.GetByKind("region");
+
+        int bound = 0;
+        foreach (var region in regions.Values)
+        {
+            var layout = WorldContent.BuildLayout(loader, region.Id);
+            if (layout.GearMakers.IsEmpty)
+                continue;
+            bound++;
+            foreach (string id in layout.GearMakers)
+            {
+                Assert.True(makers.ContainsKey(id), $"{region.Id} names {id}, which is not a maker");
+                Assert.NotEmpty(makers[id].PartSets);
+            }
+        }
+        Assert.True(bound >= 3, $"only {bound} regions name their gear makers");
+    }
+
+    [Fact]
+    public void TheHighTechFamilies_Exist_AndCarryTheirMakersAndNouns()
+    {
+        var loader = Game();
+        var parts = GearContent.BuildParts(loader);
+        var catalog = ItemContent.BuildCatalog(loader);
+        string[] families =
+        {
+            "projector.fire", "projector.ice", "projector.air", "projector.water",
+            "projector.laser", "projector.tractor", "projector.cosmic", "projector.reality",
+            "marksman", "dart_launcher", "stunner", "blowpipe",
+        };
+
+        foreach (string family in families)
+        {
+            var items = loader.GetByKind("item.weapon").Keys.Select(catalog.Get)
+                .Where(i => i.Assembly?.Family == family).ToArray();
+            Assert.NotEmpty(items);
+            foreach (var item in items)
+            foreach (string slot in item.Assembly!.Slots)
+            {
+                var offered = parts.Values.Where(p => p.Family == family && p.Slot == slot).ToArray();
+                Assert.NotEmpty(offered);
+            }
+            Assert.Contains(parts.Values.Where(p => p.Family == family), p => p.Noun is not null);
+        }
+    }
+
     [Fact]
     public void TheTwelveMakers_AreCanonsOwn_AndThePeoplelessOnesAreTheOldWorksAndTheOtherTouched()
     {

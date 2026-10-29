@@ -150755,6 +150755,13 @@ containers:
   - 745.2
   stack_slots: 8
   lock_tier: 1
+gear_makers:
+  - maker.veth.reach_smith
+  - maker.veth.counties_cutler
+  - maker.orenth.route_kit
+  - maker.siann.gorge_cutler
+  - maker.mor.sounding_custodians
+  - maker.oldworks.old_works
 npcs:
 - npc_ref: npc.ashen_hollow.renn_vale
   position_m:

@@ -1,0 +1,12 @@
+id: item.ammo.blowpipe_dart
+kind: item
+schema: 1
+display_key: item.ammo.blowpipe_dart.name
+tags: [item, ammo, stealth]
+name: Blowpipe Dart
+notes: "A thorn or bone point with a reed flight: the low-tech sleep device's round, useless until it is coated. Cheap, and every hunter's."
+category: consumable
+stack_max: 20
+weight: 0.02
+value_base: 1
+rarity: common

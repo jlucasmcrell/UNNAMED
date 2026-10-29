@@ -14459,6 +14459,12 @@ tidal_water:
     dry_at_m: -0.3
 
 # Gate 4 service posts on the accepted raised causeway / wetland route.
+gear_makers:
+  - maker.vaskaal.keelward_salvage
+  - maker.vaskaal.charge_kit
+  - maker.constructed.caldera_works
+  - maker.other.other_touched
+  - maker.oldworks.old_works
 npcs:
 - npc_ref: npc.sedge.nessa_reed
   position_m:

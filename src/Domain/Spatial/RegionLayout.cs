@@ -171,6 +171,12 @@ public sealed record RegionLayout(
     /// <summary>The region's crafting stations (M3f).</summary>
     public ImmutableArray<StationSite> Stations { get; init; } = ImmutableArray<StationSite>.Empty;
 
+    /// <summary>
+    /// The makers whose work this region's loot rolls (GEAR_GENERATION section 11: the place picks the maker, not the level). Empty means any maker
+    /// whose part sets cover the family, taken in id order.
+    /// </summary>
+    public ImmutableArray<string> GearMakers { get; init; } = ImmutableArray<string>.Empty;
+
     /// <summary>The region's named NPCs, each where they stand (M4).</summary>
     public ImmutableArray<NpcSite> Npcs { get; init; } = ImmutableArray<NpcSite>.Empty;
 

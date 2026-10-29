@@ -1,0 +1,13 @@
+id: item.consumable.sleep_draught
+kind: item
+schema: 1
+display_key: item.consumable.sleep_draught.name
+tags: [item, stealth]
+name: Sleep Draught
+notes: "The coating a dart or a blowpipe point is dipped in: drowsy, then asleep (GEAR_GENERATION 4.3.2), which is the stealth lane's effect.sleep. Made by alchemy and herbalism from a calming herb."
+category: consumable
+stack_max: 5
+weight: 0.1
+value_base: 18
+rarity: common
+use: { effect_ref: effect.coating_sleep, consume: true }

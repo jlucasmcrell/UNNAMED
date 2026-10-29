@@ -363,6 +363,10 @@ containers:
   - { key: container.stash.waystation, loot_ref: loot.stash_empty, position_m: [40, 137], stack_slots: 60, stash: true }   # the character's stash beside the storage chest; the workbench, forge and cookfire work from it
   - { key: container.merchant_cart, loot_ref: loot.merchant_cart, position_m: [157, 160.2], stack_slots: 8 }  # bible §6: the bow at the cart
 # The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).
+gear_makers:
+  - maker.veth.reach_smith
+  - maker.kal.vossgar_forge
+  - maker.ondrek.tenantless_repair
 npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
   - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [72, 122], facing_deg: 135 }    # her survey area, looking towards the Foldscar

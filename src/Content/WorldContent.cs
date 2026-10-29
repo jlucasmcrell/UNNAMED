@@ -437,6 +437,17 @@ public static class WorldContent
             }
             Check(stations.Select(s => s.Key).Distinct(StringComparer.Ordinal).Count() == stations.Count, "WLD011", "two stations share a key");
 
+            // D21 section 11: the makers whose work drops here. The place picks the maker, not the character's level.
+            var gearMakers = ImmutableArray.CreateBuilder<string>();
+            if (map.ContainsKey("gear_makers"))
+                foreach (var row in List(map, "gear_makers"))
+                {
+                    if (row is string makerId)
+                        gearMakers.Add(loader.GetByKind("maker").ContainsKey(makerId)
+                            ? makerId
+                            : throw new FormatException($"{regionId} gear_makers names '{makerId}', which is not a maker"));
+                }
+
             // The named NPCs (M4): each where they stand and which way they face; a named NPC stands in one place.
             var npcs = ImmutableArray.CreateBuilder<NpcSite>();
             foreach (var (entry, i) in (map.ContainsKey("npcs") ? List(map, "npcs") : new List<object>()).Select((n, i) => (n, i)))
@@ -680,6 +691,7 @@ public static class WorldContent
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
                 locations.ToImmutable(), new Body(spawnX, space.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
+            GearMakers = gearMakers.ToImmutable(),
                 Tide = map.ContainsKey("tidal_water") ? BuildTide(Map(map, "tidal_water")) : null,
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
