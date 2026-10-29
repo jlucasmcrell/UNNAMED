@@ -43,7 +43,7 @@ public class GearContentTests
         tags: [blade]
         family: sword
         slot: blade
-        mesh_ref: mesh.part.sword.blade.leaf_long
+        mesh: mesh.part.sword.blade.leaf_long
         material_slots: [metal_main]
         tier_min: 1
         stat_contrib: { damage_mult: 1.00, reach_add: 0.05, weight_add: 0.1, speed_mult: 0.99, durability_add: 0 }
