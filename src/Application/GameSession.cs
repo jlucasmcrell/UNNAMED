@@ -296,6 +296,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Weather = WorldContent.BuildWeather(loader),
             Economy = EconomyContent.Build(loader),
             Techniques = TeachingContent.BuildTechniques(loader),
+            Catalogue = TeachingContent.BuildCatalogue(loader),
             Chat = ChatterContent.Build(loader),
             Navigation = NavigationContent.Build(loader),
             NpcLife = NpcLifeContent.Build(loader, options.RegionId),

@@ -14,3 +14,5 @@ objectives:
     type: talk_to
     description: Write yourself in Renn's book.
     params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [farewell] }
+rewards:
+  - { kind: technique, technique_ref: ability.catalogue.cosmic.an_observatory_for_othertides }   # D13: the job ends in a lesson (canon's Q)

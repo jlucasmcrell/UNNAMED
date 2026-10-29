@@ -41,4 +41,5 @@ objectives:
     params: { location_ref: location.den_mouth, within_m: 10 }
     all_of: [o_pelts, o_larder]
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.otherlore.what_the_quiet_stones_hold }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 60 }

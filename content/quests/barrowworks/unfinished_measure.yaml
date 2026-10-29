@@ -113,5 +113,6 @@ objectives:
     params: { flag_ref: world.barrowworks.blind_store_read, location_ref: location.barrowworks.blind_store, value: 1 }
 # PROVISIONAL - NOT BALANCE-APPROVED. The graph is what is being proved here; these numbers exist to be exercised.
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.smithing.named_work }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 200 }
   - { kind: currency, amount: 40 }

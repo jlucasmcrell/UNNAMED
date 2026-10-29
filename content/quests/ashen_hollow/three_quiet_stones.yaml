@@ -47,5 +47,6 @@ objectives:
     params: { npc_ref: npc.ashen_hollow.tavar_orr, nodes: [greet] }
 # Modest progression and Sel's trust (bible §16 names no reward; Tavar himself is the point).
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.veilward.living_workshop }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 150 }
   - { kind: relationship, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, amount: 10 }

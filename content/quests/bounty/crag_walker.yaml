@@ -16,6 +16,7 @@ objectives:
     description: Put down a bone-walker husk - the crag walker comes out after dark.
     params: { creature_ref: creature.undead.bone_walker_husk, count: 1 }
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.weaponsmithing.a_weapon_with_a_name }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 80 }
   - { kind: currency, amount: 20 }
 repeat_policy: { repeatable: true, cooldown_min: 1440 }   # one world day (48 real minutes) after it is done, the work is posted again

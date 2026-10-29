@@ -46,6 +46,7 @@ objectives:
     params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [praised, judged] }
 # Keep the spear, modest progression, modest money, and Kera's recognition (bible §15).
 rewards:
+  - { kind: technique, technique_ref: ability.catalogue.othercraft.the_closing }   # D13: the job ends in a lesson (canon's Q)
   - { kind: xp, amount: 120 }
   - { kind: currency, amount: 25 }
   - { kind: relationship, npc_ref: npc.ashen_hollow.kera_voss, dimension: respect, amount: 5 }

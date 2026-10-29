@@ -140,6 +140,13 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     public ImmutableSortedDictionary<string, TechniqueDefinition> Techniques { get; init; } =
         ImmutableSortedDictionary.Create<string, TechniqueDefinition>(StringComparer.Ordinal);
 
+    /// <summary>
+    /// The catalogue techniques (D13): every named capability the skills own, with the band it sits at and what it needs. Read by the Skills
+    /// page; a body learns them through a teacher, a manual, an institution, a study site, a working, a discovery or a trial.
+    /// </summary>
+    public ImmutableSortedDictionary<string, UNNAMED.Domain.Combat.CatalogueTechnique> Catalogue { get; init; } =
+        ImmutableSortedDictionary.Create<string, UNNAMED.Domain.Combat.CatalogueTechnique>(StringComparer.Ordinal);
+
     /// <summary>The chatter corpus, the LFG, news and system templates, and chat's tuning (WP16).</summary>
     public ChatSetup Chat { get; init; } = ChatSetup.Empty;
 
