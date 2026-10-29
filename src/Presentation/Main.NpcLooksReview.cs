@@ -193,12 +193,25 @@ public partial class Main
         centre /= cluster.Count;
         var ground = _npcs.Ground ?? ((x, z) => centre.Y);
         float reach = Mathf.Clamp(cluster.Max(at => at.DistanceTo(centre)) + 6f, 8f, 18f);
+        var space = GetWorld3D().DirectSpaceState;
         for (int shot = 0; shot < wides; shot++)
         {
-            float yaw = Mathf.Tau * shot / wides;
-            var at = centre + new Basis(Vector3.Up, yaw) * new Vector3(0, 0, reach);
-            at.Y = ground(at.X, at.Z) + 1.8f;
-            Vector3 aim = centre + Vector3.Up * 1.0f;
+            Vector3 aim = centre + Vector3.Up * 1.2f;
+            Vector3 at = aim;
+            for (float bearing = 0; bearing < Mathf.Tau; bearing += Mathf.Pi / 4f)
+            {
+                for (float try_ = reach; try_ >= 5f; try_ -= 1.5f)
+                {
+                    var candidate = centre + new Basis(Vector3.Up, Mathf.Tau * shot / wides + bearing) * new Vector3(0, 0, try_);
+                    candidate.Y = ground(candidate.X, candidate.Z) + 2.0f;
+                    if (space.IntersectRay(PhysicsRayQueryParameters3D.Create(aim, candidate, 1)).Count > 0)
+                        continue;
+                    at = candidate;
+                    break;
+                }
+                if (at != aim)
+                    break;
+            }
             camera.Fov = 60;
             camera.GlobalPosition = at;
             camera.LookAt(aim);
