@@ -1,0 +1,14 @@
+id: item.misc.lure_stone
+kind: item
+schema: 1
+display_key: item.misc.lure_stone.name
+tags: [item]
+name: Lure Stone
+notes: A flat river stone with a chipped edge, kept for what it does to a room - thrown past a watchman, it knocks and rolls and every eye in the place turns to the sound, and the way behind them is open (STEALTH.md 3.2). It is a stone; there is nothing magic in it, and it is spent where it lands.
+category: misc
+stack_max: 8
+weight: 0.2
+value_base: 1
+item_class: ordinary
+throw_noise_m: 12
+throw_range_m: 14

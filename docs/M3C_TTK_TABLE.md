@@ -14,11 +14,11 @@ A level-L character has put its L-1 level-up points into Might. The sword and ba
 | Rusted Sword | 2 | 11 | 5.55 | 4.10 | 6.30 | 7 | yes |
 | Rusted Sword | 3 | 12 | 4.85 | 3.35 | 5.60 | 7 | yes |
 | Hunting Bow | 1 | 10 | 7.45 | 4.85 | 11.75 | 6 | yes |
-| Hunting Bow | 2 | 11 | 6.15 | 3.55 | 9.35 | 5 | yes |
-| Hunting Bow | 3 | 12 | 4.85 | 3.55 | 7.45 | 4 | yes |
-| Unarmed | 1 | 10 | 25.05* | 14.95 | 59.90 | 29 | no (a fallback, not a weapon family) |
-| Unarmed | 2 | 11 | 16.70 | 13.35 | 24.35 | 23 | no (a fallback, not a weapon family) |
-| Unarmed | 3 | 12 | 13.95 | 8.75 | 17.85 | 20 | no (a fallback, not a weapon family) |
+| Hunting Bow | 2 | 11 | 6.15 | 3.55 | 8.65 | 5 | yes |
+| Hunting Bow | 3 | 12 | 4.85 | 3.55 | 7.35 | 4 | yes |
+| Unarmed | 1 | 10 | 23.05* | 14.80 | 59.90 | 27 | no (a fallback, not a weapon family) |
+| Unarmed | 2 | 11 | 15.00 | 12.45 | 24.25 | 22 | no (a fallback, not a weapon family) |
+| Unarmed | 3 | 12 | 13.40 | 10.60 | 15.35 | 19 | no (a fallback, not a weapon family) |
 
 ## Dying, standing still
 
@@ -26,12 +26,12 @@ A level-1 character wakes the wolves with one swing each, then stands: no guard,
 
 | Wolves and armor | Median s | Fastest s | Slowest s | In the 8-15 s band |
 |---|---|---|---|---|
-| 1 wolf, armor: none | 19.80 | 15.00 | 24.95 | no |
-| 2 wolves, armor: none | 13.50 | 10.85 | 18.50 | yes |
-| 4 wolves, armor: none | 13.25 | 10.80 | 15.15 | yes |
-| 1 wolf, armor: hide vest + cap | 20.15 | 15.40 | 26.65 | no |
-| 2 wolves, armor: hide vest + cap | 13.70 | 10.85 | 18.50 | yes |
-| 4 wolves, armor: hide vest + cap | 13.50 | 11.50 | 15.50 | yes |
+| 1 wolf, armor: none | 19.90 | 15.00 | 24.95 | no |
+| 2 wolves, armor: none | 14.55 | 10.25 | 19.95 | yes |
+| 4 wolves, armor: none | 13.00 | 10.00 | 15.05 | yes |
+| 1 wolf, armor: hide vest + cap | 20.80 | 15.40 | 26.65 | no |
+| 2 wolves, armor: hide vest + cap | 15.00 | 11.60 | 19.95 | yes |
+| 4 wolves, armor: hide vest + cap | 13.35 | 10.00 | 16.15 | yes |
 
 ## No health sponges
 
@@ -39,5 +39,5 @@ The same body authored at level 6 with a doubled bite (8-12). The owner first-up
 
 | Wolf | Level | Health | Bite | Kill with the sword, median s | Death standing still, median s |
 |---|---|---|---|---|---|
-| As authored | 2 | 50 | 4-6 | 6.80 | 19.80 |
-| Over-band variant | 6 | 50 | 8-12 | >=60 (trade lost/censored) | 4.80 |
+| As authored | 2 | 50 | 4-6 | 6.80 | 19.90 |
+| Over-band variant | 6 | 50 | 8-12 | >=60 (trade lost/censored) | 5.05 |

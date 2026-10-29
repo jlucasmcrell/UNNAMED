@@ -104,6 +104,38 @@ public class StealthVisibilityTests
     }
 
     /// <summary>
+    /// STEALTH §2.3's periphery, exactly as the doc words it: out at the edge of the cone a watcher reads <em>movement</em>, so a body standing
+    /// still beyond six metres is scenery - and inside six metres it is still a body in front of him, at the periphery's own 0.4. Getting this
+    /// wrong in the strict direction made a watchman who had only ever seen a flash of someone stop being drawn to them at three metres.
+    /// </summary>
+    [Fact]
+    public void StillBodiesInThePeriphery_AreSeenClose_AndNotFar()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+
+        double Visibility(double metres)
+        {
+            // Fifty degrees off its facing: outside the 35-degree central band and inside its 130-degree field of view, which is the band the rule is about.
+            var probe = Arena.OpenCreatures(session, session.Setup, Open, 0, new[] { (Watchman, Open.X, Open.Z, "sentinel") },
+                Quiet, startTick: LateMorning).Creature();
+            double facing = probe.Body.FacingMdeg / 1000.0 * Math.PI / 180;
+            double off = 50 * Math.PI / 180;
+            var side = (X: Open.X + Math.Sin(facing + off) * metres, Z: Open.Z + Math.Cos(facing + off) * metres);
+            var arena = Arena.OpenCreatures(session, session.Setup, side, 0, new[] { (Watchman, Open.X, Open.Z, "sentinel") },
+                Quiet, startTick: LateMorning);
+            arena.Tick(1);
+            return arena.Simulation.PlayerVisibilityTo(arena.Creature().Id);
+        }
+
+        double close = Visibility(3);
+        double far = Visibility(8);
+        Assert.True(close > 0, "three metres off, a body is a body even at the edge of the cone");
+        Assert.True(far == 0, $"eight metres off and standing still, it is scenery to the periphery (got {far:0.00})");
+        Assert.True(far < close);
+    }
+
+    /// <summary>
     /// STEALTH §2.2: the world's own light is real. The character standing at the waystation's yard lamp at night is in better light than one
     /// standing in the dark a street away - measured in the same per mille the sight check reads.
     /// </summary>

@@ -211,6 +211,9 @@ public sealed record RegionLayout(
     /// <summary>Cover volumes (STEALTH §2.3): what a body can be partly behind, and at what posture.</summary>
     public ImmutableArray<CoverVolume> Covers { get; init; } = ImmutableArray<CoverVolume>.Empty;
 
+    /// <summary>What the ground is made of, patch by patch (STEALTH §3.1): the one place a footfall's carry is decided by the floor.</summary>
+    public ImmutableArray<SurfacePatch> Surfaces { get; init; } = ImmutableArray<SurfacePatch>.Empty;
+
     /// <summary>
     /// The portals leading out of this region and into an interior space (M8 D10). Empty for every region
     /// that has no interior, which is all of them until the Barrowworks is gated on; a region's own

@@ -1,4 +1,4 @@
-﻿id: region.starting_frontier
+id: region.starting_frontier
 kind: region
 schema: 1
 display_key: region.ashen_hollow.name
@@ -152787,3 +152787,13 @@ covers:
 - { key: cover.area.den-gorge-and-rope-cave.hedge, kind: hedge, position_m: [523, 788], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
 - { key: cover.area.the-field-ruins.crates, kind: crate, position_m: [855, 757], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
 - { key: cover.area.the-field-ruins.hedge, kind: hedge, position_m: [847, 754], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+# D23 S2 - what the ground is made of (STEALTH.md 3.1). A footfall carries further on gravel and metal and less on grass and mud; the smallest
+# patch holding a point wins, so a floor inside a yard is one entry each, and everywhere unwritten is bare earth.
+surfaces:
+- { key: surface.waystation_yard, kind: gravel, box_m: [436, 714, 500, 758] }
+- { key: surface.smithy_floor, kind: stone, box_m: [455, 735, 470, 748] }
+- { key: surface.lodge_floor, kind: wood, box_m: [440, 720, 452, 732] }
+- { key: surface.cairnwold_street, kind: stone, box_m: [935, 640, 990, 690] }
+- { key: surface.blackvein_floor, kind: gravel, box_m: [420, 640, 445, 660] }
+- { key: surface.road_ruts, kind: mud, box_m: [500, 650, 700, 700] }
+- { key: surface.charwood_floor, kind: grass, box_m: [500, 740, 700, 800] }

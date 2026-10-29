@@ -1,4 +1,4 @@
-// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+﻿// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
 // (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
@@ -356,6 +356,15 @@ internal sealed record LieDowned(long Until) : InternalCommand;
 /// <summary>To <see cref="InventorySystem"/>: spend carried items by definition (an arrow at release).</summary>
 internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
 
+/// <summary>
+/// Throw something that makes a noise where it lands (STEALTH §3.2): a stone, a bottle, a coin. The landing point is the lure - an observer
+/// drawn by it walks to <em>there</em>, never to the character - and the ground it lands on decides how far the sound carries (§3.1).
+/// </summary>
+public sealed record ThrowCommand(EntityId Actor, EntityId Item, long DirXPermille = 0, long DirZPermille = 0) : GameCommand(Actor);
+
+/// <summary>Something was thrown, from the body to the place it came down: presentation draws the arc, and the ear was given a place to look.</summary>
+public sealed record Thrown(EntityId Actor, string DefId, long FromXMm, long FromZMm, long ToXMm, long ToZMm, long Tick);
+
 // ── systems ─────────────────────────────────────────────────────────────────
 
 /// <summary>
@@ -412,6 +421,58 @@ internal sealed partial class CombatSystem
             Blocking = false,
         });
         _context.Events.Publish(new AttackStarted(_player, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// Throw a stone or a bottle where the character is looking (STEALTH §3.2). What it buys is a noise at the landing spot: the ground
+    /// decides how far that carries, and every observer drawn by it walks to the stone, never to the thrower. One is spent whether it lands
+    /// in the open or against a wall.
+    /// </summary>
+    public string? Handle(ThrowCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var entry = State.Inventory.FirstOrDefault(e => e.ItemId == command.Item);
+        if (entry is null)
+            return "nothing to throw";
+        if (_context.Setup.Items.Catalog.Find(entry.DefId) is not { ThrowNoiseMm: > 0 } item)
+            return $"{entry.DefId} is not a thing to throw";
+        if (_context.ControlOn(_player) == ControlKind.Incapacitates)
+            return "you cannot move";
+        var body = State.Body;
+        // Where the character is looking, or the direction a caller gave: the arm is the build's range, the item's own overrides it, and a wall
+        // stops the throw where it stands.
+        double facing = body.FacingMdeg / 1000.0 * Math.PI / 180;
+        bool aimed = command.DirXPermille != 0 || command.DirZPermille != 0;
+        double dirX = aimed ? command.DirXPermille / 1000.0 : Math.Sin(facing);
+        double dirZ = aimed ? command.DirZPermille / 1000.0 : Math.Cos(facing);
+        double length = Math.Sqrt(dirX * dirX + dirZ * dirZ);
+        if (length < 0.001)
+            return "throw at something";
+        dirX /= length;
+        dirZ /= length;
+        long range = item.ThrowRangeMm > 0 ? item.ThrowRangeMm : 12_000;
+        long landingX = body.XMm, landingZ = body.ZMm;
+        for (long step = 1_000; step <= range; step += 1_000)
+        {
+            long x = body.XMm + (long)Math.Round(dirX * step), z = body.ZMm + (long)Math.Round(dirZ * step);
+            if (_context.Walled(body.XMm, body.ZMm, x, z))
+                break;
+            landingX = x;
+            landingZ = z;
+        }
+        _context.Dispatch(new ConsumeItem(entry.DefId, 1));
+        // The ground it lands on decides how far the sound goes (§3.1), and it is heard as a device rather than a blow.
+        long radius = Math.Max(1, (long)Math.Round(
+            item.ThrowNoiseMm * UNNAMED.Domain.Spatial.Surfaces.Factor(
+                UNNAMED.Domain.Spatial.Surfaces.At(_context.Setup.LayoutFor(State.Space).Surfaces, landingX, landingZ)),
+            MidpointRounding.AwayFromZero));
+        _context.Dispatch(new RaiseNoise(new UNNAMED.Domain.Creatures.Noise(landingX, landingZ, radius)
+        {
+            Source = UNNAMED.Domain.Creatures.SoundSource.Device,
+        }));
+        _context.Events.Publish(new Thrown(_player, entry.DefId, body.XMm, body.ZMm, landingX, landingZ, tick));
         return null;
     }
 

@@ -1,4 +1,4 @@
-// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
+﻿// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -90,6 +90,13 @@ internal sealed class SystemContext
 
     /// <summary>The movement rules the player's body moves by: the shared ones, at its people's speed, with its people's leap and wings.</summary>
     public MovementRules PlayerMovement { get; }
+
+    /// <summary>
+    /// The weather over the region, wired by the composition root once the weather system exists (STEALTH §3.4: rain masks a footfall). A
+    /// seam rather than a second copy of the front: the weather stays the weather system's, and a system that needs to know what it is doing
+    /// asks here.
+    /// </summary>
+    public Func<WeatherState>? WeatherNow { get; set; }
 
     /// <summary>An NPC's people, where the world knows it (a named NPC's <c>people_ref</c>, a role resident's slot, an adventurer); null for one it does not.</summary>
     public string? PeopleOf(string npcId) =>
@@ -253,7 +260,9 @@ internal sealed class SystemContext
     public long PlayerLightRadiusMm() =>
         State.Equipment.Values
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
-            .Max(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.LightRadiusMm ?? 0);
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.LightRadiusMm ?? 0)
+            .DefaultIfEmpty(0)
+            .Max();
 
     /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
     public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;

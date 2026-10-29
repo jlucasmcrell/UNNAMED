@@ -1,4 +1,4 @@
-// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
+﻿// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using System.Collections.Immutable;
@@ -145,7 +145,7 @@ public partial class Main
             .ToList());
         // The light gem and the noise ring, from the same numbers the creatures are read by (STEALTH §2.7).
         _hud.SetStealth(UNNAMED.Presentation.Ui.Models.LightGemModel.From(simulation.PlayerLightBand),
-            UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm),
+            UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm, simulation.PlayerSurface),
             posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched,
             UNNAMED.Presentation.Ui.Models.DetectorReadModel.From(
                 simulation.DetectorContacts.Select(c => (c.Sense, c.XMm, c.ZMm)), playerBody.XMm, playerBody.ZMm));

@@ -1,4 +1,4 @@
-// UNNAMED Content - the region layout, places, world flags and movement rules from content
+﻿// UNNAMED Content - the region layout, places, world flags and movement rules from content
 // (WORLD_ARCHITECTURE.md §4, DATA_MODEL.md §1, §4.18, §4.19; PROTOTYPE.md §3, §4.4)
 // No Godot references - pure C#
 
@@ -711,6 +711,7 @@ public static class WorldContent
                 Roads = roads.ToImmutable(),
                 Lights = Lights(map, minX, minZ, maxX, maxZ, Check),
                 Covers = Covers(map, minX, minZ, maxX, maxZ, Check),
+                Surfaces = GroundSurfaces(map, minX, minZ, maxX, maxZ, Check),
                 Opening = opening,
             };
 
@@ -861,6 +862,33 @@ public static class WorldContent
         }
         check(covers.Select(c => c.Key).Distinct(StringComparer.Ordinal).Count() == covers.Count, "WLD015", "two covers share a key");
         return covers.ToImmutable();
+    }
+
+    /// <summary>
+    /// What the ground is made of (STEALTH §3.1): <c>surfaces: [{ key, kind, box_m: [minX, minZ, maxX, maxZ] }]</c>. The smallest patch that
+    /// holds a point wins, so a wooden floor inside a gravel yard is one entry, and everywhere unwritten is bare earth.
+    /// </summary>
+    private static ImmutableArray<SurfacePatch> GroundSurfaces(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ,
+        Action<bool, string, string> check)
+    {
+        var patches = ImmutableArray.CreateBuilder<SurfacePatch>();
+        foreach (var (entry, i) in (map.ContainsKey("surfaces") ? List(map, "surfaces") : new List<object>()).Select((s, i) => (s, i)))
+        {
+            var site = entry as Dictionary<object, object> ?? throw new FormatException($"surfaces[{i}] must be a map");
+            var box = List(site, "box_m");
+            if (box.Count != 4)
+                throw new FormatException($"surfaces[{i}].box_m must be [minX, minZ, maxX, maxZ]");
+            var patch = new SurfacePatch(Text(site, "key"), Text(site, "kind"),
+                ToMm(box[0], "surfaces.box_m[0]"), ToMm(box[1], "surfaces.box_m[1]"),
+                ToMm(box[2], "surfaces.box_m[2]"), ToMm(box[3], "surfaces.box_m[3]"));
+            check(UNNAMED.Domain.Spatial.Surfaces.Kinds.Contains(patch.Kind), "WLD016", $"{patch.Key}: kind '{patch.Kind}' is not one of {string.Join(", ", Surfaces.Kinds)}");
+            check(patch.MaxXMm > patch.MinXMm && patch.MaxZMm > patch.MinZMm, "WLD016", $"{patch.Key}: box_m must be a box");
+            check(patch.MinXMm >= minX && patch.MaxXMm <= maxX && patch.MinZMm >= minZ && patch.MaxZMm <= maxZ, "WLD016",
+                $"{patch.Key} lies outside the walkable bounds");
+            patches.Add(patch);
+        }
+        check(patches.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() == patches.Count, "WLD016", "two surfaces share a key");
+        return patches.ToImmutable();
     }
 
     private static TidalWater BuildTide(Dictionary<object, object> map)    {

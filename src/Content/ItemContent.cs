@@ -1,4 +1,4 @@
-// UNNAMED Content - items, loot tables, merchants and carrying rules from content
+﻿// UNNAMED Content - items, loot tables, merchants and carrying rules from content
 // (DATA_MODEL.md §4.1-§4.3, §4.14, §4.15, §4.19; PROTOTYPE.md §4.2; M3b)
 // No Godot references - pure C#
 
@@ -218,6 +218,8 @@ public static class ItemContent
             PackKind = packKind,
             PetCreature = map.GetValueOrDefault("pet_creature") as string,
             Heritage = map.GetValueOrDefault("heritage") as string,
+            ThrowNoiseMm = map.ContainsKey("throw_noise_m") ? (long)Math.Round(Number(map, "throw_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
+            ThrowRangeMm = map.ContainsKey("throw_range_m") ? (long)Math.Round(Number(map, "throw_range_m") * 1000, MidpointRounding.AwayFromZero) : 0,
         };
     }
 

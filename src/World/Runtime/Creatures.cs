@@ -65,10 +65,13 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>Whether it has a place to look at all, and where that place is (STEALTH §2.7): the HUD's direction wedge points at this, so a
     /// body drawn by a noise is drawn toward the noise and not toward the character.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool Knows { get; init; }
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public long KnownXMm { get; init; }
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public long KnownZMm { get; init; }
 
     /// <summary>What a <see cref="MoveItemCommand"/> names the body by while it lies there.</summary>
@@ -560,9 +563,25 @@ internal sealed class CreatureSystem : IAbstractAdvance
     }
 
     /// <summary>
-    /// How far the character is heard this instant, in millimetres: the gait (a crouch and a crawl are quieter than a walk, §2.6), a swing if one
-    /// is in the air (the weapon's own, not the build's), less for a stealthy rank. Zero when nothing is moving - which is what the HUD's noise
-    /// ring draws, so the ring and the listener are the same number.
+    /// What the place covers up where a body is listening (STEALTH §3.4): rain over the region (0.3), the water it is standing at (0.5). A
+    /// room's own noise - a forge, a mill, a crowd - is not read yet, and the doc's numbers for those are the next step.
+    /// </summary>
+    private double AmbientNoise(Body ear)
+    {
+        double ambient = _context.WeatherNow?.Invoke() == WeatherState.Rain ? 0.3 : 0;
+        if (_context.Setup.SpaceFor(State.Space).WaterAt(ear.XMm, ear.ZMm) is not null)
+            ambient += 0.5;
+        return Math.Min(0.8, ambient);
+    }
+
+    /// <summary>The surface the character is standing on, which decides how far a footfall carries (STEALTH §3.1).</summary>
+    public string PlayerSurface => UNNAMED.Domain.Spatial.Surfaces.At(_context.Setup.LayoutFor(State.Space).Surfaces,
+        State.Body.XMm, State.Body.ZMm);
+
+    /// <summary>
+    /// How far the character is heard this instant, in millimetres: the gait (a crouch and a crawl are quieter than a walk, §2.6), the ground it is
+    /// made on (§3.1), a swing if one is in the air (the weapon's own, not the build's), less for a stealthy rank. Zero when nothing is moving -
+    /// which is what the HUD's noise ring draws, so the ring and the listener are the same number.
     /// </summary>
     public long PlayerNoiseRadiusMm() => NoiseRadiusMm();
 
@@ -587,6 +606,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
         if (combat.Action.Kind == ActionKind.Attack && !Ranged(combat.Action) && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, SwingNoise());
+        // The ground decides how far a step carries before the skill gets a say (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8).
+        if (radius > 0)
+            radius = Math.Max(1, (long)Math.Round(radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface), MidpointRounding.AwayFromZero));
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
@@ -821,8 +843,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         double fraction = Visibility.SeenFraction(cover, posture, cover is null ? long.MaxValue : (long)Distance(cover.XMm, cover.ZMm, player.XMm, player.ZMm));
         bool peripheral = Visibility.InPeriphery(c.Body.FacingMdeg, c.Definition.Senses.FieldOfViewMdeg, c.Body.XMm, c.Body.ZMm,
             player.XMm, player.ZMm);
-        // The periphery is the band that reads movement, and only near: a body standing still beyond six metres is scenery to it (§2.3).
-        if (peripheral && (distance > 6_000 || !_intent().IsMoving))
+        // The periphery is the band that reads movement: a body standing still beyond six metres is scenery to it, and inside six metres it is
+        // still a body in front of it, read at the periphery's own 0.4 (§2.3).
+        if (peripheral && distance > 6_000)
             return 0;
         // What the character is wearing or carrying (STEALTH.md 10, S7): a cloak's worth, applied to the physical reading above, never instead of it.
         double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouette: false,
@@ -876,7 +899,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool pounce = false;
         foreach (var noise in noises)
         {
-            if (!Perception.Hears(c.Body, hearing, noise) || (noise.XMm == c.Body.XMm && noise.ZMm == c.Body.ZMm))
+            // What the place covers up (STEALTH §3.4): rain, the creek, the forge. The sound is not quieter; it is masked.
+            var masked = noise with { RadiusMm = Perception.MaskedRadiusMm(noise, AmbientNoise(c.Body)) };
+            if (!Perception.Hears(c.Body, hearing, masked) || (noise.XMm == c.Body.XMm && noise.ZMm == c.Body.ZMm))
                 continue;
             // A call is its own kind's: a howl brings wolves, not whatever else is in earshot.
             if (noise.Call && (!c.Role.AnswersCalls || PackKind(noise.CallerKind ?? "") != PackKind(c.Definition.Id)))

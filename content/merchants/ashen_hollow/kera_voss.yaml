@@ -1,4 +1,4 @@
-id: merchant.ashen_hollow.kera_voss
+﻿id: merchant.ashen_hollow.kera_voss
 kind: merchant
 schema: 1
 display_key: merchant.ashen_hollow.kera_voss.name
@@ -9,6 +9,7 @@ stock:
   - { item_ref: item.tool.camp_kit, count: 3, price_bias: 1.0 }
   - { item_ref: item.tool.torch, count: 2, price_bias: 1.0 }
   - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
+  - { item_ref: item.misc.lure_stone, count: 12, price_bias: 1.0 }
   - { item_ref: item.weapon.hunting_bow, count: 1, price_bias: 1.0 }   # she teaches the bow; this one is hers
   # The quieter ways to shoot and throw (STEALTH §7.1, §7.11): a crossbow left with her to sell on, the bolts for it, and a brace of
   # knives for a hand that would rather not be heard at all. The road out of the Hollow is where they are wanted.
