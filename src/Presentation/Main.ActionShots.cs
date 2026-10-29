@@ -202,7 +202,8 @@ public partial class Main
                     .Where(id => simulation.Player.Inventory.Any(e => e.DefId == id)));
                 _moments.Add($"- before the cast: bank ok, rod {(hasRod ? "carried" : "MISSING")}, baits [{baits}], "
                     + $"activity {simulation.Activity?.Kind.ToString() ?? "none"}");
-                Press("fish");
+                // The key casts only when the camera's focus is water; a capture camera is fixed, so the beat submits what the key submits.
+                _session.Submit(new StartFishingCommand(simulation.PlayerId, simulation.WaterKey!));
                 _step = 1;
                 _stepFrame = _frame;
                 _stepNote = $"cast (N) at tick {tick}";
@@ -211,6 +212,11 @@ public partial class Main
             var activity = simulation.Activity;
             if (_step == 1)
             {
+                if (activity is null && _frame - _stepFrame > 20)
+                {
+                    Fail($"the cast did not start: water '{simulation.WaterKey ?? "none"}', can fish {simulation.CanFish}");
+                    return;
+                }
                 if (activity is { Kind: ActivityKind.FishCast } && _frame - _stepFrame == 14)
                     Shot("01_cast");
                 if (activity is { Kind: ActivityKind.FishWaiting } waiting)
