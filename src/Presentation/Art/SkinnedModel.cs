@@ -13,6 +13,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedModel : Node3D
 {
     private readonly HashSet<string> _states = new(StringComparer.Ordinal);
+    public IReadOnlyList<string> States => _states.Order(StringComparer.Ordinal).ToArray();
     public double IdleStartPhase { get; set; }
     private bool _idlePhaseStarted;
     private Node? _locomotion;

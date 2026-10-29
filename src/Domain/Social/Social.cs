@@ -88,6 +88,8 @@ public sealed record DialogueBark(string Text, ImmutableArray<DialogueCondition>
 /// </summary>
 public sealed record DialogueNode(string Id, string Text, ImmutableArray<DialogueChoice> Choices, string? Next, bool Once, string? NextIfExhausted)
 {
+    /// <summary>Optional authored facial direction; presentation only, with no effect on dialogue outcomes.</summary>
+    public string? Mood { get; init; }
     /// <summary>
     /// E-6: other wordings of the same line, each said instead of <see cref="Text"/> while its conditions hold; the first that holds is
     /// said. The node, its replies and where it goes are the same whichever wording is said.

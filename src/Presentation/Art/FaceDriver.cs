@@ -41,6 +41,8 @@ public sealed partial class FaceDriver : Node
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
     public bool GentleRest { get; set; }
+    /// <summary>Presentation mood supplied by a dialogue performance or creator expression preview.</summary>
+    public string? Mood { get; set; }
     private float _restingLid = .17f;
     public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
@@ -50,7 +52,7 @@ public sealed partial class FaceDriver : Node
     {
         "eyeBlinkLeft", "eyeBlinkRight", "eyeSquintLeft", "eyeSquintRight", "eyeLookInLeft", "eyeLookOutLeft", "eyeLookInRight", "eyeLookOutRight", "eyeLookUpLeft", "eyeLookUpRight", "eyeLookDownLeft", "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthSmileLeft", "mouthSmileRight", "jawOpen", "mouthClose", "browInnerUp", "viseme_sil", "viseme_PP", "viseme_FF", "viseme_TH",
         "viseme_DD", "viseme_kk", "viseme_CH", "viseme_SS", "viseme_nn", "viseme_RR", "viseme_aa", "viseme_E", "viseme_I", "viseme_O",
-        "viseme_U",
+        "viseme_U", "mouthFrownLeft", "mouthFrownRight", "browOuterUpLeft", "browOuterUpRight", "eyeWideLeft", "eyeWideRight",
     };
 
     /// <summary>
@@ -166,13 +168,15 @@ public sealed partial class FaceDriver : Node
             return null;
         }
         if (model is Node3D body && ArtLibrary.Find<Skeleton3D>(model) is { } rig
-            && rig.GetBoneCount() == 59 && rig.FindBone("Hips") >= 0 && rig.FindBone("Jaw") >= 0)
+            && rig.FindBone("Hips") >= 0 && rig.FindBone("Jaw") >= 0 && rig.FindBone("LeftEye") >= 0 && rig.FindBone("RightEye") >= 0)
         {
             driver._nativeRig = rig;
             driver._nativeBody = body;
         }
         if (driver._meshes.Any(m => m.Mesh.FindBlendShapeByName("eyeBlink_L") >= 0)) driver._restingLid = .22f;
-        driver._random.Seed = (ulong)seed.GetHashCode();
+        ulong stableSeed = 14695981039346656037UL;
+        foreach (char c in seed) stableSeed = unchecked((stableSeed ^ c) * 1099511628211UL);
+        driver._random.Seed = stableSeed;
         driver._blinkIn = driver._random.RandfRange(0.5f, 3f);
         driver._seed = seed;
         GD.Print($"UNNAMED face: {seed} attached - {driver._meshes.Count} mesh(es), " +
@@ -239,6 +243,7 @@ public sealed partial class FaceDriver : Node
         foreach (string channel in Channels)
             _targets[channel] = 0;
         RestAndGaze(delta);
+        Expression();
         Blink(delta);
         Speak(delta);
         if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
@@ -343,6 +348,36 @@ public sealed partial class FaceDriver : Node
             _blinking = 0;
     }
 
+    private void Expression()
+    {
+        // Speech and blinks layer over the expression; never freeze a face into a pose.
+        string mood = Mood ?? (_line?.TrimEnd().EndsWith('?') == true ? "curious" : "neutral");
+        switch (mood)
+        {
+            case "warm": case "happy":
+                _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = .35f;
+                _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = .18f;
+                break;
+            case "sad": case "worried":
+                _targets["browInnerUp"] = .35f;
+                _targets["mouthFrownLeft"] = _targets["mouthFrownRight"] = .25f;
+                break;
+            case "stern": case "angry":
+                _targets["browDownLeft"] = _targets["browDownRight"] = .35f;
+                _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = .22f;
+                break;
+            case "surprised":
+                _targets["browInnerUp"] = .45f;
+                _targets["browOuterUpLeft"] = _targets["browOuterUpRight"] = .3f;
+                _targets["eyeWideLeft"] = _targets["eyeWideRight"] = .22f;
+                break;
+            case "curious":
+                _targets["browInnerUp"] = .25f;
+                _targets["browOuterUpRight"] = .15f;
+                break;
+        }
+    }
+
     private void Speak(double delta)
     {
         if (_line is null)
@@ -380,7 +415,7 @@ public sealed partial class FaceDriver : Node
             _ => ("viseme_sil", 0f),
         };
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
-        _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f;
+        _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f * (recording is { } sounding ? Mathf.Clamp(sounding.Jaw * 8, 0, 1) : 1);
         _targets["jawOpen"] = recording?.Jaw ?? jaw * 0.6f;
         if (c is '.' or ',' or '!' or '?' or '-' or ';' or ':')
             _spoken += delta * 2.5;

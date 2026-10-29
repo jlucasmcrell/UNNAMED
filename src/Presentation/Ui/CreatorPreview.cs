@@ -52,6 +52,14 @@ public sealed partial class CreatorPreview : TextureRect
     private float _shownZoom;
     private float _eyes = Avatar.EyeHeight;
     private bool _dragging;
+    private string _expression = "neutral";
+    public void Expression(string mood)
+    {
+        _expression = mood;
+        _figure?.SetExpression(mood);
+    }
+    public IReadOnlyList<string> PerformanceClips => _figure?.PerformanceClips ?? Array.Empty<string>();
+    public void Perform(string? clip) => _figure?.Perform(clip);
 
     /// <summary>Whether the body shown wears cloth the shirt and trouser colours dye (not the frontier outfit, which keeps its own).</summary>
     public bool WearsDyedCloth => _figure is not null && PeopleAppearance.WearsDyedCloth(_figure);
@@ -135,6 +143,7 @@ public sealed partial class CreatorPreview : TextureRect
         foreach (var other in _figures.Values)
             other.Visible = other == figure;
         _figure = figure;
+        figure.SetExpression(_expression);
         if (_poses[figure] is { } pose)
             pose.ArmSplayDegrees = armSplay;
         figure.WearEquipment(worn);

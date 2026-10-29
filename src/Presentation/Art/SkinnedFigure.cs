@@ -77,6 +77,20 @@ public sealed partial class SkinnedFigure : Figure
         }
     }
     public override void SetIdleRole(string? role) => _idleRole = role;
+    public override void SetExpression(string? mood) { if (_face is not null) _face.Mood = mood; }
+    private string? _activity;
+    public override void SetActivity(string? activity, string? role) => _activity = Ui.Models.CharacterActivity.Clip(activity, role);
+    private string? _performance;
+    private double _performanceLeft;
+    public override IReadOnlyList<string> PerformanceClips => _model.States;
+    public override bool Perform(string? clip)
+    {
+        if (clip is not null && !_model.Has(clip)) return false;
+        _performance = clip;
+        _performanceLeft = clip is null ? 0 : _model.Length(clip);
+        if (clip is not null) _model.Play(clip, .2f, 1f, true);
+        return true;
+    }
     public override void SetGaze(Vector3? target) => _face?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
     public override void SetMovementDirection(Vector3 direction) { if (direction.LengthSquared() > .001f) _moveDirection = direction.Normalized(); _hasDirection = true; }
     private double _striking;
@@ -509,6 +523,13 @@ public sealed partial class SkinnedFigure : Figure
             m.Play("death", 0.25f);
             return;
         }
+        if (_performance is { } performance && speed < .25f && !_airborne && !_stance.Ready && _stance.Phase == CombatPhase.Idle)
+        {
+            _performanceLeft -= delta;
+            if (_performanceLeft > 0) { m.Play(performance, .2f); return; }
+            _performance = null;
+        }
+        else _performance = null;
         if (speed < .25f && _restPose is { } resting)
         {
             _idles.Interrupt();
@@ -624,6 +645,11 @@ public sealed partial class SkinnedFigure : Figure
         if (_talking && speed < 0.3f && m.Has("talk"))
         {
             m.Play("talk", 0.3f);
+            return;
+        }
+        if (!_talking && speed < .25f && _activity is { } activity && m.Has(activity))
+        {
+            m.Play(activity, .3f);
             return;
         }
         // Crouched, a body with crouch clips plays them (a crouched walk is authored at 1.6 m/s, the simulation's crouched pace).

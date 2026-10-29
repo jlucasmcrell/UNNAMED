@@ -46,6 +46,14 @@ public class SocialContentTests
     [Fact]
     public void InnRestCannotPromiseAWorldTimeSkip() =>
         AssertRefused("dialogue/ashen_hollow/renn_vale.yaml", "command: rent_room }", "command: rent_room, hour: 6 }", "without choosing a world hour");
+
+    [Fact]
+    public void DialogueMoodIsAuthoredAndRejectsUnknownDirection()
+    {
+        var dialogues = SocialContent.BuildDialogues(Load(Path.Combine(RepoPaths.Root(), "content")));
+        Assert.Equal("curious", dialogues["dialogue.ashen_hollow.sel_arien"].Nodes["greet"].Mood);
+        AssertRefused("dialogue/ashen_hollow/sel_arien.yaml", "mood: curious", "mood: invisible", "unknown facial mood");
+    }
     [Theory]
     [InlineData("sex: f\n", "")]
     [InlineData("sex: f", "sex: unknown")]

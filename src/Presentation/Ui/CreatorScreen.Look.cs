@@ -118,6 +118,24 @@ public partial class CreatorScreen
         }
         _body.AddChild(OptionSection(CreatorChoice.Face, "Face", "a HumGen starting face; choosing one resets the face sliders to it"));
         _body.AddChild(SliderSection("face", "Features", "age, skin and proportions"));
+        var expressions = UiKit.Section("Expression preview");
+        foreach (string mood in DialoguePerformance.Expressions)
+        {
+            string expression = mood;
+            expressions.AddChild(UiKit.Action(char.ToUpperInvariant(mood[0]) + mood[1..],
+                () => _preview.Expression(expression), compact: true, id: "creator.expression." + mood));
+        }
+        _body.AddChild(expressions);
+        if (_preview.PerformanceClips is { Count: > 0 } motions)
+        {
+            var section = UiKit.Section("Animation preview");
+            var choices = new OptionButton();
+            choices.AddItem("Rest");
+            foreach (string clip in motions) choices.AddItem(clip.Replace('_', ' '));
+            choices.ItemSelected += index => _preview.Perform(index == 0 ? null : motions[(int)index - 1]);
+            section.AddChild(choices);
+            _body.AddChild(section);
+        }
     }
 
     /// <summary>The faces baked for this body type, each its own body: choosing one draws that body, its head and hair.</summary>

@@ -17,6 +17,10 @@ public abstract partial class Figure : Node3D
     /// <summary>How far into a crouch the body is drawn, 0 standing to 1 crouched.</summary>
     public virtual void SetGaze(Vector3? worldTarget) { }
     public virtual void SetIdleRole(string? role) { }
+    public virtual void SetExpression(string? mood) { }
+    public virtual void SetActivity(string? activity, string? role) { }
+    public virtual IReadOnlyList<string> PerformanceClips => Array.Empty<string>();
+    public virtual bool Perform(string? clip) => false;
     /// <summary>A furniture idle, or null to resume movement; false if this cast lacks the authored clip.</summary>
     public virtual bool SetRestPose(string? clip) => false;
     /// <summary>The current pose's support point, in world space, for seating on furniture.</summary>

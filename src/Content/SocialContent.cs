@@ -284,8 +284,11 @@ public static class SocialContent
         // A variant with nothing to ask would always be said, and the node's own text never.
         if (variants.FirstOrDefault(v => v.Conditions.IsEmpty) is { } always)
             throw new FormatException($"{where}: variant {variants.IndexOf(always) + 1} has no conditions, so the line's own text is never said");
+        string? mood = map.GetValueOrDefault("mood") as string;
+        if (mood is not null && mood is not ("neutral" or "warm" or "curious" or "worried" or "stern" or "sad" or "surprised"))
+            throw new FormatException($"{where}: unknown facial mood '{mood}'");
         return new DialogueNode(nodeId, Text(map, "text"), choices, next, map.GetValueOrDefault("once") as string == "true",
-            map.GetValueOrDefault("next_if_exhausted") as string) { Variants = variants };
+            map.GetValueOrDefault("next_if_exhausted") as string) { Variants = variants, Mood = mood };
     }
 
     private static DialogueChoice Choice(string where, Dictionary<object, object> map, ContentLoader loader)

@@ -41,6 +41,7 @@ public sealed record ServiceOpened(string NpcId, string Service, long Tick);
 /// </summary>
 public sealed record ConversationView(string NpcId, string DialogueId, string NodeId, string Text, ImmutableArray<ReplyView> Replies)
 {
+    public string? Mood { get; init; }
     public string LineId { get; init; } = LineIds.Node(DialogueId, NodeId);
 }
 
@@ -164,7 +165,7 @@ internal sealed class DialogueSystem : IDialogueFacts
             ? ImmutableArray.Create(new ReplyView(Continue, node.Next is null ? "(leave)" : "(go on)"))
             : node.Choices.Where(c => DialogueRules.Offered(c, dialogue.Id, this)).Select(c => new ReplyView(c.Id, c.Text)).ToImmutableArray();
         var line = DialogueRules.Line(node, dialogue.Id, this);
-        return new ConversationView(open.NpcId, open.DialogueId, open.NodeId, line.Text, replies) { LineId = line.LineId };
+        return new ConversationView(open.NpcId, open.DialogueId, open.NodeId, line.Text, replies) { LineId = line.LineId, Mood = node.Mood };
     }
 
     private void GoTo(Conversation open, DialogueDefinition dialogue, string? next, long tick)

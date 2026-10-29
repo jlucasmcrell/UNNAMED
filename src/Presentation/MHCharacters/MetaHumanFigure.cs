@@ -50,6 +50,7 @@ public sealed partial class MetaHumanFigure : Figure
     private string _identity = "";
     private string? _sex;
     public override void Say(string? line) => _faceDriver?.Say(line);
+    public override void SetExpression(string? mood) { if (_faceDriver is not null) _faceDriver.Mood = mood; }
     public override Vector3? RestContact
     {
         get

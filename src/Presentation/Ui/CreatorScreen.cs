@@ -199,6 +199,7 @@ public partial class CreatorScreen : CanvasLayer
 
     /// <summary>Stand the preview camera at a framing, as the framing buttons do (the creator shots).</summary>
     public void Frame(float zoom) => _preview.Frame(zoom);
+    public void PreviewExpression(string mood) => _preview.Expression(mood);
 
     /// <summary>Turn the body, as the turn buttons do (the creator shots).</summary>
     public void Turn(float radians) => _preview.Turn(radians);

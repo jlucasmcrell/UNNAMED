@@ -22,7 +22,8 @@ public partial class Main
         {
             // A race-look plan dresses its own figures, so it has no comparison cast to check against.
             if (_avatar is SkinnedFigure comparison && VisualOptions.ComparisonCast is not null
-                && OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is not { Length: > 0 })
+                && OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is not { Length: > 0 }
+                && OS.GetEnvironment("OTHERREACH_GATE_D") is not { Length: > 0 })
             {
                 bool humgen = VisualOptions.ComparisonCast == "humgen";
                 using var cast = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(humgen ? "res://Art/humgen_cast.json" : "res://Art/mpfb_cast.json"));
@@ -44,6 +45,12 @@ public partial class Main
             AddChild(camera);
             source.GetNode<OmniLight3D>("CharacterFill").Reparent(camera, false);
             camera.MakeCurrent();
+            if (OS.GetEnvironment("OTHERREACH_GATE_D") is { Length: > 0 } gateD)
+            {
+                await RunGateDReview(directory, camera, gateD);
+                CaptureQuit.At(this);
+                return;
+            }
             // A plan for the race-look review is answered here, before the people-specific branches: it dresses its own figures
             // and must not depend on the comparison cast, which throws for a creator body the cast does not list.
             if (OS.GetEnvironment("OTHERREACH_RACE_LOOKS_PLAN") is { Length: > 0 })

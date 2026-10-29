@@ -21,6 +21,14 @@ public partial class VoicePlayer : Node
     private string? _lineId;
     private int _request;
     private bool _pending;
+    private readonly Dictionary<AudioStream, (double Step, float[] Jaw)> _envelopes = new();
+
+    private float Jaw(AudioStream stream, double position, float peakDb)
+    {
+        if (!_envelopes.TryGetValue(stream, out var envelope)) return VoiceRules.SpeechJaw(peakDb);
+        int at = (int)Math.Max(0, position / envelope.Step);
+        return at < envelope.Jaw.Length ? envelope.Jaw[at] : 0;
+    }
 
     public void Load(string? assetRoot) => _assetRoot = assetRoot;
 
@@ -33,7 +41,17 @@ public partial class VoicePlayer : Node
         int bus = AudioServer.GetBusIndex(AudioMix.Voice);
         float peak = Math.Max(AudioServer.GetBusPeakVolumeLeftDb(bus, 0), AudioServer.GetBusPeakVolumeRightDb(bus, 0));
         return (_line.Playing ? _line.GetPlaybackPosition() : _pending ? 0 : stream.GetLength(),
-            stream.GetLength(), _line.Playing ? VoiceRules.SpeechJaw(peak) : 0);
+            stream.GetLength(), _line.Playing ? Jaw(stream, _line.GetPlaybackPosition(), peak) : 0);
+    }
+
+    /// <summary>A world speaker uses its own playback clock, including concurrent barks.</summary>
+    public (double Position, double Duration, float Jaw)? Speech(AudioStreamPlayer3D? speaker, AudioStream? expected)
+    {
+        if (speaker is null || expected is null || !GodotObject.IsInstanceValid(speaker) || speaker.Stream != expected) return null;
+        int bus = AudioServer.GetBusIndex(AudioMix.Voice);
+        float peak = Math.Max(AudioServer.GetBusPeakVolumeLeftDb(bus, 0), AudioServer.GetBusPeakVolumeRightDb(bus, 0));
+        return (speaker.Playing ? speaker.GetPlaybackPosition() : expected.GetLength(), expected.GetLength(),
+            speaker.Playing ? Jaw(expected, speaker.GetPlaybackPosition(), peak) : 0);
     }
 
     public override void _Ready()
@@ -111,6 +129,15 @@ public partial class VoicePlayer : Node
         if (VoiceRules.VoicePath(_assetRoot, lineId) is { } path && File.Exists(path))
         {
             stream = AudioStreamOggVorbis.LoadFromFile(path);
+            if (stream is not null && File.Exists(path + ".envelope.json"))
+            {
+                using var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(path + ".envelope.json"));
+                double step = json.RootElement.GetProperty("step_seconds").GetDouble();
+                float[] jaw = json.RootElement.GetProperty("jaw").EnumerateArray().Select(value => value.GetSingle()).ToArray();
+                if (!double.IsFinite(step) || step <= 0 || jaw.Any(value => !float.IsFinite(value) || value < 0 || value > 1))
+                    throw new InvalidDataException("Invalid voice envelope: " + path);
+                _envelopes[stream] = (step, jaw);
+            }
             if (stream is null)
                 GD.PushWarning($"UNNAMED voice: {path} would not load");
         }

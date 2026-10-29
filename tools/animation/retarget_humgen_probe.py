@@ -201,6 +201,7 @@ try:
             assert len(gltf["skins"][0]["joints"]) == 59 and gltf.get("animations")
             state["clips"].append({"state": key, "source": sid + "/" + todo[key], "source_asset": original.get_path_name(),
                                    "asset": animation.get_path_name(), "path": str(path), "seconds": animation.sequence_length,
+                                   "loop": todo[key].lower().endswith("_loop") or key in ("idle", "idle_look", "walk", "run", "sprint", "talk", "sit", "sit_talk", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
                                    "source_rate_scale": original.get_editor_property("rate_scale")})
             save("EXPORTED", current=key)
     assert len(state["clips"]) == len(selected), "Not every selected source was exported"

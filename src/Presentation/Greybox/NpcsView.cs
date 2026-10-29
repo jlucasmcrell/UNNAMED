@@ -108,7 +108,8 @@ public partial class NpcsView : Node3D
                 string speakerId = npc.Id;
                 foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
                     face.RecordedSpeech = () => _activeSimulation?.Conversation is { } active && active.NpcId == speakerId
-                        ? Voice?.Speech(active.LineId) : null;
+                        ? Voice?.Speech(active.LineId) : _barks.TryGetValue(speakerId, out var speaking)
+                            ? Voice?.Speech(speaking.Voice, speaking.Line) : null;
                 _instances[npc.Id] = instance;
                 // WHERE THE BODY ACTUALLY IS. Coverage.Resolved above fires when the FIGURE IS CREATED, not when it
                 // is on screen, so "person 5 requested 5 resolved" was never evidence that anybody was visible - and
@@ -143,10 +144,14 @@ public partial class NpcsView : Node3D
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetIdleRole(npc.Role);
+            figure.SetActivity(npc.Activity, npc.Role);
             bool held = npc.Id == FoldEcho.Held && simulation.Barriers.Any(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
             figure.SetPosture(held, false);
             figure.SetTalking(npc.Talking && !held);
-            figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
+            string? spoken = simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta);
+            figure.Say(spoken);
+            figure.SetExpression(Ui.Models.DialoguePerformance.Mood(spoken,
+                simulation.Conversation is { } performance && performance.NpcId == npc.Id ? performance.Mood : null));
             var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);
             bool resting = figure.SetRestPose(held && VisualOptions.ComparisonCast == "humgen" ? "captive_kneel" : furniture?.Clip);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);

@@ -174,7 +174,7 @@ func build() -> void:
      animation.track_set_key_value(track,key,Vector3(0,value.y,0))
    animation.track_set_path(track,NodePath(".:"+bone_name))
   assert(finger_error<.1,"Excluded fingers changed: "+entry.state+" "+str(finger_error))
-  animation.loop_mode=Animation.LOOP_LINEAR if entry.state in loops else Animation.LOOP_NONE
+  animation.loop_mode=Animation.LOOP_LINEAR if entry.get("loop",entry.state in loops) else Animation.LOOP_NONE
   library.add_animation(entry.state,animation)
   sources[entry.state]=entry.source
   if entry.has("action_phases"):
