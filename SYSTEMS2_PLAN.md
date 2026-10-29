@@ -343,3 +343,17 @@ So the remaining questions are narrow and ordered:
    probe to add next is _art.Why(\"landmark_ph_waystone_a\", blocker.Id) beside the look, which prints the reason the
    library gives).
 The diagnostic is removed again; the tree builds clean.
+
+### Round 20 - the binding resolves in one build and not in another, both named "Hollow"
+The fuller probe printed the view name and the library's own verdict:
+GRAVEDIAG view=Hollow id=grave_marker_halda look=landmark_ph_waystone_a why=ok, then, for the same ids and the same
+view name, look=NONE. So (a) the prefix binding and the model are both fine, and (b) **two different ArtBindings
+objects** serve two builds of a view named "Hollow" - the second has no structure_prefixes at all.
+Adding the prefix to the *base* src/Presentation/Art/art_bindings.json as well (committed) did **not** change the
+second build, which rules out overlay merging entirely: the second view is bound to a bindings object built some other
+way. The frames the audit keeps are the second build's, which is why they never change.
+Next: print the provenance of _bindings at each ArtStructure call (its file path and how many prefixes it holds, if
+the type exposes them), then fix that construction path. That is one instrumented run, and it ends this.
+Housekeeping this round: the probe is gone, ArtStructure restored to its committed form, content/graves (the moved
+duplicates) removed, content lint 0, and the audit stands at **67 placed, 110 missing, 78 unmodelled across 9 areas**
+with no HOOK.DEATH.GRAVE warning anywhere.
