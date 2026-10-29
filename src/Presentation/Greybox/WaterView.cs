@@ -136,10 +136,10 @@ public static class WaterView
         // Close enough to the bank to be judged: fine chop rather than one ripple across the body, a soft sheen rather than a mirror,
         // and only a thread of foam at the waterline.
         material.SetShaderParameter("ripple_scale", 1.9f);
-        material.SetShaderParameter("ripple_strength", 0.16f);
+        material.SetShaderParameter("ripple_strength", 0.25f);
         material.SetShaderParameter("refraction", 0.008f);
-        material.SetShaderParameter("roughness_floor", 0.22f);
-        material.SetShaderParameter("specular_floor", 0.32f);
+        material.SetShaderParameter("roughness_floor", 0.26f);
+        material.SetShaderParameter("specular_floor", 0.22f);
         material.SetShaderParameter("foam_m", 0.08f);
         material.SetShaderParameter("foam_amount", 0.35f);
         material.SetShaderParameter("edge_fade", 1f);
@@ -400,7 +400,15 @@ uniform float foam_amount = 1.0;
 
 varying vec3 world_pos;
 
-float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123); }
+// A hash without the sine. `fract(sin(dot(p, k)) * 43758.5)` is the usual one-liner and it is WRONG at this world's coordinates:
+// the ripple field is sampled at world metres times a scale, and the fbm's fourth octave pushes that into the thousands, where an fp32
+// ULP is most of a radian and the sine stops varying from cell to cell - every noise cell comes out flat, and the surface reads as
+// pale rectangular blocks (the owner's report, 2026-10-29 02:00). Dave Hoskins' hash keeps its resolution there.
+float hash(vec2 p) {
+    vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+    p3 += dot(p3, p3.yzx + 33.33);
+    return fract((p3.x + p3.y) * p3.z);
+}
 float vnoise(vec2 p) {
     vec2 i = floor(p);
     vec2 f = fract(p);
