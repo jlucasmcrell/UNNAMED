@@ -253,7 +253,9 @@ internal sealed class SystemContext
     public long PlayerLightRadiusMm() =>
         State.Equipment.Values
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
-            .Max(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.LightRadiusMm ?? 0);
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.LightRadiusMm ?? 0)
+            .DefaultIfEmpty(0)
+            .Max();
 
     /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
     public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;

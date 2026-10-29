@@ -65,10 +65,13 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>Whether it has a place to look at all, and where that place is (STEALTH §2.7): the HUD's direction wedge points at this, so a
     /// body drawn by a noise is drawn toward the noise and not toward the character.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
     public bool Knows { get; init; }
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public long KnownXMm { get; init; }
 
+    [System.Text.Json.Serialization.JsonIgnore]
     public long KnownZMm { get; init; }
 
     /// <summary>What a <see cref="MoveItemCommand"/> names the body by while it lies there.</summary>
