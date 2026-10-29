@@ -190,7 +190,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                 stencilled++;
             }
         }
-        if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1")
+        if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1" || OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
             GD.Print($"creator stencil: {part}, {stencilled} surface(s) stencilled, mask {(mask is null ? "none" : "set")}");
     }
 
