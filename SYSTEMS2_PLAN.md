@@ -89,3 +89,26 @@ ode_tier on the same list
 returns >0, so the hidden scalar is not what the audit compares. Next diagnostic is to print the parsed hidden
 value for one kind (a two-line temporary log in WorldFacts), not to guess again. Content scope was tried first and
 abandoned: the report prints no content-scope section, so a content hook would have been silently invisible.
+
+### Round 4 result
+**Farm pipeline (for every system's clip).** C:\Otherreach_Farm\builds\sys2_tiers\ now holds a packaged build of this
+line's exe (copied from ds_d18_bv2), this branch's **content** (744 files), and a **17.9 GB art root** copied in as
+rt\ so it travels with the build (the runner mirrors only the build folder to the 6900XT). udit.cmd runs the
+visual audit against %~dp0art and %~dp0game\content, and jobs\sys2_tiers01.json was dropped; the 6900XT picked it
+up (status unning sys2_tiers01). The mirror of 17.9 GB is the slow part and was still running at the end of the
+round; the result has not been read yet. Note the past ds_d18_bv runs drew **0 assets** - the farm had no art root -
+so this is the first farm job here that can produce real-art frames at all.
+
+**System 2, carcass and skinning - first half landed** (commit c1235a65), lint 0:
+- skill.skinning and skill.hunting; item.material.pelt_grey_wolf, item.material.meat_raw;
+  esource.carcass.grey_wolf; node kinds 
+ode.carcass.grey_wolf and 
+ode.carcass.deer, both
+  harvest_skill: skill.skinning, two charges, no respawn.
+- HOOK.NODE.CARCASS now counts a carcass node, and two are placed in the Foldscar (old_carcass_deer,
+  old_carcass_wolf). **foldscar: 10 placed / 8 missing / 9 unmodelled** (was 9 / 8 / 10); CARCASS is placed there.
+
+**System 2 still owed:** a HOOK.STATION.TANNING surfaced as a real hook once a carcass exists - a tanning rack is the
+natural other half and needs a station kind; the carcass nodes need art bindings (no carcass prop exists in the art
+root - the library has dead trees, not bodies); the **kill-to-carcass wire** is not built, so authored carcasses are
+the only ones that exist; and the clip waits on the farm.
