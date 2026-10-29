@@ -960,6 +960,9 @@ public partial class Main : Node3D
             _interiors[_session.Simulation!.ActiveLayout.SpaceId].Creatures = _creatures;
             _creatures.Bind(_art, bindings);
             _interior!.AddChild(_creatures);
+            // The ring's figures exist from the moment the interior does: a frozen capture (and the audit's target
+            // finder) must not have to wait for a frame to pass before a creature of this space is a node.
+            _creatures.Draw(_session.Simulation!, 0, 0);
             if (_sounds is not null && IsInstanceValid(_sounds))
             {
                 ulong audioStarted = Time.GetTicksUsec();
