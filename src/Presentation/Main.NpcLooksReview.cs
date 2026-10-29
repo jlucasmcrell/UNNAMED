@@ -1,4 +1,4 @@
-using Godot;
+﻿using Godot;
 using System.Collections.Immutable;
 using System.Globalization;
 using System.Text.Json;
@@ -176,6 +176,13 @@ public partial class Main
                         await Frames(.2);
                         await Rcd3Shot(folder,person.Id+"_"+side.Item1);
                     }
+                    // A centre-back close-up fills with the wings. Keep it, plus a wider rear
+                    // three-quarter frame that exposes the garment around their roots.
+                    camera.Fov=43;
+                    camera.GlobalPosition=torso-figure.GlobalBasis.Z*1.8f+figure.GlobalBasis.X+Vector3.Up*.35f;
+                    camera.LookAt(torso);
+                    await Frames(.2);
+                    await Rcd3Shot(folder,person.Id+"_back_context");
                 }
                 if (root.TryGetProperty("motion_clips",out var clips))
                     foreach(var clip in clips.EnumerateArray())
