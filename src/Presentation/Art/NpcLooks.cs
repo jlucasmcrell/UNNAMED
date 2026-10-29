@@ -23,8 +23,25 @@ public static class NpcLooks
     /// </summary>
     private const int GenerationStep = 37;
 
-    /// <summary>The one outfit and footwear a resident is drawn in, dyed per person (<see cref="LookSwatches.Shirts"/> and trousers).</summary>
-    private const string ResidentOutfit = "outfit.casual.smart_casual", ResidentFootwear = "footwear.outdoor.garden_boot";
+    /// <summary>The footwear a resident is drawn in, dyed per person (<see cref="LookSwatches.Shirts"/> and trousers).</summary>
+    private const string ResidentFootwear = "footwear.outdoor.garden_boot";
+
+    /// <summary>
+    /// The wardrobe a role wears. The HumGen wardrobe is modern day-wear, so each role takes the set whose silhouette reads as its
+    /// trade: the rugged outdoor set for the people who work outside, the work smock for the cook and the smith, the long coat for a
+    /// steward and the scholar's robe for the scholar. The role is the slot id's last segment (`routine.<town>.<role>`).
+    /// </summary>
+    public static string RoleOutfit(string role) => role switch
+    {
+        "guard" or "hunter" or "trapper" or "miner" or "woodcutter" or "herder" => "outfit.casual.weekend_warrior",
+        "cook" or "smith" or "craftsperson" or "fletcher" or "herbalist" => "outfit.extra_outfits_pack.lab_tech",
+        "steward" or "quartermaster" or "guide" => "outfit.winter.frosty_evening",
+        "scholar" => "outfit.extra_outfits_pack.kimono",
+        _ => "outfit.casual.stylish_casual",
+    };
+
+    /// <summary>The role a slot id names, which is what its wardrobe is chosen from.</summary>
+    public static string RoleOf(string slotId) => slotId[(slotId.LastIndexOf('.') + 1)..];
 
     /// <summary>The channel every generated look is addressed by: the settlement, the slot and the arrival, and nothing else.</summary>
     private const string Channel = "npc_looks";
@@ -41,7 +58,7 @@ public static class NpcLooks
             throw new InvalidOperationException($"the catalogue offers no face to a '{sex}' resident");
         var channel = RngChannel.Open(0, default, Channel, $"{settlement}/{slotId}#{generation}");
         var race = catalogue.Race(people);
-        var look = data.Randomize(new CharacterAppearance(race?.MidStatureMm ?? 1750, null, null, null, ResidentOutfit, ResidentFootwear),
+        var look = data.Randomize(new CharacterAppearance(race?.MidStatureMm ?? 1750, null, null, null, RoleOutfit(RoleOf(slotId)), ResidentFootwear),
             catalogue, people, sex, channel.UInt64(0));
         // The face is assigned: a town's slots take consecutive presets, and adding a constant to a position is a bijection, so a town of
         // at most a dozen slots gives no two of them one preset (41 faces for a woman, 42 for a man).

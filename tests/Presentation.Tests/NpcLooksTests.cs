@@ -96,7 +96,7 @@ public class NpcLooksTests
             var look = Resident("routine.ashen_hollow.slot", people, sex, 1);
             Assert.Null(look.Problem());
             Assert.Equal(look, Shipped.Data.Constrain(look, Shipped.Catalogue, people));
-            Assert.Equal("outfit.casual.smart_casual", look.Outfit);
+            Assert.Equal(Art.NpcLooks.RoleOutfit("slot"), look.Outfit);
             Assert.Equal("footwear.outdoor.garden_boot", look.Footwear);
             Assert.InRange(look.StatureMm, Shipped.Catalogue.Race(people)!.MinStatureMm, Shipped.Catalogue.Race(people)!.MaxStatureMm);
         }

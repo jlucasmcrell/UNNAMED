@@ -18,7 +18,7 @@ appearance:
   stature_cm: 178
   face: face.m.caucasian_presets.caucasian_3
   facial_hair: facehair.other.stubble_short
-  outfit: outfit.casual.smart_casual
+  outfit: outfit.extra_outfits_pack.lab_tech
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 52

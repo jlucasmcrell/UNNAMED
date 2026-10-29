@@ -17,7 +17,7 @@ people_ref: people.kal   # content bible §9
 appearance:
   stature_cm: 160
   face: face.f.caucasian_presets.caucasian_4
-  outfit: outfit.casual.smart_casual
+  outfit: outfit.extra_outfits_pack.lab_tech
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 44
