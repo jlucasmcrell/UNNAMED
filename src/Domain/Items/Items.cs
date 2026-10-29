@@ -318,6 +318,18 @@ public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType
     /// </summary>
     public double SneakMultiplier { get; init; } = 1.0;
 
+    /// <summary>
+    /// How far this weapon's own swing carries, from <c>swing_noise_m</c> (STEALTH §3.3, §5.1): a knife's arm moves quietly, a great
+    /// sword does not. Zero takes <c>config.creature_behaviour.noise_m.swing</c>.
+    /// </summary>
+    public long SwingNoiseMm { get; init; }
+
+    /// <summary>
+    /// How far this weapon is heard <em>at the shooter</em>, from <c>shot_noise_m</c> (STEALTH §7.8): a bow's twang, a crossbow's thunk,
+    /// a thrown blade's almost nothing. Zero takes the build's shot radius. It is never the melee swing radius - a shot is a shot.
+    /// </summary>
+    public long ShotNoiseMm { get; init; }
+
     public bool Ranged => DrawMs > 0;
 }
 

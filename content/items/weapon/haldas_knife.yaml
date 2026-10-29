@@ -18,5 +18,6 @@ reach: 0.9
 hands: one
 skill_ref: skill.one_hand_blade
 sneak_multiplier: 3.0
+swing_noise_m: 2         # a skinning knife is quiet in the hand (STEALTH §5.1)
 durability_max: 160
 repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }

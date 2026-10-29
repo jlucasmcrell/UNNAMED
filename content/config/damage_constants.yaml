@@ -19,7 +19,14 @@ dodge: { stamina: 20, iframes_s: 0.25, recovery_s: 0.25, distance_m: 2.5 }
 stamina: { regen_per_s: 20, regen_delay_s: 1.0, sprint_per_s: 10, attack_default: 8 }
 health: { regen_per_s: 1, out_of_combat_s: 8 }
 melee: { arc_deg: 90, windup_percent: 40, active_percent: 20 }   # a swing: windup, then the active window, then recovery
-ranged: { range_m: 40, recovery_s: 0.3 }                         # a shot resolves at release; recovery is the nock
+ranged:                            # a shot resolves at release; recovery is the nock (STEALTH §7.1-§7.2)
+  range_m: 40
+  recovery_s: 0.3
+  hit_zones:                       # where a shot can be put, and what the place is worth: the default for every body without its own
+    head: { multiplier: 2.0 }      # a skull is a skull: the same head shot that kills a person guts a deer
+    torso: { multiplier: 1.0 }     # the mass: the plain shot
+    limbs: { multiplier: 0.75 }    # a hit the body can carry
+sneak_cap: 6.0                     # no single shot multiplies by more than this, however many multipliers it earns (STEALTH §7.1)
 unarmed: { damage: [2, 3], damage_type: physical_blunt, reach: 1.2, attack_time: 0.6, stamina_cost: 4 }
 creature_leash_m: 40               # a creature gives up a chase this far from home
 death: { effect_ref: effect.weakened, respawn_delay_s: 4 }   # PROTOTYPE.md §5 step 7: return at the Ashen Waystone (content bible §18), weakened for 60 s; the body lies 4 s first (the death clip, then the fade)

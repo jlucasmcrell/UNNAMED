@@ -1,4 +1,4 @@
-﻿// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
+// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
 // behaviour roles, skill passives and item uses (DATA_MODEL.md Â§4.4, Â§4.7, Â§4.8, Â§4.17, Â§4.19, Â§4.21; PROTOTYPE.md Â§4.1,
 // Â§4.4; M3c, M3d)
 // No Godot references - pure C#
@@ -94,7 +94,16 @@ public static class CombatContent
         if (rules.Suspicious is <= 0 or >= Perception.Full || rules.HeardNoise < rules.Suspicious || rules.HeardCall < rules.HeardNoise
             || rules.HeardCall >= Perception.Full || rules.SightPerSecondAtRange <= 0 || rules.SightPerSecondClose < rules.SightPerSecondAtRange)
             throw new FormatException($"awareness needs 0 < suspicious <= heard_noise <= heard_call < {Perception.Full}, and sight rates rising with closeness");
-        var sounds = new NoiseRules(Mm(noise, "walk"), Mm(noise, "run"), Mm(noise, "sprint"), Mm(noise, "swing"), Mm(noise, "blow"), Mm(noise, "call"));
+        var sounds = new NoiseRules(Mm(noise, "walk"), Mm(noise, "run"), Mm(noise, "sprint"), Mm(noise, "swing"), Mm(noise, "blow"), Mm(noise, "call"))
+        {
+            KillMm = noise.ContainsKey("kill") ? Mm(noise, "kill") : 2_000,
+            ImpactFleshMm = noise.ContainsKey("impact_flesh") ? Mm(noise, "impact_flesh") : 1_500,
+            ImpactSolidMm = noise.ContainsKey("impact_solid") ? Mm(noise, "impact_solid") : 4_000,
+            ShotMm = noise.ContainsKey("shot") ? Mm(noise, "shot") : 6_000,
+            CreepMm = noise.ContainsKey("creep") ? Mm(noise, "creep") : 500,
+            CrouchMm = noise.ContainsKey("crouch") ? Mm(noise, "crouch") : 1_500,
+            ProneMm = noise.ContainsKey("prone") ? Mm(noise, "prone") : 250,
+        };
         var roles = Map(map, "roles").ToImmutableSortedDictionary(kv => kv.Key as string ?? "", kv => Role(kv.Key as string ?? "", kv.Value), StringComparer.Ordinal);
         long decay = ToTicks(Number(corpse, "decay_s"), tickMs);
         int slots = Int(corpse, "stack_slots");
@@ -244,6 +253,8 @@ public static class CombatContent
             Unarmed = new AttackProfile("unarmed", IntOf(unarmedDamage, 0, "unarmed.damage"), IntOf(unarmedDamage, 1, "unarmed.damage"),
                 Damage(Text(unarmedMap, "damage_type")), Mm(unarmedMap, "reach"), unarmedWindup, unarmedActive,
                 Math.Max(0, unarmedTotal - unarmedWindup - unarmedActive), Int(unarmedMap, "stamina_cost")),
+            SneakCap = map.ContainsKey("sneak_cap") ? Number(map, "sneak_cap") : 6.0,
+            HitZones = ranged.ContainsKey("hit_zones") ? HitZones(Map(ranged, "hit_zones"), "config.damage_constants ranged.hit_zones") : ImmutableSortedDictionary<BodyRegion, HitZone>.Empty,
         };
         if (constants.ArmorK <= 0 || constants.CritMultiplier < 1 || constants.BaseCritPercent is < 0 or > 100
             || constants.PierceArmorIgnored is < 0 or > 1 || constants.BlockMitigationPercent is < 0 or > 100
@@ -349,6 +360,7 @@ public static class CombatContent
                 WeakPoint = map.GetValueOrDefault("weak_point") is Dictionary<object, object> weak
                     ? new WeakPoint(BodyRegions.Parse(Text(weak, "region")), weak.GetValueOrDefault("from_behind") as string == "true")
                     : null,
+                HitZones = map.ContainsKey("hit_zones") ? HitZones(Map(map, "hit_zones"), $"{id} hit_zones") : ImmutableSortedDictionary<BodyRegion, HitZone>.Empty,
                 Tags = Tags(map, "tags"),
             };
             if (creature.Attack.IsCharge)
@@ -464,6 +476,28 @@ public static class CombatContent
         if (senses.SightMm < 0 || senses.HearingMm < 0 || senses.FieldOfViewMdeg is <= 0 or > 360_000)
             throw new FormatException($"{id}: perception needs non-negative ranges and a field of view in (0, 360]");
         return senses;
+    }
+
+    /// <summary>
+    /// A body's own hit zones (STEALTH §7.2): head, torso and limbs, each with what a shot placed there multiplies by, and
+    /// <c>front_only: true</c> for a zone that only opens from in front - a boar's eye behind its skull. A body that authors none
+    /// takes the build's table.
+    /// </summary>
+    private static ImmutableSortedDictionary<BodyRegion, HitZone> HitZones(Dictionary<object, object> zonesMap, string at)
+    {
+        var zones = ImmutableSortedDictionary.CreateBuilder<BodyRegion, HitZone>(Comparer<BodyRegion>.Default);
+        foreach (var region in Enum.GetValues<BodyRegion>())
+        {
+            string key = BodyRegions.Key(region);
+            if (!zonesMap.ContainsKey(key))
+                continue;
+            var row = Map(zonesMap, key);
+            double multiplier = Number(row, "multiplier");
+            if (multiplier <= 0)
+                throw new FormatException($"{at}.{key}: multiplier is above 0");
+            zones.Add(region, new HitZone(region, multiplier, row.GetValueOrDefault("front_only") as string == "true"));
+        }
+        return zones.ToImmutable();
     }
 
     /// <summary>Skill passives (<c>passives: [{at, modifiers}]</c>): the one-hand blade's steadier stagger at level 3.</summary>

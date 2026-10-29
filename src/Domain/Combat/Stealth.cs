@@ -2,6 +2,7 @@
 // §12, §13, §14, §20; PROGRESSION.md §6; owner findings 26 and 27)
 // No Godot references - pure C#
 
+using System.Collections.Immutable;
 using UNNAMED.Domain.Creatures;
 
 namespace UNNAMED.Domain.Combat;
@@ -39,6 +40,36 @@ public static class StealthRules
 
 /// <summary>The outcome of a takedown attempt: a body is killed outright, or it is not and now knows about the knife.</summary>
 public sealed record TakedownResult(HitResult Hit, BodyRegion Region, bool Killed);
+
+/// <summary>
+/// Placing a shot (STEALTH §7.2): a ranged blow is not rolled onto a region, it is put where the shooter aimed it, and what that is
+/// worth is the body's own anatomy - a head is a head because of what is inside it, not because the weapon is better. A shot at the
+/// mass is the plain blow; a shot at a zone the body does not offer is the plain blow too, since there is nothing there to hit.
+/// </summary>
+public static class WeakPointRules
+{
+    /// <summary>What a body offers an aimed shot: its own authored zones, else the build's default table.</summary>
+    public static ImmutableSortedDictionary<BodyRegion, HitZone> Zones(CreatureDefinition definition, CombatConstants constants) =>
+        definition.HitZones.IsEmpty ? constants.HitZones : definition.HitZones;
+
+    /// <summary>
+    /// What a shot placed in <paramref name="region"/> multiplies by on this body, from in front or not. A front-only zone - a boar's
+    /// eye, a visor gap - gives nothing from behind, where the armour is.
+    /// </summary>
+    public static double Multiplier(CreatureDefinition definition, CombatConstants constants, BodyRegion region, bool fromFront)
+    {
+        if (Zones(definition, constants).GetValueOrDefault(region) is not { } zone)
+            return 1.0;
+        return zone.FrontOnly && !fromFront ? 1.0 : Math.Max(0.0, zone.Multiplier);
+    }
+
+    /// <summary>
+    /// One shot's whole multiplier, capped (§7.1's <c>sneak_cap</c>): every multiplier a single arrow can earn - the weapon's own on an
+    /// unaware target, and the zone's - comes to no more than the cap, so a perfect shot on a perfect target is still bounded.
+    /// </summary>
+    public static double Capped(double sneak, double zone, CombatConstants constants) =>
+        Math.Min(Math.Max(0, sneak) * Math.Max(0, zone), Math.Max(1, constants.SneakCap));
+}
 
 /// <summary>
 /// A qualifying rear dagger ambush executes an unaware non-boss at Even threat or below (owner RC d5 ruling).

@@ -19,6 +19,13 @@ noise_m:                      # STEALTH §7: how far each sound carries
   swing: 10
   blow: 20
   call: 45                    # a howl
+  kill: 2                     # a body going down where it stood: what a silent kill makes, and all it makes (§7.7)
+  impact_flesh: 1.5           # an arrow arriving in flesh, heard at the target (§7.8)
+  impact_solid: 4             # a shot arriving in wood, stone or ground, heard where it landed
+  shot: 6                     # a weapon that authors no shot_noise_m of its own: a bow's twang at the shooter
+  creep: 0.5                  # the deliberate creep gait (§2.6)
+  crouch: 1.5                 # crouch-walking, quieter than a walk (§2.6)
+  prone: 0.25                 # crawling (§2.6)
 corpse: { decay_s: 600, stack_slots: 8 }
 # When roles that keep hours rest, by the world clock (config.time's clock_at_world_start_h at tick 0, the sky's clock too). Note 23: the sky's sun
 # is the midsummer one (a92fcd7e), so real dark runs 20:30-03:30 with twilight 19:45-20:30 and 03:30-04:15. Night starts at dusk (19:45) and day

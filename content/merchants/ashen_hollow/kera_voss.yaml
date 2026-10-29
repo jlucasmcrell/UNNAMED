@@ -10,6 +10,12 @@ stock:
   - { item_ref: item.tool.torch, count: 2, price_bias: 1.0 }
   - { item_ref: item.ammo.arrow_rough, count: 60, price_bias: 1.0 }
   - { item_ref: item.weapon.hunting_bow, count: 1, price_bias: 1.0 }   # she teaches the bow; this one is hers
+  # The quieter ways to shoot and throw (STEALTH §7.1, §7.11): a crossbow left with her to sell on, the bolts for it, and a brace of
+  # knives for a hand that would rather not be heard at all. The road out of the Hollow is where they are wanted.
+  - { item_ref: item.weapon.light_crossbow, count: 1, price_bias: 1.0 }
+  - { item_ref: item.ammo.bolt_iron, count: 24, price_bias: 1.0 }
+  - { item_ref: item.weapon.knife_brace, count: 1, price_bias: 1.0 }
+  - { item_ref: item.ammo.knife_thrown, count: 6, price_bias: 1.0 }
   - { item_ref: item.consumable.salve_minor, count: 3, price_bias: 1.0 }
   - { item_ref: item.bag.quiver, count: 1, price_bias: 1.0 }          # arrows ride in their own bag (owner request)
   - { item_ref: item.bag.herb_pouch, count: 1, price_bias: 1.0 }

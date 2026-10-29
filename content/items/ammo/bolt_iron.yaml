@@ -1,0 +1,13 @@
+id: item.ammo.bolt_iron
+kind: item
+schema: 1
+display_key: item.ammo.bolt_iron.name
+tags: [item]
+name: Iron Bolt
+notes: What a crossbow spends (STEALTH §7.3). Shorter and heavier than an arrow, and there are fewer of them in a quiver, which is why a crossbow shot is taken once and taken well. Stacks of 12, spends one a shot.
+category: misc
+pack_kind: ammo   # rides in a quiver
+stack_max: 12
+weight: 0.09
+value_base: 3
+rarity: common

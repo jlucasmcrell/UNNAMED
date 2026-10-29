@@ -17,6 +17,12 @@ public sealed record TechniqueDefinition(string Id, string SkillId, double Damag
     public string? OnHitEffect { get; init; }
     public int OnHitEffectPercent { get; init; }
 
+    /// <summary>
+    /// The place a ranged technique puts its shot, from <c>aim_region</c> (STEALTH §7.2's Weak-point Shot): the head, the mass. Null is
+    /// an ordinary blow rolled onto a region; a placed one resolves where it was placed, and what that is worth is the body's anatomy.
+    /// </summary>
+    public BodyRegion? AimRegion { get; init; }
+
     public string? Problem() =>
         DamageMultiplier <= 0 ? "multiplier_of_weapon is positive"
         : WindupMultiplier < 1 ? "windup_multiplier is at least 1 (a technique never comes out faster than the plain blow)"
@@ -49,4 +55,8 @@ public static class TechniqueRules
             CooldownTicks = technique.CooldownTicks,
         };
     }
+
+    /// <summary>The place a technique puts its shot, or null when it is an ordinary blow. A swing has nowhere to place anything.</summary>
+    public static BodyRegion? Aim(AttackProfile weapon, TechniqueDefinition technique) =>
+        weapon.Ranged ? technique.AimRegion : null;
 }

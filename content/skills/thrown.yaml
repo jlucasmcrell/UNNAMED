@@ -1,0 +1,9 @@
+id: skill.thrown
+kind: skill
+schema: 1
+display_key: skill.thrown.name
+tags: [skill]
+name: Thrown
+family: combat
+notes: The thrown weapon's own family (STEALTH §3.2, §7.1; SKT Lure Stone, Quick Throw). Knives, stones, bottles and coins all travel by the same hand - a thrown thing lands where it is thrown, and the arm that throws it is trained by throwing. Its two uses in play are the kill (a blade into a body that has not noticed the thrower, 2x, §7.1) and the lure (a stone onto a hard floor, §3.2) - one skill, because it is one motion.
+teaches: "Thrown blades and stones that land on something that matters: a body that has not noticed the thrower, or a floor loud enough to be heard. Throwing at nothing teaches nothing."

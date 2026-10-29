@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -522,7 +523,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>A sound made now - a blow, a howl - that creatures hear on the next tick. It waits in the world delta, so a save keeps it.</summary>
     private void Sound(Noise noise) => State.SetNoises(_owner, State.World.Noises.Add(noise));
 
-    /// <summary>The sounds the player makes this tick: footfalls by gait, and a swing.</summary>
+    /// <summary>
+    /// Another system says a sound was made (STEALTH §3): a shot's crack at the shooter, its arrival where it came down. The ear is this
+    /// system's, so it is this system that writes the noise stream; the other system only knows what happened.
+    /// </summary>
+    public string? Handle(RaiseNoise command, long tick)
+    {
+        Sound(command.Noise);
+        return null;
+    }
+
+    /// <summary>
+    /// The sounds the player makes this tick: footfalls by gait, and a swing. A ranged attack makes no swing sound at all (STEALTH §7.8):
+    /// a bow's own noise is the shot's, emitted by combat where and when the string releases, so nothing here may add a melee swing's
+    /// radius on top of it.
+    /// </summary>
     private IEnumerable<Noise> PlayerNoises()
     {
         var combat = State.PlayerCombat;
@@ -538,14 +553,27 @@ internal sealed class CreatureSystem : IAbstractAdvance
             _ => sound.RunMm,
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
-        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
-            radius = Math.Max(radius, sound.SwingMm);
+        if (combat.Action.Kind == ActionKind.Attack && !Ranged(combat.Action) && phase is CombatPhase.Windup or CombatPhase.Active)
+            radius = Math.Max(radius, SwingNoise());
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         if (radius > 0)
             radius = Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero));
         if (radius > 0)
-            yield return new Noise(body.XMm, body.ZMm, radius);
+            yield return new Noise(body.XMm, body.ZMm, radius) { Source = SoundSource.Footfall };
     }
+
+    /// <summary>
+    /// How far the weapon in hand is heard swinging (STEALTH §3.3, §5.1): a knife's arm moves quietly enough that the sound is the blow
+    /// and not the sweep. A weapon that authors no <c>swing_noise_m</c> takes the build's swing radius.
+    /// </summary>
+    private long SwingNoise() =>
+        State.Equipment.TryGetValue(EquipSlot.MainHand, out var id)
+        && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+        && _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon is { SwingNoiseMm: > 0 } weapon
+            ? weapon.SwingNoiseMm
+            : Setup.Noise.SwingMm;
+
+    private static bool Ranged(ActionState action) => action.Attack is { Ranged: true };
 
     /// <summary>
     /// The character's stealth level, read once a tick (finding 26: the skill levels with use) rather than once per creature per tick - the
@@ -1087,7 +1115,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // A wound wakes a sleeper (effect.sleep's own rule): the body does not stay down through being stabbed.
         if (hit.Final > 0)
             _context.Dispatch(new RemoveEffect(c.Id, "effect.sleep"));
-        Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+        // What the struck body is heard doing (STEALTH §7.7): a body that was not aware it was in a fight does not cry out if the blow
+        // kills it - it makes the small sound of going down, and that is all a silent kill makes. Anything still standing, and anything
+        // that saw the blow coming, shouts, which is the whole of the tension between a kill and a wound.
+        Sound(health == 0
+            ? new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.KillMm) { Source = SoundSource.Kill }
+            : new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm) { Source = SoundSource.Call });
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
