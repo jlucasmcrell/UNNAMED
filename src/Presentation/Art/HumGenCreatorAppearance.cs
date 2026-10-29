@@ -219,7 +219,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
-    private const float GarmentStandoff = .0045f;
+    private const float GarmentStandoff = .012f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
     private const float BodyRecess = 0f;
