@@ -363,7 +363,7 @@ public partial class Main : Node3D
             : _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
               || (_options.ContainsKey("--ui-shots") && !_flags.Contains("--ui-shots-continue"))
               || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-              || _options.ContainsKey("--shot") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
+              || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
               || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
               || (_options.ContainsKey("--showcase") && !_options.ContainsKey("--profile"))
               || (_options.ContainsKey("--front-shots") && !_options.ContainsKey("--profile"))
