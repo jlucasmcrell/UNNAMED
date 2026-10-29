@@ -150629,7 +150629,7 @@ doors:
 
 routes:
 # D23 S6 (STEALTH.md 8.1): the frontier's own ways that are not a fight. Every one of them is a place the lights and covers above already made darkish
-- { key: route.area.den-gorge.perch, kind: ledge, position_m: [528, 786], to_m: [536, 795], cover_percent: 80, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.den-gorge.perch, kind: ledge, position_m: [530, 790], to_m: [540, 796], cover_percent: 80, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 - { key: route.area.the-field-ruins.shadow, kind: shadow, position_m: [852, 752], to_m: [864, 760], cover_percent: 85 }
 - { key: route.area.the-field-ruins.grass, kind: grass, position_m: [854, 748], to_m: [872, 750], cover_percent: 67 }
 - { key: route.area.the-field-ruins.ledge, kind: ledge, position_m: [848, 755], to_m: [860, 764], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }

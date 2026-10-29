@@ -432,3 +432,12 @@ barriers:
     circle_m: [145, 42, 3]
     height_m: 2.6
     prompt: "Tavar Orr, half a breath out of true - your hand stops short of him"
+
+# D23 S6 (HOOK.STEALTH.SURFACE): the smithy floor and its steps, so the surface a step is heard on is content.
+walkable_surfaces:
+- id: ah_smithy_floor
+  origin_m: [54, 138]
+  spacing_m: 3
+  columns: 3
+  rows: 3
+  heights_m: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
