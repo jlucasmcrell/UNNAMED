@@ -11,6 +11,7 @@ services: [trade, repair]
 merchant_ref: merchant.cairnwold.durn_skell
 dialogue_ref: dialogue.cairnwold.durn_skell
 unique: true
+people_ref: people.veth   # Veth, by the bible's Cairnwold cast list (NPC_PERSONALITY_BIBLE.md:88-91)
 # What he teaches (WP9, C10): the forge and hides by his own lines, free, as he always has; the polearm's technique to anyone familiar
 # with a spear, for a fee into his purse. Fees are provisional.
 teaches:

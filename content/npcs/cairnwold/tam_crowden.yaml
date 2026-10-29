@@ -9,6 +9,7 @@ notes: A woman who holds the staddle granary at the quiet west end of the villag
 role: villager
 dialogue_ref: dialogue.cairnwold.tam_crowden
 unique: true
+people_ref: people.veth   # Veth, by the bible's Cairnwold cast list (NPC_PERSONALITY_BIBLE.md:88-91)
 # What Tam teaches (WP9, C10): the cooking fire, by Tam's own line, free, as always.
 teaches:
   - { kind: recipe, recipe_ref: recipe.cooking.roast_meat, by_dialogue: true }

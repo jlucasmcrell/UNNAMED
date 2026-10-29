@@ -9,3 +9,4 @@ notes: Keeps the village well - the region's 0.68 m circle at (68.0, 60.0) - and
 role: villager
 dialogue_ref: dialogue.cairnwold.mara_ling
 unique: true
+people_ref: people.veth   # Veth, by the bible's Cairnwold cast list (NPC_PERSONALITY_BIBLE.md:88-91)
