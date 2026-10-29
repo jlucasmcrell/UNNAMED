@@ -1,5 +1,5 @@
 # F1 Gate C proof run: every NPC of a town, face at 2 m, plus wide shots - driven by the game's own content and look code.
-param([Parameter(Mandatory)][string]$Label, [Parameter(Mandatory)][string]$Plan, [string]$Resolution = '2560x1440',
+param([Parameter(Mandatory)][string]$Label, [Parameter(Mandatory)][string]$Plan, [string]$Resolution = '1600x1200',
       [int]$LimitSeconds = 900, [string]$Worktree = 'D:\Otherreach_Scratch\agy_gatec_wt')
 $ErrorActionPreference = 'Stop'
 $flag = 'C:\Otherreach_Recovery\OWNER_PLAYING.flag'
