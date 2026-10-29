@@ -142,7 +142,8 @@ public partial class Main
                     camera.LookAt(aim);
                 }
                 Face();
-                await Frames(.2, Face);   // the camera's own frame, and the visibility and LOD that follow it
+                // A fixture teleport must leave the Orenth's .4-second registration history before its portrait.
+                await Frames(people==PeopleLooks.Orenth?.6:.2, Face);
                 await Rcd3Shot(folder, person.Id);
                 if (OS.GetEnvironment("OTHERREACH_FACE_SHEET") is { Length: > 0 } && paced < 2)
                 {
