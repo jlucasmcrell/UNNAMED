@@ -147,3 +147,33 @@ only way any system's farm clip will be real.
 
 Also queued and then withdrawn: sys2_tiers02 (game-only, 0.29 GB, pointing at the farm's own art root) - it would have
 failed for the same reason, so I pulled it rather than leave a doomed job in the owner's queue. The farm is idle.
+
+### Round 7 - what the farm can and cannot do, and the carcass field
+**Farm: the 6900XT dies on this world in every configuration tried.** All three captured job runs end with
+exit=-1073740940 (0xC0000374, heap corruption):
+- sys2_tiers03: old exe, staged art, **full profile** - built the world, wrote 3 frames (**greybox, 0 assets drawn**),
+  then died at teardown.
+- sys2_tiers04: exported build, staged art - died at frame 1 while drawing (prop_long_trestle_table greybox warning
+  in stderr shows the art root was being read).
+- sys2_tiers06: exported build, staged art, **no --visual at all** (default profile) - booted
+  (content 0.3.0 sha256:d7347cd6, region region.starting_frontier, 14 cells), printed ssets: HUD and effect art
+  from C:\Otherreach_Test\sys2_tiers\art, then died with the same code before the first shot.
+So the farm box is not producing a usable real-art clip for this world right now, and I cannot drive it beyond the job
+folder (no remote execution). The clip that exists - real art, looked at frame by frame - was captured on BEAST
+(D:\Otherreach_Scratch\ds_sys2_shots\audit_tiers\raw). **The farm check for resource tiers stays owed**, and the
+heap corruption is a finding for the farm's own AMD compatibility pass, with the exit code and three configurations
+above.
+
+**Export note:** --export-release from this branch works (Otherreach.exe 201.8 MB + runtime folder) and the build
+runs on both boxes; it is a **GUI-subsystem exe**, so a PowerShell *> redirect captures nothing locally - use
+Start-Process -RedirectStandardOutput if the log is wanted on BEAST.
+
+**Carcass field landed** (commits 90cab0a, 1de0a7b), lint 0: CreatureDefinition.CarcassRef, read from
+carcass_ref in the creature loader, registered as a node reference in ContentChecks (XREF004 demanded it), and set
+on the grey wolf (
+ode.carcass.grey_wolf). The stag and hind files are not where I expected
+(content/creatures/grazer/stag.yaml missing) - find them next round before claiming the deer carcass is wired.
+
+**Still owed for carcass and skinning:** the kill-to-carcass wire itself (on CreatureKilled, place a carcass node at
+the body's position - needs RegionLayout.Nodes to grow at runtime and the crafting session to learn the new node),
+the stag/hind refs, a tanning station kind, carcass art, and a clip.
