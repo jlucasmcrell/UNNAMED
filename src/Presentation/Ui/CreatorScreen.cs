@@ -626,16 +626,16 @@ public partial class CreatorScreen : CanvasLayer
     }
 
     /// <summary>
-    /// Step 4: the Calls as a grid of cards, each with its name, its tagline and its description, so the whole set can be
-    /// seen at once and compared by what the character used to do (D14: twenty-four Calls, and every skill family has one
-    /// that starts it). The chosen card's package - leaning, skills, kit, contact - is read under the grid.
+    /// Step 4: the Calls as a grid of small cards - the name, and the tagline under it on one clipped line - so the whole
+    /// set is read at a glance. The chosen Call's full record (description, bias, skills, kit, contact) is the one detail
+    /// panel under the grid: the cards carry no long text of their own (owner verdict, 2026-10-29).
     /// </summary>
     private void CallStep()
     {
         var section = UiKit.Section("What you did before",
             "A Call is the work you came from, not a class: it spends four attribute points and starts two skills at 15. "
             + "Everything it gives, anyone can earn later.");
-        var grid = new GridContainer { Columns = 2 };
+        var grid = new GridContainer { Columns = 3 };
         grid.AddThemeConstantOverride("h_separation", 8);
         grid.AddThemeConstantOverride("v_separation", 6);
         section.AddChild(grid);
@@ -644,17 +644,17 @@ public partial class CreatorScreen : CanvasLayer
                      .ThenBy(c => Names.Of(_session, c.Id)))
         {
             string id = "creator.call." + call.Id;
-            var card = UiKit.ListRow(id, Names.Of(_session, call.Id), call.Tagline, height: 142);
+            var card = UiKit.ListRow(id, Names.Of(_session, call.Id), call.Tagline, height: 52);
             card.Button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            card.Button.CustomMinimumSize = new Vector2(0, 142);
+            card.Button.CustomMinimumSize = new Vector2(0, 52);
             card.Button.ClipContents = true;
-            var words = UiKit.Words(Opening(call.Description), 14, HudStyle.Ash);
-            words.MaxLinesVisible = 4;
-            words.TextOverrunBehavior = TextServer.OverrunBehavior.TrimWordEllipsis;
-            card.Middle.AddChild(words);
-            card.Middle.AddChild(UiKit.Caption(Leaning(call)));
-            if (call.Id == CreatorDraft.FirstCall)
-                card.Right.AddChild(UiKit.Chip("First", HudStyle.Iron, HudStyle.Ash));
+            // The name and the tagline are one line each, and both end in an ellipsis rather than in the next card.
+            card.Name.MaxLinesVisible = 1;
+            card.Name.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+            card.Name.AutowrapMode = TextServer.AutowrapMode.Off;
+            card.Secondary.MaxLinesVisible = 1;
+            card.Secondary.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+            card.Secondary.AutowrapMode = TextServer.AutowrapMode.Off;
             UiKit.Select(card.Button, Draft.CallId == call.Id);
             string callId = call.Id;
             card.Button.Pressed += Deferred(() =>
