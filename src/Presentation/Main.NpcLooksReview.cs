@@ -53,6 +53,9 @@ public partial class Main
         }
         // The hour has to reach the sky and the light before the first frame is read, as the race-look review lets it.
         await Frames(2);
+        // Freeze Main's normal draw loop for this presentation-only fixture. Otherwise NpcsView.Draw
+        // restores every live actor's transform and animation between staging it and reading pixels.
+        SetProcess(false);
         foreach (var town in root.GetProperty("towns").EnumerateArray())
         {
             string settlement = town.GetString()!;
@@ -89,7 +92,7 @@ public partial class Main
                 var originalTransform=figure.GlobalTransform;
                 if(root.TryGetProperty("clear_stage",out var clearStage) && clearStage.GetBoolean())
                 {
-                    Vector2 stage=settlement=="ashen_hollow"?new Vector2(447.4f,726.2f):new Vector2(951,684);
+                    Vector2 stage=settlement=="ashen_hollow"?new Vector2(450,749):new Vector2(949,695);
                     float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
                     figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
                 }
