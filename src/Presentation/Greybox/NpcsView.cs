@@ -150,6 +150,7 @@ public partial class NpcsView : Node3D
             figure.SetTalking(npc.Talking && !held);
             string? spoken = simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta);
             figure.Say(spoken);
+            figure.SetTalking(!held && (npc.Talking || spoken is not null));
             figure.SetExpression(Ui.Models.DialoguePerformance.Mood(spoken,
                 simulation.Conversation is { } performance && performance.NpcId == npc.Id ? performance.Mood : null));
             var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);

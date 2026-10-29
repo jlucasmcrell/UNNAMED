@@ -7,7 +7,7 @@ import re
 import unreal
 
 job = Path(os.environ['OTHERREACH_HUMGEN_ANIMATION_JOB'])
-rows = json.loads((job.parent / 'sources/inventory.json').read_text())
+rows = json.loads(Path(os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY', str(job.parent / 'sources/inventory.json'))).read_text())
 report = dict(status='IMPORTING', sources=[], failures=[])
 tools = unreal.AssetToolsHelpers.get_asset_tools()
 selection = json.loads((job / 'selection.json').read_text())

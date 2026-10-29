@@ -29,7 +29,7 @@ public sealed class IdleVariety
         }
         string[] wanted = role?.Contains("guard", StringComparison.OrdinalIgnoreCase) == true
             ? ["idle_foldarms", "idle_foldarms", "idle_look", "idle_shift"]
-            : ["idle_shift", "idle_look", "idle_look", "idle_foldarms"];
+            : ["idle_shift", "idle_look", "idle_look", "idle_foldarms", "idle_breathe", "idle_nervous"];
         var pool = wanted.Where(has).ToArray();
         _clip = pool.Length == 0 ? "idle" : pool[_random.Next(pool.Length)];
         _left = _clip == "idle" ? 6 + _random.NextDouble() * 12 : Math.Max(.4, length(_clip));

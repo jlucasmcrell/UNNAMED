@@ -295,6 +295,15 @@ public partial class Main : Node3D
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
         ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
+        if (_options.TryGetValue("--gate-d", out string? gateD))
+        {
+            if (gateD is not ("animation" or "face") || !_options.TryGetValue("--gate-d-out", out string? gateOut)
+                || !Path.IsPathFullyQualified(gateOut)) throw new ArgumentException("Gate D requires animation|face and an absolute --gate-d-out path");
+            OS.SetEnvironment("OTHERREACH_GATE_D", gateD);
+            OS.SetEnvironment("OTHERREACH_MH_REVIEW_OUT", gateOut);
+            OS.SetEnvironment("OTHERREACH_RCD3_REVIEW", "1");
+            OS.SetEnvironment("OTHERREACH_LIGHTING_FAST", "1");
+        }
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");

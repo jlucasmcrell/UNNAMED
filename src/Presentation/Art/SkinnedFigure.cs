@@ -45,6 +45,9 @@ public sealed partial class SkinnedFigure : Figure
     private bool _airborne;
     private bool _gliding;
     private bool _talking;
+    private string? _spokenLine;
+    private int _talkTurn;
+    private string _talkClip = "talk";
     private bool _downed;
     private float _crouch;
     private float _tuck;
@@ -282,7 +285,16 @@ public sealed partial class SkinnedFigure : Figure
 
     private FaceDriver? _face;
 
-    public override void Say(string? line) => _face?.Say(line);
+    public override void Say(string? line)
+    {
+        if (line is not null && line != _spokenLine)
+        {
+            var choices = new[] { "talk", "talk_1", "talk_2", "talk_3" }.Where(_model.Has).ToArray();
+            if (choices.Length > 0) _talkClip = choices[_talkTurn++ % choices.Length];
+        }
+        _spokenLine = line;
+        _face?.Say(line);
+    }
 
     public override Vector3? Head => BoneNames.Find(_model.Skeleton, "head") is int head and >= 0
         ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(head).Origin + Vector3.Up * 0.06f
@@ -642,9 +654,9 @@ public sealed partial class SkinnedFigure : Figure
             }
             _reaching = 0;
         }
-        if (_talking && speed < 0.3f && m.Has("talk"))
+        if (_talking && speed < 0.3f && m.Has(_talkClip))
         {
-            m.Play("talk", 0.3f);
+            m.Play(_talkClip, 0.3f);
             return;
         }
         if (!_talking && speed < .25f && _activity is { } activity && m.Has(activity))

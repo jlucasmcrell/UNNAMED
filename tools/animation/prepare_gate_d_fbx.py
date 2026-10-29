@@ -7,6 +7,7 @@ import hashlib
 import json
 import re
 import sys
+import os
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -15,6 +16,9 @@ output = Path(sys.argv[sys.argv.index('--') + 1])
 output.mkdir(parents=True, exist_ok=True)
 roots = [Path('D:/Otherreach_Depot/Mixamo_20261017'), Path('D:/Otherreach_Depot/Rokoko_Free_263')]
 files = sorted(p for root in roots for p in root.rglob('*.fbx'))
+if os.environ.get('OTHERREACH_GATE_D_PRIORITY') == '1':
+    wanted = {'blacksmithhammering_humanik_tf1', 'chefcooking_mixamo', 'writing', 'drinking', 'talking_1', 'carrying'}
+    files = [p for p in files if p.stem.lower() in wanted]
 seen = set()
 rows = []
 for source in files:
