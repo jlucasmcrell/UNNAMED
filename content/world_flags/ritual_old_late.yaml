@@ -1,0 +1,9 @@
+id: world.ritual.old_late_drawn
+kind: world_flag
+schema: 1
+display_key: world.ritual.old_late_drawn.name
+tags: [world_flag]
+notes: "D18 SYSTEMS (needed-2): set when old-late's circle is drawn. HOOK.RITUAL.CIRCLE."
+type: bool
+default: false
+owning_system: S-18

@@ -1,4 +1,4 @@
-﻿// UNNAMED Content - the world-hooks audit (brief D15)
+// UNNAMED Content - the world-hooks audit (brief D15)
 // No Godot references - pure C#
 
 using System.Globalization;
@@ -441,8 +441,15 @@ public static class WorldHookChecks
                 // its marker to: the dossier owns the place, and the grave belongs to it (D18 SYSTEMS, needed-2).
                 if (area is not { } owner)
                     return facts.Graves.Count;
-                int matched = facts.Graves.Count(g => g.Location is { } place && owner.Locations.Contains(place));
-                return matched;
+                return facts.Graves.Count(g => g.Location is { } place && owner.Locations.Contains(place));
+            }
+            case "ritual":
+            {
+                // A circle in this area (D18 SYSTEMS, needed-2; HOOK.RITUAL.CIRCLE): the ritual content kind names its
+                // place, and the dossier that owns the place is the one that has it.
+                if (area is not { } circleArea)
+                    return facts.Rituals.Count;
+                return facts.Rituals.Count(c => c.Location is { } place && circleArea.Locations.Contains(place));
             }
             case "node_tier":
             {
@@ -540,6 +547,9 @@ public static class WorldHookChecks
         /// <summary>The graves content defines, each with the place it names (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE).</summary>
         public List<(string Id, string? Location)> Graves { get; } = [];
 
+        /// <summary>The ritual circles content defines, each with the place it names (HOOK.RITUAL.CIRCLE).</summary>
+        public List<(string Id, string? Location)> Rituals { get; } = [];
+
         public WorldFacts(ContentLoader loader)
         {
             foreach (var definition in loader.Definitions.Values)
@@ -566,6 +576,9 @@ public static class WorldHookChecks
                         break;
                     case "grave":
                         Graves.Add((definition.Id, Scalar(root, "location_ref")));
+                        break;
+                    case "ritual":
+                        Rituals.Add((definition.Id, Scalar(root, "location_ref")));
                         break;
                     case "npc":
                         NpcTeaches[definition.Id] = Maps(root, "teaches").Select(entry => Scalar(entry, "kind")).ToList();

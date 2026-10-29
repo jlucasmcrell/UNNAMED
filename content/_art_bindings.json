@@ -213,6 +213,15 @@
    ],
    "material": "stone",
    "note": "D18 SYSTEMS (needed-2): a grave marker is a standing stone until a dressed marker exists"
+  },
+  "ritual_stone_": {
+   "models": [
+    "landmark_ph_quiet_stone_a",
+    "landmark_ph_quiet_stone_b",
+    "landmark_ph_quiet_stone_c"
+   ],
+   "material": "stone",
+   "note": "D18 SYSTEMS (needed-2): the stones that ring a prepared circle"
   }
  },
  "building_walls": {
@@ -2840,6 +2849,14 @@
    "material": "wood",
    "wind": 3.0,
    "note": "Grand scale 2026-10-24 (GS-10): the BlenderKit ceiba that stood for Old Late, moved into the hollow as its great tree; its trunk, offset and root support carried with it."
+  },
+  "ritual_circle_foldscar_watch": {
+   "surface": "cw_gravel_stones",
+   "note": "D18 SYSTEMS (needed-2): the swept middle of a prepared circle, worn gravel over packed earth"
+  },
+  "ritual_circle_den_listening": {
+   "surface": "cw_gravel_stones",
+   "note": "D18 SYSTEMS (needed-2): the swept middle of a prepared circle, worn gravel over packed earth"
   }
  },
  "doors": {

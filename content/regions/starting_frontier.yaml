@@ -150298,6 +150298,110 @@ structures:
   - 752.0
   - 0.6
   height_m: 1.1
+- id: ritual_circle_foldscar_watch
+  circle_m:
+  - 551.0
+  - 643.0
+  - 3.4
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_den_listening
+  circle_m:
+  - 536.0
+  - 792.0
+  - 2.8
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_outpost
+  circle_m:
+  - 0
+  - 0
+  - 3.0
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_road_basin_rim
+  circle_m:
+  - 0
+  - 0
+  - 3.0
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_cairnwold_village
+  circle_m:
+  - 0
+  - 0
+  - 3.0
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_blackvein_cut
+  circle_m:
+  - 0
+  - 0
+  - 3.0
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_old_late
+  circle_m:
+  - 0
+  - 0
+  - 3.0
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_circle_field_the_spill
+  circle_m:
+  - 0
+  - 0
+  - 3.0
+  height_m: 0.12
+  clearance_m: 0.05
+- id: ritual_stone_foldscar_watch_1
+  circle_m:
+  - 553.4
+  - 645.4
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_foldscar_watch_2
+  circle_m:
+  - 548.6
+  - 645.4
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_foldscar_watch_3
+  circle_m:
+  - 548.6
+  - 640.6
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_foldscar_watch_4
+  circle_m:
+  - 553.4
+  - 640.6
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_den_listening_1
+  circle_m:
+  - 538.0
+  - 794.0
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_den_listening_2
+  circle_m:
+  - 534.0
+  - 794.0
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_den_listening_3
+  circle_m:
+  - 534.0
+  - 790.0
+  - 0.35
+  height_m: 1.1
+- id: ritual_stone_den_listening_4
+  circle_m:
+  - 538.0
+  - 790.0
+  - 0.35
+  height_m: 1.1
 doors:
 - key: door.longhouse
   flag_ref: world.hollow.longhouse_door_open
@@ -150861,6 +150965,54 @@ switches:
   verb: Steady
   locked_text: It slides out from under your hand. Somewhere in the ring a Quiet Stone is still out of line.
   done_text: The heart holds. The ring goes quiet all at once, and across it Tavar's shadow catches up with him.
+- key: switch.ritual.foldscar_watch
+  structure: ritual_circle_foldscar_watch
+  flag_ref: world.ritual.foldscar_watch_drawn
+  name: The Foldscar's watch circle
+  verb: Draw
+  done_text: "The line closes and stays closed. The air between the stones takes the shape of what was drawn, and holds it long enough to be looked at."
+- key: switch.ritual.den_listening
+  structure: ritual_circle_den_listening
+  flag_ref: world.ritual.den_listening_drawn
+  name: The listening circle
+  verb: Draw
+  done_text: "The ring answers: a sound comes back up out of the gorge that no fall of water makes."
+- key: switch.ritual.outpost
+  structure: ritual_circle_outpost
+  flag_ref: world.ritual.outpost_drawn
+  name: Ashen Hollow's circle
+  verb: Draw
+  done_text: "The line closes. The middle of the ring holds the shape of what was drawn."
+- key: switch.ritual.road_basin_rim
+  structure: ritual_circle_road_basin_rim
+  flag_ref: world.ritual.road_basin_rim_drawn
+  name: The Road's circle
+  verb: Draw
+  done_text: "The line closes. The middle of the ring holds the shape of what was drawn."
+- key: switch.ritual.cairnwold_village
+  structure: ritual_circle_cairnwold_village
+  flag_ref: world.ritual.cairnwold_village_drawn
+  name: Cairnwold's circle
+  verb: Draw
+  done_text: "The line closes. The middle of the ring holds the shape of what was drawn."
+- key: switch.ritual.blackvein_cut
+  structure: ritual_circle_blackvein_cut
+  flag_ref: world.ritual.blackvein_cut_drawn
+  name: Blackvein Cut And Barrowworks's circle
+  verb: Draw
+  done_text: "The line closes. The middle of the ring holds the shape of what was drawn."
+- key: switch.ritual.old_late
+  structure: ritual_circle_old_late
+  flag_ref: world.ritual.old_late_drawn
+  name: Old Late's circle
+  verb: Draw
+  done_text: "The line closes. The middle of the ring holds the shape of what was drawn."
+- key: switch.ritual.field_the_spill
+  structure: ritual_circle_field_the_spill
+  flag_ref: world.ritual.field_the_spill_drawn
+  name: The Field Ruins's circle
+  verb: Draw
+  done_text: "The line closes. The middle of the ring holds the shape of what was drawn."
 barriers:
 - key: barrier.foldscar_fold
   flag_ref: world.foldscar.steadied

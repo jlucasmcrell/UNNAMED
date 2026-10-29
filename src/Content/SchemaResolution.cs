@@ -349,6 +349,15 @@ public static class ContentKindRegistry
             IdPrefix: "lore"
         );
 
+        // 38. ritual - a circle you can work: its place, the flag the rite sets, the page it opens, and the clip that
+        // draws it (D18 SYSTEMS, needed-2; HOOK.RITUAL.CIRCLE).
+        kinds["ritual"] = new ContentKindDefinition(
+            Kind: "ritual",
+            FullKind: "ritual",
+            Directory: "pieces",
+            IdPrefix: "ritual"
+        );
+
         // 37. grave - a marker with a name on it: whose it is, the line it carries, and the page reading it opens
         // (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE).
         kinds["grave"] = new ContentKindDefinition(

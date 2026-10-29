@@ -1,0 +1,9 @@
+﻿id: world.ritual.den_listening_drawn
+kind: world_flag
+schema: 1
+display_key: world.ritual.den_listening_drawn.name
+tags: [world_flag]
+notes: "D18 SYSTEMS (needed-2): set when the The listening circle drawn rite is worked. HOOK.RITUAL.CIRCLE."
+type: bool
+default: false
+owning_system: S-18

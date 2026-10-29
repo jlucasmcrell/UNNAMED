@@ -1,0 +1,14 @@
+id: lore.ritual_den_listening
+kind: lore
+schema: 1
+display_key: lore.ritual_den_listening.title
+tags: [lore, history]
+title: The listening circle
+category: history
+notes: "D18 SYSTEMS (needed-2): the page the rite at den_listening opens."
+pages:
+  - page: 1
+    sources:
+      - { how: visited, ref: location.den_gorge }
+    text: >
+      A ring of flat stones, small enough to sit inside, laid at the gorge lip where a voice carries down and comes back changed. The ring is not a circle of power; it is a circle of listening, and the marks in it are where a question is written before it is asked out loud.
