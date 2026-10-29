@@ -32,3 +32,15 @@
 `--asset-root D:\Otherreach_Scratch\art_merged` (world art, **no** `humgen_creator_*` folders) and
 `--asset-fallback <worktree>/work/creator/game/world_fallback` (which holds all 157 creator part folders, including the outfits).
 `OTHERREACH_CHARACTER_ROOT = <worktree>/work/creator/game/humgen_characters` (holds `humgen_creator_{male,female}_motion.res`).
+
+
+## Update after the second sheet (gatec2) and the 2x crop
+
+The NPCs are not naked. A 2x crop of the hunter tile (work/crops/cook2.png) shows a real garment with no weave, seam or shading:
+Dye in HumGenCreatorAppearance nulled the albedo texture and set a flat colour. At 2 m a Kal's flat ochre read as bare stone and
+a Veth's grey top as skin. FIXED in 5540d954: the albedo colour multiplies the albedo texture, so the fabric stays.
+
+Everything else on gatec2 is right: residents on creator bodies (f8cad9b4), distinct creator-quality faces, Kal bald stone with
+black folded wings and growths, Siann white-haired, Veth/Orenth natural, 10 NPCs per town at 2 m, no HUD.
+
+Next: gatec3 (queued) proves the fabric fix and prints CREATOR_PART <sex> <slot> -> <asset> per part (1a14ee60).
