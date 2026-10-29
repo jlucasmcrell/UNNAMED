@@ -1,5 +1,5 @@
 anchor:
-  world: [8160.0, 0.0, 610.0]
+  world: [8224.0, 0.0, 594.0]
 discovery:
   methods: [visited]
   radius_m: 70
