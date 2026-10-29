@@ -1,4 +1,4 @@
-﻿// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
+// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
 // behaviour roles, skill passives and item uses (DATA_MODEL.md Â§4.4, Â§4.7, Â§4.8, Â§4.17, Â§4.19, Â§4.21; PROTOTYPE.md Â§4.1,
 // Â§4.4; M3c, M3d)
 // No Godot references - pure C#
@@ -449,7 +449,12 @@ public static class CombatContent
                     Space = space,
                     Recovery = s.Map.GetValueOrDefault("encounter_recovery") is Dictionary<object, object> recovery
                         ? new EncounterRecovery(Mm(recovery, "min_x_m"), Mm(recovery, "min_z_m"), Mm(recovery, "max_x_m"),
-                            Mm(recovery, "max_z_m"), Mm(recovery, "safe_x_m"), Mm(recovery, "safe_z_m")) : null,
+                            Mm(recovery, "max_z_m"), Mm(recovery, "safe_x_m"), Mm(recovery, "safe_z_m"))
+                        {
+                            // D19: a forfeit court ends the attempt the moment the mark is left rather than after the
+                            // general grace - the Wayholder's chalked circle and the Custodian's marked floor both say so.
+                            Forfeit = (s.Map.GetValueOrDefault("encounter_rule") as string) == "forfeit",
+                        } : null,
                 };
             }).ToImmutableArray();
     }

@@ -24,4 +24,5 @@ level_band:
 respawn:
   kind: none
 tier_hint: A
+encounter_rule: forfeit
 encounter_recovery: { min_x_m: 36.0, min_z_m: 94.0, max_x_m: 64.0, max_z_m: 118.0, safe_x_m: 50.0, safe_z_m: 84.0 }

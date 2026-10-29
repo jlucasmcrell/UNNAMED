@@ -25,4 +25,5 @@ respawn:
   kind: timer
   window_ticks: 3600
 tier_hint: B
+encounter_rule: forfeit
 encounter_recovery: { min_x_m: 463.0, min_z_m: 729.0, max_x_m: 481.0, max_z_m: 747.0, safe_x_m: 472.0, safe_z_m: 760.0 }

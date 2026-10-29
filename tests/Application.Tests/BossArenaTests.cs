@@ -46,6 +46,25 @@ public class BossArenaTests
     }
 
     [Fact]
+    public void TheTrialCircle_AndTheMeasuredFloor_AreForfeit_Courts()
+    {
+        // canon/BOSSES.md: the trial is fought inside the yard's marked circle and leaving it forfeits; the Custodian's
+        // court is a scored floor. Both say so as an arena rule, so the attempt ends on the first tick outside.
+        using (var profile = new TempProfile())
+        using (var session = Harness.Boot(profile, "region.starting_frontier"))
+            Assert.True(Find(session, "spawn.boss.ashen_hollow.wayholder_trial").Court.Forfeit);
+
+        using (var profile = new TempProfile())
+        using (var session = Harness.Boot(profile, "region.barrowworks", barrowworks: true))
+            Assert.True(Find(session, "spawn.boss.barrowworks.ring_custodian.deep").Court.Forfeit);
+
+        // A court without the rule keeps the grace: Old Late waits out a walk to safety instead of forfeiting at once.
+        using (var profile = new TempProfile())
+        using (var session = Harness.Boot(profile, "region.starting_frontier"))
+            Assert.False(Find(session, "spawn.boss.old_late.the_breath_late").Court.Forfeit);
+    }
+
+    [Fact]
     public void TheBreathLatesCircle_HoldsItInOldLate()
     {
         using var profile = new TempProfile();
