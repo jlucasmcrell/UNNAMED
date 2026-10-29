@@ -45,10 +45,12 @@ public partial class Main
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 string name = $"{segment}_{frame++:0000}.png";
                 double at = (Time.GetTicksMsec() - start) / 1000.0;
+                var recording = face.RecordedSpeech?.Invoke();
                 using var image = GetViewport().GetTexture().GetImage();
                 image.SavePng(Path.Combine(directory, name));
                 frames.Add(new { file = name, segment, seconds = at, clip = figure.ClipState,
-                    jaw = face.JawWeight, blink = face.BlinkWeight, mood = face.Mood });
+                    jaw = face.JawWeight, blink = face.BlinkWeight, mood = face.Mood,
+                    voice_position = recording?.Position, voice_duration = recording?.Duration });
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             }
         }

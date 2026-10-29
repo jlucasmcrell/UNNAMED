@@ -18,6 +18,9 @@ selected = {"idle": ("ual1", "Idle_Loop"), "walk": ("ual1", "Walk_Loop"),
             "walk_strafe_left": ("fal", "anim_Walk_Left_Loop"), "sword_attack_1": ("ual1", "Sword_Attack")}
 if os.environ.get("OTHERREACH_HUMGEN_SOURCE_SELECTION"):
     selected = json.loads(Path(os.environ["OTHERREACH_HUMGEN_SOURCE_SELECTION"]).read_text())
+if os.environ.get('OTHERREACH_HUMGEN_EXTRA_ONLY') == '1':
+    extra_ids = {row['id'] for row in json.loads(Path(os.environ['OTHERREACH_HUMGEN_EXTRA_SOURCES']).read_text())['sources']}
+    selected = {key: value for key, value in selected.items() if value[0] in extra_ids}
 state.update(target_id=target_id, selection_sha256=hashlib.sha256(json.dumps(selected, sort_keys=True).encode()).hexdigest(),
              retargeter_script_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
 
@@ -95,6 +98,37 @@ try:
         assert source_controller.set_skeletal_mesh(source_mesh)
         source_controller.apply_auto_generated_retarget_definition()
         assert source_controller.set_root_motion_bone("root")
+        if not source_controller.get_retarget_chains():
+            # Epic's auto-characterizer does not recognize the colon-prefixed
+            # Mixamo/HumanIK names retained by the source-only glTF transport.
+            # Define source chains explicitly; never rename/rebase the paid target.
+            import re
+            component = unreal.new_object(unreal.SkeletalMeshComponent)
+            component.set_skeletal_mesh_asset(source_mesh)
+            source_bones = [str(component.get_bone_name(i)) for i in range(component.get_num_bones())]
+            def source_bone(*ends):
+                for end in ends:
+                    suffix = re.sub('[^a-z0-9]', '', end.lower())
+                    matches = [bone for bone in source_bones if re.sub('[^a-z0-9]', '', bone.lower()).endswith(suffix)]
+                    if len(matches) == 1:
+                        return matches[0]
+                raise ValueError(('Source bone missing/ambiguous', sid, ends, source_bones))
+            assert source_controller.set_retarget_root(source_bone('hips', 'pelvis', 'hip'))
+            definitions = [('Spine', ('spine', 'abdomen', 'lowerback'), ('spine2', 'spine1', 'chest', 'upperback')),
+                ('Neck', ('neck', 'neck1'), ('neck', 'neck1')), ('Head', ('head',), ('head',))]
+            for side in ('Left', 'Right'):
+                short = side[0].lower()
+                definitions.extend([(side+'Clavicle', (side+'shoulder', short+'collar'), (side+'shoulder', short+'collar')),
+                    (side+'Arm', (side+'arm', side+'upperarm', short+'shldr'), (side+'hand', short+'hand')),
+                    (side+'Leg', (side+'upleg', side+'upperleg', short+'thigh'), (side+'foot', short+'foot'))])
+                try:
+                    toe = source_bone(side+'toebase', side+'toes')
+                    definitions.append((side+'Foot', (toe,), (toe,)))
+                except ValueError:
+                    pass  # Native CMU rigs have no toe joint; keep the target toe at its own rest.
+            for chain_name, start, end in definitions:
+                source_controller.add_retarget_chain(chain_name, source_bone(*start), source_bone(*end), 'None')
+        assert len(source_controller.get_retarget_chains()) >= 8, ('No usable source characterization', sid)
         if sid == "cmu_bow":
             assert source_controller.set_retarget_root("Hips")
             assert source_controller.set_retarget_chain_start_bone("Spine", "LowerBack")
@@ -114,6 +148,8 @@ try:
             # native control so root-height normalization has a valid baseline.
             # Neither source asset rests nor any target joints are rewritten.
             controller.set_root_offset_in_retarget_pose(unreal.Vector(0, 0, 100), unreal.RetargetSourceOrTarget.SOURCE)
+        elif source.get('source_root_offset_cm') is not None:
+            controller.set_root_offset_in_retarget_pose(unreal.Vector(0, 0, source['source_root_offset_cm']), unreal.RetargetSourceOrTarget.SOURCE)
         while controller.get_num_retarget_ops():
             controller.remove_retarget_op(controller.get_num_retarget_ops() - 1)
         controller.add_default_ops()
@@ -201,7 +237,7 @@ try:
             assert len(gltf["skins"][0]["joints"]) == 59 and gltf.get("animations")
             state["clips"].append({"state": key, "source": sid + "/" + todo[key], "source_asset": original.get_path_name(),
                                    "asset": animation.get_path_name(), "path": str(path), "seconds": animation.sequence_length,
-                                   "loop": todo[key].lower().endswith("_loop") or key in ("idle", "idle_look", "walk", "run", "sprint", "talk", "sit", "sit_talk", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
+                                   "loop": todo[key].lower().endswith("_loop") or key.startswith("work_") or key in ("eat", "drink", "idle", "idle_look", "walk", "run", "sprint", "talk", "sit", "sit_talk", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
                                    "source_rate_scale": original.get_editor_property("rate_scale")})
             save("EXPORTED", current=key)
     assert len(state["clips"]) == len(selected), "Not every selected source was exported"

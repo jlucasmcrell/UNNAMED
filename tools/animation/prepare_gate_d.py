@@ -12,7 +12,8 @@ def prepare(original, output):
     output.mkdir(parents=True, exist_ok=True)
     read = lambda path: json.loads(path.read_text(encoding='utf-8-sig'))
     sources = read(original / 'sources.json')
-    selection = read(Path(__file__).with_name('humgen_sources.json'))
+    selection = read(output / 'selection.json') if (output / 'selection.json').exists() else {}
+    selection.update(read(Path(__file__).with_name('humgen_sources.json')))
     for source in sources['sources']:
         prefix = Path(source['path']).stem
         for item in source['assets']:
@@ -32,9 +33,13 @@ def prepare(original, output):
     # These semantic names refer to genuine, inspected native takes.
     selection.update(work_chop=['ual2', 'TreeChopping_Loop'], carry_walk=['ual2', 'Walk_Carry_Loop'],
                      work_harvest=['ual2', 'Farm_Harvest'], eat=['ual2', 'Consume'],
-                     emote_yes=['ual2', 'Yes'], emote_dance=['ual1', 'Dance_Loop'])
+                     emote_yes=['ual2', 'Yes'], emote_dance=['ual1', 'Dance_Loop'],
+                     unarmed_attack_1=['ual1', 'Punch_Jab'], unarmed_attack_2=['ual1', 'Punch_Cross'],
+                     pistol_ready=['ual1', 'Pistol_Aim_Neutral'], pistol_attack=['ual1', 'Pistol_Shoot'],
+                     pistol_reload=['ual1', 'Pistol_Reload'])
     for name in ('sources.json', 'fal_migration.json', 'target_humgen_creator_female.json', 'target_humgen_creator_male.json'):
-        (output / name).write_text(json.dumps(read(original / name), indent=2), encoding='utf-8')
+        if not (output / name).exists():
+            (output / name).write_text(json.dumps(read(original / name), indent=2), encoding='utf-8')
     (output / 'selection.json').write_text(json.dumps(selection, indent=2), encoding='utf-8')
     print(f'{len(selection)} selected states from inspected UAL/FAL receipts; Mixamo/Rokoko/CMU coverage still pending')
 

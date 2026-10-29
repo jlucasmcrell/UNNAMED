@@ -168,7 +168,10 @@ public partial class NpcsView : Node3D
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetIdleRole(npc.Role);
-            figure.SetActivity(npc.Activity, npc.Role);
+            string? activityRole = npc.Role;
+            if (simulation.Setup.NpcLife.Routines.TryGetValue(npc.Id, out var routine))
+                activityRole = routine.Roles.FirstOrDefault(role => Ui.Models.CharacterActivity.Clip(npc.Activity, role) is not null) ?? activityRole;
+            figure.SetActivity(npc.Activity, activityRole);
             bool held = npc.Id == FoldEcho.Held && simulation.Barriers.Any(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
             figure.SetPosture(held, false);
             figure.SetTalking(npc.Talking && !held);
@@ -178,6 +181,7 @@ public partial class NpcsView : Node3D
             figure.SetExpression(Ui.Models.DialoguePerformance.Mood(spoken,
                 simulation.Conversation is { } performance && performance.NpcId == npc.Id ? performance.Mood : null));
             var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);
+            if (furniture?.Clip == "lie_to_idle") figure.SetExpression("sleep");
             bool resting = figure.SetRestPose(held && VisualOptions.ComparisonCast == "humgen" ? "captive_kneel" : furniture?.Clip);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
             var wantedOffset = resting && furniture is { } support && figure.RestContact is { } contact ? support.Top-contact : Vector3.Zero;
@@ -350,7 +354,7 @@ public partial class NpcsView : Node3D
         _clock += delta / Math.Max(1, _barks.Count);
         float distance = feet.DistanceTo(PlayerHead.GlobalPosition);
         var head = figure.Head ?? feet + Vector3.Up * 1.6f;
-        bool near = distance < BarkReach && simulation.Conversation is null && !npc.Downed;
+        bool near = distance < BarkReach && simulation.Conversation is null && !npc.Downed && npc.Activity != NpcActivities.Sleep;
         var lines = near && bark.Quiet <= 0 ? simulation.Barks(npc.Id) : default;
         if (!lines.IsDefault && lines.IsEmpty)
             bark.Quiet = 5;

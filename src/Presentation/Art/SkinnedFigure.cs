@@ -568,8 +568,10 @@ public sealed partial class SkinnedFigure : Figure
             { Holds: Held.Sword } => "sword_attack",
             { Holds: Held.Spear } => "spear_thrust",
             { Holds: Held.Bow } => "bow_draw",
+            { Holds: Held.Nothing } when m.Has("unarmed_attack_1") => "unarmed_attack",
             _ => null,
         };
+        if (!s.Casting && _equipped?.Family is { } family && m.Has(family + "_attack_1")) action = family + "_attack";
         // A fresh windup picks its blow; the same blow plays on through its active window and recovery.
         if (s.Phase == CombatPhase.Windup && _lastPhase != CombatPhase.Windup && action is not null)
             _attack = NextAttack(action);
@@ -598,6 +600,7 @@ public sealed partial class SkinnedFigure : Figure
         if (s.Guarding && s.Phase == CombatPhase.Idle)
         {
             string guard = s.Holds == Held.Bow ? "bow_ready" : s.Holds == Held.Spear ? "spear_ready" : "sword_block";
+            if (_equipped?.Family is { } familyGuard && m.Has(familyGuard + "_block")) guard = familyGuard + "_block";
             if (m.Has(guard))
             {
                 // Held where the clip's guard is up (its first mark where the bindings give one).
@@ -725,6 +728,7 @@ public sealed partial class SkinnedFigure : Figure
         }
         // An equipped weapon alone is not a fight: use its ready stance only while combat is active.
         string ready = s.Holds switch { Held.Sword => "sword_ready", Held.Spear => "spear_ready", Held.Bow => "bow_ready", _ => "" };
+        if (_equipped?.Family is { } familyReady && m.Has(familyReady + "_ready")) ready = familyReady + "_ready";
         if (s.Ready && ready.Length > 0 && m.Has(ready))
         {
             m.Play(ready, 0.3f);

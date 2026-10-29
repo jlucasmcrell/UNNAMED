@@ -4,6 +4,7 @@ Branch `npc/gate-d`, base `78c2f3d3` from `codex/f1-siann-faces`.
 Own checkout: `D:\Otherreach_Scratch\npc_gate_d`. Gate C's checkout is read-only to this lane.
 
 Status: IN PROGRESS. Neither part is FINISHED or ready for visual acceptance.
+Gate C snapshot `e3fcae86` is integrated on this lane as merge `0064d926`; its own checkout is untouched.
 
 The shared native face keeps blinks and saccades and now accepts authored dialogue `mood`
 (`neutral`, `warm`, `curious`, `worried`, `stern`, `sad`, `surprised`). Existing unannotated
@@ -39,6 +40,17 @@ RCD3 review launcher. Animation requires the smith's actual schedule to be worki
 native `work_smith` clip to be active. Face opens a normal Sel conversation, then shows
 the creator's expression previews. Timestamped frames retain actual playback timing.
 The clips have not yet been captured or inspected.
+
+The first face proof job is submitted to the 6900XT farm (`f1_gate_d_face_20261029_01`), using a private
+copied art tree and a newly created character named Eris. Its results are pending. Existing in-game
+credits already cover these motion sources under AN01–AN06; no new licence claim is introduced.
+
+The initial source auto-characterizer produced empty chains for Mixamo/HumanIK prefixes. The numeric
+motion audit caught static smith/cook exports. Explicit source chains corrected them, preserving the
+native target; audited hand displacement is about 1.17/1.12m with ~0.002mm rest error. These checks are
+transport evidence, not a substitute for the owed working clip. All 2,548 owned CMU takes now have
+source-only preview transports; a sampled CMU import and native retarget pass the rest/motion check.
+The remaining source batch and full library packaging are still running/pending.
 
 D15 hooks: existing Ashen Hollow smith/cook/resident schedules and conversations are the
 world hooks. No new skill or technique is added. Hooks lint and dossier reconciliation

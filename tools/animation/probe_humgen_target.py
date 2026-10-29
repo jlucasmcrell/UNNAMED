@@ -40,9 +40,9 @@ try:
         bones = [{"name": str(component.get_bone_name(i)),
                   "parent": str(component.get_parent_bone(component.get_bone_name(i)))}
                  for i in range(component.get_num_bones())]
-        rig = tools.create_asset("IK_" + mesh.get_name(), destination, None, unreal.IKRigDefinitionFactory())
+        rig = unreal.load_asset(destination + "/IK_" + mesh.get_name())
         if rig is None:
-            rig = unreal.load_asset(destination + "/IK_" + mesh.get_name())
+            rig = tools.create_asset("IK_" + mesh.get_name(), destination, None, unreal.IKRigDefinitionFactory())
         controller = unreal.IKRigController.get_controller(rig)
         assert controller.set_skeletal_mesh(mesh)
         controller.apply_auto_generated_retarget_definition()

@@ -8,6 +8,7 @@ import json
 import re
 import sys
 import os
+import struct
 from pathlib import Path
 import bpy
 from mathutils import Vector
@@ -29,8 +30,16 @@ for source in files:
     identifier = re.sub('[^a-z0-9]+', '_', source.stem.lower()).strip('_') + '_' + digest[:8]
     receipt = output / (identifier + '.json')
     if receipt.exists():
-        rows.append(json.loads(receipt.read_text()))
-        continue
+        try:
+            previous = json.loads(receipt.read_text())
+            transport = Path(previous['path'])
+            with transport.open('rb') as stream:
+                header = stream.read(12)
+            if previous['status'] == 'SOURCE_EXPORTED_NOT_RETARGETED' and len(header) == 12 and struct.unpack_from('<I', header, 8)[0] == transport.stat().st_size:
+                rows.append(previous)
+                continue
+        except (ValueError, KeyError, OSError):
+            pass  # Retry an interrupted write; original owned FBX remains untouched.
     try:
         bpy.ops.wm.read_factory_settings(use_empty=True)
         bpy.ops.import_scene.fbx(filepath=str(source), automatic_bone_orientation=False)

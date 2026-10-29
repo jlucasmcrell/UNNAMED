@@ -244,7 +244,7 @@ public sealed partial class FaceDriver : Node
             _targets[channel] = 0;
         RestAndGaze(delta);
         Expression();
-        Blink(delta);
+        if (Mood != "sleep") Blink(delta);
         Speak(delta);
         if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
         // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.
@@ -354,6 +354,9 @@ public sealed partial class FaceDriver : Node
         string mood = Mood ?? (_line?.TrimEnd().EndsWith('?') == true ? "curious" : "neutral");
         switch (mood)
         {
+            case "sleep":
+                _targets["eyeBlinkLeft"] = _targets["eyeBlinkRight"] = 1f;
+                break;
             case "warm": case "happy":
                 _targets["mouthSmileLeft"] = _targets["mouthSmileRight"] = .35f;
                 _targets["eyeSquintLeft"] = _targets["eyeSquintRight"] = .18f;
@@ -416,7 +419,9 @@ public sealed partial class FaceDriver : Node
         };
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
         _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f * (recording is { } sounding ? Mathf.Clamp(sounding.Jaw * 8, 0, 1) : 1);
-        _targets["jawOpen"] = recording?.Jaw ?? jaw * 0.6f;
+        // The recording supplies energy, while the phoneme supplies articulation:
+        // a loud M/B/P must still close the jaw rather than leave it hanging open.
+        _targets["jawOpen"] = recording is { } voiced ? voiced.Jaw * (jaw / .55f) : jaw * .6f;
         if (c is '.' or ',' or '!' or '?' or '-' or ';' or ':')
             _spoken += delta * 2.5;
         if (_line.TrimEnd().EndsWith('?'))

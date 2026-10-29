@@ -13,6 +13,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedModel : Node3D
 {
     private readonly HashSet<string> _states = new(StringComparer.Ordinal);
+    private Action<string>? _ensureNativeClip;
     public IReadOnlyList<string> States => _states.Order(StringComparer.Ordinal).ToArray();
     public double IdleStartPhase { get; set; }
     private bool _idlePhaseStarted;
@@ -202,8 +203,9 @@ public sealed partial class SkinnedModel : Node3D
                 motion.GetMeta("animation_sources", new Godot.Collections.Dictionary()).AsGodotDictionary()
                     .ToDictionary(p => p.Key.AsString(), p => p.Value.AsString(), StringComparer.Ordinal),
                 motion.GetMeta("foot_plants_schema", 0).AsInt32(), motion.GetMeta("source_playback_schema", 0).AsInt32());
-        foreach (string clip in motion.GetAnimationList())
+        void Install(string clip)
         {
+            if (library.HasAnimation(clip)) return;
             var animation = (Animation)motion.GetAnimation(clip).Duplicate();
             for (int track = 0; track < animation.GetTrackCount(); track++)
             {
@@ -212,7 +214,16 @@ public sealed partial class SkinnedModel : Node3D
                 animation.TrackSetPath(track, new NodePath($"{skeletonPath}:{bone}"));
             }
             library.AddAnimation(clip, animation);
+        }
+        // Keep the complete owned library available. As with the usual asset
+        // cache, instantiate a person's optional performance only when requested;
+        // thousands of unrelated takes need not be copied into every resident.
+        if (humgen) _ensureNativeClip = Install;
+        var primary = Ui.Models.HumGenMotionPolicy.Required.ToHashSet(StringComparer.Ordinal);
+        foreach (string clip in motion.GetAnimationList())
+        {
             _states.Add(clip);
+            if (!humgen || primary.Contains(clip)) Install(clip);
         }
         MotionPaces = motion.GetMeta("motion_paces").AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle());
         MotionActionPhases = motion.GetMeta("action_phases", new Godot.Collections.Dictionary()).AsGodotDictionary()
@@ -362,12 +373,16 @@ public sealed partial class SkinnedModel : Node3D
     {
         if (!_states.Contains(state))
             return;
+        _ensureNativeClip?.Invoke(state);
         if (_locomotion?.Call("stop").AsBool() == true) Current = null;
         _player.SpeedScale = speed;
         if (Current == state && !restart)
             return;
         Current = state;
         _player.Play(state, blend);
+        if (!restart && state.StartsWith("work_", StringComparison.Ordinal)
+            && _player.GetAnimation(state).LoopMode == Animation.LoopModeEnum.Linear)
+            _player.Seek(IdleStartPhase * Length(state), true);
         if (!_idlePhaseStarted && state == "idle")
         {
             _idlePhaseStarted = true;
@@ -378,13 +393,19 @@ public sealed partial class SkinnedModel : Node3D
     }
 
     /// <summary>A state's length in seconds (0 when it has no clip).</summary>
-    public double Length(string state) => _states.Contains(state) ? _player.GetAnimation(state).Length : 0;
+    public double Length(string state)
+    {
+        if (!_states.Contains(state)) return 0;
+        _ensureNativeClip?.Invoke(state);
+        return _player.GetAnimation(state).Length;
+    }
 
     /// <summary>Hold a state at a point in it (0-1): an attack's pose follows the simulation's phase, not the clip's clock.</summary>
     public void Hold(string state, float fraction, float blend = 0.1f)
     {
         if (!_states.Contains(state))
             return;
+        _ensureNativeClip?.Invoke(state);
         if (_locomotion?.Call("stop").AsBool() == true) Current = null;
         if (Current != state)
         {
