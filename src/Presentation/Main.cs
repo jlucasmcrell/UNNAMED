@@ -613,6 +613,11 @@ public partial class Main : Node3D
         _loading?.Note(UNNAMED.Domain.Knowledge.LoreRules.Latest(_session.Setup.Lore, _session.Simulation?.Lore ?? default));
         BuildPanels(profile);
         Subscribe();
+        if (VisualOptions.NoHud)
+        {
+            _hud.Visible = false;
+            GD.Print("UNNAMED hud: none - the run draws no HUD (proof frame)");
+        }
         DefineInput();
         UseSettings(applyPicture: !harness);
 
@@ -1157,11 +1162,6 @@ public partial class Main : Node3D
             if(_session.Simulation is { } sim && i<sim.Pets.Length){CloseScreens();_companionsPanel.OpenPet(sim.Pets[i].Id);}
         } };
         AddChild(_hud);
-        if (VisualOptions.NoHud)
-        {
-            _hud.Visible = false;
-            GD.Print("UNNAMED hud: none - the run draws no HUD (proof frame)");
-        }
         _loading?.Stage("Placing items and creatures", 0.72);
         _items = new ItemsView { Name = "Items" };
         _items.Bind(_art, _bindings);
