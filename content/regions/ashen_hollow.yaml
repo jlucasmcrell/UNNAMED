@@ -376,14 +376,13 @@ routes:
 - { key: route.ashen_hollow.roof.shed_gantry, kind: roof, position_m: [60.5, 143.5], to_m: [75, 150], cover_percent: 75, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 - { key: route.ashen_hollow.vent.smithy_flue, kind: vent, position_m: [57.5, 140.5], to_m: [50, 130], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 } }
 - { key: route.ashen_hollow.servant.back_door, kind: servant, position_m: [46.5, 126.2], to_m: [30, 120], cover_percent: 60 }
+- { key: route.area.ashen-hollow-standalone.disguise, kind: disguise, position_m: [60, 142], to_m: [70, 150], cover_percent: 50 }
+- { key: route.area.ashen-hollow-standalone.perch, kind: roof, position_m: [60.5, 143.5], to_m: [75, 150], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 gear_makers:
   - maker.veth.reach_smith
   - maker.kal.vossgar_forge
   - maker.ondrek.tenantless_repair
 # D23 S6: the standalone region's own way past the smithy and a perch over it.
-routes:
-- { key: route.area.ashen-hollow-standalone.disguise, kind: disguise, position_m: [60, 142], to_m: [70, 150], cover_percent: 50 }
-- { key: route.area.ashen-hollow-standalone.perch, kind: roof, position_m: [60.5, 143.5], to_m: [75, 150], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 
 npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
