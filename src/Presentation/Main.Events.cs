@@ -124,6 +124,10 @@ public partial class Main
             {
                 if (_session.Simulation.PlayerInExterior) _hud.Toast(site.DoneText, 6);
                 else _hud.Reading(site.DoneText);
+                // A circle worked with the body's own hands: the drawing motion is the catalog's cast clip (D18
+                // SYSTEMS, needed-2; ANIM.DRAW_CIRCLE).
+                if (e.SwitchKey.StartsWith("switch.ritual.", StringComparison.Ordinal))
+                    _avatar.Work();
             }
         });
         _session.Subscribe<WorldFlagChanged>(_ =>

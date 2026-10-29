@@ -251,10 +251,14 @@ public sealed partial class SkinnedFigure : Figure
     public override double GetUpSeconds => _model.Has("get_up") ? _model.Length("get_up") : _model.Has("death") ? Math.Min(2.0, _model.Length("death")) : 0;
 
     private float? _waking;
+    private double _working;
 
     public override void Strike() => _striking = 0.001;
 
     public override void Interact() => _reaching = 0.001;
+
+    /// <summary>Working something of the body's own: the rite drawn on the ground (D18 SYSTEMS, needed-2).</summary>
+    public override void Work() => _working = 0.001;
 
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
 
@@ -511,6 +515,16 @@ public sealed partial class SkinnedFigure : Figure
             else if (resting == "captive_kneel") m.Hold(resting, .5f, .3f);
             else m.Play(_talking && m.Has("sit_talk") ? "sit_talk" : resting, .3f);
             return;
+        }
+        if (_working > 0)
+        {
+            _working += delta;
+            if (m.Has("cast") && _working < m.Length("cast"))
+            {
+                m.Play("cast", 0.1f);
+                return;
+            }
+            _working = 0;
         }
         if (_striking > 0)
         {
