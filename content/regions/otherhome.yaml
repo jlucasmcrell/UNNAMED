@@ -5124,8 +5124,77 @@ roads:
   name: The Causeway Road
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs: []
-nodes: []
+nodes:
+- name: oh_shore_iron_a
+  node_ref: node.ore.loose_iron
+  position_m: [1280.0, 480.0]
+- name: oh_shore_iron_b
+  node_ref: node.ore.loose_iron
+  position_m: [1284.0, 684.0]
+- name: oh_shore_iron_c
+  node_ref: node.ore.loose_iron
+  position_m: [1278.0, 864.0]
+- name: oh_shore_iron_d
+  node_ref: node.ore.loose_iron
+  position_m: [1286.0, 1044.0]
+- name: oh_terrace_woundmoss_a
+  node_ref: node.herb.woundmoss
+  position_m: [1352.0, 589.0]
+- name: oh_terrace_woundmoss_b
+  node_ref: node.herb.woundmoss
+  position_m: [1452.0, 684.0]
+- name: oh_terrace_woundmoss_c
+  node_ref: node.herb.woundmoss
+  position_m: [1582.0, 784.0]
+- name: oh_terrace_boneleaf_a
+  node_ref: node.herb.boneleaf
+  position_m: [1372.0, 624.0]
+- name: oh_terrace_boneleaf_b
+  node_ref: node.herb.boneleaf
+  position_m: [1622.0, 884.0]
+- name: oh_terrace_boneleaf_c
+  node_ref: node.herb.boneleaf
+  position_m: [1712.0, 984.0]
+- name: oh_bog_cotton_a
+  node_ref: node.fibre.bog_cotton
+  position_m: [1312.0, 524.0]
+- name: oh_bog_cotton_b
+  node_ref: node.fibre.bog_cotton
+  position_m: [1320.0, 804.0]
+- name: oh_bog_cotton_c
+  node_ref: node.fibre.bog_cotton
+  position_m: [1304.0, 1084.0]
+- name: oh_deadfall_a
+  node_ref: node.wood.deadfall
+  position_m: [1402.0, 714.0]
+- name: oh_deadfall_b
+  node_ref: node.wood.deadfall
+  position_m: [1672.0, 854.0]
+- name: oh_deadfall_c
+  node_ref: node.wood.deadfall
+  position_m: [1792.0, 1044.0]
+- name: oh_ash_stand_a
+  node_ref: node.wood.ash_stand
+  position_m: [1752.0, 1104.0]
+- name: oh_ash_stand_b
+  node_ref: node.wood.ash_stand
+  position_m: [1832.0, 1144.0]
+- name: oh_snare_larder
+  node_ref: node.trap.larder_snare
+  position_m: [1332.0, 644.0]
+- name: oh_snare_pelt
+  node_ref: node.trap.pelt_snare
+  position_m: [1812.0, 1084.0]
 stations:
+- key: station.oh_anvil
+  kind: anvil
+  position_m: [1534.0, 1112.0]
+- key: station.oh_cookfire
+  kind: cookfire
+  position_m: [1452.0, 504.0]
+- key: station.oh_alembic
+  kind: alembic
+  position_m: [1622.0, 1110.0]
 - key: station.oh_survey_archive
   kind: archive
   position_m: [1572.0, 765.0]

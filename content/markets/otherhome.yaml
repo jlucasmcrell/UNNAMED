@@ -1,0 +1,14 @@
+id: market.otherhome
+kind: market
+schema: 1
+display_key: market.otherhome.name
+tags: [market]
+notes: "The Tidepearl Exchange's market at the Salt Steps (HOOK.VENDOR.STALL): the city's own scale of trade, where a
+  district that ferries and salvages for a living sells what it brings in. Numbers are working figures."
+merchants:
+  - { merchant_ref: merchant.otherhome.tidepearl_clerk }
+goods:
+  - { item_ref: item.material.iron_ingot, target: 6, min: 1, max: 20, production: 2, consumption: 1, elasticity: 0.6 }
+  - { item_ref: item.material.ash_haft, target: 8, min: 2, max: 30, production: 3, consumption: 1, elasticity: 0.5 }
+  - { item_ref: item.material.raw_meat, target: 10, min: 2, max: 30, production: 4, consumption: 3, elasticity: 0.5 }
+  - { item_ref: item.tool.torch, target: 6, min: 1, max: 20, production: 2, consumption: 2, elasticity: 0.4 }

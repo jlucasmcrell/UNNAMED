@@ -1,0 +1,19 @@
+id: spawn.otherhome.pack_cistern
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.pack_cistern.name
+tags: [spawn]
+notes: "Something that hunts in packs at the cistern court's edge - the undercity's water is not safe."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 3
+  - 3
+  role: pack_hunter
+at:
+  position_m: [1531.0, 706.0]
+  radius_m: 10
+level_band:
+- 2
+- 2
