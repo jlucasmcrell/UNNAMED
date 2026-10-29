@@ -181,7 +181,7 @@ public partial class HollowView : Node3D
         bool exterior = layout.IsOutdoors;
         if (exterior)
         {
-            AddChild(BuildWater(layout.Space));
+            AddChild(BuildWater(layout.Space, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000))));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -883,7 +883,7 @@ public partial class HollowView : Node3D
     }
 
     /// <summary>A still water surface just above the stream bed: the terrain hides it everywhere else.</summary>
-    private Node3D BuildWater(WalkSpace space)
+    private Node3D BuildWater(WalkSpace space, System.Func<float, float, float> heightMm)
     {
         Coverage.Resolved("water", "stream", "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model");
         var node = new Node3D { Name = "Water" };
@@ -895,7 +895,7 @@ public partial class HollowView : Node3D
             Position = new Vector3((space.MinXMm + space.MaxXMm) / 2000f, 0.12f, (space.MinZMm + space.MaxZMm) / 2000f),
         });
         foreach (var water in space.Waters)
-            node.AddChild(WaterRibbon(water));
+            node.AddChild(WaterRibbon(water, heightMm));
         if (space.Waters.Length > 0)
             Godot.GD.Print($"UNNAMED water: {space.Waters.Length} authored body(ies) drawn: " +
                            string.Join(", ", space.Waters.Select(w => $"{w.Key} at {w.LevelMm / 1000.0:0.00} m, {w.WidthMm / 1000.0:0.0} m wide")));
@@ -906,7 +906,7 @@ public partial class HollowView : Node3D
     /// An authored water body (D18) drawn where the content puts it: a ribbon along its line at its own level, or a disc where it
     /// stands in one place. The channel under it is cut into the terrain, so the water is only seen where the ground lets it through.
     /// </summary>
-    private static MeshInstance3D WaterRibbon(WaterSite water)
+    private static MeshInstance3D WaterRibbon(WaterSite water, System.Func<float, float, float> heightMm)
     {
         float half = water.WidthMm / 2000f;
         var points = water.PointsMm.Select(p => new Vector2(p.XMm / 1000f, p.ZMm / 1000f)).ToList();
