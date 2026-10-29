@@ -38,6 +38,18 @@ public sealed class LookSwatchesTests
         });
     }
 
+    /// <summary>A Siann's hair is long and platinum-white, so a record that names no style is not drawn bald; nobody else is dressed for them.</summary>
+    [Fact]
+    public void ARecordWithoutAStyle_IsBaldForEveryPeopleButTheSiann()
+    {
+        var bald = new CharacterAppearance(1650, "face.f.caucasian_presets.caucasian_1", null, null, "outfit.casual.smart_casual", null);
+
+        Assert.Equal(LookSwatches.SiannHairStyle, LookSwatches.Constrain("people.siann", bald).Hair);
+        Assert.Equal("hair.long.ponytail", LookSwatches.Constrain("people.siann", bald with { Hair = "hair.long.ponytail" }).Hair);
+        foreach (string people in new[] { "people.veth", "people.orenth", "people.kal" })
+            Assert.Null(LookSwatches.Constrain(people, bald).Hair);
+    }
+
     [Fact]
     public void EachPeoplesTones_HaveDistinctNames()
     {
