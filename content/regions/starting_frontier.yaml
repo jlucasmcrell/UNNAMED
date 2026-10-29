@@ -150494,6 +150494,7 @@ containers:
   - 512
   - 789
   stack_slots: 12
+  lock_tier: 1
 # D18: the longhouse aumbry. Sel's copied herbal is what makes the hollow's B source real: a book
 # that teaches two salves when read (item.tome.herbal_remedies, use.grants).
 - key: container.longhouse_shelf
@@ -150546,6 +150547,7 @@ containers:
   - 846.5
   - 631.0
   stack_slots: 12
+  lock_tier: 1
 - key: container.road.wain_load
   loot_ref: loot.wain_load
   position_m:
