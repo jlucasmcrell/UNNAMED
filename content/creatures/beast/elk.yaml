@@ -1,0 +1,21 @@
+id: creature.beast.elk
+kind: creature
+schema: 1
+display_key: creature.beast.elk.name
+tags: [creature, beast]
+name: Upland Elk
+notes: The great deer of the high birch, half again a stag's weight and always in company. The herd drifts the moor edge at dawn and dusk; a hunter who takes one has meat for a fortnight and a long carry home.
+family: beast
+archetype: prey
+level_band: [3, 3]
+pools: { health: 70 }
+attack_set: [ability.creature.hoof_kick, ability.creature.grazer_charge]
+armor: { head: 3, torso: 2, limbs: 1 }
+move_speed_m_s: 5.6
+turn_deg_s: 220
+body_radius_m: 0.7
+xp_value: 20
+loot_table: loot.elk
+perception: { sight_m: 34, hearing_m: 32, fov_deg: 300 }
+tier_hint: A
+tameable: false
