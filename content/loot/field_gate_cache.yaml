@@ -1,0 +1,9 @@
+id: loot.field_gate_cache
+kind: loot
+schema: 1
+display_key: loot.field_gate_cache.name
+tags: [loot]
+notes: "The Stopped Gate's cache (D13/D15): a satchel of drills left against the gate, the area's second teaching source. Static contents."
+rolls: 0
+guaranteed:
+  - { item_ref: item.tome.what_the_gate_left, count_range: [1, 1] }

@@ -150628,6 +150628,8 @@ doors:
   locked_text: 'A plate lock on a shed door, the screws long since replaced with nails.'
 
 containers:
+- { key: container.field_gate_cache, loot_ref: loot.field_gate_cache, position_m: [867.0, 751.5], stack_slots: 2 }   # D13: drills against the gate
+- { key: container.field_spill_cache, loot_ref: loot.field_spill_cache, position_m: [843.0, 757.0], stack_slots: 4 }   # D13: the Spill's manuals
 - { key: container.blackvein.tool_cache, loot_ref: loot.blackvein_tool_cache, position_m: [432.5, 650.0], stack_slots: 2, lock_tier: 1 }
 - { key: container.blackvein.strongbox, loot_ref: loot.blackvein_strongbox, position_m: [428.0, 647.2], stack_slots: 2, lock_tier: 3 }
 - key: container.den_cache

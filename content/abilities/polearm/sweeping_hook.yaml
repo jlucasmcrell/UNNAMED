@@ -1,0 +1,15 @@
+id: ability.polearm.sweeping_hook
+kind: ability
+schema: 1
+display_key: ability.polearm.sweeping_hook.name
+tags: [ability]
+name: Sweeping Hook
+notes: "The polearm's lever (D13, proficient band): the hook behind a knee, and the body it belonged to comes down a size. Durn Skell teaches it between hammer strokes."
+class: active
+discipline: skill.polearm
+cost: { stamina: 22 }
+cooldown_s: 9
+windup_multiplier: 1.2
+payload:
+  - { type: damage, multiplier_of_weapon: 1.3 }
+  - { type: apply_effect, effect_ref: effect.weakened, chance: 0.40 }

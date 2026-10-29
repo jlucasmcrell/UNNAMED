@@ -1,0 +1,15 @@
+id: ability.blade.riposte
+kind: ability
+schema: 1
+display_key: ability.blade.riposte.name
+tags: [ability]
+name: Riposte
+notes: "The blade's counter (D13): the blow answered inside the other's wind-up, so it lands sooner and lands the arm slower. Taught by Kera at the proficient band."
+class: active
+discipline: skill.one_hand_blade
+cost: { stamina: 18 }
+cooldown_s: 8
+windup_multiplier: 1
+payload:
+  - { type: damage, multiplier_of_weapon: 1.35 }
+  - { type: apply_effect, effect_ref: effect.weakened, chance: 0.35 }

@@ -83,6 +83,19 @@ nodes:
 
       - id: leave
         text: "Just passing."
+      - id: learn_pinning
+        text: "Could you teach me to pin a mark to the ground?"
+        conditions: [{ kind: skill, skill_ref: skill.bow, min: 30 }]
+        consequences:
+          - { command: teach, refs: [ability.bow.pinning_shot] }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, delta: 3, event: asked_to_learn }
+      - id: learn_suppressing
+        text: "And the shot that makes them swing weaker?"
+        conditions: [{ kind: skill, skill_ref: skill.bow, min: 60 }]
+        consequences:
+          - { command: teach, refs: [ability.bow.suppressing_shot] }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, delta: 3, event: asked_to_learn }
+
   tell_gorge:
     text: "\"The cut on the east lip, where the water leaves. Highest ground there is, and no road to speak of, so what goes up it goes up on foot and comes back the same way.\" She counts on her fingers, still counting something else entirely. \"Two hunting spiders den in there. They take their game by the ground, not by the eye - so walk, don't run, if you're ever fool enough to be in there. They're at the end of a walk, not on the way anywhere. That's the only reason more of us haven't met them.\""
     once: true

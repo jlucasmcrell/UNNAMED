@@ -1,0 +1,15 @@
+id: ability.bow.pinning_shot
+kind: ability
+schema: 1
+display_key: ability.bow.pinning_shot.name
+tags: [ability]
+name: Pinning Shot
+notes: "The bow's holding shot (D13, proficient band): through cloth and into ground, and the mark stops coming on. Tam Crowden teaches it at the granary."
+class: active
+discipline: skill.bow
+cost: { stamina: 16 }
+cooldown_s: 7
+windup_multiplier: 1.3
+payload:
+  - { type: damage, multiplier_of_weapon: 1.2 }
+  - { type: apply_effect, effect_ref: effect.root, chance: 0.30 }

@@ -97,6 +97,13 @@ nodes:
       - id: story_packing
         text: How would you tell packing from a fallen face?
         next: story_packing
+      - id: learn_hook
+        text: "The hook. Behind the knee."
+        conditions: [{ kind: skill, skill_ref: skill.polearm, min: 30 }]
+        consequences:
+          - { command: teach, refs: [ability.polearm.sweeping_hook] }
+          - { command: record_relationship_event, npc_ref: npc.cairnwold.durn_skell, dimension: trust, delta: 3, event: asked_to_learn }
+
   lesson:
     text: "\"Iron. Our own.\" He points the hammer south. \"Crags. Far west end of the line. Black in the face. Three good strikes, then it is done. Do not waste them.\" The hammer moves to the hearth. \"Ore in there. Billet out.\" Then north. \"Ash, where the ground rises. For the haft.\" He goes back to work. After a while: \"Make a spear. Bring it.\""
     once: true

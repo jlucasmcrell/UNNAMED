@@ -1,0 +1,16 @@
+id: item.relic.hook_of_the_moor
+kind: item
+schema: 1
+display_key: item.relic.hook_of_the_moor.name
+tags: [item, relic]
+name: The Hook of the Moor
+notes: "A relic that teaches (D13): an old polearm fitting, worn smooth at the hook, that shows the lever to the hand that holds it."
+category: misc
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 45
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.polearm.sweeping_hook }

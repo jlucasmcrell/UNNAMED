@@ -1,0 +1,16 @@
+id: item.tome.pinning_and_patience
+kind: item
+schema: 1
+display_key: item.tome.pinning_and_patience.name
+tags: [item]
+name: Pinning and Patience
+notes: "A technique book (D13), Tam Crowden's own diagrams of where a shaft goes through cloth. Teaches the pinning shot."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 45
+use:
+  consume: true
+  grants:
+    - { kind: ability, ref: ability.bow.pinning_shot }
