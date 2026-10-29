@@ -185,7 +185,7 @@ public partial class HollowView : Node3D
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
-            var (placed, skipped) = Dressing.Place(this, _art, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f,
+            var (placed, skipped) = Dressing.Place(this, _art, DrawnGround(terrain),
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
@@ -361,7 +361,14 @@ public partial class HollowView : Node3D
     private Node3D BuildTerrain(TerrainGrid grid, SpaceId space)
     {
         var cells = new SortedDictionary<string, SurfaceTool>(StringComparer.Ordinal);
-        Vector3 At(int i, int j) => ToGodot(grid.OriginXMm + i * grid.SpacingMm, grid.HeightAt(i, j), grid.OriginZMm + j * grid.SpacingMm);
+        // The authored water bodies are cut into this mesh (not into region cells, which would move saves): a creek's bed, a pool's
+        // basin, the millpond's pan, so the water the camera sees stands in a depression of the ground rather than on it.
+        Vector3 At(int i, int j)
+        {
+            float x = (grid.OriginXMm + i * grid.SpacingMm) / 1000f, z = (grid.OriginZMm + j * grid.SpacingMm) / 1000f;
+            float y = grid.HeightAt(i, j) / 1000f;
+            return new Vector3(x, _ground is { } field ? field.Carved(x, z, y) : y, z);
+        }
         // The domain's split: every quad along its (0,0)-(1,1) diagonal, clockwise seen from above (Godot's front face).
         for (int j = 0; j < grid.Rows - 1; j++)
         for (int i = 0; i < grid.Columns - 1; i++)
@@ -882,7 +889,18 @@ public partial class HollowView : Node3D
         return node;
     }
 
-    /// <summary>A still water surface just above the stream bed: the terrain hides it everywhere else.</summary>
+    /// <summary>
+    /// The ground as the camera draws it - with the authored water bodies cut into it - or the domain's own where no ground field has
+    /// been bound.
+    /// </summary>
+    private Func<float, float, float> DrawnGround(TerrainGrid terrain) =>
+        _ground is { } field ? field.Height : (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
+
+    /// <summary>
+    /// The authored water bodies (D18/D20), each drawn where content puts it: its surface at its own level in the bed its own shore cuts
+    /// into the ground, its edge a shoreline rather than a sheet's corner, its colour from its own depth, and the small ones drawn as
+    /// pools with stones round the rim and reeds at the edge.
+    /// </summary>
     private Node3D BuildWater(WalkSpace space)
     {
         Coverage.Resolved("water", "stream", "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model");
@@ -894,74 +912,18 @@ public partial class HollowView : Node3D
             MaterialOverride = Palette.StreamWater,
             Position = new Vector3((space.MinXMm + space.MaxXMm) / 2000f, 0.12f, (space.MinZMm + space.MaxZMm) / 2000f),
         });
-        foreach (var water in space.Waters)
-            node.AddChild(WaterRibbon(water));
-        if (space.Waters.Length > 0)
-            Godot.GD.Print($"UNNAMED water: {space.Waters.Length} authored body(ies) drawn: " +
-                           string.Join(", ", space.Waters.Select(w => $"{w.Key} at {w.LevelMm / 1000.0:0.00} m, {w.WidthMm / 1000.0:0.0} m wide")));
+        // The ground as the scatter and the terrain mesh see it, so a body's bank, its bed and everything standing on them agree.
+        Func<float, float, float> ground = _ground is { } field
+            ? field.Height
+            : (x, z) => space.Terrain.HeightAtMm((long)(x * 1000f), (long)(z * 1000f)) / 1000f;
+        var shores = space.Waters.Select(w => new WaterShore(w, ground)).ToList();
+        foreach (var shore in shores)
+            node.AddChild(WaterView.Body(shore, ground, _art, Coverage));
+        if (shores.Count > 0)
+            GD.Print($"UNNAMED water: {shores.Count} authored body(ies) drawn: " + string.Join(", ", shores.Select(s =>
+                $"{s.Water.Key} ({s.Water.Kind}) at {s.Level:0.00} m, {s.Depth:0.00} m deep, " +
+                (s.Pool ? "a pool with stones and reeds" : s.Contained ? "cut into the land that holds it" : "a bank graded round it"))));
         return node;
-    }
-
-    /// <summary>
-    /// An authored water body (D18) drawn where the content puts it: a ribbon along its line at its own level, or a disc where it
-    /// stands in one place. The channel under it is cut into the terrain, so the water is only seen where the ground lets it through.
-    /// </summary>
-    private static MeshInstance3D WaterRibbon(WaterSite water)
-    {
-        float half = water.WidthMm / 2000f;
-        var points = water.PointsMm.Select(p => new Vector2(p.XMm / 1000f, p.ZMm / 1000f)).ToList();
-        float level = water.LevelMm / 1000f;
-        var mesh = new ArrayMesh();
-        var surface = new SurfaceTool();
-        surface.Begin(Mesh.PrimitiveType.Triangles);
-        if (points.Count == 1)
-        {
-            // A pond, spring or well: one quad round the point, big enough to read through its opening.
-            var c = points[0];
-            surface.SetNormal(Vector3.Up);
-            foreach (var (a, b) in new[] { (-1f, -1f), (1f, -1f), (1f, 1f), (-1f, -1f), (1f, 1f), (-1f, 1f) })
-                surface.AddVertex(new Vector3(c.X + a * half, level, c.Y + b * half));
-        }
-        else
-        {
-            for (int i = 0; i < points.Count - 1; i++)
-            {
-                Vector2 a = points[i], b = points[i + 1];
-                var along = (b - a).Normalized();
-                var across = new Vector2(-along.Y, along.X) * half;
-                surface.SetNormal(Vector3.Up);
-                foreach (var v in new[]
-                {
-                    new Vector3(a.X - across.X, level, a.Y - across.Y),
-                    new Vector3(a.X + across.X, level, a.Y + across.Y),
-                    new Vector3(b.X + across.X, level, b.Y + across.Y),
-                    new Vector3(a.X - across.X, level, a.Y - across.Y),
-                    new Vector3(b.X + across.X, level, b.Y + across.Y),
-                    new Vector3(b.X - across.X, level, b.Y - across.Y),
-                })
-                    surface.AddVertex(v);
-            }
-        }
-        surface.Commit(mesh);
-        // The gorge's own material (WaterView.BuildDenGorge): normals carried by a real current, colour by depth, foam
-        // at the shallows and along the banks. A flat stream shader is what made the first creek read as a grey sheet.
-        var material = (ShaderMaterial)WaterView.FlowWater.Duplicate();
-        Vector2 flow = points.Count > 1 ? (points[^1] - points[0]).Normalized() : new Vector2(0, -1);
-        material.SetShaderParameter("flow_dir", flow);
-        material.SetShaderParameter("flow_speed", water.Kind == "creek" || water.Kind == "stream" ? 1.3f : 0.35f);
-        material.SetShaderParameter("shallow_colour", new Vector3(0.20f, 0.31f, 0.28f));
-        material.SetShaderParameter("deep_colour", new Vector3(0.06f, 0.13f, 0.14f));
-        material.SetShaderParameter("depth_fade_m", 1.1f);
-        material.SetShaderParameter("foam_m", 0.25f);
-        material.SetShaderParameter("edge_fade", 1f);
-        material.SetShaderParameter("rapids", water.Kind is "creek" or "stream" ? 0.35f : 0.1f);
-        return new MeshInstance3D
-        {
-            Name = water.Key,
-            Mesh = mesh,
-            MaterialOverride = material,
-            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
-        };
     }
 
 
