@@ -1085,8 +1085,6 @@
    }
   },
   "npc.cairnwold.berrin_garth": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1121,13 +1119,9 @@
      1
     ]
    },
-   "model": "mh_npc_berrin_garth",
+   "model": "humgen_creator_male",
    "people_ref": "people.veth",
-   "uniform_scale": 1.0,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_m",
-    "frontier_sealed_boots__mh_veth_m"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1167,8 +1161,6 @@
    "outfit_body": "mh_veth_m"
   },
   "npc.cairnwold.durn_skell": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1203,13 +1195,9 @@
      1
     ]
    },
-   "model": "mh_npc_durn_skell",
+   "model": "humgen_creator_male",
    "people_ref": "people.veth",
-   "uniform_scale": 1.0,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_m",
-    "frontier_sealed_boots__mh_veth_m"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1249,8 +1237,6 @@
    "outfit_body": "mh_veth_m"
   },
   "npc.ashen_hollow.kera_voss": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1285,14 +1271,9 @@
      1
     ]
    },
-   "model": "mh_npc_kera_voss",
+   "model": "humgen_creator_female",
    "people_ref": "people.kal",
-   "uniform_scale": 0.9,
-   "outfit": [
-    "frontier_vest_trousers_set__mh_veth_f",
-    "frontier_sealed_boots__mh_veth_f",
-    "frontier_smith_gloves__mh_veth_f"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1332,8 +1313,6 @@
    "outfit_body": "mh_veth_f"
   },
   "npc.cairnwold.mara_ling": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1368,13 +1347,9 @@
      1
     ]
    },
-   "model": "mh_npc_mara_ling",
+   "model": "humgen_creator_female",
    "people_ref": "people.veth",
-   "uniform_scale": 1.0,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_f",
-    "frontier_sealed_boots__mh_veth_f"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1414,8 +1389,6 @@
    "outfit_body": "mh_veth_f"
   },
   "npc.ashen_hollow.renn_vale": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1450,13 +1423,9 @@
      1
     ]
    },
-   "model": "mh_npc_renn_vale",
+   "model": "humgen_creator_male",
    "people_ref": "people.veth",
-   "uniform_scale": 1.0,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_m",
-    "frontier_sealed_boots__mh_veth_m"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1496,8 +1465,6 @@
    "outfit_body": "mh_veth_m"
   },
   "npc.ashen_hollow.sel_arien": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1532,13 +1499,9 @@
      1
     ]
    },
-   "model": "mh_npc_sel_arien",
+   "model": "humgen_creator_female",
    "people_ref": "people.siann",
-   "uniform_scale": 0.88,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_f",
-    "frontier_sealed_boots__mh_veth_f"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1578,8 +1541,6 @@
    "outfit_body": "mh_veth_f"
   },
   "npc.cairnwold.tam_crowden": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1614,13 +1575,9 @@
      1
     ]
    },
-   "model": "mh_npc_tam_crowden",
+   "model": "humgen_creator_female",
    "people_ref": "people.veth",
-   "uniform_scale": 1.0,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_f",
-    "frontier_sealed_boots__mh_veth_f"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
@@ -1660,8 +1617,6 @@
    "outfit_body": "mh_veth_f"
   },
   "npc.ashen_hollow.tavar_orr": {
-   "hand": "SOCK_hand_r",
-   "off_hand": "SOCK_hand_l",
    "grip": {
     "at": [
      0,
@@ -1696,13 +1651,9 @@
      1
     ]
    },
-   "model": "mh_npc_tavar_orr",
+   "model": "humgen_creator_male",
    "people_ref": "people.orenth",
-   "uniform_scale": 1.0,
-   "outfit": [
-    "frontier_linen_trousers_set__mh_veth_m",
-    "frontier_sealed_boots__mh_veth_m"
-   ],
+   "outfit": [],
    "clips": {
     "idle": "player.mh.idle",
     "walk": "player.mh.walk",
