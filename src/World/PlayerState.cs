@@ -23,6 +23,12 @@ namespace UNNAMED.World;
 /// <summary>An inventory stack held by the player, keyed by its item instance ID.</summary>
 public sealed record InventoryEntry(EntityId ItemId, string DefId, int Count)
 {
+    /// <summary>
+    /// How the piece was built, for an assembled item (D21): its parts by slot, its materials, its maker, the tier it rolled at, its affixes and
+    /// sockets. Null for a plain item, and null in every save made before D21 - an additive field, so an old save loads with it unset.
+    /// </summary>
+    public UNNAMED.Domain.Items.GearBuild? Built { get; init; }
+
     /// <summary>The stack's quality (M3f, schema 9): crude -1, standard 0, fine +1, masterwork +2. It belongs to the instance, never the definition.</summary>
     public int Quality { get; init; }
 
@@ -55,6 +61,18 @@ public static class NotableDigest
             ? h
             : h.Add("notable").Add(notable.Name).Add(ProvenanceKinds.Key(notable.Provenance)).Add(notable.SourceRef).Add(notable.Tick)
                 .Add(notable.Maker ?? "-").Add(notable.Familiarity).Add(notable.Uses);
+}
+
+/// <summary>How a built piece enters a digest (D21): nothing for a plain item, so plain stacks hash as they always have.</summary>
+public static class BuildDigest
+{
+    public static CanonicalHasher Add(CanonicalHasher h, UNNAMED.Domain.Items.GearBuild? built) =>
+        built is null
+            ? h
+            : h.Add("built").Add(built.Family).Add(built.MakerId).Add(built.PartTier)
+                .Add(string.Join(",", built.Parts.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => kv.Key + "=" + kv.Value)))
+                .Add(string.Join(",", built.Materials.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => kv.Key + "=" + kv.Value)))
+                .Add(string.Join(",", built.Affixes)).Add(built.Sockets).Add(built.Name ?? "-");
 }
 
 /// <summary>How a stack's wear enters a digest: nothing for an unworn stack, so unworn stacks hash as they always have (WP3b).</summary>
@@ -949,7 +967,7 @@ public sealed record PlayerRecord
             using var h = new CanonicalHasher();
             h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
-                WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear);
+                BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built);
             h.Add(Progression.Digest).Add(Discoveries.Length);
             foreach (var d in Discoveries)
                 h.Add(d.LocationId).Add(DiscoveryMethods.Key(d.Method)).Add(d.Tick);
@@ -1098,7 +1116,7 @@ public sealed record PlayerRecord
                             .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear);
                     h.Add(sheet.Belongings.Length);
                     foreach (var e in sheet.Belongings)
-                        WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear);
+                        BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built);
                 }
             }
             // The attack under way (schema 27) only when there is one, so every older record digests as it always has.
