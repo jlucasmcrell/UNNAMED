@@ -6261,6 +6261,7 @@
   "skill.survival": "ui.skill.survival",
   "skill.handling": "ui.skill.survival",
   "item.misc.hound_pup": "ui.item.wolf_fang",
+  "item.misc.lure_stone": "ui.item.ashbloom",
   "skill.vital": "ui.skill.vital",
   "skill.warding": "ui.skill.warding",
   "skill.stealth": "ui.skill.survival",

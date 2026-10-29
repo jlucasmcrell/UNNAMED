@@ -235,6 +235,22 @@ public static class Perception
     }
 
     /// <summary>
+    /// What the place covers up (STEALTH §3.4): rain, a river, a forge, a crowd. A footfall is not quieter for it - it is <em>masked</em>,
+    /// which is why standing under a waterfall and shouting still works and standing beside one and whispering does not. A shot, a break or a
+    /// body going down is louder than the masking can swallow: anything that carries past twenty metres keeps half of its reach.
+    /// </summary>
+    public static long MaskedRadiusMm(Noise noise, double ambient)
+    {
+        double masking = Math.Clamp(ambient, 0, 0.8);
+        if (noise.RadiusMm > MaskingProofMm && noise.HeardAs is SoundSource.Shot or SoundSource.Impact or SoundSource.Kill)
+            masking *= 0.5;
+        return Math.Max(1, (long)Math.Round(noise.RadiusMm * (1 - masking), MidpointRounding.AwayFromZero));
+    }
+
+    /// <summary>Past this a sound is loud enough that masking only takes half of it (§3.4).</summary>
+    public const long MaskingProofMm = 20_000;
+
+    /// <summary>
     /// One tick of sight: a target seen at the edge of range raises awareness slowly, one seen close raises it fast
     /// (STEALTH §3); nothing seen lets it fade. <paramref name="gain"/> scales how fast a sighting registers - the stealth skill's rank
     /// makes the character harder to notice (owner finding 26), never invisible: the number still rises, only slower.

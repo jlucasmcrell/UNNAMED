@@ -1,4 +1,4 @@
-// UNNAMED Domain - item definitions, equipment rules, loot tables, prices (DATA_MODEL.md §4.1-§4.3, §4.14, §4.15; PROGRESSION.md §11.1)
+﻿// UNNAMED Domain - item definitions, equipment rules, loot tables, prices (DATA_MODEL.md §4.1-§4.3, §4.14, §4.15; PROGRESSION.md §11.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -367,6 +367,15 @@ public sealed record ItemDefinition(
     /// <c>stealth_penalty</c>; a lit torch, ORR:1333).
     /// </summary>
     public double StealthPenalty { get; init; }
+
+    /// <summary>
+    /// It can be thrown and what it makes where it lands (STEALTH §3.2): zero for anything that cannot be thrown as a lure. The throw is a
+    /// noise, not a weapon - what an observer gets is a place to look, never the thrower.
+    /// </summary>
+    public long ThrowNoiseMm { get; init; }
+
+    /// <summary>How far it is thrown, from <c>throw_range_m</c>; zero uses the build's own arm.</summary>
+    public long ThrowRangeMm { get; init; }
 
     /// <summary>How much wear it takes before it is worn out (WP3b, D5): weapons, armour and tools only; 0 for none.</summary>
     public int DurabilityMax { get; init; }

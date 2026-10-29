@@ -1,4 +1,4 @@
-// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -561,9 +561,25 @@ internal sealed class CreatureSystem : IAbstractAdvance
     }
 
     /// <summary>
-    /// How far the character is heard this instant, in millimetres: the gait (a crouch and a crawl are quieter than a walk, §2.6), a swing if one
-    /// is in the air (the weapon's own, not the build's), less for a stealthy rank. Zero when nothing is moving - which is what the HUD's noise
-    /// ring draws, so the ring and the listener are the same number.
+    /// What the place covers up where a body is listening (STEALTH §3.4): rain over the region (0.3), the water it is standing at (0.5). A
+    /// room's own noise - a forge, a mill, a crowd - is not read yet, and the doc's numbers for those are the next step.
+    /// </summary>
+    private double AmbientNoise(Body ear)
+    {
+        double ambient = _context.WeatherNow?.Invoke() == WeatherState.Rain ? 0.3 : 0;
+        if (_context.Setup.SpaceFor(State.Space).WaterAt(ear.XMm, ear.ZMm) is not null)
+            ambient += 0.5;
+        return Math.Min(0.8, ambient);
+    }
+
+    /// <summary>The surface the character is standing on, which decides how far a footfall carries (STEALTH §3.1).</summary>
+    public string PlayerSurface => UNNAMED.Domain.Spatial.Surfaces.At(_context.Setup.LayoutFor(State.Space).Surfaces,
+        State.Body.XMm, State.Body.ZMm);
+
+    /// <summary>
+    /// How far the character is heard this instant, in millimetres: the gait (a crouch and a crawl are quieter than a walk, §2.6), the ground it is
+    /// made on (§3.1), a swing if one is in the air (the weapon's own, not the build's), less for a stealthy rank. Zero when nothing is moving -
+    /// which is what the HUD's noise ring draws, so the ring and the listener are the same number.
     /// </summary>
     public long PlayerNoiseRadiusMm() => NoiseRadiusMm();
 
@@ -588,6 +604,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
         if (combat.Action.Kind == ActionKind.Attack && !Ranged(combat.Action) && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, SwingNoise());
+        // The ground decides how far a step carries before the skill gets a say (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8).
+        if (radius > 0)
+            radius = Math.Max(1, (long)Math.Round(radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface), MidpointRounding.AwayFromZero));
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
@@ -765,7 +784,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool pounce = false;
         foreach (var noise in noises)
         {
-            if (!Perception.Hears(c.Body, hearing, noise) || (noise.XMm == c.Body.XMm && noise.ZMm == c.Body.ZMm))
+            // What the place covers up (STEALTH §3.4): rain, the creek, the forge. The sound is not quieter; it is masked.
+            var masked = noise with { RadiusMm = Perception.MaskedRadiusMm(noise, AmbientNoise(c.Body)) };
+            if (!Perception.Hears(c.Body, hearing, masked) || (noise.XMm == c.Body.XMm && noise.ZMm == c.Body.ZMm))
                 continue;
             // A call is its own kind's: a howl brings wolves, not whatever else is in earshot.
             if (noise.Call && (!c.Role.AnswersCalls || PackKind(noise.CallerKind ?? "") != PackKind(c.Definition.Id)))

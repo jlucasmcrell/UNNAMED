@@ -385,6 +385,7 @@ public sealed class Simulation
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
+        _context.WeatherNow = () => _weather.View(WorldTick).State;   // the ear asks what the sky is doing (STEALTH §3.4)
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
         _gearSets = new GearSetSystem(_context, _state.Claim(nameof(GearSetSystem), StateSlice.GearSets), player.Id,
@@ -690,6 +691,9 @@ public sealed class Simulation
     /// <summary>How far the character is heard right now, in millimetres: the HUD's noise ring is drawn at exactly this radius (§2.7).</summary>
     public long PlayerNoiseMm => _creatures.PlayerNoiseRadiusMm();
 
+    /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
+    public string PlayerSurface => _creatures.PlayerSurface;
+
     /// <summary>
     /// How visible the character is to one creature, from 0 (not in a state to be seen at all) upward, as the sight check itself computes it
     /// (STEALTH §2): the light they both stand in, the cover the character is behind, their posture and what they carry. Read-only, for tests
@@ -993,6 +997,7 @@ public sealed class Simulation
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
+            ThrowCommand throwCommand => _combat.Handle(throwCommand, WorldTick),
                 TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
