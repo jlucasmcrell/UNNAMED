@@ -14,7 +14,7 @@ namespace UNNAMED.Application.Tests;
 public class SwingingTests
 {
     private const string Ore = "item.material.iron_ore";
-    private const string Survival = "skill.survival";
+    private const string Mining = "skill.mining";
 
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord>? change = null) =>
         Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), change ?? Arena.Usual);
@@ -66,7 +66,7 @@ public class SwingingTests
         Assert.Empty(gathered);
         Assert.Equal(0, Carried(arena, Ore));
         Assert.True(Ready(arena, "iron_seam"));
-        Assert.Single(practised, p => p.SkillId == Survival);
+        Assert.Single(practised, p => p.SkillId == Mining);
         Assert.Equal(2, Assert.IsType<PlayerActivity>(arena.Simulation.Activity).Strike);   // the pick goes on
 
         // The second, and then the third, which fills it: the item, the practice and the tell arrive together.
@@ -79,7 +79,7 @@ public class SwingingTests
         Assert.Equal(gave.Count, Carried(arena, Ore));
         Assert.Null(arena.Simulation.Activity);
         // One swing, one practice: the two the node held back and the one the gather resolved with the yield.
-        Assert.Equal(3, practised.Count(p => p.SkillId == Survival));
+        Assert.Equal(3, practised.Count(p => p.SkillId == Mining));
     }
 
     [Fact]

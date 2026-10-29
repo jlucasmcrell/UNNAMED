@@ -6,7 +6,7 @@ tags: [recipe]
 name: Minor Salve (ashbloom)
 notes: The minor salve from ashbloom in place of woundmoss (WP3a, a use for ashbloom); taught by Herbal Remedies.
 station: cookfire
-skill_ref: skill.survival
+skill_ref: skill.herbalism
 complexity: 3
 inputs:
   - { item_ref: item.material.herb_ashbloom, count: 2 }

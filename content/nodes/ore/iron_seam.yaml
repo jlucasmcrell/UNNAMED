@@ -8,6 +8,6 @@ notes: A finite seam (PROTOTYPE.md C12) - three workings and it is worked out fo
 resource_ref: resource.ore.iron
 charges: 3
 respawn: none
-harvest_skill: skill.survival
+harvest_skill: skill.mining
 difficulty: 5
 swings: 3

@@ -1,0 +1,11 @@
+id: skill.foraging
+kind: skill
+schema: 1
+display_key: skill.foraging.name
+tags: [skill]
+name: Foraging
+family: gathering
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.7 (gathering) - living off ground you do not own, which is food, fibre, water, resin and tinder. The cotton grass and the meat of Halda's larder snares practise it; the pelt snare is a hide and practises skinning. No technique carrier in the build, so its entry technique waits - Water, Fibre, Tinder at band P (foraging 30, survival 30).
+passives:
+  - { at: 3, modifiers: [{ target: stat.gather_yield, op: add, value: 1 }] }   # one more of whatever a harvest gives
+teaches: "Living off ground you do not own: food, fibre, water, tinder. A poor stretch of it teaches more than a rich one."

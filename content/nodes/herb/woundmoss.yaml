@@ -8,6 +8,6 @@ notes: A cushion of woundmoss on the shaded side of the Charwood's trunks and th
 resource_ref: resource.herb.woundmoss
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.herbalism
 difficulty: 1
 swings: 1

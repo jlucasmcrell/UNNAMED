@@ -6,7 +6,7 @@ tags: [recipe]
 name: Ember Salve
 notes: A minor salve warmed through with an ember hound's cinder sac - what Sel buys the sacs for. Mends twice as much in the same time.
 station: cookfire
-skill_ref: skill.survival
+skill_ref: skill.herbalism
 complexity: 5
 inputs:
   - { item_ref: item.consumable.salve_minor, count: 1 }

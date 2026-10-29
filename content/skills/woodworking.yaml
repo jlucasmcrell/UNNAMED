@@ -1,0 +1,9 @@
+id: skill.woodworking
+kind: skill
+schema: 1
+display_key: skill.woodworking.name
+tags: [skill]
+name: Woodworking
+family: crafting
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.6 (crafting), which PRG001 accepts under that name - joinery, beams, tools, handles and shafts that hold under load. Splitting an ash haft into shafts for arrows at the workbench practises it, and that work is D13's Socket and Shaft at band P (woodworking 30). The N band's Joint That Holds waits for a carrier of its own.
+teaches: "Joinery, handles and shafts that hold under a load. What you make near the edge of your hand teaches most."

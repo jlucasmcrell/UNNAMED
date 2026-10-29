@@ -8,6 +8,6 @@ notes: Loose ore in old spoil and rotten crag face (canon loose_iron) - a lump o
 resource_ref: resource.ore.iron
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.mining
 difficulty: 5
 swings: 3

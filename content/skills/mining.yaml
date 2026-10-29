@@ -1,0 +1,11 @@
+id: skill.mining
+kind: skill
+schema: 1
+display_key: skill.mining.name
+tags: [skill]
+name: Mining
+family: gathering
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.7 (gathering) - cutting a face, reading the seam, and getting the ore out without the roof coming in. The finite iron seam and the spoil of the old workings both practise it. The build has no technique carrier, since abilities, recipes and spells are the learnable kinds, so D13's entry technique waits for one, Read the Face at band N (mining 15, insight 12); the shipped Iron Seam and Loose Iron nodes are its other two N and P techniques.
+passives:
+  - { at: 3, modifiers: [{ target: stat.gather_yield, op: add, value: 1 }] }   # one more of whatever a harvest gives
+teaches: "Cutting a face and taking the ore out of it. A hard seam teaches more than spoil the old workings left behind."

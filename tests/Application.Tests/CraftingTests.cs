@@ -23,7 +23,7 @@ public class CraftingTests
     private const string BilletRecipe = "recipe.smithing.iron_billet";
     private const string SpearRecipe = "recipe.smithing.march_spear";
     private const string Smithing = "skill.smithing";
-    private const string Survival = "skill.survival";
+    private const string Mining = "skill.mining";
     private const string Kera = "npc.ashen_hollow.kera_voss";
 
     // Where the player stands to work each place (content/regions/ashen_hollow.yaml): south of the seam rock, in the ash
@@ -120,7 +120,7 @@ public class CraftingTests
             arena.Tick();
         }
 
-        Assert.All(gathered, g => Assert.InRange(g.Count, 1, 2));   // [1, 2] a strike, below survival 3
+        Assert.All(gathered, g => Assert.InRange(g.Count, 1, 2));   // [1, 2] a strike, below mining 3
         Assert.Equal(new[] { false, false, true }, gathered.Select(g => g.Spent));
         Assert.Equal(gathered.Sum(g => g.Count), Carried(arena, Ore));
         Assert.Equal("it is worked out", arena.Submit(new GatherCommand(arena.Player, seam)));
@@ -151,13 +151,13 @@ public class CraftingTests
     }
 
     [Fact]
-    public void ASurvivalistTakesOneMore_FromLevelThree()
+    public void AMinerTakesOneMore_FromLevelThree()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        int Strike(int survival)
+        int Strike(int mining)
         {
-            var arena = At(session, AtSeam, r => Skilled(r, Survival, survival));
+            var arena = At(session, AtSeam, r => Skilled(r, Mining, mining));
             var gathered = arena.Record<NodeGathered>();
             Assert.Null(arena.Submit(new GatherCommand(arena.Player, Node(arena, "iron_seam").Key)));
             return Assert.Single(gathered).Count;
@@ -165,7 +165,7 @@ public class CraftingTests
 
         // The same strike of the same seam each time: the roll is the node's and its harvest's, not the gatherer's.
         Assert.Equal(Strike(0), Strike(2));
-        Assert.Equal(Strike(2) + 1, Strike(3));   // PROTOTYPE.md §4.1: survival 3 takes one more
+        Assert.Equal(Strike(2) + 1, Strike(3));   // PROTOTYPE.md §4.1: mining 3 takes one more
     }
 
     [Fact]
@@ -434,11 +434,11 @@ public class CraftingTests
         Assert.Equal(20, ProgressionEngine.SkillLevel(master.Simulation.Player.Progression, Smithing));
 
         // So with gathering: the seam is difficulty 5.
-        var survivalist = At(session, AtSeam, r => Skilled(r, Survival, 25));
-        var gathering = survivalist.Record<SkillPracticed>();
+        var miner = At(session, AtSeam, r => Skilled(r, Mining, 25));
+        var gathering = miner.Record<SkillPracticed>();
         for (int i = 0; i < 3; i++)
-            Assert.Null(survivalist.Submit(new GatherCommand(survivalist.Player, Node(survivalist, "iron_seam").Key)));
-        Assert.Equal(new[] { novelty, 0, 0 }, gathering.Where(p => p.SkillId == Survival).Select(p => p.Xp));
+            Assert.Null(miner.Submit(new GatherCommand(miner.Player, Node(miner, "iron_seam").Key)));
+        Assert.Equal(new[] { novelty, 0, 0 }, gathering.Where(p => p.SkillId == Mining).Select(p => p.Xp));
     }
 
     // ── saves from before the nodes ─────────────────────────────────────────

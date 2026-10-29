@@ -6,7 +6,7 @@ tags: [recipe]
 name: Ember Salve (boneleaf)
 notes: The ember salve with boneleaf worked in beside the cinder sac (WP3a, a use for boneleaf); taught by Herbal Remedies.
 station: cookfire
-skill_ref: skill.survival
+skill_ref: skill.herbalism
 complexity: 5
 inputs:
   - { item_ref: item.consumable.salve_minor, count: 1 }

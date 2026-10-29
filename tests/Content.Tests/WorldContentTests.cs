@@ -159,6 +159,25 @@ public class WorldContentTests
         AssertRefused("WLD003", "regions/starting_frontier.yaml", "catch: loot.fishing.ah_creek", "catch: loot.fishing.nowhere",
             "names catch table 'loot.fishing.nowhere', which is not defined");
 
+    /// <summary>
+    /// Swimming (D20): a water says how deep its bed is, and that is what makes it a body to swim in rather than a bank to stand at. The
+    /// creek is knee deep in its channel, the millpond over the head, and the millrace names no depth at all - a ford, 0.15 m, so every
+    /// water authored before the depth existed behaves as it did.
+    /// </summary>
+    [Fact]
+    public void TheFrontier_WatersSayHowDeepTheyAre()
+    {
+        var layout = WorldContent.BuildLayout(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
+
+        Assert.Equal(550, layout.Space.Waters.Single(w => w.Key == "water.ah_creek").DepthMm);
+        Assert.Equal(2_400, layout.Space.Waters.Single(w => w.Key == "water.cw_millpond").DepthMm);
+        Assert.Equal(WaterSite.FordMm, layout.Space.Waters.Single(w => w.Key == "water.cw_millrace").DepthMm);
+    }
+
+    [Fact]
+    public void AWaterDeeperThanItsBedMayBe_IsRefused() =>
+        AssertRefused("WLD003", "regions/starting_frontier.yaml", "  depth_m: 0.55", "  depth_m: 9", "depth_m must be from 0 to 8 m");
+
     [Fact]
     public void AFlagThatDoesNotStartAtZero_IsRefused() =>
         AssertRefused("WLD006", "world_flags/hollow/longhouse_door_open.yaml", "default: 0", "default: 1");

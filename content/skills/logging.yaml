@@ -1,0 +1,11 @@
+id: skill.logging
+kind: skill
+schema: 1
+display_key: skill.logging.name
+tags: [skill]
+name: Woodcutting
+family: gathering
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.7 (gathering), which D13 calls Woodcutting - felled timber from a tree that was a real load, and no waste. The ash stand and the sound deadfall practise it; what is done with the haft afterwards is woodworking's. No technique carrier in the build, so its entry technique waits - Fell Where It Falls at band N (logging 15, might 12).
+passives:
+  - { at: 3, modifiers: [{ target: stat.gather_yield, op: add, value: 1 }] }   # one more of whatever a harvest gives
+teaches: "Timber felled where it was meant to fall, and nothing wasted. A tree that was a real load teaches more than a fallen branch."
