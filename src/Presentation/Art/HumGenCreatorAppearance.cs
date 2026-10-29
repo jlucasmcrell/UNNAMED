@@ -195,7 +195,17 @@ public sealed partial class HumGenCreatorAppearance : Node
             }
         }
         if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1" || OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
+        {
             GD.Print($"creator stencil: {part}, {stencilled} surface(s) stencilled, mask {(mask is null ? "none" : "set")}");
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            {
+                if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null) continue;
+                var kinds = new List<string>();
+                for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+                    kinds.Add($"{Exported(mesh, surface)}:{(mesh.GetSurfaceOverrideMaterial(surface)?.GetType().Name ?? "none")}");
+                GD.Print($"creator body mesh {mesh.Name}: {kinds.Count} surface(s) [{string.Join(", ", kinds)}]");
+            }
+        }
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
