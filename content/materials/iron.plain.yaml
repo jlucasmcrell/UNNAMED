@@ -1,0 +1,11 @@
+id: mat.iron.plain
+kind: material
+schema: 1
+display_key: mat.iron.plain.name
+tags: [material]
+name: Plain Iron
+notes: "The iron every settlement can work; the baseline any other metal is read against."
+class: metal
+material_ref_item: item.material.iron_ingot
+mult: { damage: 1.0, armor: 1.0, weight: 1.0, durability: 1.0, value: 1.0 }
+tier_min: 1

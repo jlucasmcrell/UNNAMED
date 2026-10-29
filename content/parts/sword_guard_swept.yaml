@@ -1,0 +1,14 @@
+id: part.sword.guard.swept
+kind: part
+schema: 1
+display_key: part.sword.guard.swept.name
+asset: "D21 Guard and crossguard: crossguard_1 [B], OWNED"
+tags: [guard, swept]
+name: Swept Quillon Guard
+notes: "Quillons that curve toward the hand: a guard that catches a blade rather than stopping it."
+family: sword
+slot: guard
+mesh: mesh.part.sword.guard.swept
+material_slots: [metal_guard]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.08, speed_mult: 1.0, durability_add: 5 }

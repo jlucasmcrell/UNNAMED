@@ -1,0 +1,11 @@
+id: mat.iron.charcoal_steel
+kind: material
+schema: 1
+display_key: mat.iron.charcoal_steel.name
+tags: [material]
+name: Charcoal Steel
+notes: "Iron carburised in charcoal; the Ashen Hollow's own smiths' answer to cheap iron."
+class: metal
+material_ref_item: item.material.iron_ingot
+mult: { damage: 1.1, armor: 1.05, weight: 1.0, durability: 1.15, value: 1.6 }
+tier_min: 2

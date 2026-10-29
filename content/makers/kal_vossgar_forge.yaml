@@ -1,0 +1,36 @@
+id: maker.kal.vossgar_forge
+kind: maker
+schema: 1
+display_key: maker.kal.vossgar_forge.name
+tags: [maker]
+name: Vossgar Forge
+notes: "A D21 maker: who builds this gear, out of which parts, in which materials, and the one tendency the work is known by."
+people_ref: people.kal
+era: medieval
+fit_family: compact_broad
+part_sets:
+  sword:
+    blade: [{ part_ref: part.sword.blade.arming_straight, weight: 5 }, { part_ref: part.sword.blade.leaf_long, weight: 3 }, { part_ref: part.sword.blade.broad_two_hand, weight: 2 }]
+    guard: [{ part_ref: part.sword.guard.cross, weight: 5 }, { part_ref: part.sword.guard.swept, weight: 3 }]
+    grip: [{ part_ref: part.sword.grip.wrapped, weight: 5 }, { part_ref: part.sword.grip.waisted, weight: 3 }]
+    pommel: [{ part_ref: part.sword.pommel.disc, weight: 5 }, { part_ref: part.sword.pommel.faceted, weight: 3 }]
+  axe:
+    head: [{ part_ref: part.axe.head.bearded, weight: 5 }, { part_ref: part.axe.head.broad, weight: 3 }]
+    haft: [{ part_ref: part.axe.haft.short, weight: 5 }, { part_ref: part.axe.haft.long, weight: 4 }]
+    binding: [{ part_ref: part.axe.binding.band, weight: 5 }]
+  spear:
+    head: [{ part_ref: part.spear.head.leaf, weight: 5 }, { part_ref: part.spear.head.pike, weight: 4 }]
+    haft: [{ part_ref: part.spear.haft.long, weight: 5 }]
+    binding: [{ part_ref: part.spear.binding.band, weight: 5 }]
+  staff:
+    shaft: [{ part_ref: part.staff.shaft.ash, weight: 5 }]
+    cap: [{ part_ref: part.staff.cap.iron, weight: 4 }]
+    binding: [{ part_ref: part.staff.binding.band, weight: 5 }]
+material_palette: [{ material_ref: mat.iron.kal_folded, weight: 5 }, { material_ref: mat.iron.charcoal_steel, weight: 2 }, { material_ref: mat.wood.ash, weight: 4 }]
+signature: { tendency: heavy_and_durable, stat_bias: { weight_mult: 1.08, durability_mult: 1.1, speed_mult: 0.97 } }
+tier_range: [1, 5]
+name_grammar: name.maker.kal_vossgar
+tooltip_line_key: maker.kal.vossgar_forge.line
+source_notes:
+  - "WORLD_ATLAS Kal row: granite, basalt, copper, charcoal steel."
+  - "Kal have no magic at all (B1): no arcane affix ever appears on Vossgar work."

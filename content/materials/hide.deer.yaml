@@ -1,0 +1,11 @@
+id: mat.hide.deer
+kind: material
+schema: 1
+display_key: mat.hide.deer.name
+tags: [material]
+name: Deer Hide
+notes: "Cured deer hide: grips, straps and the lining of a cheap harness."
+class: hide
+material_ref_item: item.material.deer_hide
+mult: { damage: 0.9, armor: 1.0, weight: 0.95, durability: 1.0, value: 0.9 }
+tier_min: 1
