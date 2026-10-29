@@ -432,6 +432,13 @@ public static class WorldHookChecks
                 // A place's own sound, bound in content (D18 SYSTEMS, needed-2): one `ambience` definition per place.
                 return facts.AmbiencePlaces;
             }
+            case "grave":
+            {
+                // A grave in this area (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE): a marker placed as a readable that
+                // opens a grave's page, which is how a name is kept in the world.
+                return placed.Count(p => p.Section == "readables"
+                                         && (Scalar(p.Node, "lore_ref") ?? "").StartsWith("lore.grave.", StringComparison.Ordinal));
+            }
             case "node_tier":
             {
                 // A node of a given grade: "a second and third ore grade" is a tier, and the build states it on the node

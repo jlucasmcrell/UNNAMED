@@ -349,6 +349,15 @@ public static class ContentKindRegistry
             IdPrefix: "lore"
         );
 
+        // 37. grave - a marker with a name on it: whose it is, the line it carries, and the page reading it opens
+        // (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE).
+        kinds["grave"] = new ContentKindDefinition(
+            Kind: "grave",
+            FullKind: "grave",
+            Directory: "graves",
+            IdPrefix: "grave"
+        );
+
         // 36. ambience - a place's own sound: the bed it is heard with, its details, and where it stands (D18 SYSTEMS,
         // needed-2; HOOK.AMBIENT.BINDING). Content owns the binding; the game reads it through the art bindings.
         kinds["ambience"] = new ContentKindDefinition(

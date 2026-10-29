@@ -1,0 +1,14 @@
+id: lore.grave_berrin
+kind: lore
+schema: 1
+display_key: lore.grave_berrin.title
+tags: [lore, history]
+title: The road's marker
+category: history
+notes: "D18 SYSTEMS (needed-2): the page a grave marker opens; written for berrin."
+pages:
+  - page: 1
+    sources:
+      - { how: inspected, ref: readable.grave_berrin }
+    text: >
+      A low stone set upright beside the road, one face dressed flat and the rest left rough, in the way a survey marks a place it does not want to lose. The dressed face carries a name and a lodge: Berrin Garth, Cairnwold. Whoever set it wanted the name where travellers would read it, and no more than the name.

@@ -214,7 +214,7 @@ hooks:
   - { id: HOOK.COMBAT.DUMMY, class: placeable, scope: area, skills: [skill.one_hand_blade, skill.bow, skill.crossbow, skill.thrown], evidence: {unmodelled: {why: "no practice-target kind"}}, min: {town: 1}, band_scaled: false, note: "A practice target: the safe way to try a weapon you cannot afford to be wrong with." }
   - { id: HOOK.COMBAT.ARENA, class: placeable, scope: area, skills: [skill.tactics, skill.unarmed], evidence: {unmodelled: {why: "no arena or duel kind"}}, min: {}, band_scaled: false, note: "A ring or a duel-ground, for the fights that are not a robbery." }
   - { id: HOOK.DEATH.RESPAWN, class: placeable, scope: area, skills: [skill.survival], evidence: {any_field: {section: waystones, field: key}}, min: {wilderness: 1, water: 1}, band_scaled: false, note: "A death return point: the waystone or the camp (brief C3)." }
-  - { id: HOOK.DEATH.GRAVE, class: placeable, scope: area, skills: [skill.lore, skill.necromancy], evidence: {unmodelled: {why: "no grave or remains kind"}}, min: {ruin: 1, wilderness: 1}, band_scaled: false, note: "Remains that hold what the dead were carrying, and that necromancy can speak with." }
+  - { id: HOOK.DEATH.GRAVE, class: placeable, scope: area, skills: [skill.lore, skill.necromancy], evidence: {grave: {}}, min: {ruin: 1, wilderness: 1}, band_scaled: false, note: "Remains that hold what the dead were carrying, and that necromancy can speak with." }
 
   # ---------------------------------------------------------------------------------------------
   # THE OTHER, THE COSMIC AND MAGIC â€” force, warding, vital, necromancy, transmutation, conjuration,

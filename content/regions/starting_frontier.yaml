@@ -150286,6 +150286,18 @@ structures:
   height_m: 2.9
   clearance_m: 2.65
 
+- id: grave_marker_halda
+  circle_m:
+  - 543.5
+  - 793.0
+  - 0.6
+  height_m: 1.1
+- id: grave_marker_berrin
+  circle_m:
+  - 458.0
+  - 748.0
+  - 0.6
+  height_m: 1.1
 doors:
 - key: door.longhouse
   flag_ref: world.hollow.longhouse_door_open
@@ -151430,6 +151442,20 @@ readables:
 #
 # Neither is registered unless the run asks for one: GameSession empties this set unless the Barrowworks gate
 # is on, so with the option off these two entries are inert.
+  - key: readable.grave_halda
+    lore_ref: lore.grave_halda
+    page: 1
+    name: Halda's grave
+    verb: Read
+    circle_m: [543.5, 793.0, 0.6]
+    height_m: 1.1
+  - key: readable.grave_berrin
+    lore_ref: lore.grave_berrin
+    page: 1
+    name: The road's marker
+    verb: Read
+    circle_m: [458.0, 748.0, 0.6]
+    height_m: 1.1
 portals:
   # A - R01 Threshold, the hill above Blackvein. Its spoil-bank art reaches 26 m behind the mouth: at the old anchor (438, 663) it
   # buried the quarry floor and the seam, so the mouth stands at the foot of the north wall and the bank lies in the hill.
