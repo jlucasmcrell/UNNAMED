@@ -169,6 +169,9 @@ public sealed record RegionLayout(
     /// <summary>The region's authored resource nodes (M3f).</summary>
     public ImmutableArray<NodeSite> Nodes { get; init; } = ImmutableArray<NodeSite>.Empty;
 
+    /// <summary>The wards set across the region's passages (D23 S7, STEALTH.md 10).</summary>
+    public ImmutableArray<WardSite> Wards { get; init; } = ImmutableArray<WardSite>.Empty;
+
     /// <summary>The region's authored stealth routes (D23 S6, STEALTH.md 8.1).</summary>
     public ImmutableArray<StealthRouteSite> Routes { get; init; } = ImmutableArray<StealthRouteSite>.Empty;
 

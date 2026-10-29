@@ -150765,6 +150765,8 @@ containers:
   - 745.2
   stack_slots: 8
   lock_tier: 1
+wards:
+- { key: ward.frontier.road_gate, position_m: [704.5, 659], radius_m: 3.0, name: "Gate ward", alarm_ref: world.ward.frontier_alarm }
 npcs:
 - npc_ref: npc.ashen_hollow.renn_vale
   position_m:

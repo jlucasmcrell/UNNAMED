@@ -682,6 +682,7 @@ public static class WorldContent
                 locations.ToImmutable(), new Body(spawnX, space.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
             Routes = Routes(map, minX, minZ, maxX, maxZ),
+            Wards = Wards(map, minX, minZ, maxX, maxZ, loader),
                 Tide = map.ContainsKey("tidal_water") ? BuildTide(Map(map, "tidal_water")) : null,
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
@@ -766,6 +767,38 @@ public static class WorldContent
     /// The authors' ways through a place that are not a fight (D23 S6, STEALTH.md 8.1): each route's start and end, the sight it denies, and what it
     /// asks of the character. A route outside the walkable bounds, of a kind canon does not name, or sharing a key with another, is a load error.
     /// </summary>
+    /// <summary>
+    /// The wards set across a place (D23 S7, STEALTH.md 10): a point, a radius, and the alarm it raises. A ward outside the bounds, without a key, or
+    /// of no radius is a load error rather than a ward that silently never fires.
+    /// </summary>
+    private static ImmutableArray<WardSite> Wards(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ, ContentLoader loader)
+    {
+        var wards = ImmutableArray.CreateBuilder<WardSite>();
+        foreach (var (entry, i) in (map.ContainsKey("wards") ? List(map, "wards") : new List<object>()).Select((w, i) => (w, i)))
+        {
+            var site = entry as Dictionary<object, object> ?? throw new FormatException($"wards[{i}] must be a map");
+            var (wx, wz) = Pair(site, "position_m");
+            var ward = new WardSite(Text(site, "key"), wx, wz, Mm(site, "radius_m"))
+            {
+                AlarmFlag = site.ContainsKey("alarm_ref")
+                    ? (loader.GetByKind("world_flag").ContainsKey(Text(site, "alarm_ref"))
+                        ? Text(site, "alarm_ref")
+                        : throw new FormatException($"wards[{i}]: alarm_ref names a world flag that is not defined"))
+                    : "",
+                RuneKey = site.ContainsKey("rune_key") ? Text(site, "rune_key") : "",
+                DisplayName = Text(site, "name"),
+            };
+            if (!ward.Key.StartsWith("ward.", StringComparison.Ordinal))
+                throw new FormatException($"ward key '{ward.Key}' must start with 'ward.'");
+            if (ward.RadiusMm <= 0)
+                throw new FormatException($"{ward.Key}: radius_m must be more than 0");
+            if (wx < minX || wx > maxX || wz < minZ || wz > maxZ)
+                throw new FormatException($"{ward.Key} stands outside the walkable bounds");
+            wards.Add(ward);
+        }
+        return wards.ToImmutable();
+    }
+
     private static ImmutableArray<StealthRouteSite> Routes(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ)
     {
         var routes = ImmutableArray.CreateBuilder<StealthRouteSite>();

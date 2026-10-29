@@ -267,6 +267,9 @@ routes:
 - { key: route.barrowworks.roof.headworks, kind: roof, position_m: [60, 30], to_m: [75, 60], cover_percent: 75, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 - { key: route.barrowworks.vent.air_shaft, kind: vent, position_m: [40, 40], to_m: [45, 70], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 } }
 - { key: route.barrowworks.disguise.cloak_rail, kind: disguise, position_m: [70, 80], to_m: [80, 90], cover_percent: 50 }
+wards:
+- { key: ward.barrowworks.archive_door, position_m: [70, 80], radius_m: 2.5, name: "Gauge ward", alarm_ref: world.ward.barrowworks_alarm, rune_key: item.tool.rune_key_archive }
+- { key: ward.barrowworks.threshold_run, position_m: [50, 12], radius_m: 2.0, name: "Threshold ward", alarm_ref: world.ward.barrowworks_alarm }
 npcs: []
 nodes:
   - { name: barrowworks_ash_stand, node_ref: node.wood.ash_stand, position_m: [74, 64] }

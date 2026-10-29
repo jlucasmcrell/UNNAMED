@@ -21,6 +21,8 @@ public static class ContentChecks
         ["creature_ref"] = new[] { "creature" },
     // D23 S6: a stealth deed objective may name the space whose crossing it counts.
     ["subject_ref"] = new[] { "space" },
+    // D23 S7: a ward raises an alarm a listener can act on, and that alarm is a world flag.
+    ["alarm_ref"] = new[] { "world_flag" },
         // D18 SYSTEMS (needed-2): a body's skinning node, so carcass_ref may name a node kind.
         ["carcass_ref"] = new[] { "node" },
         ["npc_ref"] = new[] { "npc" },
