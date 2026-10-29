@@ -15,6 +15,8 @@ for town in ['ashen_hollow','cairnwold']:
     for row in manifest['npcs']:
         identifier=row['id']; samples=[p for p in poses if p['id']==identifier]
         if not row['outfit'].startswith('outfit.period.'):errors.append(identifier+': non-period outfit')
+        expected='humgen_creator_female' if row['sex']=='f' else 'humgen_creator_male'
+        if row['model']!=expected:errors.append(identifier+': wrong exact-target body: '+row['model'])
         if row['original_position']==row['review_position']:errors.append(identifier+': stage was overwritten')
         if manifest.get('fixture_ground_y') is not None:
             position=[float(x) for x in re.findall(r'-?\d+(?:\.\d+)?',row['review_position'])]

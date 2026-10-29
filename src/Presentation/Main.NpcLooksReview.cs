@@ -101,6 +101,8 @@ public partial class Main
                     GD.PushError($"NPC_LOOKS {settlement}: {person.Id} is not drawn, so it has no frame");
                     continue;
                 }
+                if(fullBody && figure is SkinnedFigure native && native.ModelId!=(sex=="f"?"humgen_creator_female":"humgen_creator_male"))
+                    throw new InvalidDataException("Outfit review must use the exact creator target: "+person.Id+" -> "+native.ModelId);
                 var originalTransform=figure.GlobalTransform;
                 if(root.TryGetProperty("clear_stage",out var clearStage) && clearStage.GetBoolean())
                 {
@@ -382,7 +384,7 @@ public partial class Main
     {
         if (_reviewCreator is { } read)
             return read;
-        string json = File.ReadAllText(ProjectSettings.GlobalizePath("res://Art/humgen_creator.json"));
+        string json = Godot.FileAccess.GetFileAsString("res://Art/humgen_creator.json");
         return (_reviewCreator = (Ui.Models.CreatorCatalogue.Read(json), new Ui.Models.HumGenCreatorData(json))).Value;
     }
 }
