@@ -132,6 +132,32 @@ public class FishingTests
     }
 
     [Fact]
+    public void ACatch_ComesFromTheTableTheHourSchedules()
+    {
+        using var profile = new TempProfile();
+        var arena = At(Harness.Boot(profile), AtTheCreek);
+        var waiting = Waiting(arena, Creek);
+
+        // The hour the cast began in names the table; the creek is scheduled differently by night than by day.
+        var rules = arena.Simulation.Setup.Fishing;
+        Assert.Equal("item.tool.fishing_rod", rules.RodItemId);
+        var clock = arena.Simulation.Setup.Clock;
+        double hour = clock.Hour(waiting.StartedTick) % clock.HoursPerDay;
+        string? scheduled = rules.TableFor("creek", hour);
+        Assert.NotNull(scheduled);
+        Assert.True(arena.Simulation.Setup.Items.LootTables.ContainsKey(scheduled!));
+
+        // Whatever the hour gives, a catch is an item that table holds.
+        var caught = arena.Record<FishCaught>();
+        arena.Tick((int)(waiting.BiteTick - arena.Simulation.WorldTick));
+        Assert.Null(arena.Submit(new ReelInCommand(arena.Player)));
+        var take = Assert.Single(caught);
+        var table = arena.Simulation.Setup.Items.LootTables[scheduled!];
+        var offered = table.Weighted.Concat(table.Independent).Concat(table.Guaranteed).Select(entry => entry.ItemId);
+        Assert.Contains(take.ItemId, offered);
+    }
+
+    [Fact]
     public void AReelInTheBiteWindow_TakesTheWatersCatch_AndTrainsFishing()
     {
         using var profile = new TempProfile();
