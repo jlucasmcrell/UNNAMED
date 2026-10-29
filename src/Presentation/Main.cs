@@ -255,6 +255,10 @@ public partial class Main : Node3D
                 return;
             }
             Start();
+            // A review sheet returns from Start before a world exists and owns the frame loop itself; the session installers belong to
+            // a started world, and subscribing on a null session is what killed every sheet run with a NullReferenceException.
+            if (_session is null)
+                return;
             InstallMetaHumanReview();
             InstallMpfbComparison();
             InstallDsShots();
