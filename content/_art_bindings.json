@@ -2873,6 +2873,16 @@
    "model": "gs_foldscar_heart",
    "material": "stone",
    "note": "D18 Old Late: a crag with handholds, the climbable face HOOK.TRAV.CLIMB_FACE asks for."
+  },
+  "foldscar_waystone": {
+   "model": "landmark_ph_waystone_a",
+   "material": "stone",
+   "note": "D18: the area waystone, the same scanned stone as Ashen, the Rim and the Den."
+  },
+  "old_late_waystone": {
+   "model": "landmark_ph_waystone_a",
+   "material": "stone",
+   "note": "D18: the area waystone, the same scanned stone as Ashen, the Rim and the Den."
   }
  },
  "doors": {
