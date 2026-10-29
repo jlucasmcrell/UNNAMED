@@ -1160,6 +1160,8 @@ public partial class Main : Node3D
             if(_session.Simulation is { } sim && i<sim.Pets.Length){CloseScreens();_companionsPanel.OpenPet(sim.Pets[i].Id);}
         } };
         AddChild(_hud);
+        if (_options.ContainsKey("--shot-hud"))
+            _hud.Visible = false;
         _loading?.Stage("Placing items and creatures", 0.72);
         _items = new ItemsView { Name = "Items" };
         _items.Bind(_art, _bindings);
