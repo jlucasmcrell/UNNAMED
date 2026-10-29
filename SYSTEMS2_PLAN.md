@@ -133,3 +133,17 @@ on the box, so the cause is still unexplained; the path is good.
    and boar, then the kill-to-carcass wire: CreatureKilled(Creature, DefId, Killer, Tick) needs the body's position,
    and the carcass has to appear in the layout as a harvestable node. That is the half system 2 still owes.
 3. Then a tanning station kind for HOOK.STATION.TANNING, which the audit raised the moment a carcass existed.
+
+### Round 5 outcome - the farm job's real failure
+esults\sys2_tiers01 finished with an empty exit code and a C# backtrace in stderr after the world had *started*:
+UNNAMED boot: content 0.3.0 (sha256:de3a3148...), region region.starting_frontier, 14 cells and
+UNNAMED assets: HUD and effect art from C:\Otherreach_Test\sys2_tiers\art - so the art root I staged was found and
+read, and then the run threw.
+
+Cause: **the packaged exe is the old build**. I copied ds_d18_bv2's game folder and swapped in this branch's content,
+but 	ier:/hidden: and the new node kinds are content the old assemblies do not know. A farm job needs a build
+**exported from this branch**, not an old exe with new content dropped beside it. That is the next step, and it is the
+only way any system's farm clip will be real.
+
+Also queued and then withdrawn: sys2_tiers02 (game-only, 0.29 GB, pointing at the farm's own art root) - it would have
+failed for the same reason, so I pulled it rather than leave a doomed job in the owner's queue. The farm is idle.
