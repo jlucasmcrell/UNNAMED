@@ -1,0 +1,14 @@
+id: grave.road_basin_rim
+kind: grave
+schema: 1
+display_key: grave.road_basin_rim.name
+tags: [grave]
+name: The Road's grave
+notes: "D18 SYSTEMS (needed-2): the marker the-road keeps."
+who: one of the place's own
+location_ref: location.road.basin_rim
+at_m:
+  - 0
+  - 0
+lore_ref: lore.grave_road_basin_rim
+marker: landmark_ph_waystone_a

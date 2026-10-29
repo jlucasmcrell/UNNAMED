@@ -1,0 +1,14 @@
+id: grave.den_gorge.halda
+kind: grave
+schema: 1
+display_key: grave.den_gorge.halda.name
+tags: [grave]
+name: Halda's grave
+notes: "D18 SYSTEMS (needed-2): Halda, who went over the edge after the rope and did not come back up it."
+who: Halda
+location_ref: location.den_gorge
+at_m:
+  - 546.0
+  - 792.0
+lore_ref: lore.grave_halda
+marker: landmark_ph_waystone_a

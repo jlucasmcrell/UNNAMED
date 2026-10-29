@@ -1,0 +1,14 @@
+id: grave.cairnwold_village
+kind: grave
+schema: 1
+display_key: grave.cairnwold_village.name
+tags: [grave]
+name: Cairnwold's grave
+notes: "D18 SYSTEMS (needed-2): the marker cairnwold keeps."
+who: one of the place's own
+location_ref: location.cairnwold.village
+at_m:
+  - 0
+  - 0
+lore_ref: lore.grave_cairnwold_village
+marker: landmark_ph_waystone_a

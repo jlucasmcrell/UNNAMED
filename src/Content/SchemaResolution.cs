@@ -354,7 +354,9 @@ public static class ContentKindRegistry
         kinds["grave"] = new ContentKindDefinition(
             Kind: "grave",
             FullKind: "grave",
-            Directory: "graves",
+            // Under pieces, not a directory of its own: a new top-level directory is refused before the
+            // kind table is consulted, and a grave file is a piece of the world like any other.
+            Directory: "pieces",
             IdPrefix: "grave"
         );
 

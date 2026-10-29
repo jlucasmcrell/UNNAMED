@@ -1,0 +1,14 @@
+id: grave.old_late
+kind: grave
+schema: 1
+display_key: grave.old_late.name
+tags: [grave]
+name: Old Late's grave
+notes: "D18 SYSTEMS (needed-2): the marker old-late keeps."
+who: one of the place's own
+location_ref: location.old_late
+at_m:
+  - 0
+  - 0
+lore_ref: lore.grave_old_late
+marker: landmark_ph_waystone_a

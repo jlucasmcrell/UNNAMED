@@ -293,6 +293,7 @@ public static class WorldHookChecks
                     foreach (var portal in Items(region, "portals").OfType<YamlMappingNode>())
                         shares[area.Slug].Add(new Placement("portals", portal, 0, 0));
 
+
         // A place no dossier owns is a place nobody audits, and silence would read as coverage.
         foreach (var definition in loader.Definitions.Values.Where(d => d.Kind == "location"))
         {
@@ -436,10 +437,12 @@ public static class WorldHookChecks
             {
                 // A grave in this area (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE): a marker placed as a readable that
                 // opens a grave's page, which is how a name is kept in the world.
-                // The marker is the grave in the world (the readable at its foot opens the page). Structures are
-                // what an area's placements carry, so the count is of markers, not of pages.
-                return placed.Count(p => p.Section == "structures"
-                                         && (Scalar(p.Node, "id") ?? "").StartsWith("grave_marker_", StringComparison.Ordinal));
+                // A grave is counted by the place it names, not by which area the placement share-out happens to give
+                // its marker to: the dossier owns the place, and the grave belongs to it (D18 SYSTEMS, needed-2).
+                if (area is not { } owner)
+                    return facts.Graves.Count;
+                int matched = facts.Graves.Count(g => g.Location is { } place && owner.Locations.Contains(place));
+                return matched;
             }
             case "node_tier":
             {
@@ -534,6 +537,9 @@ public static class WorldHookChecks
         /// <summary>How many places content binds an ambience to (the `ambience` kind).</summary>
         public int AmbiencePlaces { get; private set; }
 
+        /// <summary>The graves content defines, each with the place it names (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE).</summary>
+        public List<(string Id, string? Location)> Graves { get; } = [];
+
         public WorldFacts(ContentLoader loader)
         {
             foreach (var definition in loader.Definitions.Values)
@@ -557,6 +563,9 @@ public static class WorldHookChecks
                         break;
                     case "ambience":
                         AmbiencePlaces++;
+                        break;
+                    case "grave":
+                        Graves.Add((definition.Id, Scalar(root, "location_ref")));
                         break;
                     case "npc":
                         NpcTeaches[definition.Id] = Maps(root, "teaches").Select(entry => Scalar(entry, "kind")).ToList();
