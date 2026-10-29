@@ -58,7 +58,11 @@ public static class NpcLooks
             throw new InvalidOperationException($"the catalogue offers no face to a '{sex}' resident");
         var channel = RngChannel.Open(0, default, Channel, $"{settlement}/{slotId}#{generation}");
         var race = catalogue.Race(people);
-        var look = data.Randomize(new CharacterAppearance(race?.MidStatureMm ?? 1750, null, null, null, RoleOutfit(RoleOf(slotId)), ResidentFootwear),
+        // A role's wardrobe is only worn where the catalogue offers it to that sex (the scholar's robe is female only).
+        string outfit = RoleOutfit(RoleOf(slotId));
+        if (catalogue.Options(CreatorChoice.Outfit, sex).All(option => option.Id != outfit))
+            outfit = "outfit.casual.stylish_casual";
+        var look = data.Randomize(new CharacterAppearance(race?.MidStatureMm ?? 1750, null, null, null, outfit, ResidentFootwear),
             catalogue, people, sex, channel.UInt64(0));
         // The face is assigned: a town's slots take consecutive presets, and adding a constant to a position is a bijection, so a town of
         // at most a dozen slots gives no two of them one preset (41 faces for a woman, 42 for a man).
