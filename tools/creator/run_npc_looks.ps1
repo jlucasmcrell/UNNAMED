@@ -7,7 +7,8 @@ $out = Join-Path $Worktree "work\creator\out\npc_looks\$Label"
 New-Item -ItemType Directory -Path $out -Force | Out-Null
 $exe = 'C:\Otherreach_Worker\tools\godot_4_7_2_net8_0_31\godot\Godot_v4.7.2-stable_mono_win64_console.exe'
 if (Test-Path $flag) { throw 'Owner playing; not starting' }
-$env:OTHERREACH_CHARACTER_ROOT = 'D:\Otherreach_Scratch\pp11_release\game\humgen_characters'
+# The creator bases need their own exact-target motion payloads, and only this character root holds them.
+$env:OTHERREACH_CHARACTER_ROOT = Join-Path $Worktree 'work\creator\game\humgen_characters'
 $env:OTHERREACH_MH_REVIEW_OUT = $out
 $env:OTHERREACH_RCD3_REVIEW = '1'
 $env:OTHERREACH_NPC_LOOKS_PLAN = (Resolve-Path $Plan).Path
