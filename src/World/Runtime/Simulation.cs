@@ -1227,6 +1227,7 @@ public sealed class Simulation
         LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
+        LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),
         HealCreature heal => _creatures.Handle(heal, Now),
         DrawCreature draw => _creatures.Handle(draw, Now),

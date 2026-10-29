@@ -35,6 +35,12 @@ public sealed record CraftingSetup(
 /// <summary>Harvest a node within reach: what it yields goes to the pack, and the node remembers.</summary>
 public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand(Actor);
 
+/// <summary>
+/// A creature died and its kind names a carcass (D18 SYSTEMS, needed-2): the body is left as a harvestable node at the
+/// place it fell. An internal command, because it is the world's own act and not the player's.
+/// </summary>
+internal sealed record LeaveCarcassCommand(string Key, string NodeDefId, long XMm, long ZMm) : InternalCommand;
+
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
 public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor);
 
@@ -122,6 +128,12 @@ internal sealed class GatheringSystem : IAbstractAdvance
 
     private CraftingSetup Setup => _context.Setup.Crafting;
     private RuntimeState State => _context.State;
+
+    public string? Handle(LeaveCarcassCommand command, long tick)
+    {
+        LeaveCarcass(command.Key, command.NodeDefId, command.XMm, command.ZMm);
+        return null;
+    }
 
     public string? Handle(GatherCommand command, long tick)
     {

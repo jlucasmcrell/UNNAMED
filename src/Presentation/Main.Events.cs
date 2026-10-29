@@ -22,23 +22,6 @@ public partial class Main
     private readonly Dictionary<Type, int> _handlerFailures = new();
 
     /// <summary>
-    /// A body worth skinning: the creature's kind names its carcass node (D18 SYSTEMS, needed-2), and the node is left at
-    /// the place the body fell, keyed by the creature so the same kill cannot leave two.
-    /// </summary>
-    private void LeaveCarcass(CreatureKilled killed)
-    {
-        if (_session.Setup.Combat.Creatures.GetValueOrDefault(killed.DefId) is not { CarcassRef: { } carcass })
-            return;
-        if (_session.Simulation is not { } simulation)
-            return;
-        var body = simulation.Creatures.FirstOrDefault(c => c.Key == killed.Creature);
-        if (body is null)
-            return;
-        if (simulation.LeaveCarcass($"carcass.{killed.Creature}", carcass, body.Body.XMm, body.Body.ZMm))
-            _crafting.Refresh(simulation.Nodes);
-    }
-
-    /// <summary>
     /// A view's handler threw while the tick ran (H-02). The session's bus isolated it, so the tick went on; this says so - the first time
     /// for each kind of event, then every hundredth.
     /// </summary>
@@ -467,11 +450,7 @@ public partial class Main
                 _hud.Log($"You are {Name(e.EffectId).ToLowerInvariant()}{(e.Stacks > 1 ? $" (x{e.Stacks})" : "")}");
         });
         _session.Subscribe<GuardBroken>(_ => _hud.Toast("Guard broken - no stamina behind it", 2));
-        _session.Subscribe<CreatureKilled>(e =>
-        {
-            _hud.Log($"The {Name(e.DefId)} dies");
-            LeaveCarcass(e);
-        });
+        _session.Subscribe<CreatureKilled>(e => _hud.Log($"The {Name(e.DefId)} dies"));
         _session.Subscribe<SkillPracticed>(e =>
         {
             if (e.Xp > 0)

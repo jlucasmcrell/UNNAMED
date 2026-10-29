@@ -1115,6 +1115,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
             killer = _player;
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick) { DirectAttacker = directAttacker });
+
+        // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a
+        // test, a headless run and the game all see the same carcass. The kind says whether it leaves one at all.
+        if (c.Definition.CarcassRef is { } carcass)
+            _context.Dispatch(new LeaveCarcassCommand($"carcass.{c.Id}", carcass, c.Body.XMm, c.Body.ZMm));
         if (killer == _player)
         {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
