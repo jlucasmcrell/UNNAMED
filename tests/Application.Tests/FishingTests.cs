@@ -1,4 +1,6 @@
 using UNNAMED.Domain;
+using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.World.Runtime;
 
@@ -23,8 +25,16 @@ public class FishingTests
     private static readonly (double X, double Z) AtThePond = (558, 100);
     private static readonly (double X, double Z) DryGround = (120, 60);
 
-    private static Arena At(GameSession session, (double X, double Z) place) =>
-        Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), Arena.Usual);
+    private static Arena At(GameSession session, (double X, double Z) place)
+    {
+        var arena = Arena.OpenCreatures(session, session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), Arena.Usual);
+        // The config names a rod, so a cast needs one in the pack: every test here fishes with the tackle a fisher carries.
+        Assert.Null(arena.Simulation.Submit(new GrantItem(Rod, 1, Quality.Standard)));
+        return arena;
+    }
+
+    private const string Rod = "item.tool.fishing_rod";
+    private const string Worm = "item.material.bait_worm";
 
     private static int Carried(Arena arena, string defId) => arena.Simulation.Player.Inventory.Where(e => e.DefId == defId).Sum(e => e.Count);
 
@@ -60,6 +70,36 @@ public class FishingTests
         Assert.InRange(waiting.BiteTick - arena.Simulation.WorldTick, FishingSystem.BiteMinTicks, FishingSystem.BiteMaxTicks);
         Assert.Single(lines);
         Assert.False(arena.Simulation.CanFish);   // a line is already out
+    }
+
+    [Fact]
+    public void ACastWithoutARod_IsRefused_TheRuleTheConfigNames()
+    {
+        using var profile = new TempProfile();
+        // A session at the water with the tackle taken back out of the pack: the cast is refused in the config's own words.
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, AtTheCreek, 0,
+            Array.Empty<(string, double, double, string)>(), Arena.Usual);
+        Assert.Equal("You need a rod", arena.Submit(new StartFishingCommand(arena.Player, Creek)));
+        Assert.Null(arena.Simulation.Activity);
+    }
+
+    [Fact]
+    public void ACastSpendsOneBait_AndTheBaitShortensTheWait()
+    {
+        using var profile = new TempProfile();
+        var arena = At(Harness.Boot(profile), AtTheCreek);
+        Assert.Null(arena.Simulation.Submit(new GrantItem(Worm, 2, Quality.Standard)));
+        Assert.Equal(2, Carried(arena, Worm));
+
+        Assert.Null(arena.Submit(new StartFishingCommand(arena.Player, Creek)));
+        Assert.Equal(1, Carried(arena, Worm));   // the cast took one
+
+        arena.Tick(FishingSystem.CastTicks + 1);
+        var waiting = Assert.IsType<PlayerActivity>(arena.Simulation.Activity);
+        // The worm's scale is 0.8, so the wait is inside the scaled band rather than the plain one.
+        int wait = (int)(waiting.BiteTick - arena.Simulation.WorldTick);
+        Assert.InRange(wait, FishingSystem.BiteMinTicks / 2, FishingSystem.BiteMaxTicks);
     }
 
     [Fact]
