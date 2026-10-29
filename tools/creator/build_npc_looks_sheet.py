@@ -29,6 +29,10 @@ def build(folder):
         # The review frames a head and shoulders; the square crop keeps every face the same size on the sheet.
         if manifest.get('full_body'):
             from PIL import ImageOps
+            # Remove spare horizontal background, retaining the entire frame height and its feet.
+            if tile.width>=tile.height:
+                left=(tile.width-tile.height)//2
+                tile=tile.crop((left,0,left+tile.height,tile.height))
             tile=ImageOps.pad(tile,(TILE,TILE),method=Image.Resampling.LANCZOS,color=(18,18,20))
         else:
             side = min(tile.size)
