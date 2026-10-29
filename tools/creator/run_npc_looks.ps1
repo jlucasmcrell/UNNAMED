@@ -1,4 +1,4 @@
-# F1 Gate C proof run: every NPC of a town, face at 2 m, plus wide shots - driven by the game's own content and look code.
+﻿# F1 Gate C proof run: every NPC of a town, face at 2 m, plus wide shots - driven by the game's own content and look code.
 param([Parameter(Mandatory)][string]$Label, [Parameter(Mandatory)][string]$Plan, [string]$Resolution = '1600x1200',
       [int]$LimitSeconds = 540, [string]$Worktree = 'D:\Otherreach_Scratch\agy_gatec_wt', [string]$AssetFallback='')
 $ErrorActionPreference = 'Stop'
@@ -29,20 +29,31 @@ $lease = "codex Gate C $Label"
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:\Otherreach_Recovery\gpu_lock.ps1' acquire $lease
 if ($LASTEXITCODE -ne 0) { throw 'GPU acquire failed' }
 $g = $null
+$receipt = @{ label=$Label; acquired=(Get-Date -Format o); plan=$env:OTHERREACH_NPC_LOOKS_PLAN; fallback=$AssetFallback; limit=$LimitSeconds; complete=$false }
 try {
     if (Test-Path $flag) { throw 'Owner playing after acquire' }
     $g = Start-Process -FilePath $exe -ArgumentList $args_ -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $out 'game.log') -RedirectStandardError (Join-Path $out 'game.stderr')
     $null = $g.Handle
     $t0 = Get-Date
+    $receipt.renderer_pid=$g.Id
+    $receipt.renderer_start=$g.StartTime.ToString('o')
+    $receipt | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $out 'process_receipt.json')
     while (-not $g.HasExited) {
         if(Test-Path $flag){throw 'Owner playing; ending own capture'}
         if (Test-Path (Join-Path $out 'complete.json')) { Start-Sleep -Seconds 4; break }
         if (((Get-Date) - $t0).TotalSeconds -gt $LimitSeconds) { throw 'Time limit' }
         Start-Sleep -Milliseconds 500
     }
+    $receipt.complete=Test-Path (Join-Path $out 'complete.json')
     Write-Host "game exit $($g.ExitCode)"
+    if(-not $receipt.complete){throw "Capture incomplete; native exit=$($g.ExitCode)"}
 }
 finally {
     if ($g -and -not $g.HasExited) { Start-Sleep 3; if (-not $g.HasExited) { Stop-Process -Id $g.Id -Force -ErrorAction SilentlyContinue } }
-    & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:\Otherreach_Recovery\gpu_lock.ps1' release $lease
+    $receipt.ended=Get-Date -Format o
+    if($g){$g.Refresh(); $receipt.exit=$g.ExitCode}
+    $receipt | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $out 'process_receipt.json')
+    if((Test-Path 'C:\Otherreach_Recovery\gpu.lock') -and (Get-Content 'C:\Otherreach_Recovery\gpu.lock' -Raw).StartsWith("$lease ")){
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File 'C:\Otherreach_Recovery\gpu_lock.ps1' release $lease
+    }
 }
