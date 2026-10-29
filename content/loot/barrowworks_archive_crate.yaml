@@ -8,3 +8,7 @@ rolls: 0
 guaranteed:
   - { item_ref: item.material.ash_haft, count_range: [2, 3] }
   - { item_ref: item.material.timber, count_range: [1, 1] }
+  # D23 S7: what the storemen kept behind the gauge wall - a motion sensor and an optical cloak, both Keelward salvage, so the kit a stealth route
+  # needs is findable in the place that most rewards it.
+  - { item_ref: item.tool.detector_motion, count_range: [1, 1] }
+  - { item_ref: item.armor.cloak_optical, count_range: [1, 1] }
