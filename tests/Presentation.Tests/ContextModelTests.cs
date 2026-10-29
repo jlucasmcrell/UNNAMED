@@ -55,10 +55,24 @@ public class ContextModelTests
     public void ANodesContextLine_SaysWhatItGivesAndTheSkill_OrWhetherItGrowsBack()
     {
         var vein = new NodeDefinition("node.iron_vein", "item.material.iron_ore", 1, 2, 3, Respawn.Daily, "skill.mining", 1);
-        Assert.Equal("Gives iron ore · mining 2", ContextModel.Node(vein, true, 2, Names.Words));
-        Assert.Equal("Gives iron ore · mining (untrained)", ContextModel.Node(vein, true, 0, Names.Words));
+        Assert.Equal("Gives iron ore · mining 2 · grade 1", ContextModel.Node(vein, true, 2, Names.Words));
+        Assert.Equal("Gives iron ore · mining (untrained) · grade 1", ContextModel.Node(vein, true, 0, Names.Words));
         Assert.Equal("Grows back in time", ContextModel.Node(vein, false, 2, Names.Words));
         Assert.Equal("Gone for good", ContextModel.Node(vein with { Respawn = Respawn.None }, false, 2, Names.Words));
+    }
+
+    /// <summary>
+    /// The grade is on the line, and a grade the hand is short of says so where it stands: the read is offered by the prompt beside it
+    /// (skill.prospecting), so a hand that cannot work the ground is told what it is looking at before it swings.
+    /// </summary>
+    [Fact]
+    public void ANodesGrade_IsOnItsLine_AndSaysWhenItIsBeyondTheHand()
+    {
+        var blackvein = new NodeDefinition("node.ore.blackvein_iron", "item.material.iron_ore", 2, 3, 3, Respawn.None, "skill.mining", 12) { Tier = 2 };
+        Assert.Equal("Gives iron ore · mining 10 · grade 2", ContextModel.Node(blackvein, true, CraftingRules.MinSkill(2), Names.Words));
+        Assert.Equal("Gives iron ore · mining 4 · grade 2, beyond you", ContextModel.Node(blackvein, true, 4, Names.Words));
+        // The first grade asks nothing of the hand, so a hand is never short of it.
+        Assert.Equal("Gives iron ore · mining (untrained) · grade 1", ContextModel.Node(blackvein with { Tier = 1 }, true, 0, Names.Words));
     }
 
     [Fact]

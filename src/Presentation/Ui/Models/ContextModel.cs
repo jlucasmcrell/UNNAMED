@@ -60,14 +60,17 @@ public static class ContextModel
     }
 
     /// <summary>
-    /// The context line under a node's prompt: ready, what it gives and the skill it trains, with "untrained" when the character has none
-    /// of it yet; spent, whether it grows back.
+    /// The context line under a node's prompt: ready, what it gives, the skill it trains (with "untrained" when the character has none of it
+    /// yet) and the node's grade - said as beyond the hand where the hand is short of it, so the grade is read off the prompt rather than off
+    /// a refusal; spent, whether it grows back.
     /// </summary>
     public static string Node(NodeDefinition node, bool ready, int skillLevel, Func<string, string> name)
     {
         if (!ready)
             return node.Respawn == Respawn.None ? "Gone for good" : "Grows back in time";
-        return $"Gives {name(node.ItemId)} · {name(node.SkillId)} {(skillLevel > 0 ? skillLevel.ToString() : "(untrained)")}";
+        // The grade is the hand a harvest asks for (CraftingRules.MinSkill), and the read is what a hand below it has instead.
+        string grade = skillLevel >= CraftingRules.MinSkill(node.Tier) ? $"grade {node.Tier}" : $"grade {node.Tier}, beyond you";
+        return $"Gives {name(node.ItemId)} · {name(node.SkillId)} {(skillLevel > 0 ? skillLevel.ToString() : "(untrained)")} · {grade}";
     }
 
     /// <summary>The context line under a container's prompt: what it holds, in a count.</summary>

@@ -331,6 +331,8 @@ public partial class Main
             Fish();
         if (Input.IsActionJustPressed("wash"))
             Wash();
+        if (Input.IsActionJustPressed("prospect"))
+            ReadGround();
         if (Input.IsActionJustPressed("companion_order"))
         {
             // One key for every companion on their feet: those following wait, those waiting follow.
@@ -378,6 +380,19 @@ public partial class Main
             _session.Submit(new ReelInCommand(simulation.PlayerId));
         else if (simulation.CanFish && _controller.FocusOn(_camera) is { Kind: FocusKind.Water })
             _session.Submit(new StartFishingCommand(simulation.PlayerId, simulation.WaterKey!));
+    }
+
+    /// <summary>
+    /// F2: read the ground at the node in front - its material, its grade and what it still holds (skill.prospecting). Its own key because
+    /// E is the gather, and the read is for the hand the gather refuses: a seam above the hand's reading is the seam that most wants reading.
+    /// Nothing else in the view is read; a second look at the same ground is refused in the simulation's own words.
+    /// </summary>
+    private void ReadGround()
+    {
+        if (_controller.FocusOn(_camera) is { Kind: FocusKind.Node } node)
+            _controller.Prospect(node.Key);
+        else
+            _hud.Toast("Nothing here to read", 2);
     }
 
     /// <summary>
@@ -435,6 +450,7 @@ public partial class Main
         Bind("interact", Key.E);
         Bind("fish", Key.N);              // a line in the water: cast, and the same key reels it in (F is the takedown; E still refills the flask)
         Bind("wash", Key.B);              // the water's second verb: a wash at the bank, beside N's line and E's flask
+        Bind("prospect", Key.F2);         // the read before the work: every letter is bound, and the F-row prints the same on every keyboard
         Bind("jump", Key.Space);
         Bind("climb", Key.U);             // take hold of a ladder or a crag (U is the only free letter); jump stays the jump
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge

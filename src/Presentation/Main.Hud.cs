@@ -237,15 +237,19 @@ public partial class Main
         return true;
     }
 
-    /// <summary>A node's prompt: what it gives now, or why it gives nothing.</summary>
+    /// <summary>
+    /// A node's prompt: what it gives now, or why it gives nothing - and the read, offered either way, which is the whole of what a hand
+    /// below the node's grade has at it.
+    /// </summary>
     private string NodePrompt(Simulation simulation, Focus focus)
     {
         string name = Names.Of(_session, focus.DefId);
+        string read = $"[{HelpPanel.Key("prospect")}] Read the ground";
         if (simulation.Nodes.FirstOrDefault(n => n.Key == focus.Key) is { Ready: true })
-            return $"[{HelpPanel.Key("interact")}] Gather from the {name}";
-        return _session.Setup.Crafting.Nodes[focus.DefId].Respawn == Respawn.None
+            return $"[{HelpPanel.Key("interact")}] Gather from the {name}   {read}";
+        return (_session.Setup.Crafting.Nodes[focus.DefId].Respawn == Respawn.None
             ? $"The {name} is worked out"
-            : $"The {name} has nothing to take until it grows back";
+            : $"The {name} has nothing to take until it grows back") + $"   {read}";
     }
 
     /// <summary>The carried entry in the main hand, if any.</summary>

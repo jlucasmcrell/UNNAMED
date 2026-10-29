@@ -343,6 +343,13 @@ public sealed class PlayerController
     /// </summary>
     public void Gather(string nodeKey) => _session.Submit(new SwingAtNodeCommand(_session.Simulation!.PlayerId, nodeKey));
 
+    /// <summary>
+    /// Read the ground at a node within reach (skill.prospecting): what it is made of, what grade, and how much it still holds. Refused for
+    /// there being no node, for one already read, and while something else runs - never for the hand being short of the node's grade, which
+    /// is the hand that reads the ground instead of working it.
+    /// </summary>
+    public void Prospect(string nodeKey) => _session.Submit(new ProspectCommand(_session.Simulation!.PlayerId, nodeKey));
+
     /// <summary>Work a recipe at the station in reach (M3f).</summary>
     public void Craft(string recipeId) => _session.Submit(new CraftCommand(_session.Simulation!.PlayerId, recipeId));
 

@@ -173,6 +173,7 @@ public partial class Main
         _session.Subscribe<CommandRejected>(e =>
         {
             if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or SwingAtNodeCommand
+                or ProspectCommand
                 or CraftCommand or TakeAllCommand
                 or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand or PickLockCommand
                 or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand
@@ -226,6 +227,15 @@ public partial class Main
                 : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {Names.Of(_session, e.NodeDefId)} is worked out"
                 : $" - nothing more until the {Names.Of(_session, e.NodeDefId)} grows back";
             Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}{spent}", 3);
+        });
+        // The read before the work (skill.prospecting): once the look's ticks run out, what the ground is, what grade it is, and what is left
+        // in it. The material is the item the node gives, named by content; the resource behind it only where content names no item.
+        _session.Subscribe<NodeProspected>(e =>
+        {
+            string item = _session.Setup.Crafting.Nodes.TryGetValue(e.NodeDefId, out var node) ? node.ItemId : e.ResourceId;
+            string material = _session.DisplayName(item) != item || e.ResourceId.Length == 0 ? Names.Of(_session, item) : Names.Of(_session, e.ResourceId);
+            _hud.Toast($"You read the ground: {material}, grade {e.Tier}, and " +
+                (e.ChargesLeft == 0 ? "there is none left in it." : $"it still holds {e.ChargesLeft}."), 5);
         });
         _session.Subscribe<ItemCrafted>(e =>
         {
