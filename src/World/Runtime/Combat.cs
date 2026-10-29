@@ -501,6 +501,8 @@ internal sealed partial class CombatSystem
                 Ranged = true,
                 AmmoDefId = weapon.AmmoDefId,
                 SkillId = weapon.SkillId,
+                // A shot at a target that has not noticed it is the weapon's own sneak blow, as a blade's is (STEALTH §7.1).
+                SneakMultiplier = weapon.SneakMultiplier,
             };
         }
         int total = Math.Max(3, Ticks(weapon.AttackMs));
@@ -575,12 +577,39 @@ internal sealed partial class CombatSystem
             _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
     }
 
-    /// <summary>A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned.</summary>
+    /// <summary>
+    /// The weapon in the main hand, or null bare-handed. The attack's <c>Source</c> is a technique's id while a technique is in flight,
+    /// so a weapon's own numbers (its noise, its family) are read from the hand rather than from the blow.
+    /// </summary>
+    private WeaponStats? WeaponInHand() =>
+        State.Equipment.TryGetValue(EquipSlot.MainHand, out var id)
+        && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+            ? _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon
+            : null;
+
+    /// <summary>
+    /// Where a shot is heard (STEALTH §7.8): at the shooter, as far as the weapon's own crack carries - never the melee swing radius a
+    /// bow never earned.
+    /// </summary>
+    internal long ShotNoiseMm() => WeaponInHand() is { Ranged: true, ShotNoiseMm: > 0 } weapon ? weapon.ShotNoiseMm : Setup.Noise.ShotMm;
+
+    /// <summary>The place a technique puts its shot (STEALTH §7.2), or null for an ordinary blow.</summary>
+    private BodyRegion? AimOf(AttackProfile attack) =>
+        attack.Ranged && _context.Setup.Techniques.TryGetValue(attack.Source, out var technique) ? technique.AimRegion : null;
+
+    /// <summary>
+    /// A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned. The sound of
+    /// it is the creature system's to make (STEALTH §7.8) - it owns the ear - so combat only says what happened, at the shooter and at
+    /// the place it came down.
+    /// </summary>
     private CreatureState? Loose(string source, long rangeMm, long tick)
     {
         var body = State.Body;
         var (x, z, target) = Trace(body, rangeMm);
         _context.Events.Publish(new ShotLoosed(_player, source, body.XMm, body.ZMm, x, z, target?.Id, tick));
+        _context.Dispatch(new RaiseNoise(new Noise(body.XMm, body.ZMm, ShotNoiseMm()) { Source = SoundSource.Shot }));
+        _context.Dispatch(new RaiseNoise(new Noise(x, z, target is null ? Setup.Noise.ImpactSolidMm : Setup.Noise.ImpactFleshMm)
+            { Source = SoundSource.Impact }));
         return target;
     }
 
@@ -645,7 +674,8 @@ internal sealed partial class CombatSystem
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
-        var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
+        var strike = CombatRules.LevelGap(PlacedStrike(creature, attack, SneakStrike(creature, attack, PlayerStrike(attack))),
+            State.Progression.Level, definition.Level + creature.LevelBonus);
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
             strike = strike with { ForcedRegion = weak.Region };
@@ -684,12 +714,28 @@ internal sealed partial class CombatSystem
     /// <summary>
     /// The strike a blow resolves as against this creature: a target that has not noticed the character takes the weapon's sneak multiplier
     /// (STEALTH §12 - the dagger class's own number), applied before armour so that armour still decides. A target that has noticed the
-    /// character takes the ordinary blow.
+    /// character takes the ordinary blow. A ranged blow is aimed, and what the aim is worth is the body's own anatomy (§7.2); the two
+    /// together are one shot and come to no more than <c>sneak_cap</c> (§7.1).
     /// </summary>
     private Strike SneakStrike(CreatureState creature, AttackProfile attack, Strike strike) =>
-        StealthRules.Unaware(creature.Awareness, Setup.Awareness)
-            ? strike with { DamageMultiplier = strike.DamageMultiplier * StealthRules.SneakMultiplier(attack, true) }
+        ScaleShot(creature, attack, strike, StealthRules.SneakMultiplier(attack, StealthRules.Unaware(creature.Awareness, Setup.Awareness)));
+
+    /// <summary>A shot placed where the shooter aimed it, and the zone's own worth (STEALTH §7.2).</summary>
+    private Strike PlacedStrike(CreatureState creature, AttackProfile attack, Strike strike) =>
+        AimOf(attack) is { } region
+            ? strike with { ForcedRegion = region }
             : strike;
+
+    /// <summary>The one multiplier a single blow earns, capped (STEALTH §7.1). A swing earns only its sneak multiplier; a shot earns
+    /// that and the zone's, because a shot at a body that has not moved is a shot at a body whose gaps are open.</summary>
+    private Strike ScaleShot(CreatureState creature, AttackProfile attack, Strike strike, double sneak)
+    {
+        double zone = AimOf(attack) is { } region
+            ? WeakPointRules.Multiplier(creature.Definition, C, region, !Behind(creature.Body, State.Body))
+            : 1.0;
+        double total = attack.Ranged ? WeakPointRules.Capped(sneak, zone, C) : sneak;
+        return total == 1.0 ? strike : strike with { DamageMultiplier = strike.DamageMultiplier * total };
+    }
 
     /// <summary>What the character's coated weapon delivers on a wound, or null when nothing is coated (owner finding 27).</summary>
     private string? Coating() =>

@@ -17,6 +17,8 @@ draw_time: 0.85
 hands: two
 ammo_item_ref: item.ammo.arrow_rough
 skill_ref: skill.bow
+sneak_multiplier: 2.0    # an arrow into a target that has not noticed the archer (STEALTH §7.1)
+shot_noise_m: 6          # the twang, heard at the shooter (STEALTH §7.8)
 requirements: { attribute.might: 9 }   # an attribute minimum, never a level (PROGRESSION.md §11.1)
 durability_max: 200       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
 repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }

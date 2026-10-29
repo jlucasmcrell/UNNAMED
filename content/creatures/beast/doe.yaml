@@ -18,5 +18,10 @@ xp_value: 0
 loot_table: loot.deer
 carcass_ref: node.carcass.deer
 perception: { sight_m: 30, hearing_m: 28, fov_deg: 300 }
+# Behind the shoulder, through the heart and lungs: a clean kill, and the only shot worth taking on a deer (STEALTH §7.2).
+hit_zones:
+  head: { multiplier: 1.2 }
+  torso: { multiplier: 1.8 }
+  limbs: { multiplier: 0.5 }
 tier_hint: A
 tameable: false

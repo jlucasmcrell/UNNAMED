@@ -21,6 +21,12 @@ teaches:
     ability_ref: ability.bow.aimed_shot
     fee: 25
     requires: { skill: { skill_ref: skill.bow, band: familiar } }
+  # Where to put a shot rather than how hard to loose it (STEALTH §7.2): a guide's knowledge - what a body will and will not carry,
+  # learned from the animals he has walked down and the ones that walked him down.
+  - kind: technique
+    ability_ref: ability.bow.weak_point_shot
+    fee: 35
+    requires: { skill: { skill_ref: skill.bow, band: proficient } }
 # What he values (WP15b; provisional, and only what his established part already shows - Sel's guide, who keeps the Orenth ledger of what each
 # crossing cost): helping the survey he guides, and putting down what should already have stayed dead.
 values:

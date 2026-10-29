@@ -1,0 +1,13 @@
+id: item.ammo.knife_thrown
+kind: item
+schema: 1
+display_key: item.ammo.knife_thrown.name
+tags: [item]
+name: Thrown Knife
+notes: A plain balanced knife, made to leave the hand (STEALTH §7.1, §7.6). Spent when thrown from the brace; one that misses sticks in whatever it struck and can be picked back out, which is why a thrower counts knives and not shots. Stacks of 6.
+category: misc
+pack_kind: ammo
+stack_max: 6
+weight: 0.2
+value_base: 4
+rarity: common

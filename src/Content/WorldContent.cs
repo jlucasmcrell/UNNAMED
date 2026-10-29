@@ -78,7 +78,7 @@ public static class WorldContent
         {
             rules = rules with
             {
-                StandHeightMm = Mm(map, "stand_height_m"), CrouchHeightMm = Mm(map, "crouch_height_m"), CrouchPercent = Int(map, "crouch_percent"),
+                StandHeightMm = Mm(map, "stand_height_m"), CrouchHeightMm = Mm(map, "crouch_height_m"), CrouchPercent = Int(map, "crouch_percent"), ProneHeightMm = map.ContainsKey("prone_height_m") ? Mm(map, "prone_height_m") : 500, PronePercent = map.ContainsKey("prone_percent") ? Int(map, "prone_percent") : 22,
             };
         }
         // Standing on structure tops (owner finding 50) and what is vaulted, climbed and scrambled (BRIEF D6).

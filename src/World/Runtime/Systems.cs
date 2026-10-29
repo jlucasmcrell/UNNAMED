@@ -23,6 +23,12 @@ internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : I
     public bool Quiet { get; init; }
 }
 
+/// <summary>
+/// To <see cref="CreatureSystem"/>, which owns the ear: a sound was made somewhere (STEALTH §3, §7.8). Whoever made it says where it
+/// carried and what made it; hearing it is the creature system's own business, so no other system writes its noise stream.
+/// </summary>
+internal sealed record RaiseNoise(Domain.Creatures.Noise Noise) : InternalCommand;
+
 /// <summary>To <see cref="ProgressionSystem"/>: award level XP.</summary>
 internal sealed record AwardExperience(XpAward Award) : InternalCommand;
 

@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -1294,6 +1294,7 @@ public sealed class Simulation
         LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
+        RaiseNoise noise => _creatures.Handle(noise, Now),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),
         HealCreature heal => _creatures.Handle(heal, Now),
