@@ -1,0 +1,11 @@
+id: ability.tracking.follow_the_quarry
+kind: ability
+schema: 1
+display_key: ability.tracking.follow_the_quarry.name
+tags: [ability, tracking]
+name: Follow the Quarry
+notes: Canon P, the survival web - "keep a cold trail across bad ground". This is the technique that lets a trail be read at all once it is older than fresh_s (config.tracking); without it a cold trail is nothing.
+class: technique
+discipline: skill.tracking
+grade: P
+needs: { tracking: 30, survival: 30 }

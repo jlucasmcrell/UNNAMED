@@ -226,6 +226,11 @@ public class ContentLoader
             _errors.AddRange(teachingErrors);
             success &= teachingErrors.Count == 0;
 
+            // The tracking skill's own numbers and its technique catalogue (TRK001; canon skill.tracking)
+            var trackingErrors = TrackingContent.Validate(this);
+            _errors.AddRange(trackingErrors);
+            success &= trackingErrors.Count == 0;
+
             // Chatter: the corpus and the templates, their tags, slots, words and provenance (CHT codes; WP16)
             var chatterErrors = ChatterContent.Validate(this);
             _errors.AddRange(chatterErrors);

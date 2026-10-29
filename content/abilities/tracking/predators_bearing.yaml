@@ -1,0 +1,11 @@
+id: ability.tracking.predators_bearing
+kind: ability
+schema: 1
+display_key: ability.tracking.predators_bearing.name
+tags: [ability, tracking]
+name: Predator's Bearing
+notes: Canon P - "work out what is hunting you, from its own approach". The read that runs the other way, the spoor of the thing following the character, read while it is still behind them.
+class: technique
+discipline: skill.tracking
+grade: P
+needs: { tracking: 30, insight: 20 }

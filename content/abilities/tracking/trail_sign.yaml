@@ -1,0 +1,11 @@
+id: ability.tracking.trail_sign
+kind: ability
+schema: 1
+display_key: ability.tracking.trail_sign.name
+tags: [ability, tracking]
+name: Trail Sign
+notes: Canon N, a cross of tracking and leadership - "tell a party what you found in a way they can act on". Its leadership leg is canon's, and this content pack carries no leadership skill yet, so the technique waits on one and is unreadable until it exists.
+class: technique
+discipline: skill.tracking
+grade: N
+needs: { tracking: 15, leadership: 15 }

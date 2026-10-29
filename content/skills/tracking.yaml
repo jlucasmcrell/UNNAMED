@@ -1,0 +1,9 @@
+id: skill.tracking
+kind: skill
+schema: 1
+display_key: skill.tracking.name
+tags: [skill]
+name: Tracking
+family: world
+notes: Canon's skill.tracking - "a trail recovered that somebody did not want found. It is also the skill that makes the world legible, and it feeds almost every quest." It reads spoor (config.tracking, the ability.tracking techniques) and it tells the character where an animal went; it never moves, spawns or reveals anything, so following a trail is a stealth approach and not a teleport (STEALTH_DETECTION_AND_THREAT.md §1, §4).
+teaches: "Reading sign: which way something went, how long ago, how many, and what the ground refuses to say."

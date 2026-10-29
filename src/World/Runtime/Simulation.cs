@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -169,6 +169,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>The pets' rules and the species a creature is a pet as (<c>config.pets</c> and the <c>pet:</c> blocks; spec 43); null in a pack with none.</summary>
     public UNNAMED.Domain.Pets.PetSetup? Pets { get; init; }
+
+    /// <summary>How spoor ages and fades, and the tracking techniques canon gives the skill (<c>config.tracking</c>; canon skill.tracking).</summary>
+    public UNNAMED.Domain.Creatures.TrackingRules Tracking { get; init; } = UNNAMED.Domain.Creatures.TrackingRules.Default;
 }
 
 /// <summary>A read-only view of the player for presentation. A copy: nothing done to it reaches the simulation.</summary>
@@ -252,6 +255,7 @@ public sealed class Simulation
     private readonly TravelSystem _travel;
     private readonly DeedSystem _deeds;
     private readonly WeatherSystem _weather;
+    private readonly SpoorSystem _spoor;
     private readonly FactionSystem _factions;
     private readonly MarketSystem _markets;
     private readonly MerchantSystem _merchants;
@@ -385,6 +389,10 @@ public sealed class Simulation
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
+        // The spoor holds no slice: it is the session's own memory of where the animals walked (see SpoorSystem). Its one hand on the
+        // world is the follow, which the creatures hear at a walk's quiet rather than a run's.
+        _spoor = new SpoorSystem(_context, player.Id, _weather);
+        _creatures.FollowingStepMm = _spoor.FollowingStepMm;
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
         _gearSets = new GearSetSystem(_context, _state.Claim(nameof(GearSetSystem), StateSlice.GearSets), player.Id,
@@ -997,6 +1005,9 @@ public sealed class Simulation
                 SwingAtNodeCommand swing => _swinging.Handle(swing,WorldTick),
                 // A cancel ends whichever timed thing is running: a pick, a swing or a wash first, so the system that started it is the one that stops it.
                 CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _washing.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
+                ReadTrailCommand readTrail => _spoor.Handle(readTrail, WorldTick),
+                FollowTrailCommand followTrail => _spoor.Handle(followTrail, WorldTick),
+                StopFollowingCommand stopFollowing => _spoor.Handle(stopFollowing, WorldTick),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -1073,6 +1084,7 @@ public sealed class Simulation
             _laden.Tick(tick);
             _lights.Tick(tick);
             _creatures.Tick(tick);
+            _spoor.Tick(tick);
             _companions.Tick(tick);
             _pets.Tick(tick);
             _approval.Tick(tick);
