@@ -617,6 +617,11 @@ public sealed class Simulation
     /// <summary>The region's resource nodes, and which can be harvested now (M3f).</summary>
     public ImmutableArray<NodeView> Nodes => _gathering.Views();
 
+    /// <summary>
+    /// A creature that names a carcass leaves one at the place it fell (D18 SYSTEMS, needed-2): the node a skinner works.
+    /// </summary>
+    public bool LeaveCarcass(string key, string nodeDefId, long xMm, long zMm) => _gathering.LeaveCarcass(key, nodeDefId, xMm, zMm);
+
     /// <summary>Every creature the region holds, living or dead.</summary>
     public ImmutableArray<CreatureView> Creatures => _creatures.Views();
 

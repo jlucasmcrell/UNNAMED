@@ -80,7 +80,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
-    private readonly ImmutableArray<(string Key, CellKey Cell, NodeSite Site)> _nodes;
+    private readonly List<(string Key, CellKey Cell, NodeSite Site)> _nodes;
 
     public GatheringSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
@@ -94,7 +94,22 @@ internal sealed class GatheringSystem : IAbstractAdvance
             var (home, site) = pair;
             var cell = context.CellOfSite(home.SpaceId, site.XMm, site.ZMm);
             return (Keys.NodeKey(cell, site.Name, 0), cell, site);
-        }).ToImmutableArray();
+        }).ToList();
+    }
+
+    /// <summary>
+    /// A body left where it fell (D18 SYSTEMS, needed-2): a carcass is a node like any other, so the harvest command, the
+    /// reach check and the skill it trains all work on it unchanged. Its key is the creature's own, so it is remembered
+    /// once and not again.
+    /// </summary>
+    public bool LeaveCarcass(string key, string nodeDefId, long xMm, long zMm)
+    {
+        if (!Setup.Nodes.ContainsKey(nodeDefId) || _nodes.Any(n => n.Key == key))
+            return false;
+        var space = State.Space;
+        var cell = _context.CellOfSite(space, xMm, zMm);
+        _nodes.Add((key, cell, new NodeSite(key, nodeDefId, xMm, zMm)));
+        return true;
     }
 
     /// <summary>

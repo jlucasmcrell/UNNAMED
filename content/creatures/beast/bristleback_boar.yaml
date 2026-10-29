@@ -16,6 +16,7 @@ turn_deg_s: 240   # quick in a line, slow to turn
 body_radius_m: 0.55
 xp_value: 45
 loot_table: loot.bristleback_boar
+carcass_ref: node.carcass.boar
 perception: { sight_m: 20, hearing_m: 25, fov_deg: 150 }
 tier_hint: A
 tameable: false
