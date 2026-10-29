@@ -75,6 +75,40 @@ cache scan also reports older world mip entries, which are outside this characte
 it is not reported as a package acceptance pass. No source texture has been reduced.
 The staging helper now carries native facial-performance JSON alongside the motion resources.
 
+The native refresh passed all 2,057 primary entries at original dimensions. Another 2,961
+byte-matching fallback entries reuse those prepared DDS files. One interrupted DDS was rebuilt
+from its original source image. The current 1080p face proof retry is farm job
+`f1_gate_d_face_20261029_02`; results are pending. The corrected intermediate motion libraries
+have 157 states on each native sex, including moving smith/cook/talking takes. They support
+the face proof while the complete library finishes.
+
+The shared figure API supplies a recorded speech clock to player or NPC story speech.
+Current opening narration is a narrator over the existing film, not an in-engine player line;
+no player voice or story dialogue has been fabricated. The player creator previews the same
+kept face channels. Combat readiness, stagger and downing also choose restrained expressions.
+Successful ground pickups drive the owned pickup take. Bow active/recovery now use the
+separate release take with the established CMU source marks retained. Seating drives native
+entry/exit takes, interrupted by movement, with support weight eased during entry. The inn's
+authored breakfast seating uses the inspected seated eating take; seated drinking has its own
+take. Scribes write; scholars use the genuine reading-loop source; miners use the owned pickaxe
+source. These are motion bindings, with authoritative movement and combat clocks unchanged.
+
+Source reconciliation also located three Kenney takes and the retained two-take Humanizer
+library; the supplemental native import preserves them. The MakeHuman pose collection is
+predominantly constant poses (287 of 290 BVHs constant; the remaining three have only 2–3
+distinct samples), rather than recorded body performances. The Ryzom facial file contains
+topology-specific `visage_*` morphs without native ARKit correspondence; those meshes cannot
+be applied as HumGen face channels. HumGen's static pose-library audit belongs to part 1.
+The native-motion policy still excludes KayKit. Creature/weapon-only source rigs remain with
+their existing actors. Source claims do not treat these incompatible or static assets as
+newly bound humanoid performance takes.
+
+Long CPU batches now resume completed source imports and exact-target retarget checkpoints.
+The transport auditor reads a manifest to avoid Windows' command-line length limit. Native
+packaging uses the headless process guard and fails immediately on script/assertion errors.
+No local GPU lease has been taken. Latest focused performance check passes; Presentation
+build and export succeed. Neither implementation part has its FINISHED marker yet.
+
 D15 hooks: existing Ashen Hollow smith/cook/resident schedules and conversations are the
 world hooks. No new skill or technique is added. Hooks lint and dossier reconciliation
 remain required before FINISHED. No new texture/LOD/VRAM savings introduced.

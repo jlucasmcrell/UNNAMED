@@ -131,7 +131,7 @@ public partial class CreatorScreen
             var section = UiKit.Section("Animation preview");
             var choices = new OptionButton();
             choices.AddItem("Rest");
-            foreach (string clip in motions) choices.AddItem(clip.Replace('_', ' '));
+            foreach (string clip in motions) choices.AddItem(_preview.PerformanceName(clip));
             choices.ItemSelected += index => _preview.Perform(index == 0 ? null : motions[(int)index - 1]);
             section.AddChild(choices);
             _body.AddChild(section);

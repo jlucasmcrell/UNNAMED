@@ -130,10 +130,9 @@ public partial class NpcsView : Node3D
                     Art.PeopleAppearance.ApplyResidentLook(body, npc.PeopleId, instance);
                 _figures[npc.Id] = figure;
                 string speakerId = npc.Id;
-                foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
-                    face.RecordedSpeech = () => _activeSimulation?.Conversation is { } active && active.NpcId == speakerId
+                figure.SetSpeechClock(() => _activeSimulation?.Conversation is { } active && active.NpcId == speakerId
                         ? Voice?.Speech(active.LineId) : _barks.TryGetValue(speakerId, out var speaking)
-                            ? Voice?.Speech(speaking.Voice, speaking.Line) : null;
+                            ? Voice?.Speech(speaking.Voice, speaking.Line) : null);
                 _instances[npc.Id] = instance;
                 // WHERE THE BODY ACTUALLY IS. Coverage.Resolved above fires when the FIGURE IS CREATED, not when it
                 // is on screen, so "person 5 requested 5 resolved" was never evidence that anybody was visible - and
@@ -181,10 +180,20 @@ public partial class NpcsView : Node3D
             figure.SetExpression(Ui.Models.DialoguePerformance.Mood(spoken,
                 simulation.Conversation is { } performance && performance.NpcId == npc.Id ? performance.Mood : null));
             var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);
+            if (furniture?.Clip == "sit" && npc.Role == "adventurer" && !npc.Talking
+                && simulation.Setup.Adventurers is { } meals)
+            {
+                int minute = simulation.Setup.Clock.MinuteOfDay(simulation.WorldTick);
+                if (meals.Settlements.Values.Any(t => t.Inn is { } inn
+                    && minute >= inn.BreakfastFromHour * 60 && minute < inn.BoardFromHour * 60
+                    && inn.Seats.Any(seat => new Vector2(feet.X - seat.XMm / 1000f, feet.Z - seat.ZMm / 1000f).Length() < 1.6f)))
+                    figure.SetActivity("eat", activityRole);
+            }
             if (furniture?.Clip == "lie_to_idle") figure.SetExpression("sleep");
             bool resting = figure.SetRestPose(held && VisualOptions.ComparisonCast == "humgen" ? "captive_kneel" : furniture?.Clip);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);
-            var wantedOffset = resting && furniture is { } support && figure.RestContact is { } contact ? support.Top-contact : Vector3.Zero;
+            var wantedOffset = resting && furniture is { } support && figure.RestContact is { } contact
+                ? (support.Top-contact) * figure.RestSupportWeight : Vector3.Zero;
             var offset = _restOffsets.GetValueOrDefault(npc.Id).Lerp(wantedOffset,1-Mathf.Exp(-10*(float)delta));
             _restOffsets[npc.Id]=offset;
             figure.Position+=offset;

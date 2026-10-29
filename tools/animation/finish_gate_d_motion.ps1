@@ -16,7 +16,7 @@ while($true){
 if($LASTEXITCODE -ne 0){throw 'Gate D selection preparation failed'}
 function Epic([string]$Script,[string]$Name){
  $path=(Join-Path $PSScriptRoot $Script).Replace('\','/')
- & $guard -Executable $ue -JobArguments @((Join-Path $JobRoot 'project\OtherreachHumGenMotion.uproject'),'-run=pythonscript',('-script="'+$path+'"'),'-NullRHI','-unattended','-nosplash','-nosound','-nop4','-stdout','-FullStdOutLogOutput') -Log (Join-Path $JobRoot ($Name+'.log')) -Job ('gate-d-'+$Name) -LimitSeconds 5400
+ & $guard -Executable $ue -JobArguments @((Join-Path $JobRoot 'project\OtherreachHumGenMotion.uproject'),'-run=pythonscript',('-script="'+$path+'"'),'-NullRHI','-unattended','-nosplash','-nosound','-nop4','-stdout','-FullStdOutLogOutput') -Log (Join-Path $JobRoot ($Name+'.log')) -Job ('gate-d-'+$Name) -LimitSeconds 14400
 }
 Epic 'import_gate_d_sources.py' 'import_owned_sources'
 $imported=Get-Content -LiteralPath (Join-Path $JobRoot 'extra_sources.json') -Raw | ConvertFrom-Json

@@ -60,6 +60,7 @@ public sealed partial class CreatorPreview : TextureRect
         _figure?.SetExpression(mood);
     }
     public IReadOnlyList<string> PerformanceClips => _figure?.PerformanceClips ?? Array.Empty<string>();
+    public string PerformanceName(string clip) => _figure?.PerformanceName(clip) ?? clip;
     public void Perform(string? clip) => _figure?.Perform(clip);
 
     /// <summary>Whether the body shown wears cloth the shirt and trouser colours dye (not the frontier outfit, which keeps its own).</summary>

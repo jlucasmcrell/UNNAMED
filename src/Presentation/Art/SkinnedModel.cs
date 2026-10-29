@@ -14,6 +14,8 @@ public sealed partial class SkinnedModel : Node3D
 {
     private readonly HashSet<string> _states = new(StringComparer.Ordinal);
     private Action<string>? _ensureNativeClip;
+    private Func<string, string>? _nativeClipName;
+    public string StateName(string state) => _nativeClipName?.Invoke(state) ?? state;
     public IReadOnlyList<string> States => _states.Order(StringComparer.Ordinal).ToArray();
     public double IdleStartPhase { get; set; }
     private bool _idlePhaseStarted;
@@ -196,6 +198,8 @@ public sealed partial class SkinnedModel : Node3D
                 ? externalMotion
                 : $"res://Art/{ComparisonMotionFolder}/{assetId}_motion.res")
             ?? throw new InvalidDataException("comparison motion library missing: " + assetId);
+        _nativeClipName = state => motion.HasAnimation(state)
+            ? motion.GetAnimation(state).GetMeta("display_name", state).AsString() : state;
         if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != Godot.FileAccess.GetSha256(bodyPath))
             throw new InvalidDataException("comparison motion library target body differs: " + assetId);
         if (VisualOptions.ComparisonCast == "humgen")

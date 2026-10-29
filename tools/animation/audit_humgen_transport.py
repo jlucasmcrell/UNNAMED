@@ -112,10 +112,13 @@ def audit(body_path, clips):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('body', type=Path)
-    parser.add_argument('clips', type=Path, nargs='+')
+    parser.add_argument('clips', type=Path, nargs='*')
+    parser.add_argument('--manifest', type=Path)
     parser.add_argument('--report', required=True, type=Path)
     args = parser.parse_args()
-    result = audit(args.body, args.clips)
+    clips = args.clips + ([Path(clip['path']) for clip in json.loads(args.manifest.read_text())['clips']] if args.manifest else [])
+    assert clips, 'No native transports supplied'
+    result = audit(args.body, clips)
     args.report.write_text(json.dumps(result, indent=2), encoding='utf-8')
     for c in result['clips']:
         print(Path(c['clip']).stem, 'rest error mm', round(c['rest_position_error_m']*1000, 4),

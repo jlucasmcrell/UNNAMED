@@ -197,7 +197,10 @@ public partial class Main
             _loot.Refresh();
             if (e.To.Kind == PlaceKind.Inventory && (e.From.Kind == PlaceKind.Ground
                 || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey)))
+            {
                 Notice(NoticeKind.Items, $"Picked up {Names.Of(_session, e.DefId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
+                if (e.Actor == _session.Simulation!.PlayerId) _avatar.Perform("pick_up");
+            }
             if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground
                 || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey))
                 _items.Refresh(_session.Simulation!);

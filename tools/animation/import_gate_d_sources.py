@@ -19,11 +19,17 @@ if os.environ.get('OTHERREACH_GATE_D_SOURCE_LIMIT'):
 facial_path = job.parent / 'facial_sources/inventory.json'
 facial = json.loads(facial_path.read_text()) if facial_path.exists() else []
 report = dict(status='IMPORTING', sources=[], failures=[], facial_sources=facial)
+previous = {}
+if (job / 'extra_sources.json').exists():
+    try:
+        previous = {row['id']: row for row in json.loads((job / 'extra_sources.json').read_text())['sources']}
+    except (ValueError, KeyError):
+        pass
 tools = unreal.AssetToolsHelpers.get_asset_tools()
 selection = json.loads((job / 'selection.json').read_text())
 semantic = {
     'blacksmithhammering_humanik_tf1': 'work_smith',
-    'chefcooking_mixamo': 'work_cook', 'writing': 'work_read',
+    'chefcooking_mixamo': 'work_cook', 'writing': 'work_write',
     'digging': 'work_mine', 'working_on_device': 'work_craft',
     'drinking': 'drink', 'carrying': 'work_carry',
     'talking_1': 'talk_1', 'talking_2': 'talk_2', 'talking_3': 'talk_3',
@@ -46,21 +52,31 @@ for row in rows:
     try:
         assert Path(row['path']).is_absolute() and Path(row['path']).is_file(), 'Source transport path must be absolute and exist'
         folder = '/Game/GateDSources/' + row['id']
-        if not unreal.EditorAssetLibrary.list_assets(folder, recursive=True, include_folder=False):
+        cached = previous.get(row['id'])
+        reusable = cached and cached['path'] == row['path'] and all(
+            (job / 'project/Content' / (item['asset'].split('.')[0].removeprefix('/Game/') + '.uasset')).is_file()
+            for item in cached['assets'])
+        if reusable:
+            assets = cached['assets']
+        else:
             task = unreal.AssetImportTask()
             task.filename = row['path']
             task.destination_path = folder
             task.automated = True
             task.save = True
+            task.replace_existing = True
             tools.import_asset_tasks([task])
-        assets = []
-        for path in unreal.EditorAssetLibrary.list_assets(folder, recursive=True, include_folder=False):
-            asset = unreal.load_asset(path)
-            if isinstance(asset, unreal.SkeletalMesh):
-                assets.append(dict(kind='mesh', asset=asset.get_path_name()))
-            elif isinstance(asset, unreal.AnimSequence):
-                assets.append(dict(kind='animation', asset=asset.get_path_name(), name=asset.get_name()))
-                selection['owned_' + row['id'] + '_' + asset.get_name().lower()] = [row['id'], asset.get_name()]
+            assets = []
+            for path in unreal.EditorAssetLibrary.list_assets(folder, recursive=True, include_folder=False):
+                data = unreal.EditorAssetLibrary.find_asset_data(path)
+                kind = str(data.asset_class_path.asset_name)
+                if kind == 'SkeletalMesh':
+                    assets.append(dict(kind='mesh', asset=path))
+                elif kind == 'AnimSequence':
+                    assets.append(dict(kind='animation', asset=path, name=str(data.asset_name)))
+        for item in assets:
+            if item['kind'] == 'animation':
+                selection['owned_' + row['id'] + '_' + item['name'].lower()] = [row['id'], item['name']]
         assert any(a['kind'] == 'mesh' for a in assets), 'Source preview rig missing'
         assert any(a['kind'] == 'animation' for a in assets), 'Source takes missing'
         takes = [a for a in assets if a['kind'] == 'animation']

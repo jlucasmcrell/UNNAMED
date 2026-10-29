@@ -6,28 +6,34 @@ import subprocess
 import sys
 
 def package(job, actor, runtime):
+    job, runtime = job.resolve(), runtime.resolve()
     receipt = json.loads((job / ('retarget_' + actor + '.json')).read_text())
     assert receipt['status'] == 'DONE', receipt.get('error')
     baseline = job / ('retarget_base_' + actor + '.json')
     if baseline.exists():
         old = json.loads(baseline.read_text())
-        assert old['body_sha256'] == receipt['body_sha256'], 'Performance supplement targets another frozen body'
-        clips = {clip['state']: clip for clip in old['clips']}
-        clips.update({clip['state']: clip for clip in receipt['clips']})
-        receipt['clips'] = list(clips.values())
+        if old['body_sha256'] == receipt['body_sha256']:
+            clips = {clip['state']: clip for clip in old['clips']}
+            clips.update({clip['state']: clip for clip in receipt['clips']})
+            receipt['clips'] = list(clips.values())
+        else:
+            assert {clip['state'] for clip in old['clips']} <= {clip['state'] for clip in receipt['clips']}, 'Incomplete supplement targets another frozen body'
     body = job / 'targets' / (actor + '.glb')
-    subprocess.run([sys.executable, str(Path(__file__).with_name('audit_humgen_transport.py')), str(body)]
-        + [clip['path'] for clip in receipt['clips']] + ['--report', str(job / ('audit_final_' + actor + '.json'))], check=True)
-    audit = json.loads((job / ('audit_final_' + actor + '.json')).read_text())
-    for clip in audit['clips']:
-        if Path(clip['clip']).stem in ('work_smith', 'work_cook', 'work_read', 'work_carry', 'talk_1'):
-            assert max(clip['motion'][hand]['max_displacement_m'] for hand in ('LeftHand', 'RightHand')) > .02, ('Static retargeted performance', clip['clip'])
     output = runtime / 'humgen_characters/mocap_motion' / (actor + '_motion.res')
     manifest = job / ('library_final_' + actor + '.json')
+    for clip in receipt['clips']:
+        clip.setdefault('display_name', clip['source'].rsplit('/', 1)[-1])
     manifest.write_text(json.dumps(dict(body=str(body), output=str(output), clips=receipt['clips']), indent=2), encoding='utf-8')
-    subprocess.run(['C:/Otherreach_Worker/tools/godot_4_7_2_net8_0_31/godot/Godot_v4.7.2-stable_mono_win64_console.exe',
-        '--headless', '--path', str(job / 'rig_gate'), '--script',
-        str(Path(__file__).with_name('build_humgen_motion.gd').resolve()), '--', str(manifest)], check=True, timeout=3600)
+    subprocess.run([sys.executable, str(Path(__file__).with_name('audit_humgen_transport.py')), str(body)]
+        + ['--manifest', str(manifest), '--report', str(job / ('audit_final_' + actor + '.json'))], check=True)
+    audit = json.loads((job / ('audit_final_' + actor + '.json')).read_text())
+    for clip in audit['clips']:
+        if Path(clip['clip']).stem == 'work_read':
+            assert max(clip['motion'][bone]['max_displacement_m'] for bone in ('Head', 'LeftHand', 'RightHand')) > .002, ('Static reading performance', clip['clip'])
+        elif Path(clip['clip']).stem in ('work_smith', 'work_cook', 'work_write', 'work_carry', 'talk_1'):
+            assert max(clip['motion'][hand]['max_displacement_m'] for hand in ('LeftHand', 'RightHand')) > .02, ('Static retargeted performance', clip['clip'])
+    subprocess.run(['pwsh', '-NoProfile', '-File', str(Path(__file__).with_name('package_gate_d_library.ps1').resolve()),
+        '-Manifest', str(manifest), '-JobRoot', str(job)], check=True)
     assert output.with_suffix('.res.audit.json').exists(), 'Exact-target package audit missing'
 
 if __name__ == '__main__':

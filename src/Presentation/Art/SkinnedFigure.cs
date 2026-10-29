@@ -58,10 +58,22 @@ public sealed partial class SkinnedFigure : Figure
     private IdleVariety _idles = null!;
     private string? _idleRole;
     private string? _restPose;
+    private string? _seatingClip;
+    private double _seatingTime;
+    public override float RestSupportWeight => _seatingClip == "sit_enter"
+        ? (float)Math.Clamp(_seatingTime / Math.Max(.001, _model.Length(_seatingClip)), 0, 1) : 1;
     public override bool SetRestPose(string? clip)
     {
         if (clip == "lie_to_idle" && _model.Has("sleep")) clip = "sleep";
-        _restPose = clip is not null && _model.Has(clip) ? clip : null;
+        string? next = clip is not null && _model.Has(clip) ? clip : null;
+        if (next != _restPose)
+        {
+            string? transition = next == "sit" && _restPose is null ? "sit_enter"
+                : _restPose == "sit" && next is null ? "sit_exit" : null;
+            _seatingClip = transition is not null && _model.Has(transition) ? transition : null;
+            _seatingTime = 0;
+        }
+        _restPose = next;
         return _restPose is not null;
     }
     public override Vector3? RestContact
@@ -82,7 +94,11 @@ public sealed partial class SkinnedFigure : Figure
     }
     public override void SetIdleRole(string? role) => _idleRole = role;
     private string? _mood;
-    public override void SetExpression(string? mood) { _mood = mood; if (_face is not null) _face.Mood = mood; }
+    public override void SetExpression(string? mood) { _mood = mood; UpdateMood(); }
+    private void UpdateMood()
+    { if (_face is not null) _face.Mood = _downed ? "sleep" : _stance.Phase == CombatPhase.Staggered ? "worried" : _stance.Ready ? "stern" : _mood; }
+    public override void SetSpeechClock(Func<(double Position, double Duration, float Jaw)?>? clock)
+    { if (_face is not null) _face.RecordedSpeech = clock; }
     private string? _activity;
     private Node3D? _workTool;
     private string? _workToolClip;
@@ -95,6 +111,14 @@ public sealed partial class SkinnedFigure : Figure
             .ToDictionary(p => "face/" + Path.GetFileNameWithoutExtension(p), p => p, StringComparer.Ordinal)
         : new(StringComparer.Ordinal);
     public override IReadOnlyList<string> PerformanceClips => _model.States.Concat(FacialTakes.Keys).ToArray();
+    public override string PerformanceName(string clip)
+    {
+        string name = clip.StartsWith("face/", StringComparison.Ordinal)
+            ? System.Text.RegularExpressions.Regex.Replace(clip[5..], "_face_.*$", "")
+            : clip.StartsWith("owned_", StringComparison.Ordinal) ? _model.StateName(clip) : clip;
+        name = System.Text.RegularExpressions.Regex.Replace(name, "_(?:HUMANIK|hik|mixamo|ue|Anim)(?:_.*)?$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return System.Text.RegularExpressions.Regex.Replace(name.Replace('_', ' '), "(?<=[a-z])(?=[A-Z])", " ");
+    }
     public override bool Perform(string? clip)
     {
         if (clip is not null && FacialTakes.TryGetValue(clip, out string? facePath))
@@ -106,6 +130,7 @@ public sealed partial class SkinnedFigure : Figure
         _face?.PlayPerformance(null);
         if (clip is not null && !_model.Has(clip)) return false;
         _performance = clip;
+        if (clip is not null) _reaching = 0;
         _performanceLeft = clip is null ? 0 : _model.Length(clip);
         if (clip is not null) _model.Play(clip, .2f, 1f, true);
         return true;
@@ -257,7 +282,7 @@ public sealed partial class SkinnedFigure : Figure
             _offFingers.Closed = _held is not null && off ? 1f : RelaxedHand;
     }
 
-    public override void SetStance(CombatStance stance) => _stance = stance;
+    public override void SetStance(CombatStance stance) { _stance = stance; UpdateMood(); }
 
     public override void SetFirstPerson(bool firstPerson) => _model.SetShadowOnly(firstPerson);
 
@@ -273,6 +298,7 @@ public sealed partial class SkinnedFigure : Figure
     public override bool SetDowned(bool downed)
     {
         _downed = downed;
+        UpdateMood();
         return true;
     }
 
@@ -574,11 +600,19 @@ public sealed partial class SkinnedFigure : Figure
             _performance = null;
         }
         else _performance = null;
+        if (_seatingClip is { } seating)
+        {
+            _seatingTime += delta;
+            if (speed < .25f && _seatingTime < m.Length(seating)) { m.Play(seating, .2f); return; }
+            _seatingClip = null;
+        }
         if (speed < .25f && _restPose is { } resting)
         {
             _idles.Interrupt();
             if (resting == "lie_to_idle") m.Hold(resting, 0, .3f);
             else if (resting == "captive_kneel") m.Hold(resting, .5f, .3f);
+            else if (resting == "sit" && !_talking && _activity is "eat" or "drink" && m.Has("sit_" + _activity))
+                m.Play("sit_" + _activity, .3f);
             else m.Play(_talking && m.Has("sit_talk") ? "sit_talk" : resting, .3f);
             return;
         }
@@ -599,6 +633,7 @@ public sealed partial class SkinnedFigure : Figure
             { Casting: true } => "cast",
             { Holds: Held.Sword } => "sword_attack",
             { Holds: Held.Spear } => "spear_thrust",
+            { Holds: Held.Bow, Phase: CombatPhase.Active or CombatPhase.Recovery } when m.Has("bow_release") => "bow_release",
             { Holds: Held.Bow } => "bow_draw",
             { Holds: Held.Nothing } when m.Has("unarmed_attack_1") => "unarmed_attack",
             _ => null,

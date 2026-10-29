@@ -18,6 +18,37 @@ selected = {"idle": ("ual1", "Idle_Loop"), "walk": ("ual1", "Walk_Loop"),
             "walk_strafe_left": ("fal", "anim_Walk_Left_Loop"), "sword_attack_1": ("ual1", "Sword_Attack")}
 if os.environ.get("OTHERREACH_HUMGEN_SOURCE_SELECTION"):
     selected = json.loads(Path(os.environ["OTHERREACH_HUMGEN_SOURCE_SELECTION"]).read_text())
+supplemental_sources = []
+legacy_inventory = root.parent / 'legacy_sources/inventory.json'
+if legacy_inventory.exists():
+    for row in json.loads(legacy_inventory.read_text()):
+        assert row['status'] == 'SOURCE_EXPORTED_NOT_RETARGETED', row
+        folder = '/Game/GateDSources/' + row['id']
+        if not unreal.EditorAssetLibrary.list_assets(folder, True, False):
+            task = unreal.AssetImportTask()
+            task.filename, task.destination_path, task.automated, task.save = row['path'], folder, True, True
+            tools.import_asset_tasks([task])
+        assets = []
+        for path in unreal.EditorAssetLibrary.list_assets(folder, True, False):
+            item = unreal.load_asset(path)
+            if isinstance(item, unreal.SkeletalMesh):
+                assets.append(dict(kind='mesh', asset=item.get_path_name()))
+            elif isinstance(item, unreal.AnimSequence):
+                assets.append(dict(kind='animation', asset=item.get_path_name(), name=item.get_name()))
+                selected['owned_' + row['id'] + '_' + item.get_name().lower()] = [row['id'], item.get_path_name()]
+        assert any(a['kind'] == 'mesh' for a in assets) and any(a['kind'] == 'animation' for a in assets), row
+        supplemental_sources.append(dict(id=row['id'], path=row['path'], original=row['source'], assets=assets))
+if os.environ.get('OTHERREACH_HUMGEN_EXTRA_SOURCES'):
+    for source in json.loads(Path(os.environ['OTHERREACH_HUMGEN_EXTRA_SOURCES']).read_text())['sources']:
+        for item in source['assets']:
+            named = {('FreeAnimationsPack2', 'AS_Eats'): 'sit_eat',
+                     ('MC_Sample', 'am_SpellBook_02_Read_Loop_01'): 'work_read',
+                     ('FreeSampleAnimationSet', 'A_Mining_PickAxe_2H_01_Loop_01'): 'work_mine'}
+            semantic = named.get((source['path'], item.get('name')))
+            if semantic:
+                selected[semantic] = [source['id'], item['asset']]
+            if item['kind'] == 'animation' and Path(source.get('original', '')).stem.lower() == 'writing':
+                selected['work_write'] = [source['id'], item['asset']]
 if os.environ.get('OTHERREACH_HUMGEN_EXTRA_ONLY') == '1':
     extra_ids = {row['id'] for row in json.loads(Path(os.environ['OTHERREACH_HUMGEN_EXTRA_SOURCES']).read_text())['sources']}
     selected = {key: value for key, value in selected.items() if value[0] in extra_ids}
@@ -31,7 +62,15 @@ def save(status, **values):
             json.dumps(dict(status=status, current=values.get('current'), exported=len(state['clips']), selected=len(selected))), encoding='utf-8')
         if len(state['clips']) % 50:
             return
-    report.write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
+    temporary = report.with_suffix('.pending.json')
+    temporary.write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
+    for attempt in range(10):
+        try:
+            temporary.replace(report)
+            break
+        except PermissionError:
+            if attempt == 9: raise
+            time.sleep(.05)
 
 def asset(folder, name, factory):
     return unreal.load_asset(folder + "/" + name) or tools.create_asset(name, folder, None, factory)
@@ -46,6 +85,20 @@ try:
     native = json.loads(Path(os.environ.get("OTHERREACH_HUMGEN_TARGET_REPORT", str(root / "target_probe.json"))).read_text())
     assert native["status"] == "DONE"
     target_info = next(b for b in native["bodies"] if "_Body_LOD3." in b["asset"])
+    if report.exists():
+        try:
+            previous = json.loads(report.read_text())
+            if previous.get('body_sha256') == native['body_sha256'] and all(previous.get(key) == state[key]
+                    for key in ('target_id', 'selection_sha256', 'retargeter_script_sha256')):
+                for clip in previous['clips']:
+                    path = Path(clip['path'])
+                    if path.is_file():
+                        with path.open('rb') as stream: header = stream.read(12)
+                        if len(header) == 12 and struct.unpack_from('<I', header, 8)[0] == path.stat().st_size:
+                            state['clips'].append(clip)
+                state['source_chains'] = previous.get('source_chains', {})
+        except (ValueError, KeyError, OSError):
+            state['clips'] = []
     body = unreal.load_asset(target_info["asset"])
     bones = [b["name"] for b in target_info["bones"]]
     assert len(bones) == 59 and all(b in bones for b in ("Hips", "LeftUpperArm", "LeftLowerArm", "RightUpperLeg"))
@@ -85,15 +138,18 @@ try:
         extra = json.loads(Path(os.environ["OTHERREACH_HUMGEN_EXTRA_SOURCES"]).read_text())
         assert extra["status"] == "DONE"
         sources["sources"].extend(extra["sources"])
+    sources['sources'].extend(supplemental_sources)
+    state['supplemental_sources'] = supplemental_sources
     # No textures/material baking is needed for an animation transport preview. The game
     # keeps the original, dressed HumGen GLB; these material slots never go into the game.
     materials = body.get_editor_property("materials")
     for material in materials:
         material.set_editor_property("material_interface", None)
     body.set_editor_property("materials", materials)
+    completed = {clip['state'] for clip in state['clips']}
     for source in sources["sources"]:
         sid = source["id"]
-        todo = {key: name for key, (provider, name) in selected.items() if provider == sid}
+        todo = {key: name for key, (provider, name) in selected.items() if provider == sid and key not in completed}
         if not todo:
             continue
         assert "kaykit" not in sid.lower()
@@ -242,10 +298,13 @@ try:
             data = path.read_bytes()
             gltf = json.loads(data[20:20 + struct.unpack_from("<I", data, 12)[0]])
             assert len(gltf["skins"][0]["joints"]) == 59 and gltf.get("animations")
-            state["clips"].append({"state": key, "source": sid + "/" + todo[key], "source_asset": original.get_path_name(),
+            state["clips"].append({"state": key, "display_name": original.get_name(), "source": sid + "/" + todo[key], "source_asset": original.get_path_name(),
                                    "asset": animation.get_path_name(), "path": str(path), "seconds": animation.sequence_length,
-                                   "loop": original.get_name().lower().endswith("_loop") or key.startswith("work_") or key in ("eat", "drink", "sleep", "idle", "idle_look", "walk", "run", "sprint", "talk", "talk_1", "talk_2", "talk_3", "sit", "sit_talk", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
+                                   "loop": original.get_name().lower().endswith("_loop") or key.startswith("work_") or key in ("eat", "drink", "sleep", "idle", "idle_look", "walk", "run", "sprint", "talk", "talk_1", "talk_2", "talk_3", "sit", "sit_talk", "sit_eat", "sit_drink", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
                                    "source_rate_scale": original.get_editor_property("rate_scale")})
+            # Retain the established bow source marks (CMU 79_86 at 3.75/4.15/4.85s).
+            if key == 'bow_draw': state['clips'][-1]['action_phases'] = [1.35/2.45, 1.75/2.45, 1]
+            if key == 'bow_release': state['clips'][-1]['action_phases'] = [.05/1.15, .45/1.15, 1]
             save("EXPORTED", current=key)
     assert len(state["clips"]) == len(selected), "Not every selected source was exported"
     unreal.EditorAssetLibrary.save_directory(package, only_if_is_dirty=True, recursive=True)
