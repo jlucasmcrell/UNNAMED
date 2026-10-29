@@ -255,6 +255,8 @@ public sealed partial class SkinnedFigure : Figure
 
     private ActivityKind _fishKind;
     private double _fishing;
+    private long _swingAt = -1;
+    private double _swinging;
 
     public override void Strike() => _striking = 0.001;
 
@@ -270,6 +272,15 @@ public sealed partial class SkinnedFigure : Figure
             return;
         _fishKind = kind;
         _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock ? 0.001 : 0;
+    }
+
+    /// <summary>The pick into a node: each swing the simulation counts plays the clip once, so a later start tick is a new swing.</summary>
+    public override void Swinging(long startedTick)
+    {
+        if (startedTick == _swingAt)
+            return;
+        _swingAt = startedTick;
+        _swinging = 0.001;
     }
 
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
@@ -640,6 +651,18 @@ public sealed partial class SkinnedFigure : Figure
                 return;
             }
             _fishing = 0;
+        }
+        // A swing at a node has no clip of its own in the art root either, so it plays the clip the mine_swing state names - the sword's
+        // overhead chop, which is the honest reuse for a pick - once for each swing the simulation counts.
+        if (_swinging > 0)
+        {
+            _swinging += delta;
+            if (_swinging < m.Length("mine_swing") && speed < 0.25f && m.Has("mine_swing"))
+            {
+                m.Play("mine_swing", 0.1f, 1f, _swinging - delta <= 0.001);
+                return;
+            }
+            _swinging = 0;
         }
         // A reach plays through once, standing (walking on cuts it short).
         if (_reaching > 0)

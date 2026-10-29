@@ -1,4 +1,4 @@
-// UNNAMED Domain - the timed activity a character is committed to (fishing and lockpicking today; a mining swing later)
+// UNNAMED Domain - the timed activity a character is committed to (fishing, lockpicking, and a swing at a node)
 // No Godot references - this is pure C# domain logic
 
 namespace UNNAMED.Domain;
@@ -20,14 +20,27 @@ public enum ActivityKind
 
     /// <summary>The picks are in a lock: the attempt holds for its ticks, and whether it turns is rolled when they run out.</summary>
     PickLock,
+
+    /// <summary>
+    /// The pick is in a node: the swing plays for its ticks, the node is struck when they run out, and a node whose content asks for more
+    /// than one swing renews this for the next one.
+    /// </summary>
+    Swing,
 }
 
 /// <summary>
 /// One timed activity, from the tick it began to the tick it is done. <see cref="UntilTick"/> 0 means it runs until it is ended;
-/// <see cref="TargetKey"/> is the thing it is worked against (a water), and <see cref="BiteTick"/> the moment within it that matters
-/// (when a fish is on), 0 when the activity has none.
+/// <see cref="TargetKey"/> is the thing it is worked against (a water, a node), and <see cref="BiteTick"/> the moment within it that
+/// matters (when a fish is on), 0 when the activity has none.
 /// </summary>
-public sealed record PlayerActivity(ActivityKind Kind, string TargetKey, long StartedTick, long UntilTick, long BiteTick);
+public sealed record PlayerActivity(ActivityKind Kind, string TargetKey, long StartedTick, long UntilTick, long BiteTick)
+{
+    /// <summary>
+    /// Which swing of a node's sequence this is, 1 for the first, and 0 for every activity that is not one: the last swing is the one
+    /// that fills the node, and swinging again renews the record with the next number and a fresh start tick.
+    /// </summary>
+    public int Strike { get; init; }
+}
 
 /// <summary>
 /// A lock's numbers, and nothing else: what a hand at the skill gets on a tier of lock, and where the lock's own record lives. A tier

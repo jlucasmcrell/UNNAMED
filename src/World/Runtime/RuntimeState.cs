@@ -222,7 +222,7 @@ internal sealed class RuntimeState
         CampRestAt=resting;
         ReturnToCamp=returnToCamp;
     }
-    /// <summary>The cast, wait, reel or lock being worked now, or null. Transient: one interrupted by a save is dropped, not saved.</summary>
+    /// <summary>The cast, wait, reel, pick or swing being worked now, or null. Transient: one interrupted by a save is dropped, not saved.</summary>
     public PlayerActivity? Activity { get; private set; }
     public void SetActivity(SliceOwner owner,PlayerActivity? activity)
     {

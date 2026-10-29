@@ -489,7 +489,7 @@ public sealed class UiShots
                     _controller.Gather(seam.Key);
                     _gathersAsked++;
                 }
-                return Stalled(3_000, "the seam was never worked out");
+                return Stalled(8_000, "the seam was never worked out: three swings of 1.5 s");
             }
             case 22:
                 if (Travel(ToTheStand, Near))

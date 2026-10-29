@@ -30,6 +30,8 @@ public sealed partial class MetaHumanFigure : Figure
     private double _airTime, _landing, _reaching, _striking;
     private ActivityKind _fishKind;
     private double _fishing;
+    private long _swingAt = -1;
+    private double _swinging;
     private string _gait = "walk", _attack = "sword_attack_1";
     private int _attackTurn;
     private CombatPhase _lastPhase = CombatPhase.Idle;
@@ -158,6 +160,14 @@ public sealed partial class MetaHumanFigure : Figure
             return;
         _fishKind = kind;
         _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock ? .001 : 0;
+    }
+
+    /// <summary>The pick into a node: each swing the simulation counts plays the clip once, so a later start tick is a new swing.</summary>
+    public override void Swinging(long startedTick)
+    {
+        if (startedTick == _swingAt) return;
+        _swingAt = startedTick;
+        _swinging = .001;
     }
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
     private CrouchHeadLift _crouchHead=null!;
@@ -331,6 +341,18 @@ public sealed partial class MetaHumanFigure : Figure
                 return;
             }
             _fishing = 0;
+        }
+        // A swing at a node has no clip of its own in the art root either, so it plays the clip the mine_swing state names - the sword's
+        // overhead chop, which is the honest reuse for a pick - once for each swing the simulation counts.
+        if (_swinging > 0)
+        {
+            _swinging += delta;
+            if (_swinging < Length("mine_swing") && speed < .25f && Has("mine_swing"))
+            {
+                Play("mine_swing", .1f, 1f, _swinging - delta <= .001);
+                return;
+            }
+            _swinging = 0;
         }
         if (_reaching > 0)
         {

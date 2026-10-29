@@ -172,7 +172,8 @@ public partial class Main
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
+            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or SwingAtNodeCommand
+                or CraftCommand or TakeAllCommand
                 or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand or PickLockCommand
                 or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand
                 or EquipBagCommand or UnequipBagCommand or PlaceStackCommand or SortPackCommand or MarkJunkCommand or LockStackCommand or SellJunkCommand)
@@ -214,13 +215,17 @@ public partial class Main
         _session.Subscribe<JunkSold>(e => Notice(NoticeKind.Items, $"Sold {e.Stacks} junk stack{(e.Stacks == 1 ? "" : "s")} for {e.Price}", 3));
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
+        // Gathering: the pick goes in, a seam that holds more says so, and what it gives is named on the swing that fills it.
+        _session.Subscribe<SwingStarted>(e => _hud.Log($"You swing at the {Names.Of(_session, e.NodeDefId)}"));
+        _session.Subscribe<NodeStruck>(_ => _hud.Log("The seam shows more"));
+        _session.Subscribe<NodeRefused>(e => _hud.Toast(e.Reason, 3));
         _session.Subscribe<NodeGathered>(e =>
         {
             _inventory.Refresh();
             string spent = !e.Spent ? ""
                 : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {Names.Of(_session, e.NodeDefId)} is worked out"
                 : $" - nothing more until the {Names.Of(_session, e.NodeDefId)} grows back";
-            Notice(NoticeKind.Items, $"+{e.Count} {Names.Of(_session, e.ItemId)}{spent}", 3);
+            Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}{spent}", 3);
         });
         _session.Subscribe<ItemCrafted>(e =>
         {

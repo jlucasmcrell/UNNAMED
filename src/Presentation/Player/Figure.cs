@@ -114,4 +114,12 @@ public abstract partial class Figure : Node3D
     public virtual void Fishing(UNNAMED.Domain.ActivityKind kind)
     {
     }
+
+    /// <summary>
+    /// A swing at a node, by the tick it began: the clip plays once for that swing, and a swing begun at a later tick - the next one of
+    /// the same node - starts it again. A figure that cannot show it stands as it would.
+    /// </summary>
+    public virtual void Swinging(long startedTick)
+    {
+    }
 }

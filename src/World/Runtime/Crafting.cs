@@ -32,7 +32,7 @@ public sealed record CraftingSetup(
 
 // ── commands ────────────────────────────────────────────────────────────────
 
-/// <summary>Harvest a node within reach: what it yields goes to the pack, and the node remembers.</summary>
+/// <summary>What a node yields for the swing that fills it: what it gives goes to the pack, and the node remembers (M3f, the mining swing).</summary>
 public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand(Actor);
 
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
@@ -114,19 +114,13 @@ internal sealed class GatheringSystem : IAbstractAdvance
             return $"unknown actor {command.Actor}";
         if (State.PlayerCombat.Defeated)
             return "dead";
-        var node = _nodes.FirstOrDefault(n => n.Key == command.NodeKey);
-        if (node.Key is null || !Setup.Nodes.TryGetValue(node.Site.NodeDefId, out var definition))
-            return $"there is no node '{command.NodeKey}'";
-        if (node.Cell.Space != State.Space)
-            return "that node is in another space";
-        var body = State.Body;
-        if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
-            return "that is out of reach";
+        var (definition, refusal) = Node(command.NodeKey, tick);
+        if (definition is null)
+            return refusal!;
+        var node = _nodes.First(n => n.Key == command.NodeKey);
         var record = State.World.NodeRecord(node.Cell, node.Key);
         long localTick = _context.SpaceTick(node.Cell.Space, tick);
         int harvests = record?.HarvestSeq ?? 0;
-        if (!Ready(definition, record, localTick))
-            return definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back";
 
         // The yield is rolled from the node and its harvest, and a skilled hand takes more.
         var channel = RngChannel.Open(State.World.WorldSeed, node.Cell, "gather", $"{node.Key}@{harvests + 1}");
@@ -143,6 +137,26 @@ internal sealed class GatheringSystem : IAbstractAdvance
         if (definition.ResourceId is { } resource)
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Harvested, resource, count, Quality.Standard, null, tick)));
         return null;
+    }
+
+    /// <summary>
+    /// What a swing at the node a key names would find, by the node's own rules: its definition when it will give, or the words it is
+    /// refused in - a node that is not this world's, one in another space, one out of the arm's reach, and one with no charges left. The
+    /// swing asks this before its first strike and the gather asks it again before it takes, so both refuse a node in the same words.
+    /// </summary>
+    public (NodeDefinition? Definition, string? Refusal) Node(string nodeKey, long tick)
+    {
+        var node = _nodes.FirstOrDefault(n => n.Key == nodeKey);
+        if (node.Key is null || !Setup.Nodes.TryGetValue(node.Site.NodeDefId, out var definition))
+            return (null, $"there is no node '{nodeKey}'");
+        if (node.Cell.Space != State.Space)
+            return (null, "that node is in another space");
+        var body = State.Body;
+        if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
+            return (null, "that is out of reach");
+        if (!Ready(definition, State.World.NodeRecord(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
+            return (null, definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back");
+        return (definition, null);
     }
 
     private bool Ready(NodeDefinition definition, NodeHarvest? record, long tick) =>

@@ -30,7 +30,8 @@ public sealed record LockPickFailed(string TargetKey,bool Broke,long Tick);
 // ── the system ──────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Activity"/> with fishing - one body is in one timed thing at a time, and a lock is the second of them. One
+/// Owns: <see cref="StateSlice.Activity"/> with fishing and the swing at a node - one body is in one timed thing at a time, and a lock is
+/// the second of them. One
 /// loop (SYSTEMS.md, interaction): E on a tiered door or container starts the attempt, which holds for <see cref="AttemptTicks"/>; when it
 /// ends the roll is made on the attempt's own channel - the character's hand against the lock's tier - and it practises the skill either
 /// way. A lock that gave is recorded in a world flag in the site's own cell, so it never holds again; a lock that held may take the picks

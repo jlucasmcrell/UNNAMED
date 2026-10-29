@@ -116,6 +116,25 @@ public class CraftingContentTests
     public void ADailyNodeOfManyCharges_IsRefused() =>
         AssertRefused("nodes/wood/ash_stand.yaml", "charges: 1", "charges: 3", "a daily node holds one charge a day");
 
+    /// <summary>
+    /// The swings one harvest takes are content: three at a seam, one at a stand, and one at every node that names none - the default that
+    /// keeps every node authored before the swing working at a touch.
+    /// </summary>
+    [Fact]
+    public void ASwingCountIsContent_AndOneIsTheDefault()
+    {
+        var crafting = CraftingContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+
+        Assert.Equal(3, crafting.Nodes["node.ore.iron_seam"].Swings);
+        Assert.Equal(1, crafting.Nodes["node.wood.ash_stand"].Swings);
+        Assert.Equal(1, crafting.Nodes["node.herb.boneleaf"].Swings);
+        Assert.Equal(1, crafting.Nodes["node.fibre.bog_cotton"].Swings);   // names no swings: one, as every node did before
+    }
+
+    [Fact]
+    public void MoreThanTenSwings_IsRefused() =>
+        AssertRefused("nodes/ore/iron_seam.yaml", "swings: 3", "swings: 11", "swings must be 0..10");
+
     [Fact]
     public void ANodeNeedingATool_IsRefused() =>
         AssertRefused("nodes/ore/iron_seam.yaml", "difficulty: 5", "difficulty: 5\ntool_tier_min: 1", "tool_tier_min is not built in Phase 1");

@@ -236,6 +236,7 @@ public sealed class Simulation
     private readonly CampSystem _camp;
     private readonly FishingSystem _fishing;
     private readonly LockpickSystem _lockpicking;
+    private readonly SwingingSystem _swinging;
     private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
@@ -317,9 +318,9 @@ public sealed class Simulation
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells, setup.Observers);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
-        // One timed activity is one record under one owner (ARCHITECTURE.md section 5): fishing claimed the slice first, and a pick is the
-        // same kind of commitment, so the lockpick system is handed the same owner rather than claiming the slice a second time - the two
-        // can never run at once, so there is never a second writer to disagree with.
+        // One timed activity is one record under one owner (ARCHITECTURE.md section 5): fishing claimed the slice first, and a pick or a
+        // swing is the same kind of commitment, so the lockpick and swing systems are handed the same owner rather than claiming the
+        // slice again - only one of the three can run at once, so there is never a second writer to disagree with.
         var activity = _state.Claim(nameof(FishingSystem),StateSlice.Activity);
         _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
         _fishing = new FishingSystem(_context,activity,player.Id);
@@ -332,6 +333,13 @@ public sealed class Simulation
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects), player.Id);
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
+        // The swing is timed, the gather is what the last swing runs: the ones the gather refuses, and the yield it takes, are asked of it
+        // rather than repeated here, so a node worked out, out of reach or gone from this place refuses in the gather's own words.
+        _swinging = new SwingingSystem(_context, activity, player.Id)
+        {
+            Node = _gathering.Node,
+            Gather = (nodeKey, tick) => _gathering.Handle(new GatherCommand(player.Id, nodeKey), tick),
+        };
         _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name) { Contents = site => _inventory.View(site) };
         _lore = new LoreSystem(_context, _state.Claim(nameof(LoreSystem), StateSlice.Lore), player.Id);
         _lore.Listen(bus);
@@ -600,7 +608,7 @@ public sealed class Simulation
     public bool ReturnToCamp => _state.ReturnToCamp;
     public bool CanRefillFlask => Camps.WaterNear(_context);
 
-    /// <summary>The timed activity the character is in the middle of (a cast, a wait, a reel), or null. Transient, never saved.</summary>
+    /// <summary>The timed activity the character is in the middle of (a cast, a wait, a reel, a pick, a swing at a node), or null. Transient, never saved.</summary>
     public PlayerActivity? Activity => _state.Activity;
 
     /// <summary>
@@ -964,8 +972,9 @@ public sealed class Simulation
                 StartFishingCommand fishing => _fishing.Handle(fishing,WorldTick),
                 ReelInCommand reel => _fishing.Handle(reel,WorldTick),
                 PickLockCommand pick => _lockpicking.Handle(pick,WorldTick),
-                // A cancel ends whichever timed thing is running: a pick first, so the system that started it is the one that stops it.
-                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
+                SwingAtNodeCommand swing => _swinging.Handle(swing,WorldTick),
+                // A cancel ends whichever timed thing is running: a pick or a swing first, so the system that started it is the one that stops it.
+                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -1036,6 +1045,7 @@ public sealed class Simulation
             _camp.Tick();
             _fishing.Tick(tick);
             _lockpicking.Tick(tick);
+            _swinging.Tick(tick);
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);

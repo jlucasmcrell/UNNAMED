@@ -39,8 +39,8 @@ public sealed record FishLost(string WaterKey,string Reason,long Tick);
 // ── the system ──────────────────────────────────────────────────────────────
 
 /// <summary>
-/// Owns: <see cref="StateSlice.Activity"/> - the one timed thing the character is doing, which is fishing today and will be a
-/// lockpicking or a mining swing later. Transient: a cast interrupted by a save is dropped, not saved, because a line in the water
+/// Owns: <see cref="StateSlice.Activity"/> - the one timed thing the character is doing, which is fishing here and a lockpicking or a
+/// swing at a node in their own systems. Transient: a cast interrupted by a save is dropped, not saved, because a line in the water
 /// is a moment and not a possession.
 ///
 /// One loop (SYSTEMS.md, fishing): F casts, and the cast plays for <see cref="CastTicks"/>; when it lands the bite is set three to nine

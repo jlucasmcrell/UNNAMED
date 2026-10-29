@@ -10,3 +10,4 @@ charges: 1
 respawn: daily
 harvest_skill: skill.survival
 difficulty: 4
+swings: 1
