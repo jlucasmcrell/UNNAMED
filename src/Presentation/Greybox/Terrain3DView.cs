@@ -296,7 +296,9 @@ public static class Terrain3DView
         for (float x = ground.Region.Position.X; x <= ground.Region.End.X; x += 1f)
         {
             double drawn = (float)data.Call("get_height", new Vector3(x, 0, z));
-            double truth = grid.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000.0;
+            // The drawn ground, not the domain grid: the authored water bodies are cut into the ground the camera sees (a millpond's
+            // bed is 2.4 m under its sheet), and the domain's cells are deliberately left where they are.
+            double truth = ground.Carved(x, z, grid.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
             worst = Math.Max(worst, Math.Abs(drawn - truth));
             n++;
         }
@@ -325,7 +327,7 @@ public static class Terrain3DView
             Color tint = new(1, 1, 1, 0.5f);
             if (inside)
             {
-                h = grid.HeightAtMm((long)MathF.Round(x * 1000), (long)MathF.Round(z * 1000)) / 1000f;
+                h = ground.Carved(x, z, grid.HeightAtMm((long)MathF.Round(x * 1000), (long)MathF.Round(z * 1000)) / 1000f);
                 (c, tint) = Composed(ground, x, z, detail, slots, palette);
             }
             else

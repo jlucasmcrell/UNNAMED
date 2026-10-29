@@ -24,6 +24,9 @@ public sealed class GroundField
     private readonly float[] _noise = new float[NoiseSize * NoiseSize * 3];
     private readonly float[] _path = new float[PathSize * PathSize];
 
+    /// <summary>The authored water bodies, cut into the ground here so the scatter, the dressing and the terrain mesh agree.</summary>
+    private readonly WaterShore[] _shores;
+
     public GroundField(RegionLayout layout, ArtBindings bindings, ScatterRules rules)
     {
         _terrain = layout.Space.Terrain;
@@ -43,6 +46,8 @@ public sealed class GroundField
         BuildNoise();
         Paths = rules.Paths.GetValueOrDefault(layout.Id) ?? Array.Empty<ScatterPath>();
         BuildPaths(rules.PathWidthM);
+        // Last: a body's bank is measured against the ground, which needs the region it is clamped to and nothing else.
+        _shores = layout.Space.Waters.Select(w => new WaterShore(w, RawHeight)).ToArray();
     }
 
     /// <summary>The region in metres (x, z, width, depth).</summary>
@@ -65,8 +70,21 @@ public sealed class GroundField
     /// <summary>The worn paths over the region (R8, about 0.2 m a texel), for the shader.</summary>
     public ImageTexture PathTexture { get; private set; } = null!;
 
-    public float Height(float x, float z) =>
+    public float Height(float x, float z)
+    {
+        float ground = RawHeight(x, z);
+        return _shores.Length == 0 ? ground : WaterShore.Carved(_shores, x, z, ground);
+    }
+
+    /// <summary>
+    /// The ground as the domain has it, before the authored water bodies are cut into it: what a body's own bank is measured against,
+    /// and the ground where none is declared.
+    /// </summary>
+    public float RawHeight(float x, float z) =>
         _terrain.HeightAtMm((long)(Math.Clamp(x, Region.Position.X, Region.End.X) * 1000), (long)(Math.Clamp(z, Region.Position.Y, Region.End.Y) * 1000)) / 1000f;
+
+    /// <summary>The ground with the authored water bodies cut into it, for the terrain mesh the camera collides with.</summary>
+    public float Carved(float x, float z, float ground) => _shores.Length == 0 ? ground : WaterShore.Carved(_shores, x, z, ground);
 
     /// <summary>Rise per metre across a metre.</summary>
     public float Slope(float x, float z)
