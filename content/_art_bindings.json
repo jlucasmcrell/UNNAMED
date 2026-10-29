@@ -3885,6 +3885,654 @@
       "model": "piece_bp_timber_pad",
       "material": "wood",
       "note": "Gate 1: a stair landing - the waystation timber pad, decked on the riser."
+    },
+    "oh_house_000": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_001": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_002": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_003": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_004": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_005": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_006": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_007": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_008": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_009": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_010": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_011": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_012": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_013": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_014": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_015": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_016": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_017": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_018": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_019": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_020": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_021": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_022": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_023": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_024": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_025": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_026": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_027": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_028": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_029": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_030": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_031": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_032": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_033": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_034": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_035": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_036": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_037": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_038": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_039": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_040": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_041": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_042": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_043": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_044": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_045": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_046": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_047": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_048": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_049": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_050": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_051": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_052": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_053": {
+      "model": "bld_fab_cw_house_02",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_054": {
+      "model": "bld_fab_cw_house_03",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_055": {
+      "model": "bld_fab_cw_house_04",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_056": {
+      "model": "bld_fab_cw_house_05",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_057": {
+      "model": "bld_fab_cw_house_06",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_058": {
+      "model": "bld_fab_cw_house_07",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_house_059": {
+      "model": "bld_fab_cw_house_01",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a district house, doors to the water."
+    },
+    "oh_long_survey_hq": {
+      "model": "bld_fab_cw_long_lodge",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: the Long Survey's headquarters - every survey plaque in the frontier answers to this body."
+    },
+    "oh_exchange_granary": {
+      "model": "bld_fab_cw_granary",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: the Tidepearl Exchange's granary, the city's own scale of trade."
+    },
+    "oh_harbour_smithy": {
+      "model": "bld_fab_cw_smithy",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: the harbour's workshops, where the quay's ironwork is mended."
+    },
+    "oh_quay_prop_000": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_001": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_002": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_003": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_004": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_005": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_006": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_007": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_008": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_009": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_010": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_011": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_012": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_013": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_014": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_quay_prop_015": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: the quay's own clutter - cargo and a light."
+    },
+    "oh_shore_rock_000": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_001": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_002": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_003": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_004": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_005": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_006": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_007": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_008": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_009": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_010": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_011": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_012": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_013": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_014": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_015": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_016": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_017": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_018": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_019": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_020": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_021": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_022": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_023": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_024": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_025": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_026": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_027": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_028": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_029": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_030": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_031": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_032": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_033": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_034": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_035": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_036": {
+      "model": "rock_ph_moss_boulder_s",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
+    },
+    "oh_shore_rock_037": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the shore's own rock."
     }
   },
   "doors": {
