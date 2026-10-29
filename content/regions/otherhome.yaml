@@ -5125,7 +5125,22 @@ roads:
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs: []
 nodes: []
-stations: []
+stations:
+- key: station.oh_survey_archive
+  kind: archive
+  position_m: [1572.0, 765.0]
+- key: station.oh_exchange_stall
+  kind: market stall
+  position_m: [1622.0, 765.0]
+- key: station.oh_concord_bench
+  kind: workbench
+  position_m: [1692.0, 765.0]
+- key: station.oh_assize_board
+  kind: notice_board
+  position_m: [1712.0, 771.0]
+- key: station.oh_harbour_forge
+  kind: forge
+  position_m: [1532.0, 765.0]
 containers: []
 readables: []
 switches:
