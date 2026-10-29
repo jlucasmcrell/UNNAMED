@@ -380,6 +380,11 @@ gear_makers:
   - maker.veth.reach_smith
   - maker.kal.vossgar_forge
   - maker.ondrek.tenantless_repair
+# D23 S6: the standalone region's own way past the smithy and a perch over it.
+routes:
+- { key: route.area.ashen-hollow-standalone.disguise, kind: disguise, position_m: [60, 142], to_m: [70, 150], cover_percent: 50 }
+- { key: route.area.ashen-hollow-standalone.perch, kind: roof, position_m: [60.5, 143.5], to_m: [75, 150], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+
 npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
   - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [72, 122], facing_deg: 135 }    # her survey area, looking towards the Foldscar
