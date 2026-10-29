@@ -1,0 +1,18 @@
+id: ritual.field_the_spill
+kind: ritual
+schema: 1
+display_key: ritual.field_the_spill.name
+tags: [ritual]
+name: The Field Ruins's circle
+notes: "D18 SYSTEMS (needed-2): the circle the-field-ruins keeps."
+location_ref: location.field.the_spill
+at_m:
+  - 0
+  - 0
+radius_m: 3.0
+flag_ref: world.ritual.field_the_spill_drawn
+lore_ref: lore.ritual_field_the_spill
+anim: anim.player.mh.cast
+circle: landmark_bp_foldscar_heart
+skill_ref: skill.warding
+verb: Draw

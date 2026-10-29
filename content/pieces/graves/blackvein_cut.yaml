@@ -1,0 +1,14 @@
+id: grave.blackvein_cut
+kind: grave
+schema: 1
+display_key: grave.blackvein_cut.name
+tags: [grave]
+name: Blackvein Cut And Barrowworks's grave
+notes: "D18 SYSTEMS (needed-2): the marker blackvein-cut-and-barrowworks keeps."
+who: one of the place's own
+location_ref: location.blackvein_cut
+at_m:
+  - 0
+  - 0
+lore_ref: lore.grave_blackvein_cut
+marker: landmark_ph_waystone_a

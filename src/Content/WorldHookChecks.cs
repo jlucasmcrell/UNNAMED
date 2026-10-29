@@ -293,6 +293,7 @@ public static class WorldHookChecks
                     foreach (var portal in Items(region, "portals").OfType<YamlMappingNode>())
                         shares[area.Slug].Add(new Placement("portals", portal, 0, 0));
 
+
         // A place no dossier owns is a place nobody audits, and silence would read as coverage.
         foreach (var definition in loader.Definitions.Values.Where(d => d.Kind == "location"))
         {
@@ -430,12 +431,66 @@ public static class WorldHookChecks
                                          && Scalar(p.Node, Scalar(argument, "field")) == Scalar(argument, "equals"));
             case "node":
             {
-                string prefix = $"node.{Scalar(argument, "prefix")}.";
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
                 return placed.Count(p => p.Section == "nodes"
                                          && Scalar(p.Node, "node_ref")?.StartsWith(prefix, StringComparison.Ordinal) == true);
             }
             case "readable_field":
                 return placed.Count(p => p.Section == "readables" && Has(p.Node, Scalar(argument, "field")));
+            case "ambience":
+            {
+                // A place's own sound, bound in content (D18 SYSTEMS, needed-2): one `ambience` definition per place.
+                return facts.AmbiencePlaces;
+            }
+            case "grave":
+            {
+                // A grave in this area (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE): a marker placed as a readable that
+                // opens a grave's page, which is how a name is kept in the world.
+                // A grave is counted by the place it names, not by which area the placement share-out happens to give
+                // its marker to: the dossier owns the place, and the grave belongs to it (D18 SYSTEMS, needed-2).
+                if (area is not { } owner)
+                    return facts.Graves.Count;
+                return facts.Graves.Count(g => g.Location is { } place && owner.Locations.Contains(place));
+            }
+            case "ritual":
+            {
+                // A circle in this area (D18 SYSTEMS, needed-2; HOOK.RITUAL.CIRCLE): the ritual content kind names its
+                // place, and the dossier that owns the place is the one that has it.
+                if (area is not { } circleArea)
+                    return facts.Rituals.Count;
+                return facts.Rituals.Count(c => c.Location is { } place && circleArea.Locations.Contains(place));
+            }
+            case "node_tier":
+            {
+                // A node of a given grade: "a second and third ore grade" is a tier, and the build states it on the node
+                // kind (a placement may override it). Content scope: the capability exists in the build for areas to use.
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
+                int atLeast = (int)(AsNumber(Node(argument, "min_tier")) ?? 2);
+                return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Tier >= atLeast);
+            }
+            case "node_hidden":
+            {
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
+                
+                return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Hidden);
+            }
+            case "node_ref":
+            {
+                // One named node, for a hook that is about that kind of thing rather than a prefix of it (resin).
+                string? wanted = Scalar(argument, "ref");
+                return facts.NodeList.Count(n => n.Id == wanted);
+            }
+            case "node_skill":
+            {
+                // The node's own harvest skill: what rises from it, rather than every node riding survival.
+                string? wanted = Scalar(argument, "skill_ref");
+                string? notWanted = Scalar(argument, "not_skill");
+                return placed.Count(p => p.Section == "nodes"
+                                         && Scalar(p.Node, "node_ref") is { } node
+                                         && facts.Nodes.GetValueOrDefault(node).Skill is { Length: > 0 } skill
+                                         && (string.IsNullOrEmpty(wanted) || skill == wanted)
+                                         && (string.IsNullOrEmpty(notWanted) || skill != notWanted));
+            }
             case "spawn":
                 return placed.Count(p => p.Section == "spawns" && SpawnMatches(p.Node, argument, facts));
             case "spawn_pack":
@@ -515,6 +570,17 @@ public static class WorldHookChecks
         public Dictionary<string, List<string?>> NpcTeaches { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, List<string?>> NpcServices { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string?> LocationKinds { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, (int Tier, bool Hidden, string Skill)> Nodes { get; } = new(StringComparer.Ordinal);
+        public List<(string Id, int Tier, bool Hidden, string Skill)> NodeList { get; } = [];
+
+        /// <summary>How many places content binds an ambience to (the `ambience` kind).</summary>
+        public int AmbiencePlaces { get; private set; }
+
+        /// <summary>The graves content defines, each with the place it names (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE).</summary>
+        public List<(string Id, string? Location)> Graves { get; } = [];
+
+        /// <summary>The ritual circles content defines, each with the place it names (HOOK.RITUAL.CIRCLE).</summary>
+        public List<(string Id, string? Location)> Rituals { get; } = [];
 
         /// <summary>The item definitions that teach something when read (<c>use.grants</c>): the build's books.</summary>
         public HashSet<string> TeachingItems { get; } = new(StringComparer.Ordinal);
@@ -551,6 +617,22 @@ public static class WorldHookChecks
                     case "dialogue":
                         _dialogueGifts[definition.Id] = TransferredItems(root);
                         break;
+                    case "node":
+                        Nodes[definition.Id] = (
+                            int.TryParse(Scalar(root, "tier"), out int tier) ? tier : 1,
+                            Scalar(root, "hidden") is { } hiddenText && string.Equals(hiddenText, "true", StringComparison.OrdinalIgnoreCase),
+                            Scalar(root, "harvest_skill") ?? "");
+                        NodeList.Add((definition.Id, Nodes[definition.Id].Tier, Nodes[definition.Id].Hidden, Nodes[definition.Id].Skill));
+                        break;
+                    case "ambience":
+                        AmbiencePlaces++;
+                        break;
+                    case "grave":
+                        Graves.Add((definition.Id, Scalar(root, "location_ref")));
+                        break;
+                    case "ritual":
+                        Rituals.Add((definition.Id, Scalar(root, "location_ref")));
+                        break;                        break;
                     case "npc":
                         NpcTeaches[definition.Id] = Maps(root, "teaches").Select(entry => Scalar(entry, "kind")).ToList();
                         NpcServices[definition.Id] = Texts(root, "services").Select(s => (string?)s).ToList();

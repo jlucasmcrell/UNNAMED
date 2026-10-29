@@ -84,6 +84,30 @@ public partial class AmbientAudio : Node
         GD.Print($"UNNAMED audio hooks: {_hooks.Count} playing, {awaiting.Count} awaiting audio ({string.Join(", ", awaiting)})");
     }
 
+    /// <summary>
+    /// A looping bed per place content binds an ambience to (D18 SYSTEMS, needed-2): full at the place, gone at its
+    /// radius, raised over the cell's own bed when the two meet.
+    /// </summary>
+    public void AddPlaces(IReadOnlyDictionary<string, Art.AmbiencePlace> places)
+    {
+        int added = 0;
+        foreach (var (place, spec) in places)
+        {
+            if (!_bank.Has(spec.Bed) || _hooks.Any(h => h.Name == $"place_{place}"))
+                continue;
+            _hooks.Add(new Hook
+            {
+                Name = $"place_{place}",
+                Id = spec.Bed,
+                Loop = true,
+                Gain = spec.Gain,
+                Near = (spec.X, spec.Z, spec.RadiusM),
+            });
+            added++;
+        }
+        GD.Print($"UNNAMED audio: {added} place(s) of content ambience bound, {_hooks.Count} hooks playing");
+    }
+
     private static HashSet<string>? Set(JsonElement e, string name) =>
         e.TryGetProperty(name, out var v) ? v.EnumerateArray().Select(x => x.GetString()!).ToHashSet(StringComparer.Ordinal) : null;
 

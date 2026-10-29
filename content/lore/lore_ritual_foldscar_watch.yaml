@@ -1,0 +1,14 @@
+id: lore.ritual_foldscar_watch
+kind: lore
+schema: 1
+display_key: lore.ritual_foldscar_watch.title
+tags: [lore, history]
+title: The Foldscar's watch circle
+category: history
+notes: "D18 SYSTEMS (needed-2): the page the rite at foldscar_watch opens."
+pages:
+  - page: 1
+    sources:
+      - { how: visited, ref: location.foldscar }
+    text: >
+      The circle is drawn on the ground between the three standing stones, in a line of chalk and ash that the wind takes by morning. It holds nothing yet: it is the shape a thing is called into. Whoever drew it last wrote the marks the right way round, and did not write what they were calling.

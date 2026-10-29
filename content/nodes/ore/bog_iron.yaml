@@ -1,0 +1,13 @@
+﻿id: node.ore.bog_iron
+kind: node
+schema: 1
+display_key: node.ore.bog_iron.name
+tags: [node]
+name: Bog Iron Nodule
+notes: "D18 SYSTEMS (needed-2): the third ore grade, the bog's own nodule under standing water - the deepest of the three and the last before the ladder's specials. Tier 3."
+resource_ref: resource.ore.bog_iron
+charges: 3
+respawn: none
+harvest_skill: skill.mining
+difficulty: 18
+tier: 3

@@ -1,0 +1,18 @@
+id: ambience.rim_road
+kind: ambience
+schema: 1
+display_key: ambience.rim_road.name
+tags: [ambience]
+name: Rim Road
+notes: "Where the road passes the Rim's fire: settlement activity carried on the air, heard from the road."
+location_ref: location.outpost
+at_m:
+  - 700.0
+  - 658.0
+radius_m: 34.0
+gain: 0.7
+bed: amb.ashen_hollow.waystation.01
+details:
+  - sfx.amb.ashen_hollow.timber_creak.01
+  - sfx.amb.ashen_hollow.settlement_activity.01
+surface: dirt

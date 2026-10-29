@@ -1,0 +1,18 @@
+id: ritual.foldscar_watch
+kind: ritual
+schema: 1
+display_key: ritual.foldscar_watch.name
+tags: [ritual]
+name: The Foldscar's watch circle
+notes: "D18 SYSTEMS (needed-2): the scar's three stones."
+location_ref: location.foldscar
+at_m:
+  - 551.0
+  - 643.0
+radius_m: 3.4
+flag_ref: world.ritual.foldscar_watch_drawn
+lore_ref: lore.ritual_foldscar_watch
+anim: anim.player.mh.cast
+circle: landmark_bp_foldscar_heart
+skill_ref: skill.warding
+verb: Draw

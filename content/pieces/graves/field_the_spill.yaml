@@ -1,0 +1,14 @@
+id: grave.field_the_spill
+kind: grave
+schema: 1
+display_key: grave.field_the_spill.name
+tags: [grave]
+name: The Field Ruins's grave
+notes: "D18 SYSTEMS (needed-2): the marker the-field-ruins keeps."
+who: one of the place's own
+location_ref: location.field.the_spill
+at_m:
+  - 0
+  - 0
+lore_ref: lore.grave_field_the_spill
+marker: landmark_ph_waystone_a

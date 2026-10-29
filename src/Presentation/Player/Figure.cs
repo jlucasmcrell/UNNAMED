@@ -136,4 +136,13 @@ public abstract partial class Figure : Node3D
     public virtual void Washing(bool washing)
     {
     }
+
+    /// <summary>
+    /// The body works something of its own: a rite drawn on the ground, a circle closed (D18 SYSTEMS, needed-2). The
+    /// motion is the catalog's <c>cast</c> - the working-a-spell clip - because no drawing-a-circle clip exists.
+    /// </summary>
+    public virtual void Work()
+    {
+    }    {
+    }
 }

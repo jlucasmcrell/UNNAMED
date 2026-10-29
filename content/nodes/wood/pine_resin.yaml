@@ -1,0 +1,13 @@
+﻿id: node.wood.pine_resin
+kind: node
+schema: 1
+display_key: node.wood.pine_resin.name
+tags: [node]
+name: Resin-Tapped Pine
+notes: "D18 SYSTEMS (needed-2): a standing trunk with old cuts and a run of resin down it - the torch and fire-kit half that content had no node for. Gathered by foraging, so the skill that rises from it is the one the act teaches."
+resource_ref: resource.wood.resin
+charges: 1
+respawn: daily
+harvest_skill: skill.foraging
+difficulty: 6
+tier: 1

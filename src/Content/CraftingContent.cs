@@ -159,12 +159,15 @@ public static class CraftingContent
             {
                 ResourceId = resourceId,
                 Swings = map.ContainsKey("swings") ? Int(map, "swings") : 1,
+                Tier = map.ContainsKey("tier") ? Int(map, "tier") : 1,
+                Hidden = string.Equals(map.GetValueOrDefault("hidden") as string, "true", StringComparison.OrdinalIgnoreCase),
             };
             if (node.YieldMin < 1 || node.YieldMax < node.YieldMin || node.Charges < 1 || node.Difficulty < 0)
                 throw new FormatException($"{id}: a yield of [min, max] with 1 <= min <= max, at least one charge, and a difficulty not below 0");
             if (node.Swings is < 0 or > 10)
                 throw new FormatException($"{id}: swings must be 0..10 (how many swings one harvest takes)");
-            if (node.Respawn == Respawn.Daily && node.Charges != 1)
+            if (node.Tier is < 1 or > 5)
+                throw new FormatException($"{id}: tier {node.Tier} is outside 1-5");            if (node.Respawn == Respawn.Daily && node.Charges != 1)
                 throw new FormatException($"{id}: a daily node holds one charge a day");
             if (map.ContainsKey("tool_tier_min"))
                 throw new FormatException($"{id}: tool_tier_min is not built in Phase 1 (there are no tools)");

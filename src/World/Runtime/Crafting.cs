@@ -35,6 +35,12 @@ public sealed record CraftingSetup(
 /// <summary>What a node yields for the swing that fills it: what it gives goes to the pack, and the node remembers (M3f, the mining swing).</summary>
 public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand(Actor);
 
+/// <summary>
+/// A creature died and its kind names a carcass (D18 SYSTEMS, needed-2): the body is left as a harvestable node at the
+/// place it fell. An internal command, because it is the world's own act and not the player's.
+/// </summary>
+internal sealed record LeaveCarcassCommand(string Key, string NodeDefId, long XMm, long ZMm) : InternalCommand;
+
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
 public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor);
 
@@ -80,7 +86,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
-    private readonly ImmutableArray<(string Key, CellKey Cell, NodeSite Site)> _nodes;
+    private readonly List<(string Key, CellKey Cell, NodeSite Site)> _nodes;
 
     public GatheringSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
@@ -94,7 +100,22 @@ internal sealed class GatheringSystem : IAbstractAdvance
             var (home, site) = pair;
             var cell = context.CellOfSite(home.SpaceId, site.XMm, site.ZMm);
             return (Keys.NodeKey(cell, site.Name, 0), cell, site);
-        }).ToImmutableArray();
+        }).ToList();
+    }
+
+    /// <summary>
+    /// A body left where it fell (D18 SYSTEMS, needed-2): a carcass is a node like any other, so the harvest command, the
+    /// reach check and the skill it trains all work on it unchanged. Its key is the creature's own, so it is remembered
+    /// once and not again.
+    /// </summary>
+    public bool LeaveCarcass(string key, string nodeDefId, long xMm, long zMm)
+    {
+        if (!Setup.Nodes.ContainsKey(nodeDefId) || _nodes.Any(n => n.Key == key))
+            return false;
+        var space = State.Space;
+        var cell = _context.CellOfSite(space, xMm, zMm);
+        _nodes.Add((key, cell, new NodeSite(key, nodeDefId, xMm, zMm)));
+        return true;
     }
 
     /// <summary>
@@ -107,6 +128,12 @@ internal sealed class GatheringSystem : IAbstractAdvance
 
     private CraftingSetup Setup => _context.Setup.Crafting;
     private RuntimeState State => _context.State;
+
+    public string? Handle(LeaveCarcassCommand command, long tick)
+    {
+        LeaveCarcass(command.Key, command.NodeDefId, command.XMm, command.ZMm);
+        return null;
+    }
 
     public string? Handle(GatherCommand command, long tick)
     {

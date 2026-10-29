@@ -152,6 +152,13 @@ public sealed record CellSound(string Bed, IReadOnlyList<string> Details, string
 public sealed record MusicPlace(string Theme, float RadiusM);
 
 /// <summary>
+/// A place's own sound, bound in content (D18 SYSTEMS, needed-2; HOOK.AMBIENT.BINDING): the bed, its details, the
+/// surface it is heard over, and where it stands. Written into the bindings from `content/ambience/*.yaml`.
+/// </summary>
+public sealed record AmbiencePlace(string Bed, IReadOnlyList<string> Details, string Surface, float X, float Z,
+    float RadiusM, float Gain);
+
+/// <summary>
 /// The presentation's bindings (<c>res://Art/art_bindings.json</c>): game IDs to the asset pipeline's stable semantic IDs. Data, so no
 /// content ID lives in the game's code; presentation only, so nothing here touches a rule, a save or the content hash.
 /// </summary>
@@ -250,6 +257,9 @@ public sealed class ArtBindings
 
     /// <summary>The places with music, by location ID (<c>audio.music.places</c>).</summary>
     public IReadOnlyDictionary<string, MusicPlace> MusicPlaces { get; private init; } = new Dictionary<string, MusicPlace>();
+
+    /// <summary>Places content binds an ambience to (<c>audio.ambience.places</c>).</summary>
+    public IReadOnlyDictionary<string, AmbiencePlace> AmbiencePlaces { get; private init; } = new Dictionary<string, AmbiencePlace>(StringComparer.Ordinal);
 
     /// <summary>The look for a region structure by its ID (exact, then by prefix - a tree's model chosen by its ID), or null.</summary>
     public Placement? Structure(string id)
@@ -483,6 +493,18 @@ public sealed class ArtBindings
                 ForgeStation = Text(audio, "forge_station"),
                 PathSurface = Text(audio, "path_surface"),
                 InteriorBed = Text(audio, "interior_bed"),
+
+                AmbiencePlaces = audio.ValueKind == JsonValueKind.Object && audio.TryGetProperty("ambience", out var ambience)
+                    && ambience.TryGetProperty("places", out var ambiencePlaces)
+                    ? ambiencePlaces.EnumerateObject().ToDictionary(p => p.Name, p => new AmbiencePlace(
+                        Text(p.Value, "bed")!,
+                        p.Value.TryGetProperty("details", out var details) ? details.EnumerateArray().Select(d => d.GetString()!).ToList() : new List<string>(),
+                        Text(p.Value, "surface") ?? "dirt",
+                        p.Value.TryGetProperty("at_m", out var at) ? (float)at[0].GetDouble() : 0f,
+                        p.Value.TryGetProperty("at_m", out var at2) ? (float)at2[1].GetDouble() : 0f,
+                        p.Value.TryGetProperty("radius_m", out var radius) ? (float)radius.GetDouble() : 25f,
+                        p.Value.TryGetProperty("gain", out var gain) ? (float)gain.GetDouble() : 1f), StringComparer.Ordinal)
+                    : new Dictionary<string, AmbiencePlace>(StringComparer.Ordinal),
                 ConsumableSounds = Strings(audio, "consumables"),
                 MusicPlaces = audio.ValueKind == JsonValueKind.Object && audio.TryGetProperty("music", out var music) && music.TryGetProperty("places", out var places)
                     ? places.EnumerateObject().ToDictionary(p => p.Name, p => new MusicPlace(Text(p.Value, "theme")!,

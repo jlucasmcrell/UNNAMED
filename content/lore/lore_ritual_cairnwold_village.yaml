@@ -1,0 +1,14 @@
+id: lore.ritual_cairnwold_village
+kind: lore
+schema: 1
+display_key: lore.ritual_cairnwold_village.title
+tags: [lore, history]
+title: Cairnwold's circle
+category: history
+notes: "D18 SYSTEMS (needed-2): the page cairnwold's circle opens."
+pages:
+  - page: 1
+    sources:
+      - { how: visited, ref: location.cairnwold.village }
+    text: >
+      A ring set into the ground where the ground will take it: flat stones laid edge to edge, the middle swept clear, and the marks cut where a hand would kneel. Nothing is drawn in it now. It is the shape a working is made in, and it stays ready between one working and the next.

@@ -1,0 +1,9 @@
+﻿id: resource.wood.resin
+kind: resource
+schema: 1
+display_key: resource.wood.resin.name
+tags: [resource]
+name: Resin
+notes: "D18 SYSTEMS (needed-2): pine resin tapped from a standing trunk - the other half of a torch and a fire kit. Item is the fire kit's own pitch until a resin item exists."
+yields:
+  - { item_ref: item.material.timber, count_range: [1, 1] }

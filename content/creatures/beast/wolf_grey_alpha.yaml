@@ -16,6 +16,7 @@ move_speed_m_s: 4.8        # a shade faster than the pack, still slower than a s
 body_radius_m: 0.58        # 1.29x the wolf's 0.45, so it reads as the leader at the den mouth
 xp_value: 90
 loot_table: loot.alpha_wolf # its corpse holds the pelt and the fang until searched
+carcass_ref: node.carcass.grey_wolf
 perception: { sight_m: 28, hearing_m: 32, fov_deg: 140 }   # a leader's senses, a little wider than the pack's
 tier_hint: A
 tameable: false

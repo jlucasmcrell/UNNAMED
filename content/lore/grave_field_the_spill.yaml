@@ -1,0 +1,14 @@
+id: lore.grave_field_the_spill
+kind: lore
+schema: 1
+display_key: lore.grave_field_the_spill.title
+tags: [lore, history]
+title: The Field Ruins's grave
+category: history
+notes: "D18 SYSTEMS (needed-2): the page the-field-ruins's marker opens."
+pages:
+  - page: 1
+    sources:
+      - { how: inspected, ref: readable.field_the_spill }
+    text: >
+      A stone set where the ground allows it, its face worked plain. The name on it is the name the place keeps, and under the name a line that says what the one under it was: a hand that worked here, and not a monument. Travellers set a small stone at its foot, and the pile grows by one every season.

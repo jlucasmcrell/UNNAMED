@@ -1,0 +1,18 @@
+id: ritual.outpost
+kind: ritual
+schema: 1
+display_key: ritual.outpost.name
+tags: [ritual]
+name: Ashen Hollow's circle
+notes: "D18 SYSTEMS (needed-2): the circle ashen-hollow keeps."
+location_ref: location.outpost
+at_m:
+  - 0
+  - 0
+radius_m: 3.0
+flag_ref: world.ritual.outpost_drawn
+lore_ref: lore.ritual_outpost
+anim: anim.player.mh.cast
+circle: landmark_bp_foldscar_heart
+skill_ref: skill.warding
+verb: Draw

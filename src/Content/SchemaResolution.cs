@@ -349,6 +349,35 @@ public static class ContentKindRegistry
             IdPrefix: "lore"
         );
 
+        // 38. ritual - a circle you can work: its place, the flag the rite sets, the page it opens, and the clip that
+        // draws it (D18 SYSTEMS, needed-2; HOOK.RITUAL.CIRCLE).
+        kinds["ritual"] = new ContentKindDefinition(
+            Kind: "ritual",
+            FullKind: "ritual",
+            Directory: "pieces",
+            IdPrefix: "ritual"
+        );
+
+        // 37. grave - a marker with a name on it: whose it is, the line it carries, and the page reading it opens
+        // (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE).
+        kinds["grave"] = new ContentKindDefinition(
+            Kind: "grave",
+            FullKind: "grave",
+            // Under pieces, not a directory of its own: a new top-level directory is refused before the
+            // kind table is consulted, and a grave file is a piece of the world like any other.
+            Directory: "pieces",
+            IdPrefix: "grave"
+        );
+
+        // 36. ambience - a place's own sound: the bed it is heard with, its details, and where it stands (D18 SYSTEMS,
+        // needed-2; HOOK.AMBIENT.BINDING). Content owns the binding; the game reads it through the art bindings.
+        kinds["ambience"] = new ContentKindDefinition(
+            Kind: "ambience",
+            FullKind: "ambience",
+            Directory: "ambience",
+            IdPrefix: "ambience"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

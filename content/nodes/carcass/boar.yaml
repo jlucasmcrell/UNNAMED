@@ -1,0 +1,13 @@
+﻿id: node.carcass.boar
+kind: node
+schema: 1
+display_key: node.carcass.boar.name
+tags: [node]
+name: Boar Carcass
+notes: "D18 SYSTEMS (needed-2): a bristleback's body - tougher hide than a deer, and the reason a hunter carries a knife worth the name."
+resource_ref: resource.carcass.grey_wolf
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 11
+tier: 1

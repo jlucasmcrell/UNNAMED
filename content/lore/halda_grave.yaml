@@ -1,0 +1,14 @@
+id: lore.grave_halda
+kind: lore
+schema: 1
+display_key: lore.grave_halda.title
+tags: [lore, history]
+title: Halda's grave
+category: history
+notes: "D18 SYSTEMS (needed-2): the page a grave marker opens; written for halda."
+pages:
+  - page: 1
+    sources:
+      - { how: inspected, ref: readable.grave_halda }
+    text: >
+      A cairn of flat stones, stacked by hand and not by weather, at the lip where the gorge path turns down. The top stone is scratched, not cut: HALDA, and under it the line the den's people say when they pass, that she went over the edge after the rope. Nothing is buried here. The gorge has her, and what stands is the place her name is kept.
