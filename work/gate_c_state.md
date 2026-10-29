@@ -44,3 +44,10 @@ Everything else on gatec2 is right: residents on creator bodies (f8cad9b4), dist
 black folded wings and growths, Siann white-haired, Veth/Orenth natural, 10 NPCs per town at 2 m, no HUD.
 
 Next: gatec3 (queued) proves the fabric fix and prints CREATOR_PART <sex> <slot> -> <asset> per part (1a14ee60).
+
+
+## After the Gate C verdict (2026-10-29)
+
+Fixes 1 and 2 landed as 6e8c94fe: role wardrobes (coat for rugged roles and stewards, work smock for trades and villagers, robe for the
+scholar), and the Kal skin-through-cloth defect traced to four causes (the knit outfit's pale panels, four LODs drawn at once, the
+hidden lining, the garment grow). Final sheets: work/creator/out/npc_looks/gatec21, published to first_update/f1_gateC.
