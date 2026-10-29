@@ -1,0 +1,21 @@
+id: creature.beast.crow
+kind: creature
+schema: 1
+display_key: creature.beast.crow.name
+tags: [creature, beast, fowl]
+name: Carrion Crow
+notes: The bird that is always already there. It follows a kill and a plough, sits above the road and talks about you; some say a crow that watches a house knows what is inside it.
+family: fowl
+archetype: scavenger
+level_band: [1, 1]
+pools: { health: 5 }
+attack_set: [ability.creature.peck]
+armor: { head: 0, torso: 0, limbs: 0 }
+move_speed_m_s: 4.0
+turn_deg_s: 540
+body_radius_m: 0.14
+xp_value: 3
+loot_table: loot.fowl
+perception: { sight_m: 40, hearing_m: 26, fov_deg: 340 }
+tier_hint: A
+tameable: false

@@ -1,0 +1,10 @@
+id: loot.moose
+kind: loot
+schema: 1
+display_key: loot.moose.name
+tags: [loot]
+notes: A mire moose - more meat than a family can carry, and a hide that makes two vests.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [6, 8] }
+  - { item_ref: item.material.deer_hide, count_range: [2, 2] }

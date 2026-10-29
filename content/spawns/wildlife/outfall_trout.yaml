@@ -1,0 +1,15 @@
+id: spawn.cairnwold.outfall_trout
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.outfall_trout.name
+tags: [spawn]
+notes: Trout holding in the water where the basin drains at the Outfall - a shoal, so a fisher who finds it can take more than one.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.fish.trout, count: [4, 4], role: wildlife }
+at:
+  position_m: [1090, 700]
+  radius_m: 6
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 18000 }
+tier_hint: A

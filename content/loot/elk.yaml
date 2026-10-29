@@ -1,0 +1,10 @@
+id: loot.elk
+kind: loot
+schema: 1
+display_key: loot.elk.name
+tags: [loot]
+notes: An upland elk - a lot of meat, a heavy hide, and the antler every smith in the stop will offer for.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [4, 5] }
+  - { item_ref: item.material.deer_hide, count_range: [1, 1] }

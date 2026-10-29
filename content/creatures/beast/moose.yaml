@@ -1,0 +1,21 @@
+id: creature.beast.moose
+kind: creature
+schema: 1
+display_key: creature.beast.moose.name
+tags: [creature, beast]
+name: Mire Moose
+notes: Woodland giant, near two metres at the shoulder, slow to startle and dangerous when it does - it would rather walk into a hunter than away. Found in the wet ground below the Foldscar.
+family: beast
+archetype: prey
+level_band: [4, 4]
+pools: { health: 140 }
+attack_set: [ability.creature.hoof_kick, ability.creature.grazer_charge]
+armor: { head: 4, torso: 3, limbs: 2 }
+move_speed_m_s: 4.6
+turn_deg_s: 150
+body_radius_m: 0.9
+xp_value: 40
+loot_table: loot.moose
+perception: { sight_m: 28, hearing_m: 30, fov_deg: 280 }
+tier_hint: A
+tameable: false

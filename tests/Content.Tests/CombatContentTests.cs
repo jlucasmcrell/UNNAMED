@@ -85,7 +85,7 @@ public class CombatContentTests
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
         // 29, not 30: the Ring Custodian's spawn is region.barrowworks' and this run is the start area's, so
         // CombatContent correctly does not carry it. A run of the ring has it and not these.
-        Assert.Equal(46, spawns.Count);   // the hollow's eight and Cairnwold's four; the road's eleven camps (the population pass); one night walker; 13 of wildlife; the Spill's nine
+        Assert.Equal(51, spawns.Count);   // the hollow's eight and Cairnwold's four; the road's eleven camps (the population pass); one night walker; 13 of wildlife; the Spill's nine; the region fauna pass's five (elk herd, moose pair, trout shoal, ducks, crows)
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
@@ -103,9 +103,9 @@ public class CombatContentTests
         Assert.Equal(new[]
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
-                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
+                "creature.beast.chicken", "creature.beast.crow", "creature.beast.doe", "creature.beast.duck", "creature.beast.elk", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.moose", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster",
                 "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour", "creature.construct.gate_tender", "creature.construct.gate_warden",
-                "creature.construct.ring_custodian",
+                "creature.construct.ring_custodian", "creature.fish.trout",
                 "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.undead.bone_walker_husk",
             }, setup.Creatures.Keys);
         var barrowback = setup.Creatures["creature.grazer.barrowback"];

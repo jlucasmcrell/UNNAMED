@@ -1,0 +1,15 @@
+id: ability.creature.tail_slap
+kind: ability
+schema: 1
+display_key: ability.creature.tail_slap.name
+tags: [ability]
+name: Tail Slap
+notes: What a fish has if a hand gets to it in the shallows - a wet, flailing slap that costs nothing and hurts almost as little.
+class: creature
+range_m: 0.4
+windup_s: 0.2
+active_s: 0.1
+recovery_s: 0.5
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [1, 1] }
