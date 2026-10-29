@@ -150837,7 +150837,10 @@ waters:
   width_m: 2.2
 - key: water.cw_millpond
   kind: pond
-  path_m: [[958.0, 700.0]]
+  # A pond needs a line, not a point: the single-point path built a zero-length ribbon and killed the flow water
+  # renderer outright (an access violation once the water was built, before the first frame). Two points across the
+  # pond's own extent, the same level and the same width, draw the shape the mill pond was always meant to be.
+  path_m: [[950.0, 695.0], [966.0, 705.0]]
   level_m: 4.35
   width_m: 26.0
 - key: water.cw_millrace
