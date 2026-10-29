@@ -150786,6 +150786,11 @@ stations:
   position_m:
   - 886.0
   - 700.0
+- key: station.foldscar_tanning
+  kind: tanning
+  position_m:
+  - 556.7
+  - 652.7
 switches:
 # FIELD_RUINS BEGIN - written by tools/field_ruins/place_spill.py; edit the layout there, not here.
 - key: switch.field.anchor_west

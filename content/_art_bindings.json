@@ -4770,6 +4770,54 @@
    "spent": "flora_ph_tree_stump_a",
    "note": "D18 SYSTEMS (needed-2): a standing trunk with old cuts; resin has no mesh of its own yet, so it borrows the timber node's.",
    "sound": "wood"
+  },
+  "node.carcass.grey_wolf": {
+   "model": "wolf_hide_folded",
+   "spent": "wolf_hide_folded",
+   "tint": [
+    0.82,
+    0.78,
+    0.72
+   ],
+   "spent_tint": [
+    0.45,
+    0.42,
+    0.38
+   ],
+   "sound": "hide",
+   "note": "D18 SYSTEMS (needed-2): a wolf's body: the hide it will give, folded where the animal fell. The art library has no carcass bodies, so the body is drawn as its folded hide; a distinct carcass model is an asset ask, named in the post."
+  },
+  "node.carcass.deer": {
+   "model": "deer_hide_folded",
+   "spent": "deer_hide_folded",
+   "tint": [
+    0.82,
+    0.78,
+    0.72
+   ],
+   "spent_tint": [
+    0.45,
+    0.42,
+    0.38
+   ],
+   "sound": "hide",
+   "note": "D18 SYSTEMS (needed-2): a deer's body: the hide it will give, folded where the animal fell. The art library has no carcass bodies, so the body is drawn as its folded hide; a distinct carcass model is an asset ask, named in the post."
+  },
+  "node.carcass.boar": {
+   "model": "barrowback_hide_folded",
+   "spent": "barrowback_hide_folded",
+   "tint": [
+    0.82,
+    0.78,
+    0.72
+   ],
+   "spent_tint": [
+    0.45,
+    0.42,
+    0.38
+   ],
+   "sound": "hide",
+   "note": "D18 SYSTEMS (needed-2): a boar's body: the hide it will give, folded where the animal fell. The art library has no carcass bodies, so the body is drawn as its folded hide; a distinct carcass model is an asset ask, named in the post."
   }
  },
  "pieces": {
