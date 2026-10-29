@@ -51,3 +51,13 @@ Next: gatec3 (queued) proves the fabric fix and prints CREATOR_PART <sex> <slot>
 Fixes 1 and 2 landed as 6e8c94fe: role wardrobes (coat for rugged roles and stewards, work smock for trades and villagers, robe for the
 scholar), and the Kal skin-through-cloth defect traced to four causes (the knit outfit's pale panels, four LODs drawn at once, the
 hidden lining, the garment grow). Final sheets: work/creator/out/npc_looks/gatec21, published to first_update/f1_gateC.
+
+
+## Round 2 of the verdict (2026-10-29 09:30)
+
+- The towns wear the creator wardrobe's period set (shirt, waistcoat, cravat, sash, breeches, boots) dyed per person; Sel wears the robe.
+  Modern wardrobes are out, reserved for Otherborn arrivals.
+- Kal skin through cloth fixed: knit outfit out, LOD0-only, linings shipped and lining every static piece, cloth 20 mm clear of a body
+  that is not grown. 4x crops: work/crops/miner22.png (Kal miner), work/crops/kera24.png (Kera Voss).
+- The garb's tricorne is modelled into the shirt mesh, so it stays; the rule that tried to hide it was dead code and is removed.
+- Sheets: work/creator/out/npc_looks/gatec25 (identical to gatec24), published to first_update/f1_gateC.
