@@ -400,7 +400,8 @@ public sealed partial class HumGenCreatorAppearance : Node
             : LookSwatches.Cloth(kind == "trousers" ? LookSwatches.Trousers : LookSwatches.Shirts, look.Sliders.TryGetValue(
                 kind == "trousers" ? LookSwatches.TrouserSlider : LookSwatches.ShirtSlider, out int index) ? index : null);
         var dyed = (BaseMaterial3D)garment.Duplicate();
-        dyed.AlbedoTexture = null;
+        // Tint the garment's own weave: the albedo colour multiplies the albedo texture, so dropping the texture turned every
+        // outfit into a flat slab whose colour read as skin at face-sheet distance (the owner's "crayon" bar).
         dyed.AlbedoColor = new Color(swatch.R, swatch.G, swatch.B, dyed.AlbedoColor.A);
         mesh.SetSurfaceOverrideMaterial(surface, dyed);
     }
