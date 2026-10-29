@@ -281,6 +281,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Combat = CoLoadSpawns(CombatContent.Build(loader, options.RegionId, layout.SpaceId), loader, layout, interiors),
             Magic = MagicContent.Build(loader),
             Crafting = CraftingContent.Build(loader),
+            Gear = GearContent.Build(loader),
             Social = new SocialSetup(SocialContent.BuildNpcs(loader), SocialContent.BuildDialogues(loader))
             {
                 Companions = SocialContent.BuildCompanionTuning(loader),

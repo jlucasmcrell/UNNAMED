@@ -109,7 +109,7 @@ internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? It
 }
 
 /// <summary>Several material outputs, checked together before an input is consumed.</summary>
-internal sealed record StackGive(string ItemId,int Count,int Quality=0);
+internal sealed record StackGive(string ItemId,int Count,int Quality=0,UNNAMED.Domain.Items.GearBuild? Built=null);
 internal sealed record ExchangeItemBatch(ImmutableArray<StackTake> Takes,ImmutableArray<StackGive> Gives) : InternalCommand
 {
     public NotableOrigin? Origin {get;init;}
@@ -427,7 +427,7 @@ internal sealed partial class InventorySystem
     public string? Handle(ExchangeItemBatch command,long tick)
     {
         if(command.Gives.Any(g=>g.Count<1))return "An output count must be positive";
-        var gives=command.Gives.GroupBy(g=>(g.ItemId,g.Quality)).Select(g=>new StackGive(g.Key.ItemId,g.Sum(x=>x.Count),g.Key.Quality))
+        var gives=command.Gives.GroupBy(g=>(g.ItemId,g.Quality,g.Built)).Select(g=>new StackGive(g.Key.ItemId,g.Sum(x=>x.Count),g.Key.Quality,g.Key.Built))
             .OrderBy(g=>g.ItemId,StringComparer.Ordinal).ThenBy(g=>g.Quality).ToArray();
         foreach(var give in gives)if(Items.Catalog.Find(give.ItemId) is null)return $"{give.ItemId} is not an item this build knows";
         var remaining=State.Inventory.ToList();long spentGrams=0;
@@ -444,7 +444,7 @@ internal sealed partial class InventorySystem
         foreach(var give in gives)
         {
             var definition=Items.Catalog.Find(give.ItemId)!;
-            int free=definition.Stacks?remaining.Where(e=>e.DefId==give.ItemId && e.Quality==give.Quality && !e.Junk).Sum(e=>Math.Max(0,definition.StackMax-e.Count)):0;
+            int free=definition.Stacks && give.Built is null ?remaining.Where(e=>e.DefId==give.ItemId && e.Quality==give.Quality && !e.Junk).Sum(e=>Math.Max(0,definition.StackMax-e.Count)):0;
             int needed=Stacks(Math.Max(0,give.Count-free),definition.StackMax).Count();
             more.AddRange(Enumerable.Repeat(PackKinds.Of(definition),needed));addedGrams+=definition.WeightGrams*give.Count;
         }
@@ -455,7 +455,7 @@ internal sealed partial class InventorySystem
         if(gives.Length>0 && weight>CarryLimitGrams())return $"too heavy: {weight/1000.0:0.##} kg of {CarryLimitGrams()/1000.0:0.##} kg";
         Remove(command.Takes.Select(t=>(State.Inventory.Single(e=>e.ItemId==t.ItemId),t.Count)).ToList());
         SpendFromStash(command.StashTakes);
-        foreach(var give in gives)Put(ItemPlace.Carried,Items.Catalog.Find(give.ItemId)!,give.Count,null,give.Quality,null,command.Origin,tick);
+        foreach(var give in gives)Put(ItemPlace.Carried,Items.Catalog.Find(give.ItemId)!,give.Count,null,give.Quality,null,command.Origin,tick,built:give.Built);
         return null;
     }
 
@@ -860,7 +860,7 @@ internal sealed partial class InventorySystem
     /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
     /// </summary>
     private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick,
-        ItemWear? wear = null, (long XMm, long ZMm)? at = null)
+        ItemWear? wear = null, (long XMm, long ZMm)? at = null, UNNAMED.Domain.Items.GearBuild? built = null)
     {
         if (notable is null && ItemClasses.KeepsRecord(definition, quality))
         {
@@ -875,7 +875,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality && !e.Junk).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built });
                 Retire(moving);
                 Commit(entries);
                 break;
