@@ -85,6 +85,12 @@ public partial class Main
             // rather than this driver's guess at it.
             session.Subscribe<FishCastStarted>(e => Moment("cast began", e.Tick, ref _castTick));
             session.Subscribe<FishingLineOut>(e => Moment("the line is in the water", e.Tick, ref _lineTick));
+            session.Subscribe<SpoorRead>(e =>
+            {
+                _read = e;
+                _moments.Add($"- tick {e.Tick}: the ground says {e.Count} went {e.BearingMdeg} mdeg, {e.AgeTicks} old"
+                    + $"{(e.Uncertain ? ", uncertain" : "")}{(e.Readable ? "" : $" - {e.Reason}")}");
+            });
             session.Subscribe<FishCaught>(e => { _caught = true; _moments.Add($"- tick {e.Tick}: **caught** {e.Count} x {e.ItemId} from {e.WaterKey}"); });
             session.Subscribe<FishLost>(e => _moments.Add($"- tick {e.Tick}: the line came back empty - {e.Reason}"));
             session.Subscribe<LockAttemptStarted>(e => _moments.Add($"- tick {e.Tick}: a pick started on {e.TargetKey} (tier {e.Tier})"));
@@ -170,12 +176,81 @@ public partial class Main
             switch (_beat)
             {
                 case "fish": Fishing(); break;
+                case "track": Tracking(); break;
                 case "lock": Locking(); break;
                 case "mine": Mining(); break;
             }
         }
 
         // ── fishing ─────────────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Read the ground, follow what it says, and read again. Deer wander a spawn on the frontier and leave prints, broken stems, blood,
+        /// droppings and scent as they go, so the beat waits at the edge of a herd's ground for sign to be laid, reads it, then walks the
+        /// bearing the read gave and reads a second time - the loop canon calls Read the Ground and Walk Their Road.
+        /// </summary>
+        private void Tracking()
+        {
+            var simulation = _session.Simulation!;
+            if (_step == 0)
+            {
+                if (_frame < 20)
+                    return;
+                _moments.Add($"- standing at {simulation.Player.Body.XMm / 1000.0:0.#},{simulation.Player.Body.ZMm / 1000.0:0.#}, waiting for sign");
+                _step = 1;
+                _stepFrame = _frame;
+                return;
+            }
+            if (_step == 1)
+            {
+                // Sign arrives as the animals move, so the read is tried every half second until the ground has something to say.
+                if ((_frame - _stepFrame) % 10 == 0)
+                {
+                    _read = null;
+                    _session.Submit(new ReadTrailCommand(simulation.PlayerId));
+                }
+                if (_read is { Readable: true } read)
+                {
+                    _moments.Add($"- tick {read.Tick}: read **{read.Count} went {read.BearingMdeg} mdeg, {read.AgeTicks} ticks old**");
+                    Shot("01_read");
+                    _bearing = read.BearingMdeg;
+                    _step = 2;
+                    _stepFrame = _frame;
+                    return;
+                }
+                if (_frame - _stepFrame > 600)
+                {
+                    Fail($"no sign in ten seconds at {simulation.Player.Body.XMm / 1000.0:0.#},{simulation.Player.Body.ZMm / 1000.0:0.#}"
+                        + $" (last read: {_read?.Reason ?? "nothing"})");
+                    _step = 3;
+                }
+                return;
+            }
+            if (_step == 2)
+            {
+                // Walk the bearing the read gave: the camera is already turned that way, so forward is the trail.
+                if (_frame - _stepFrame == 60)
+                {
+                    Shot("02_following");
+                    _step = 3;
+                    _stepFrame = _frame;
+                    return;
+                }
+                Press("move_forward");
+                return;
+            }
+            if (_step == 3)
+            {
+                if (_frame - _stepFrame == 30)
+                {
+                    _session.Submit(new ReadTrailCommand(simulation.PlayerId));
+                    Shot("03_read_again");
+                    _moments.Add($"- second read: {(_read is { } again ? (again.Readable ? $"{again.Count} went {again.BearingMdeg} mdeg" : again.Reason) : "no answer")}");
+                    Done($"read {_moments.Count} sign(s) and walked the trail");
+                }
+                return;
+            }
+        }
 
         /// <summary>
         /// N casts and N reels (Main.Input binds <c>fish</c> to N). The cast plays for its ticks, the line then waits, and the reel has to
@@ -409,6 +484,13 @@ public partial class Main
             _press = action;
             _releaseFrame = _frame + 2;
         }
+
+
+        /// <summary>The last read of the ground, so the beat can wait for sign rather than guess at it.</summary>
+        private SpoorRead? _read;
+
+        /// <summary>The bearing the first read gave, and the way the beat walks.</summary>
+        private int _bearing;
 
         private void Shot(string name)
         {
