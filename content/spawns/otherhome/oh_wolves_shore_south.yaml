@@ -1,0 +1,19 @@
+id: spawn.otherhome.oh_wolves_shore_south
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.oh_wolves_shore_south.name
+tags: [spawn]
+notes: "The shore rocks south of the quay, where the harbour's rubbish goes."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m: [1290.0, 430.0]
+  radius_m: 8
+level_band:
+- 2
+- 2

@@ -5125,6 +5125,12 @@ roads:
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs: []
 nodes:
+- name: oh_snare_harbour
+  node_ref: node.trap.pelt_snare
+  position_m: [1392.0, 484.0]
+- name: oh_ash_stand_c
+  node_ref: node.wood.ash_stand
+  position_m: [1752.0, 1004.0]
 - name: oh_shore_iron_a
   node_ref: node.ore.loose_iron
   position_m: [1280.0, 480.0]
@@ -5178,7 +5184,7 @@ nodes:
   position_m: [1752.0, 1104.0]
 - name: oh_ash_stand_b
   node_ref: node.wood.ash_stand
-  position_m: [1832.0, 1144.0]
+  position_m: [1742.0, 1002.0]
 - name: oh_snare_larder
   node_ref: node.trap.larder_snare
   position_m: [1332.0, 644.0]

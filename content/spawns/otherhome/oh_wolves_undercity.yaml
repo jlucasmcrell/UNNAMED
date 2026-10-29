@@ -1,0 +1,19 @@
+id: spawn.otherhome.oh_wolves_undercity
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.oh_wolves_undercity.name
+tags: [spawn]
+notes: "The undercity's edge above the cistern court."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m: [1520.0, 700.0]
+  radius_m: 9
+level_band:
+- 2
+- 2
