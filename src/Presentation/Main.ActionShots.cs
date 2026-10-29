@@ -195,6 +195,13 @@ public partial class Main
                     Fail($"not at a fishable bank: water '{simulation.WaterKey ?? "none"}'");
                     return;
                 }
+                // What the cast needs is the config's: say what the pack had when it failed, so one run explains itself.
+                string rod = simulation.Setup.Fishing.RodItemId ?? "";
+                bool hasRod = rod.Length == 0 || simulation.Player.Inventory.Any(e => e.DefId == rod);
+                string baits = string.Join(",", simulation.Setup.Fishing.Baits.Keys
+                    .Where(id => simulation.Player.Inventory.Any(e => e.DefId == id)));
+                _moments.Add($"- before the cast: bank ok, rod {(hasRod ? "carried" : "MISSING")}, baits [{baits}], "
+                    + $"activity {simulation.Activity?.Kind.ToString() ?? "none"}");
                 Press("fish");
                 _step = 1;
                 _stepFrame = _frame;
