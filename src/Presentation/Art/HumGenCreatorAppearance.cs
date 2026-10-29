@@ -459,6 +459,19 @@ public sealed partial class HumGenCreatorAppearance : Node
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
                 CharacterMaterials.Upgrade(source, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
                 HumGenMaterials.Apply(source, art, asset);
+                // Cloth is opaque and two-sided: an alpha cutout on a garment texture drops triangles and shows the body through them.
+                foreach (var garmentMesh in source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                {
+                    if (garmentMesh.Mesh is null) continue;
+                    for (int surfaceIndex = 0; surfaceIndex < garmentMesh.Mesh.GetSurfaceCount(); surfaceIndex++)
+                    {
+                        if (garmentMesh.GetSurfaceOverrideMaterial(surfaceIndex) is not BaseMaterial3D importedCloth) continue;
+                        var cloth = (BaseMaterial3D)importedCloth.Duplicate();
+                        cloth.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
+                        cloth.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+                        garmentMesh.SetSurfaceOverrideMaterial(surfaceIndex, cloth);
+                    }
+                }
                 foreach (var drawn in source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
                 {
                     // The lining is a fix for garment openings, and on these outfits its copies ship as ribbons: hidden until the
