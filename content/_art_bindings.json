@@ -2898,6 +2898,31 @@
       "model": "cw_gravel_stone_a",
       "material": "stone",
       "note": "D18: the gravel bar at the creek's ford."
+    },
+    "cw_reeds": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: the creek's cattails, Poly Haven's clump on the wet bank."
+    },
+    "cw_creek_pebble": {
+      "model": "rock_ph_moss_pebble_a",
+      "material": "stone",
+      "note": "D18: a moss pebble where the creek shoals."
+    },
+    "cw_creek_rock": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "D18: a small mossy rock at the creek's edge."
+    },
+    "cw_creek_gravel": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "D18: the ford's gravel bar - the shallow crossing itself."
+    },
+    "den_gorge_waystone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "D18 the Den gorge: the gorge's own stone, the Ashen and Rim waystones' scanned stone on the lip above the river."
     }
   },
   "doors": {
