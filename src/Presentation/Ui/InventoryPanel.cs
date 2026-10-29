@@ -56,6 +56,22 @@ public partial class InventoryPanel : CanvasLayer
     /// <summary>The item the details show: a carried stack's ID, or a container's or trader's entry ref.</summary>
     private string? _chosen;
 
+    /// <summary>
+    /// Which part the player has picked for each slot of each assembled recipe (D21 G3): recipe and slot to part. Empty means the maker's first
+    /// offering for that slot, so Make works before the picker is touched.
+    /// </summary>
+    private readonly Dictionary<(string Recipe, string Slot), string> _parts = new();
+
+    /// <summary>The picks for one recipe, as the craft command carries them.</summary>
+    private ImmutableSortedDictionary<string, string> PartsFor(RecipeDefinition recipe)
+    {
+        var picked = ImmutableSortedDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+        foreach (var ((pickedRecipe, slot), part) in _parts)
+            if (pickedRecipe == recipe.Id)
+                picked[slot] = part;
+        return picked.ToImmutable();
+    }
+
     /// <summary>How many of the recipe Make works: the − and + buttons move it, Make All fills it (the owner's note 12).</summary>
     private int _amount = 1;
 
@@ -606,6 +622,33 @@ public partial class InventoryPanel : CanvasLayer
         foreach (var recipe in recipes)
         {
             var row = ItemRow("r:" + recipe.Id, recipe.OutputItemId, Quality.Standard, recipe.OutputCount, "");
+            // D21 G3: an assembled item is made of parts, so the bench asks which ones before it makes it.
+            if (_session.Setup.Items.Catalog.Find(recipe.OutputItemId)?.Assembly is { } assembly
+                && _session.Setup.Gear.Makers.ContainsKey(assembly.MakerId ?? ""))
+            {
+                var maker = _session.Setup.Gear.Makers[assembly.MakerId!];
+                var parts = new HFlowContainer();
+                parts.AddThemeConstantOverride("h_separation", 6);
+                parts.AddThemeConstantOverride("v_separation", 4);
+                foreach (string slot in assembly.Slots)
+                {
+                    var offered = maker.PartSets[assembly.Family][slot];
+                    var current = _parts.TryGetValue((recipe.Id, slot), out string? chosen)
+                        ? offered.FirstOrDefault(p => p.PartId == chosen)
+                        : offered[0];
+                    var part = current.PartId is null ? offered[0] : current;
+                    string label = $"{slot}: {Names.Of(_session, part.PartId)}";
+                    parts.AddChild(Button($"p:{recipe.Id}:{slot}", label, () =>
+                    {
+                        var list = offered.Select(p => p.PartId).ToList();
+                        int at = list.IndexOf(part.PartId);
+                        _parts[(recipe.Id, slot)] = list[(at + 1) % list.Count];
+                        Refresh();
+                    }));
+                }
+                parts.AddChild(UiKit.Chip($"made by {Names.Of(_session, maker.Id)}", HudStyle.Brass));
+                row.Root.AddChild(Indent(parts));
+            }
             row.Root.AddChild(UiKit.Chip($"Complexity {recipe.Complexity}", HudStyle.Iron, HudStyle.Ash));
             var short_ = recipe.Inputs.Where(i => !Supply(i).Enough).ToList();
             int canMake = CraftingRules.MakeableFrom(recipe, OnHand);
@@ -984,7 +1027,7 @@ public partial class InventoryPanel : CanvasLayer
         int OnHand(string itemId) => PackModel.Supply(itemId, 1, simulation.Pack, stashed, worn, c => BagName(c.BagDefId!)).Total;
         var step = _queue.Next(CraftingRules.MakeableFrom(recipe, OnHand));
         if (step is CraftStep.MakeOne or CraftStep.Done)
-            Submit(new CraftCommand(simulation.PlayerId, recipe.Id));
+            Submit(new CraftCommand(simulation.PlayerId, recipe.Id) { Parts = PartsFor(recipe) });
         Refresh();
     }
 

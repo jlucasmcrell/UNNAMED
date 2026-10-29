@@ -114,3 +114,39 @@ public sealed record GearBuild(
     /// <summary>The name the build reads as (canon §8). Null when nothing named it.</summary>
     public string? Name { get; init; }
 }
+
+/// <summary>Everything D21's craft path needs to turn chosen parts into a build (G3): the parts, the makers and the materials.</summary>
+public sealed record GearSetup(
+    ImmutableSortedDictionary<string, PartDefinition> Parts,
+    ImmutableSortedDictionary<string, MakerDefinition> Makers,
+    ImmutableSortedDictionary<string, MaterialDefinition> Materials)
+{
+    public static readonly GearSetup Empty = new(
+        ImmutableSortedDictionary.Create<string, PartDefinition>(StringComparer.Ordinal),
+        ImmutableSortedDictionary.Create<string, MakerDefinition>(StringComparer.Ordinal),
+        ImmutableSortedDictionary.Create<string, MaterialDefinition>(StringComparer.Ordinal));
+
+    /// <summary>
+    /// The build a craft makes: the player's picks where they name a part the maker offers for that slot, and the maker's first offering where they do
+    /// not - so a Make before the picker is touched is still a whole piece.
+    /// </summary>
+    public GearBuild BuildOf(AssemblySpec assembly, ImmutableSortedDictionary<string, string>? chosen)
+    {
+        var maker = Makers[assembly.MakerId!];
+        var picked = ImmutableSortedDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+        foreach (string slot in assembly.Slots)
+        {
+            var offered = maker.PartSets[assembly.Family][slot];
+            if (chosen is not null && chosen.TryGetValue(slot, out string? want) && offered.Any(p => p.PartId == want))
+                picked[slot] = want;
+            else
+                picked[slot] = offered[0].PartId;
+        }
+        var materials = ImmutableSortedDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+        foreach (string slot in picked.Keys)
+        foreach (string materialSlot in Parts[picked[slot]].MaterialSlots)
+            materials[materialSlot] = maker.MaterialPalette[0].MaterialId;
+        return new GearBuild(assembly.Family, maker.Id, assembly.PartTier, picked.ToImmutable(), materials.ToImmutable(),
+            ImmutableArray<string>.Empty, 0);
+    }
+}

@@ -221,4 +221,7 @@ public static class GearContent
     private static Dictionary<object, object> Read(string yaml) =>
         new DeserializerBuilder().Build().Deserialize<Dictionary<object, object>>(yaml)
         ?? throw new FormatException("a definition must be a map");
+
+    /// <summary>The three tables the craft path needs, from one load; a load with no gear content is empty, not an error.</summary>
+    public static GearSetup Build(ContentLoader loader) => new(BuildParts(loader), BuildMakers(loader), BuildMaterials(loader));
 }
