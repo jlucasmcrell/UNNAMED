@@ -1,0 +1,10 @@
+id: loot.barrowworks_archivist_case
+kind: loot
+schema: 1
+display_key: loot.barrowworks_archivist_case.name
+tags: [loot]
+notes: D18. The archivist's case on the gallery landing - the ledger the burial crews kept, and the working notebook
+  inside it that teaches (the blackvein area's TEACHING.BOOK hook).
+rolls: 0
+entries:
+  - { item_ref: item.tome.field_notes, chance: 1.00, count_range: [1, 1] }
