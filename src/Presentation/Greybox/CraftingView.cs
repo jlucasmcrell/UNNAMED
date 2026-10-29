@@ -85,7 +85,7 @@ public partial class CraftingView : Node3D
         }
         foreach (var station in layout.Stations)
         {
-            var look = _bindings.Stations.GetValueOrDefault(station.Kind);
+            var look = _bindings.StationLook(station.Key, station.Kind);
             var root = look?.Model is not null ? Art.Fitting.Site(_art, look, Vector3.Zero) : null;
             if (root is not null)
             {

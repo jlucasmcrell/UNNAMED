@@ -253,7 +253,7 @@ public partial class Main : Node3D
                 VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
                 VisualOptions.Apply(GetViewport());
                 SetProcess(false);
-                AddChild(new Diagnostics.GateDStudio(_options, _flags.Contains("--gate-d-inspect")));
+                AddChild(new Diagnostics.GateDStudio(_options, _flags.Contains("--gate-d-inspect"), _flags.Contains("--gate-d-contact")));
                 return;
             }
             // Isolated fresh-character lane: enter before content/art boot can load retired character outputs.

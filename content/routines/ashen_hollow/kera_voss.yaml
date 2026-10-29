@@ -12,5 +12,5 @@ roles: [smith, vendor, quest_giver]           # WP12b: town roles (config.npc_li
 work_hours: [6, 20]
 anchors:
   home: { position_m: [455, 744.3], facing_deg: 90 }
-  work: { position_m: [458.0, 740.2], facing_deg: 45 } # the acquired hammering phase faces about -105 degrees in its source
+  work: { position_m: [458.1, 740.2], facing_deg: 300 } # measured hammer contact on her existing anvil; source heading is presentation data
 job: { market_ref: market.ashen_hollow, item_ref: item.material.iron_ingot, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))

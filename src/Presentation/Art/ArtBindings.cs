@@ -138,7 +138,7 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
 public sealed record WeaponArt(string Model, string Family, bool OffHand);
-public sealed record WorkToolArt(string Model, Transform3D Grip, Vector2? LoopSeconds = null);
+public sealed record WorkToolArt(string Model, Transform3D Grip, Vector2? LoopSeconds = null, float SourceForwardDegrees = 0);
 
 public sealed record CellSound(string Bed, IReadOnlyList<string> Details, string Surface);
 
@@ -181,6 +181,7 @@ public sealed class ArtBindings
     public IReadOnlyDictionary<string, Placement> Containers { get; private init; } = new Dictionary<string, Placement>();
     public IReadOnlyDictionary<string, Placement> Nodes { get; private init; } = new Dictionary<string, Placement>();
     public IReadOnlyDictionary<string, Placement> Stations { get; private init; } = new Dictionary<string, Placement>();
+    public Placement? StationLook(string key, string kind) => Stations.GetValueOrDefault(key) ?? Stations.GetValueOrDefault(kind);
     public Placement? GroundItem { get; private init; }
     /// <summary>A dropped item's own look by item ID (<c>ground_items</c>); an item without one is drawn as <see cref="GroundItem"/>.</summary>
     public IReadOnlyDictionary<string, Placement> GroundItems { get; private init; } = new Dictionary<string, Placement>();
@@ -463,7 +464,8 @@ public sealed class ArtBindings
                 CompanionWeapon = root.TryGetProperty("companion_weapon", out var companion) ? Weapon(companion) : null,
                 WorkTools = root.TryGetProperty("work_tools", out var tools)
                     ? tools.EnumerateObject().ToDictionary(t => t.Name, t => new WorkToolArt(Text(t.Value, "model")!,
-                        Grip(t.Value, "grip") ?? throw new FormatException("Work tool needs its authored grip: " + t.Name), WorkLoop(t.Value)), StringComparer.Ordinal)
+                        Grip(t.Value, "grip") ?? throw new FormatException("Work tool needs its authored grip: " + t.Name), WorkLoop(t.Value),
+                        Number(t.Value, "source_forward_degrees", 0)), StringComparer.Ordinal)
                     : new Dictionary<string, WorkToolArt>(),
                 Projectiles = root.TryGetProperty("projectiles", out var projectiles)
                     ? projectiles.EnumerateObject().Where(p => Text(p.Value, "model") is not null).ToDictionary(p => p.Name, p => Text(p.Value, "model")!, StringComparer.Ordinal)

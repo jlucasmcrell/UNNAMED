@@ -3,9 +3,10 @@
   "work_tools": {
     "work_smith": {
       "loop_seconds": [10.02, 12.84],
+      "source_forward_degrees": -105,
       "model": "bw_codex_mine_hammer",
-      "grip": { "at": [-0.15, 0.02, 0], "primary": [1, 0, 0], "secondary": [0, 1, 0] },
-      "note": "Reuse the shipped Old Mine hammer at source size. Grip is on its wooden haft, head toward +X."
+      "grip": { "at": [0.04, 0.02, 0], "primary": [1, 0, 0], "secondary": [0, 1, 0] },
+      "note": "Reuse the shipped Old Mine hammer at source size. Choked working grip on the wooden haft, head toward +X; measured against the authored strike."
     }
   },
   "structure_prefixes": {
@@ -3739,6 +3740,12 @@
     "anvil": {
       "model": "station_bp_anvil",
       "sound": "anvil"
+    },
+    "station.forge_anvil": {
+      "model": "station_bp_anvil",
+      "sound": "anvil",
+      "scale": 0.8,
+      "note": "Kera's Kal-height work station: steel surface 0.718 m, matching the unmodified native hammer strike. Other anvils keep their authored placement."
     },
     "forge": {
       "note_bellows": null,

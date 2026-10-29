@@ -101,7 +101,11 @@ public sealed partial class SkinnedFigure : Figure
     { if (_face is not null) _face.RecordedSpeech = clock; }
     private string? _activity;
     private double _workClock;
+    private float _workFacing;
     public double MotionSeconds => _model.MotionSeconds;
+    internal void EvaluateReviewPose(double delta) => _model.EvaluateReviewPose(delta);
+    internal Vector3? WorkToolPoint(Vector3 local) => _workTool is null || _hand is null ? null
+        : Skeleton.GlobalTransform * Skeleton.GetBoneGlobalPose(Skeleton.FindBone(_hand.BoneName)) * _workTool.Transform * local;
     private Node3D? _workTool;
     private string? _workToolClip;
     public override void SetActivity(string? activity, string? role) => _activity = Ui.Models.CharacterActivity.Clip(activity, role);
@@ -497,6 +501,12 @@ public sealed partial class SkinnedFigure : Figure
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
         _tuck = Mathf.MoveToward(_tuck, _airborne ? 1f : 0f, (float)delta * 8f);
         Animate(speedMetresPerSecond, delta);
+        // Place the authored work phase toward the interaction, for every smith.
+        // The animation's own root/hip rotations and the simulation facing stay intact.
+        float workFacing = _activity == _model.Current && _activity is { } work
+            && _bindings.WorkTools.TryGetValue(work, out var workArt) ? Mathf.DegToRad(workArt.SourceForwardDegrees) : 0;
+        _workFacing = Mathf.MoveToward(_workFacing, workFacing, 10f * (float)delta);
+        Rotation = new Vector3(0, _yaw - _workFacing, 0);
         if (_face is not null)
             _face.PreserveAuthoredPitch = !_model.StateName(_model.Current ?? "idle").StartsWith("UAL", StringComparison.OrdinalIgnoreCase);
         WorkTool();

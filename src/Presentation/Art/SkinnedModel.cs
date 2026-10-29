@@ -378,6 +378,7 @@ public sealed partial class SkinnedModel : Node3D
     }
 
     public bool Has(string state) => _states.Contains(state);
+    internal void EvaluateReviewPose(double delta) { _player.Advance(delta); Skeleton.Advance(delta); }
 
     /// <summary>Show a state, blending from the last over <paramref name="blend"/> seconds; the same state keeps playing unless restarted.</summary>
     public void Play(string state, float blend = 0.2f, float speed = 1f, bool restart = false)

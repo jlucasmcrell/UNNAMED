@@ -13,7 +13,7 @@ namespace UNNAMED.Presentation.Diagnostics;
 
 /// <summary>Focused real-art evidence when the farm cannot boot the complete town.
 /// Live simulation, normal NPC drawing/schedules/voice and creator; studio lighting only.</summary>
-public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bool inspectOnly = false) : Node3D
+public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bool inspectOnly = false, bool contactOnly = false) : Node3D
 {
     private GameSession? _session;
     private NpcsView? _npcs;
@@ -71,7 +71,7 @@ public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bo
             {
                 var station = simulation.ActiveLayout.Stations.Where(s => s.Kind == "anvil")
                     .OrderBy(s => Math.Pow(s.XMm / 1000f - figure.Position.X, 2) + Math.Pow(s.ZMm / 1000f - figure.Position.Z, 2)).First();
-                var look = bindings.Stations[station.Kind];
+                var look = bindings.StationLook(station.Key, station.Kind) ?? throw new InvalidDataException("Work station binding missing");
                 var at = new Vector3(station.XMm / 1000f,
                     simulation.ActiveLayout.Space.Terrain.HeightAtMm(station.XMm, station.ZMm) / 1000f, station.ZMm / 1000f);
                 workSite = at;
@@ -94,6 +94,29 @@ public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bo
                     && Time.GetTicksMsec() < deadline) await Wait(.25);
                 if (figure.ClipState != "work_smith") throw new InvalidDataException(
                     $"Actual smith schedule did not select work: {simulation.Npcs.Single(n => n.Id == npc).Activity}, {figure.ClipState}, {simulation.Npcs.Single(n => n.Id == npc).Body}");
+            }
+            if (contactOnly)
+            {
+                if (workSite is not { } stationAt) throw new ArgumentException("Contact inspection needs a working NPC");
+                Aim(); await Wait(.5);
+                var contacts = new List<object>();
+                ulong end = Time.GetTicksMsec() + 6000;
+                while (Time.GetTicksMsec() < end)
+                {
+                    await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    figure.EvaluateReviewPose(GetProcessDeltaTime());
+                    figure.Skeleton.ForceUpdateAllBoneTransforms();
+                    var head = figure.WorkToolPoint(new Vector3(.226f, .022f, 0)) ?? throw new InvalidDataException("Work tool missing");
+                    var origin = figure.WorkToolPoint(Vector3.Zero)!.Value;
+                    var shaft = figure.WorkToolPoint(Vector3.Right)!.Value - origin;
+                    var up = figure.WorkToolPoint(Vector3.Up)!.Value - origin;
+                    var side = figure.WorkToolPoint(Vector3.Back)!.Value - origin;
+                    contacts.Add(new { source_seconds = figure.MotionSeconds, head = new[] { head.X - stationAt.X, head.Y - stationAt.Y, head.Z - stationAt.Z },
+                        shaft = new[] { shaft.X, shaft.Y, shaft.Z }, up = new[] { up.X, up.Y, up.Z }, side = new[] { side.X, side.Y, side.Z },
+                        feet = figure.GlobalPosition.ToString(), station = stationAt.ToString() });
+                }
+                File.WriteAllText(Path.Combine(directory, "contact.json"), JsonSerializer.Serialize(contacts));
+                CaptureQuit.At(this); return;
             }
             void Aim()
             {
