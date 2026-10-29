@@ -5112,7 +5112,12 @@ barriers:
   circle_m: [1312.0, 594.0, 22.0]
   height_m: 14.0
   prompt: The Drowned Gate's ring, shut and cold - and the Assize's notice nailed to the nearest stone
-portals: []
+portals:
+- key: portal.cistern.threshold
+  space: space.cistern_court
+  exterior_m: [1532.0, 700.0]
+  interior_m: [20.0, 4.0]
+
 waystones:
 - key: waystone.otherhome
   structure: oh_waystone
