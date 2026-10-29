@@ -16,6 +16,7 @@ card:
   trade_off: Slow to learn and physically frail, but they go further than anyone in the end.
 traits:
   health_percent: 85                       # reduced physical resilience
+  mantle_bonus_m: 0.10                   # light and long-limbed: climbs a hand higher than a plain body (BRIEF D6)
   carry_kg: -5
   resonance_percent: 125
   attribute_grant: { insight: 2, will: 1, endurance: -1 }

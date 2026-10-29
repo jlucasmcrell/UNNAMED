@@ -81,11 +81,26 @@ public static class WorldContent
                 StandHeightMm = Mm(map, "stand_height_m"), CrouchHeightMm = Mm(map, "crouch_height_m"), CrouchPercent = Int(map, "crouch_percent"),
             };
         }
-        // Standing on structure tops (owner finding 50); a pack without it keeps the planar rule.
+        // Standing on structure tops (owner finding 50) and what is vaulted, climbed and scrambled (BRIEF D6).
         if (map.ContainsKey("step_up_m"))
-            rules = rules with { StepUpMm = Mm(map, "step_up_m"), MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0 };
-        if (rules.StepUpMm < 0 || rules.StepUpMm >= rules.JumpApexMm || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.JumpApexMm)
-            throw new FormatException("config.base_speeds step_up_m is at least 0 and below the jump apex; mantle_reach_m, if any, is above it");
+            rules = rules with
+            {
+                StepUpMm = Mm(map, "step_up_m"),
+                MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0,
+                VaultMm = map.ContainsKey("vault_m") ? Mm(map, "vault_m") : 0,
+                ScrambleGradeMmPerM = map.ContainsKey("scramble_grade_mm_per_m") ? Mm(map, "scramble_grade_mm_per_m") : 650,
+                ClimbStaminaPerMetre = map.ContainsKey("climb_stamina_per_m") ? Int(map, "climb_stamina_per_m") : 6,
+                ScramblePercent = map.ContainsKey("scramble_percent") ? Int(map, "scramble_percent") : 45,
+                SheerGradeMmPerM = map.ContainsKey("sheer_grade_mm_per_m") ? Mm(map, "sheer_grade_mm_per_m") : 1_500,
+                ClimbPrefixes = map.ContainsKey("climb_prefixes") ? List(map, "climb_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,
+                UnclimbablePrefixes = map.ContainsKey("unclimbable_prefixes") ? List(map, "unclimbable_prefixes").Select(v => v as string ?? "").Where(v => v.Length > 0).ToImmutableArray() : ImmutableArray<string>.Empty,
+            };
+        // A vault is a mantle taken on the move, so it sits between the step and the climb; the mantle reaches above the vault.
+        if (rules.StepUpMm < 0 || rules.VaultMm < 0 || rules.VaultMm < rules.StepUpMm
+            || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.VaultMm
+            || rules.ScrambleGradeMmPerM < 0 || rules.SheerGradeMmPerM <= rules.ScrambleGradeMmPerM
+            || rules.ScramblePercent is <= 0 or > 100)
+            throw new FormatException("config.base_speeds step_up_m is at least 0, vault_m at least the step and no more than the mantle, and mantle_reach_m, if any, above the vault");
         if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
             || rules.CrouchHeightMm <= 0 || rules.CrouchHeightMm >= rules.StandHeightMm
             || rules.CrouchPercent is <= 0 or > 100)
@@ -276,13 +291,21 @@ public static class WorldContent
             Check(terrain.OriginXMm <= minX && terrain.OriginZMm <= minZ && terrain.MaxXMm >= maxX && terrain.MaxZMm >= maxZ,
                 "WLD003", "the terrain grid must cover the walkable bounds");
 
-            // What a body may climb (owner finding 50): structures whose id starts with one of config.base_speeds climbable_prefixes.
-            var climbable = Config(loader, "config.base_speeds") is var speeds && speeds.ContainsKey("climbable_prefixes")
-                ? List(speeds, "climbable_prefixes").Select(p => p as string ?? throw new FormatException("climbable_prefixes are id prefixes")).ToList()
+            // What a body may climb (owner finding 50, widened by BRIEF D6): everything except the deliberate barriers - the fold and the
+            // Other's walls, and sealed doors. climb_prefixes, when a pack names some, adds faces with handholds beyond the mantle reach.
+            var speeds = Config(loader, "config.base_speeds");
+            var climbable = speeds is not null && speeds.ContainsKey("climb_prefixes")
+                ? List(speeds, "climb_prefixes").Select(p => p as string ?? throw new FormatException("climb_prefixes are id prefixes")).ToList()
+                : new List<string>();
+            var unclimbable = speeds is not null && speeds.ContainsKey("unclimbable_prefixes")
+                ? List(speeds, "unclimbable_prefixes").Select(p => p as string ?? throw new FormatException("unclimbable_prefixes are id prefixes")).ToList()
                 : new List<string>();
             var structures = List(map, "structures").Select((s, i) => Blocker(s as Dictionary<object, object>
                 ?? throw new FormatException($"structures[{i}] must be a map")))
-                .Select(b => climbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = true } : b).ToImmutableArray();
+                // Everything is climbable except the deliberate barriers (BRIEF D6): the fold and the Other's walls, and sealed doors.
+                // climb_prefixes, when a pack names some, is read above and adds nothing here - the reach is the mantle's.
+                .Select(b => unclimbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = false } : b with { Climbable = true })
+                .ToImmutableArray();
             Check(structures.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() == structures.Length, "WLD002", "two structures share an id");
 
             var flags = loader.GetByKind("world_flag");

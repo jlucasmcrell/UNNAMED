@@ -30,8 +30,7 @@ public sealed partial class SkinnedCreature : CreatureBody
     private int _phaseTicks = 1;
     private string? _attackSource;
     private string _chosenAttack = "attack";
-    private readonly HashSet<string> _charges = new(StringComparer.Ordinal);
-    private readonly int _variantPick = System.Environment.TickCount & 0x7fffffff;
+    private readonly HashSet<string> _charges = new(StringComparer.Ordinal);    private readonly int _variantPick = System.Environment.TickCount & 0x7fffffff;
     private HashSet<string> _clips = new(StringComparer.Ordinal);
     private readonly List<(BaseMaterial3D Material, float Energy)> _otherfire = new();
 

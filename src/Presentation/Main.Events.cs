@@ -66,6 +66,19 @@ public partial class Main
             ? "Active boss encounters restart when loaded. You return outside the court with your saved resources."
             : "The Custodian disengages. The court falls quiet.", 7));
         // Gear sets: a switch takes time, so it says it has begun, and then what it did - and never what it could not, which it names.
+        // D6: a climb or a vault plays the climb pose on the avatar, whoever the body is.
+        _session.Subscribe<Climbed>(e =>
+        {
+            switch (_avatar)
+            {
+                case MHCharacters.MetaHumanFigure mh:
+                    mh.BeginClimb();
+                    break;
+                case Art.SkinnedFigure skinned:
+                    skinned.BeginClimb();
+                    break;
+            }
+        });
         _session.Subscribe<GearSetSaved>(e => Notice(NoticeKind.Gear, $"Kept {e.Name} as gear set {e.Index}", 2));
         _session.Subscribe<GearSetDeleted>(e => Notice(NoticeKind.Gear, $"Gear set {e.Index} deleted", 2));
         _session.Subscribe<GearSwapStarted>(e => Notice(NoticeKind.Gear, $"Changing gear... {(e.DueTick - e.Tick) * _session.TickSeconds:0.#} s{(e.InCombat ? " (slower in a fight)" : "")}", 2));

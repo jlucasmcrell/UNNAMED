@@ -27,6 +27,7 @@ public sealed partial class MetaHumanFigure : Figure
     private Godot.Collections.Dictionary _configuration = new();
     private Godot.Collections.Dictionary _resources = new();
     private bool _crouched, _airborne, _talking, _downed, _wasAirborne;
+    private double _climb;
     private double _airTime, _landing, _reaching, _striking;
     private ActivityKind _fishKind;
     private double _fishing;
@@ -71,6 +72,9 @@ public sealed partial class MetaHumanFigure : Figure
         }
     }
     public override void SetIdleRole(string? role) => _idleRole = role;
+
+    /// <summary>A climb or a vault just happened (the domain's Climbed event): the body plays the climb pose through once.</summary>
+    public void BeginClimb() => _climb = 0.001;
     public override void SetGaze(Vector3? target) => _faceDriver?.Gaze(target is { } at && Head is { } head ? GlobalBasis.Inverse() * (at - head).Normalized() : null);
     private Vector3 _moveDirection;
     private bool _hasDirection, _posed;
@@ -274,6 +278,17 @@ public sealed partial class MetaHumanFigure : Figure
     private void Animate(float speed, double delta)
     {
         if (!Has("idle")) return;
+        // D6: a climb or a vault holds the climb pose for the length of the clip, then the gait resumes.
+        if (_climb > 0 && Has("climb"))
+        {
+            _climb += delta;
+            if (_climb < 1.0)
+            {
+                Play("climb", .08f);
+                return;
+            }
+            _climb = 0;
+        }
         if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_downed) { Play("death", .25f); return; }
         if (speed < .25f && _restPose is { } resting)

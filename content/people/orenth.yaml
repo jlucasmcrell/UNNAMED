@@ -15,6 +15,7 @@ card:
   leans_toward: Melee and magic.
   trade_off: They can be where others cannot, and each step costs them something they never get back.
 traits:
+  mantle_bonus_m: 0.05                   # sure-footed on a long road, not a climber (BRIEF D6)
   attribute_grant: { agility: 1, will: 1 }
 learning:
   aptitude_percent: { melee: 115, magic: 115 }

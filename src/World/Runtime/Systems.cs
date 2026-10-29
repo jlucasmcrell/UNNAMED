@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
+// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -532,6 +532,7 @@ internal sealed class MovementSystem
 
         var before = _context.State.Posture;
         var posture = before.Aloft && (combat.Defeated || before.Wing == WingState.Glide && !HoldWings(tick)) ? before with { Wing = WingState.Fall } : before;
+        int staminaBefore = (int)(_context.State.Progression.Pools.Stamina ?? (int)_context.PlayerStats().StaminaMax);
         var space = _context.Setup.SpaceFor(_context.State.Space);
         var (to, next) = Kinematics.Step(from, posture, intent, rules, space, _context.Obstacles(), _context.Setup.TickMilliseconds);
         // In deep water or out of it, as the point it has come to says: the body's own slice, and the tick's own body, so the HUD and the
@@ -539,7 +540,23 @@ internal sealed class MovementSystem
         bool swimming = Kinematics.SwimWater(to.XMm, to.ZMm, space) is not null;
         if (swimming != _context.State.Swimming)
             _context.State.SetSwimming(_owner, swimming);
-        if (next != before)
+        // A climb or a vault (BRIEF D6): the feet come up more than a step in one tick. It costs stamina by the metre, and a body with none
+        // left stays on the ground - which is what makes a ladder a decision rather than a free lift.
+        long rose = to.YMm - from.YMm;
+        if (!posture.Airborne && rose > rules.StepUpMm)
+        {
+            if (staminaBefore <= 0)
+            {
+                to = from;
+                next = posture;
+            }
+            else
+            {
+                int cost = (int)Math.Max(1, rose * rules.ClimbStaminaPerMetre / 1_000);
+                _context.Dispatch(new ChangePools(0, -Math.Min(cost, staminaBefore)));
+                _context.Events.Publish(new Climbed(_player, from, to, cost, tick));
+            }
+        }        if (next != before)
         {
             _context.State.SetPosture(_owner, next);
             if (next.Wing != before.Wing)

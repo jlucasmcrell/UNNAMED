@@ -61,8 +61,10 @@ public class JumpAndCrouchTests
 
         Assert.True(clearing.Count >= 2, $"only take-offs {string.Join(", ", clearing)} clear it");
         Assert.Equal(Enumerable.Range(clearing[0], clearing.Count), clearing);   // one window, not scattered luck
-        // Without a jump the run stops at the timber.
-        Assert.True(RunAndJump(session, (167, 143), 0, Gait.Run, takeOffTick: 999) < 147 - 0.34);
+        // BRIEF D6 (the replaced brief, point 2): a run VAULTS the timber - 0.8 m is inside the 1.2 m vault window - so the body is no
+        // longer stopped short of it: it climbs onto the top and stands there. (What still stops a body is a face above the reach; that is
+        // the climb tests' business, not this one's.)
+        Assert.True(RunAndJump(session, (167, 143), 0, Gait.Run, takeOffTick: 999) >= 147 - 0.34);
     }
 
     /// <summary>

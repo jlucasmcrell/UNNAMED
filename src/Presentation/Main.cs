@@ -255,16 +255,21 @@ public partial class Main : Node3D
                 return;
             }
             Start();
-            InstallMetaHumanReview();
-            InstallMpfbComparison();
-            InstallDsShots();
-            InstallInnShots();
-            InstallCampReview();
-            InstallInnRoom();
-            InstallLoreShots();
-            InstallPetOrders();
-            InstallPetShots();
-        }
+            // A harness that owns the frame loop (the art gallery, the kit sheet, the VFX sheet, the animation sheet) returns from Start
+            // without ever booting a session, and these installers all subscribe to that session. Guarding them keeps a harness run from
+            // dying on a null session before its first frame.
+            if (_session is not null)
+            {
+                InstallMetaHumanReview();
+                InstallMpfbComparison();
+                InstallDsShots();
+                InstallInnShots();
+                InstallCampReview();
+                InstallInnRoom();
+                InstallLoreShots();
+                InstallPetOrders();
+                InstallPetShots();
+            }        }
         catch (Exception e)
         {
             CannotStart(e is ContentBootException ? "Its content does not validate." : e.Message, e);

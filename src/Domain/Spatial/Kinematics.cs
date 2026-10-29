@@ -94,10 +94,32 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     public long StepUpMm { get; init; }
 
     /// <summary>
-    /// How high above the feet a jump takes off from a ledge it meets can be and still be climbed onto (owner finding 50: the mantle). 0 is
-    /// none. Only with <see cref="StepUpMm"/>: a mantled top is stood on like any other.
+    /// How high above the feet a ledge a jump meets can be and still be climbed onto (the mantle). 0 is none. Only with
+    /// <see cref="StepUpMm"/>: a mantled top is stood on like any other. BRIEF D6 raises this to 3 m - a wall, a cliff, a crate or a rock
+    /// face is climbed, and taller faces are climbed where they carry handholds (see <see cref="MovementRules.ClimbPrefixes"/>).
     /// </summary>
     public long MantleMm { get; init; }
+
+    /// <summary>
+    /// A running body vaults a top this far above its feet without stopping (BRIEF D6): a fence, a cart, a low wall, fallen timber. 0 is
+    /// none. A vault is a mantle taken on the move - no jump, no halt - so it is limited to what a hand can push off.
+    /// </summary>
+    public long VaultMm { get; init; }
+
+    /// <summary>
+    /// Structure id prefixes a body may climb beyond <see cref="MantleMm"/> - a face with handholds (a ladder, a rope, a scaffold, a rock
+    /// face). Empty means only the mantle reach is climbed; the deliberate barriers are named in <see cref="UnclimbablePrefixes"/>.
+    /// </summary>
+    public ImmutableArray<string> ClimbPrefixes { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>
+    /// Stamina a metre of climb or vault costs (BRIEF D6): a mantle up more than a step is work, and a body with none left does not get up
+    /// the wall at all. 0 costs nothing.
+    /// </summary>
+    public int ClimbStaminaPerMetre { get; init; } = 6;
+
+    /// <summary>Structure id prefixes that are never climbed and never vaulted: the fold and the Other's barriers, sealed doors.</summary>
+    public ImmutableArray<string> UnclimbablePrefixes { get; init; } = ImmutableArray<string>.Empty;
 
     /// <summary>The body's height standing and crouched: what an overhang is measured against.</summary>
     public long StandHeightMm { get; init; } = 1_800;
@@ -123,8 +145,40 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
         BaseSpeedMmPerSecond = BaseSpeedMmPerSecond * Wings.LeapDistancePercent / 100,
     };
 
+    /// <summary>
+    /// The horizontal speed the jump carries, before <see cref="JumpDistancePercent"/> (D6): 0 means the body's own gait speed, which is what
+    /// a plain jump has always used. A people whose wings carry them sets it to its unscaled base speed, so a jump is never taken at its
+    /// walking pace - and a Kal's flutter pushes it a little past a Veth's.
+    /// </summary>
+    public long JumpSpeedMmPerSecond { get; init; }
+
+    /// <summary>A small distance bonus in the air, as a share of <see cref="JumpSpeedMmPerSecond"/>: the wing flutter (D6). Height is untouched.</summary>
+    public int JumpDistancePercent { get; init; } = 100;
+
+    /// <summary>
+    /// The grade, in millimetres of rise per metre forward, at which ground stops being a walk and becomes a scramble (BRIEF D6 point 4).
+    /// Ordinary hills stay below it; a mountain slope above it is still traversable, hand over hand and slower.
+    /// </summary>
+    public long ScrambleGradeMmPerM { get; init; } = 650;
+
+    /// <summary>The share of the walking speed a scramble keeps while the grade is above <see cref="ScrambleGradeMmPerM"/>.</summary>
+    public int ScramblePercent { get; init; } = 45;
+
+    /// <summary>
+    /// The grade above which the ground is a sheer face: it is not walked or scrambled, only climbed. Anything steeper is refused by
+    /// <see cref="Step"/> unless the rules climb it.
+    /// </summary>
+    public long SheerGradeMmPerM { get; init; } = 1_500;
+
     /// <summary>From take-off to landing: the arc rises and falls in the same time.</summary>
     public int AirtimeMs => 2 * JumpRiseMs;
+
+    /// <summary>The horizontal speed a jump carries: its own if it has one, else the gait's, never slower than the gait on the ground.</summary>
+    public double JumpSpeed(Gait gait, Stance stance)
+    {
+        double ground = SpeedMmPerSecond(gait, stance);
+        return JumpSpeedMmPerSecond > 0 ? Math.Max(ground, JumpSpeedMmPerSecond * JumpDistancePercent / 100.0) : ground;
+    }
 
     public double SpeedMmPerSecond(Gait gait) => gait switch
     {
@@ -137,6 +191,17 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
         stance == Stance.Crouched ? BaseSpeedMmPerSecond * CrouchPercent / 100.0 : SpeedMmPerSecond(gait);
 
     public long HeightMm(Stance stance) => stance == Stance.Crouched ? CrouchHeightMm : StandHeightMm;
+
+    /// <summary>The absolute grade between two points, in millimetres of rise per metre of run: what a scramble and a sheer face are read from.</summary>
+    public long GradeMmPerM(double fromX, double fromZ, double toX, double toZ, WalkSpace space)
+    {
+        double run = Math.Sqrt((toX - fromX) * (toX - fromX) + (toZ - fromZ) * (toZ - fromZ));
+        if (run <= 0)
+            return 0;
+        long rise = space.HeightAtMm((long)Math.Round(toX, MidpointRounding.AwayFromZero), (long)Math.Round(toZ, MidpointRounding.AwayFromZero))
+                    - space.HeightAtMm((long)Math.Round(fromX, MidpointRounding.AwayFromZero), (long)Math.Round(fromZ, MidpointRounding.AwayFromZero));
+        return (long)Math.Round(Math.Abs(rise) * 1_000.0 / run);
+    }
 
     /// <summary>How far above the ground the feet are this long after take-off: a parabola, whole millimetres, 0 before and after.</summary>
     public long LiftMm(int airMs) =>
@@ -317,13 +382,20 @@ public static class Kinematics
         if (length > 0 && dtMs > 0)
         {
             double deflection = Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
-            // A body in deep water goes at half a walk whatever the gait asked: the sprint is refused in the water, and the swim's pace is
-            // the walk's, not the gait's (D20).
             double speed = SwimWater(body.XMm, body.ZMm, space) is not null
                 ? rules.SpeedMmPerSecond(Gait.Walk) * rules.SwimPercent / 100.0
-                : rules.SpeedMmPerSecond(intent.Gait, posture.Stance);
-            double travel = speed * dtMs / 1000.0 * deflection;
-            double dx = intent.DirXPermille / length * travel;
+                : rules.JumpSpeed(intent.Gait, posture.Stance);
+            // Scramble (BRIEF D6 point 4): across ground, the grade ahead decides the pace. A hill is walked, a mountain slope is
+            // scrambled hand over hand and slower, and only a sheer face is refused - that is what the climb is for.
+            if (!posture.Airborne && SwimWater(body.XMm, body.ZMm, space) is null && length > 0)
+            {
+                long grade = rules.GradeMmPerM(x, z, x + intent.DirXPermille / length * 1_000, z + intent.DirZPermille / length * 1_000, space);
+                if (grade > rules.SheerGradeMmPerM)
+                    speed = 0;
+                else if (grade > rules.ScrambleGradeMmPerM)
+                    speed *= rules.ScramblePercent / 100.0;
+            }
+            double travel = speed * dtMs / 1000.0 * deflection;            double dx = intent.DirXPermille / length * travel;
             double dz = intent.DirZPermille / length * travel;
             // Sub-steps no longer than half the body radius, so a fast step cannot tunnel through a thin wall.
             int steps = Math.Max(1, (int)Math.Ceiling(travel / (radius / 2)));
@@ -432,6 +504,10 @@ public static class Kinematics
             else if (Mantle(fromX, fromZ, x, z, raised, lift, rules, space, radius) is { } ledge)
                 return (ledge.X, ledge.Z, ledge.Raised, true);
         }
+        // On the ground, a body that meets a climbable face within its reach climbs it: a fence or a cart at a run (a vault), a wall or a
+        // rock face as a climb-up (BRIEF D6). The reach is the mantle's; the deliberate barriers are not climbable and are excluded there.
+        else if (tops && !posture.Airborne && Mantle(fromX, fromZ, x, z, raised, 0, rules, space, radius) is { } climbed)
+            return (climbed.X, climbed.Z, climbed.Raised, false);
         bool grounded = !posture.Airborne || landed;
         (x, z) = Resolve(x, z, radius, space, dynamicBlockers, raised + lift, height, grounded ? null : Tuck(posture, rules, lift),
             tops && grounded ? rules.StepUpMm : 0);
@@ -471,13 +547,29 @@ public static class Kinematics
         long feet = ground + raised + lift;
         foreach (var blocker in space.Blockers)
         {
-            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(px, pz) > 0)
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(px, pz) > ProbeSlackMm)
                 continue;
             var (cx, cz) = Footprints.Center(blocker);
-            long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
-            if (top <= feet || top > ground + raised + rules.MantleMm || TopUnder(px, pz, long.MaxValue, space) != top)
+            // The surface the structure rises from is the ground under it - but never lower than the surface the body is standing on: a fence
+            // on the waystation's deck rises from the deck, and measuring it from the field below the deck put its top under the body's feet,
+            // so nothing on a deck was ever climbed (the owner's bench-and-fence report, D6). Structures on structures use the same rule.
+            long structureGround = space.HeightAtMm(cx, cz);
+            long baseGround = Math.Max(structureGround, ground + raised);
+            long top = baseGround + blocker.HeightMm;
+            // A face with handholds - a ladder, a rope, a scaffold - is climbed at any height; everything else only within the reach. The rise is
+            // compared by SUBTRACTION: adding an unlimited reach to a standing surface overflowed to a negative number, so a ladder standing
+            // anywhere above world zero was refused as "beyond reach" while the same ladder on flat test ground climbed fine.
+            long reach = rules.ClimbPrefixes.Any(p => blocker.Id.StartsWith(p, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
+            long rise = top - (ground + raised);
+            if (top <= feet || rise > reach)
                 continue;
+            // The top the probe point stands under must be this blocker's top - within a hand's width. It used to be an exact equality,
+            // which failed wherever the terrain under the footprint was not perfectly flat, so no wall was ever climbed (the owner saw the
+            // body stuck against one). 50 mm is far below any structural height and far above terrain noise.
             long under = space.HeightAtMm((long)Math.Round(px, MidpointRounding.AwayFromZero), (long)Math.Round(pz, MidpointRounding.AwayFromZero));
+            // No top-under-the-probe comparison here any more: the probe is already known to be inside THIS blocker's footprint, and asking what
+            // the highest top under it is meant a ladder leaning on a taller wall was refused whenever the probe reached the wall behind it
+            // (10,200 mm of wall against 8,530 mm of ladder top). The footprint test above is the check; the height checks below are the rest.
             return (px, pz, top - under);
         }
         return null;
@@ -489,7 +581,7 @@ public static class Kinematics
         long best = space.HeightAtMm((long)Math.Round(x, MidpointRounding.AwayFromZero), (long)Math.Round(z, MidpointRounding.AwayFromZero));
         foreach (var blocker in space.Blockers)
         {
-            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(x, z) > 0)
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(x, z) > ProbeSlackMm)
                 continue;
             var (cx, cz) = Footprints.Center(blocker);
             long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
@@ -505,6 +597,9 @@ public static class Kinematics
     /// </summary>
     public static bool Blocks(Blocker blocker, long liftMm, long bodyHeightMm) =>
         blocker.HeightMm <= 0 || (liftMm < blocker.HeightMm && liftMm + bodyHeightMm > blocker.ClearanceMm);
+
+    /// <summary>A probe point on a face is inside it: a millimetre of slack, so floating point does not decide whether a wall can be climbed.</summary>
+    private const double ProbeSlackMm = 1;
 
     /// <summary>True when the circle overlaps nothing and lies inside the bounds. A supplied body height permits clearance under roofs; zero retains the original full-column query.</summary>
     public static bool IsClear(long xMm, long zMm, long radiusMm, WalkSpace space, IReadOnlyList<Blocker> dynamicBlockers, long bodyHeightMm = 0) =>

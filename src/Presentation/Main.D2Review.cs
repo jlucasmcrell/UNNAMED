@@ -21,6 +21,56 @@ public partial class Main
         _camera.Camera.MakeCurrent();
         _camera.TargetDistance = 4; _camera.Pitch = -.16f;
         var events = new List<object>();
+        // A still at every mark, written beside the phase log: the review runs on a farm where the desktop is not recorded, and a frame on
+        // disk is what lets anyone check the body is standing on the fence rather than beside it.
+        void Shot(string name) => Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
+
+        // The climb camera is DERIVED, not tuned: stand it out along the normal of the wall the climber is against, a little to one side, at
+        // the height of the ladder's middle, and look at the climber. Every hand-placed offset tonight landed in a doorway or behind a roof;
+        // a normal cannot point into the building it came from.
+        // The outward normal of the nearest structure the body is standing against: from the structure's own centre towards the body.
+        Vector3 WallNormal(Vector3 at)
+        {
+            Vector3 best = Vector3.Back;
+            float nearest = float.MaxValue;
+            foreach (var blocker in _session.Setup.Layout.Space.Blockers)
+            {
+                if (blocker.HeightMm < 1_000)
+                    continue;
+                var (cx, cz) = UNNAMED.Domain.Spatial.Footprints.Center(blocker);
+                var c = new Vector3((float)(cx / 1000.0), at.Y, (float)(cz / 1000.0));
+                float distance = c.DistanceTo(at);
+                if (distance < nearest && distance < 4f)
+                {
+                    nearest = distance;
+                    var dir = (at - c) with { Y = 0 };
+                    if (dir.LengthSquared() > .0001f)
+                        best = dir.Normalized();
+                }
+            }
+            return best;
+        }
+
+        Camera3D? side = null;
+        async Task ShotSide(string name)
+        {
+            var body = _controller.Authoritative;
+            var at = new Vector3(body.XMm / 1000f, body.YMm / 1000f, body.ZMm / 1000f);
+            side ??= new Camera3D { Fov = 55 };
+            if (side.GetParent() is null)
+                AddChild(side);
+            // From the OPEN side: the yard is south and west of the forge, so an offset into it keeps the wall and the roof out of the shot.
+            Vector3 outward = WallNormal(at);
+            Vector3 across = outward.Cross(Vector3.Up).Normalized();
+            side.GlobalPosition = at + outward * 3.6f + across * 1.3f + new Vector3(0, 1.15f, 0);
+            side.LookAt(at + new Vector3(0, .55f, 0), Vector3.Up);
+            side.MakeCurrent();
+            await Rcd3Wait(.12);
+            Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
+            _camera.Camera.MakeCurrent();
+            await Rcd3Wait(.05);
+        }
+
         void Mark(string phase, object? detail = null)
         {
             var row = new { phase, detail, utc = DateTimeOffset.UtcNow, uptime_ms = Time.GetTicksMsec(), world_tick = sim.WorldTick,
@@ -66,7 +116,98 @@ public partial class Main
 
         try
         {
-            if (route == "rain")
+            void PressReport(string what, float dirX = 0, float dirZ = 0)
+        {
+            var body = _controller.Authoritative;
+            long ground = (long)(_ground.Height((float)(body.XMm / 1000.0), (float)(body.ZMm / 1000.0)) * 1000);
+            var space = _session.Setup.Layout.Space;
+            var touching = space.Blockers.Where(b => b.DistanceTo(body.XMm, body.ZMm) < 1_500)
+                .Select(b => $"{b.Id}(h={b.HeightMm},climb={b.Climbable})");
+            var rules = _session.Setup.Movement;
+            // Mantle's own arithmetic, recomputed here from the play data so the failing condition names itself.
+            double radius = rules.BodyRadiusMm, len = Math.Sqrt((double)dirX * dirX + (double)dirZ * dirZ);
+            var probe = new System.Text.StringBuilder();
+            if (len > 0)
+            {
+                double px = body.XMm + dirX / len * radius, pz = body.ZMm + dirZ / len * radius;
+                foreach (var b in space.Blockers.Where(b => b.DistanceTo(px, pz) < 2_000))
+                {
+                    var (cx, cz) = UNNAMED.Domain.Spatial.Footprints.Center(b);
+                    long structureGround = space.HeightAtMm(cx, cz);
+                    long top = structureGround + b.HeightMm;
+                    long feet = ground + (body.YMm - ground);
+                    long reach = rules.ClimbPrefixes.Any(x => b.Id.StartsWith(x, StringComparison.Ordinal)) ? long.MaxValue : rules.MantleMm;
+                    probe.Append($"{b.Id}: probeDist={b.DistanceTo(px, pz):F1} top={top} feet={feet} reach={reach} ")
+                         .Append($"climbable={b.Climbable} h={b.HeightMm} clearance={b.ClearanceMm} ")
+                         .Append($"skip={(!b.Climbable ? "notClimbable" : b.HeightMm <= 0 ? "noHeight" : b.ClearanceMm > 0 ? "overhang" : top <= feet ? "topBelowFeet" : top > ground + (body.YMm - ground) + reach ? "beyondReach" : "none")}; ");
+                }
+            }
+            GD.Print($"UNNAMED D6 press {what}: body y={body.YMm} ground={ground} raised={body.YMm - ground}; " +
+                     $"stepUp={rules.StepUpMm} vault={rules.VaultMm} mantle={rules.MantleMm} prefixes=[{string.Join(',', rules.ClimbPrefixes)}] " +
+                     $"posture={_session.Simulation?.Posture}; touching {string.Join(' ', touching)} " +
+                     $"blockerTypes {string.Join(' ', space.Blockers.Where(b => b.DistanceTo(body.XMm, body.ZMm) < 1_500).Select(b => b.GetType().Name))}; {probe}");
+        }
+
+        if (route == "traversal")
+            {
+                // D6 traversal proof, all of it within twenty metres of where the character starts, so the walk cannot lose its way across the
+                // frontier: a running jump, a run at the smithy fence, the owned wooden ladder at (49.6, 147.2) region = (449.6, 755.2) world,
+                // and the waystation slope. Region coordinates are world (x + 400, z + 608).
+                Mark("traversal_start");
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Sprint, _camera);
+                await Rcd3Wait(.8);
+                _controller.Jump();
+                Mark("running_jump");
+                await Rcd3Wait(1.4);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.4);
+                Shot("jump_done");
+                Mark("jump_done");
+
+                // The fence: stand in front of the smithy fence (its box is world 444..451.4 x 746..746.4) and run north into it, shooting the
+                // run-up, the contact, the rise and the top so a reviewer sees the climb and not just where it ended.
+                await Go(new[] { (447.0, 743.5) }, 70);
+                Shot("fence_runup");
+                _controller.SteerWorld(new Vector3(0, 0, 1), Gait.Run, _camera);
+                await Rcd3Wait(.35);
+                await ShotSide("fence_contact");
+                await Rcd3Wait(.25);
+                await ShotSide("fence_rising");
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(1.1);
+                await ShotSide("fence_top");
+                PressReport("fence", 0, 1);
+                Mark("fence_vaulted", _controller.Authoritative);
+
+                // The ladder (D6) leans on the forge's north wall (box 453..463 x 745.6..746, 3.0 m), so the climb goes up the wall. Stand in
+                // the open yard south of it and walk north into its long face.
+                await Go(new[] { (461.8, 748.6) }, 90);
+                Shot("ladder_runup");
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
+                await Rcd3Wait(.75);
+                await ShotSide("ladder_contact");
+                await Rcd3Wait(.25);
+                await ShotSide("ladder_on_rung");
+                await Rcd3Wait(.35);
+                await ShotSide("ladder_rising");
+                await Rcd3Wait(.8);
+                await ShotSide("ladder_top");
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.5);
+                PressReport("ladder", 0, -1);
+                Mark("ladder_climbed", _controller.Authoritative);
+
+                // The slope: the waystation's own rise.
+                await Go(new[] { (434.0, 752.0) }, 60);
+                _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Run, _camera);
+                await Rcd3Wait(1.6);
+                _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                await Rcd3Wait(.5);
+                Shot("slope_scrambled");
+                Mark("slope_scrambled", _controller.Authoritative);
+                Mark("traversal_done");
+            }
+            else if (route == "rain")
             {
                 // A lap of the yard and then standing in it: enough rain in frame to judge the streaks, the splashes and the wet ground.
                 // The spawn is already out in the open, looking east down the waystation: stand in it and turn slowly, which shows the
