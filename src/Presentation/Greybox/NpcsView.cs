@@ -231,7 +231,7 @@ public partial class NpcsView : Node3D
     /// </summary>
     private CharacterAppearance? LookOf(Simulation simulation, NpcView npc, NpcDefinition? definition, string? people, string? sex)
     {
-        if (definition is null || people is null || sex is null)
+        if (people is null || sex is null)
             return null;
         var lives = simulation.Setup.NpcLife;
         var slot = lives.Routines.GetValueOrDefault(npc.Id);
@@ -244,7 +244,15 @@ public partial class NpcsView : Node3D
         // over yet: NpcView carries no Generation, so every resident is drawn as their slot's first holder - which is what a day-one
         // roster is, and what the face sheets are taken on. One argument changes here when NpcView.Generation exists.
         var (catalogue, data) = Creator();
-        return Art.NpcLooks.Of(definition, slot?.Settlement ?? string.Empty, 0, people, sex, catalogue, data, Math.Max(0, position));
+        // A role resident has no content file of its own: their look is generated for the slot they hold.
+        var look = definition is null
+            ? slot is { IsSlot: true }
+                ? Art.NpcLooks.Resident(slot.Id, slot.Settlement, 0, people, sex, catalogue, data, Math.Max(0, position))
+                : null
+            : Art.NpcLooks.Of(definition, slot?.Settlement ?? string.Empty, 0, people, sex, catalogue, data, Math.Max(0, position));
+        if (OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
+            GD.Print($"NPC_LOOK {npc.Id}: {(look is null ? "no look" : $"face {look.Face} hair {look.Hair} outfit {look.Outfit}")}");
+        return look;
     }
 
     /// <summary>The one body a sex is drawn on (the creator's two bases): every NPC is that mesh, shaped by their own record.</summary>
