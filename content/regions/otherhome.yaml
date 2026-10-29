@@ -519,49 +519,49 @@ structures:
   height_m: 1.4
 - id: oh_gate_stone_0
   circle_m:
-  - 8250.0
+  - 8150.0
   - 594.0
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_1
   circle_m:
-  - 8242.38
+  - 8142.38
   - 612.38
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_2
   circle_m:
-  - 8224.0
+  - 8124.0
   - 620.0
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_3
   circle_m:
-  - 8205.62
+  - 8105.62
   - 612.38
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_4
   circle_m:
-  - 8198.0
+  - 8098.0
   - 594.0
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_5
   circle_m:
-  - 8205.62
+  - 8105.62
   - 575.62
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_6
   circle_m:
-  - 8224.0
+  - 8124.0
   - 568.0
   - 3.2
   height_m: 9.0
 - id: oh_gate_stone_7
   circle_m:
-  - 8242.38
+  - 8142.38
   - 575.62
   - 3.2
   height_m: 9.0
