@@ -115,6 +115,8 @@ public sealed class VisualAudit
     // left exactly as they are, which is sound only because the splice kept the shipped skeleton and the
     // groom's JOINTS_0 indices were verified to address the same bones in the same order.
     private static readonly string[] HairArms = { "A", "A2", "B", "A3", "B2" };
+    private bool _entered;
+    private readonly string? _enter;
     private readonly string? _hairGlb;
     private readonly string _hairFrom;
     private readonly string _hairTo;
@@ -172,7 +174,8 @@ public sealed class VisualAudit
         var userArgs = OS.GetCmdlineUserArgs();
         string? UserArg(string name) => Array.IndexOf(userArgs, name) is var i and >= 0 && i + 1 < userArgs.Length
             ? userArgs[i + 1] : null;
-        _hairGlb = UserArg("--hair-glb");
+        _enter = UserArg("--enter");
+    _hairGlb = UserArg("--hair-glb");
         _hairFrom = UserArg("--hair-material-from") ?? "Human.elvs_hazel_hair";
         _hairTo = UserArg("--hair-material-to") ?? "Human.o4saken_long01";
         _hairSubject = UserArg("--hair-subject") ?? "Player";
@@ -359,6 +362,16 @@ public sealed class VisualAudit
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
         if (_wait == 0)
         {
+            // A capture that must stand inside a space (the Barrowworks ring) asks for the portal once, and then waits
+            // longer than the settle so the interior has been built and lit before the picture is taken.
+            if (_enter is { Length: > 0 } portal && _entered == false)
+            {
+                _entered = true;
+                _session.Submit(new UNNAMED.World.Runtime.EnterSpaceCommand(_session.Simulation!.PlayerId, portal));
+                GD.Print($"UNNAMED audit: stepped through {portal} before {shot.Name}");
+                _wait = -240;
+                return;
+            }
             if (SkyFor.TryGetValue(shot.Name, out var sky))
             {
                 if (sky.Hour is { } hour)
