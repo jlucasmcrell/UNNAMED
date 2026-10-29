@@ -192,14 +192,14 @@ public partial class Main
             centre += at;
         centre /= cluster.Count;
         var ground = _npcs.Ground ?? ((x, z) => centre.Y);
-        float reach = Mathf.Clamp(cluster.Max(at => at.DistanceTo(centre)) + 8f, 10f, 28f);
+        float reach = Mathf.Clamp(cluster.Max(at => at.DistanceTo(centre)) + 6f, 8f, 18f);
         for (int shot = 0; shot < wides; shot++)
         {
             float yaw = Mathf.Tau * shot / wides;
             var at = centre + new Basis(Vector3.Up, yaw) * new Vector3(0, 0, reach);
-            at.Y = ground(at.X, at.Z) + 2.6f;
-            Vector3 aim = centre + Vector3.Up * 1.2f;
-            camera.Fov = 55;
+            at.Y = ground(at.X, at.Z) + 1.8f;
+            Vector3 aim = centre + Vector3.Up * 1.0f;
+            camera.Fov = 60;
             camera.GlobalPosition = at;
             camera.LookAt(aim);
             string name = $"wide_{shot + 1}";
