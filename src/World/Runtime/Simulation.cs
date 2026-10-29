@@ -239,6 +239,7 @@ public sealed class Simulation
     private readonly SwingingSystem _swinging;
     private readonly ProspectingSystem _prospecting;
     private readonly WashingSystem _washing;
+    private readonly GrappleSystem _grapple;
     private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
@@ -328,6 +329,7 @@ public sealed class Simulation
         _fishing = new FishingSystem(_context,activity,player.Id);
         _lockpicking = new LockpickSystem(_context,activity,player.Id);
         _washing = new WashingSystem(_context,activity,player.Id);
+        _grapple = new GrappleSystem(_context,activity,player.Id);
         _firstHour=new FirstHourSystem(_context,player.Id);
         _firstHour.Listen(bus);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
@@ -1006,8 +1008,9 @@ public sealed class Simulation
                 PickLockCommand pick => _lockpicking.Handle(pick,WorldTick),
                 SwingAtNodeCommand swing => _swinging.Handle(swing,WorldTick),
                 ProspectCommand prospect => _prospecting.Handle(prospect,WorldTick),
+                GrappleCommand grapple => _grapple.Handle(grapple,WorldTick),
                 // A cancel ends whichever timed thing is running: a pick, a swing or a wash first, so the system that started it is the one that stops it.
-                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _washing.Handle(cancelActivity) ?? _prospecting.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
+                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _washing.Handle(cancelActivity) ?? _prospecting.Handle(cancelActivity) ?? _grapple.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -1081,6 +1084,7 @@ public sealed class Simulation
             _lockpicking.Tick(tick);
             _swinging.Tick(tick);
             _prospecting.Tick(tick);
+            _grapple.Tick(tick);
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);

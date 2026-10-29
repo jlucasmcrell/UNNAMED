@@ -354,6 +354,10 @@ public partial class Main
         // mantle onto is jumped onto exactly as before, and the climb is the choice it always was (D20, the ladder).
         if (Input.IsActionJustPressed("climb"))
             _controller.Climb();
+        // F5: throw a line at a grapple anchor above the body, and be pulled up to the lip it stands on (D21, HOOK.TRAV.GRAPPLE). Every letter
+        // is bound, so it sits in the F-row beside F2's prospect, F3's overlay and F4's quest debugger.
+        if (Input.IsActionJustPressed("grapple"))
+            _controller.Grapple();
         Wings(Input.IsActionPressed("jump"));
         // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is. Gliding, the
         // crouch is the wings' flare (Kal).
@@ -453,6 +457,7 @@ public partial class Main
         Bind("prospect", Key.F2);         // the read before the work: every letter is bound, and the F-row prints the same on every keyboard
         Bind("jump", Key.Space);
         Bind("climb", Key.U);             // take hold of a ladder or a crag (U is the only free letter); jump stays the jump
+        Bind("grapple", Key.F5);          // throw a line at an anchor above the body; the F-row beside F2's prospect
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);
         Bind("skills", Key.P);

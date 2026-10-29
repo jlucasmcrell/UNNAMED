@@ -268,15 +268,15 @@ public sealed partial class SkinnedFigure : Figure
     public override void Interact() => _reaching = 0.001;
 
     /// <summary>
-    /// The line in the water and the picks in a lock: the cast, the reel and the pick each play once, and the wait between the cast and its
-    /// bite has no clip of its own - the body stands. One broken off simply stops where it is.
+    /// The line in the water, the picks in a lock and the grapple's throw: the cast, the reel, the pick and the throw each play once, and the wait
+    /// between the cast and its bite has no clip of its own - the body stands. One broken off simply stops where it is.
     /// </summary>
     public override void Fishing(ActivityKind kind)
     {
         if (kind == _fishKind)
             return;
         _fishKind = kind;
-        _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock ? 0.001 : 0;
+        _fishing = kind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock or ActivityKind.GrappleThrow ? 0.001 : 0;
     }
 
     /// <summary>The pick into a node: each swing the simulation counts plays the clip once, so a later start tick is a new swing.</summary>
@@ -677,17 +677,20 @@ public sealed partial class SkinnedFigure : Figure
         }
         // Fishing and lockpicking have no clip of their own in the art root, so the cast plays the clip the cast state names, the reel and
         // the pick the one interact names, each once; the wait between a cast and its bite is an idle and the line's own status is the HUD's.
-        if (_fishing > 0 && _fishKind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock)
+        // The grapple's throw (D21) is the same shape: one clip, played once, while the body stands - and the cast is its stand-in where no
+        // grapple_throw state is bound.
+        if (_fishing > 0 && _fishKind is ActivityKind.FishCast or ActivityKind.FishReel or ActivityKind.PickLock or ActivityKind.GrappleThrow)
         {
             _fishing += delta;
             string fish = _fishKind switch
             {
                 ActivityKind.FishCast => "fish_cast",
                 ActivityKind.FishReel => "fish_reel",
+                ActivityKind.GrappleThrow => "grapple_throw",
                 _ => "pick_lock",
             };
             if (!m.Has(fish))
-                fish = _fishKind == ActivityKind.FishCast ? "cast" : "interact";
+                fish = _fishKind is ActivityKind.FishCast or ActivityKind.GrappleThrow ? "cast" : "interact";
             if (_fishing < m.Length(fish) && speed < 0.25f && m.Has(fish))
             {
                 m.Play(fish, 0.15f, 1f, _fishing - delta <= 0.001);

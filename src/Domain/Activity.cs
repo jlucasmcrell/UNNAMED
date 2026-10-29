@@ -35,6 +35,12 @@ public enum ActivityKind
     /// is left - is known for good when they run out. A hand too short to work a node can still read it, which is the point of the read.
     /// </summary>
     Prospect,
+
+    /// <summary>
+    /// A grapple line is going out (D21): the throw plays for its ticks, and the pull is made when they run out - the body is put on the surface the
+    /// anchor stands on, so there is no hang and no arc to hold a state open for.
+    /// </summary>
+    GrappleThrow,
 }
 
 /// <summary>

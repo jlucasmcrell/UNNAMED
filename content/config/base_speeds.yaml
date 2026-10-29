@@ -22,3 +22,13 @@ climb_percent: 30        # of base_m_s: how fast the feet take a climbable face.
 stand_height_m: 1.8      # what an overhang is measured against
 crouch_height_m: 1.15
 crouch_percent: 50       # of base_m_s, whatever the gait
+# The scramble (D21, HOOK.TRAV.SCRAMBLE_SLOPE): the ground's own grade, rise over run, in per cent. Up to the walkable grade a slope costs
+# nothing; above it the body is scrambling, at scramble_percent of its own pace - so a steep bank is climbed slowly and crested, and no
+# terrain is ever refused. 55 % is about 29 degrees, 100 % about 45.
+walkable_grade_percent: 55
+scramble_percent: 45     # of the body's own pace, on ground steeper than the walkable grade
+# The grapple (D21, HOOK.TRAV.GRAPPLE): which structures a line may be thrown to, how high above the feet an anchor is worth a throw, and how far
+# the line carries. An anchor's own top is the hook point; the pull puts the body on the surface the anchor stands on.
+grapple_prefixes: [grapple_]   # an anchor id starts one of these, and a body with one in reach can be pulled up to it
+grapple_reach_min_m: 2.0       # above a mantle's reach of the feet: below this it is a step, not a throw
+grapple_reach_max_m: 10.0      # the highest hook and the longest throw, measured from the body both ways

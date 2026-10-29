@@ -44,6 +44,13 @@ public sealed record TakedownCommand(EntityId Actor) : GameCommand(Actor);
 /// </summary>
 public sealed record ClimbCommand(EntityId Actor) : GameCommand(Actor);
 
+/// <summary>
+/// Throw a line at a grapple anchor and be pulled up to it (D21, <c>HOOK.TRAV.GRAPPLE</c>). The anchor is whatever stands above the body within
+/// the reach band that the grapple prefixes made an anchor; nothing needs naming. Refused in the water, in the air, in a fight, dead, with another
+/// timed thing already running, and where no anchor is within reach.
+/// </summary>
+public sealed record GrappleCommand(EntityId Actor) : GameCommand(Actor);
+
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
 

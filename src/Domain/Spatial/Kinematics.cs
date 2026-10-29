@@ -116,6 +116,26 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>A swimming body's speed, of the walk's, whatever the gait asked: half of it, so a sprint in the water is no faster (D20).</summary>
     public int SwimPercent { get; init; } = 50;
 
+    /// <summary>
+    /// The steepest ground a body walks at its own pace, as a grade of rise over run in per cent: about 29 degrees. Up to it the ground costs
+    /// nothing; above it the body is scrambling (D21, <c>HOOK.TRAV.SCRAMBLE_SLOPE</c>).
+    /// </summary>
+    public int WalkableGradePercent { get; init; } = 55;
+
+    /// <summary>
+    /// How much of its own pace a body keeps on ground steeper than the walkable grade: a steep face is climbed slowly and crested, never
+    /// refused - the body has no grade it cannot pass, only grades it passes badly (D21).
+    /// </summary>
+    public int ScramblePercent { get; init; } = 45;
+
+    /// <summary>
+    /// How high above the feet a grapple anchor must be to be worth a throw (above a mantle's reach, D21) and the furthest the line carries, both
+    /// in millimetres: a hook lower than the first is a step, and one beyond the second is out of reach.
+    /// </summary>
+    public long GrappleMinMm { get; init; } = 2_000;
+
+    public long GrappleMaxMm { get; init; } = 10_000;
+
     /// <summary>How deep a swimming body floats: the waterline at its chest, so its head and its eye stay above the surface.</summary>
     public long SwimFloatMm { get; init; } = 1_200;
 
@@ -146,6 +166,22 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
 
     /// <summary>How fast the feet take a climbable face, in millimetres a second, whatever the gait asked.</summary>
     public double ClimbSpeedMmPerSecond => BaseSpeedMmPerSecond * ClimbPercent / 100.0;
+
+    /// <summary>
+    /// What the body keeps of its pace on a rise: all of it on the walkable grade, falling in a straight line to <see cref="ScramblePercent"/>
+    /// at twice that grade, and no further - however steep the face, the body still climbs it, at the scramble's pace (D21). A descent costs
+    /// nothing: the cut is what a climb costs, not what a drop does.
+    /// </summary>
+    public double GradePace(long riseMm, long runMm)
+    {
+        if (riseMm <= 0 || runMm <= 0 || WalkableGradePercent <= 0)
+            return 1;
+        double grade = riseMm * 100.0 / runMm;
+        if (grade <= WalkableGradePercent)
+            return 1;
+        double over = Math.Min(1.0, (grade - WalkableGradePercent) / WalkableGradePercent);
+        return (100 - over * (100 - ScramblePercent)) / 100.0;
+    }
 
     /// <summary>How far above the ground the feet are this long after take-off: a parabola, whole millimetres, 0 before and after.</summary>
     public long LiftMm(int airMs) =>
@@ -244,6 +280,12 @@ public sealed record WaterSite(string Key, string Kind, long LevelMm, ImmutableA
 /// </summary>
 public readonly record struct ClimbFace(string Id, long TopMm, int FacingMdeg);
 
+/// <summary>
+/// A grapple anchor the body can hook (D21, <c>HOOK.TRAV.GRAPPLE</c>): the structure's id, the height its line is thrown to, and where the pull
+/// puts the body. Derived from where the body stands and what it can reach, never owned by the body.
+/// </summary>
+public readonly record struct GrappleTarget(string Id, long HookMm, Body Landing);
+
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>
 public sealed record WalkSpace(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, TerrainGrid Terrain, ImmutableArray<Blocker> Blockers)
 {
@@ -333,10 +375,11 @@ public static class Kinematics
         {
             double deflection = Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
             // A body in deep water goes at half a walk whatever the gait asked: the sprint is refused in the water, and the swim's pace is
-            // the walk's, not the gait's (D20).
+            // the walk's, not the gait's (D20). On dry ground a rising face is scrambled: the same pace as always on the walkable grade, the
+            // scramble's own on anything steeper, so a steep bank costs time and is still crestable (D21).
             double speed = SwimWater(body.XMm, body.ZMm, space) is not null
                 ? rules.SpeedMmPerSecond(Gait.Walk) * rules.SwimPercent / 100.0
-                : rules.SpeedMmPerSecond(intent.Gait, posture.Stance);
+                : rules.SpeedMmPerSecond(intent.Gait, posture.Stance) * Grade(body, posture, intent, rules, space);
             double travel = speed * dtMs / 1000.0 * deflection;
             double dx = intent.DirXPermille / length * travel;
             double dz = intent.DirZPermille / length * travel;
@@ -369,6 +412,23 @@ public static class Kinematics
         var ground = space.HeightAtMm(qx, qz);
         var standing = new Body(qx, ground + raised + rules.LiftMm(next.AirMs), qz, intent.FacingMdeg);
         return (next.Airborne || SwimWater(qx, qz, space) is not { } floats ? standing : standing with { YMm = floats.LevelMm - rules.SwimFloatMm }, next);
+    }
+
+    /// <summary>
+    /// The body's own cut of its pace on the ground it is about to take (D21, the scramble): the rise a stride ahead of it over that stride, as
+    /// a grade of the walk's own pace (<see cref="MovementRules.GradePace"/>). Purely a function of where it stands and where it is going, so
+    /// presentation's prediction draws the same slowed step the simulation takes. A body in the air is not slowed by what is under it.
+    /// </summary>
+    private static double Grade(Body body, Posture posture, MoveIntent intent, MovementRules rules, WalkSpace space)
+    {
+        if (posture.Airborne)
+            return 1;
+        double length = Math.Sqrt((double)intent.DirXPermille * intent.DirXPermille + (double)intent.DirZPermille * intent.DirZPermille);
+        if (length == 0)
+            return 1;
+        long aheadX = body.XMm + (long)Math.Round(intent.DirXPermille / length * rules.BodyRadiusMm, MidpointRounding.AwayFromZero);
+        long aheadZ = body.ZMm + (long)Math.Round(intent.DirZPermille / length * rules.BodyRadiusMm, MidpointRounding.AwayFromZero);
+        return rules.GradePace(space.HeightAtMm(aheadX, aheadZ) - space.HeightAtMm(body.XMm, body.ZMm), rules.BodyRadiusMm);
     }
 
     /// <summary>
@@ -440,6 +500,60 @@ public static class Kinematics
             if (Math.Abs(top - face.TopMm) > rules.StepUpMm)
                 continue;
             return new Body(x, top, z, face.FacingMdeg);
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// The grapple anchor the body can hook, or null (D21, <c>HOOK.TRAV.GRAPPLE</c>): a structure the grapple prefixes made an anchor, whose hook -
+    /// its top - stands above the feet by more than a mantle and no further than the line carries, and which has somewhere to stand beyond it, on
+    /// the pull's own side (<see cref="Pulled"/>). The lowest such hook wins, so the ring at the lip in front of the body is taken before the rim
+    /// further up the cliff. Purely from where the body stands, like the climb's face.
+    /// </summary>
+    public static GrappleTarget? GrappleAt(Body body, MovementRules rules, WalkSpace space)
+    {
+        GrappleTarget? best = null;
+        foreach (var blocker in space.Blockers)
+        {
+            if (!blocker.Grapple || blocker.HeightMm <= 0)
+                continue;
+            var (cx, cz) = Footprints.Center(blocker);
+            long hook = space.HeightAtMm(cx, cz) + blocker.HeightMm;
+            long rise = hook - body.YMm;
+            if (rise < rules.GrappleMinMm || rise > rules.GrappleMaxMm
+                || Math.Pow(cx - body.XMm, 2) + Math.Pow(cz - body.ZMm, 2) > (double)rules.GrappleMaxMm * rules.GrappleMaxMm
+                || best is { } held && held.HookMm <= hook)
+                continue;
+            if (Pulled(body, blocker, rules, space) is not { } landing)
+                continue;
+            best = new GrappleTarget(blocker.Id, hook, landing);
+        }
+        return best;
+    }
+
+    /// <summary>
+    /// Where a body pulled up a grapple line comes to rest: on the anchor's own ground, a body's radius past the anchor (and up to three) on the way
+    /// the line came, so a hook at a lip puts the body over the lip onto the surface the anchor stands on - the mantle's placement, and a straight
+    /// pull rather than a swing. Null when there is nothing at the anchor's height beyond it to stand on: a hook over a drop pulls the body onto
+    /// nothing, and is no anchor at all.
+    /// </summary>
+    public static Body? Pulled(Body body, Blocker anchor, MovementRules rules, WalkSpace space)
+    {
+        var (cx, cz) = Footprints.Center(anchor);
+        long ledge = space.HeightAtMm(cx, cz);
+        // Its own base no higher than the feet: the hook is up there but the pull would put the body down again where it stands.
+        if (ledge <= body.YMm)
+            return null;
+        double dx = cx - body.XMm, dz = cz - body.ZMm, length = Math.Sqrt(dx * dx + dz * dz);
+        if (length < 1)
+            return null;
+        for (long ahead = rules.BodyRadiusMm; ahead <= rules.BodyRadiusMm * 3; ahead += rules.BodyRadiusMm)
+        {
+            long x = cx + (long)Math.Round(dx / length * ahead, MidpointRounding.AwayFromZero);
+            long z = cz + (long)Math.Round(dz / length * ahead, MidpointRounding.AwayFromZero);
+            long ground = space.HeightAtMm(x, z);
+            if (anchor.DistanceTo(x, z) > 0 && Math.Abs(ground - ledge) <= rules.StepUpMm)
+                return new Body(x, ground, z, body.FacingMdeg);
         }
         return null;
     }

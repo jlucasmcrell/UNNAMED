@@ -29295,12 +29295,12 @@ terrain:
     - 12.339
     - 12.343
     - 12.347
-    - 12.032
-    - 11.162
-    - 9.907
-    - 8.483
-    - 7.05
-    - 5.805
+    - 11.285
+    - 10.224
+    - 9.162
+    - 8.101
+    - 7.039
+    - 5.978
     - 4.916
     - 4.61
     - 4.63
@@ -29996,12 +29996,12 @@ terrain:
     - 12.145
     - 12.149
     - 12.153
-    - 11.858
-    - 11.009
-    - 9.776
-    - 8.381
-    - 6.976
-    - 5.782
+    - 11.123
+    - 10.092
+    - 9.062
+    - 8.032
+    - 7.002
+    - 5.971
     - 4.941
     - 4.618
     - 4.639
@@ -30697,12 +30697,12 @@ terrain:
     - 11.801
     - 11.804
     - 11.807
-    - 11.511
-    - 10.689
-    - 9.522
-    - 8.21
-    - 6.907
-    - 5.777
+    - 10.828
+    - 9.849
+    - 8.87
+    - 7.892
+    - 6.913
+    - 5.934
     - 4.955
     - 4.65
     - 4.645
@@ -31398,12 +31398,12 @@ terrain:
     - 11.361
     - 11.362
     - 11.363
-    - 11.049
-    - 10.279
-    - 9.189
-    - 7.989
-    - 6.78
-    - 5.707
+    - 10.444
+    - 9.524
+    - 8.605
+    - 7.686
+    - 6.767
+    - 5.847
     - 4.928
     - 4.631
     - 4.612
@@ -32099,12 +32099,12 @@ terrain:
     - 10.776
     - 10.775
     - 10.775
-    - 10.492
-    - 9.787
-    - 8.806
-    - 7.693
-    - 6.581
-    - 5.615
+    - 9.936
+    - 9.097
+    - 8.258
+    - 7.419
+    - 6.58
+    - 5.741
     - 4.902
     - 4.643
     - 4.621
@@ -32800,12 +32800,12 @@ terrain:
     - 10.091
     - 10.088
     - 10.086
-    - 9.853
-    - 9.237
-    - 8.369
-    - 7.37
-    - 6.379
-    - 5.524
+    - 9.344
+    - 8.603
+    - 7.861
+    - 7.12
+    - 6.378
+    - 5.637
     - 4.895
     - 4.648
     - 4.634
@@ -149476,6 +149476,16 @@ structures:
   - 703.5
   - 0.55
   height_m: 2.0
+# The basin's grapple anchor (D21, HOOK.TRAV.GRAPPLE): an iron ring set in a waist-high stone on the lip of the basin's west wall, a metre back
+# from the drop. config.base_speeds' grapple_prefixes make it an anchor; its own top is the hook a line is thrown to, and the pull puts the body
+# on the lip beyond it, on its feet. The basin floor under the wall is 6.4 m below (x 906, 5.9 m), the road's descent into Cairnwold is 17 m
+# north, and the scree run cut at z 641-646 is the way up that costs nothing but time.
+- id: grapple_basin_lip
+  circle_m:
+  - 899.5
+  - 647.5
+  - 0.35
+  height_m: 0.5
 # FIELD_RUINS BEGIN - written by tools/field_ruins/place_spill.py; edit the layout there, not here.
 - id: fs_needle
   hull_m: [[876.73, 769.67], [874.82, 764.78], [874.82, 742.57], [874.82, 742.57], [874.83, 738.84], [875.61, 736.30], [901.38, 734.33], [904.53, 737.44], [905.18, 755.72], [905.18, 755.72], [903.27, 763.97], [900.83, 765.90], [878.64, 769.67]]

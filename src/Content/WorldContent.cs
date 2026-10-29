@@ -87,6 +87,16 @@ public static class WorldContent
         // The pace up a climbable face (D20, the ladder): a pack without it keeps the default.
         if (map.ContainsKey("climb_percent"))
             rules = rules with { ClimbPercent = Int(map, "climb_percent") };
+        // The scramble and the grapple's reach (D21): a pack from before them keeps the defaults.
+        if (map.ContainsKey("walkable_grade_percent"))
+            rules = rules with { WalkableGradePercent = Int(map, "walkable_grade_percent") };
+        if (map.ContainsKey("scramble_percent"))
+            rules = rules with { ScramblePercent = Int(map, "scramble_percent") };
+        if (map.ContainsKey("grapple_reach_min_m"))
+            rules = rules with { GrappleMinMm = Mm(map, "grapple_reach_min_m"), GrappleMaxMm = Mm(map, "grapple_reach_max_m") };
+        if (rules.ScramblePercent is <= 0 or > 100 || rules.WalkableGradePercent is < 0 or > 300
+            || rules.GrappleMinMm < 0 || rules.GrappleMaxMm <= rules.GrappleMinMm)
+            throw new FormatException("config.base_speeds scramble_percent is in 1..100, walkable_grade_percent is a grade in 0..300, and grapple_reach_max_m is above grapple_reach_min_m");
         if (rules.StepUpMm < 0 || rules.StepUpMm >= rules.JumpApexMm || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.JumpApexMm)
             throw new FormatException("config.base_speeds step_up_m is at least 0 and below the jump apex; mantle_reach_m, if any, is above it");
         if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
@@ -279,13 +289,20 @@ public static class WorldContent
             Check(terrain.OriginXMm <= minX && terrain.OriginZMm <= minZ && terrain.MaxXMm >= maxX && terrain.MaxZMm >= maxZ,
                 "WLD003", "the terrain grid must cover the walkable bounds");
 
-            // What a body may climb (owner finding 50): structures whose id starts with one of config.base_speeds climbable_prefixes.
-            var climbable = Config(loader, "config.base_speeds") is var speeds && speeds.ContainsKey("climbable_prefixes")
-                ? List(speeds, "climbable_prefixes").Select(p => p as string ?? throw new FormatException("climbable_prefixes are id prefixes")).ToList()
+            // What a body may climb (owner finding 50): structures whose id starts with one of config.base_speeds climbable_prefixes. What a
+            // grapple line may be thrown to (D21, HOOK.TRAV.GRAPPLE) is the same rule under its own prefixes: a structure whose id starts one is
+            // an anchor, and its own top is the hook the line reaches.
+            var speeds = Config(loader, "config.base_speeds");
+            List<string> Prefixes(string key) => speeds.ContainsKey(key)
+                ? List(speeds, key).Select(p => p as string ?? throw new FormatException($"{key} are id prefixes")).ToList()
                 : new List<string>();
+            var climbable = Prefixes("climbable_prefixes");
+            var anchors = Prefixes("grapple_prefixes");
             var structures = List(map, "structures").Select((s, i) => Blocker(s as Dictionary<object, object>
                 ?? throw new FormatException($"structures[{i}] must be a map")))
-                .Select(b => climbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = true } : b).ToImmutableArray();
+                .Select(b => climbable.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Climbable = true } : b)
+                .Select(b => anchors.Any(p => b.Id.StartsWith(p, StringComparison.Ordinal)) ? b with { Grapple = true } : b)
+                .ToImmutableArray();
             Check(structures.Select(s => s.Id).Distinct(StringComparer.Ordinal).Count() == structures.Length, "WLD002", "two structures share an id");
 
             var flags = loader.GetByKind("world_flag");

@@ -38,6 +38,18 @@ public sealed record ClimbBegan(EntityId Actor, string StructureId, long Tick);
 /// </summary>
 public sealed record Mantled(EntityId Actor, long Tick);
 
+/// <summary>
+/// The line went out at a grapple anchor (D21): its id is the structure's, for the log and the dossier, and the throw plays from this. What the
+/// pull does when the throw runs out is <see cref="Grappled"/>.
+/// </summary>
+public sealed record GrappleThrown(EntityId Actor, string AnchorId, long Tick);
+
+/// <summary>
+/// The pull is done (D21): the body has been put on the surface the anchor stands on, on its feet - <see cref="BodyMoved"/> says from where. Played
+/// once, like the mantle, and after the body is already there.
+/// </summary>
+public sealed record Grappled(EntityId Actor, string AnchorId, long Tick);
+
 public sealed record WorldFlagChanged(string CellKey, string FlagId, long From, long To, long Tick);
 
 public sealed record DoorToggled(EntityId Actor, string DoorKey, bool Open, long Tick);

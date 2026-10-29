@@ -273,6 +273,9 @@ public partial class Main
         // The climb's two halves (D20): taking hold of a face is said once, and the mantle plays once when the feet come over the lip.
         _session.Subscribe<ClimbBegan>(_ => Notice(NoticeKind.World, "You take hold of the climb", 2));
         _session.Subscribe<Mantled>(_ => _avatar.Mantled());
+        // The grapple (D21): the line goes out, and the pull lands the body on the anchor's own lip - said once each, like the climb's two.
+        _session.Subscribe<GrappleThrown>(e => Notice(NoticeKind.World, $"You throw the line at {e.AnchorId}", 2));
+        _session.Subscribe<Grappled>(_ => Notice(NoticeKind.World, "The line takes your weight", 3));
         // Lockpicking: the picks go in, the lock gives or holds, and a turn that binds takes them out of the pack with it.
         _session.Subscribe<LockAttemptStarted>(e => Notice(NoticeKind.World, "You work the picks", 2));
         _session.Subscribe<LockPicked>(e => Notice(NoticeKind.World, "The lock gives", 3));

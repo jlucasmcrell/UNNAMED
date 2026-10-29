@@ -19,6 +19,12 @@ public abstract record Blocker(string Id, long HeightMm)
     public bool Climbable { get; init; }
 
     /// <summary>
+    /// A point a grapple line can be thrown to (D21, <c>HOOK.TRAV.GRAPPLE</c>): the id's prefix makes it one, and its top is the hook the line
+    /// reaches. An anchor is a thing to hook, not something to climb - it is never in the prefixes that make rock climbable.
+    /// </summary>
+    public bool Grapple { get; init; }
+
+    /// <summary>
     /// If a circle at <paramref name="x"/>,<paramref name="z"/> overlaps this footprint, the smallest move
     /// that separates them; otherwise null.
     /// </summary>
