@@ -635,10 +635,15 @@ public static class WorldContent
                 var water = new WaterSite(key, Text(site, "kind"), Mm(site, "level_m"), points, Mm(site, "width_m"))
                 {
                     CatchTableId = site.GetValueOrDefault("catch") as string,
+                    // A water's own depth is what makes it a body rather than a bank: named, and held to what a bed may be (D20).
+                    DepthMm = site.ContainsKey("depth_m") ? Mm(site, "depth_m") : WaterSite.FordMm,
                 };
                 Check(key.StartsWith("water.", StringComparison.Ordinal), "WLD003", $"water key '{key}' must start with 'water.'");
                 Check(water.PointsMm.Length >= 1, "WLD003", $"{key} needs at least one path point");
                 Check(water.WidthMm > 0, "WLD003", $"{key} needs a width above zero");
+                Check(water.DepthMm is >= 0 and <= 8_000, "WLD003", $"{key} depth_m must be from 0 to 8 m");
+                // A swim is an exterior state: an interior's space carries this very WalkSpace, and water in it would float a body indoors.
+                Check(spaceId.IsExterior, "WLD003", $"{key} is water in an interior space, where nothing swims");
                 // A water with a catch is fished, and what it gives is a loot table's; one that names none is water nothing is caught in.
                 Check(water.CatchTableId is not { } catchTable || loader.GetByKind("loot").ContainsKey(catchTable), "WLD003",
                     $"{key} names catch table '{water.CatchTableId}', which is not defined");

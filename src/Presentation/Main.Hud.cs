@@ -59,8 +59,10 @@ public partial class Main
                 ? $"[{HelpPanel.Key("interact")}] Open the {Names.Place(_session, container.Key, container.DefId)}"
                 : $"[{HelpPanel.Key("interact")}] Search the {Names.Of(_session, container.DefId)}",
             { Kind: FocusKind.Node } node => NodePrompt(simulation, node),
-            // A fishable bank offers both verbs: F puts a line in (and reels it), E fills the flask.
-            { Kind: FocusKind.Water } when simulation.CanFish => $"[{HelpPanel.Key("fish")}] Fish   [{HelpPanel.Key("interact")}] Refill your flask",
+            // A fishable bank offers both water verbs, and a bank offers the wash: F puts a line in (and reels it), E fills the flask, B washes.
+            { Kind: FocusKind.Water } when simulation.CanFish => $"[{HelpPanel.Key("fish")}] Fish   [{HelpPanel.Key("interact")}] Refill your flask"
+                + (simulation.CanWash ? $"   [{HelpPanel.Key("wash")}] Wash" : ""),
+            { Kind: FocusKind.Water } when simulation.CanWash => $"[{HelpPanel.Key("interact")}] Refill your flask   [{HelpPanel.Key("wash")}] Wash",
             { Kind: FocusKind.Water } => $"[{HelpPanel.Key("interact")}] Refill your flask",
             { Kind: FocusKind.Station } board when board.DefId == NoticeBoardPanel.Kind => $"[{HelpPanel.Key("interact")}] Read the notice board",
             { Kind: FocusKind.Station } station => $"[{HelpPanel.Key("interact")}] Work at the {Names.Place(_session, station.Key, station.DefId)}",
@@ -88,6 +90,8 @@ public partial class Main
             (view.Progression.XpDebt > 0 ? $"   debt {view.Progression.XpDebt}" : "") +
             (view.Progression.UnspentAttributePoints > 0 ? $"   [{HelpPanel.Key("character")}] a point to spend" : "") +
             (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched ? "   Crouched" : "") +
+            // In the water the body's state is the one line it gets: the way out is to swim for the bank, which is the movement's own.
+            (simulation.Swimming ? "   Swimming" : "") +
             $"\nHealth {combat.Health}/{combat.MaxHealth}   Stamina {combat.Stamina}/{combat.MaxStamina}" +
             $"   Focus {pools.Focus ?? stats.FocusMax}/{stats.FocusMax}   Strain {pools.Strain}/{stats.StrainTolerance}   Resonance {stats.Resonance}" +
             $"\n{Names.Item(_session, combat.Weapon.Source, Wielded(view)?.Quality ?? 0)}{(combat.Blocking ? " (guarding)" : "")}   Coin {view.Currency}   Armor {view.Armor}" +

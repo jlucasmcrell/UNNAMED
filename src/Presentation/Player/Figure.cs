@@ -122,4 +122,18 @@ public abstract partial class Figure : Node3D
     public virtual void Swinging(long startedTick)
     {
     }
+
+    /// <summary>
+    /// Floating in deep water, or out of it: the body's own height already puts it lower in the water, and a figure with a swim state of
+    /// its own plays it - the bindings' <c>swim</c> is a low travelling loop, because the art root has no swim clip. A figure that cannot
+    /// show it poses as it would on the ground.
+    /// </summary>
+    public virtual void Swimming(bool swimming)
+    {
+    }
+
+    /// <summary>Washing at a bank, held by the simulation for its own ticks: the one clip plays once. A figure that cannot show it stands.</summary>
+    public virtual void Washing(bool washing)
+    {
+    }
 }

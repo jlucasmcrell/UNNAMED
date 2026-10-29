@@ -26,6 +26,9 @@ public enum ActivityKind
     /// than one swing renews this for the next one.
     /// </summary>
     Swing,
+
+    /// <summary>Water is being washed in, at a bank: a rest, held for its ticks, and a little of the body's wind back when they run out.</summary>
+    Wash,
 }
 
 /// <summary>

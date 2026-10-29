@@ -23,6 +23,12 @@ public sealed record WingsChanged(EntityId Actor, UNNAMED.Domain.Spatial.WingSta
 /// <summary>The body crouched or stood up (the owner's M6 playtest).</summary>
 public sealed record StanceChanged(EntityId Actor, Stance Stance, long Tick);
 
+/// <summary>
+/// A swimmer's wind ran out and the water took it: the body is ashore at this water's nearest bank, and a little of its health is gone
+/// with the going under (D20).
+/// </summary>
+public sealed record WentUnder(string WaterKey, long Tick);
+
 public sealed record WorldFlagChanged(string CellKey, string FlagId, long From, long To, long Tick);
 
 public sealed record DoorToggled(EntityId Actor, string DoorKey, bool Open, long Tick);

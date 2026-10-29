@@ -329,6 +329,8 @@ public partial class Main
         // water, and nothing while another timed thing is running.
         if (Input.IsActionJustPressed("fish"))
             Fish();
+        if (Input.IsActionJustPressed("wash"))
+            Wash();
         if (Input.IsActionJustPressed("companion_order"))
         {
             // One key for every companion on their feet: those following wait, those waiting follow.
@@ -375,6 +377,17 @@ public partial class Main
     }
 
     /// <summary>
+    /// B: wash at the water's edge - the water's second verb, beside the line and the flask. Offered at any declared bank, fishable or not,
+    /// and never from inside the water: a swim is not a place to stop.
+    /// </summary>
+    private void Wash()
+    {
+        var simulation = _session.Simulation!;
+        if (simulation.CanWash && _controller.FocusOn(_camera) is { Kind: FocusKind.Water })
+            _session.Submit(new WashCommand(simulation.PlayerId));
+    }
+
+    /// <summary>
     /// What a quick slot's key does: an item is used from its first carried stack, a formula or technique worked (only with the mouse in
     /// the game, so it goes where the camera looks), and an empty slot or an item none of which is left says why nothing happened.
     /// </summary>
@@ -417,6 +430,7 @@ public partial class Main
         Bind("walk", Key.Ctrl);
         Bind("interact", Key.E);
         Bind("fish", Key.N);              // a line in the water: cast, and the same key reels it in (F is the takedown; E still refills the flask)
+        Bind("wash", Key.B);              // the water's second verb: a wash at the bank, beside N's line and E's flask
         Bind("jump", Key.Space);
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);

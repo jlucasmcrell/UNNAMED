@@ -257,6 +257,9 @@ public sealed partial class SkinnedFigure : Figure
     private double _fishing;
     private long _swingAt = -1;
     private double _swinging;
+    private bool _swimming;
+    private bool _washing;
+    private double _washElapsed;
 
     public override void Strike() => _striking = 0.001;
 
@@ -281,6 +284,18 @@ public sealed partial class SkinnedFigure : Figure
             return;
         _swingAt = startedTick;
         _swinging = 0.001;
+    }
+
+    /// <summary>In the water or out of it: the body's height carries it low in the water, and the pose is the bindings' swim state.</summary>
+    public override void Swimming(bool swimming) => _swimming = swimming;
+
+    /// <summary>Washing at a bank for as long as the simulation holds it, from the moment it began: the one clip plays once.</summary>
+    public override void Washing(bool washing)
+    {
+        if (washing == _washing)
+            return;
+        _washing = washing;
+        _washElapsed = washing ? 0.001 : 0;
     }
 
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
@@ -664,6 +679,17 @@ public sealed partial class SkinnedFigure : Figure
             }
             _swinging = 0;
         }
+        // A wash is a rest at the bank and has no clip of its own either, so it plays the clip the wash state names - the interact's - once.
+        if (_washElapsed > 0)
+        {
+            _washElapsed += delta;
+            if (_washElapsed < m.Length("wash") && speed < 0.25f && m.Has("wash"))
+            {
+                m.Play("wash", 0.15f, 1f, _washElapsed - delta <= 0.001);
+                return;
+            }
+            _washElapsed = 0;
+        }
         // A reach plays through once, standing (walking on cuts it short).
         if (_reaching > 0)
         {
@@ -678,6 +704,13 @@ public sealed partial class SkinnedFigure : Figure
         if (_talking && speed < 0.3f && m.Has("talk"))
         {
             m.Play("talk", 0.3f);
+            return;
+        }
+        // In the water the body swims, and the art root has no swim clip: the swim state bound here is the crouch's low travelling loop, at
+        // the pace the simulation swims at - half a walk - and the body's own height, floating its feet at the surface, is the rest of it.
+        if (_swimming && m.Has("swim"))
+        {
+            m.Play("swim", 0.25f, Mathf.Clamp(speed / Pace("swim", 0.8f), MinRate, MaxRate));
             return;
         }
         // Crouched, a body with crouch clips plays them (a crouched walk is authored at 1.6 m/s, the simulation's crouched pace).

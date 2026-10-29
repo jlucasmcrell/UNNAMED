@@ -32,6 +32,9 @@ public sealed partial class MetaHumanFigure : Figure
     private double _fishing;
     private long _swingAt = -1;
     private double _swinging;
+    private bool _swimming;
+    private bool _washing;
+    private double _washElapsed;
     private string _gait = "walk", _attack = "sword_attack_1";
     private int _attackTurn;
     private CombatPhase _lastPhase = CombatPhase.Idle;
@@ -168,6 +171,17 @@ public sealed partial class MetaHumanFigure : Figure
         if (startedTick == _swingAt) return;
         _swingAt = startedTick;
         _swinging = .001;
+    }
+
+    /// <summary>In the water or out of it: the body's height carries it low in the water, and the pose is the bindings' swim state.</summary>
+    public override void Swimming(bool swimming) => _swimming = swimming;
+
+    /// <summary>Washing at a bank for as long as the simulation holds it, from the moment it began: the one clip plays once.</summary>
+    public override void Washing(bool washing)
+    {
+        if (washing == _washing) return;
+        _washing = washing;
+        _washElapsed = washing ? .001 : 0;
     }
     public override void SetFirstPerson(bool firstPerson) => _native.Call("set_shadow_only", firstPerson);
     private CrouchHeadLift _crouchHead=null!;
@@ -354,6 +368,17 @@ public sealed partial class MetaHumanFigure : Figure
             }
             _swinging = 0;
         }
+        // A wash is a rest at the bank and has no clip of its own either, so it plays the clip the wash state names - the interact's - once.
+        if (_washElapsed > 0)
+        {
+            _washElapsed += delta;
+            if (_washElapsed < Length("wash") && speed < .25f && Has("wash"))
+            {
+                Play("wash", .15f, 1f, _washElapsed - delta <= .001);
+                return;
+            }
+            _washElapsed = 0;
+        }
         if (_reaching > 0)
         {
             _reaching += delta;
@@ -361,6 +386,13 @@ public sealed partial class MetaHumanFigure : Figure
             _reaching = 0;
         }
         if (_talking && speed < .3f && Has("talk")) { Play("talk", .3f); return; }
+        // In the water the body swims, and the art root has no swim clip: the swim state bound here is the crouch's low travelling loop, at
+        // the pace the simulation swims at - half a walk - and the body's own height, floating its feet at the surface, is the rest of it.
+        if (_swimming && Has("swim"))
+        {
+            Play("swim", .25f, Mathf.Clamp(speed / Pace("swim", .8f), .35f, 2.2f));
+            return;
+        }
         if (_crouched && Has("crouch_idle"))
         {
             if (speed > .25f && Has("crouch_walk")) Play("crouch_walk", .25f, Mathf.Clamp(speed / Pace("crouch_walk", 1.6f), .35f, 2.2f));

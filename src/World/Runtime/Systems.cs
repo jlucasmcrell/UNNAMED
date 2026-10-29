@@ -330,10 +330,14 @@ internal sealed class ClockSystem : IAbstractAdvance
 /// <summary>
 /// Owns: <see cref="StateSlice.PlayerBody"/> - the body and its posture. Integrates the player's movement intent every tick with
 /// <see cref="Kinematics.Step"/>, jumps and crouches (the owner's M6 playtest), and a winged body's leap, glide and flare (Kal). The intent
-/// itself is transient input state and is never saved; the posture is. The wings' cooldowns are transient, as cooldowns are.
+/// itself is transient input state and is never saved; the posture is. The wings' cooldowns are transient, as cooldowns are. A body in deep
+/// water floats rather than stands (<see cref="RuntimeState.Swimming"/>), and a swimmer whose wind runs out comes ashore.
 /// </summary>
 internal sealed class MovementSystem
 {
+    /// <summary>What going under costs in health: a small lesson, and never the last of it, as a portal's fall is not (D20).</summary>
+    private const int DrownHarm = 5;
+
     private readonly SystemContext _context;
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
@@ -350,8 +354,11 @@ internal sealed class MovementSystem
 
     public MoveIntent Intent { get; private set; }
 
-    /// <summary>The intent as the body carries it out: a crouched body goes at a walk, whatever the gait asked (its footfalls, its stamina).</summary>
-    public MoveIntent Effective => _context.State.Posture.Stance == Stance.Crouched ? Intent with { Gait = Gait.Walk } : Intent;
+    /// <summary>
+    /// The intent as the body carries it out: a crouched body goes at a walk, whatever the gait asked (its footfalls, its stamina), and a
+    /// body in the water keeps that walk's pace with the sprint refused.
+    /// </summary>
+    public MoveIntent Effective => _context.State.Posture.Stance == Stance.Crouched || _context.State.Swimming ? Intent with { Gait = Gait.Walk } : Intent;
 
     /// <summary>Leave the ground: not in the air already, not mid-action or guarding, and from a crouch only where there is room to stand.</summary>
     public string? Handle(JumpCommand command, long tick)
@@ -359,6 +366,8 @@ internal sealed class MovementSystem
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
         var posture = _context.State.Posture;
+        if (_context.State.Swimming)
+            return "the water is not a place to leap from";
         if (posture.Airborne)
             return "already in the air";
         var combat = _context.State.PlayerCombat;
@@ -418,6 +427,8 @@ internal sealed class MovementSystem
             return posture.Aloft && posture.Wing != WingState.Fall ? Wings(posture with { Wing = WingState.Fall }, tick) : null;
         if (!_context.PlayerMovement.Wings.CanGlide)
             return "no wings to spread";
+        if (_context.State.Swimming)
+            return "the water holds the wings";
         if (!posture.Airborne)
             return "on the ground";
         if (posture.Wing is WingState.Glide or WingState.Flare)
@@ -482,6 +493,12 @@ internal sealed class MovementSystem
     public void Tick(long tick)
     {
         var from = _context.State.Body;
+        // Out of wind in deep water: the body comes ashore at the nearest bank, on its feet and wading, a little the worse for it.
+        if (_context.State.Swimming && Stamina() <= 0)
+        {
+            Ashore(from, tick);
+            return;
+        }
         var combat = _context.State.PlayerCombat;
         var constants = _context.Setup.Combat.Constants;
         var rules = _context.PlayerMovement;
@@ -515,7 +532,13 @@ internal sealed class MovementSystem
 
         var before = _context.State.Posture;
         var posture = before.Aloft && (combat.Defeated || before.Wing == WingState.Glide && !HoldWings(tick)) ? before with { Wing = WingState.Fall } : before;
-        var (to, next) = Kinematics.Step(from, posture, intent, rules, _context.Setup.SpaceFor(_context.State.Space), _context.Obstacles(), _context.Setup.TickMilliseconds);
+        var space = _context.Setup.SpaceFor(_context.State.Space);
+        var (to, next) = Kinematics.Step(from, posture, intent, rules, space, _context.Obstacles(), _context.Setup.TickMilliseconds);
+        // In deep water or out of it, as the point it has come to says: the body's own slice, and the tick's own body, so the HUD and the
+        // stamina both read the water the body is in now (D20).
+        bool swimming = Kinematics.SwimWater(to.XMm, to.ZMm, space) is not null;
+        if (swimming != _context.State.Swimming)
+            _context.State.SetSwimming(_owner, swimming);
         if (next != before)
         {
             _context.State.SetPosture(_owner, next);
@@ -542,11 +565,41 @@ internal sealed class MovementSystem
         return Stamina() > 0;
     }
 
+    /// <summary>
+    /// Out of strength in the water (D20): the body is put on the nearest bank of the water it is in, on its feet and wading - out along
+    /// the line from the nearest point of the water's own line to it, a body's radius past the edge - and loses a little health for having
+    /// gone under. The intent stops with it, as a body put somewhere by a respawn does.
+    /// </summary>
+    private void Ashore(Body from,long tick)
+    {
+        var space = _context.Setup.SpaceFor(_context.State.Space);
+        if (space.WaterUnder(from.XMm,from.ZMm) is not { } water)
+        {
+            _context.State.SetPosture(_owner,Posture.Grounded);
+            _context.State.SetSwimming(_owner,false);
+            return;
+        }
+        var (x,z) = water.ShoreFrom(from.XMm,from.ZMm,_context.PlayerMovement.BodyRadiusMm);
+        var to = new Body(x,space.HeightAtMm(x,z),z,from.FacingMdeg);
+        _context.State.SetBody(_owner,to);
+        _context.State.SetPosture(_owner,Posture.Grounded);
+        _context.State.SetSwimming(_owner,false);
+        Intent = MoveIntent.Idle(to.FacingMdeg);
+        _context.Events.Publish(new BodyMoved(_player,from,to,tick));
+        _context.Events.Publish(new WentUnder(water.Key,tick));
+        // Never the last of it: going under leaves the character ashore, not dead (the portal's fall costs health the same way).
+        int harm = DrownHarm;
+        if (_context.State.Progression.Pools.Health is { } health)
+            harm = Math.Min(harm,health-1);
+        _context.Dispatch(new Harm(_player,"drowning",harm));
+    }
+
     public string? Handle(Relocate command, long tick)
     {
         var from = _context.State.Body;
         _context.State.SetBody(_owner, command.Body);
         _context.State.SetPosture(_owner, Posture.Grounded);
+        _context.State.SetSwimming(_owner, false);   // put somewhere, on whatever ground is there: the next step decides the water again
         Intent = MoveIntent.Idle(command.Body.FacingMdeg);
         _context.Events.Publish(new BodyMoved(_player, from, command.Body, tick));
         return null;

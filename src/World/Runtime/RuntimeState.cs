@@ -32,7 +32,7 @@ public enum StateSlice
     /// <summary><c>world_tick</c> (S-04, clock half).</summary>
     Clock,
 
-    /// <summary>The player's position and facing (ARCHITECTURE.md §5: "Position (actors) - Movement system").</summary>
+    /// <summary>The player's position and facing, and what it is standing in (ARCHITECTURE.md §5: "Position (actors) - Movement system").</summary>
     PlayerBody,
 
     /// <summary>
@@ -338,6 +338,19 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.PlayerBody);
         Posture = posture;
+    }
+
+    /// <summary>
+    /// Whether the body is floating in deep water (D20): part of the body's slice, and worked out from where it stands on every tick. Not on
+    /// the posture, because the posture is saved and a swim is a place, not a possession - a load stands on the ground and the next step
+    /// decides again.
+    /// </summary>
+    public bool Swimming { get; private set; }
+
+    public void SetSwimming(SliceOwner owner, bool swimming)
+    {
+        Require(owner, StateSlice.PlayerBody);
+        Swimming = swimming;
     }
 
     /// <summary>

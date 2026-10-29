@@ -150823,17 +150823,21 @@ nodes:
 waters:
 # D18 water addendum (owner, second review): a creek is a carved bed with banks, not a sheet. Winding line, a 2.2 m
 # channel 0.9 m below its banks graded out over 4.5 m, a gravel ford 0.15 m deep at the crossing, cattails and stones.
+# D20: depth_m is the bed's depth below the surface, and what makes a water a body rather than a bank - the creek is
+# knee deep and waded, the millpond is over the head and swam. A water that names none is a ford (0.15 m).
 - key: water.ah_creek
   kind: creek
   path_m: [[492.0, 748.0], [486.0, 753.0], [478.0, 754.0], [470.0, 757.5], [461.0, 758.0], [452.0, 760.0], [442.0, 759.0], [432.0, 762.0], [420.0, 767.0]]
   level_m: 6.55
   width_m: 2.2
+  depth_m: 0.55
   catch: loot.fishing.ah_creek
 - key: water.cw_millpond
   kind: pond
   path_m: [[958.0, 700.0]]
   level_m: 4.35
   width_m: 26.0
+  depth_m: 2.4
   catch: loot.fishing.cw_millpond
 - key: water.cw_millrace
   kind: stream
