@@ -181,6 +181,11 @@ public partial class Main
                         var model=ArtLibrary.Find<SkinnedModel>(figure)??throw new InvalidDataException("Review body is not skinned");
                         string state=clip.GetString()!;
                         if(!model.Has(state))throw new InvalidDataException("NPC review motion unavailable: "+state);
+                        var staged=figure.GlobalTransform;
+                        figure.SetRestPose(state);
+                        figure.SetPosture(state=="crouch_idle",false);
+                        figure.Pose(staged.Origin,staged.Basis.GetEuler().Y,0,0);
+                        figure.GlobalTransform=staged;
                         await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePreDraw);
                         model.Hold(state,.45f,0);model.Skeleton.Advance(0);
                         Face();
