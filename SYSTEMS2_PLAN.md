@@ -316,3 +316,17 @@ the process threw in Terrain3DView.Build (HollowView.cs:255 -> Terrain3DView.cs:
 likely because it overlapped the previous capture still holding the terrain cache. Retry it alone, once, as the first
 action next round; the file will name the reason in one line.
 No post: the marker is still a placeholder.
+
+### Round 18 - the probe ran, and it says the markers are not structures at all
+The --coverage-out run was wrong: that option writes a *smoke report* (Main.cs:1850), not structure coverage, so no
+file was expected. Reading the run's own log instead is decisive:
+- the log records **no warning and no fallback for grave_marker_halda or grave_marker_berrin** - not "no binding",
+  not a missing model, nothing;
+- the only art warnings are the named NPCs, the rock golems and two materials (mat_acg_onyx015,
+  material_firstfold_iron), i.e. the things that are known to be missing;
+- ArtStructure reports *something* for every blocker it declines, so silence means these two entries **never became
+  blockers**: my structures: entries carry only id, circle_m and height_m, which the region parser accepts for
+  placement but does not turn into a Blocker the view draws.
+The cylinder in the den frame is therefore not my marker. Next step, and it is concrete: diff my marker entry against a
+structures: entry that does render (one with a kind, material or structure field), and give the marker whatever
+field makes it a blocker - then the prefix binding already committed will have something to act on.
