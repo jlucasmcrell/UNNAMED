@@ -63,6 +63,13 @@ public static class NpcLooks
         var age = catalogue.Sliders.First(s => s.Id == "face.age");
         if (data.Allowed(people, age, sex) is { } band)
             look = look with { Sliders = look.Sliders.SetItem(age.Id, channel.Int(4, band.Min, band.Max + 1)) };
+        // Their own earth dye: without it every resident fell to the swatch default and a town read as one uniform.
+        look = look with
+        {
+            Sliders = look.Sliders
+                .SetItem(LookSwatches.ShirtSlider, channel.Int(5, 0, LookSwatches.Shirts.Length))
+                .SetItem(LookSwatches.TrouserSlider, channel.Int(6, 0, LookSwatches.Trousers.Length)),
+        };
         return data.Constrain(look, catalogue, people);
     }
 
