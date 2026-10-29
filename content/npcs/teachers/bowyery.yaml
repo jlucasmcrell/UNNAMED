@@ -1,14 +1,14 @@
 id: npc.teacher.bowyery
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.bowyery.name
 tags: [npc]
-name: "Master of Bowyery and fletching"
-notes: "The bowyery and fletching teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Roan Tarro"
+notes: "The bowyery and fletching teacher of the D13 catalogue, a orenth of ashen hollow. Voice: easy mockery of your ambition; rolling, unhurried; bends a stave against his knee and listens for a sound he will not describe."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.orenth
 dialogue_ref: dialogue.teacher.bowyery
 teaches:
   - kind: technique

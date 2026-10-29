@@ -1,14 +1,14 @@
 id: npc.teacher.engineering
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.engineering.name
 tags: [npc]
-name: "Master of Engineering"
-notes: "The engineering teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Tuuvek"
+notes: "The engineering teacher of the D13 catalogue, a vaskaal of ashen hollow. Voice: dry numerical fatalism; steady, ending each line on a number; holds up fingers while counting loads, and stops at four because five is a problem."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.engineering
 teaches:
   - kind: technique

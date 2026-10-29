@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.lockpicking.name
 tags: [npc]
-name: "Master of Locks and mechanisms"
-notes: "The locks and mechanisms teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Rook Sable"
+notes: "The locks and mechanisms teacher of the D13 catalogue, a veth of starting frontier. Voice: competitive needling; quick, with a stare at the end; holds the pick away from the lock and listens first."
 role: trainer
 unique: true
 people_ref: people.veth

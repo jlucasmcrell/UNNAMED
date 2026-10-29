@@ -8,7 +8,7 @@ participants: [npc.teacher.polearm]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the spear and polearm? Then you pay for it and you bring the hands for it.\""
+    text: "Stand back. Further. Further than you think. There. Now you can reach me and I cannot reach you - that is the entire trade."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Closer than yesterday. That is not a compliment yet."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.polearm.hold_the_point, ability.catalogue.polearm.giving_ground, ability.catalogue.polearm.haft_guard, ability.catalogue.polearm.set_against_the_charge, ability.catalogue.polearm.shorten_the_grip, ability.catalogue.polearm.pull_down, ability.catalogue.polearm.pinning_thrust, ability.catalogue.polearm.beak_at_reach, ability.catalogue.polearm.tip_discipline, ability.catalogue.polearm.master_of_distance] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "The point is the threat. The butt is the argument. Learn which one is talking."

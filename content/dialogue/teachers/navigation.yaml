@@ -8,7 +8,7 @@ participants: [npc.teacher.navigation]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the navigation? Then you pay for it and you bring the hands for it.\""
+    text: "The road is a story told by other people. Learn the ground and you can hear the story change."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are following the path. Paths lie politely."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.navigation.roads_water_and_stars, ability.catalogue.navigation.by_rumour, ability.catalogue.navigation.bearings_by_stars, ability.catalogue.navigation.get_the_party_home] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Two bearings and a landmark. Never one, and never your memory of one."

@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.music.name
 tags: [npc]
-name: "Master of Music"
-notes: "The music teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Iaelin Sareth"
+notes: "The music teacher of the D13 catalogue, a siann of sedge levels. Voice: eerie patience; very slow, as though the room should wait; hums a note and waits for the room to agree."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.music
 teaches:
   - kind: technique

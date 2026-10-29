@@ -1,11 +1,11 @@
 id: npc.teacher.mace_hammer
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.mace_hammer.name
 tags: [npc]
-name: "Master of Hammer"
-notes: "The hammer teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Osric Bell"
+notes: "The hammer teacher of the D13 catalogue, a veth of ashen hollow. Voice: understatement; slow, with long pauses he fills by looking at you; weighs the hammer head in one palm, then the other, and says nothing."
 role: trainer
 unique: true
 people_ref: people.veth

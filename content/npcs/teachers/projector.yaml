@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.projector.name
 tags: [npc]
-name: "Master of Otherwrought projectors"
-notes: "The otherwrought projectors teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Hraask"
+notes: "The otherwrought projectors teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: workshop shorthand that sounds like an insult; clipped, tool noise between clauses; lays the device down pointing away from both of you."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.projector
 teaches:
   - kind: technique

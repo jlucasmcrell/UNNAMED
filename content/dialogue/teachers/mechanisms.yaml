@@ -8,7 +8,7 @@ participants: [npc.teacher.mechanisms]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the mechanisms? Then you pay for it and you bring the hands for it.\""
+    text: "A mechanism is a promise about time. Yours is late."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "It works. It will not work in a month. That is not the same claim."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.mechanisms.lock_and_key, ability.catalogue.mechanisms.escapement, ability.catalogue.mechanisms.gauge_and_calibrate, ability.catalogue.mechanisms.the_engine_that_holds_itself, ability.catalogue.mechanisms.drone_discipline, ability.catalogue.mechanisms.gate_frame, ability.catalogue.mechanisms.gate_tuner] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Find the part that fails first and make it the part you can reach."

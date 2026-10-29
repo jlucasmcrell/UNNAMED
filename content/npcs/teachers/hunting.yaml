@@ -1,14 +1,14 @@
 id: npc.teacher.hunting
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.hunting.name
 tags: [npc]
-name: "Master of Hunting"
-notes: "The hunting teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Ratho Vell"
+notes: "The hunting teacher of the D13 catalogue, a orenth of starting frontier. Voice: relaxed boast; rolling, with a laugh where the point should be; crouches to read sign and stays crouched after he has said everything."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.orenth
 dialogue_ref: dialogue.teacher.hunting
 teaches:
   - kind: technique

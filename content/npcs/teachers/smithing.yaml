@@ -1,11 +1,11 @@
 id: npc.teacher.smithing
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.smithing.name
 tags: [npc]
-name: "Master of Smithing"
-notes: "The smithing teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Hade Vell"
+notes: "The smithing teacher of the D13 catalogue, a veth of ashen hollow. Voice: long-suffering practicality; starts complaining before he starts teaching; puts a helmet on you and taps it twice like a door he is welcome at."
 role: trainer
 unique: true
 people_ref: people.veth

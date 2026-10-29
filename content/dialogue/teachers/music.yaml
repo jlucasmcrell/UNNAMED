@@ -8,7 +8,7 @@ participants: [npc.teacher.music]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the music? Then you pay for it and you bring the hands for it.\""
+    text: "You want to make a sound people keep. Then you must be willing to be quiet at the right moment."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are playing loudly. Loud is not the same as heard."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.music.the_working_song, ability.catalogue.music.playing_the_room, ability.catalogue.music.the_old_songs, ability.catalogue.music.a_wake_for_the_dead] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Rhythm first, then tone, then everything you want to say."

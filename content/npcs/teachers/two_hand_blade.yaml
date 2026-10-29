@@ -1,14 +1,14 @@
 id: npc.teacher.two_hand_blade
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.two_hand_blade.name
 tags: [npc]
-name: "Master of Greatsword"
-notes: "The greatsword teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Grend Kroll"
+notes: "The greatsword teacher of the D13 catalogue, a kal of ashen hollow. Voice: blunt overstatement; hard stops at each full stop; sets the greatsword point-down and leans on it like a fence."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.kal
 dialogue_ref: dialogue.teacher.two_hand_blade
 teaches:
   - kind: technique

@@ -1,11 +1,11 @@
 id: npc.teacher.veilward
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.veilward.name
 tags: [npc]
-name: "Master of Veilward"
-notes: "The veilward teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Hollis Grieve"
+notes: "The veilward teacher of the D13 catalogue, a veth of sedge levels. Voice: dry correction of your grip; one clause, one beat, then wait; sets the tools in a row and moves one back into line."
 role: trainer
 unique: true
 people_ref: people.veth

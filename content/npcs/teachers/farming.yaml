@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.farming.name
 tags: [npc]
-name: "Master of Farming and husbandry"
-notes: "The farming and husbandry teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Tilla Wain"
+notes: "The farming and husbandry teacher of the D13 catalogue, a veth of starting frontier. Voice: grim reassurance; flat, one eyebrow instead of a question; scuffs a furrow with a boot heel and looks at the result."
 role: trainer
 unique: true
 people_ref: people.veth

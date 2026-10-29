@@ -8,7 +8,7 @@ participants: [npc.teacher.enchanting]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the enchanting? Then you pay for it and you bring the hands for it.\""
+    text: "You want the metal to remember a word. Metal remembers everything you do to it, which is the difficulty."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are speaking to it. Say something it can keep."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.enchanting.inscribe_scroll, ability.catalogue.enchanting.rune_channel, ability.catalogue.enchanting.anchor_a_working, ability.catalogue.enchanting.stability, ability.catalogue.enchanting.the_pattern_that_holds, ability.catalogue.enchanting.a_working_in_the_world, ability.catalogue.enchanting.anchor_a_working_in_a_mechanism, ability.catalogue.enchanting.field_repair_a_working] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Enchanting is not adding. It is persuading a thing to stay itself while carrying something else."

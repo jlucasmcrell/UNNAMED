@@ -1,14 +1,14 @@
 id: npc.teacher.intimidation
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.intimidation.name
 tags: [npc]
-name: "Master of Intimidation"
-notes: "The intimidation teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Vul Dragg"
+notes: "The intimidation teacher of the D13 catalogue, a kal of ashen hollow. Voice: sandbagging, then a sharp turn; deliberately slow, then fast; steps into your space and then apologises."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.kal
 dialogue_ref: dialogue.teacher.intimidation
 teaches:
   - kind: technique

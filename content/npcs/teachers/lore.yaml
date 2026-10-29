@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.lore.name
 tags: [npc]
-name: "Master of Lore"
-notes: "The lore teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Naelis Therin"
+notes: "The lore teacher of the D13 catalogue, a siann of starting frontier. Voice: quiet, exacting superiority; a measured phrase, then a pause; closes a book she has not opened."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.lore
 teaches:
   - kind: technique

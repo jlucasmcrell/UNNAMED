@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.illusion.name
 tags: [npc]
-name: "Master of Illusion"
-notes: "The illusion teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Nairin Saelis"
+notes: "The illusion teacher of the D13 catalogue, a siann of sedge levels. Voice: airy refusal to be impressed; quick, laughing where the point should be; steps out of your line of sight mid-sentence."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.illusion
 teaches:
   - kind: technique

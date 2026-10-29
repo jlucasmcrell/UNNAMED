@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.divination.name
 tags: [npc]
-name: "Master of Divination"
-notes: "The divination teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Iaelin Sareth"
+notes: "The divination teacher of the D13 catalogue, a siann of sedge levels. Voice: eerie patience; very slow, room should wait; holds a finger over a bowl and does not move it."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.divination
 teaches:
   - kind: technique

@@ -1,11 +1,11 @@
 id: npc.teacher.athletics
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.athletics.name
 tags: [npc]
-name: "Master of Athletics"
-notes: "The athletics teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Jory Rooksby"
+notes: "The athletics teacher of the D13 catalogue, a veth of starting frontier. Voice: friendly goading; quick, with a breath between clauses; jogs on the spot while giving instructions not to jog on the spot."
 role: trainer
 unique: true
 people_ref: people.veth

@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.polearm.name
 tags: [npc]
-name: "Master of Spear and polearm"
-notes: "The spear and polearm teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Merra Stanch"
+notes: "The spear and polearm teacher of the D13 catalogue, a veth of ashen hollow. Voice: patient needling; a long sentence per correction; sets the butt of the spear on her boot and rests her chin on the shaft."
 role: trainer
 unique: true
 people_ref: people.veth

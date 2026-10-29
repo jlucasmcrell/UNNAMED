@@ -8,7 +8,7 @@ participants: [npc.teacher.leadership]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the leadership? Then you pay for it and you bring the hands for it.\""
+    text: "A plan is a promise made to people who have to keep it. Say it in their words or do not bother."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You have their obedience. That is not the same thing and it does not last the winter."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.speak_for_the_party, ability.catalogue.leadership.hire_and_keep, ability.catalogue.leadership.hold_together] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Decide, explain, then be there when it goes wrong. In that order, every time."

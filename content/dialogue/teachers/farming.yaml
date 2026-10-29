@@ -8,7 +8,7 @@ participants: [npc.teacher.farming]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the farming and husbandry? Then you pay for it and you bring the hands for it.\""
+    text: "You will lose a crop. Decide now which one, and the year will still be yours."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Your soil is tired. Feed it before you ask anything of it."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.farming.sow_and_hoe, ability.catalogue.farming.herd_and_staddle, ability.catalogue.farming.the_bad_year] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Rotate, rest, and put back more than you take. That is the whole of it, and nobody believes it."

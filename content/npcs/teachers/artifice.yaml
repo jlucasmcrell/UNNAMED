@@ -1,14 +1,14 @@
 id: npc.teacher.artifice
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.artifice.name
 tags: [npc]
-name: "Master of Artifice"
-notes: "The artifice teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Annex"
+notes: "The artifice teacher of the D13 catalogue, a constructed of ashen hollow. Voice: literal-minded, accidentally funny; declarative, with a small bow after each fact; lays out parts in a grid and aligns them again when you touch one."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.constructed
 dialogue_ref: dialogue.teacher.artifice
 teaches:
   - kind: technique

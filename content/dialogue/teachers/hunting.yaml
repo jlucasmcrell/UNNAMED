@@ -8,7 +8,7 @@ participants: [npc.teacher.hunting]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the hunting? Then you pay for it and you bring the hands for it.\""
+    text: "Which way, how long ago, how big, how hurt. Four answers before you move a foot."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are tracking the animal. Track the ground first."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.hunting.read_the_sign, ability.catalogue.hunting.dress_the_kill, ability.catalogue.hunting.bait_and_lure, ability.catalogue.hunting.the_hunt_that_ends_cleanly] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "A clean kill is the absence of a fight. If it became a fight, you were already wrong."

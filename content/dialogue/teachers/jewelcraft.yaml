@@ -8,7 +8,7 @@ participants: [npc.teacher.jewelcraft]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the jewelcraft and lapidary? Then you pay for it and you bring the hands for it.\""
+    text: "A gem is a documented fact with a rim. My task: teach you to read the rim without damaging the fact."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Your setting is adequate. Adequacy is a documented failure."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding, ability.catalogue.jewelcraft.stone_for_a_working, ability.catalogue.jewelcraft.resonance_quartz, ability.catalogue.jewelcraft.otherglass, ability.catalogue.jewelcraft.a_stone_that_remembers, ability.catalogue.jewelcraft.the_setting_nobody_can_copy] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Tolerance is the whole craft. A stone loose by a hair is a stone lost by a season."

@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.mind.name
 tags: [npc]
-name: "Master of Mind and influence"
-notes: "The mind and influence teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Selarin Ieth"
+notes: "The mind and influence teacher of the D13 catalogue, a siann of sedge levels. Voice: clinical bluntness softened at the last word; precise, unhurried; asks a question and then waits far too long."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.mind
 teaches:
   - kind: technique

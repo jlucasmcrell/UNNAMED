@@ -8,7 +8,7 @@ participants: [npc.teacher.mind]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the mind and influence? Then you pay for it and you bring the hands for it.\""
+    text: "You are thinking about thinking. It will get worse before it is useful."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are watching yourself. That is a good tool and a bad habit."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.mind.steady_voice, ability.catalogue.mind.flinch, ability.catalogue.mind.loose_thread, ability.catalogue.mind.suggest, ability.catalogue.mind.the_quiet_room] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Attention is a muscle with a short memory. Train it before you try to move a thought."

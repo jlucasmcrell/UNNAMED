@@ -1,14 +1,14 @@
 id: npc.teacher.vital
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.vital.name
 tags: [npc]
-name: "Master of Vital"
-notes: "The vital teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Avel"
+notes: "The vital teacher of the D13 catalogue, a mor of sedge levels. Voice: quiet warmth with a sharp edge; soft, quick on the retort; puts two fingers to his own throat when he means you should think about breath."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.mor
 dialogue_ref: dialogue.teacher.vital
 teaches:
   - kind: technique

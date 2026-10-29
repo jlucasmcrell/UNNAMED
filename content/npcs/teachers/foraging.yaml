@@ -1,11 +1,11 @@
 id: npc.teacher.foraging
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.foraging.name
 tags: [npc]
-name: "Master of Foraging"
-notes: "The foraging teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Fen Ottery"
+notes: "The foraging teacher of the D13 catalogue, a veth of starting frontier. Voice: gentle pedantry; slow, ending mid-thought; turns a mushroom over with a stick rather than a finger."
 role: trainer
 unique: true
 people_ref: people.veth

@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.tailoring.name
 tags: [npc]
-name: "Master of Tailoring"
-notes: "The tailoring teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Linn Ashdown"
+notes: "The tailoring teacher of the D13 catalogue, a veth of ashen hollow. Voice: social observation, delivered mildly; brisk, with a pause after the rude part; pins a hem while describing the person who will wear it."
 role: trainer
 unique: true
 people_ref: people.veth

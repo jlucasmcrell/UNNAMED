@@ -1,11 +1,11 @@
 id: npc.teacher.barter
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.barter.name
 tags: [npc]
-name: "Master of Barter"
-notes: "The barter teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Iven Pell"
+notes: "The barter teacher of the D13 catalogue, a veth of starting frontier. Voice: self-deprecating prop comedy; gentle pauses timed to a gesture; lays out two prices and moves one with a finger."
 role: trainer
 unique: true
 people_ref: people.veth

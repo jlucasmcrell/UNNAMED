@@ -8,7 +8,7 @@ participants: [npc.teacher.alchemy]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the alchemy? Then you pay for it and you bring the hands for it.\""
+    text: "Half of alchemy is not making poison by accident. The other half is knowing which half you are in."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You have made something. Now find out what it does before somebody else does."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.alchemy.minor_salve, ability.catalogue.alchemy.boil_clean, ability.catalogue.alchemy.ember_salve, ability.catalogue.alchemy.extract_and_distil, ability.catalogue.alchemy.widow_s_thimble, ability.catalogue.alchemy.bottle_the_phenomenon, ability.catalogue.alchemy.an_alchemist_s_patience, ability.catalogue.alchemy.a_universal_reagent] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Measured, written, repeated. The mystery is in the materials, not in your mood."

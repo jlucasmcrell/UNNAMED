@@ -364,6 +364,42 @@ containers:
   - { key: container.merchant_cart, loot_ref: loot.merchant_cart, position_m: [157, 160.2], stack_slots: 8 }  # bible §6: the bow at the cart
 # The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).
 npcs:
+  - { npc_ref: npc.teacher.alchemy, position_m: [91.5, 171.2], facing_deg: 180 }   # D13: Alchemy teacher
+  - { npc_ref: npc.teacher.armour_use, position_m: [97.5, 171.2], facing_deg: 180 }   # D13: Armour teacher
+  - { npc_ref: npc.teacher.armoursmithing, position_m: [103.5, 171.2], facing_deg: 180 }   # D13: Armoursmithing teacher
+  - { npc_ref: npc.teacher.artifice, position_m: [109.5, 171.2], facing_deg: 180 }   # D13: Artifice teacher
+  - { npc_ref: npc.teacher.axe, position_m: [115.5, 171.2], facing_deg: 180 }   # D13: Axe teacher
+  - { npc_ref: npc.teacher.bow, position_m: [121.5, 171.2], facing_deg: 180 }   # D13: Bow teacher
+  - { npc_ref: npc.teacher.bowyery, position_m: [127.5, 171.2], facing_deg: 180 }   # D13: Bowyery and fletching teacher
+  - { npc_ref: npc.teacher.carpentry, position_m: [133.5, 171.2], facing_deg: 180 }   # D13: Carpentry and construction teacher
+  - { npc_ref: npc.teacher.cooking, position_m: [91.5, 177.2], facing_deg: 180 }   # D13: Cooking teacher
+  - { npc_ref: npc.teacher.crossbow, position_m: [97.5, 177.2], facing_deg: 180 }   # D13: Crossbow teacher
+  - { npc_ref: npc.teacher.dagger, position_m: [103.5, 177.2], facing_deg: 180 }   # D13: Dagger teacher
+  - { npc_ref: npc.teacher.dual_wield, position_m: [109.5, 177.2], facing_deg: 180 }   # D13: Paired weapons teacher
+  - { npc_ref: npc.teacher.enchanting, position_m: [46.5, 121.2], facing_deg: 180 }   # D13: Enchanting teacher
+  - { npc_ref: npc.teacher.engineering, position_m: [51.5, 121.2], facing_deg: 180 }   # D13: Engineering teacher
+  - { npc_ref: npc.teacher.evasion, position_m: [41.5, 121.2], facing_deg: 180 }   # D13: Evasion teacher
+  - { npc_ref: npc.teacher.fabrication, position_m: [46.5, 119.2], facing_deg: 180 }   # D13: Fabrication and machining teacher
+  - { npc_ref: npc.teacher.intimidation, position_m: [53.5, 119.2], facing_deg: 180 }   # D13: Intimidation teacher
+  - { npc_ref: npc.teacher.jewelcraft, position_m: [39.5, 119.2], facing_deg: 180 }   # D13: Jewelcraft and lapidary teacher
+  - { npc_ref: npc.teacher.leatherworking, position_m: [55.5, 126.2], facing_deg: 180 }   # D13: Leatherwork teacher
+  - { npc_ref: npc.teacher.mace_hammer, position_m: [46.5, 135.2], facing_deg: 180 }   # D13: Hammer teacher
+  - { npc_ref: npc.teacher.marksmanship, position_m: [46.5, 117.2], facing_deg: 180 }   # D13: Marksmanship teacher
+  - { npc_ref: npc.teacher.masonry, position_m: [55.5, 135.2], facing_deg: 180 }   # D13: Masonry teacher
+  - { npc_ref: npc.teacher.medicine, position_m: [37.5, 135.2], facing_deg: 180 }   # D13: Medicine teacher
+  - { npc_ref: npc.teacher.one_hand_blade, position_m: [55.5, 117.2], facing_deg: 180 }   # D13: Sword teacher
+  - { npc_ref: npc.teacher.polearm, position_m: [37.5, 117.2], facing_deg: 180 }   # D13: Spear and polearm teacher
+  - { npc_ref: npc.teacher.salvage, position_m: [69.0, 122.0], facing_deg: 180 }   # D13: Salvage and reverse engineering teacher
+  - { npc_ref: npc.teacher.shield, position_m: [69.0, 125.0], facing_deg: 180 }   # D13: Shield teacher
+  - { npc_ref: npc.teacher.smithing, position_m: [69.0, 119.0], facing_deg: 180 }   # D13: Smithing teacher
+  - { npc_ref: npc.teacher.staff, position_m: [67.0, 122.0], facing_deg: 180 }   # D13: Staff teacher
+  - { npc_ref: npc.teacher.tactics, position_m: [72.0, 127.0], facing_deg: 180 }   # D13: Tactics teacher
+  - { npc_ref: npc.teacher.tailoring, position_m: [72.0, 117.0], facing_deg: 180 }   # D13: Tailoring teacher
+  - { npc_ref: npc.teacher.thrown, position_m: [77.0, 127.0], facing_deg: 180 }   # D13: Thrown and sling teacher
+  - { npc_ref: npc.teacher.two_hand_blade, position_m: [67.0, 127.0], facing_deg: 180 }   # D13: Greatsword teacher
+  - { npc_ref: npc.teacher.unarmed, position_m: [77.0, 117.0], facing_deg: 180 }   # D13: Unarmed teacher
+  - { npc_ref: npc.teacher.weaponsmithing, position_m: [67.0, 117.0], facing_deg: 180 }   # D13: Weaponsmithing teacher
+  - { npc_ref: npc.teacher.woodworking, position_m: [79.0, 122.0], facing_deg: 180 }   # D13: Woodworking teacher
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
   - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [72, 122], facing_deg: 135 }    # her survey area, looking towards the Foldscar
   - { npc_ref: npc.ashen_hollow.kera_voss, position_m: [61.6, 139.6], facing_deg: 300 }  # the smithy, by the anvil

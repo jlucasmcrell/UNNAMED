@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.cartography.name
 tags: [npc]
-name: "Master of Cartography"
-notes: "The cartography teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Lirien Sael"
+notes: "The cartography teacher of the D13 catalogue, a siann of starting frontier. Voice: precise pedantry; even, clause by clause; draws a line and then erases part of it to make it honest."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.cartography
 teaches:
   - kind: technique

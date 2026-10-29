@@ -8,7 +8,7 @@ participants: [npc.teacher.cooking]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the cooking? Then you pay for it and you bring the hands for it.\""
+    text: "Sit. Eat this. Then we will talk about what is wrong with it, which is not the taste."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You burned the bottom. That is not a mistake, that is a habit."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.cooking.roast_meat, ability.catalogue.cooking.field_torch_by_fire, ability.catalogue.cooking.woundmoss_tea, ability.catalogue.cooking.provision_for_a_road, ability.catalogue.cooking.a_meal_that_matters, ability.catalogue.cooking.feed_a_village] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Heat is patience with a deadline. Learn the deadline and you stop guessing."

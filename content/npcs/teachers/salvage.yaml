@@ -1,14 +1,14 @@
 id: npc.teacher.salvage
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.salvage.name
 tags: [npc]
-name: "Master of Salvage and reverse engineering"
-notes: "The salvage and reverse engineering teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Gorndu"
+notes: "The salvage and reverse engineering teacher of the D13 catalogue, a ondrek of ashen hollow. Voice: reverent practicality; slow, with a pause to touch the material; turns a broken piece over and back, twice, before speaking."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.ondrek
 dialogue_ref: dialogue.teacher.salvage
 teaches:
   - kind: technique

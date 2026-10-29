@@ -8,7 +8,7 @@ participants: [npc.teacher.projector]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the otherwrought projectors? Then you pay for it and you bring the hands for it.\""
+    text: "A projector throws something that arrives. Where it arrives is your entire job."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You sighted on the far bank. The thing flew to the near one. Interesting."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.projector.charge_discipline, ability.catalogue.projector.long_sight, ability.catalogue.projector.recoil_that_pays] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Clean, seat, charge. A misfire is almost always one of those three, in reverse order."

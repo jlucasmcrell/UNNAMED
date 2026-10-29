@@ -1,11 +1,11 @@
 id: npc.teacher.woodworking
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.woodworking.name
 tags: [npc]
-name: "Master of Woodworking"
-notes: "The woodworking teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Fen Ottery"
+notes: "The woodworking teacher of the D13 catalogue, a veth of ashen hollow. Voice: gentle pedantry; slow, precise, ending mid-thought; runs a thumb along an edge and frowns at the answer."
 role: trainer
 unique: true
 people_ref: people.veth

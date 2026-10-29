@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.shield.name
 tags: [npc]
-name: "Master of Shield"
-notes: "The shield teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Tilla Wain"
+notes: "The shield teacher of the D13 catalogue, a veth of ashen hollow. Voice: grim reassurance; flat, with one raised eyebrow she uses instead of a question; raises the shield a hand's width, then drops it, then raises it again."
 role: trainer
 unique: true
 people_ref: people.veth

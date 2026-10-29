@@ -1,14 +1,14 @@
 id: npc.teacher.tactics
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.tactics.name
 tags: [npc]
-name: "Master of Tactics"
-notes: "The tactics teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Vul Dragg"
+notes: "The tactics teacher of the D13 catalogue, a kal of ashen hollow. Voice: sandbagging, then a sharp turn; deliberately slow, then very fast; draws lines in the dirt with the butt of a spear and rubs them out as he talks."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.kal
 dialogue_ref: dialogue.teacher.tactics
 teaches:
   - kind: technique

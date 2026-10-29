@@ -8,7 +8,7 @@ participants: [npc.teacher.armour_use]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the armour? Then you pay for it and you bring the hands for it.\""
+    text: "Plate does not make you safe. It makes you slow and confident, which is worse. Now walk."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are carrying it, not wearing it. Different verbs, different deaths."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.armour_use.settle_the_harness, ability.catalogue.armour_use.wear_it_all_day, ability.catalogue.armour_use.take_it_on_the_plate, ability.catalogue.armour_use.brace, ability.catalogue.armour_use.silent_harness, ability.catalogue.armour_use.gap_awareness, ability.catalogue.armour_use.armour_in_the_water, ability.catalogue.armour_use.walk_in_full_harness, ability.catalogue.armour_use.walking_fortress] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "The armour buys you one mistake. Choose the mistake before the fight starts."

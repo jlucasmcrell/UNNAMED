@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.medicine.name
 tags: [npc]
-name: "Master of Medicine"
-notes: "The medicine teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Selarin Ieth"
+notes: "The medicine teacher of the D13 catalogue, a siann of ashen hollow. Voice: clinical bluntness softened at the last word; precise, unhurried; checks your pulse without asking."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.medicine
 teaches:
   - kind: technique

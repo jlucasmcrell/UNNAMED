@@ -1,14 +1,14 @@
 id: npc.teacher.othercraft
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.othercraft.name
 tags: [npc]
-name: "Master of Othercraft"
-notes: "The othercraft teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Hwael"
+notes: "The othercraft teacher of the D13 catalogue, a mor of sedge levels. Voice: breathless understatement; very quiet, with a pause like the end of a held note; holds a small object and does not hand it over."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.mor
 dialogue_ref: dialogue.teacher.othercraft
 teaches:
   - kind: technique

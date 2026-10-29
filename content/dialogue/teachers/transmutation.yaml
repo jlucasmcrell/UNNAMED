@@ -8,7 +8,7 @@ participants: [npc.teacher.transmutation]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the transmutation? Then you pay for it and you bring the hands for it.\""
+    text: "Transmutation is not magic. It is arithmetic that metals resent. Bring something heavy and patient."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You changed the shape. The weight disagreed, and the weight is honest."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.transmutation.temper_edge, ability.catalogue.transmutation.soften_stone, ability.catalogue.transmutation.reinforce_the_seam, ability.catalogue.transmutation.reading_the_grain, ability.catalogue.transmutation.coldbloom_pressing] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Mass first, form second, structure third. Skip mass and you have made a very expensive ghost."

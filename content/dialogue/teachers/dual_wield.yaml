@@ -8,7 +8,7 @@ participants: [npc.teacher.dual_wield]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the paired weapons? Then you pay for it and you bring the hands for it.\""
+    text: "Two hands, two blades, one brain. That is the problem with two blades."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are favouring the right. Everyone favours the right. Fix it before I do."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.dual_wield.second_hand_live, ability.catalogue.dual_wield.cover_and_strike, ability.catalogue.dual_wield.alternate_beat, ability.catalogue.dual_wield.double_cut, ability.catalogue.dual_wield.off_hand_lock, ability.catalogue.dual_wield.unsheathe_together, ability.catalogue.dual_wield.cross_guard, ability.catalogue.dual_wield.two_fronts, ability.catalogue.dual_wield.one_mind_two_hands] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "One blade talks, the other arranges. If both are swinging, you are only one fighter."

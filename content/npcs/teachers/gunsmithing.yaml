@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.gunsmithing.name
 tags: [npc]
-name: "Master of Gunsmithing"
-notes: "The gunsmithing teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Askraa"
+notes: "The gunsmithing teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: aquatic calm; slow, with a breath between steps; blows down the barrel before she seats anything."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.gunsmithing
 teaches:
   - kind: technique

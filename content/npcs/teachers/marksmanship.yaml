@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.marksmanship.name
 tags: [npc]
-name: "Master of Marksmanship"
-notes: "The marksmanship teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Naelis Therin"
+notes: "The marksmanship teacher of the D13 catalogue, a siann of ashen hollow. Voice: quiet, exacting superiority; a measured phrase, then a pause for you to catch up; sights down an empty hand as though the bow were a memory she distrusts."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.marksmanship
 teaches:
   - kind: technique

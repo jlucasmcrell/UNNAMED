@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.dual_wield.name
 tags: [npc]
-name: "Master of Paired weapons"
-notes: "The paired weapons teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Rook Sable"
+notes: "The paired weapons teacher of the D13 catalogue, a veth of ashen hollow. Voice: competitive needling; two quick sentences, then a stare; holds both blades low and circles you without meaning to."
 role: trainer
 unique: true
 people_ref: people.veth

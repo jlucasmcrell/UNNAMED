@@ -8,7 +8,7 @@ participants: [npc.teacher.mace_hammer]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the hammer? Then you pay for it and you bring the hands for it.\""
+    text: "This one does not cut. It tells a body to stop being where it is."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Mm. Still swinging it like a hoe."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.mace_hammer.drive_through_the_guard, ability.catalogue.mace_hammer.bell_ringer, ability.catalogue.mace_hammer.beak_strike, ability.catalogue.mace_hammer.short_grip, ability.catalogue.mace_hammer.counterweight_recovery, ability.catalogue.mace_hammer.dent_the_harness, ability.catalogue.mace_hammer.rivet_breaker, ability.catalogue.mace_hammer.fault_strike, ability.catalogue.mace_hammer.fell_the_armoured] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "You are not breaking the armour. You are breaking the plan inside it."

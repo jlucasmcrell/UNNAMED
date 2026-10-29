@@ -8,7 +8,7 @@ participants: [npc.teacher.herbal_medicine]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the herbcraft and physick? Then you pay for it and you bring the hands for it.\""
+    text: "Most of what people call medicine is tea with a story attached. Some of it works, and the story helps."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Wrong part of the plant. The root, not the leaf, and not in that season."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.herbal_medicine.poultice, ability.catalogue.herbal_medicine.tea_for_what_ails, ability.catalogue.herbal_medicine.dose, ability.catalogue.herbal_medicine.bitterroot_and_heartleaf, ability.catalogue.herbal_medicine.the_long_illness] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Dose and timing. A good herb at the wrong hour is a poison with good manners."

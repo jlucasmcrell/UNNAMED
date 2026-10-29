@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.first_aid.name
 tags: [npc]
-name: "Master of First aid"
-notes: "The first aid teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Selarin Ieth"
+notes: "The first aid teacher of the D13 catalogue, a siann of starting frontier. Voice: clinical bluntness softened at the last word; precise, unhurried; checks your pulse without asking."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.first_aid
 teaches:
   - kind: technique

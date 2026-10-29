@@ -1,11 +1,11 @@
 id: npc.teacher.thrown
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.thrown.name
 tags: [npc]
-name: "Master of Thrown and sling"
-notes: "The thrown and sling teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Alder Quist"
+notes: "The thrown and sling teacher of the D13 catalogue, a veth of ashen hollow. Voice: absurd precision about small things; counting aloud under his breath; lines up five stones on a fence rail before he will talk."
 role: trainer
 unique: true
 people_ref: people.veth

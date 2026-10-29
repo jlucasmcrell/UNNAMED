@@ -1,11 +1,11 @@
 id: npc.teacher.alchemy
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.alchemy.name
 tags: [npc]
-name: "Master of Alchemy"
-notes: "The alchemy teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Perrin Sallow"
+notes: "The alchemy teacher of the D13 catalogue, a veth of ashen hollow. Voice: curmudgeonly pride; slow, complaints folded in; sniffs the jar before he touches it."
 role: trainer
 unique: true
 people_ref: people.veth

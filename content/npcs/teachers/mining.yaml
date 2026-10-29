@@ -1,14 +1,14 @@
 id: npc.teacher.mining
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.mining.name
 tags: [npc]
-name: "Master of Mining"
-notes: "The mining teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Grondur"
+notes: "The mining teacher of the D13 catalogue, a ondrek of starting frontier. Voice: slow geological humour; long, with a rumble at the end; puts his palm flat on the rock face while he speaks."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.ondrek
 dialogue_ref: dialogue.teacher.mining
 teaches:
   - kind: technique

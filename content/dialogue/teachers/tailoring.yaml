@@ -8,7 +8,7 @@ participants: [npc.teacher.tailoring]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the tailoring? Then you pay for it and you bring the hands for it.\""
+    text: "Clothing is a lie people agree with. Your job is to make it a useful lie."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "It is fitting your body. It should fit a body. Start with the shoulders."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.tailoring.measure_and_cut, ability.catalogue.tailoring.mend_and_turn, ability.catalogue.tailoring.wool_trousers, ability.catalogue.tailoring.dye_and_mark, ability.catalogue.tailoring.robe_under_armour, ability.catalogue.tailoring.the_cut_that_reads_high_born, ability.catalogue.tailoring.a_wardrobe_not_a_costume] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Cut for movement, then take in for shape. Not the other way round, never the other way."

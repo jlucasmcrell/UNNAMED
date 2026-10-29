@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.navigation.name
 tags: [npc]
-name: "Master of Navigation"
-notes: "The navigation teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Maro Venn"
+notes: "The navigation teacher of the D13 catalogue, a orenth of starting frontier. Voice: airy confidence; quick, with a sweeping gesture; points at a direction that is slightly wrong, then corrects it while you are looking."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.orenth
 dialogue_ref: dialogue.teacher.navigation
 teaches:
   - kind: technique

@@ -8,7 +8,7 @@ participants: [npc.teacher.skinning]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the skinning? Then you pay for it and you bring the hands for it.\""
+    text: "Off clean means the buyer cannot tell it was hurried. Slow hands, fast knife."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You nicked it. That nick is a week off the price."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.skinning.off_clean, ability.catalogue.skinning.cure_in_the_field, ability.catalogue.skinning.read_the_pelt, ability.catalogue.skinning.a_beast_s_own_armour] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Cure it in the field or lose it in a day. Salt and smoke are both cheaper than regret."

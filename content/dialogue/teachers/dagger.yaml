@@ -8,7 +8,7 @@ participants: [npc.teacher.dagger]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the dagger? Then you pay for it and you bring the hands for it.\""
+    text: "Short blade, small room, bad manners. Sit. You are too tall for this already."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Still standing in doorways like you own them. Good - that is where it works."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.dagger.gap_thrust, ability.catalogue.dagger.inside_step, ability.catalogue.dagger.seize_and_stab, ability.catalogue.dagger.off_hand_parry, ability.catalogue.dagger.hidden_draw, ability.catalogue.dagger.quiet_blade, ability.catalogue.dagger.punch_through, ability.catalogue.dagger.mercy_stroke, ability.catalogue.dagger.every_seam] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "A dagger is not a small sword. It is a conversation held much too close."

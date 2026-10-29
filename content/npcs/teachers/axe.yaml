@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.axe.name
 tags: [npc]
-name: "Master of Axe"
-notes: "The axe teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Brann Gorsk"
+notes: "The axe teacher of the D13 catalogue, a kal of ashen hollow. Voice: delighted destruction; quick, with a laugh in the middle of the sentence; swings a haft with no head on it while she talks."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.kal
 dialogue_ref: dialogue.teacher.axe
 teaches:
   - kind: technique

@@ -1,11 +1,11 @@
 id: npc.teacher.one_hand_blade
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.one_hand_blade.name
 tags: [npc]
-name: "Master of Sword"
-notes: "The sword teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Hollis Grieve"
+notes: "The sword teacher of the D13 catalogue, a veth of ashen hollow. Voice: dry correction of your grip; one clause, one beat, then wait; taps your wrist with two fingers, never the blade."
 role: trainer
 unique: true
 people_ref: people.veth

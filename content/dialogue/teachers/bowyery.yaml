@@ -8,7 +8,7 @@ participants: [npc.teacher.bowyery]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the bowyery and fletching? Then you pay for it and you bring the hands for it.\""
+    text: "Anyone can bend wood. The trick is bending it so it comes back."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are making a stick prettier. Stop."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.bowyery.rough_arrows, ability.catalogue.bowyery.field_fletching, ability.catalogue.bowyery.hunting_bow, ability.catalogue.bowyery.silk_string, ability.catalogue.bowyery.composite_and_horn, ability.catalogue.bowyery.tillering_by_ear, ability.catalogue.bowyery.a_bow_for_a_body] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "The back takes the tension, the belly takes the compression. Argue with that and the bow breaks."

@@ -8,7 +8,7 @@ participants: [npc.teacher.axe]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the axe? Then you pay for it and you bring the hands for it.\""
+    text: "An axe does not need to be clever. It needs to arrive. Watch - that is the whole lesson, watch again."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Good. Bring your shoulders this time, your arms are only passengers."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.axe.splitting_chop, ability.catalogue.axe.shield_hook, ability.catalogue.axe.axe_throw, ability.catalogue.axe.beard_trip, ability.catalogue.axe.haft_punch, ability.catalogue.axe.retreating_chop, ability.catalogue.axe.hamstring, ability.catalogue.axe.sunder, ability.catalogue.axe.breaker_of_walls] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Split, do not slice. Then hook. A shield is a handle if you are rude enough about it."

@@ -8,7 +8,7 @@ participants: [npc.teacher.persuasion]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the persuasion? Then you pay for it and you bring the hands for it.\""
+    text: "You are arguing with what they said. Argue with what they want, it is more durable."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You were persuasive. They agreed and will not act. That is a different failure."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.persuasion.read_a_person, ability.catalogue.persuasion.appeal_to_interest, ability.catalogue.persuasion.speak_the_forms, ability.catalogue.persuasion.win_the_room, ability.catalogue.persuasion.broker_a_deal, ability.catalogue.persuasion.oath_bound, ability.catalogue.persuasion.trusted_voice] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Find the smallest true thing they will admit, and build the rest on it."

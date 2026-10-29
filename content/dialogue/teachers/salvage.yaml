@@ -8,7 +8,7 @@ participants: [npc.teacher.salvage]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the salvage and reverse engineering? Then you pay for it and you bring the hands for it.\""
+    text: "Nothing here is rubbish. Some of it is a puzzle with the answer already broken off."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are looking for the valuable part. Look for the made part."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.salvage.read_an_old_hinge, ability.catalogue.salvage.repair_what_you_did_not_build, ability.catalogue.salvage.reverse_the_whole_device, ability.catalogue.salvage.teardown, ability.catalogue.salvage.read_the_maker, ability.catalogue.salvage.keep_the_intel, ability.catalogue.salvage.work_blind, ability.catalogue.salvage.bottle_a_hazard, ability.catalogue.salvage.partial_understanding, ability.catalogue.salvage.total_teardown, ability.catalogue.salvage.one_true_idea] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Take the joint, not the whole. The joint tells you who made it and how to open the next one."

@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.conjuration.name
 tags: [npc]
-name: "Master of Conjuration"
-notes: "The conjuration teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Kyeval"
+notes: "The conjuration teacher of the D13 catalogue, a orenth of sedge levels. Voice: airy confidence; quick, with a sweeping gesture at the end; opens a hand and closes it, twice, as though folding something away."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.orenth
 dialogue_ref: dialogue.teacher.conjuration
 teaches:
   - kind: technique

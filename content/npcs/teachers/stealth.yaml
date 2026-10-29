@@ -1,11 +1,11 @@
 id: npc.teacher.stealth
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.stealth.name
 tags: [npc]
-name: "Master of Stealth"
-notes: "The stealth teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Renn Vale"
+notes: "The stealth teacher of the D13 catalogue, a veth of starting frontier. Voice: deadpan; flat, with a beat before the joke; stands very still while everything else in the room moves."
 role: trainer
 unique: true
 people_ref: people.veth

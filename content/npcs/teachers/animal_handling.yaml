@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.animal_handling.name
 tags: [npc]
-name: "Master of Animal handling"
-notes: "The animal handling teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Mara Ling"
+notes: "The animal handling teacher of the D13 catalogue, a veth of starting frontier. Voice: dry observation of animals and people equally; slow, with a pause for the animal to answer; lets the animal come to her hand and does not reach."
 role: trainer
 unique: true
 people_ref: people.veth

@@ -1,14 +1,14 @@
 id: npc.teacher.teaching
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.teaching.name
 tags: [npc]
-name: "Master of Teaching"
-notes: "The teaching teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Annex"
+notes: "The teaching teacher of the D13 catalogue, a constructed of starting frontier. Voice: literal-minded, accidentally funny; declarative, small bow per fact; repeats your last sentence back with one word changed."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.constructed
 dialogue_ref: dialogue.teacher.teaching
 teaches:
   - kind: technique

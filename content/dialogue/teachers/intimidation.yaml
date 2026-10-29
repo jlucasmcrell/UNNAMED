@@ -8,7 +8,7 @@ participants: [npc.teacher.intimidation]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the intimidation? Then you pay for it and you bring the hands for it.\""
+    text: "You are trying to be frightening. Frightening is a budget. Spend it once."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Too much. Now they must fight you to keep their pride."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.intimidation.stand_like_you_mean_it, ability.catalogue.intimidation.name_the_consequence, ability.catalogue.intimidation.pressure, ability.catalogue.intimidation.the_wrong_kind_of_calm, ability.catalogue.intimidation.break_a_formation_s_nerve] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Leave them a way out that is cheaper than the way through."

@@ -8,7 +8,7 @@ participants: [npc.teacher.weaponsmithing]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the weaponsmithing? Then you pay for it and you bring the hands for it.\""
+    text: "Everyone wants an edge. Nobody wants a tang. The tang is what keeps it your hand and not his."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "That is a shape. Now make it a tool."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.weaponsmithing.cut_and_thrust_geometry, ability.catalogue.weaponsmithing.haft_and_socket, ability.catalogue.weaponsmithing.grip_for_a_hand, ability.catalogue.weaponsmithing.balanced_for_one_mode, ability.catalogue.weaponsmithing.production_slow_strike, ability.catalogue.weaponsmithing.conductor_blade, ability.catalogue.weaponsmithing.a_weapon_with_a_name, ability.catalogue.weaponsmithing.conductor_blades] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "A blade is a balance, not a shape. Show me where the weight sits and I will tell you who dies."

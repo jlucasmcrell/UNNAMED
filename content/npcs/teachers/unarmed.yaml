@@ -1,14 +1,14 @@
 id: npc.teacher.unarmed
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.unarmed.name
 tags: [npc]
-name: "Master of Unarmed"
-notes: "The unarmed teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Dekk Var"
+notes: "The unarmed teacher of the D13 catalogue, a kal of ashen hollow. Voice: physical comedy, at his own expense; short, with a demonstration between each line; puts his own hand on your shoulder and then cannot get it back."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.kal
 dialogue_ref: dialogue.teacher.unarmed
 teaches:
   - kind: technique

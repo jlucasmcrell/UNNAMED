@@ -8,7 +8,7 @@ participants: [npc.teacher.artifice]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the artifice? Then you pay for it and you bring the hands for it.\""
+    text: "I am Annex. I am the part of the workshop that remembers. You are the part that will break things."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You have invented a new failure. I have recorded it. Continue."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.artifice.jury_rig, ability.catalogue.artifice.field_maintenance, ability.catalogue.artifice.anchor_a_mechanism, ability.catalogue.artifice.gears_springs_pumps, ability.catalogue.artifice.reinstall_a_recovered_mechanism, ability.catalogue.artifice.containment, ability.catalogue.artifice.body_interfaces, ability.catalogue.artifice.a_device_that_serves, ability.catalogue.artifice.knap_a_cutting_edge, ability.catalogue.artifice.fire_without_a_fire, ability.catalogue.artifice.cordage, ability.catalogue.artifice.build_a_cell_from_nothing_local, ability.catalogue.artifice.bind_a_phenomenon, ability.catalogue.artifice.the_concord_object] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "A device is a list of promises. Find the promise that is a lie before anyone stands near it."

@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.swimming.name
 tags: [npc]
-name: "Master of Swimming"
-notes: "The swimming teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Askraa"
+notes: "The swimming teacher of the D13 catalogue, a vaskaal of starting frontier. Voice: aquatic calm; slow, with the breathing rhythm of the stroke; moves her arms as though the air were water."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.swimming
 teaches:
   - kind: technique

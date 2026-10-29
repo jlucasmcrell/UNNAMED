@@ -1,11 +1,11 @@
 id: npc.teacher.crossbow
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.crossbow.name
 tags: [npc]
-name: "Master of Crossbow"
-notes: "The crossbow teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Perrin Sallow"
+notes: "The crossbow teacher of the D13 catalogue, a veth of ashen hollow. Voice: curmudgeonly pride; slow, complaints folded into instructions; cranks the windlass with two fingers while explaining you should use your whole arm."
 role: trainer
 unique: true
 people_ref: people.veth

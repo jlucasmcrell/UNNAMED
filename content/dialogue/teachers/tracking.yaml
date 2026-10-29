@@ -8,7 +8,7 @@ participants: [npc.teacher.tracking]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the tracking? Then you pay for it and you bring the hands for it.\""
+    text: "Ground remembers. You are walking on a diary and asking me to read it aloud."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are looking for a footprint. Look for where the ground stopped being itself."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.tracking.read_the_ground, ability.catalogue.tracking.trail_sign, ability.catalogue.tracking.follow_the_quarry, ability.catalogue.tracking.predator_s_bearing, ability.catalogue.tracking.walk_their_road, ability.catalogue.tracking.read_the_wake, ability.catalogue.tracking.what_the_trail_refuses_to_say] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Speed, weight, intent. Every sign writes all three, and one of them is always a lie."

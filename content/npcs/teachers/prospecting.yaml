@@ -1,14 +1,14 @@
 id: npc.teacher.prospecting
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.prospecting.name
 tags: [npc]
-name: "Master of Prospecting"
-notes: "The prospecting teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Gorndu"
+notes: "The prospecting teacher of the D13 catalogue, a ondrek of starting frontier. Voice: reverent practicality; slow, touching the ground between sentences; crouches and picks up a handful of soil, then smells it."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.ondrek
 dialogue_ref: dialogue.teacher.prospecting
 teaches:
   - kind: technique

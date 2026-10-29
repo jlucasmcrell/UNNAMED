@@ -8,7 +8,7 @@ participants: [npc.teacher.stealth]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the stealth? Then you pay for it and you bring the hands for it.\""
+    text: "Being unnoticed is not being quiet. It is being unsurprising."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You were quiet. You were also where a person would be."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.stealth.quiet_step, ability.catalogue.stealth.read_the_watch, ability.catalogue.stealth.misdirect, ability.catalogue.stealth.stillness, ability.catalogue.stealth.unseen_strike, ability.catalogue.stealth.light_hands, ability.catalogue.stealth.lose_them, ability.catalogue.stealth.silence_the_sentry] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Move when something else moves. Let the world explain you."

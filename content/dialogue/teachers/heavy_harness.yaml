@@ -8,7 +8,7 @@ participants: [npc.teacher.heavy_harness]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the harness and powered armour? Then you pay for it and you bring the hands for it.\""
+    text: "A plant is a heavy animal that cannot move. Harness it as an animal, not as a building."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You found the load. You have not found the counter-load."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.heavy_harness.hold_a_harness] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Every pull has an answer. If you cannot see it, you are the answer."

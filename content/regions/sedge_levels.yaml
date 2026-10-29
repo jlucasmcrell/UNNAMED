@@ -14460,6 +14460,96 @@ tidal_water:
 
 # Gate 4 service posts on the accepted raised causeway / wetland route.
 npcs:
+- npc_ref: npc.teacher.conjuration
+  position_m:
+  - 4998.0
+  - 1080.0
+  facing_deg: 180   # D13: Conjuration teacher
+- npc_ref: npc.teacher.cosmic
+  position_m:
+  - 4998.0
+  - 1089.0
+  facing_deg: 180   # D13: Cosmic teacher
+- npc_ref: npc.teacher.divination
+  position_m:
+  - 4998.0
+  - 1071.0
+  facing_deg: 180   # D13: Divination teacher
+- npc_ref: npc.teacher.force
+  position_m:
+  - 5006.0
+  - 1094.0
+  facing_deg: 180   # D13: Force teacher
+- npc_ref: npc.teacher.illusion
+  position_m:
+  - 5006.0
+  - 1084.0
+  facing_deg: 180   # D13: Illusion teacher
+- npc_ref: npc.teacher.mind
+  position_m:
+  - 5004.0
+  - 1089.0
+  facing_deg: 180   # D13: Mind and influence teacher
+- npc_ref: npc.teacher.music
+  position_m:
+  - 5004.0
+  - 1096.0
+  facing_deg: 180   # D13: Music teacher
+- npc_ref: npc.teacher.nature
+  position_m:
+  - 5004.0
+  - 1082.0
+  facing_deg: 180   # D13: Nature teacher
+- npc_ref: npc.teacher.necromancy
+  position_m:
+  - 5002.0
+  - 1089.0
+  facing_deg: 180   # D13: Necromancy / soulcraft teacher
+- npc_ref: npc.teacher.othercraft
+  position_m:
+  - 5002.0
+  - 1098.0
+  facing_deg: 180   # D13: Othercraft teacher
+- npc_ref: npc.teacher.otherlore
+  position_m:
+  - 5004.4
+  - 1072.0
+  facing_deg: 180   # D13: Otherlore teacher
+- npc_ref: npc.teacher.otherwayfaring
+  position_m:
+  - 5001.4
+  - 1069.0
+  facing_deg: 180   # D13: Otherwayfaring teacher
+- npc_ref: npc.teacher.otherwhen
+  position_m:
+  - 4998.4
+  - 1075.0
+  facing_deg: 180   # D13: Otherwhen teacher
+- npc_ref: npc.teacher.ritualcraft
+  position_m:
+  - 5004.4
+  - 1069.0
+  facing_deg: 180   # D13: Rite and circle teacher
+- npc_ref: npc.teacher.transmutation
+  position_m:
+  - 4998.4
+  - 1069.0
+  facing_deg: 180   # D13: Transmutation teacher
+- npc_ref: npc.teacher.veilward
+  position_m:
+  - 5006.4
+  - 1072.0
+  facing_deg: 180   # D13: Veilward teacher
+- npc_ref: npc.teacher.vital
+  position_m:
+  - 5001.4
+  - 1067.0
+  facing_deg: 180   # D13: Vital teacher
+- npc_ref: npc.teacher.warding
+  position_m:
+  - 5006.4
+  - 1067.0
+  facing_deg: 180   # D13: Warding teacher
 - npc_ref: npc.sedge.nessa_reed
   position_m:
   - 4989

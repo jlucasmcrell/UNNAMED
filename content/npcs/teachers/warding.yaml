@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.warding.name
 tags: [npc]
-name: "Master of Warding"
-notes: "The warding teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Kaavel"
+notes: "The warding teacher of the D13 catalogue, a vaskaal of sedge levels. Voice: workshop shorthand that sounds like an insult; clipped, tool noise between clauses; knuckles a symbol onto the doorframe before opening it."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.warding
 teaches:
   - kind: technique

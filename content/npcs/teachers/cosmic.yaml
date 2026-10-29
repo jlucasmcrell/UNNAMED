@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.cosmic.name
 tags: [npc]
-name: "Master of Cosmic"
-notes: "The cosmic teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Thaelis Anwe"
+notes: "The cosmic teacher of the D13 catalogue, a siann of sedge levels. Voice: awe held at arm's length; very slow, with the sentence ending upward; looks slightly to the side of what she is talking about."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.cosmic
 teaches:
   - kind: technique

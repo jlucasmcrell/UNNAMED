@@ -1,14 +1,14 @@
 id: npc.teacher.force
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.force.name
 tags: [npc]
-name: "Master of Force"
-notes: "The force teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Skavel"
+notes: "The force teacher of the D13 catalogue, a vaskaal of sedge levels. Voice: dry numerical fatalism; steady, ending on a number; presses a palm to the air like testing a door."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.vaskaal
 dialogue_ref: dialogue.teacher.force
 teaches:
   - kind: technique

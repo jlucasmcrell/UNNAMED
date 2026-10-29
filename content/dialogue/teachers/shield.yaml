@@ -8,7 +8,7 @@ participants: [npc.teacher.shield]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the shield? Then you pay for it and you bring the hands for it.\""
+    text: "You will not be killed today. That is what this is. Not a wall - a promise."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You flinched. The board did not. Follow the board."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.shield.shield_bash, ability.catalogue.shield.cover_an_ally, ability.catalogue.shield.deflect, ability.catalogue.shield.bind_the_blade, ability.catalogue.shield.shield_wall, ability.catalogue.shield.shield_charge, ability.catalogue.shield.focus_shield_ward, ability.catalogue.shield.shield_step, ability.catalogue.shield.plant_the_pavise, ability.catalogue.shield.advancing_guard, ability.catalogue.shield.block_reflect] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Do not block the blow. Block the place the blow wanted to be."

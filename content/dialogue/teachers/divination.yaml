@@ -8,7 +8,7 @@ participants: [npc.teacher.divination]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the divination? Then you pay for it and you bring the hands for it.\""
+    text: "You want to know what happens. I want to know what you will do when you do. Different trades."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "Your question was a wish. Ask a question that could be wrong."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.divination.read_the_trace, ability.catalogue.divination.detect_working, ability.catalogue.divination.circle_of_recall, ability.catalogue.divination.sense_the_seam, ability.catalogue.divination.the_confident_wrong, ability.catalogue.divination.a_thing_that_has_not_happened] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Read the small thing honestly, and the large thing follows without being asked."

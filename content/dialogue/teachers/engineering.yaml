@@ -8,7 +8,7 @@ participants: [npc.teacher.engineering]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the engineering? Then you pay for it and you bring the hands for it.\""
+    text: "Everything holds until it does not. My work is predicting which, and when, within a season."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You have added strength. You have not added margin."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.engineering.water_and_weight, ability.catalogue.engineering.read_a_pipe_run, ability.catalogue.engineering.pressure_discipline, ability.catalogue.engineering.steam_cycle, ability.catalogue.engineering.keep_it_in_specification, ability.catalogue.engineering.schedule, ability.catalogue.engineering.internal_combustion_in_principle] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Find the load path. Then make the second one, because the first will be wrong."

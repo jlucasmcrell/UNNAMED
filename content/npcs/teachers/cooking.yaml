@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.cooking.name
 tags: [npc]
-name: "Master of Cooking"
-notes: "The cooking teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Nan Tiller"
+notes: "The cooking teacher of the D13 catalogue, a veth of ashen hollow. Voice: matter-of-fact comfort; steady, with a tap of the spoon for emphasis; tastes from the same spoon twice and refuses to explain why."
 role: trainer
 unique: true
 people_ref: people.veth

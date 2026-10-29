@@ -8,7 +8,7 @@ participants: [npc.teacher.force]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the force? Then you pay for it and you bring the hands for it.\""
+    text: "Force is not anger. It is a measured push with a measured cost, and you pay it in the room."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You pushed too much. The room pushed back, as it must."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.force.impulse_bolt, ability.catalogue.force.bare_bolt, ability.catalogue.force.scatter_impulse, ability.catalogue.force.weighted_strike, ability.catalogue.force.thunder_clap, ability.catalogue.force.sorting_impulse, ability.catalogue.force.ember_line, ability.catalogue.force.conductor_at_rest] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Measure the mass, then decide the push. Never the reverse; the reverse is how a wall wins."

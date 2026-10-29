@@ -1,14 +1,14 @@
 id: npc.teacher.masonry
 kind: npc
-sex: f
+sex: m
 schema: 1
 display_key: npc.teacher.masonry.name
 tags: [npc]
-name: "Master of Masonry"
-notes: "The masonry teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Grondur"
+notes: "The masonry teacher of the D13 catalogue, a ondrek of ashen hollow. Voice: slow geological humour; long, with a rumble at the end; puts his palm flat on the wall and keeps it there while he speaks."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.ondrek
 dialogue_ref: dialogue.teacher.masonry
 teaches:
   - kind: technique

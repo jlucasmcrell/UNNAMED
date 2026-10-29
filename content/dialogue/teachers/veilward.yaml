@@ -8,7 +8,7 @@ participants: [npc.teacher.veilward]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the veilward? Then you pay for it and you bring the hands for it.\""
+    text: "You are making a thing that must not be looked at. That means every part must be boring, including you."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "It works. It is also noticeable. Noticeable is how a ward becomes a signpost."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.veilward.the_old_ward, ability.catalogue.veilward.shed_the_overload, ability.catalogue.veilward.null_discipline, ability.catalogue.veilward.interpose, ability.catalogue.veilward.veil_collar, ability.catalogue.veilward.hold_the_firm_ground, ability.catalogue.veilward.improvised_tools, ability.catalogue.veilward.quick_work, ability.catalogue.veilward.material_sense, ability.catalogue.veilward.recover_whole, ability.catalogue.veilward.field_workshop, ability.catalogue.veilward.maker_s_mark, ability.catalogue.veilward.know_the_hand, ability.catalogue.veilward.master_s_correction, ability.catalogue.veilward.living_workshop] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Hide the work in the ordinary. The best ward looks like a bench someone forgot to tidy."

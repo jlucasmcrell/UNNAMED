@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.leatherworking.name
 tags: [npc]
-name: "Master of Leatherwork"
-notes: "The leatherwork teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Bess Marrow"
+notes: "The leatherwork teacher of the D13 catalogue, a veth of ashen hollow. Voice: warm menace; conversational, threat early; keeps a hide over her knee and works it while looking at you."
 role: trainer
 unique: true
 people_ref: people.veth

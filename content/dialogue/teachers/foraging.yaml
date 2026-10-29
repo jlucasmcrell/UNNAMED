@@ -8,7 +8,7 @@ participants: [npc.teacher.foraging]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the foraging? Then you pay for it and you bring the hands for it.\""
+    text: "Water, fibre, tinder. Three things make a night possible. Everything else is appetite."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You are taking the easy stand. The easy stand is the one everyone has already taken."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.foraging.water_fibre_tinder, ability.catalogue.foraging.forage_shot, ability.catalogue.foraging.the_fallow_year] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Take what grows back, leave what does not, and never take the last one standing."

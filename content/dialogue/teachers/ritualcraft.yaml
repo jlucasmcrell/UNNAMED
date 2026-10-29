@@ -8,7 +8,7 @@ participants: [npc.teacher.ritualcraft]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the rite and circle? Then you pay for it and you bring the hands for it.\""
+    text: "A ritual is a method written in gesture. Get the order wrong and you have made a different thing entirely."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You skipped the closing. Now you have a working with no door."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.ritualcraft.draw_the_circle, ability.catalogue.ritualcraft.lead_a_chorus, ability.catalogue.ritualcraft.keep, ability.catalogue.ritualcraft.inlay_and_anchor, ability.catalogue.ritualcraft.find_the_circle, ability.catalogue.ritualcraft.the_working] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Open, keep, close. The keeping is the part people lose their nerve in."

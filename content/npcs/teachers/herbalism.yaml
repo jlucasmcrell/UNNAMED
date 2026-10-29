@@ -4,8 +4,8 @@ sex: f
 schema: 1
 display_key: npc.teacher.herbalism.name
 tags: [npc]
-name: "Master of Herbalism"
-notes: "The herbalism teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Wren Farrow"
+notes: "The herbalism teacher of the D13 catalogue, a veth of starting frontier. Voice: conspiratorial delight; low and quick; holds a leaf to the light and turns it before naming it."
 role: trainer
 unique: true
 people_ref: people.veth

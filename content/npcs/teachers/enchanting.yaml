@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.enchanting.name
 tags: [npc]
-name: "Master of Enchanting"
-notes: "The enchanting teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Iaelin Sareth"
+notes: "The enchanting teacher of the D13 catalogue, a siann of ashen hollow. Voice: eerie patience; very slow, as though the room should wait; holds a ring between two fingers and does not look at it."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.enchanting
 teaches:
   - kind: technique

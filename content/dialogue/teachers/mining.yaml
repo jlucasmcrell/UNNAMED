@@ -8,7 +8,7 @@ participants: [npc.teacher.mining]
 root_node: greet
 nodes:
   greet:
-    text: "\"You want the mining? Then you pay for it and you bring the hands for it.\""
+    text: "Read the face before you hit it. That crack is not a wrinkle, it is a plan the rock already has."
     once: true
     next_if_exhausted: again
     choices:
@@ -20,7 +20,7 @@ nodes:
       - id: leave
         text: "Another time."
   again:
-    text: "\"Back for more, then.\""
+    text: "You swing at the middle. The middle is where it is weakest and where it kicks."
     choices:
       - id: teach
         text: "Teach me."
@@ -28,4 +28,4 @@ nodes:
           - { command: teach, refs: [ability.catalogue.mining.read_the_face, ability.catalogue.mining.iron_seam, ability.catalogue.mining.timber_and_prop, ability.catalogue.mining.loose_iron, ability.catalogue.mining.deep_seam, ability.catalogue.mining.the_stair_in_the_rock] }
         next: lesson
   lesson:
-    text: "The lesson goes as far as your hands carry it. Come back when the band moves."
+    text: "Follow the seam, not the ore. The seam is the honest line."

@@ -4,11 +4,11 @@ sex: f
 schema: 1
 display_key: npc.teacher.evasion.name
 tags: [npc]
-name: "Master of Evasion"
-notes: "The evasion teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+name: "Nairin Saelis"
+notes: "The evasion teacher of the D13 catalogue, a siann of ashen hollow. Voice: airy refusal to be impressed; quick, with a laugh she does not share; steps out of your reach before you have decided to reach."
 role: trainer
 unique: true
-people_ref: people.veth
+people_ref: people.siann
 dialogue_ref: dialogue.teacher.evasion
 teaches:
   - kind: technique
