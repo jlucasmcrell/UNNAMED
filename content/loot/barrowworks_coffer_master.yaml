@@ -1,0 +1,11 @@
+id: loot.barrowworks.coffer_master
+kind: loot
+schema: 1
+display_key: loot.barrowworks.coffer_master.name
+tags: [loot]
+notes: "The blind store's master coffer (D18 HOOK.LOCK.CONTAINER.T3): the gauge ring's own measuring set, locked at the tier that pays a specialist. Static contents."
+rolls: 0
+guaranteed:
+  - { item_ref: item.tome.fitting_tables, count_range: [1, 1] }
+  - { item_ref: item.tool.fitting_wedge, count_range: [1, 1] }
+  - { item_ref: item.material.ash_haft, count_range: [2, 3] }

@@ -1,0 +1,10 @@
+id: loot.barrowworks.coffer
+kind: loot
+schema: 1
+display_key: loot.barrowworks.coffer.name
+tags: [loot]
+notes: "A locked service coffer on the sorting floor (D18 HOOK.LOCK.CONTAINER.T1): the storeman's own kit, shut with a plate lock a first lock of its tier opens. Static contents, so a save that has picked it and one that has not roll the same table."
+rolls: 0
+guaranteed:
+  - { item_ref: item.tool.fitting_wedge, count_range: [1, 1] }
+  - { item_ref: item.material.timber, count_range: [1, 2] }

@@ -1,0 +1,17 @@
+id: item.tome.fitting_tables
+kind: item
+schema: 1
+display_key: item.tome.fitting_tables.name
+tags: [item]
+name: The Fitting Tables
+notes: "The works' own fitting tables, bound in board and shut in the master coffer (D18 HOOK.TEACHING.BOOK). Read once, it teaches how a wedge is cut and how a billet is drawn - the two things the ring could not finish."
+category: book
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 45
+use:
+  consume: true
+  grants:
+    - { kind: recipe, ref: recipe.smithing.fitting_wedge }
+    - { kind: recipe, ref: recipe.smithing.iron_billet }
