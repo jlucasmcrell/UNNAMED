@@ -474,7 +474,7 @@ public interface IQuestFacts
     int StandingLevel(string factionId) => 0;
 }
 
-public enum DeedKind { Crafted, Harvested, Killed, Delivered, Chose, Travelled }
+public enum DeedKind { Crafted, Harvested, Killed, Delivered, Chose, Travelled, Ghosted, Spared, Unseen }
 
 /// <summary>Something the character did that a counting objective may be waiting for.</summary>
 public sealed record Deed(DeedKind Kind, string Subject, int Count, int Quality, string? NpcId, long Tick);

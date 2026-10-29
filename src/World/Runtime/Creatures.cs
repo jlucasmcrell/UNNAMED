@@ -489,6 +489,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
         _stealthLevel = ProgressionEngine.SkillLevel(State.Progression, "skill.stealth");
         PracticeStealth(tick);
+        PracticeUnnoticedPass(tick);
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
@@ -615,6 +616,14 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private const long StealthPracticeTicks = 60;
     private long _nextStealthPractice;
 
+    /// <summary>How close an unaware hostile must be for a pass to count: six metres, canon's own number (STEALTH.md 9.2).</summary>
+    private const long CloseCallMm = 6_000;
+
+    /// <summary>How often a close pass pays: at most once every three seconds.</summary>
+    private const int CloseCallTicks = 60;
+
+    private long _nextCloseCall;
+
     /// <summary>
     /// The skill levels with use (finding 26, PROGRESSION.md §4.2): moving crouched while nothing has noticed the character is practice, one
     /// use every few seconds rather than one a tick. Its harder uses - a takedown, a body left unaware - are practiced where they happen.
@@ -626,6 +635,36 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (State.Creatures.Values.Any(c => c.Alive && c.Mind == CreatureMind.Engaged && c.Site.Space == State.Space))
             return;
         _nextStealthPractice = tick + StealthPracticeTicks;
+        _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", 1, PracticeOutcome.Success, tick)));
+    }
+
+    /// <summary>
+    /// Walking close to something that could have seen you and did not is what stealth is practice at (STEALTH.md 9.2's *unnoticed pass*): a
+    /// body within six metres of a live, unaware hostile, moving, and not already engaged. Once every three seconds at most, so a blind guard
+    /// standing beside a patient player is not a treadmill.
+    /// </summary>
+    private void PracticeUnnoticedPass(long tick)
+    {
+        if (tick < _nextCloseCall || !_intent().IsMoving)
+            return;
+        var player = State.Body;
+        bool close = false;
+        foreach (var creature in State.Creatures.Values)
+        {
+            if (!creature.Alive || creature.Site.Space != State.Space)
+                continue;
+            if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness))
+                continue;
+            long dx = creature.Body.XMm - player.XMm;
+            long dz = creature.Body.ZMm - player.ZMm;
+            if (dx * dx + dz * dz > CloseCallMm * CloseCallMm)
+                continue;
+            close = true;
+            break;
+        }
+        if (!close)
+            return;
+        _nextCloseCall = tick + CloseCallTicks;
         _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", 1, PracticeOutcome.Success, tick)));
     }
 

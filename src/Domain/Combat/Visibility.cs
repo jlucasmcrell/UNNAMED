@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 // UNNAMED Domain - how visible a body is, and to whom (STEALTH.md §2: light, cover, posture, silhouette)
 // No Godot references - pure C#
 
@@ -168,4 +169,31 @@ public static class Visibility
         double cos = (dx * Math.Sin(facing) + dz * Math.Cos(facing)) / distance;
         return cos >= Math.Cos(fieldOfViewMdeg / 2000.0 * Math.PI / 180);
     }
+}
+
+/// <summary>
+/// An authored way through a place that does not fight for it (STEALTH.md section 8.1): a shadow line, a grass line, a ledge, a roof way, a vent,
+/// a servant's passage, a wall, a sewer or a disguise. Each carries what it needs of the character and how much sight it denies, so a route is a
+/// real choice with a price rather than a free path.
+/// </summary>
+public sealed record StealthRouteSite(
+    string Key,
+    string Kind,
+    long XMm,
+    long ZMm,
+    long ToXMm,
+    long ToZMm,
+    int CoverPercent)
+{
+    /// <summary>The route kinds canon allows (STEALTH.md 8.1).</summary>
+    public static readonly ImmutableArray<string> Kinds = ImmutableArray.Create(
+        "shadow", "grass", "ledge", "roof", "vent", "servant", "wall", "sewer", "trap", "disguise");
+
+    /// <summary>The skill and band a route asks for, when it asks for one (a ledge is athletics, a vent is lockpicking).</summary>
+    public string? SkillId { get; init; }
+
+    public int SkillMin { get; init; }
+
+    /// <summary>How far this route can see to a target zone: a perch is a route that looks down one (STEALTH.md 8.2).</summary>
+    public long SightlineMm { get; init; }
 }

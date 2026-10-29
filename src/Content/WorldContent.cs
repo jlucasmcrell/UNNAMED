@@ -681,6 +681,7 @@ public static class WorldContent
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
                 locations.ToImmutable(), new Body(spawnX, space.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
+            Routes = Routes(map, minX, minZ, maxX, maxZ),
                 Tide = map.ContainsKey("tidal_water") ? BuildTide(Map(map, "tidal_water")) : null,
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
@@ -761,6 +762,43 @@ public static class WorldContent
     /// The cover a space offers (STEALTH §2.3): <c>covers: [{ key, kind, position_m, radius_m, height_m, blocks_sight_percent }]</c>. Its kind
     /// is one of the level kit's own, its height is what decides which postures it hides, and the fraction is what a body behind it is worth.
     /// </summary>
+    /// <summary>
+    /// The authors' ways through a place that are not a fight (D23 S6, STEALTH.md 8.1): each route's start and end, the sight it denies, and what it
+    /// asks of the character. A route outside the walkable bounds, of a kind canon does not name, or sharing a key with another, is a load error.
+    /// </summary>
+    private static ImmutableArray<StealthRouteSite> Routes(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ)
+    {
+        var routes = ImmutableArray.CreateBuilder<StealthRouteSite>();
+        foreach (var (entry, i) in (map.ContainsKey("routes") ? List(map, "routes") : new List<object>()).Select((r, i) => (r, i)))
+        {
+            var site = entry as Dictionary<object, object> ?? throw new FormatException($"routes[{i}] must be a map");
+            var (rx, rz) = Pair(site, "position_m");
+            var (tx, tz) = Pair(site, "to_m");
+            string kind = Text(site, "kind");
+            var route = new StealthRouteSite(Text(site, "key"), kind, rx, rz, tx, tz,
+                site.ContainsKey("cover_percent") ? Int(site, "cover_percent") : 50)
+            {
+                SightlineMm = site.ContainsKey("sightline_m") ? Mm(site, "sightline_m") : 0,
+            };
+            if (site.GetValueOrDefault("requires") is Dictionary<object, object> needs)
+                route = route with { SkillId = Text(needs, "skill_ref"), SkillMin = Int(needs, "skill_min") };
+            if (!route.Key.StartsWith("route.", StringComparison.Ordinal))
+                throw new FormatException($"route key '{route.Key}' must start with 'route.'");
+            if (!StealthRouteSite.Kinds.Contains(kind))
+                throw new FormatException($"{route.Key}: kind '{kind}' is not one of {string.Join(", ", StealthRouteSite.Kinds)}");
+            if (route.CoverPercent is < 0 or > 100)
+                throw new FormatException($"{route.Key}: cover_percent is 0..100");
+            if (rx < minX || rx > maxX || rz < minZ || rz > maxZ)
+                throw new FormatException($"{route.Key} starts outside the walkable bounds");
+            if (tx < minX || tx > maxX || tz < minZ || tz > maxZ)
+                throw new FormatException($"{route.Key} ends outside the walkable bounds");
+            routes.Add(route);
+        }
+        if (routes.Select(r => r.Key).Distinct(StringComparer.Ordinal).Count() != routes.Count)
+            throw new FormatException("two routes share a key");
+        return routes.ToImmutable();
+    }
+
     private static ImmutableArray<CoverVolume> Covers(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ, Action<bool, string, string> check)
     {
         var covers = ImmutableArray.CreateBuilder<CoverVolume>();

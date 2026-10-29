@@ -138,6 +138,30 @@ hooks:
   - { id: HOOK.LOCK.SEAL, class: placeable, scope: area, skills: [skill.lockpicking, skill.otherlore], evidence: {unmodelled: {why: "no seal kind; barriers are world-state folds, not seals"}}, min: {ruin: 1}, band_scaled: false, note: "A seal opened by knowledge and skill rather than by a pick." }
 
   # ---------------------------------------------------------------------------------------------
+  # STEALTH (D23 S6, STEALTH.md 8.4) - cover, shadow, light, routes, perches and the non-lethal way
+  # ---------------------------------------------------------------------------------------------
+  # The evidence is the region's own authored `covers:`, `lights:`, `routes:`, `containers:` and `walkable_surfaces:`. A hook whose content shape does
+  # not exist yet says so (unmodelled) instead of pretending: patrol paths with a blind-spot window, wind regions, kennels, runtime evidence props and
+  # the non-lethal quest flavour are the five still owed by the schema, and this file prints them every run until it can hold them.
+  - { id: HOOK.STEALTH.COVER, class: placeable, scope: area, skills: [skill.stealth, skill.bow, skill.marksmanship], evidence: {any_field: {section: covers, field: blocks_sight_percent}}, min: {town: 3, road: 2, wilderness: 2, dungeon: 2, ruin: 2} }
+  - { id: HOOK.STEALTH.SHADOW, class: placeable, scope: area, skills: [skill.stealth], evidence: {field_equals: {section: routes, field: kind, equals: shadow}}, min: {town: 1, road: 1, wilderness: 1, dungeon: 1, ruin: 1} }
+  - { id: HOOK.STEALTH.LIGHT, class: placeable, scope: area, skills: [skill.stealth, skill.bow, skill.thrown], evidence: {any_field: {section: lights, field: dousable}}, min: {town: 1, road: 1, wilderness: 1, dungeon: 1} }
+  - { id: HOOK.STEALTH.ROUTE, class: placeable, scope: area, skills: [skill.stealth, skill.athletics, skill.lockpicking], evidence: {any_field: {section: routes, field: kind}}, min: {town: 3, road: 3, wilderness: 3, dungeon: 3, ruin: 3} }
+  - { id: HOOK.STEALTH.PERCH, class: placeable, scope: area, skills: [skill.marksmanship, skill.bow], evidence: {any_field_min: {section: routes, field: sightline_m, at_least: 40}}, min: {town: 1, road: 1, wilderness: 1} }
+  - { id: HOOK.STEALTH.HIDEOUT, class: placeable, scope: area, skills: [skill.stealth], evidence: {any_field: {section: covers, field: height_m}}, min: {town: 2, dungeon: 2, ruin: 1} }
+  - { id: HOOK.STEALTH.HIDE_BODY, class: placeable, scope: area, skills: [skill.stealth, skill.athletics], evidence: {any_field: {section: containers, field: key}}, min: {town: 1, dungeon: 1, ruin: 1} }
+  - { id: HOOK.STEALTH.ALARM, class: placeable, scope: area, skills: [skill.stealth, skill.lockpicking], evidence: {any_field: {section: switches, field: key}}, min: {town: 1, dungeon: 1} }
+  - { id: HOOK.STEALTH.POST, class: npc, scope: area, skills: [skill.stealth, skill.social], evidence: {any_field: {section: npcs, field: npc_ref}}, min: {town: 1, dungeon: 1, road: 1} }
+  - { id: HOOK.STEALTH.DISGUISE, class: placeable, scope: area, skills: [skill.stealth, skill.social], evidence: {field_equals: {section: routes, field: kind, equals: disguise}}, min: {town: 1} }
+  - { id: HOOK.STEALTH.SURFACE, class: placeable, scope: area, skills: [skill.stealth], evidence: {any_field: {section: walkable_surfaces, field: id}}, min: {town: 1, dungeon: 1, road: 1} }
+  - { id: HOOK.STEALTH.PATROL, class: npc, scope: area, skills: [skill.stealth, skill.tactics], evidence: {unmodelled: {why: "a region holds NPC posts but no patrol path with a period and a blind spot window"}}, min: {town: 1, dungeon: 1} }
+  - { id: HOOK.STEALTH.WIND, class: placeable, scope: area, skills: [skill.marksmanship, skill.bow], evidence: {unmodelled: {why: "weather is a world system, not a region section with a wind vector region"}}, min: {wilderness: 1, road: 1} }
+  - { id: HOOK.STEALTH.DOG, class: enemy, scope: area, skills: [skill.stealth, skill.hunting], evidence: {unmodelled: {why: "no kennel or handler content in the regions yet"}}, min: {dungeon: 1} }
+  - { id: HOOK.STEALTH.THROWABLE, class: item, scope: area, skills: [skill.thrown], evidence: {any_field: {section: nodes, field: node_ref}}, min: {town: 1, dungeon: 1} }
+  - { id: HOOK.STEALTH.SIGN, class: placeable, scope: area, skills: [skill.stealth, skill.survival], evidence: {unmodelled: {why: "evidence props (footprints, blood, torn cloth) are created by the tracking system at runtime"}}, min: {} }
+  - { id: HOOK.STEALTH.NONLETHAL, class: placeable, scope: area, skills: [skill.stealth], evidence: {unmodelled: {why: "the quest schema holds objectives but not a non-lethal flavour flag yet; S6 adds the ghost tags, not the flag"}}, min: {town: 1} }
+
+  # ---------------------------------------------------------------------------------------------
   # MINING, PROSPECTING, AND THE UNDERGROUND â€” skill.mining, skill.prospecting, skill.excavation
   # ---------------------------------------------------------------------------------------------
   - { id: HOOK.NODE.ORE, class: node, scope: area, skills: [skill.mining, skill.smithing], evidence: {node: {prefix: ore}}, min: {wilderness: 2, ruin: 1, dungeon: 3, water: 1}, band_scaled: true, note: "Any ore node. The build has iron only: loose_iron and the finite iron_seam." }
@@ -259,8 +283,6 @@ hooks:
 # skill or system lands. Listed so the next pass declares them properly instead of inventing them again (WORLD_HOOKS.md Â§6).
 open_hooks:
   - { id: HOOK.TRACK.TRAIL, class: placeable, skills: [skill.tracking], needs: "a trail surface: prints, a drag mark, a disturbed bush" }
-  - { id: HOOK.STEALTH.COVER, class: placeable, skills: [skill.stealth], needs: "cover and shadow with a detection value" }
-  - { id: HOOK.STEALTH.PATROL, class: npc, skills: [skill.stealth], needs: "a guard who walks a route and looks" }
   - { id: HOOK.RIDE.MOUNT, class: placeable, skills: [skill.riding], needs: "a mount, a hitch and a stable" }
   - { id: HOOK.DIG.SITE, class: placeable, skills: [skill.excavation], needs: "a stratified dig with finds in it" }
   - { id: HOOK.LANG.SPEAKER, class: npc, skills: [skill.languages], needs: "an NPC with a tongue other than the player's" }

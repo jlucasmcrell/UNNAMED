@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Combat;
 
 namespace UNNAMED.Domain.Spatial;
 
@@ -167,6 +168,9 @@ public sealed record RegionLayout(
 
     /// <summary>The region's authored resource nodes (M3f).</summary>
     public ImmutableArray<NodeSite> Nodes { get; init; } = ImmutableArray<NodeSite>.Empty;
+
+    /// <summary>The region's authored stealth routes (D23 S6, STEALTH.md 8.1).</summary>
+    public ImmutableArray<StealthRouteSite> Routes { get; init; } = ImmutableArray<StealthRouteSite>.Empty;
 
     /// <summary>The region's crafting stations (M3f).</summary>
     public ImmutableArray<StationSite> Stations { get; init; } = ImmutableArray<StationSite>.Empty;

@@ -14459,6 +14459,19 @@ tidal_water:
     dry_at_m: -0.3
 
 # Gate 4 service posts on the accepted raised causeway / wetland route.
+lights:
+- { key: light.sedge_quay, position_m: [5440, 1270], radius_m: 6, intensity: 620, dousable: true }
+- { key: light.sedge_lamp, position_m: [5500, 1310], radius_m: 5, intensity: 600, dousable: true }
+covers:
+- { key: cover.sedge_reeds, kind: tall_grass, position_m: [4750, 950], radius_m: 6.0, height_m: 1.2, blocks_sight_percent: 67 }
+- { key: cover.sedge_pillar, kind: pillar, position_m: [5300, 1200], radius_m: 2.0, height_m: 2.0, blocks_sight_percent: 100 }
+- { key: cover.sedge_curtain, kind: curtain, position_m: [5600, 1400], radius_m: 3.0, height_m: 1.8, blocks_sight_percent: 100 }
+routes:
+- { key: route.sedge_levels.shadow.tidal_line, kind: shadow, position_m: [5430, 1265], to_m: [5500, 1300], cover_percent: 85 }
+- { key: route.sedge_levels.grass.reeds, kind: grass, position_m: [4700, 900], to_m: [4800, 1000], cover_percent: 67 }
+- { key: route.sedge_levels.ledge.shelf, kind: ledge, position_m: [5000, 1200], to_m: [5100, 1160], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.sedge_levels.vent.drain, kind: vent, position_m: [5200, 1140], to_m: [5250, 1180], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 }, sightline_m: 40 }
+- { key: route.sedge_levels.wall.counting_house, kind: wall, position_m: [5600, 1400], to_m: [5620, 1380], cover_percent: 70, requires: { skill_ref: skill.athletics, skill_min: 30 } }
 npcs:
 - npc_ref: npc.sedge.nessa_reed
   position_m:

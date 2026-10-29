@@ -150627,6 +150627,16 @@ doors:
   lock_tier: 1
   locked_text: 'A plate lock on a shed door, the screws long since replaced with nails.'
 
+routes:
+# D23 S6 (STEALTH.md 8.1): the frontier's own ways that are not a fight. Every one of them is a place the lights and covers above already made darkish
+# or leafy; none of them is free.
+- { key: route.starting_frontier.shadow.waystation_line, kind: shadow, position_m: [447, 730], to_m: [452, 728], cover_percent: 85 }
+- { key: route.starting_frontier.grass.road_verge, kind: grass, position_m: [705, 663], to_m: [690, 640], cover_percent: 67 }
+- { key: route.starting_frontier.roof.cairn_gantry, kind: roof, position_m: [975, 663], to_m: [960, 640], cover_percent: 75, requires: { skill_ref: skill.athletics, skill_min: 15 }, sightline_m: 45 }
+- { key: route.starting_frontier.ledge.cut_tailings, kind: ledge, position_m: [433, 652], to_m: [420, 640], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.starting_frontier.servant.foldscar_back, kind: servant, position_m: [547, 644], to_m: [560, 630], cover_percent: 60 }
+- { key: route.starting_frontier.disguise.watch_coat, kind: disguise, position_m: [704.5, 659], to_m: [712, 650], cover_percent: 50 }
+
 containers:
 - { key: container.blackvein.tool_cache, loot_ref: loot.blackvein_tool_cache, position_m: [432.5, 650.0], stack_slots: 2, lock_tier: 1 }
 - { key: container.blackvein.strongbox, loot_ref: loot.blackvein_strongbox, position_m: [428.0, 647.2], stack_slots: 2, lock_tier: 3 }

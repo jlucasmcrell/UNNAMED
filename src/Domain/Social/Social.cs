@@ -217,7 +217,9 @@ public sealed record DeedTally(DeedKind Kind, string SubjectId, string? NpcId, i
 /// </summary>
 public static class DeedKeys
 {
-    public static readonly ImmutableArray<DeedKind> Tallied = ImmutableArray.Create(DeedKind.Crafted, DeedKind.Harvested, DeedKind.Killed, DeedKind.Delivered);
+    public static readonly ImmutableArray<DeedKind> Tallied = ImmutableArray.Create(DeedKind.Crafted, DeedKind.Harvested, DeedKind.Killed, DeedKind.Delivered,
+        // D23 S6 (STEALTH.md 9.3): a space crossed unseen, crossed without a kill, and crossed without anyone even growing suspicious.
+        DeedKind.Ghosted, DeedKind.Spared, DeedKind.Unseen);
 
     public static string Key(DeedKind kind) => kind switch
     {
@@ -225,6 +227,9 @@ public static class DeedKeys
         DeedKind.Harvested => "harvested",
         DeedKind.Killed => "killed",
         DeedKind.Delivered => "delivered",
+        DeedKind.Ghosted => "ghosted",
+        DeedKind.Spared => "spared",
+        DeedKind.Unseen => "unseen",
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unknown deed"),
     };
 
