@@ -1,0 +1,9 @@
+﻿id: world.old_late.steadied
+kind: world_flag
+schema: 1
+display_key: world.old_late.steadied.name
+tags: [world_flag]
+notes: Whether the air at Old Late's foot has been steadied, once the giant's late breath was answered by hand. It lifts barrier.old_late_fold, the Other's own delay in the grass north of the giant. Set once by its switch (switch.old_late_fold).
+type: bool
+default: 0
+owning_system: S-22

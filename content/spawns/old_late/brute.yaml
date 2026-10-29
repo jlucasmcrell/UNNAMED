@@ -1,0 +1,26 @@
+﻿id: spawn.old_late.brute
+kind: spawn
+schema: 1
+display_key: spawn.old_late.brute.name
+tags:
+- spawn
+notes: "D18 OLD LATE: a barrowback at the giant's foot, level 5 - the level 4-6 fight the hook asks for, where armour and committed blows matter. It browses the rough ground north of the giant and does not stray onto the fold's scar."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.grazer.barrowback
+  count:
+  - 1
+  - 1
+  role: roamer
+at:
+  position_m:
+  - 650
+  - 735
+  radius_m: 0
+level_band:
+- 5
+- 5
+respawn:
+  kind: timer
+  window_ticks: 54000   # 45 minutes
+tier_hint: C
