@@ -128,7 +128,8 @@ public class EconomyHarnessTests
     /// </summary>
     private List<long> Runs(World world)
     {
-        var smiths = world.Setup.Merchants.Values.Where(m => m.MarketId is not null).Select(m => m.MerchantId).ToList();
+        var smiths = world.Setup.Merchants.Values.Where(m => m.MarketId is "market.ashen_hollow" or "market.cairnwold")
+            .Select(m => m.MerchantId).ToList();
         Assert.Equal(2, smiths.Count);
         long coin = 500;
         const int Pack = 20;

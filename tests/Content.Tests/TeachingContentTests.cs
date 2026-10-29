@@ -20,6 +20,11 @@ public class TeachingContentTests
     private sealed class EditedContent : IDisposable
     {
         public EditedContent(string relativePath, string find, string replace)
+            : this((relativePath, find, replace))
+        {
+        }
+
+        public EditedContent(params (string RelativePath, string Find, string Replace)[] edits)
         {
             string source = Path.Combine(RepoPaths.Root(), "content");
             foreach (string file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories))
@@ -28,10 +33,13 @@ public class TeachingContentTests
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
                 File.Copy(file, target);
             }
-            string path = Path.Combine(Root, relativePath);
-            string text = File.ReadAllText(path).Replace("\r\n", "\n");
-            Assert.Contains(find, text);
-            File.WriteAllText(path, text.Replace(find, replace));
+            foreach (var edit in edits)
+            {
+                string path = Path.Combine(Root, edit.RelativePath);
+                string text = File.ReadAllText(path).Replace("\r\n", "\n");
+                Assert.Contains(edit.Find, text);
+                File.WriteAllText(path, text.Replace(edit.Find, edit.Replace));
+            }
         }
 
         public string Root { get; } = Path.Combine(Path.GetTempPath(), "unnamed-tch-" + Guid.NewGuid().ToString("N"));
@@ -46,6 +54,13 @@ public class TeachingContentTests
         Assert.Contains(loader.Errors, e => e.Code == code && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
+    private static void AssertRefused(string code, string mentions, params (string RelativePath, string Find, string Replace)[] edits)
+    {
+        using var content = new EditedContent(edits);
+        var loader = Load(content.Root);
+        Assert.Contains(loader.Errors, e => e.Code == code && e.Message.Contains(mentions, StringComparison.Ordinal));
+    }
+
     [Fact]
     public void TheTeachers_AreKeraDurnTavarSelTamAndBerrin_EachWithTheirOwnLessons()
     {
@@ -55,17 +70,20 @@ public class TeachingContentTests
 
         Assert.Equal(new[]
         {
-            "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
-            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.tam_crowden",
+            "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
+            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.tam_crowden", "npc.road.rim_keeper",
+            "npc.sedge.iren_orr", "npc.sedge.nessa_reed", "npc.sedge.oren_pin", "npc.sedge.tess_ferry",
         }, npcs.Values.Where(n => !n.Teaches.IsEmpty).Select(n => n.Id));
         string[] Lessons(string npc, TeachingKind kind) => npcs[npc].Teaches.Where(o => o.Kind == kind).Select(o => o.DefinitionId).ToArray();
 
         Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.ashen_hollow.kera_voss", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.polearm.long_thrust" }, Lessons("npc.cairnwold.durn_skell", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.ashen_hollow.tavar_orr", TeachingKind.Technique));
+        Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.sedge.iren_orr", TeachingKind.Technique));
+        Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.sedge.tess_ferry", TeachingKind.Technique));
         Assert.Equal(new[] { "recipe.herbal.salve_minor", "recipe.herbal.salve_ember" }, Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Recipe));
         Assert.Equal(new[] { "recipe.cooking.roast_meat" }, Lessons("npc.cairnwold.tam_crowden", TeachingKind.Recipe));
-        // Berrin teaches every building piece (owner decision) and nothing else; nobody else teaches one.
+        // Berrin teaches every building piece (owner decision); Renn teaches the seven pieces that built the Wayhold.
         Assert.Equal(loader.GetByKind("piece").Keys.OrderBy(k => k, StringComparer.Ordinal),
             Lessons("npc.cairnwold.berrin_garth", TeachingKind.BuildingPiece).OrderBy(k => k, StringComparer.Ordinal));
         Assert.All(npcs["npc.cairnwold.berrin_garth"].Teaches, o => Assert.Equal(TeachingKind.BuildingPiece, o.Kind));
@@ -76,12 +94,16 @@ public class TeachingContentTests
         var wedge = npcs["npc.ashen_hollow.kera_voss"].Teaches.Single(o => o.DefinitionId == "recipe.smithing.fitting_wedge");
         Assert.Equal("world.barrowworks.ring_accessible", Assert.IsType<FlagRequirement>(Assert.Single(wedge.Requirements)).Condition.FlagId);
         // Techniques are asked for, for a fee, once familiar with the family's weapon.
-        Assert.All(npcs.Values.SelectMany(n => n.Teaches).Where(o => o.Kind == TeachingKind.Technique), o =>
+        var paidTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
+            .Where(o => o.Kind == TeachingKind.Technique && !o.ByDialogue);
+        Assert.All(paidTechniqueLessons, o =>
         {
-            Assert.False(o.ByDialogue);
             Assert.True(o.Fee > 0);
             Assert.Equal(15, Assert.IsType<SkillBandRequirement>(Assert.Single(o.Requirements)).MinLevel);
         });
+        var dialogueTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
+            .Where(o => o.Kind == TeachingKind.Technique && o.ByDialogue);
+        Assert.All(dialogueTechniqueLessons, o => Assert.Equal(30, o.Fee));
     }
 
     [Fact]
@@ -100,13 +122,16 @@ public class TeachingContentTests
 
     [Fact]
     public void SomethingLearnableWithNoSource_IsRefused() =>
-        AssertRefused("TCH001", "npcs/cairnwold/berrin_garth.yaml", "  - { kind: building_piece, piece_ref: piece.storage.chest, fee: 10 }\n", "",
-            "no findable source - no teacher, book, quest reward, experiment or starting package - teaches piece.storage.chest");
+        AssertRefused("TCH001", "no findable source - no teacher, book, quest reward, experiment or starting package - teaches piece.storage.chest",
+            ("npcs/cairnwold/berrin_garth.yaml", "  - { kind: building_piece, piece_ref: piece.storage.chest, fee: 10 }\n", ""),
+            ("npcs/ashen_hollow/renn_vale.yaml", "  - { kind: building_piece, piece_ref: piece.storage.chest, fee: 8 }\n", ""));
 
     [Fact]
     public void ATechniqueNobodyTeaches_IsRefused() =>
-        AssertRefused("TCH001", "npcs/ashen_hollow/tavar_orr.yaml", "ability_ref: ability.bow.aimed_shot", "ability_ref: ability.blade.power_strike",
-            "teaches ability.bow.aimed_shot");
+        AssertRefused("TCH001", "teaches ability.bow.aimed_shot",
+            ("npcs/ashen_hollow/tavar_orr.yaml", "ability_ref: ability.bow.aimed_shot", "ability_ref: ability.blade.power_strike"),
+            ("npcs/sedge/tess_ferry.yaml", "  - kind: technique\n    ability_ref: ability.bow.aimed_shot\n    fee: 30\n    by_dialogue: true\n", ""),
+            ("dialogue/sedge/tess_ferry.yaml", "    - id: teach\n      text: \"Show me how you shoot the fen birds.\"\n      consequences:\n      - command: teach\n        refs: [ability.bow.aimed_shot]\n", ""));
 
     [Fact]
     public void ACreaturesAttack_IsNeverTaught() =>

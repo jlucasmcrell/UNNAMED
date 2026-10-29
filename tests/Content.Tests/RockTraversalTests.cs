@@ -14,13 +14,13 @@ public class RockTraversalTests
     });
 
     [Fact]
-    public void TurnedRocks_AreClimbableHulls_AndFencesAreNot()
+    public void TurnedRocks_AreClimbableHulls_AndTheSmithyFenceCanBeVaulted()
     {
         var blockers = Region.Value.Layout.Space.Blockers;
         var rocks = blockers.Where(b => b.Id.StartsWith("cw_boulder_", StringComparison.Ordinal)).ToList();
         Assert.NotEmpty(rocks);
         Assert.All(rocks, r => Assert.True(r is PolygonBlocker && r.Climbable, r.Id));
-        Assert.DoesNotContain(blockers, b => b.Climbable && b.Id.Contains("fence", StringComparison.Ordinal));
+        Assert.Contains(blockers, b => b.Climbable && b.Id == "fence_smithy");
     }
 
     [Fact]

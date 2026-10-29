@@ -66,8 +66,10 @@ public class CraftingContentTests
 
         Assert.Equal(new[]
         {
-            "node.fibre.bog_cotton", "node.firstplay.ashbloom", "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.iron_seam", "node.ore.loose_iron",
-            "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall",
+            "node.carcass.boar", "node.carcass.deer", "node.carcass.grey_wolf", "node.fibre.bog_cotton", "node.firstplay.ashbloom",
+            "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.bog_iron", "node.ore.grey_iron", "node.ore.hidden_bog_iron",
+            "node.ore.hidden_grey_iron", "node.ore.iron_seam", "node.ore.loose_iron", "node.sedge.tidewashed_spar",
+            "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall", "node.wood.pine_resin",
         }, crafting.Nodes.Keys);
         var spoil = crafting.Nodes["node.ore.loose_iron"];
         Assert.Equal(("item.material.iron_ore", 1, 1, Respawn.Daily), (spoil.ItemId, spoil.Charges, spoil.YieldMin, spoil.Respawn));
@@ -95,7 +97,7 @@ public class CraftingContentTests
             "recipe.leatherwork.wool_trousers", "recipe.outfitting.herb_pouch", "recipe.outfitting.pack_large", "recipe.outfitting.quiver",
             "recipe.outfitting.reagent_satchel", "recipe.outfitting.satchel", "recipe.smithing.fitting_wedge", "recipe.smithing.iron_billet",
             "recipe.smithing.lame_coif", "recipe.smithing.lame_sabatons", "recipe.smithing.lamework_jack", "recipe.smithing.march_spear",
-            "recipe.smithing.torch",
+            "recipe.smithing.torch", "recipe.tanning.wolf_hide",
         }, crafting.Recipes.Keys);
         Assert.Equal(("workbench", 12), (crafting.Recipes["recipe.fletching.arrows"].StationKind, crafting.Recipes["recipe.fletching.arrows"].OutputCount));
         var billet = crafting.Recipes["recipe.smithing.iron_billet"];

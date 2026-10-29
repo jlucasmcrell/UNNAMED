@@ -149,6 +149,8 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Salvage), // pure disassembly preview; mutation uses SalvageCommand
             nameof(UNNAMED.World.Runtime.Simulation.TameOf), // read-only progress of an active taming offer
             nameof(UNNAMED.World.Runtime.Simulation.StashesAt),   // the stashes in a crafting station's settlement and what they hold, for the recipe inputs' sources (inventory organisation)
+            nameof(UNNAMED.World.Runtime.Simulation.IsLocked),   // read-only lock state for an authored door or container
+            nameof(UNNAMED.World.Runtime.Simulation.LeaveCarcass), // the gathering interaction that leaves a harvested carcass
         };
         var exposed = typeof(UNNAMED.World.Runtime.Simulation)
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly)

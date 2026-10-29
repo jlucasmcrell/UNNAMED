@@ -126,7 +126,7 @@ public class ItemizationContentTests
     public void Crafting_HoldsItsExperiments_MasterworkFlags_AndDropBands()
     {
         var crafting = CraftingContent.Build(Game());
-        Assert.Equal(new[] { "recipe.leatherwork.cloak", "recipe.leatherwork.timber_shield", "recipe.smithing.torch" },
+        Assert.Equal(new[] { "recipe.leatherwork.cloak", "recipe.leatherwork.timber_shield", "recipe.smithing.torch", "recipe.tanning.wolf_hide" },
             crafting.Recipes.Values.Where(r => r.Experiment).Select(r => r.Id));
         Assert.Equal((2, 1), (crafting.Constants.ExperimentsPerStation["workbench"], crafting.Constants.ExperimentsPerStation["forge"]));
         Assert.True(crafting.Recipes["recipe.leatherwork.smith_gloves"].MasterworkPossible);

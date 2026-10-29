@@ -51,7 +51,7 @@ public class FoldscarTests
     private static (string, bool)[] Switches(Arena arena) => arena.Simulation.Switches
         .Where(s => s.Site.FlagId.StartsWith("world.foldscar.", StringComparison.Ordinal)).Select(s => (s.Site.Key, s.Set)).ToArray();
 
-    private static bool FoldStands(Arena arena) => arena.Simulation.Barriers.Single().Standing;
+    private static bool FoldStands(Arena arena) => arena.Simulation.Barriers.Single(b => b.Site.Key == "barrier.foldscar_fold").Standing;
 
     /// <summary>The three stones in any order and then the heart, walked the way the bible's acceptance path goes (§31).</summary>
     private static void TurnTheStonesAndSteadyTheHeart(Arena arena)

@@ -78,7 +78,13 @@ public class WorldContentTests
         Assert.Contains(layout.Space.WalkableSurfaces, s => s.OriginXMm == 436_000 && s.HeightAtMm(440_000, 720_000) == 10_000);
         Assert.Contains(layout.Space.WalkableSurfaces, s => s.OriginXMm == 452_000 && s.MaxXMm == 454_000);
         Assert.Equal(8_000, layout.Locations.Single(l => l.Id == "location.den_mouth").DiscoveryRadiusMm);   // PROTOTYPE.md O2
-        Assert.Equal(new MovementRules(3_200, 50, 160, 350, 1_600) { StepUpMm = 400, MantleMm = 1_600 }, WorldContent.BuildMovement(loader));
+        var movement = WorldContent.BuildMovement(loader);
+        Assert.Equal((3_200, 50, 160, 350, 1_600, 720, 360, 500, 3_000, 1_200, 840_000, 70, 1_960_000),
+            (movement.BaseSpeedMmPerSecond, movement.WalkPercent, movement.SprintPercent, movement.BodyRadiusMm, movement.InteractReachMm,
+                movement.JumpApexMm, movement.JumpRiseMs, movement.StepUpMm, movement.MantleMm, movement.VaultMm,
+                movement.ScrambleGradeMmPerM, movement.ScramblePercent, movement.SheerGradeMmPerM));
+        Assert.Equal(new[] { "ladder_" }, movement.ClimbPrefixes);
+        Assert.Equal(new[] { "barrier.fold", "door.sealed" }, movement.UnclimbablePrefixes);
         Assert.Equal(new TierRules(150_000, 600_000, 2_000_000, 10_000), WorldContent.BuildTiers(loader));
         Assert.Equal(50, WorldContent.TickMilliseconds(loader));
     }
