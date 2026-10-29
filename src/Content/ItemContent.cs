@@ -208,6 +208,7 @@ public static class ItemContent
             map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0)
         {
             Name = map.GetValueOrDefault("name") as string,
+            Assembly = AssemblyOf(id, map),
             Class = itemClass,
             LightRadiusMm = light,
             StealthPenalty = stealth,
@@ -359,6 +360,27 @@ public static class ItemContent
 
     private static Dictionary<object, object> Read(string? yaml) =>
         string.IsNullOrEmpty(yaml) ? new Dictionary<object, object>() : Yaml.Deserialize<Dictionary<object, object>>(yaml) ?? new Dictionary<object, object>();
+
+    /// <summary>
+    /// The assembly block an item may carry (D21, GEAR_GENERATION.md §2.5): its family, the slots that family has (defaulting to all of them), and the
+    /// maker allowed to build it. Absent means a plain authored item.
+    /// </summary>
+    private static AssemblySpec? AssemblyOf(string id, Dictionary<object, object> map)
+    {
+        if (map.GetValueOrDefault("assembly") is not Dictionary<object, object> assembly)
+            return null;
+        string family = Text(assembly, "family");
+        if (!GearContent.FamilySlots.TryGetValue(family, out var known))
+            throw new FormatException($"{id} assembly.family '{family}' is not one of {string.Join(", ", GearContent.FamilySlots.Keys)}");
+        var slots = assembly.GetValueOrDefault("slots") is List<object> listed
+            ? listed.Select((v, i) => v as string ?? throw new FormatException($"{id} assembly.slots[{i}] is a name")).ToImmutableArray()
+            : known;
+        string? maker = assembly.GetValueOrDefault("maker_ref") as string;
+        int tier = assembly.ContainsKey("part_tier") ? Int(assembly, "part_tier") : 1;
+        if (tier < 1)
+            throw new FormatException($"{id} assembly.part_tier is 1 or more");
+        return new AssemblySpec(family, slots, maker, tier);
+    }
 
     private static List<object> List(Dictionary<object, object> map, string key) =>
         map.TryGetValue(key, out var value) && value is List<object> list ? list : throw new KeyNotFoundException($"'{key}' must be a list");

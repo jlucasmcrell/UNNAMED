@@ -1,0 +1,12 @@
+id: item.ammo.dart_cartridge
+kind: item
+schema: 1
+display_key: item.ammo.dart_cartridge.name
+tags: [item, ammo, stealth]
+name: Dart Cartridge
+notes: "A sealed cartridge of darts with a sleep coating: the launcher feeds it, and the round carries the payload. Sold by tech makers' stalls and carried as a relic; crafted with fabrication and alchemy."
+category: consumable
+stack_max: 12
+weight: 0.05
+value_base: 8
+rarity: common

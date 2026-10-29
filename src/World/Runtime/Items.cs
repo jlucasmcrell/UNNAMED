@@ -109,7 +109,7 @@ internal sealed record ExchangeItems(ImmutableArray<StackTake> Takes, string? It
 }
 
 /// <summary>Several material outputs, checked together before an input is consumed.</summary>
-internal sealed record StackGive(string ItemId,int Count,int Quality=0);
+internal sealed record StackGive(string ItemId,int Count,int Quality=0,UNNAMED.Domain.Items.GearBuild? Built=null);
 internal sealed record ExchangeItemBatch(ImmutableArray<StackTake> Takes,ImmutableArray<StackGive> Gives) : InternalCommand
 {
     public NotableOrigin? Origin {get;init;}
@@ -325,7 +325,7 @@ internal sealed partial class InventorySystem
             PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, _context.CellOfSite(source.XMm, source.ZMm).ToString()),
             _ => null,
         };
-        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null);
+        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null, built: whole ? source.Built : null);
         if (command.From.Kind == PlaceKind.Container && _context.FindContainer(command.From.ContainerKey!) is { EmptyFlag: { } flag } emptiedSite
             && ContentsOf(emptiedSite).Count == 0)
             _context.Dispatch(new SetWorldFlag(_context.CellOfSite(_context.ContainerSpace(emptiedSite), emptiedSite.XMm, emptiedSite.ZMm), flag, 1));
@@ -427,7 +427,7 @@ internal sealed partial class InventorySystem
     public string? Handle(ExchangeItemBatch command,long tick)
     {
         if(command.Gives.Any(g=>g.Count<1))return "An output count must be positive";
-        var gives=command.Gives.GroupBy(g=>(g.ItemId,g.Quality)).Select(g=>new StackGive(g.Key.ItemId,g.Sum(x=>x.Count),g.Key.Quality))
+        var gives=command.Gives.GroupBy(g=>(g.ItemId,g.Quality,g.Built)).Select(g=>new StackGive(g.Key.ItemId,g.Sum(x=>x.Count),g.Key.Quality,g.Key.Built))
             .OrderBy(g=>g.ItemId,StringComparer.Ordinal).ThenBy(g=>g.Quality).ToArray();
         foreach(var give in gives)if(Items.Catalog.Find(give.ItemId) is null)return $"{give.ItemId} is not an item this build knows";
         var remaining=State.Inventory.ToList();long spentGrams=0;
@@ -444,7 +444,7 @@ internal sealed partial class InventorySystem
         foreach(var give in gives)
         {
             var definition=Items.Catalog.Find(give.ItemId)!;
-            int free=definition.Stacks?remaining.Where(e=>e.DefId==give.ItemId && e.Quality==give.Quality && !e.Junk).Sum(e=>Math.Max(0,definition.StackMax-e.Count)):0;
+            int free=definition.Stacks && give.Built is null ?remaining.Where(e=>e.DefId==give.ItemId && e.Quality==give.Quality && !e.Junk).Sum(e=>Math.Max(0,definition.StackMax-e.Count)):0;
             int needed=Stacks(Math.Max(0,give.Count-free),definition.StackMax).Count();
             more.AddRange(Enumerable.Repeat(PackKinds.Of(definition),needed));addedGrams+=definition.WeightGrams*give.Count;
         }
@@ -455,7 +455,7 @@ internal sealed partial class InventorySystem
         if(gives.Length>0 && weight>CarryLimitGrams())return $"too heavy: {weight/1000.0:0.##} kg of {CarryLimitGrams()/1000.0:0.##} kg";
         Remove(command.Takes.Select(t=>(State.Inventory.Single(e=>e.ItemId==t.ItemId),t.Count)).ToList());
         SpendFromStash(command.StashTakes);
-        foreach(var give in gives)Put(ItemPlace.Carried,Items.Catalog.Find(give.ItemId)!,give.Count,null,give.Quality,null,command.Origin,tick);
+        foreach(var give in gives)Put(ItemPlace.Carried,Items.Catalog.Find(give.ItemId)!,give.Count,null,give.Quality,null,command.Origin,tick,built:give.Built);
         return null;
     }
 
@@ -713,6 +713,8 @@ internal sealed partial class InventorySystem
         public NotableRecord? Notable { get; init; }
 
         public ItemWear? Wear { get; init; }
+
+        public UNNAMED.Domain.Items.GearBuild? Built { get; init; }
     }
 
     private string? Check(ItemPlace place, bool trading)
@@ -752,6 +754,7 @@ internal sealed partial class InventorySystem
                     {
                         Notable = item.Notable,
                         Wear = item.Wear,
+                        Built = item.Built,
                     }).FirstOrDefault(l => l.Ref == itemRef);
             }
         }
@@ -761,12 +764,13 @@ internal sealed partial class InventorySystem
     private bool IsCorpse(string key) => _context.CorpseSites().Any(s => s.Key == key);
 
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
-    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable, ItemWear? Wear)> ContentsOf(ContainerSite site)
+    private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable, ItemWear? Wear,
+        UNNAMED.Domain.Items.GearBuild? Built)> ContentsOf(ContainerSite site)
     {
         if (State.World.Container(site.Key) is { } record)
-            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear)).ToList();
+            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear, i.Built)).ToList();
         return Baseline(site).Select((stack, i) => ($"{site.Key}#{i:00}", stack.Drop.ItemId, stack.Drop.Count, (EntityId?)null, stack.Quality, (NotableRecord?)null,
-            (ItemWear?)null)).ToList();
+            (ItemWear?)null, RollBuild(stack.Drop.ItemId, stack.Quality, site, _context))).ToList();
     }
 
     /// <summary>
@@ -797,6 +801,21 @@ internal sealed partial class InventorySystem
         return stacks;
     }
 
+    /// <summary>
+    /// The build a dropped piece arrives with (D21 G4): canon's roll for the maker, the part per slot and the material, seeded on the same loot
+    /// channel as the drop itself, so a chest's contents are what they always were. Null for anything that is not assembled.
+    /// </summary>
+    private static UNNAMED.Domain.Items.GearBuild? RollBuild(string itemId, int quality, ContainerSite site, SystemContext context)
+    {
+        if (context.Setup.Items.Catalog.Find(itemId)?.Assembly is not { } assembly
+            || !context.Setup.Gear.Makers.TryGetValue(assembly.MakerId ?? "", out var maker))
+            return null;
+        var channel = RngChannel.Open(context.State.World.WorldSeed, context.CellOfSite(context.ContainerSpace(site), site.XMm, site.ZMm),
+            "gear-roll", site.Key);
+        return UNNAMED.Domain.Items.GearRoll.Roll(context.Setup.Items.Catalog.Find(itemId)!, maker, assembly.PartTier,
+            context.Setup.Gear.Parts, context.Setup.Gear.Materials, sample => channel.UInt64(sample) / 18446744073709551616.0);
+    }
+
     /// <summary>The first change to a container: it and each stack in it get an identity, and its record starts.</summary>
     private ContainerRecord Materialize(ContainerSite site)
     {
@@ -804,7 +823,11 @@ internal sealed partial class InventorySystem
             return existing;
         var registry = State.World.Registry;
         var chest = registry.CreateEntity(DefinitionId.Parse(site.Key), EntityKind.Container).InstanceId;
-        var items = Baseline(site).Select(stack => new ContainerItem(NewItem(stack.Drop.ItemId), stack.Drop.ItemId, stack.Drop.Count) { Quality = stack.Quality })
+        var items = Baseline(site).Select(stack => new ContainerItem(NewItem(stack.Drop.ItemId), stack.Drop.ItemId, stack.Drop.Count)
+            {
+                Quality = stack.Quality,
+                Built = RollBuild(stack.Drop.ItemId, stack.Quality, site, _context),
+            })
             .ToImmutableArray();
         var record = new ContainerRecord(site.Key, chest, _context.CellOfSite(_context.ContainerSpace(site), site.XMm, site.ZMm).ToString(), items);
         State.SetContainer(_owner, record);
@@ -860,7 +883,7 @@ internal sealed partial class InventorySystem
     /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
     /// </summary>
     private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick,
-        ItemWear? wear = null, (long XMm, long ZMm)? at = null)
+        ItemWear? wear = null, (long XMm, long ZMm)? at = null, UNNAMED.Domain.Items.GearBuild? built = null)
     {
         if (notable is null && ItemClasses.KeepsRecord(definition, quality))
         {
@@ -875,7 +898,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality && !e.Junk).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built });
                 Retire(moving);
                 Commit(entries);
                 break;

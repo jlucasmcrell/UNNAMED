@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Persistence;
@@ -78,6 +79,52 @@ public class CraftingTests
         Arena.Resume(before.Simulation.Setup, new SaveStore(profile.Root).Load(SaveSlots.Manual(slot), new LoadContext(session.Generator, session.Content, new Registry())));
 
     // ── the nodes ───────────────────────────────────────────────────────────
+
+
+    [Fact]
+    public void AnAssembledSword_IsBuiltFromThePartsThePlayerPicked_AndNotFromTheFirstOnesOffered()
+    {
+        // D21 G3: the bench asks which parts, the craft carries them, and the piece that lands in the pack remembers them.
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        string recipeId = "recipe.smithing.assembled_sword";
+        var recipe = session.Setup.Crafting.Recipes[recipeId];
+        var assembly = session.Setup.Items.Catalog.Find(recipe.OutputItemId)!.Assembly!;
+        var maker = session.Setup.Gear.Makers[assembly.MakerId!];
+
+        // The player picks the maker's second blade and the second guard - not the defaults - and leaves the rest alone.
+        string blade = maker.PartSets[assembly.Family]["blade"][1].PartId;
+        string guard = maker.PartSets[assembly.Family]["guard"][1].PartId;
+        var picked = ImmutableSortedDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+        picked["blade"] = blade;
+        picked["guard"] = guard;
+
+        var arena = Arena.OpenCreatures(session, session.Setup, AtHearth, 0, Array.Empty<(string, double, double, string)>(),
+            r => Usual(Taught(r)) is var taught
+                ? Carrying(taught.WithProgression(taught.Progression with
+                {
+                    Known = taught.Progression.Known.Add(recipeId, new KnownTechnique(LearningSource.Experiment, "forge", 0)),
+                }), Stack(Billet, 4), Stack(Haft, 2))
+                : taught);
+
+        Assert.Null(arena.Submit(new CraftCommand(arena.Player, recipeId) { Parts = picked.ToImmutable() }));
+        arena.Tick();
+
+        // The character also starts with a plain sword, so take the one this bench made.
+        var made = Assert.Single(arena.Simulation.Player.Inventory.Where(e => e.DefId == recipe.OutputItemId && e.Built is not null));
+        Assert.NotNull(made.Built);
+        Assert.Equal(assembly.Family, made.Built!.Family);
+        Assert.Equal(maker.Id, made.Built.MakerId);
+        Assert.Equal(blade, made.Built.Parts["blade"]);
+        Assert.Equal(guard, made.Built.Parts["guard"]);
+        Assert.Equal(maker.PartSets[assembly.Family]["grip"][0].PartId, made.Built.Parts["grip"]);   // the default filled the rest
+
+        // And the piece it makes is that assembly, resolved: not the plain template.
+        var resolved = GearResolver.Resolve(session.Setup.Items.Catalog.Find(made.DefId),
+            made.Built, session.Setup.Gear.Parts, session.Setup.Gear.Materials, maker);
+        Assert.False(resolved.Clamped);
+        Assert.True(resolved.DamageMax > 0);
+    }
 
     [Fact]
     public void TheHollow_HasItsSeamAndItsStand_InTheWorldsBaseline()

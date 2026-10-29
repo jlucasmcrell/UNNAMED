@@ -18,3 +18,4 @@ hands: one
 skill_ref: skill.one_hand_blade
 durability_max: 200       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
 repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: sword, maker_ref: maker.veth.reach_smith, part_tier: 1 }

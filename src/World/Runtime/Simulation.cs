@@ -107,6 +107,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>Resource nodes, recipes, and the tuning of quality (M3f).</summary>
     public CraftingSetup Crafting { get; init; } = CraftingSetup.Empty;
 
+    /// <summary>D21's parts, makers and materials: what an assembled recipe builds from.</summary>
+    public UNNAMED.Domain.Items.GearSetup Gear { get; init; } = UNNAMED.Domain.Items.GearSetup.Empty;
+
     /// <summary>The named NPCs and their conversations (M4).</summary>
     public SocialSetup Social { get; init; } = SocialSetup.Empty;
 

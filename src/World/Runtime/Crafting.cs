@@ -42,7 +42,14 @@ public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand
 internal sealed record LeaveCarcassCommand(string Key, string NodeDefId, long XMm, long ZMm) : InternalCommand;
 
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
-public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor);
+public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor)
+{
+    /// <summary>
+    /// The parts the player chose, slot to part (D21 G3). Null for an ordinary recipe; for an assembled one it may name only some slots, and the
+    /// maker's first part fills whatever is left, so Make still works before the picker is touched.
+    /// </summary>
+    public System.Collections.Immutable.ImmutableSortedDictionary<string, string>? Parts { get; init; }
+}
 
 /// <summary>
 /// Experiment at a station within reach (C12:263-302; WP3a): with what is carried, try for one of the station's experiment recipes not yet
@@ -289,7 +296,12 @@ internal sealed partial class CraftingSystem
         // A fine piece of a masterwork-possible recipe, at an upgraded station, may come out masterwork (C12:186-205) - with the maker's mark.
         if (recipe.QualityRoll)
             quality = CraftingRules.Masterwork(quality, recipe.MasterworkPossible, station.Grade, Setup.Constants, channel.UInt64(1) / SampleScale);
-        var gives=ImmutableArray.Create(new StackGive(recipe.OutputItemId,recipe.OutputCount,quality));
+        // D21 G3: an assembled item is built from the parts the player picked, and the instance remembers them.
+        var built = _context.Setup.Items.Catalog.Find(recipe.OutputItemId)?.Assembly is { } assembly
+            && _context.Setup.Gear.Makers.ContainsKey(assembly.MakerId ?? "")
+                ? _context.Setup.Gear.BuildOf(assembly, command.Parts)
+                : null;
+        var gives=ImmutableArray.Create(new StackGive(recipe.OutputItemId,recipe.OutputCount,quality,built));
         int flasks=recipe.Inputs.Where(i=>i.ItemId==Camps.Flask).Sum(i=>i.Count);
         if(flasks>0) gives=gives.Add(new StackGive(Camps.EmptyFlask,flasks,Quality.Standard));
         var exchange = new ExchangeItemBatch(takes.ToImmutable(),gives)

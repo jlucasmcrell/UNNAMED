@@ -1,0 +1,21 @@
+id: item.weapon.stun_device
+kind: item.weapon
+schema: 1
+display_key: item.weapon.stun_device.name
+tags: [weapon, tech, stealth, stun]
+name: Stun Device
+notes: "A contact stunner: shock at low damage and a short interrupt, never sleep (4.3.1)."
+category: weapon
+stack_max: 1
+weight: 1.4
+value_base: 110
+item_class: ordinary
+damage: [2, 3]
+damage_type: shock
+attack_speed: 1.0
+reach: 1.0
+hands: one
+skill_ref: skill.projector
+durability_max: 120
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: stunner, maker_ref: maker.vaskaal.charge_kit, part_tier: 2 }

@@ -1,0 +1,14 @@
+id: part.bow.limbs.recurve
+kind: part
+schema: 1
+display_key: part.bow.limbs.recurve.name
+asset: "D21 Bow limbs: SM_Bow [B], PARTIAL"
+tags: [limbs, recurve]
+name: Recurve Limbs
+notes: "Limbs that bend back at the tips: a little more speed for a little more making."
+family: bow
+slot: limbs
+mesh: mesh.part.bow.limbs.recurve
+material_slots: [wood, horn]
+tier_min: 2
+stat_contrib: { damage_mult: 1.05, reach_add: 0.0, weight_add: 0.1, speed_mult: 1.04, durability_add: 0 }

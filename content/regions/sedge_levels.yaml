@@ -14472,6 +14472,12 @@ routes:
 - { key: route.sedge_levels.ledge.shelf, kind: ledge, position_m: [5000, 1200], to_m: [5100, 1160], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 - { key: route.sedge_levels.vent.drain, kind: vent, position_m: [5200, 1140], to_m: [5250, 1180], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 }, sightline_m: 40 }
 - { key: route.sedge_levels.wall.counting_house, kind: wall, position_m: [5600, 1400], to_m: [5620, 1380], cover_percent: 70, requires: { skill_ref: skill.athletics, skill_min: 30 } }
+gear_makers:
+  - maker.vaskaal.keelward_salvage
+  - maker.vaskaal.charge_kit
+  - maker.constructed.caldera_works
+  - maker.other.other_touched
+  - maker.oldworks.old_works
 npcs:
 - npc_ref: npc.sedge.nessa_reed
   position_m:

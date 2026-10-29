@@ -1,0 +1,14 @@
+id: part.projector.tractor.optic.optic_lens
+kind: part
+schema: 1
+display_key: part.projector.tractor.optic.optic_lens.name
+tags: [optic, lens]
+name: Glass Lens
+notes: "Ground glass in a brass ring: the difference between seeing it and guessing."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons"
+family: projector.tractor
+slot: optic
+mesh: mesh.part.projector.tractor.optic.optic_lens
+material_slots: [optic]
+tier_min: 2
+stat_contrib: { damage_mult: 1.02, reach_add: 0.1, weight_add: 0.08, speed_mult: 1.0, durability_add: 0 }

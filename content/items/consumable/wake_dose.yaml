@@ -1,0 +1,13 @@
+id: item.consumable.wake_dose
+kind: item
+schema: 1
+display_key: item.consumable.wake_dose.name
+tags: [item, stealth]
+name: Wake Dose
+notes: "A counter-draught: it ends effect.sleep and clears drowsy (GEAR_GENERATION 4.3.2's wake dose). Every apothecary sells one, which is the point of non-lethal play."
+category: consumable
+stack_max: 5
+weight: 0.1
+value_base: 22
+rarity: common
+use: { effect_ref: effect.mending, consume: true }
