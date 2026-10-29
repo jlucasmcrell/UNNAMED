@@ -390,3 +390,14 @@ Gaps carried in the post and here:
 - the lane's farm check is still owed.
 Learned again, and worth not repeating: **the game refuses a new content kind until src/Presentation is rebuilt** -
 dotnet build src/Content alone leaves the running game on a stale assembly and every ritual file fails KIND001.
+
+### Round 23 - the working motion is wired (not yet seen)
+ANIM.DRAW_CIRCLE now has code behind it: Figure.Work() is a new virtual (D18 SYSTEMS, needed-2), SkinnedFigure.Work()
+opens a one-shot window that plays the catalog's **cast** clip for its length (the same path the combat windup uses,
+not a parallel one), and the SwitchSet handler in Main.Events.cs calls _avatar.Work() for any switch.ritual.*.
+src/Presentation builds with 0 errors.
+**Not yet observed**, and not claimed: the motion has been built and wired but never seen performing, because no run so far
+sets a ritual switch. InteractCommand(player, key) is how a switch is set (BarrowsorksReview.cs:426,
+PlayerController.cs:295), so the proof is a run that submits it at switch.ritual.foldscar_watch and captures two
+frames a fraction of a second apart. That is the first task next round, and the same wiring then covers
+ANIM.SPEAK_DEAD (talk clip on a grave) if that is judged honest enough to stand as the animation.
