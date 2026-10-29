@@ -287,3 +287,17 @@ failed runs and is worth remembering.
   wired and seen.
 - the farm check for the lane is still owed.
 Frames (grey markers, real world): ds_sys2_shots\audit_grave\raw\sys2_grave_den.png, sys2_grave_road.png.
+
+### Round 16 - both structure binding routes tried, marker still a placeholder
+Tried and failed to make the marker real art:
+1. structures: { grave_marker_halda: { model: landmark_ph_waystone_a } } - no effect;
+2. structure_prefixes: { grave_marker_: { models: [landmark_ph_waystone_a], material: stone } } - no effect, the
+   frame is byte-identical (same sha256) after the change, with 474 assets drawn still reported.
+What IS known: HollowView draws real art only when ArtStructure(blocker, terrain) returns a placement, and
+ArtBindings.Structure(id) checks the exact id map, then walks _prefixes with id.StartsWith(prefix). Both of my
+routes should therefore match, so the failing link is further along - the model name, the material, or ArtStructure
+declining for a structure with no structure/kind field. The next probe is one print inside ArtStructure for
+grave_marker_halda: whether _bindings.Structure returns a placement and whether ArtLibrary resolves the model.
+Also moved the outpost marker from (455.5,745.5), which sat **inside a wall** (clearance 0.0 m), to (456.5,747.6),
+clearance 1.6 m - committed.
+The gate itself is unaffected and stays green: HOOK.DEATH.GRAVE passes in every area.
