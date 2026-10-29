@@ -247,3 +247,19 @@ placement that references the grave kind, or extend the assignment.
 
 Also learned and worth keeping: lore pages put sources: **inside each page** as { how: <kind>, ref: <id> }, and a
 region section's list items carry the section's own indentation (eadables: items are indented two spaces).
+
+### Round 14 - the grave hook still counts zero; the cause is the placement section, not the content
+Diagnosis grew, the answer did not arrive. What is now known for certain:
+- RegionPlacements reads every sequence section and accepts position_m, rrival_m, exterior_m, circle_m,
+  ox_m, world - so my circle_m markers are positions it understands;
+- AssignmentRadiusM is **220 m**, so the den marker at 1.6 m and the road marker at 0.8 m from their own anchors are
+  not out of reach;
+- counting **every** readable in the den area returned **0**, and counting every grave_marker_* structure returned 0
+  too, which says the den/road placed lists do not contain these items at all.
+The one hypothesis left is that the den and road areas do not claim structures (or eadables) from this region in
+the share-out, or that a nearer anchor of another area takes them. The next probe is the area share itself: print each
+area's placed sections (count per section) for the frontier, and see whether structures/eadables appear for
+den-gorge-and-rope-cave and 	he-road at all. That is a few lines of temporary output in Shares, and it will
+settle it instead of more guessing.
+The grave content (kind, two markers, two readables, two lore pages, evidence branch) is committed and lints clean; the
+hook is simply not counting.

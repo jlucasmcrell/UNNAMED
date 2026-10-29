@@ -436,8 +436,10 @@ public static class WorldHookChecks
             {
                 // A grave in this area (D18 SYSTEMS, needed-2; HOOK.DEATH.GRAVE): a marker placed as a readable that
                 // opens a grave's page, which is how a name is kept in the world.
-                return placed.Count(p => p.Section == "readables"
-                                         && (Scalar(p.Node, "lore_ref") ?? "").StartsWith("lore.grave.", StringComparison.Ordinal));
+                // The marker is the grave in the world (the readable at its foot opens the page). Structures are
+                // what an area's placements carry, so the count is of markers, not of pages.
+                return placed.Count(p => p.Section == "structures"
+                                         && (Scalar(p.Node, "id") ?? "").StartsWith("grave_marker_", StringComparison.Ordinal));
             }
             case "node_tier":
             {
