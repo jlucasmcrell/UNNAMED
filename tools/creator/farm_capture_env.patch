@@ -1,0 +1,24 @@
+--- runner/runner.ps1
++++ runner/runner.ps1
+@@ -72,7 +72,20 @@
+         $start = @{ FilePath = $exe; WorkingDirectory = (Split-Path $exe); PassThru = $true
+                     RedirectStandardOutput = (Join-Path $jobOut 'stdout.log'); RedirectStandardError = (Join-Path $jobOut 'stderr.log') }
+         if ($gameArgs.Count) { $start.ArgumentList = $gameArgs }    # Start-Process refuses an empty argument list
+-        $p = Start-Process @start
++        # Optional capture environment belongs only to this game process, never the next job.
++        $restoreEnv = @{}
++        try {
++            if ($spec.env) {
++                foreach ($value in $spec.env.PSObject.Properties) {
++                    if ($value.Name -notmatch '^OTHERREACH_[A-Z0-9_]+$') { throw 'Only OTHERREACH capture variables are permitted' }
++                    $restoreEnv[$value.Name] = [Environment]::GetEnvironmentVariable($value.Name, 'Process')
++                    [Environment]::SetEnvironmentVariable($value.Name, ([string]$value.Value).Replace('{OUT}', $jobOut).Replace('{BUILD}', $dst), 'Process')
++                }
++            }
++            $p = Start-Process @start
++        } finally {
++            foreach ($key in $restoreEnv.Keys) { [Environment]::SetEnvironmentVariable($key, $restoreEnv[$key], 'Process') }
++        }
+         if (-not $p.WaitForExit([int]$spec.timeout_s * 1000)) {
+             Stop-Process -Id $p.Id -Force    # only the game process this runner started
+             'timeout' | Set-Content (Join-Path $jobOut 'exit.txt')
