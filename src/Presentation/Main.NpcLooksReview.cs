@@ -184,7 +184,7 @@ public partial class Main
                         var staged=figure.GlobalTransform;
                         figure.SetRestPose(state);
                         figure.SetPosture(state=="crouch_idle",false);
-                        figure.Pose(staged.Origin,staged.Basis.GetEuler().Y,0,0);
+                        figure.Pose(staged.Origin,staged.Basis.GetEuler().Y,0,.25);
                         figure.GlobalTransform=staged;
                         await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePreDraw);
                         model.Hold(state,.45f,0);model.Skeleton.Advance(0);
