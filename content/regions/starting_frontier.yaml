@@ -150400,24 +150400,6 @@ structures:
   - 692.6
   - 1.15
   height_m: 0.16
-- id: cw_jetty_post_1
-  circle_m:
-  - 955.8
-  - 693.5
-  - 0.16
-  height_m: 1.35
-- id: cw_jetty_post_2
-  circle_m:
-  - 958.2
-  - 693.5
-  - 0.16
-  height_m: 1.35
-- id: cw_jetty_post_3
-  circle_m:
-  - 955.8
-  - 687.4
-  - 0.16
-  height_m: 1.35
 - id: cw_pond_reeds_1
   circle_m:
   - 966.0
@@ -150919,9 +150901,9 @@ waters:
   width_m: 2.2
 - key: water.cw_millpond
   kind: pond
-  path_m: [[958.0, 700.0]]
+  path_m: [[948.0, 700.0], [968.0, 700.0]]
   level_m: 4.35
-  width_m: 26.0
+  width_m: 22.0
 - key: water.cw_millrace
   kind: stream
   path_m: [[958.0, 700.0], [964.0, 706.0], [972.0, 712.0], [981.0, 719.0]]
@@ -150930,9 +150912,9 @@ waters:
 # D18: Blackvein's sump - the standing water at the low end of the quarry floor, where the seam drains.
 - key: water.bv_sump
   kind: pond
-  path_m: [[444.0, 655.0]]
+  path_m: [[442.0, 655.0], [446.0, 655.0]]
   level_m: 1.75
-  width_m: 3.2
+  width_m: 3.6
 
 stations:
 - key: station.forge_hearth
