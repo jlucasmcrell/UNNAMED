@@ -147,6 +147,23 @@ public partial class Main
                 // A fixture teleport must leave the Orenth's .4-second registration history before its portrait.
                 await Frames(people == PeopleLooks.Orenth ? .6 : .2, Face);
                 await Rcd3Shot(folder, person.Id);
+                if(root.TryGetProperty("diagnose_layers",out var diagnose) && diagnose.GetBoolean())
+                {
+                    var saved=figure.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>()
+                        .Select(mesh=>(Mesh:mesh,Visible:mesh.Visible)).ToArray();
+                    foreach(string variant in new[]{"no_lining","no_body","neither"})
+                    {
+                        foreach(var item in saved)
+                        {
+                            bool lining=item.Mesh.Name.ToString().EndsWith("_lining",StringComparison.Ordinal);
+                            bool skin=!item.Mesh.HasMeta("creator_part_kind");
+                            item.Mesh.Visible=item.Visible && !(lining && variant!="no_body") && !(skin && variant!="no_lining");
+                        }
+                        await Frames(.1,Face);
+                        await Rcd3Shot(folder,person.Id+"_diagnostic_"+variant);
+                    }
+                    foreach(var item in saved)item.Mesh.Visible=item.Visible;
+                }
                 if (OS.GetEnvironment("OTHERREACH_FACE_SHEET") is { Length: > 0 } && paced < 2)
                 {
                     // One man and one woman of the town, so the sheet shows the library on both faces.

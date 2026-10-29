@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the waystation's people (M4), drawn with the asset library's bodies where it has them
+﻿// UNNAMED Presentation - the waystation's people (M4), drawn with the asset library's bodies where it has them
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
@@ -117,12 +117,14 @@ public partial class NpcsView : Node3D
         }
         var occupiedFurniture = new HashSet<string>(StringComparer.Ordinal);
         bool outfitFixture=OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_REVIEW")=="1";
+        string[] outfitIds=outfitFixture?OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_IDS").Split(',',StringSplitOptions.RemoveEmptyEntries):[];
         foreach (var npc in people)
         {
             if(outfitFixture && !(npc.Id.StartsWith("npc.ashen_hollow.",StringComparison.Ordinal)
                 || npc.Id.StartsWith("routine.ashen_hollow.",StringComparison.Ordinal)
                 || npc.Id.StartsWith("npc.cairnwold.",StringComparison.Ordinal)
                 || npc.Id.StartsWith("routine.cairnwold.",StringComparison.Ordinal)))continue;
+            if(outfitIds.Length>0 && !outfitIds.Contains(npc.Id,StringComparer.Ordinal))continue;
             string instance = npc.InstanceId.ToString();
             if (_instances.TryGetValue(npc.Id, out var previous) && previous != instance)
                 Forget(npc.Id);
