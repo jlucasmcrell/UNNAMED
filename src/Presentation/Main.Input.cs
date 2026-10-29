@@ -278,6 +278,10 @@ public partial class Main
         {
             switch (focus.Kind)
             {
+                // A tiered lock is not worked by the handle: E starts the pick instead of opening, closing or searching.
+                case FocusKind.Door or FocusKind.Container when _session.Simulation!.IsLocked(focus.Key):
+                    _session.Submit(new PickLockCommand(_session.Simulation!.PlayerId, focus.Key));
+                    break;
                 case FocusKind.Door:
                 case FocusKind.Portal:
                     _controller.Interact(focus.Key);
@@ -321,6 +325,12 @@ public partial class Main
                     break;
             }
         }
+        // Fishing is its own key on the water the flask is filled from: F casts, and F again brings the line in. Nothing outside the
+        // water, and nothing while another timed thing is running.
+        if (Input.IsActionJustPressed("fish"))
+            Fish();
+        if (Input.IsActionJustPressed("wash"))
+            Wash();
         if (Input.IsActionJustPressed("companion_order"))
         {
             // One key for every companion on their feet: those following wait, those waiting follow.
@@ -351,6 +361,30 @@ public partial class Main
             _camera.SwapShoulder();
         if (Input.IsActionJustPressed("quicksave"))
             QuickSave();
+    }
+
+    /// <summary>
+    /// F: a line into the water, or the line brought in. A cast is offered only at a fishable bank - a water that names a catch, with
+    /// nothing else running - and with a line already out the same key reels, so the simulation may say what came of it.
+    /// </summary>
+    private void Fish()
+    {
+        var simulation = _session.Simulation!;
+        if (simulation.Activity is not null)
+            _session.Submit(new ReelInCommand(simulation.PlayerId));
+        else if (simulation.CanFish && _controller.FocusOn(_camera) is { Kind: FocusKind.Water })
+            _session.Submit(new StartFishingCommand(simulation.PlayerId, simulation.WaterKey!));
+    }
+
+    /// <summary>
+    /// B: wash at the water's edge - the water's second verb, beside the line and the flask. Offered at any declared bank, fishable or not,
+    /// and never from inside the water: a swim is not a place to stop.
+    /// </summary>
+    private void Wash()
+    {
+        var simulation = _session.Simulation!;
+        if (simulation.CanWash && _controller.FocusOn(_camera) is { Kind: FocusKind.Water })
+            _session.Submit(new WashCommand(simulation.PlayerId));
     }
 
     /// <summary>
@@ -395,6 +429,8 @@ public partial class Main
         Bind("sprint", Key.Shift);
         Bind("walk", Key.Ctrl);
         Bind("interact", Key.E);
+        Bind("fish", Key.N);              // a line in the water: cast, and the same key reels it in (F is the takedown; E still refills the flask)
+        Bind("wash", Key.B);              // the water's second verb: a wash at the bank, beside N's line and E's flask
         Bind("jump", Key.Space);
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);

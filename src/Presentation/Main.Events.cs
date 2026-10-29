@@ -172,8 +172,9 @@ public partial class Main
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or CraftCommand or TakeAllCommand
-                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand
+            if (e.Command is InteractCommand or MoveItemCommand or EquipCommand or UnequipCommand or GatherCommand or SwingAtNodeCommand
+                or CraftCommand or TakeAllCommand
+                or SpendAttributeCommand or TouchStoneCommand or BindStoneCommand or TravelCommand or PickLockCommand
                 or SaveGearSetCommand or DeleteGearSetCommand or SwapGearSetCommand or CancelGearSwapCommand
                 or EquipBagCommand or UnequipBagCommand or PlaceStackCommand or SortPackCommand or MarkJunkCommand or LockStackCommand or SellJunkCommand)
             {
@@ -214,13 +215,17 @@ public partial class Main
         _session.Subscribe<JunkSold>(e => Notice(NoticeKind.Items, $"Sold {e.Stacks} junk stack{(e.Stacks == 1 ? "" : "s")} for {e.Price}", 3));
         _session.Subscribe<ItemEquipped>(_ => _inventory.Refresh());
         _session.Subscribe<ItemUnequipped>(_ => _inventory.Refresh());
+        // Gathering: the pick goes in, a seam that holds more says so, and what it gives is named on the swing that fills it.
+        _session.Subscribe<SwingStarted>(e => _hud.Log($"You swing at the {Names.Of(_session, e.NodeDefId)}"));
+        _session.Subscribe<NodeStruck>(_ => _hud.Log("The seam shows more"));
+        _session.Subscribe<NodeRefused>(e => _hud.Toast(e.Reason, 3));
         _session.Subscribe<NodeGathered>(e =>
         {
             _inventory.Refresh();
             string spent = !e.Spent ? ""
                 : _session.Setup.Crafting.Nodes[e.NodeDefId].Respawn == Respawn.None ? $" - the {Names.Of(_session, e.NodeDefId)} is worked out"
                 : $" - nothing more until the {Names.Of(_session, e.NodeDefId)} grows back";
-            Notice(NoticeKind.Items, $"+{e.Count} {Names.Of(_session, e.ItemId)}{spent}", 3);
+            Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}{spent}", 3);
         });
         _session.Subscribe<ItemCrafted>(e =>
         {
@@ -241,6 +246,32 @@ public partial class Main
         {
             if (FindingWords.Toast(e.Finding, key => Names.Of(_session, key)) is { } said)
                 _hud.Toast(said, 4);
+        });
+        // Fishing: one line at each turn of the loop - the cast as it goes out, the line when it lands, and the catch by name. A line that
+        // comes back empty says why in the simulation's own words.
+        _session.Subscribe<FishCastStarted>(_ => Notice(NoticeKind.World, "You cast", 2));
+        _session.Subscribe<FishingLineOut>(_ => _hud.Log("The line is out"));
+        _session.Subscribe<FishCaught>(e =>
+        {
+            _inventory.Refresh();
+            Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
+        });
+        _session.Subscribe<FishLost>(e => _hud.Log(e.Reason));
+        // The water's second use (D20): a wash is a rest at the bank, and going under is the swim's own lesson, in the HUD's own words.
+        _session.Subscribe<Washed>(_ => Notice(NoticeKind.World, "You wash at the water's edge", 3));
+        _session.Subscribe<WentUnder>(_ => Notice(NoticeKind.World, "You go under - the water puts you ashore", 4));
+        // Lockpicking: the picks go in, the lock gives or holds, and a turn that binds takes them out of the pack with it.
+        _session.Subscribe<LockAttemptStarted>(e => Notice(NoticeKind.World, "You work the picks", 2));
+        _session.Subscribe<LockPicked>(e => Notice(NoticeKind.World, "The lock gives", 3));
+        _session.Subscribe<LockPickFailed>(e =>
+        {
+            if (!e.Broke)
+            {
+                _hud.Log("It holds");
+                return;
+            }
+            _inventory.Refresh();
+            _hud.Log("Your picks bind and snap");
         });
         SubscribeSocial();
         SubscribeParty();
@@ -480,7 +511,7 @@ public partial class Main
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand or StartFishingCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
                 && e.Reason is not ("staggered" or "dodging" or "dead"))
                 _hud.Toast(e.Command is TechniqueCommand ? Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Name(m.Value)) : e.Reason, 2);
         });

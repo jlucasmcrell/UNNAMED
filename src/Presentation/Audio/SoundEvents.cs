@@ -283,6 +283,13 @@ public partial class SoundEvents : Node
         });
         s.Subscribe<ItemEquipped>(e => Equipped(e.Actor, e.Slot, true));
         s.Subscribe<ItemUnequipped>(e => Equipped(e.Actor, e.Slot, false));
+        // Each swing at a node that holds more than one is heard as it lands: the pick into the seam, or the node's own gather sound. The
+        // swing that fills it is the give below, with its own blows.
+        s.Subscribe<NodeStruck>(e =>
+        {
+            if (_bindings.Nodes.GetValueOrDefault(e.NodeDefId)?.Sound is { } sound)
+                _bank.Play(sound == "mining" ? "sfx.crafting.mining.strike" : $"sfx.crafting.gather.{sound}", _feet);
+        });
         s.Subscribe<NodeGathered>(e =>
         {
             switch (_bindings.Nodes.GetValueOrDefault(e.NodeDefId)?.Sound)

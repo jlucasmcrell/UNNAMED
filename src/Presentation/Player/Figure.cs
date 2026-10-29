@@ -106,4 +106,34 @@ public abstract partial class Figure : Node3D
     public virtual void Interact()
     {
     }
+
+    /// <summary>
+    /// The timed activity the simulation says the body is in the middle of - a cast, a wait, a reel - or
+    /// <see cref="UNNAMED.Domain.ActivityKind.None"/>. A figure that cannot show it stands as it would.
+    /// </summary>
+    public virtual void Fishing(UNNAMED.Domain.ActivityKind kind)
+    {
+    }
+
+    /// <summary>
+    /// A swing at a node, by the tick it began: the clip plays once for that swing, and a swing begun at a later tick - the next one of
+    /// the same node - starts it again. A figure that cannot show it stands as it would.
+    /// </summary>
+    public virtual void Swinging(long startedTick)
+    {
+    }
+
+    /// <summary>
+    /// Floating in deep water, or out of it: the body's own height already puts it lower in the water, and a figure with a swim state of
+    /// its own plays it - the bindings' <c>swim</c> is a low travelling loop, because the art root has no swim clip. A figure that cannot
+    /// show it poses as it would on the ground.
+    /// </summary>
+    public virtual void Swimming(bool swimming)
+    {
+    }
+
+    /// <summary>Washing at a bank, held by the simulation for its own ticks: the one clip plays once. A figure that cannot show it stands.</summary>
+    public virtual void Washing(bool washing)
+    {
+    }
 }

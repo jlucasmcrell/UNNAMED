@@ -94,6 +94,42 @@ public static class ContentCliApp
     }
 
     /// <summary>
+    /// hooks - brief D15's world-hooks audit: for every area the rules file declares, which required hooks the region,
+    /// location, spawn and node content actually places, which it is missing, and which the content model cannot hold.
+    /// Exit 1 only where a released area is missing a hook; a place in development warns.
+    /// </summary>
+    public static int WorldHooks(string contentRoot, string format)
+    {
+        var loader = new ContentLoader();
+        loader.LoadAll(contentRoot);
+        var report = WorldHookChecks.Audit(contentRoot, loader);
+
+        if (format == "json")
+        {
+            Console.WriteLine(SerializeToJson(new
+            {
+                areas = report.Areas.Select(a => new { a.Slug, a.Name, a.Status, a.Type, a.Band }).ToList(),
+                findings = report.Findings.Select(f => new
+                {
+                    area = f.Area, hook = f.HookId, state = f.State.ToString(), placed = f.Placed,
+                    required = f.Required, severity = f.Severity(report.StatusOf(f.Area)), note = f.Note
+                }).ToList(),
+                totals = new
+                {
+                    placed = report.Count(HookState.Placed), missing = report.Count(HookState.Missing),
+                    unmodelled = report.Count(HookState.Unmodelled)
+                },
+                problems = report.Problems
+            }));
+        }
+        else
+        {
+            Console.WriteLine(report.Text());
+        }
+        return report.Fails() ? 1 : 0;
+    }
+
+    /// <summary>
     /// content:schema-dump - Dump schema information.
     /// </summary>
     public static int SchemaDump(string contentRoot, string format)

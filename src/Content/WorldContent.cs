@@ -316,6 +316,11 @@ public static class WorldContent
                 Check((latch is null && !door.ContainsKey("requirement") && !door.ContainsKey("fitted")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
                 bool staysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!);
                 Check(!door.ContainsKey("fitted") || staysOpen, "WLD004", $"{key}: a door that holds a fitted item must stay open");
+                int lockTier = door.ContainsKey("lock_tier") ? Int(door, "lock_tier") : 0;
+                Check(!door.ContainsKey("lock_tier") || lockTier is >= 1 and <= 3, "WLD004", $"{key}: lock_tier must be 1, 2 or 3; absent means no lock");
+                if (lockTier is >= 1 and <= 3)
+                    Check(flags.ContainsKey(UNNAMED.Domain.LockRules.FlagOf(key)), "WLD004",
+                        $"{key}: lock_tier needs the lock's world flag '{UNNAMED.Domain.LockRules.FlagOf(key)}' declared");
                 doors.Add(new DoorSite(key, flag, footprint)
                 {
                     Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
@@ -323,6 +328,7 @@ public static class WorldContent
                     LockedText = locked,
                     StaysOpen = staysOpen,
                     Fitted = door.ContainsKey("fitted") ? SiteItem(Map(door, "fitted")) : null,
+                    LockTier = lockTier,
                 });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
@@ -358,12 +364,18 @@ public static class WorldContent
             {
                 var site = entry as Dictionary<object, object> ?? throw new FormatException($"containers[{i}] must be a map");
                 var (cx, cz) = Pair(site, "position_m");
+                int lockTier = site.ContainsKey("lock_tier") ? Int(site, "lock_tier") : 0;
                 var container = new ContainerSite(Text(site, "key"), Text(site, "loot_ref"), cx, cz, Int(site, "stack_slots"))
                 {
                     EmptyFlag = site.GetValueOrDefault("flag_ref") as string,
                     Stash = site.ContainsKey("stash") && bool.Parse(site["stash"].ToString()!),
+                    LockTier = lockTier,
                 };
                 Check(container.EmptyFlag is null || flags.ContainsKey(container.EmptyFlag), "WLD009", $"{container.Key}: flag_ref must name a world flag");
+                Check(!site.ContainsKey("lock_tier") || lockTier is >= 1 and <= 3, "WLD009", $"{container.Key}: lock_tier must be 1, 2 or 3; absent means no lock");
+                if (lockTier is >= 1 and <= 3)
+                    Check(flags.ContainsKey(UNNAMED.Domain.LockRules.FlagOf(container.Key)), "WLD009",
+                        $"{container.Key}: lock_tier needs the lock's world flag '{UNNAMED.Domain.LockRules.FlagOf(container.Key)}' declared");
                 Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");
                 Check(container.StackSlots >= 1, "WLD009", $"{container.Key} needs at least one stack slot");
                 Check(cx >= minX && cx <= maxX && cz >= minZ && cz <= maxZ, "WLD009", $"{container.Key} lies outside the walkable bounds");
@@ -606,7 +618,42 @@ public static class WorldContent
             foreach (var surface in supports)
                 Check(surface.OriginXMm >= minX && surface.OriginZMm >= minZ && surface.MaxXMm <= maxX && surface.MaxZMm <= maxZ,
                     "WLD003", "walkable surfaces must lie within the region bounds");
-            var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures) { WalkableSurfaces = supports };
+            // Authored water (D18): a surface at its own level, which the terrain is cut below. A creek or a pond needs no
+            // system beyond this: it is drawn where it is declared and the bank is where the world says it is.
+            var waters = ImmutableArray.CreateBuilder<WaterSite>();
+            foreach (var (entry, i) in (map.ContainsKey("waters") ? List(map, "waters") : new List<object>()).Select((w, i) => (w, i)))
+            {
+                var site = entry as Dictionary<object, object> ?? throw new FormatException($"waters[{i}] must be a map");
+                string key = Text(site, "key");
+                var points = List(site, "path_m").Select(p =>
+                {
+                    var pair = p as List<object> ?? throw new FormatException($"{key}: a path point must be [x, z]");
+                    if (pair.Count != 2)
+                        throw new FormatException($"{key}: a path point must be [x, z]");
+                    return (ToMm(pair[0], $"{key} path_m x"), ToMm(pair[1], $"{key} path_m z"));
+                }).ToImmutableArray();
+                var water = new WaterSite(key, Text(site, "kind"), Mm(site, "level_m"), points, Mm(site, "width_m"))
+                {
+                    CatchTableId = site.GetValueOrDefault("catch") as string,
+                    // A water's own depth is what makes it a body rather than a bank: named, and held to what a bed may be (D20).
+                    DepthMm = site.ContainsKey("depth_m") ? Mm(site, "depth_m") : WaterSite.FordMm,
+                };
+                Check(key.StartsWith("water.", StringComparison.Ordinal), "WLD003", $"water key '{key}' must start with 'water.'");
+                Check(water.PointsMm.Length >= 1, "WLD003", $"{key} needs at least one path point");
+                Check(water.WidthMm > 0, "WLD003", $"{key} needs a width above zero");
+                Check(water.DepthMm is >= 0 and <= 8_000, "WLD003", $"{key} depth_m must be from 0 to 8 m");
+                // A swim is an exterior state: an interior's space carries this very WalkSpace, and water in it would float a body indoors.
+                Check(spaceId.IsExterior, "WLD003", $"{key} is water in an interior space, where nothing swims");
+                // A water with a catch is fished, and what it gives is a loot table's; one that names none is water nothing is caught in.
+                Check(water.CatchTableId is not { } catchTable || loader.GetByKind("loot").ContainsKey(catchTable), "WLD003",
+                    $"{key} names catch table '{water.CatchTableId}', which is not defined");
+                Check(water.PointsMm.All(p => p.XMm >= minX && p.XMm <= maxX && p.ZMm >= minZ && p.ZMm <= maxZ), "WLD003",
+                    $"{key} runs outside the walkable bounds");
+                waters.Add(water);
+            }
+            Check(waters.Select(w => w.Key).Distinct(StringComparer.Ordinal).Count() == waters.Count, "WLD003", "two waters share a key");
+
+            var space = new WalkSpace(minX, minZ, maxX, maxZ, terrain, structures) { WalkableSurfaces = supports, Waters = waters.ToImmutable() };
             var layout = new RegionLayout(regionId, cells.Select(c => c.ToString()).ToImmutableArray(), space, doors.ToImmutable(),
                 locations.ToImmutable(), new Body(spawnX, terrain.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {

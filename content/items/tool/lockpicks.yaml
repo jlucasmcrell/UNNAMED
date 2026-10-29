@@ -1,0 +1,12 @@
+id: item.tool.lockpicks
+kind: item
+schema: 1
+display_key: item.tool.lockpicks.name
+tags: [item]
+name: Lockpicks
+notes: A tension bar and three bent picks, rolled in oiled leather. A tier 1 lock is patience, a tier 3 lock is a better hand than a beginner's - and a turn that binds can snap the picks and leave the lock shut.
+category: tool
+stack_max: 1
+weight: 0.2
+value_base: 8
+rarity: common

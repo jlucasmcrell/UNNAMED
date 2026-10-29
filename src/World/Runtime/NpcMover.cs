@@ -309,10 +309,10 @@ internal sealed partial class NpcSystem
         return best is { } b ? new NavPoint(b.X, b.Z) : null;
     }
 
-    /// <summary>An NPC opens a door in their way: NPCs open doors and never close them. False when it is no door, or already open.</summary>
+    /// <summary>An NPC opens a door in their way: NPCs open doors and never close them. False when it is no door, already open, or locked.</summary>
     private bool OpenDoor(string key, NpcState npc, long tick)
     {
-        if (_navigation.Door(key) is not { } door || _context.IsOpen(door))
+        if (_navigation.Door(key) is not { } door || _context.IsOpen(door) || _context.Locked(door))
             return false;
         if (door.ClosedFootprint.DistanceTo(npc.Body.XMm, npc.Body.ZMm) > _context.Setup.Movement.InteractReachMm)
             return false;

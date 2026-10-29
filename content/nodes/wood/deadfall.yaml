@@ -8,5 +8,6 @@ notes: A fallen trunk still sound enough to cut (canon firstplay deadfall) - six
 resource_ref: resource.wood.deadfall
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.logging
 difficulty: 1
+swings: 1

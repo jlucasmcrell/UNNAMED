@@ -234,6 +234,10 @@ public sealed class Simulation
     private readonly GatheringSystem _gathering;
     private readonly CraftingSystem _crafting;
     private readonly CampSystem _camp;
+    private readonly FishingSystem _fishing;
+    private readonly LockpickSystem _lockpicking;
+    private readonly SwingingSystem _swinging;
+    private readonly WashingSystem _washing;
     private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
     private readonly NpcSystem _npcs;
@@ -315,7 +319,14 @@ public sealed class Simulation
         _discovery = new DiscoverySystem(_context, _state.Claim(nameof(DiscoverySystem), StateSlice.Discoveries));
         _tiers = new TierSystem(_context, _state.Claim(nameof(TierSystem), StateSlice.CellTiers), _cells, setup.Observers);
         _inventory = new InventorySystem(_context, _state.Claim(nameof(InventorySystem), StateSlice.PlayerInventory, StateSlice.WorldItems), player.Id);
+        // One timed activity is one record under one owner (ARCHITECTURE.md section 5): fishing claimed the slice first, and a pick, a
+        // swing or a wash is the same kind of commitment, so the lockpick, swing and washing systems are handed the same owner rather than
+        // claiming the slice again - only one of them can run at once, so there is never a second writer to disagree with.
+        var activity = _state.Claim(nameof(FishingSystem),StateSlice.Activity);
         _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
+        _fishing = new FishingSystem(_context,activity,player.Id);
+        _lockpicking = new LockpickSystem(_context,activity,player.Id);
+        _washing = new WashingSystem(_context,activity,player.Id);
         _firstHour=new FirstHourSystem(_context,player.Id);
         _firstHour.Listen(bus);
         _equipment = new EquipmentSystem(_context, _state.Claim(nameof(EquipmentSystem), StateSlice.PlayerEquipment), player.Id);
@@ -324,6 +335,13 @@ public sealed class Simulation
         _effects = new StatusEffectSystem(_context, _state.Claim(nameof(StatusEffectSystem), StateSlice.Effects), player.Id);
         _travel = new TravelSystem(_context, _state.Claim(nameof(TravelSystem), StateSlice.Waystones), player.Id);
         _gathering = new GatheringSystem(_context, _state.Claim(nameof(GatheringSystem), StateSlice.Nodes), player.Id);
+        // The swing is timed, the gather is what the last swing runs: the ones the gather refuses, and the yield it takes, are asked of it
+        // rather than repeated here, so a node worked out, out of reach or gone from this place refuses in the gather's own words.
+        _swinging = new SwingingSystem(_context, activity, player.Id)
+        {
+            Node = _gathering.Node,
+            Gather = (nodeKey, tick) => _gathering.Handle(new GatherCommand(player.Id, nodeKey), tick),
+        };
         _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name) { Contents = site => _inventory.View(site) };
         _lore = new LoreSystem(_context, _state.Claim(nameof(LoreSystem), StateSlice.Lore), player.Id);
         _lore.Listen(bus);
@@ -591,6 +609,44 @@ public sealed class Simulation
     public bool RestingAtCamp => _state.CampRestAt is not null;
     public bool ReturnToCamp => _state.ReturnToCamp;
     public bool CanRefillFlask => Camps.WaterNear(_context);
+
+    /// <summary>The timed activity the character is in the middle of (a cast, a wait, a reel, a pick, a swing at a node, a wash), or null. Transient, never saved.</summary>
+    public PlayerActivity? Activity => _state.Activity;
+
+    /// <summary>
+    /// The declared water the character stands at, by key - what F fishes. Null on dry land, indoors, or at water that names no catch,
+    /// which is the same rule the system itself uses.
+    /// </summary>
+    public string? WaterKey => _state.Space.IsExterior
+        ? Setup.Layout.Space.WaterAt(_state.Body.XMm,_state.Body.ZMm) is { CatchTableId: not null } water ? water.Key : null
+        : null;
+
+    /// <summary>Whether a cast can start now: a fishable water at the bank, and nothing else running.</summary>
+    public bool CanFish => _state.Activity is null && WaterKey is not null;
+
+    /// <summary>Whether the body is floating in deep water (D20): what the HUD's one line says, and what the wash is refused in.</summary>
+    public bool Swimming => _state.Swimming;
+
+    /// <summary>
+    /// The declared water the character stands at, by key, fishable or not - what a wash is offered at. Null on dry land, indoors, and
+    /// with the body in the water rather than at its edge, which is the same refusal the system itself makes.
+    /// </summary>
+    public string? BankKey => _state.Space.IsExterior && !_state.Swimming
+        ? Setup.Layout.Space.WaterAt(_state.Body.XMm,_state.Body.ZMm)?.Key
+        : null;
+
+    /// <summary>Whether a wash can start now: a bank at the character's feet, and nothing else running.</summary>
+    public bool CanWash => _state.Activity is null && BankKey is not null;
+
+    /// <summary>
+    /// Whether the door or container at this key is still shut by a lock that a pick could turn: what the prompt offers the verb for.
+    /// Read-only; false for a site with no lock and for a key that names neither.
+    /// </summary>
+    public bool IsLocked(string siteKey) => _context.Locked(siteKey);
+
+    /// <summary>Whether the character carries the picks a lock needs. Read-only: the prompt says so before the command is refused.</summary>
+    public bool CarriesPicks => _lockpicking.HasPicks;
+
     public ImmutableArray<StationSite> Stations => _context.Stations(PlayerId).Where(p=>p.Layout.SpaceId==_state.Space).Select(p=>p.Site).ToImmutableArray();
 
     public ImmutableArray<DoorView> Doors =>
@@ -929,6 +985,13 @@ public sealed class Simulation
                 RestAtCampCommand restCamp => _camp.Handle(restCamp),
                 CampReturnCommand returnCamp => _camp.Handle(returnCamp),
                 RefillFlaskCommand refill => _inventory.Handle(refill,WorldTick),
+                StartFishingCommand fishing => _fishing.Handle(fishing,WorldTick),
+                ReelInCommand reel => _fishing.Handle(reel,WorldTick),
+                WashCommand wash => _washing.Handle(wash,WorldTick),
+                PickLockCommand pick => _lockpicking.Handle(pick,WorldTick),
+                SwingAtNodeCommand swing => _swinging.Handle(swing,WorldTick),
+                // A cancel ends whichever timed thing is running: a pick, a swing or a wash first, so the system that started it is the one that stops it.
+                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _washing.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -997,6 +1060,10 @@ public sealed class Simulation
             foreach (var simulation in _tierSimulations)
                 simulation.Tick(tick, _cells.Where(c => _state.Tiers.GetValueOrDefault(c.ToString(), SimulationTier.D) == simulation.Tier).ToList());
             _camp.Tick();
+            _fishing.Tick(tick);
+            _washing.Tick(tick);
+            _lockpicking.Tick(tick);
+            _swinging.Tick(tick);
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);

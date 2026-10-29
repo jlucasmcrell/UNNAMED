@@ -4,9 +4,10 @@ schema: 1
 display_key: node.ore.iron_seam.name
 tags: [node]
 name: Iron Seam
-notes: A finite seam (PROTOTYPE.md C12) - three strikes and it is worked out for good.
+notes: A finite seam (PROTOTYPE.md C12) - three workings and it is worked out for good, three swings to each.
 resource_ref: resource.ore.iron
 charges: 3
 respawn: none
-harvest_skill: skill.survival
+harvest_skill: skill.mining
 difficulty: 5
+swings: 3

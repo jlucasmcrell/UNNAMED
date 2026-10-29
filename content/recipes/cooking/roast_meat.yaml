@@ -6,7 +6,7 @@ tags: [recipe]
 name: Roast Meat
 notes: Raw meat over the fire. Tam will tell you it is not cooking; it will still feed you.
 station: cookfire
-skill_ref: skill.survival
+skill_ref: skill.cooking
 complexity: 0
 inputs:
   - { item_ref: item.material.raw_meat, count: 1 }

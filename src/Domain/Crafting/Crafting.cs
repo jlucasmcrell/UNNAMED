@@ -21,6 +21,12 @@ public sealed record NodeDefinition(string Id, string ItemId, int YieldMin, int 
 {
     /// <summary>The resource the node yields (DATA_MODEL.md §4.16's <c>resource_ref</c>): what a quest's <c>harvest_resource</c> counts (M5).</summary>
     public string? ResourceId { get; init; }
+
+    /// <summary>
+    /// How many swings of the pick or the hand one harvest takes (<c>swings</c>): the yield is the last swing's. One unless the node's
+    /// content says otherwise, so a stand or a snare is worked at a touch while a seam is worked at a swing.
+    /// </summary>
+    public int Swings { get; init; } = 1;
 }
 
 public sealed record RecipeInput(string ItemId, int Count);

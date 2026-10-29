@@ -1,0 +1,11 @@
+id: skill.skinning
+kind: skill
+schema: 1
+display_key: skill.skinning.name
+tags: [skill]
+name: Skinning
+family: gathering
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.7 (gathering) - a hide off clean, intact, and worth something. Halda's pelt snares practise it; the larder snares hold meat and answer to foraging. No technique carrier in the build, so its entry technique waits - Off Clean at band N (skinning 15, precision 12), taught by Tam Crowden.
+passives:
+  - { at: 3, modifiers: [{ target: stat.gather_yield, op: add, value: 1 }] }   # one more of whatever a harvest gives
+teaches: "A hide taken off clean and whole. A hide torn in the taking still teaches, but less."

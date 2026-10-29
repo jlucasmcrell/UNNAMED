@@ -69,10 +69,10 @@ public class ItemTests
         var player = session.NewGame(Harness.Named("Wanderer"), seed: 42).Player;
 
         // Content bible §14: the sword in hand and a simple restorative; the bow is found at the cart, the spear is made. The Veth's
-        // heritage, the Kept Roll, comes on top (owner, 2026-10-23).
-        Assert.Equal(new[] { "item.consumable.salve_minor", "item.heritage.kept_roll", "item.story.folded_note", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
+        // heritage, the Kept Roll, comes on top (owner, 2026-10-23), and the lockpicks with the kit so the frontier's two locks can be worked.
+        Assert.Equal(new[] { "item.consumable.salve_minor", "item.heritage.kept_roll", "item.story.folded_note", "item.tool.lockpicks", "item.tool.water_flask", "item.weapon.rusted_sword" }, player.Inventory.Select(e => e.DefId).Order());
         Assert.Equal(Carried(session.Simulation!, "item.weapon.rusted_sword").ItemId, player.Equipment[EquipSlot.MainHand]);
-        Assert.Equal(3_810, player.CarriedGrams);
+        Assert.Equal(4_010, player.CarriedGrams);
         Assert.Equal(50_000, player.CarryLimitGrams);   // 30 kg + 2 kg per point of Might (10)
     }
 
@@ -250,7 +250,7 @@ public class ItemTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // A limit of exactly what the starting kit weighs: anything more is too heavy.
-        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 3_710, CarryGramsPerMight = 0 } });
+        var (simulation, bus) = Custom(session, items => items with { Inventory = items.Inventory with { CarryBaseGrams = 4_010, CarryGramsPerMight = 0 } });
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
@@ -260,7 +260,7 @@ public class ItemTests
         simulation.DrainCommands();
 
         Assert.Contains("too heavy", Assert.Single(rejected).Reason);
-        Assert.Equal(4, simulation.Player.Inventory.Length);
+        Assert.Equal(5, simulation.Player.Inventory.Length);
         Assert.Null(simulation.World.Container(Den));   // the refusal did not even give the cache its identities
     }
 

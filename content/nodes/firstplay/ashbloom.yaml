@@ -8,5 +8,5 @@ notes: A patch of grey-leaf ashbloom in the Sinking Moss, where Mara sends the p
 resource_ref: resource.firstplay.ashbloom
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.herbalism
 difficulty: 1

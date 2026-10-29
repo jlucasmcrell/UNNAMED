@@ -185,7 +185,7 @@ public partial class HollowView : Node3D
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
-            var (placed, skipped) = Dressing.Place(this, _art, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f,
+            var (placed, skipped) = Dressing.Place(this, _art, DrawnGround(terrain),
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
@@ -361,7 +361,14 @@ public partial class HollowView : Node3D
     private Node3D BuildTerrain(TerrainGrid grid, SpaceId space)
     {
         var cells = new SortedDictionary<string, SurfaceTool>(StringComparer.Ordinal);
-        Vector3 At(int i, int j) => ToGodot(grid.OriginXMm + i * grid.SpacingMm, grid.HeightAt(i, j), grid.OriginZMm + j * grid.SpacingMm);
+        // The authored water bodies are cut into this mesh (not into region cells, which would move saves): a creek's bed, a pool's
+        // basin, the millpond's pan, so the water the camera sees stands in a depression of the ground rather than on it.
+        Vector3 At(int i, int j)
+        {
+            float x = (grid.OriginXMm + i * grid.SpacingMm) / 1000f, z = (grid.OriginZMm + j * grid.SpacingMm) / 1000f;
+            float y = grid.HeightAt(i, j) / 1000f;
+            return new Vector3(x, _ground is { } field ? field.Carved(x, z, y) : y, z);
+        }
         // The domain's split: every quad along its (0,0)-(1,1) diagonal, clockwise seen from above (Godot's front face).
         for (int j = 0; j < grid.Rows - 1; j++)
         for (int i = 0; i < grid.Columns - 1; i++)
@@ -882,18 +889,43 @@ public partial class HollowView : Node3D
         return node;
     }
 
-    /// <summary>A still water surface just above the stream bed: the terrain hides it everywhere else.</summary>
+    /// <summary>
+    /// The ground as the camera draws it - with the authored water bodies cut into it - or the domain's own where no ground field has
+    /// been bound.
+    /// </summary>
+    private Func<float, float, float> DrawnGround(TerrainGrid terrain) =>
+        _ground is { } field ? field.Height : (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
+
+    /// <summary>
+    /// The authored water bodies (D18/D20), each drawn where content puts it: its surface at its own level in the bed its own shore cuts
+    /// into the ground, its edge a shoreline rather than a sheet's corner, its colour from its own depth, and the small ones drawn as
+    /// pools with stones round the rim and reeds at the edge.
+    /// </summary>
     private Node3D BuildWater(WalkSpace space)
     {
         Coverage.Resolved("water", "stream", "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model");
-        return new MeshInstance3D
+        var node = new Node3D { Name = "Water" };
+        node.AddChild(new MeshInstance3D
         {
-            Name = "Water",
+            Name = "RavineFloor",
             Mesh = new PlaneMesh { Size = new Vector2((space.MaxXMm - space.MinXMm) / 1000f, (space.MaxZMm - space.MinZMm) / 1000f) },
             MaterialOverride = Palette.StreamWater,
             Position = new Vector3((space.MinXMm + space.MaxXMm) / 2000f, 0.12f, (space.MinZMm + space.MaxZMm) / 2000f),
-        };
+        });
+        // The ground as the scatter and the terrain mesh see it, so a body's bank, its bed and everything standing on them agree.
+        Func<float, float, float> ground = _ground is { } field
+            ? field.Height
+            : (x, z) => space.Terrain.HeightAtMm((long)(x * 1000f), (long)(z * 1000f)) / 1000f;
+        var shores = space.Waters.Select(w => new WaterShore(w, ground)).ToList();
+        foreach (var shore in shores)
+            node.AddChild(WaterView.Body(shore, ground, _art, Coverage));
+        if (shores.Count > 0)
+            GD.Print($"UNNAMED water: {shores.Count} authored body(ies) drawn: " + string.Join(", ", shores.Select(s =>
+                $"{s.Water.Key} ({s.Water.Kind}) at {s.Level:0.00} m, {s.Depth:0.00} m deep, " +
+                (s.Pool ? "a pool with stones and reeds" : s.Contained ? "cut into the land that holds it" : "a bank graded round it"))));
+        return node;
     }
+
 
     /// <summary>
     /// PROTOTYPE.md §3: a sheer ravine on three sides (west, north, east) and a cliff to the south. Scenery, in the bindings' cliff material

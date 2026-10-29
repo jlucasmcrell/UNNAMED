@@ -5,7 +5,7 @@ display_key: recipe.cooking.torch.name
 tags: [recipe]
 name: Field Torch
 station: cookfire
-skill_ref: skill.survival
+skill_ref: skill.cooking
 complexity: 0
 inputs:
   - { item_ref: item.material.timber, count: 1 }

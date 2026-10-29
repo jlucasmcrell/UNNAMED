@@ -8,5 +8,5 @@ notes: Cotton grass on the wet edge of the Sinking Moss (canon the_bog) - the wh
 resource_ref: resource.fibre.bog_cotton
 charges: 1
 respawn: daily
-harvest_skill: skill.survival
+harvest_skill: skill.foraging
 difficulty: 1

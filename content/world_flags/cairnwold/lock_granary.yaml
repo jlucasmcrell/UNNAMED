@@ -1,0 +1,11 @@
+id: world.lock.door.granary
+kind: world_flag
+schema: 1
+display_key: world.lock.door.granary.name
+tags: [world_flag]
+notes: Whether Cairnwold's granary door has been picked. Set once by the lockpick system (skill.lockpicking, S-22's doors) in the door's own
+  cell, and named from the door's key so the pick needs no hand-written flag_ref; the door's own open flag is written with it, so the door
+  swings on its hinges from then on and the lock never holds again.
+type: bool
+default: 0
+owning_system: S-22

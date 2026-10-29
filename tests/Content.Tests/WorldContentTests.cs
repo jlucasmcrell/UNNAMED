@@ -125,9 +125,58 @@ public class WorldContentTests
     public void ADoorNamingAnUndeclaredFlag_IsRefused() =>
         AssertRefused("WLD004", "regions/ashen_hollow.yaml", "flag_ref: world.hollow.longhouse_door_open", "flag_ref: world.hollow.no_such_flag");
 
+    /// <summary>Lockpicking: a lock is a tier from one to three, and a tiered site names the flag its pick is recorded in.</summary>
+    [Fact]
+    public void ADoorLockTierOutsideOneToThree_IsRefused() =>
+        AssertRefused("WLD004", "regions/starting_frontier.yaml", "  lock_tier: 1", "  lock_tier: 4", "lock_tier must be 1, 2 or 3");
+
+    [Fact]
+    public void AContainerLockTierOutsideOneToThree_IsRefused() =>
+        AssertRefused("WLD009", "regions/starting_frontier.yaml", "  lock_tier: 2", "  lock_tier: 0", "lock_tier must be 1, 2 or 3");
+
+    [Fact]
+    public void ALockedSiteWhosePickFlagIsNotDeclared_IsRefused() =>
+        AssertRefused("WLD009", "world_flags/road/lock_barrow_cache.yaml", "id: world.lock.container.road.barrow_cache",
+            "id: world.lock.container.road.nothing", "lock_tier needs the lock's world flag 'world.lock.container.road.barrow_cache' declared");
+
     [Fact]
     public void APlaceInAnUnknownRegion_IsRefused() =>
         AssertRefused("WLD005", "locations/den_mouth.yaml", "region_ref: region.starting_frontier", "region_ref: region.elsewhere");
+
+    /// <summary>Fishing: a water names the loot table its catch rolls, and one that names nothing has nothing caught in it.</summary>
+    [Fact]
+    public void TheFrontier_WatersNameTheirCatchTables()
+    {
+        var layout = WorldContent.BuildLayout(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
+
+        Assert.Equal("loot.fishing.ah_creek", layout.Space.Waters.Single(w => w.Key == "water.ah_creek").CatchTableId);
+        Assert.Equal("loot.fishing.cw_millpond", layout.Space.Waters.Single(w => w.Key == "water.cw_millpond").CatchTableId);
+        Assert.Null(layout.Space.Waters.Single(w => w.Key == "water.cw_millrace").CatchTableId);
+    }
+
+    [Fact]
+    public void AWaterNamingACatchTableThatIsNotDefined_IsRefused() =>
+        AssertRefused("WLD003", "regions/starting_frontier.yaml", "catch: loot.fishing.ah_creek", "catch: loot.fishing.nowhere",
+            "names catch table 'loot.fishing.nowhere', which is not defined");
+
+    /// <summary>
+    /// Swimming (D20): a water says how deep its bed is, and that is what makes it a body to swim in rather than a bank to stand at. The
+    /// creek is knee deep in its channel, the millpond over the head, and the millrace names no depth at all - a ford, 0.15 m, so every
+    /// water authored before the depth existed behaves as it did.
+    /// </summary>
+    [Fact]
+    public void TheFrontier_WatersSayHowDeepTheyAre()
+    {
+        var layout = WorldContent.BuildLayout(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
+
+        Assert.Equal(550, layout.Space.Waters.Single(w => w.Key == "water.ah_creek").DepthMm);
+        Assert.Equal(2_400, layout.Space.Waters.Single(w => w.Key == "water.cw_millpond").DepthMm);
+        Assert.Equal(WaterSite.FordMm, layout.Space.Waters.Single(w => w.Key == "water.cw_millrace").DepthMm);
+    }
+
+    [Fact]
+    public void AWaterDeeperThanItsBedMayBe_IsRefused() =>
+        AssertRefused("WLD003", "regions/starting_frontier.yaml", "  depth_m: 0.55", "  depth_m: 9", "depth_m must be from 0 to 8 m");
 
     [Fact]
     public void AFlagThatDoesNotStartAtZero_IsRefused() =>
