@@ -1,0 +1,9 @@
+id: skill.marksmanship
+kind: skill
+schema: 1
+display_key: skill.marksmanship.name
+tags: [skill]
+name: Marksmanship
+family: combat
+notes: "The skill of the long shot: range judged, wind read, a still hold and a placed release (GEAR_GENERATION 4.2)."
+teaches: "Shots that land at range, on a target that tests you, from a rest, a brace or a prone hold."

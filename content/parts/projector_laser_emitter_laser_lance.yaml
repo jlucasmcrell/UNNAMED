@@ -1,0 +1,15 @@
+id: part.projector.laser.emitter.laser_lance
+kind: part
+schema: 1
+display_key: part.projector.laser.emitter.laser_lance.name
+tags: [emitter, laser, tech, long]
+name: Laser Projector Lance
+notes: "Lens stack and resonator, and a glass lens that has to be cleaned. The long emitter: more reach, more heat, more to maintain."
+noun: "long laser projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.laser
+slot: emitter
+mesh: mesh.part.projector.laser.emitter.laser_lance
+material_slots: [emitter_main, lens]
+tier_min: 3
+stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.55, speed_mult: 0.95, durability_add: 5 }

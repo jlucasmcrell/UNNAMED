@@ -21,4 +21,4 @@ shot_noise_m: 6          # the twang, heard at the shooter; not a swing (STEALTH
 requirements: { attribute.might: 9 }   # an attribute minimum, never a level (PROGRESSION.md §11.1)
 durability_max: 200       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
 repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }
-assembly: { family: bow, maker_ref: maker.orenth.road_armoury, part_tier: 1 }
+assembly: { family: bow, maker_ref: maker.orenth.route_kit, part_tier: 1 }

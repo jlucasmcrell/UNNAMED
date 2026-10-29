@@ -1,0 +1,15 @@
+id: part.projector.air.emitter.air_nozzle
+kind: part
+schema: 1
+display_key: part.projector.air.emitter.air_nozzle.name
+tags: [emitter, air, tech]
+name: Pressure Projector Nozzle
+notes: "Compression chamber and impulse muzzle: knock-back with no lasting harm. The common emitter: what a maintenance shop can replace."
+noun: "air projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.air
+slot: emitter
+mesh: mesh.part.projector.air.emitter.air_nozzle
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.06, reach_add: 0.0, weight_add: 0.35, speed_mult: 0.98, durability_add: 5 }

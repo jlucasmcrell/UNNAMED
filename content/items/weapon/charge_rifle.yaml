@@ -1,0 +1,21 @@
+id: item.weapon.charge_rifle
+kind: item.weapon
+schema: 1
+display_key: item.weapon.charge_rifle.name
+tags: [weapon, tech, marksman, rail]
+name: Charge Rifle
+notes: "The rail line: a slug accelerated by a coil, loud and heavy and indifferent to wind (4.2)."
+category: weapon
+stack_max: 1
+weight: 4.6
+value_base: 260
+item_class: ordinary
+damage: [11, 14]
+damage_type: physical_pierce
+attack_speed: 0.42
+reach: 13.0
+hands: two
+skill_ref: skill.marksmanship
+durability_max: 150
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: marksman, maker_ref: maker.constructed.caldera_works, part_tier: 3 }

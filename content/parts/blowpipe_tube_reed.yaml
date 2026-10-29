@@ -1,0 +1,15 @@
+id: part.blowpipe.tube.reed
+kind: part
+schema: 1
+display_key: part.blowpipe.tube.reed.name
+tags: [tube, reed]
+name: Reed Tube
+notes: "A length of river reed, straightened and cured: the cheapest quiet weapon there is."
+noun: "blowpipe"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/nature"
+family: blowpipe
+slot: tube
+mesh: mesh.part.blowpipe.tube.reed
+material_slots: [tube]
+tier_min: 1
+stat_contrib: { damage_mult: 0.98, reach_add: 0.0, weight_add: 0.05, speed_mult: 1.0, durability_add: 0 }

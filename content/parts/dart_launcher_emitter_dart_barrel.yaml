@@ -1,0 +1,15 @@
+id: part.dart_launcher.emitter.dart_barrel
+kind: part
+schema: 1
+display_key: part.dart_launcher.emitter.dart_barrel.name
+tags: [emitter, dart]
+name: Dart Barrel
+notes: "A short air barrel: quiet, and it throws a dart rather than a bolt."
+noun: "dart launcher"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: dart_launcher
+slot: emitter
+mesh: mesh.part.dart_launcher.emitter.dart_barrel
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.25, speed_mult: 0.99, durability_add: 0 }

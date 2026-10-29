@@ -1,0 +1,15 @@
+id: part.marksman.emitter.accelerator_rail
+kind: part
+schema: 1
+display_key: part.marksman.emitter.accelerator_rail.name
+tags: [emitter, rail, long]
+name: Accelerator Rail
+notes: "A rail and coil that accelerate a slug: loud, heavy, and it does not care about wind."
+noun: "charge rifle"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons/AWM-F-sniper-rifle_4842e4aa"
+family: marksman
+slot: emitter
+mesh: mesh.part.marksman.emitter.accelerator_rail
+material_slots: [emitter_main]
+tier_min: 3
+stat_contrib: { damage_mult: 1.12, reach_add: 0.8, weight_add: 0.9, speed_mult: 0.92, durability_add: 10 }

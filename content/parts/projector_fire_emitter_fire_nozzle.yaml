@@ -1,0 +1,15 @@
+id: part.projector.fire.emitter.fire_nozzle
+kind: part
+schema: 1
+display_key: part.projector.fire.emitter.fire_nozzle.name
+tags: [emitter, fire, tech]
+name: Fire Projector Nozzle
+notes: "Flame nozzle, thermal lance, fuel and heat cells, ceramic and chrome frames, and the sights that let you point it. The common emitter: what a maintenance shop can replace."
+noun: "fire projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.fire
+slot: emitter
+mesh: mesh.part.projector.fire.emitter.fire_nozzle
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.06, reach_add: 0.0, weight_add: 0.35, speed_mult: 0.98, durability_add: 5 }

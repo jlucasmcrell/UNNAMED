@@ -1,0 +1,9 @@
+id: skill.projector
+kind: skill
+schema: 1
+display_key: skill.projector.name
+tags: [skill]
+name: Projector
+family: combat
+notes: "The skill of a device: charge discipline, heat and cell, and pointing an emitter where the charge goes (SKILLS_AND_TECHNIQUES 4.5, GEAR_GENERATION 4.1)."
+teaches: "Working a device that answers: a shot or a charge spent where it mattered, a cell read and swapped, an overheat cleared."

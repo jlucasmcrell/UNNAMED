@@ -1,0 +1,14 @@
+id: part.dart_launcher.frame.frame
+kind: part
+schema: 1
+display_key: part.dart_launcher.frame.frame.name
+tags: [frame, tech]
+name: Launcher Frame
+notes: "A compact frame that can be carried drawn and quiet."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: dart_launcher
+slot: frame
+mesh: mesh.part.dart_launcher.frame.frame
+material_slots: [frame]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.2, speed_mult: 1.0, durability_add: 5 }
