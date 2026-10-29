@@ -45,6 +45,7 @@ public static class WorldContent
             TryBuild(() => BuildOffline(loader), "config.time", loader, errors);
             TryBuild(() => BuildCalendar(loader), "config.time", loader, errors);
             TryBuild(() => BuildWeather(loader), "config.weather", loader, errors);
+        TryBuild(() => BuildFishing(loader), "config.fishing", loader, errors);
         }
         return errors;
     }
@@ -210,6 +211,74 @@ public static class WorldContent
     /// How the weather's fronts are laid out and drawn (<c>config.weather</c>; WP7). A pack without it has D6's weather. Every state named
     /// in <c>weights</c> must be one the simulation knows.
     /// </summary>
+    /// <summary>
+    /// Fishing's rules (<c>config.fishing</c>; the D20 follow-on): the rod a hand must carry, the baits and what each is worth, the bands of
+    /// the world clock, and the catch table each kind of water rolls on in each band. Every id it names must exist and no two bands may
+    /// overlap, or a cast's hour would name two tables.
+    /// </summary>
+    public static FishingRules BuildFishing(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.fishing"))
+            return FishingRules.Default;
+        var map = Config(loader, "config.fishing");
+        var items = loader.GetByKind("item");
+        var loot = loader.GetByKind("loot");
+
+        var baits = ImmutableSortedDictionary.CreateBuilder<string, Bait>(StringComparer.Ordinal);
+        foreach (var entry in List(map, "baits"))
+        {
+            if (entry is not Dictionary<object, object> row)
+                throw new FormatException("config.fishing: every bait is a map");
+            string item = Text(row, "item");
+            if (!items.ContainsKey(item))
+                throw new FormatException($"config.fishing: bait '{item}' is not an item");
+            double scale = row.TryGetValue("bite_scale", out var rawScale) && rawScale is not null ? Convert.ToDouble(rawScale, CultureInfo.InvariantCulture) : 1;
+            int bonus = row.TryGetValue("weight_bonus", out var rawBonus) && rawBonus is not null ? Convert.ToInt32(rawBonus, CultureInfo.InvariantCulture) : 0;
+            baits[item] = new Bait(item, scale, bonus);
+        }
+
+        var bands = ImmutableArray.CreateBuilder<FishingBand>();
+        foreach (var entry in List(map, "bands"))
+        {
+            if (entry is not Dictionary<object, object> row)
+                throw new FormatException("config.fishing: every band is a map");
+            bands.Add(new FishingBand(Text(row, "id"), Convert.ToDouble(row["from_h"], CultureInfo.InvariantCulture),
+                Convert.ToDouble(row["to_h"], CultureInfo.InvariantCulture)));
+        }
+        var built = bands.ToImmutable();
+        foreach (var band in built)
+            foreach (var other in built)
+                if (!ReferenceEquals(band, other) && band.Holds(other.FromHour))
+                    throw new FormatException($"config.fishing: band '{band.Id}' overlaps '{other.Id}'");
+
+        var tables = ImmutableSortedDictionary.CreateBuilder<string, ImmutableSortedDictionary<string, string>>(StringComparer.Ordinal);
+        var tableMap = Map(map, "tables");
+        foreach (var (key, value) in tableMap)
+        {
+            string kind = key as string ?? throw new FormatException("config.fishing: a water kind is named by its key");
+            if (value is not Dictionary<object, object> byBand)
+                throw new FormatException($"config.fishing: {kind} must be a map of band to catch table");
+            var perKind = ImmutableSortedDictionary.CreateBuilder<string, string>(StringComparer.Ordinal);
+            foreach (var (bandKey, tableValue) in byBand)
+            {
+                string band = bandKey as string ?? throw new FormatException($"config.fishing: {kind} names a band by its key");
+                string table = tableValue as string ?? throw new FormatException($"config.fishing: {kind}/{band} must name a catch table");
+                if (!loot.ContainsKey(table))
+                    throw new FormatException($"config.fishing: {kind}/{band} names catch table '{table}', which is not defined");
+                if (!built.Any(b => b.Id == band))
+                    throw new FormatException($"config.fishing: {kind} names band '{band}', which is not defined");
+                perKind[band] = table;
+            }
+            tables[kind] = perKind.ToImmutable();
+        }
+
+        string? rod = map.TryGetValue("rod", out var rawRod) ? rawRod as string : null;
+        if (rod is not null)
+            if (!items.ContainsKey(rod))
+                throw new FormatException($"config.fishing: rod '{rod}' is not an item");
+        return new FishingRules(rod, baits.ToImmutable(), built, tables.ToImmutable());
+    }
+
     public static WeatherRules BuildWeather(ContentLoader loader)
     {
         if (!loader.Definitions.ContainsKey("config.weather"))
