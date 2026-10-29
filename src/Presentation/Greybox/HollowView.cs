@@ -181,7 +181,7 @@ public partial class HollowView : Node3D
         bool exterior = layout.IsOutdoors;
         if (exterior)
         {
-            AddChild(BuildWater(layout.Space));
+            AddChild(BuildWater(layout.Space, withRavineFloor: layout.Id == FrontierRegion));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -189,8 +189,19 @@ public partial class HollowView : Node3D
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
-        var ravine = BuildRavine(layout.Space, terrain);
-        AddChild(ravine);
+        // The ravine, its floor plane and its dressing rocks are Ashen Hollow's own scenery: a district must not inherit
+        // them (Gate 1 of the Steps framed a grassy rise where its stair-street should be).
+        Node3D ravine;
+        if (layout.Id == FrontierRegion)
+        {
+            ravine = BuildRavine(layout.Space, terrain);
+            AddChild(ravine);
+        }
+        else
+        {
+            ravine = new Node3D { Name = "Ravine" };
+            AddChild(ravine);
+        }
         if (VisualOptions.Terrain == "terrain3d")
             DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout));
         // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
@@ -901,11 +912,15 @@ public partial class HollowView : Node3D
     /// into the ground, its edge a shoreline rather than a sheet's corner, its colour from its own depth, and the small ones drawn as
     /// pools with stones round the rim and reeds at the edge.
     /// </summary>
-    private Node3D BuildWater(WalkSpace space)
+    /// <summary>The only region the ravine scenery belongs to: the view was built for this one.</summary>
+    private const string FrontierRegion = "region.starting_frontier";
+
+    private Node3D BuildWater(WalkSpace space, bool withRavineFloor)
     {
         Coverage.Resolved("water", "stream", "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model");
         var node = new Node3D { Name = "Water" };
-        node.AddChild(new MeshInstance3D
+        if (withRavineFloor)
+            node.AddChild(new MeshInstance3D
         {
             Name = "RavineFloor",
             Mesh = new PlaneMesh { Size = new Vector2((space.MaxXMm - space.MinXMm) / 1000f, (space.MaxZMm - space.MinZMm) / 1000f) },
