@@ -29,6 +29,15 @@ public sealed record StanceChanged(EntityId Actor, Stance Stance, long Tick);
 /// </summary>
 public sealed record WentUnder(string WaterKey, long Tick);
 
+/// <summary>The body took hold of a climbable face (D20): its id is the structure's, for the log and the dossier.</summary>
+public sealed record ClimbBegan(EntityId Actor, string StructureId, long Tick);
+
+/// <summary>
+/// The feet came up over a face's top and the body is standing on the surface beyond it (D20): the mantle is played once from this, and the
+/// body has already been put where it stands - <see cref="BodyMoved"/> says from where.
+/// </summary>
+public sealed record Mantled(EntityId Actor, long Tick);
+
 public sealed record WorldFlagChanged(string CellKey, string FlagId, long From, long To, long Tick);
 
 public sealed record DoorToggled(EntityId Actor, string DoorKey, bool Open, long Tick);

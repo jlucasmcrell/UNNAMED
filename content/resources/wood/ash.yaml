@@ -5,5 +5,6 @@ display_key: resource.wood.ash.name
 tags: [resource]
 name: Ash
 notes: Young ash, straight enough for a haft (content bible §6, §12).
+tier: 1
 yields:
   - { item_ref: item.material.ash_haft, count_range: [1, 1] }

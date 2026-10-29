@@ -1,0 +1,10 @@
+id: resource.ore.deep_iron
+kind: resource
+schema: 1
+display_key: resource.ore.deep_iron.name
+tags: [resource]
+name: Deep Iron
+notes: "D18 SYSTEMS (needed-2, resource tiers): the third iron grade - the seam the Cut works below forty metres, where it runs better and costs more to reach (D13's Deep Seam technique). Graded 3: three units a strike or more, and a hand of 20 to work it at all."
+tier: 3
+yields:
+  - { item_ref: item.material.iron_ore, count_range: [3, 4] }

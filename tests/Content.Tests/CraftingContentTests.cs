@@ -66,7 +66,8 @@ public class CraftingContentTests
 
         Assert.Equal(new[]
         {
-            "node.fibre.bog_cotton", "node.firstplay.ashbloom", "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.iron_seam", "node.ore.loose_iron",
+            "node.fibre.bog_cotton", "node.firstplay.ashbloom", "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.blackvein_iron",
+            "node.ore.deep_seam", "node.ore.iron_seam", "node.ore.loose_iron",
             "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall",
         }, crafting.Nodes.Keys);
         var spoil = crafting.Nodes["node.ore.loose_iron"];
@@ -162,4 +163,44 @@ public class CraftingContentTests
     [Fact]
     public void AYieldPassiveThatIsNotAnAddition_IsRefused() =>
         AssertRefused("skills/mining.yaml", "target: stat.gather_yield, op: add", "target: stat.gather_yield, op: mul", "is raised with op add");
+
+    /// <summary>
+    /// A grade is the resource's, and a node with none of its own takes it (D18 SYSTEMS, needed-2; HOOK.NODE.ORE.T2): the shelf's iron is
+    /// graded 1, the Cut's blackvein 2 and the seam below it 3, and a grade above the first gives more - which is what it is for.
+    /// </summary>
+    [Fact]
+    public void AGradeIsTheResources_AndAGradeHigherGivesMore()
+    {
+        var crafting = CraftingContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+
+        Assert.Equal((1, 2, 3), (crafting.Nodes["node.ore.iron_seam"].Tier, crafting.Nodes["node.ore.blackvein_iron"].Tier,
+            crafting.Nodes["node.ore.deep_seam"].Tier));
+        Assert.Equal((1, 2, 2, 3, 3, 4),
+            (crafting.Nodes["node.ore.iron_seam"].YieldMin, crafting.Nodes["node.ore.iron_seam"].YieldMax,
+             crafting.Nodes["node.ore.blackvein_iron"].YieldMin, crafting.Nodes["node.ore.blackvein_iron"].YieldMax,
+             crafting.Nodes["node.ore.deep_seam"].YieldMin, crafting.Nodes["node.ore.deep_seam"].YieldMax));
+        // The grade is what the hand must bring, and the first grade asks nothing of it.
+        Assert.Equal((0, 10, 20), (CraftingRules.MinSkill(1), CraftingRules.MinSkill(2), CraftingRules.MinSkill(3)));
+        // Charges, respawn and swings are the node's own, untouched by the grade.
+        Assert.Equal((3, Respawn.None, 3),
+            (crafting.Nodes["node.ore.blackvein_iron"].Charges, crafting.Nodes["node.ore.blackvein_iron"].Respawn, crafting.Nodes["node.ore.blackvein_iron"].Swings));
+    }
+
+    [Fact]
+    public void ANodeMayOverrideItsResourcesGrade()
+    {
+        using var content = new EditedContent("nodes/ore/iron_seam.yaml", "difficulty: 5", "difficulty: 5\ntier: 4");
+        var crafting = CraftingContent.Build(Load(content.Root));
+
+        Assert.Equal(4, crafting.Nodes["node.ore.iron_seam"].Tier);
+        Assert.Equal(1, crafting.Nodes["node.ore.loose_iron"].Tier);   // the same resource with no grade of its own: the shelf's 1
+    }
+
+    [Fact]
+    public void AGradeOutsideOneToFive_IsRefused() =>
+        AssertRefused("resources/ore/iron.yaml", "tier: 1", "tier: 6", "tier 6 is outside 1-5");
+
+    [Fact]
+    public void ANodeGradeOutsideOneToFive_IsRefused() =>
+        AssertRefused("nodes/ore/iron_seam.yaml", "difficulty: 5", "difficulty: 5\ntier: 0", "node.ore.iron_seam: tier 0 is outside 1-5");
 }

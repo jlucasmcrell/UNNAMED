@@ -141,22 +141,81 @@ internal sealed class GatheringSystem : IAbstractAdvance
 
     /// <summary>
     /// What a swing at the node a key names would find, by the node's own rules: its definition when it will give, or the words it is
-    /// refused in - a node that is not this world's, one in another space, one out of the arm's reach, and one with no charges left. The
-    /// swing asks this before its first strike and the gather asks it again before it takes, so both refuse a node in the same words.
+    /// refused in - a node that is not this world's, one in another space, one out of the arm's reach, one with no charges left, and one
+    /// graded above the hand. The swing asks this before its first strike and the gather asks it again before it takes, so both refuse a
+    /// node in the same words.
     /// </summary>
     public (NodeDefinition? Definition, string? Refusal) Node(string nodeKey, long tick)
     {
-        var node = _nodes.FirstOrDefault(n => n.Key == nodeKey);
-        if (node.Key is null || !Setup.Nodes.TryGetValue(node.Site.NodeDefId, out var definition))
-            return (null, $"there is no node '{nodeKey}'");
-        if (node.Cell.Space != State.Space)
-            return (null, "that node is in another space");
-        var body = State.Body;
-        if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
-            return (null, "that is out of reach");
+        var (node, definition, refusal) = Find(nodeKey);
+        if (definition is null)
+            return (null, refusal!);
         if (!Ready(definition, State.World.NodeRecord(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
             return (null, definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back");
+        // The grade is what the hand must bring: below it the node is not taken, and the refusal says how far the hand is short, so a wall
+        // is a thing to walk back to rather than a thing to guess at. Nothing is spent by being refused.
+        if (ShortOf(definition, node.Site.Name) is { } shortOf)
+            return (null, shortOf);
         return (definition, null);
+    }
+
+    /// <summary>
+    /// What prospecting reads off a node, by the node's place and the arm's reach and never by the hand: its definition and what it still
+    /// holds, or the words it is refused in. Reading ground is what a hand that cannot work it does instead, so the grade's demand is not
+    /// asked here - only the ground the body is standing on.
+    /// </summary>
+    public (NodeDefinition? Definition, int ChargesLeft, bool Read, string? Refusal) Facts(string nodeKey)
+    {
+        var (node, definition, refusal) = Find(nodeKey);
+        if (definition is null)
+            return (null, 0, false, refusal!);
+        return (definition, ChargesLeft(definition, node), ReadAlready(node), null);
+    }
+
+    /// <summary>
+    /// Record that the ground a node stands on has been read, once and for good: the node's own cell holds the flag, so a save carries it
+    /// and a reload does not ask again. The save-visible fact is the flag, not a counter on the node's harvest.
+    /// </summary>
+    public void MarkRead(string nodeKey)
+    {
+        var node = _nodes.FirstOrDefault(n => n.Key == nodeKey);
+        if (node.Key is not null)
+            _context.Dispatch(new SetWorldFlag(node.Cell, ReadFlagOf(node.Site.Name), 1));
+    }
+
+    /// <summary>The world flag a read node is recorded in, named from the node the region authored: the cell delta persists flags.</summary>
+    public static string ReadFlagOf(string siteName) => $"world.prospect.{siteName}";
+
+    private bool ReadAlready((string Key, CellKey Cell, NodeSite Site) node) =>
+        State.World.GetFlag(node.Cell, ReadFlagOf(node.Site.Name)) != 0;
+
+    /// <summary>How much of a node is left: a finite seam counts down its charges, and a stand is one harvest a world day.</summary>
+    private int ChargesLeft(NodeDefinition definition, (string Key, CellKey Cell, NodeSite Site) node) =>
+        definition.Respawn == Respawn.None
+            ? Math.Max(0, definition.Charges - (State.World.NodeRecord(node.Cell, node.Key)?.HarvestSeq ?? 0))
+            : Ready(definition, State.World.NodeRecord(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, State.WorldTick)) ? definition.Charges : 0;
+
+    /// <summary>Why the hand is short of the node's grade, in the node's own name and the shortfall in words, or null when it is not.</summary>
+    private string? ShortOf(NodeDefinition definition, string siteName)
+    {
+        int demand = CraftingRules.MinSkill(definition.Tier);
+        int level = ProgressionEngine.SkillLevel(State.Progression, definition.SkillId);
+        return level >= demand ? null
+            : $"the {siteName} is beyond your reading of it: {definition.SkillId} {level}, and it wants {demand}";
+    }
+
+    /// <summary>The node that a key names, in this space and within the arm's reach, or the words it is not one in.</summary>
+    private ((string Key, CellKey Cell, NodeSite Site) Node, NodeDefinition? Definition, string? Refusal) Find(string nodeKey)
+    {
+        var node = _nodes.FirstOrDefault(n => n.Key == nodeKey);
+        if (node.Key is null || !Setup.Nodes.TryGetValue(node.Site.NodeDefId, out var definition))
+            return (node, null, $"there is no node '{nodeKey}'");
+        if (node.Cell.Space != State.Space)
+            return (node, null, "that node is in another space");
+        var body = State.Body;
+        if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
+            return (node, null, "that is out of reach");
+        return (node, definition, null);
     }
 
     private bool Ready(NodeDefinition definition, NodeHarvest? record, long tick) =>

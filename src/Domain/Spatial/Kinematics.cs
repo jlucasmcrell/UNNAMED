@@ -107,6 +107,12 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     /// <summary>A crouched body's speed, of the base, whatever the gait.</summary>
     public int CrouchPercent { get; init; } = 50;
 
+    /// <summary>
+    /// A climbing body's speed, of the base, whatever the gait: slower than the walk, because a ladder is climbed hand over hand
+    /// (the climb loop covers two rungs - about 0.6 m - in 0.8 s, so 30% of the base is the clip's own cadence).
+    /// </summary>
+    public int ClimbPercent { get; init; } = 30;
+
     /// <summary>A swimming body's speed, of the walk's, whatever the gait asked: half of it, so a sprint in the water is no faster (D20).</summary>
     public int SwimPercent { get; init; } = 50;
 
@@ -137,6 +143,9 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
         stance == Stance.Crouched ? BaseSpeedMmPerSecond * CrouchPercent / 100.0 : SpeedMmPerSecond(gait);
 
     public long HeightMm(Stance stance) => stance == Stance.Crouched ? CrouchHeightMm : StandHeightMm;
+
+    /// <summary>How fast the feet take a climbable face, in millimetres a second, whatever the gait asked.</summary>
+    public double ClimbSpeedMmPerSecond => BaseSpeedMmPerSecond * ClimbPercent / 100.0;
 
     /// <summary>How far above the ground the feet are this long after take-off: a parabola, whole millimetres, 0 before and after.</summary>
     public long LiftMm(int airMs) =>
@@ -228,6 +237,12 @@ public sealed record WaterSite(string Key, string Kind, long LevelMm, ImmutableA
         return ((long)Math.Round(nx + dx * outMm, MidpointRounding.AwayFromZero), (long)Math.Round(nz + dz * outMm, MidpointRounding.AwayFromZero));
     }
 }
+
+/// <summary>
+/// A climbable face the body is against (D20, the ladder's half of <c>HOOK.TRAV.LADDER</c>): the structure, the height its top is at, and
+/// the way the body faces it. Derived from where the body stands and which way it looks, never owned by the body.
+/// </summary>
+public readonly record struct ClimbFace(string Id, long TopMm, int FacingMdeg);
 
 /// <summary>The static walkable space of a region: its movement bounds, its terrain, and what stands on it.</summary>
 public sealed record WalkSpace(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, TerrainGrid Terrain, ImmutableArray<Blocker> Blockers)
@@ -369,6 +384,67 @@ public static class Kinematics
             : null;
 
     /// <summary>
+    /// The climbable face the body stands against, or null (D20: <c>HOOK.TRAV.LADDER</c>). Purely from where it is and which way it looks: the
+    /// point a body's radius in front of it must lie inside a structure the climbable prefixes made climbable, whose top is higher than the feet
+    /// by more than a step - a top within a step is a step up, not a climb - and no part of which is an overhang. The lowest such face wins, so
+    /// the ladder in front is the one taken, not the crag behind it.
+    /// </summary>
+    public static ClimbFace? ClimbFaceAt(Body body, MovementRules rules, WalkSpace space)
+    {
+        double yaw = body.FacingMdeg * Math.PI / 180_000;
+        double px = body.XMm + Math.Sin(yaw) * rules.BodyRadiusMm;
+        double pz = body.ZMm + Math.Cos(yaw) * rules.BodyRadiusMm;
+        ClimbFace? best = null;
+        foreach (var blocker in space.Blockers)
+        {
+            if (!blocker.Climbable || blocker.HeightMm <= 0 || blocker.ClearanceMm > 0 || blocker.DistanceTo(px, pz) > 0)
+                continue;
+            var (cx, cz) = Footprints.Center(blocker);
+            long top = space.HeightAtMm(cx, cz) + blocker.HeightMm;
+            if (top - body.YMm <= rules.StepUpMm || best is { } held && held.TopMm <= top)
+                continue;
+            best = new ClimbFace(blocker.Id, top, body.FacingMdeg);
+        }
+        return best;
+    }
+
+    /// <summary>
+    /// One tick of a climb: the feet rise at <see cref="MovementRules.ClimbSpeedMmPerSecond"/> up the face, no further than its top, with the body
+    /// held where it took hold of the face - a climb is vertical, so there is no drifting across the wall - and facing into it.
+    /// </summary>
+    public static Body Climb(Body body, ClimbFace face, MovementRules rules, int dtMs)
+    {
+        long rise = (long)Math.Round(rules.ClimbSpeedMmPerSecond * Math.Max(0, dtMs) / 1000.0, MidpointRounding.AwayFromZero);
+        return body with { YMm = Math.Min(body.YMm + rise, face.TopMm), FacingMdeg = face.FacingMdeg };
+    }
+
+    /// <summary>
+    /// Whether the feet have come up to the face's top, within a step of it: the climb has taken the body as far as its chest can haul it and
+    /// the mantle over the lip is the next thing.
+    /// </summary>
+    public static bool AtTop(Body body, ClimbFace face, MovementRules rules) => body.YMm + rules.StepUpMm >= face.TopMm;
+
+    /// <summary>
+    /// Where a body that has come up to a face's top stands: on the surface, a body's radius (and up to three) beyond the lip it came over, facing
+    /// the way it climbed - whichever of those points is at the lip's own height, within a step. Null when there is nothing that high to stand on:
+    /// a face whose top is a narrow rail with the ground falling away behind it has no mantle, and the body lets go where it hangs.
+    /// </summary>
+    public static Body? Mantled(Body body, ClimbFace face, MovementRules rules, WalkSpace space)
+    {
+        double yaw = face.FacingMdeg * Math.PI / 180_000;
+        for (long ahead = rules.BodyRadiusMm; ahead <= rules.BodyRadiusMm * 3; ahead += rules.BodyRadiusMm)
+        {
+            long x = body.XMm + (long)Math.Round(Math.Sin(yaw) * ahead, MidpointRounding.AwayFromZero);
+            long z = body.ZMm + (long)Math.Round(Math.Cos(yaw) * ahead, MidpointRounding.AwayFromZero);
+            long top = TopUnder(x, z, face.TopMm + rules.StepUpMm, space);
+            if (Math.Abs(top - face.TopMm) > rules.StepUpMm)
+                continue;
+            return new Body(x, top, z, face.FacingMdeg);
+        }
+        return null;
+    }
+
+    /// <summary>
     /// A body aloft on its wings: it goes forward at the glide's speed (none in a flare, a walk in a fall), comes down at the wing state's
     /// sink from its own height rather than the ground's, passes over what is lower than its feet, and lands - wings folded, on its feet -
     /// where the ground or a top it may stand on comes up to meet it. There is no fall damage: the body only comes down.
@@ -484,7 +560,7 @@ public static class Kinematics
     }
 
     /// <summary>The highest structure top under a point no higher than <paramref name="limitMm"/> (absolute), else the ground there.</summary>
-    private static long TopUnder(double x, double z, long limitMm, WalkSpace space)
+    public static long TopUnder(double x, double z, long limitMm, WalkSpace space)
     {
         long best = space.HeightAtMm((long)Math.Round(x, MidpointRounding.AwayFromZero), (long)Math.Round(z, MidpointRounding.AwayFromZero));
         foreach (var blocker in space.Blockers)

@@ -127,8 +127,9 @@ public static class CraftingContent
 
     /// <summary>
     /// Nodes (DATA_MODEL.md §4.16) with their material folded in (§4.10): <c>resource_ref</c>'s single yield, <c>charges</c>,
-    /// <c>respawn</c> (<c>none</c> or <c>daily</c>), <c>harvest_skill</c> and the <c>difficulty</c> a harvest trains it at, and the
-    /// <c>swings</c> one harvest takes (one unless the node says otherwise, so every node that names none is worked at a touch).
+    /// <c>respawn</c> (<c>none</c> or <c>daily</c>), <c>harvest_skill</c> and the <c>difficulty</c> a harvest trains it at, the
+    /// <c>swings</c> one harvest takes (one unless the node says otherwise, so every node that names none is worked at a touch), and the
+    /// <c>tier</c> it is graded at - the resource's grade, or the node's own where it names one.
     /// </summary>
     public static ImmutableSortedDictionary<string, NodeDefinition> BuildNodes(ContentLoader loader)
     {
@@ -140,11 +141,17 @@ public static class CraftingContent
             string id = definition.Id;
             string resourceId = Text(map, "resource_ref");
             var resource = resources.GetValueOrDefault(resourceId) ?? throw new FormatException($"{id}: {resourceId} is not a resource");
-            var yields = Rows(Read(resource.YamlSource), "yields", resourceId).ToList();
+            var resourceMap = Read(resource.YamlSource);
+            var yields = Rows(resourceMap, "yields", resourceId).ToList();
             if (yields.Count != 1)
                 throw new FormatException($"{resourceId}: Phase 1 builds a resource of exactly one yield");
             var yield = yields[0];
             var range = List(yield, "count_range");
+            // The grade is the resource's (a material's own quality), and a node may override it: a seam of the same material worked
+            // where it runs better. Both are held to the same range, and an out-of-range grade is a content error, never a default.
+            int resourceTier = resourceMap.ContainsKey("tier") ? Int(resourceMap, "tier") : 1;
+            if (resourceTier is < 1 or > 5)
+                throw new FormatException($"{resourceId}: tier {resourceTier} is outside 1-5");
             var respawn = Text(map, "respawn") switch
             {
                 "none" => Respawn.None,
@@ -159,11 +166,14 @@ public static class CraftingContent
             {
                 ResourceId = resourceId,
                 Swings = map.ContainsKey("swings") ? Int(map, "swings") : 1,
+                Tier = map.ContainsKey("tier") ? Int(map, "tier") : resourceTier,
             };
             if (node.YieldMin < 1 || node.YieldMax < node.YieldMin || node.Charges < 1 || node.Difficulty < 0)
                 throw new FormatException($"{id}: a yield of [min, max] with 1 <= min <= max, at least one charge, and a difficulty not below 0");
             if (node.Swings is < 0 or > 10)
                 throw new FormatException($"{id}: swings must be 0..10 (how many swings one harvest takes)");
+            if (node.Tier is < 1 or > 5)
+                throw new FormatException($"{id}: tier {node.Tier} is outside 1-5");
             if (node.Respawn == Respawn.Daily && node.Charges != 1)
                 throw new FormatException($"{id}: a daily node holds one charge a day");
             if (map.ContainsKey("tool_tier_min"))

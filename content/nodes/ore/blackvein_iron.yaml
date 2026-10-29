@@ -1,0 +1,13 @@
+id: node.ore.blackvein_iron
+kind: node
+schema: 1
+display_key: node.ore.blackvein_iron.name
+tags: [node]
+name: Blackvein Seam
+notes: "D18 SYSTEMS (needed-2, resource tiers): the Cut's second-grade seam, worked in the crag face the old workings followed. It takes its grade from the resource (resource.ore.blackvein_iron, graded 2), which is the shape a node with no tier of its own has: the material decides, and a seam of the same material elsewhere may say otherwise."
+resource_ref: resource.ore.blackvein_iron
+charges: 3
+respawn: none
+harvest_skill: skill.mining
+difficulty: 12
+swings: 3

@@ -5,5 +5,6 @@ display_key: resource.trap.pelt_snare.name
 tags: [resource]
 name: Pelt Snare
 notes: What one of Halda's pelt snares on the north slope holds when it is checked - a hare or fox pelt. Renews at the world-day boundary.
+tier: 1
 yields:
   - { item_ref: item.material.small_hide, count_range: [1, 1] }

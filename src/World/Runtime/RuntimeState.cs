@@ -354,6 +354,18 @@ internal sealed class RuntimeState
     }
 
     /// <summary>
+    /// The climbable face the body has hold of, or null on the ground (D20). Part of the body's slice, and worked out from where it stood when it
+    /// took hold; not on the posture, for the same reason a swim is not: the posture is saved and a climb is a place, not a possession.
+    /// </summary>
+    public ClimbFace? Climbing { get; private set; }
+
+    public void SetClimbing(SliceOwner owner, ClimbFace? face)
+    {
+        Require(owner, StateSlice.PlayerBody);
+        Climbing = face;
+    }
+
+    /// <summary>
     /// Move the player into a space and say which portal they came in by; the exterior with
     /// <see cref="SpaceTraversal.None"/> is going back outside.
     /// </summary>

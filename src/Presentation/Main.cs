@@ -1755,6 +1755,7 @@ public partial class Main : Node3D
         DrawWings(posture);
         _avatar.SetGliding(posture.Aloft && posture.Wing != UNNAMED.Domain.Spatial.WingState.Fall);
         _avatar.Swimming(simulation.Swimming);
+        _avatar.Climbing(simulation.IsClimbing);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
         _soundEvents.ObserveFootPlants(_avatar,speed,airborne);
         _avatar.Pose(feet, facing, speed, delta);

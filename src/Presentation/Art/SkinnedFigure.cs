@@ -260,6 +260,8 @@ public sealed partial class SkinnedFigure : Figure
     private bool _swimming;
     private bool _washing;
     private double _washElapsed;
+    private bool _climbing;
+    private double _mantling;
 
     public override void Strike() => _striking = 0.001;
 
@@ -288,6 +290,15 @@ public sealed partial class SkinnedFigure : Figure
 
     /// <summary>In the water or out of it: the body's height carries it low in the water, and the pose is the bindings' swim state.</summary>
     public override void Swimming(bool swimming) => _swimming = swimming;
+
+    /// <summary>
+    /// On a climbable face or off it (D20): the bindings' climb state is the loop the body holds for as long as the simulation keeps it there.
+    /// The body is not moved by the clip - the simulation climbs it a rung at a time - so the loop only has to show the hands and feet working.
+    /// </summary>
+    public override void Climbing(bool climbing) => _climbing = climbing;
+
+    /// <summary>The feet came over the lip: the mantle plays once from here, with the body already standing beyond it.</summary>
+    public override void Mantled() => _mantling = 0.001;
 
     /// <summary>Washing at a bank for as long as the simulation holds it, from the moment it began: the one clip plays once.</summary>
     public override void Washing(bool washing)
@@ -646,6 +657,23 @@ public sealed partial class SkinnedFigure : Figure
                 return;
             }
             _landing = 0;
+        }
+        // On a climbable face (D20): the mantle plays once when the feet come over the lip, then the climb loop holds for as long as the
+        // simulation keeps the body on the face. Both are played at their own rate - the simulation owns the height and the pace.
+        if (_mantling > 0)
+        {
+            _mantling += delta;
+            if (_mantling < m.Length("climb_top") && m.Has("climb_top"))
+            {
+                m.Play("climb_top", 0.15f, 1f, _mantling - delta <= 0.001);
+                return;
+            }
+            _mantling = 0;
+        }
+        if (_climbing && m.Has("climb"))
+        {
+            m.Play("climb", 0.2f, 1f);
+            return;
         }
         // Fishing and lockpicking have no clip of their own in the art root, so the cast plays the clip the cast state names, the reel and
         // the pick the one interact names, each once; the wait between a cast and its bite is an idle and the line's own status is the HUD's.

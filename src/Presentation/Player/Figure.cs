@@ -136,4 +136,14 @@ public abstract partial class Figure : Node3D
     public virtual void Washing(bool washing)
     {
     }
+
+    /// <summary>On a climbable face or off it (D20): the climb loop plays for as long as the simulation holds the body to the face.</summary>
+    public virtual void Climbing(bool climbing)
+    {
+    }
+
+    /// <summary>The feet have come up over the lip and the body stands beyond it: the mantle clip plays once.</summary>
+    public virtual void Mantled()
+    {
+    }
 }

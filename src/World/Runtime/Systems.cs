@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
+// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -486,6 +486,104 @@ internal sealed class MovementSystem
     }
 
     /// <summary>
+    /// Take hold of a climbable face, or let go of the one being climbed (D20). What the body is doing decides it: the water is no wall to climb, a
+    /// body in the air or in a fight has no hands to spare, a dead one has none at all, and a body with nothing climbable a radius in front of it
+    /// has nothing to take hold of. Letting go is always allowed, and puts the body down where it hangs, from where it falls.
+    /// </summary>
+    public string? Handle(ClimbCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (_context.State.Climbing is not null)
+        {
+            LetGo();
+            return null;
+        }
+        if (_context.State.Swimming)
+            return "the water is no wall to climb";
+        var posture = _context.State.Posture;
+        if (posture.Airborne)
+            return "in the air";
+        var combat = _context.State.PlayerCombat;
+        var (phase, _) = combat.Action.PhaseAt(tick, _context.Setup.Combat.Constants);
+        if (combat.Defeated)
+            return "dead";
+        if (phase != CombatPhase.Idle || combat.Blocking || _context.ControlOn(_player) != ControlKind.None)
+            return "busy";
+        var space = _context.Setup.SpaceFor(_context.State.Space);
+        if (Kinematics.ClimbFaceAt(_context.State.Body, _context.PlayerMovement, space) is not { } face)
+            return "nothing to climb";
+        _context.State.SetClimbing(_owner, face);
+        Intent = MoveIntent.Idle(face.FacingMdeg);
+        _context.Events.Publish(new ClimbBegan(_player, face.Id, tick));
+        return null;
+    }
+
+    /// <summary>Off the face, wherever the body is: it keeps the height it had, and the next step has no top within reach to stand on, so it settles to the ground.</summary>
+    private void LetGo()
+    {
+        _context.State.SetClimbing(_owner, null);
+        Intent = MoveIntent.Idle(_context.State.Body.FacingMdeg);
+    }
+
+    /// <summary>
+    /// One tick of a climb (D20): the feet go up at the climb's pace, the body held against the face and facing into it. It ends three ways - the
+    /// feet come up to the top, and the mantle puts the body on the surface beyond the lip; the player's own intent points away from the face, or
+    /// the climb key is pressed again, and the body lets go where it is; or the body is put somewhere, killed or dragged into a fight, and the
+    /// climb ends with it.
+    /// </summary>
+    private void ClimbTick(ClimbFace face, long tick)
+    {
+        var from = _context.State.Body;
+        var rules = _context.PlayerMovement;
+        var space = _context.Setup.SpaceFor(_context.State.Space);
+        // The feet have come up to the lip: the mantle takes over, whatever else is going on. Once it is within a step of the top the face is no
+        // longer a face to climb (it is a step up from where the feet now are), so this comes before the re-read of what is in front of the body.
+        var to = Kinematics.Climb(from, face, rules, _context.Setup.TickMilliseconds);
+        if (Kinematics.AtTop(to, face, rules))
+        {
+            if (Kinematics.Mantled(to, face, rules, space) is not { } top)
+            {
+                LetGo();
+                return;
+            }
+            _context.State.SetClimbing(_owner, null);
+            _context.State.SetBody(_owner, top);
+            _context.State.SetPosture(_owner, Posture.Grounded);
+            Intent = MoveIntent.Idle(top.FacingMdeg);
+            _context.Events.Publish(new BodyMoved(_player, from, top, tick));
+            _context.Events.Publish(new Mantled(_player, tick));
+            return;
+        }
+        // Letting go by stepping back off the face: the intent points away from the wall the body's chest is against.
+        var (ix, iz) = Facing(Intent);
+        bool away = Intent.IsMoving && ix * Math.Sin(face.FacingMdeg * Math.PI / 180_000) + iz * Math.Cos(face.FacingMdeg * Math.PI / 180_000) < 0;
+        if (away || _context.State.PlayerCombat.Defeated || _context.State.Swimming
+            || Kinematics.ClimbFaceAt(from, rules, space) is not { } still || still.Id != face.Id)
+        {
+            LetGo();
+            return;
+        }
+        // Back on the ground it took off from: the climb is over, without a mantle.
+        if (to.YMm <= space.HeightAtMm(to.XMm, to.ZMm))
+        {
+            LetGo();
+            return;
+        }
+        if (to == from)
+            return;
+        _context.State.SetBody(_owner, to);
+        _context.Events.Publish(new BodyMoved(_player, from, to, tick));
+    }
+
+    /// <summary>The direction an intent points, as a unit-free pair; (0, 0) when it asks for nothing.</summary>
+    private static (double X, double Z) Facing(MoveIntent intent)
+    {
+        double length = Math.Sqrt((double)intent.DirXPermille * intent.DirXPermille + (double)intent.DirZPermille * intent.DirZPermille);
+        return length == 0 ? (0, 0) : (intent.DirXPermille / length, intent.DirZPermille / length);
+    }
+
+    /// <summary>
     /// One tick of movement. What the body is doing in combat shapes it: a dodge dashes along its own direction, a stagger
     /// or a dodge's recovery roots the feet, an attack or a raised guard slows them to a walk (and a landed blow holds
     /// its facing), and an empty stamina pool turns a sprint into a run.
@@ -493,6 +591,12 @@ internal sealed class MovementSystem
     public void Tick(long tick)
     {
         var from = _context.State.Body;
+        // On a climbable face there is no ground to walk on: the tick is the climb's, and the body neither falls nor slides (D20).
+        if (_context.State.Climbing is { } climbing)
+        {
+            ClimbTick(climbing, tick);
+            return;
+        }
         // Out of wind in deep water: the body comes ashore at the nearest bank, on its feet and wading, a little the worse for it.
         if (_context.State.Swimming && Stamina() <= 0)
         {

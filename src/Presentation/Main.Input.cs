@@ -348,6 +348,10 @@ public partial class Main
             OpenPetOrders();
         if (Input.IsActionJustPressed("jump"))
             _controller.Jump();
+        // U: take hold of a climbable face (a ladder, a crag) or let go of it. Its own key and not the jump's, so a rock a jump can still
+        // mantle onto is jumped onto exactly as before, and the climb is the choice it always was (D20, the ladder).
+        if (Input.IsActionJustPressed("climb"))
+            _controller.Climb();
         Wings(Input.IsActionPressed("jump"));
         // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is. Gliding, the
         // crouch is the wings' flare (Kal).
@@ -432,6 +436,7 @@ public partial class Main
         Bind("fish", Key.N);              // a line in the water: cast, and the same key reels it in (F is the takedown; E still refills the flask)
         Bind("wash", Key.B);              // the water's second verb: a wash at the bank, beside N's line and E's flask
         Bind("jump", Key.Space);
+        Bind("climb", Key.U);             // take hold of a ladder or a crag (U is the only free letter); jump stays the jump
         Bind("crouch", Key.X);            // a toggle by default (the owner's M6 playtest; Settings can make it a hold); C stays the dodge
         Bind("character", Key.K);
         Bind("skills", Key.P);

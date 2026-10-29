@@ -37,6 +37,13 @@ public sealed record GlideCommand(EntityId Actor, bool Spread) : GameCommand(Act
 /// </summary>
 public sealed record TakedownCommand(EntityId Actor) : GameCommand(Actor);
 
+/// <summary>
+/// Take hold of a climbable face, or let go of the one being climbed (D20: the ladder's half of <c>HOOK.TRAV.LADDER</c>). The face is whatever
+/// stands a body's radius in front of the body that the climbable prefixes made climbable; nothing needs naming. Refused in the water, in the air,
+/// in a fight, and where there is nothing climbable to take hold of.
+/// </summary>
+public sealed record ClimbCommand(EntityId Actor) : GameCommand(Actor);
+
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
 

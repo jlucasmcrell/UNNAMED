@@ -84,12 +84,15 @@ public static class WorldContent
         // Standing on structure tops (owner finding 50); a pack without it keeps the planar rule.
         if (map.ContainsKey("step_up_m"))
             rules = rules with { StepUpMm = Mm(map, "step_up_m"), MantleMm = map.ContainsKey("mantle_reach_m") ? Mm(map, "mantle_reach_m") : 0 };
+        // The pace up a climbable face (D20, the ladder): a pack without it keeps the default.
+        if (map.ContainsKey("climb_percent"))
+            rules = rules with { ClimbPercent = Int(map, "climb_percent") };
         if (rules.StepUpMm < 0 || rules.StepUpMm >= rules.JumpApexMm || rules.MantleMm < 0 || rules.MantleMm > 0 && rules.MantleMm <= rules.JumpApexMm)
             throw new FormatException("config.base_speeds step_up_m is at least 0 and below the jump apex; mantle_reach_m, if any, is above it");
         if (rules.JumpApexMm <= 0 || rules.JumpRiseMs <= 0 || rules.JumpTuckRadiusMm <= 0 || rules.JumpTuckRadiusMm > rules.BodyRadiusMm
             || rules.CrouchHeightMm <= 0 || rules.CrouchHeightMm >= rules.StandHeightMm
-            || rules.CrouchPercent is <= 0 or > 100)
-            throw new FormatException("config.base_speeds needs a positive jump apex and rise, a tuck radius no wider than the body, a crouched height below the standing one, and crouch_percent in 1..100");
+            || rules.CrouchPercent is <= 0 or > 100 || rules.ClimbPercent is <= 0 or > 100)
+            throw new FormatException("config.base_speeds needs a positive jump apex and rise, a tuck radius no wider than the body, a crouched height below the standing one, and crouch_percent and climb_percent in 1..100");
         return rules;
     }
 

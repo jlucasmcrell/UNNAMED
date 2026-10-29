@@ -140968,6 +140968,15 @@ structures:
   - 452
   - 732
   height_m: 3.2
+# The lodge's ladder (D20): a fixed ladder with a landing at its head, level with the wall it leans on, so a wall the jump cannot reach is
+# climbed instead. Its id carries the ladder_ prefix config.base_speeds makes climbable.
+- id: ladder_outpost_lodge
+  box_m:
+  - 443.6
+  - 731
+  - 444.4
+  - 731.6
+  height_m: 3.2
 - id: longhouse_south
   box_m:
   - 436
@@ -150695,6 +150704,19 @@ nodes:
   position_m:
   - 436
   - 665
+# D18 SYSTEMS (needed-2, resource tiers): the Cut's two better grades, stood in the same pocket the spoil is won from - the second
+# grade in the crag face (resource.ore.blackvein_iron, graded 2) and the deep seam below it (graded 3), so a hand that has only ever
+# picked the litter can read both and work neither until it has the levels.
+- name: blackvein_iron_seam
+  node_ref: node.ore.blackvein_iron
+  position_m:
+  - 443.5
+  - 658
+- name: blackvein_deep_seam
+  node_ref: node.ore.deep_seam
+  position_m:
+  - 432
+  - 669
 - name: hollow_ash_stand_2
   node_ref: node.wood.ash_stand
   position_m:

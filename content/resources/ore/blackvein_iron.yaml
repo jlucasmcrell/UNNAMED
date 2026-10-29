@@ -1,0 +1,10 @@
+id: resource.ore.blackvein_iron
+kind: resource
+schema: 1
+display_key: resource.ore.blackvein_iron.name
+tags: [resource]
+name: Blackvein Iron
+notes: "D18 SYSTEMS (needed-2, resource tiers): the second iron grade - the Cut's own seam, the same ore piece as the shelf's iron with more of it to the strike, so the grade shows in what a working gives rather than in a new item. Graded 2, which is the hand it asks for (CraftingRules.MinSkill)."
+tier: 2
+yields:
+  - { item_ref: item.material.iron_ore, count_range: [2, 3] }

@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -237,6 +237,7 @@ public sealed class Simulation
     private readonly FishingSystem _fishing;
     private readonly LockpickSystem _lockpicking;
     private readonly SwingingSystem _swinging;
+    private readonly ProspectingSystem _prospecting;
     private readonly WashingSystem _washing;
     private readonly FirstHourSystem _firstHour;
     private readonly LoreSystem _lore;
@@ -341,6 +342,13 @@ public sealed class Simulation
         {
             Node = _gathering.Node,
             Gather = (nodeKey, tick) => _gathering.Handle(new GatherCommand(player.Id, nodeKey), tick),
+        };
+        // The read before the work (skill.prospecting): the same owner, because a body reading ground is in the same timed thing a body
+        // swinging at it is, and the gather's own rules for where a node is and how far it can be reached - never its grade's demand.
+        _prospecting = new ProspectingSystem(_context, activity, player.Id)
+        {
+            Node = _gathering.Facts,
+            Mark = _gathering.MarkRead,
         };
         _crafting = new CraftingSystem(_context, _state.Claim(nameof(CraftingSystem), StateSlice.Findings), player.Id, player.Name) { Contents = site => _inventory.View(site) };
         _lore = new LoreSystem(_context, _state.Claim(nameof(LoreSystem), StateSlice.Lore), player.Id);
@@ -626,6 +634,12 @@ public sealed class Simulation
 
     /// <summary>Whether the body is floating in deep water (D20): what the HUD's one line says, and what the wash is refused in.</summary>
     public bool Swimming => _state.Swimming;
+
+    /// <summary>The face the body has hold of (D20), or null on the ground: what the climb clip is played for.</summary>
+    public UNNAMED.Domain.Spatial.ClimbFace? Climbing => _state.Climbing;
+
+    /// <summary>Whether the body is on a climbable face now.</summary>
+    public bool IsClimbing => _state.Climbing is not null;
 
     /// <summary>
     /// The declared water the character stands at, by key, fishable or not - what a wash is offered at. Null on dry land, indoors, and
@@ -950,6 +964,7 @@ public sealed class Simulation
             {
                 MoveCommand move => _movement.Handle(move),
                 JumpCommand jump => _movement.Handle(jump, WorldTick),
+                ClimbCommand climb => _movement.Handle(climb, WorldTick),
                 CrouchCommand crouch => _movement.Handle(crouch, WorldTick),
                 GlideCommand glide => _movement.Handle(glide, WorldTick),
                 PeopleAbilityCommand ability => _people.Handle(ability, WorldTick),
@@ -990,8 +1005,9 @@ public sealed class Simulation
                 WashCommand wash => _washing.Handle(wash,WorldTick),
                 PickLockCommand pick => _lockpicking.Handle(pick,WorldTick),
                 SwingAtNodeCommand swing => _swinging.Handle(swing,WorldTick),
+                ProspectCommand prospect => _prospecting.Handle(prospect,WorldTick),
                 // A cancel ends whichever timed thing is running: a pick, a swing or a wash first, so the system that started it is the one that stops it.
-                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _washing.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
+                CancelActivityCommand cancelActivity => _lockpicking.Handle(cancelActivity) ?? _swinging.Handle(cancelActivity) ?? _washing.Handle(cancelActivity) ?? _prospecting.Handle(cancelActivity) ?? _fishing.Handle(cancelActivity),
                 VisitStationCommand visitStation => _firstHour.Handle(visitStation,WorldTick),
                 TalkCommand talk => _dialogue.Handle(talk, WorldTick),
                 ChooseCommand choose => _dialogue.Handle(choose, WorldTick),
@@ -1064,6 +1080,7 @@ public sealed class Simulation
             _washing.Tick(tick);
             _lockpicking.Tick(tick);
             _swinging.Tick(tick);
+            _prospecting.Tick(tick);
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);

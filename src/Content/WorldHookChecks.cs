@@ -434,6 +434,15 @@ public static class WorldHookChecks
                 return placed.Count(p => p.Section == "nodes"
                                          && Scalar(p.Node, "node_ref")?.StartsWith(prefix, StringComparison.Ordinal) == true);
             }
+            case "node_tier":
+            {
+                // A node of a grade or better (D18 SYSTEMS, needed-2; HOOK.NODE.ORE.T2): the grade is the resource's own or the node's
+                // override, so it is read off the built node kinds rather than the yaml. Content scope: the capability is in the build
+                // for areas to place, which is what a grade above the first one is.
+                string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";
+                int atLeast = (int)(AsNumber(Node(argument, "min_tier")) ?? 2);
+                return facts.NodeList.Count(n => n.Id.StartsWith(prefix, StringComparison.Ordinal) && n.Tier >= atLeast);
+            }
             case "readable_field":
                 return placed.Count(p => p.Section == "readables" && Has(p.Node, Scalar(argument, "field")));
             case "spawn":
@@ -525,10 +534,19 @@ public static class WorldHookChecks
         /// <summary>The knowledge items each NPC hands over in their own dialogue (<c>transfer_item</c>).</summary>
         public Dictionary<string, List<string>> NpcDialogueGifts { get; } = new(StringComparer.Ordinal);
 
+        /// <summary>
+        /// The node kinds the build holds with the grade each carries, read off the built nodes so a grade inherited from the resource
+        /// and one the node overrides both count. A grade is a capability the areas place, never a place itself.
+        /// </summary>
+        public List<(string Id, int Tier)> NodeList { get; } = [];
+
         private readonly Dictionary<string, List<string>> _dialogueGifts = new(StringComparer.Ordinal);
 
         public WorldFacts(ContentLoader loader)
         {
+            var nodes = CraftingContent.BuildNodes(loader);
+            foreach (var node in nodes.Values)
+                NodeList.Add((node.Id, node.Tier));
             foreach (var definition in loader.Definitions.Values)
             {
                 if (ContentChecks.Parse(definition) is not { } root)

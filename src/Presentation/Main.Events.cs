@@ -260,6 +260,9 @@ public partial class Main
         // The water's second use (D20): a wash is a rest at the bank, and going under is the swim's own lesson, in the HUD's own words.
         _session.Subscribe<Washed>(_ => Notice(NoticeKind.World, "You wash at the water's edge", 3));
         _session.Subscribe<WentUnder>(_ => Notice(NoticeKind.World, "You go under - the water puts you ashore", 4));
+        // The climb's two halves (D20): taking hold of a face is said once, and the mantle plays once when the feet come over the lip.
+        _session.Subscribe<ClimbBegan>(_ => Notice(NoticeKind.World, "You take hold of the climb", 2));
+        _session.Subscribe<Mantled>(_ => _avatar.Mantled());
         // Lockpicking: the picks go in, the lock gives or holds, and a turn that binds takes them out of the pack with it.
         _session.Subscribe<LockAttemptStarted>(e => Notice(NoticeKind.World, "You work the picks", 2));
         _session.Subscribe<LockPicked>(e => Notice(NoticeKind.World, "The lock gives", 3));

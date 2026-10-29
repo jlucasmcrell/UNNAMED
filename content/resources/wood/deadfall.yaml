@@ -5,5 +5,6 @@ display_key: resource.wood.deadfall.name
 tags: [resource]
 name: Sound Deadfall
 notes: Renews at the world-day boundary (canon firstplay deadfall).
+tier: 1
 yields:
   - { item_ref: item.material.timber, count_range: [6, 6] }

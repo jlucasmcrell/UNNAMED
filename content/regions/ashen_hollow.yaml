@@ -70,6 +70,9 @@ structures:
   - { id: longhouse_west, box_m: [36, 124, 36.4, 132], height_m: 3.2 }
   - { id: longhouse_east_north, box_m: [51.6, 128.8, 52, 132], height_m: 3.2 }
   - { id: longhouse_east_south, box_m: [51.6, 124, 52, 127.2], height_m: 3.2 }
+  # The lodge's ladder (D20): on the wall facing the waystone, a landing at its head level with the wall. Its id carries the ladder_ prefix
+  # config.base_speeds makes climbable, so the wall is climbed where it cannot be jumped onto.
+  - { id: ladder_ah_lodge, box_m: [43.6, 123.4, 44.4, 124], height_m: 3.2 }
   # Kera's smithy (bible: (58, 142)): the M3 forge shed, door on the west wall.
   - { id: forge_north, box_m: [53, 145.6, 63, 146], height_m: 3.0 }
   - { id: forge_south, box_m: [53, 138, 63, 138.4], height_m: 3.0 }

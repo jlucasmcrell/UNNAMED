@@ -17,7 +17,8 @@ jump_rise_s: 0.42        # to the top of the arc; the fall takes as long
 jump_tuck_radius_m: 0.2  # in the air, a structure lower than the apex meets the tucked legs, not the shoulders
 step_up_m: 0.4           # a structure top this far above the feet is walked onto; higher ones are jumped onto (owner finding 50)
 mantle_reach_m: 1.6      # a jump that meets a ledge whose top is this far above the take-off feet climbs onto it
-climbable_prefixes: [cw_boulder_, cw_crag_, rock_, den_rock_]   # what is stepped onto, stood on and climbed: rock, never fences, carts, walls or doors
+climbable_prefixes: [cw_boulder_, cw_crag_, rock_, den_rock_, ladder_]   # what is stepped onto, stood on and climbed: rock and ladders, never fences, carts, walls or doors (the climbable_prefixes rule is how a climb finds its face - Kinematics.ClimbFaceAt)
+climb_percent: 30        # of base_m_s: how fast the feet take a climbable face. Slower than the walk on purpose - the climb loop covers two rungs (about 0.6 m) in its 0.8 s, so 0.96 m/s is the clip's own cadence
 stand_height_m: 1.8      # what an overhang is measured against
 crouch_height_m: 1.15
 crouch_percent: 50       # of base_m_s, whatever the gait

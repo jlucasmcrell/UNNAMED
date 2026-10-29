@@ -29,6 +29,12 @@ public enum ActivityKind
 
     /// <summary>Water is being washed in, at a bank: a rest, held for its ticks, and a little of the body's wind back when they run out.</summary>
     Wash,
+
+    /// <summary>
+    /// The ground is being read at a node: the look takes its ticks, and what the node holds - its material, its grade and how much of it
+    /// is left - is known for good when they run out. A hand too short to work a node can still read it, which is the point of the read.
+    /// </summary>
+    Prospect,
 }
 
 /// <summary>

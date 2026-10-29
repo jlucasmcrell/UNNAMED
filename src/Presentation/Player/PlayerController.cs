@@ -113,6 +113,9 @@ public sealed class PlayerController
     /// <summary>Jump (the owner's M6 playtest): the simulation decides whether there is room, and the arc.</summary>
     public void Jump() => _session.Submit(new JumpCommand(_session.Simulation!.PlayerId));
 
+    /// <summary>Take hold of a climbable face, or let go of the one being climbed (D20): the simulation decides which face, and when the feet reach the top.</summary>
+    public void Climb() => _session.Submit(new ClimbCommand(_session.Simulation!.PlayerId));
+
     /// <summary>Crouch, or stand where there is room to; gliding, flare the wings, or spread them again.</summary>
     public void Crouch(bool crouched) => _session.Submit(new CrouchCommand(_session.Simulation!.PlayerId, crouched));
 

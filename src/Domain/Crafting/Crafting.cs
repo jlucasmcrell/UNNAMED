@@ -27,6 +27,13 @@ public sealed record NodeDefinition(string Id, string ItemId, int YieldMin, int 
     /// content says otherwise, so a stand or a snare is worked at a touch while a seam is worked at a swing.
     /// </summary>
     public int Swings { get; init; } = 1;
+
+    /// <summary>
+    /// The grade of what the node yields, 1 to 5: tier 1 is the spoil and the ground's own litter, and each grade above it is a better
+    /// seam of the same material. The grade is the resource's own (<c>content/resources</c>), and a node may override it; what the grade
+    /// buys is the hand a harvest asks for (<see cref="CraftingRules.MinSkill"/>) and what the world hooks count (HOOK.NODE.ORE.T2).
+    /// </summary>
+    public int Tier { get; init; } = 1;
 }
 
 public sealed record RecipeInput(string ItemId, int Count);
@@ -193,6 +200,14 @@ public static class CraftingRules
         }
         return pool.Take(take).OrderBy(c => c, StringComparer.Ordinal).ToImmutableArray();
     }
+
+    /// <summary>
+    /// The skill a hand needs to work a grade: one D13 band step above the first grade's, so a tier-2 seam asks 10 and a tier-3 seam 20,
+    /// in the same units the lock's own tier is read in. The first grade asks nothing - the ground's own litter and the old workings' spoil
+    /// are where a hand starts, and a wall there would be an invisible one. Below the demand a node is not refused for good: it is read
+    /// instead (the prospect, skill.prospecting), and the refusal says what the hand is short of.
+    /// </summary>
+    public static int MinSkill(int tier) => (tier - 1) * 10;
 
     /// <summary>Whether a node that was last harvested at a tick, that many times, can be harvested now.</summary>
     public static bool Ready(NodeDefinition node, long? lastHarvestTick, int harvests, long tick, long ticksPerWorldDay) => node.Respawn switch

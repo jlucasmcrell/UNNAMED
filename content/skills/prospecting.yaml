@@ -1,0 +1,9 @@
+id: skill.prospecting
+kind: skill
+schema: 1
+display_key: skill.prospecting.name
+tags: [skill]
+name: Prospecting
+family: gathering
+notes: D13 SKILLS_AND_TECHNIQUES.md §2.7 (gathering) - finding it before you dig, from ground, colour, weight, water and hum. Reading a node is what practises it (the prospect activity), and a node graded above the hand is exactly what it is for, since a hand short of a seam can still read it. The build has no technique carrier, since abilities, recipes and spells are the learnable kinds, so D13's entry technique waits for one, Ground Colour at band N (prospecting 15, insight 12); Pan and Wash, Stonesense Reading and The Seam Before You Dig are the band's other techniques.
+teaches: "Reading ground for what it holds before anything is dug: the colour that has come up, the weight in a handful, the seep that says iron. Ground you read twice teaches less than ground you read once."
