@@ -171,6 +171,14 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// Drop the body fragments the worn part covers, using the coverage mask that part's export carries in the body's UV space. A
     /// part without a mask clears the stencil, so no outfit inherits another's holes.
     /// </summary>
+    /// <summary>A mesh of the creator's first level of detail; the export ships four of every piece.</summary>
+    private static bool IsDetailZero(StringName name)
+    {
+        string text = name.ToString();
+        return text.Contains("_LOD0", StringComparison.Ordinal)
+            || (!text.Contains("_LOD", StringComparison.Ordinal) && !text.Contains("_lining", StringComparison.Ordinal));
+    }
+
     private static void Stencil(ArtLibrary art, Node model, string? part)
     {
         Texture2D? mask = null;
@@ -180,6 +188,8 @@ public sealed partial class HumGenCreatorAppearance : Node
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null) continue;
+            // The same four-LOD rule for the body itself: the extra LODs are coincident copies that z-fight through the cloth.
+            if (!IsDetailZero(mesh.Name)) mesh.Visible = false;
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin) continue;
@@ -209,7 +219,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
-    private const float GarmentStandoff = .012f;
+    private const float GarmentStandoff = .0045f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
     private const float BodyRecess = 0f;
@@ -491,7 +501,9 @@ public sealed partial class HumGenCreatorAppearance : Node
                 {
                     // The lining is a fix for garment openings, and on these outfits its copies ship as ribbons: hidden until the
                     // export is corrected, while the body-coverage mask (baked per part) hides the covered body instead.
-                    if (drawn.Name.ToString().EndsWith("_lining", StringComparison.Ordinal))
+                    // A part ships four LODs of every piece and they are near-coincident surfaces that z-fight into pale slivers,
+                    // so only LOD0 is ever drawn.
+                    if (drawn.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) || !IsDetailZero(drawn.Name))
                         drawn.Visible = false;
                 }
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
