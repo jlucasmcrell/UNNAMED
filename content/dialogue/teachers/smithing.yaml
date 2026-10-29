@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.smithing.iron_billet, ability.catalogue.smithing.forge_weld, ability.catalogue.smithing.case_and_temper, ability.catalogue.smithing.march_spear, ability.catalogue.smithing.lamework, ability.catalogue.smithing.read_the_ring, ability.catalogue.smithing.charcoal_steel, ability.catalogue.smithing.named_work] }
+          - { command: teach, refs: [ability.catalogue.smithing.iron_billet, ability.catalogue.smithing.forge_weld, ability.catalogue.smithing.case_and_temper, ability.catalogue.smithing.march_spear, ability.catalogue.smithing.lamework, ability.catalogue.smithing.read_the_ring, ability.catalogue.smithing.charcoal_steel, ability.catalogue.smithing.named_work, ability.catalogue.smithing.bloomery_smelt, ability.catalogue.smithing.charcoal_steel_charge, ability.catalogue.smithing.temper_and_draw] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.smithing.iron_billet, ability.catalogue.smithing.forge_weld, ability.catalogue.smithing.case_and_temper, ability.catalogue.smithing.march_spear, ability.catalogue.smithing.lamework, ability.catalogue.smithing.read_the_ring, ability.catalogue.smithing.charcoal_steel, ability.catalogue.smithing.named_work] }
+          - { command: teach, refs: [ability.catalogue.smithing.iron_billet, ability.catalogue.smithing.forge_weld, ability.catalogue.smithing.case_and_temper, ability.catalogue.smithing.march_spear, ability.catalogue.smithing.lamework, ability.catalogue.smithing.read_the_ring, ability.catalogue.smithing.charcoal_steel, ability.catalogue.smithing.named_work, ability.catalogue.smithing.bloomery_smelt, ability.catalogue.smithing.charcoal_steel_charge, ability.catalogue.smithing.temper_and_draw] }
         next: lesson
   lesson:
     text: "The lesson goes as far as your hands carry it. Come back when the band moves."

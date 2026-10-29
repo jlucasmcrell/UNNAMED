@@ -1,0 +1,9 @@
+id: skill.heavy_harness
+kind: skill
+schema: 1
+display_key: skill.heavy_harness.name
+tags: [skill]
+name: "Harness and powered armour"
+family: world
+notes: "D13 catalogue skill: Harness and powered armour (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "fighting for a whole engagement inside weight that is carried by machine, not by muscle"

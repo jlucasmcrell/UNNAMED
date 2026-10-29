@@ -1,0 +1,11 @@
+id: ability.catalogue.projector.long_sight
+kind: ability
+schema: 1
+display_key: ability.catalogue.projector.long_sight.name
+tags: [ability]
+name: "Long sight"
+notes: "Use optics and sensors as an extension of your own eyes, without believing them past their range Taught through the D13 catalogue."
+class: technique
+discipline: skill.projector
+band: 30
+needs: "projector 15, marksmanship 15"

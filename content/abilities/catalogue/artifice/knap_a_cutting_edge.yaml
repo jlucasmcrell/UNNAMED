@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.knap_a_cutting_edge
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.knap_a_cutting_edge.name
+tags: [ability]
+name: "Knap a cutting edge"
+notes: "Pressure-flake flint or obsidian to a blade that will dress a carcass and a hide. The first skill anyone has Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 15
+needs: "—"

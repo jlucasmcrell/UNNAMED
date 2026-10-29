@@ -1,0 +1,28 @@
+id: npc.teacher.projector
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.projector.name
+tags: [npc]
+name: "Master of Otherwrought projectors"
+notes: "The otherwrought projectors teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.projector
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.projector.charge_discipline
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.projector, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.projector.long_sight
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.projector, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.projector.recoil_that_pays
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.projector, band: adept } }

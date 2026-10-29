@@ -1,0 +1,18 @@
+id: npc.teacher.siegecraft
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.siegecraft.name
+tags: [npc]
+name: "Master of Siegecraft"
+notes: "The siegecraft teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.siegecraft
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.siegecraft.serve_a_siege_engine
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.siegecraft, band: adept } }

@@ -51,3 +51,8 @@ teaches:
     by_dialogue: true
     fee: 150
     requires: { skill: { skill_ref: skill.carpentry, band: master } }
+  - kind: technique
+    ability_ref: ability.catalogue.carpentry.frame_and_brace
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.carpentry, band: adept } }

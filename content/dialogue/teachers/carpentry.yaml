@@ -15,7 +15,7 @@ nodes:
       - id: teach
         text: "Teach me what you know of it."
         consequences:
-          - { command: teach, refs: [ability.catalogue.carpentry.pad_and_footing, ability.catalogue.carpentry.wall_and_doorway, ability.catalogue.carpentry.roof_and_ridge, ability.catalogue.carpentry.blueprint, ability.catalogue.carpentry.stores_and_cellar, ability.catalogue.carpentry.plant_cover, ability.catalogue.carpentry.bridge_the_gap, ability.catalogue.carpentry.settlement] }
+          - { command: teach, refs: [ability.catalogue.carpentry.pad_and_footing, ability.catalogue.carpentry.wall_and_doorway, ability.catalogue.carpentry.roof_and_ridge, ability.catalogue.carpentry.blueprint, ability.catalogue.carpentry.stores_and_cellar, ability.catalogue.carpentry.plant_cover, ability.catalogue.carpentry.bridge_the_gap, ability.catalogue.carpentry.settlement, ability.catalogue.carpentry.frame_and_brace] }
         next: lesson
       - id: leave
         text: "Another time."
@@ -25,7 +25,7 @@ nodes:
       - id: teach
         text: "Teach me."
         consequences:
-          - { command: teach, refs: [ability.catalogue.carpentry.pad_and_footing, ability.catalogue.carpentry.wall_and_doorway, ability.catalogue.carpentry.roof_and_ridge, ability.catalogue.carpentry.blueprint, ability.catalogue.carpentry.stores_and_cellar, ability.catalogue.carpentry.plant_cover, ability.catalogue.carpentry.bridge_the_gap, ability.catalogue.carpentry.settlement] }
+          - { command: teach, refs: [ability.catalogue.carpentry.pad_and_footing, ability.catalogue.carpentry.wall_and_doorway, ability.catalogue.carpentry.roof_and_ridge, ability.catalogue.carpentry.blueprint, ability.catalogue.carpentry.stores_and_cellar, ability.catalogue.carpentry.plant_cover, ability.catalogue.carpentry.bridge_the_gap, ability.catalogue.carpentry.settlement, ability.catalogue.carpentry.frame_and_brace] }
         next: lesson
   lesson:
     text: "The lesson goes as far as your hands carry it. Come back when the band moves."

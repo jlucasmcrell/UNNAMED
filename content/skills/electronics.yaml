@@ -1,0 +1,9 @@
+id: skill.electronics
+kind: skill
+schema: 1
+display_key: skill.electronics.name
+tags: [skill]
+name: "Electrics and electronics"
+family: world
+notes: "D13 catalogue skill: Electrics and electronics (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a circuit, a coil, a power cell or a control loop that works and can be repaired"

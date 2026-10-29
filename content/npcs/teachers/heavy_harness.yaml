@@ -1,0 +1,18 @@
+id: npc.teacher.heavy_harness
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.heavy_harness.name
+tags: [npc]
+name: "Master of Harness and powered armour"
+notes: "The harness and powered armour teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.heavy_harness
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.heavy_harness.hold_a_harness
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.heavy_harness, band: adept } }

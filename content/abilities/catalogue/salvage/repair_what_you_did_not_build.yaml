@@ -1,0 +1,11 @@
+id: ability.catalogue.salvage.repair_what_you_did_not_build
+kind: ability
+schema: 1
+display_key: ability.catalogue.salvage.repair_what_you_did_not_build.name
+tags: [ability]
+name: "Repair what you did not build"
+notes: "Take a running machine you did not design, find the failing part, and put it back without a spare Taught through the D13 catalogue."
+class: technique
+discipline: skill.salvage
+band: 60
+needs: "salvage 60, fabrication 45, mechanisms 45"

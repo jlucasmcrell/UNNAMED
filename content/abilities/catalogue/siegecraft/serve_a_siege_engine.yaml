@@ -1,0 +1,11 @@
+id: ability.catalogue.siegecraft.serve_a_siege_engine
+kind: ability
+schema: 1
+display_key: ability.catalogue.siegecraft.serve_a_siege_engine.name
+tags: [ability]
+name: "Serve a siege engine"
+notes: "Span, load, sight, and lay a bolt-thrower or a counterweight engine onto a *place* rather than a person Taught through the D13 catalogue."
+class: technique
+discipline: skill.siegecraft
+band: 45
+needs: "siegecraft 45, engineering 30"

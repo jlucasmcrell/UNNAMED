@@ -1,0 +1,68 @@
+id: npc.teacher.salvage
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.salvage.name
+tags: [npc]
+name: "Master of Salvage and reverse engineering"
+notes: "The salvage and reverse engineering teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.salvage
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.read_an_old_hinge
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.salvage, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.repair_what_you_did_not_build
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.salvage, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.reverse_the_whole_device
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.salvage, band: master } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.teardown
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.salvage, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.read_the_maker
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.salvage, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.keep_the_intel
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.salvage, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.work_blind
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.salvage, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.bottle_a_hazard
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.salvage, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.partial_understanding
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.salvage, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.total_teardown
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.salvage, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.salvage.one_true_idea
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.salvage, band: master } }

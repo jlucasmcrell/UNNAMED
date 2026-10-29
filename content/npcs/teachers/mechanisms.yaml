@@ -1,0 +1,48 @@
+id: npc.teacher.mechanisms
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.mechanisms.name
+tags: [npc]
+name: "Master of Mechanisms"
+notes: "The mechanisms teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.mechanisms
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.lock_and_key
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.mechanisms, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.escapement
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.mechanisms, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.gauge_and_calibrate
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.mechanisms, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.the_engine_that_holds_itself
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.mechanisms, band: master } }
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.drone_discipline
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.mechanisms, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.gate_frame
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.mechanisms, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.mechanisms.gate_tuner
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.mechanisms, band: expert } }

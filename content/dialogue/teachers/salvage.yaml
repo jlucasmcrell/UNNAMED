@@ -1,0 +1,31 @@
+id: dialogue.teacher.salvage
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.salvage.name
+tags: [dialogue]
+notes: "The salvage and reverse engineering teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.salvage]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the salvage and reverse engineering? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.salvage.read_an_old_hinge, ability.catalogue.salvage.repair_what_you_did_not_build, ability.catalogue.salvage.reverse_the_whole_device, ability.catalogue.salvage.teardown, ability.catalogue.salvage.read_the_maker, ability.catalogue.salvage.keep_the_intel, ability.catalogue.salvage.work_blind, ability.catalogue.salvage.bottle_a_hazard, ability.catalogue.salvage.partial_understanding, ability.catalogue.salvage.total_teardown, ability.catalogue.salvage.one_true_idea] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.salvage.read_an_old_hinge, ability.catalogue.salvage.repair_what_you_did_not_build, ability.catalogue.salvage.reverse_the_whole_device, ability.catalogue.salvage.teardown, ability.catalogue.salvage.read_the_maker, ability.catalogue.salvage.keep_the_intel, ability.catalogue.salvage.work_blind, ability.catalogue.salvage.bottle_a_hazard, ability.catalogue.salvage.partial_understanding, ability.catalogue.salvage.total_teardown, ability.catalogue.salvage.one_true_idea] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

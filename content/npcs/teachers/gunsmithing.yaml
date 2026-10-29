@@ -1,0 +1,18 @@
+id: npc.teacher.gunsmithing
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.gunsmithing.name
+tags: [npc]
+name: "Master of Gunsmithing"
+notes: "The gunsmithing teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.gunsmithing
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.gunsmithing.powder_charge
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.gunsmithing, band: expert } }

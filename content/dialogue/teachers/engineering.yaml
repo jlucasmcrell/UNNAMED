@@ -1,0 +1,31 @@
+id: dialogue.teacher.engineering
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.engineering.name
+tags: [dialogue]
+notes: "The engineering teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.engineering]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the engineering? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.engineering.water_and_weight, ability.catalogue.engineering.read_a_pipe_run, ability.catalogue.engineering.pressure_discipline, ability.catalogue.engineering.steam_cycle, ability.catalogue.engineering.keep_it_in_specification, ability.catalogue.engineering.schedule, ability.catalogue.engineering.internal_combustion_in_principle] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.engineering.water_and_weight, ability.catalogue.engineering.read_a_pipe_run, ability.catalogue.engineering.pressure_discipline, ability.catalogue.engineering.steam_cycle, ability.catalogue.engineering.keep_it_in_specification, ability.catalogue.engineering.schedule, ability.catalogue.engineering.internal_combustion_in_principle] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

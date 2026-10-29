@@ -1,0 +1,11 @@
+id: ability.catalogue.smithing.bloomery_smelt
+kind: ability
+schema: 1
+display_key: ability.catalogue.smithing.bloomery_smelt.name
+tags: [ability]
+name: "Bloomery smelt"
+notes: "Ore to a usable bloom in a clay stack: the real gate between 'stone' and 'iron' Taught through the D13 catalogue."
+class: technique
+discipline: skill.smithing
+band: 60
+needs: "smithing 30, engineering 15"

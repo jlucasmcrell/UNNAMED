@@ -1,0 +1,31 @@
+id: dialogue.teacher.heavy_harness
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.heavy_harness.name
+tags: [dialogue]
+notes: "The harness and powered armour teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.heavy_harness]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the harness and powered armour? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.heavy_harness.hold_a_harness] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.heavy_harness.hold_a_harness] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

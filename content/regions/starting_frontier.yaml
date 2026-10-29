@@ -150758,6 +150758,56 @@ containers:
   stack_slots: 8
   lock_tier: 1
 npcs:
+- npc_ref: npc.teacher.demolition
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Demolition teacher
+- npc_ref: npc.teacher.electronics
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Electrics and electronics teacher
+- npc_ref: npc.teacher.engineering
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Engineering teacher
+- npc_ref: npc.teacher.fabrication
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Fabrication and machining teacher
+- npc_ref: npc.teacher.gunsmithing
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Gunsmithing teacher
+- npc_ref: npc.teacher.heavy_harness
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Harness and powered armour teacher
+- npc_ref: npc.teacher.mechanisms
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Mechanisms teacher
+- npc_ref: npc.teacher.projector
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Otherwrought projectors teacher
+- npc_ref: npc.teacher.salvage
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Salvage and reverse engineering teacher
+- npc_ref: npc.teacher.siegecraft
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Siegecraft teacher
 - npc_ref: npc.teacher.animal_handling
   position_m:
   - 454.5

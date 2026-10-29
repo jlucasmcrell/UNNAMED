@@ -1,0 +1,11 @@
+id: ability.catalogue.gunsmithing.powder_charge
+kind: ability
+schema: 1
+display_key: ability.catalogue.gunsmithing.powder_charge.name
+tags: [ability]
+name: "Powder charge"
+notes: "Grind, corn and load a powder that will lift a ball or split a rock, without killing the man holding it Taught through the D13 catalogue."
+class: technique
+discipline: skill.gunsmithing
+band: 60
+needs: "gunsmithing 45, alchemy 30, engineering 30"

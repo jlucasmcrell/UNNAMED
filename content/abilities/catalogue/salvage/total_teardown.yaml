@@ -1,0 +1,11 @@
+id: ability.catalogue.salvage.total_teardown
+kind: ability
+schema: 1
+display_key: ability.catalogue.salvage.total_teardown.name
+tags: [ability]
+name: "Total teardown"
+notes: "Take an artifact of the old works apart *and be able to put it back*, which is the difference between salvage and vandalism Taught through the D13 catalogue."
+class: technique
+discipline: skill.salvage
+band: 60
+needs: "salvage 60, fabrication 45, lore 45"

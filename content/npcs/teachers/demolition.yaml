@@ -1,0 +1,23 @@
+id: npc.teacher.demolition
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.demolition.name
+tags: [npc]
+name: "Master of Demolition"
+notes: "The demolition teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.demolition
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.demolition.lay_a_charge
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.demolition, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.demolition.demolish_a_building
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.demolition, band: expert } }

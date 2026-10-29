@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.frame_and_brace
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.frame_and_brace.name
+tags: [ability]
+name: "Frame and brace"
+notes: "A timber frame that carries a roof in wind: the joint and the load path, not the nail Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 45
+needs: "carpentry 30, engineering 30"

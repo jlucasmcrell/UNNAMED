@@ -1,0 +1,11 @@
+id: ability.catalogue.fabrication.optics
+kind: ability
+schema: 1
+display_key: ability.catalogue.fabrication.optics.name
+tags: [ability]
+name: "Optics"
+notes: "Grind, mount and align a lens so the picture is sharp and stays sharp — including Otherglass, which is never quite honest Taught through the D13 catalogue."
+class: technique
+discipline: skill.fabrication
+band: 45
+needs: "fabrication 45, jewelcraft 30"

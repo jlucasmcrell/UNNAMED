@@ -1,0 +1,11 @@
+id: ability.catalogue.engineering.keep_it_in_specification
+kind: ability
+schema: 1
+display_key: ability.catalogue.engineering.keep_it_in_specification.name
+tags: [ability]
+name: "Keep it in specification"
+notes: "Read a specification, hold a machine to it, and know which deviation is drift and which is an improvement Taught through the D13 catalogue."
+class: technique
+discipline: skill.engineering
+band: 60
+needs: "engineering 60, vaskaal_science 45"

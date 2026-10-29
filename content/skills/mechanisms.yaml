@@ -1,0 +1,9 @@
+id: skill.mechanisms
+kind: skill
+schema: 1
+display_key: skill.mechanisms.name
+tags: [skill]
+name: "Mechanisms"
+family: world
+notes: "D13 catalogue skill: Mechanisms (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a mechanism that runs for a week without your hand on it"

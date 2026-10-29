@@ -1,0 +1,9 @@
+id: skill.siegecraft
+kind: skill
+schema: 1
+display_key: skill.siegecraft.name
+tags: [skill]
+name: "Siegecraft"
+family: world
+notes: "D13 catalogue skill: Siegecraft (4.5 The technology catalogue). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "engine work: building, sighting, serving or breaking a machine of war"
