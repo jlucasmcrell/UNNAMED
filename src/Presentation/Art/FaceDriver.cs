@@ -51,6 +51,9 @@ public sealed partial class FaceDriver : Node
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
     internal float? ReviewJawOpen { get; set; }
 
+    /// <summary>Set while a review holds an expression of its own; the role mood leaves a pinned face alone.</summary>
+    public bool Pinned { get; set; }
+
     /// <summary>The expression now on the face, by its library name, or null for the plain face.</summary>
     public string? Expression => _expressionName;
 

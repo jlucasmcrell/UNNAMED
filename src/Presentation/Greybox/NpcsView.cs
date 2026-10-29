@@ -50,7 +50,8 @@ public partial class NpcsView : Node3D
             mood = RoleEmote(npc, simulation, out strength);
         }
         foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
-            face.Express(mood, strength);
+            if (!face.Pinned)
+                face.Express(mood, strength);
     }
 
     /// <summary>The expression a role rests in: what their hands are doing, at a strength low enough to read as a face rather than a pose.</summary>

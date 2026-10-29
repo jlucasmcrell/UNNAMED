@@ -140,13 +140,19 @@ public partial class Main
                     foreach (string expression in Art.FaceExpression.Sheet)
                     {
                         foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
+                        {
+                            face.Pinned = true;
                             face.Express(expression, 1f);
+                        }
                         camera.GlobalPosition = aim + (camera.GlobalPosition - aim).Normalized() * Mathf.Min(dist, 1.1f);
                         camera.LookAt(aim);
                         await Frames(.6, null);
                         await Rcd3Shot(folder, person.Id + "_face_" + expression);
                         foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
+                        {
                             face.Express(null);
+                            face.Pinned = false;
+                        }
                     }
                     Face();
                     await Frames(.2, Face);
