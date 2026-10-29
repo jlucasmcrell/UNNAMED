@@ -105,7 +105,7 @@ public partial class NpcsView : Node3D
                 // part dresses this one instead (the same reason the bindings' cast entries now wear none).
                 var body = worn is null || appearance is null ? null
                     : Art.SkinnedFigure.Create(_art, _bindings, npc.Id, body: CreatorBody(sex), people: peopleId,
-                        appearance: appearance with { Outfit = Array.Empty<string>(), OutfitBody = null });
+                        appearance: worn with { OutfitBody = null });
                 var native = body is null ? MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id, sex: sex) : null;
                 native?.ConfigureNpcPerformance(_performanceStage);
                 if (body is null && native is null)
