@@ -33,6 +33,10 @@ public sealed partial class HumGenCreatorAppearance : Node
             controller.Headwear = worn;
             controller.DressHead();
         }
+        // A garb can bring its own hat; the same switch keeps it off the face.
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            if (mesh.HasMeta("creator_part_kind") && mesh.Name.ToString().Contains("Hat", StringComparison.OrdinalIgnoreCase))
+                mesh.Visible = worn;
         return true;
     }
 
