@@ -111,356 +111,320 @@ generation:
     samples_per_axis: 2
 structures:
 - id: oh_house_000
-  box_m: [1327.0, 582.8, 1337.0, 591.2]
-  height_m: 4.6
+  box_m: [1334.0, 584.0, 1342.0, 590.0]
+  height_m: 6.5
 - id: oh_house_001
-  box_m: [1361.0, 582.8, 1371.0, 591.2]
-  height_m: 4.6
+  box_m: [1373.5, 585.0, 1378.5, 589.0]
+  height_m: 4.4
 - id: oh_house_002
-  box_m: [1395.0, 582.8, 1405.0, 591.2]
-  height_m: 4.6
+  box_m: [1410.0, 584.0, 1418.0, 590.0]
+  height_m: 6.5
 - id: oh_house_003
-  box_m: [1429.0, 582.8, 1439.0, 591.2]
-  height_m: 4.6
+  box_m: [1595.5, 585.0, 1600.5, 589.0]
+  height_m: 4.4
 - id: oh_house_004
-  box_m: [1593.0, 582.8, 1603.0, 591.2]
-  height_m: 4.6
+  box_m: [1632.0, 584.0, 1640.0, 590.0]
+  height_m: 6.5
 - id: oh_house_005
-  box_m: [1627.0, 582.8, 1637.0, 591.2]
-  height_m: 4.6
+  box_m: [1671.5, 585.0, 1676.5, 589.0]
+  height_m: 4.4
 - id: oh_house_006
-  box_m: [1661.0, 582.8, 1671.0, 591.2]
-  height_m: 4.6
+  box_m: [1708.0, 584.0, 1716.0, 590.0]
+  height_m: 6.5
 - id: oh_house_007
-  box_m: [1695.0, 582.8, 1705.0, 591.2]
-  height_m: 4.6
+  box_m: [1747.5, 585.0, 1752.5, 589.0]
+  height_m: 4.4
 - id: oh_house_008
-  box_m: [1729.0, 582.8, 1739.0, 591.2]
-  height_m: 4.6
+  box_m: [1335.5, 615.0, 1340.5, 619.0]
+  height_m: 4.4
 - id: oh_house_009
-  box_m: [1763.0, 582.8, 1773.0, 591.2]
-  height_m: 4.6
+  box_m: [1372.0, 614.0, 1380.0, 620.0]
+  height_m: 6.5
 - id: oh_house_010
-  box_m: [1327.0, 612.8, 1337.0, 621.2]
-  height_m: 4.6
+  box_m: [1411.5, 615.0, 1416.5, 619.0]
+  height_m: 4.4
 - id: oh_house_011
-  box_m: [1361.0, 612.8, 1371.0, 621.2]
-  height_m: 4.6
+  box_m: [1594.0, 614.0, 1602.0, 620.0]
+  height_m: 6.5
 - id: oh_house_012
-  box_m: [1395.0, 612.8, 1405.0, 621.2]
-  height_m: 4.6
+  box_m: [1633.5, 615.0, 1638.5, 619.0]
+  height_m: 4.4
 - id: oh_house_013
-  box_m: [1429.0, 612.8, 1439.0, 621.2]
-  height_m: 4.6
+  box_m: [1670.0, 614.0, 1678.0, 620.0]
+  height_m: 6.5
 - id: oh_house_014
-  box_m: [1593.0, 612.8, 1603.0, 621.2]
-  height_m: 4.6
+  box_m: [1709.5, 615.0, 1714.5, 619.0]
+  height_m: 4.4
 - id: oh_house_015
-  box_m: [1627.0, 612.8, 1637.0, 621.2]
-  height_m: 4.6
+  box_m: [1746.0, 614.0, 1754.0, 620.0]
+  height_m: 6.5
 - id: oh_house_016
-  box_m: [1661.0, 612.8, 1671.0, 621.2]
-  height_m: 4.6
+  box_m: [1334.0, 644.0, 1342.0, 650.0]
+  height_m: 6.5
 - id: oh_house_017
-  box_m: [1695.0, 612.8, 1705.0, 621.2]
-  height_m: 4.6
+  box_m: [1373.5, 645.0, 1378.5, 649.0]
+  height_m: 4.4
 - id: oh_house_018
-  box_m: [1729.0, 612.8, 1739.0, 621.2]
-  height_m: 4.6
+  box_m: [1410.0, 644.0, 1418.0, 650.0]
+  height_m: 6.5
 - id: oh_house_019
-  box_m: [1763.0, 612.8, 1773.0, 621.2]
-  height_m: 4.6
+  box_m: [1595.5, 645.0, 1600.5, 649.0]
+  height_m: 4.4
 - id: oh_house_020
-  box_m: [1327.0, 642.8, 1337.0, 651.2]
-  height_m: 4.6
+  box_m: [1632.0, 644.0, 1640.0, 650.0]
+  height_m: 6.5
 - id: oh_house_021
-  box_m: [1361.0, 642.8, 1371.0, 651.2]
-  height_m: 4.6
+  box_m: [1671.5, 645.0, 1676.5, 649.0]
+  height_m: 4.4
 - id: oh_house_022
-  box_m: [1395.0, 642.8, 1405.0, 651.2]
-  height_m: 4.6
+  box_m: [1708.0, 644.0, 1716.0, 650.0]
+  height_m: 6.5
 - id: oh_house_023
-  box_m: [1429.0, 642.8, 1439.0, 651.2]
-  height_m: 4.6
+  box_m: [1747.5, 645.0, 1752.5, 649.0]
+  height_m: 4.4
 - id: oh_house_024
-  box_m: [1593.0, 642.8, 1603.0, 651.2]
-  height_m: 4.6
+  box_m: [1335.5, 675.0, 1340.5, 679.0]
+  height_m: 4.4
 - id: oh_house_025
-  box_m: [1627.0, 642.8, 1637.0, 651.2]
-  height_m: 4.6
+  box_m: [1372.0, 674.0, 1380.0, 680.0]
+  height_m: 6.5
 - id: oh_house_026
-  box_m: [1661.0, 642.8, 1671.0, 651.2]
-  height_m: 4.6
+  box_m: [1411.5, 675.0, 1416.5, 679.0]
+  height_m: 4.4
 - id: oh_house_027
-  box_m: [1695.0, 642.8, 1705.0, 651.2]
-  height_m: 4.6
+  box_m: [1594.0, 674.0, 1602.0, 680.0]
+  height_m: 6.5
 - id: oh_house_028
-  box_m: [1729.0, 642.8, 1739.0, 651.2]
-  height_m: 4.6
+  box_m: [1633.5, 675.0, 1638.5, 679.0]
+  height_m: 4.4
 - id: oh_house_029
-  box_m: [1763.0, 642.8, 1773.0, 651.2]
-  height_m: 4.6
+  box_m: [1670.0, 674.0, 1678.0, 680.0]
+  height_m: 6.5
 - id: oh_house_030
-  box_m: [1327.0, 672.8, 1337.0, 681.2]
-  height_m: 4.6
+  box_m: [1709.5, 675.0, 1714.5, 679.0]
+  height_m: 4.4
 - id: oh_house_031
-  box_m: [1361.0, 672.8, 1371.0, 681.2]
-  height_m: 4.6
+  box_m: [1746.0, 674.0, 1754.0, 680.0]
+  height_m: 6.5
 - id: oh_house_032
-  box_m: [1395.0, 672.8, 1405.0, 681.2]
-  height_m: 4.6
+  box_m: [1334.0, 704.0, 1342.0, 710.0]
+  height_m: 6.5
 - id: oh_house_033
-  box_m: [1429.0, 672.8, 1439.0, 681.2]
-  height_m: 4.6
+  box_m: [1373.5, 705.0, 1378.5, 709.0]
+  height_m: 4.4
 - id: oh_house_034
-  box_m: [1593.0, 672.8, 1603.0, 681.2]
-  height_m: 4.6
+  box_m: [1410.0, 704.0, 1418.0, 710.0]
+  height_m: 6.5
 - id: oh_house_035
-  box_m: [1627.0, 672.8, 1637.0, 681.2]
-  height_m: 4.6
+  box_m: [1595.5, 705.0, 1600.5, 709.0]
+  height_m: 4.4
 - id: oh_house_036
-  box_m: [1661.0, 672.8, 1671.0, 681.2]
-  height_m: 4.6
+  box_m: [1632.0, 704.0, 1640.0, 710.0]
+  height_m: 6.5
 - id: oh_house_037
-  box_m: [1695.0, 672.8, 1705.0, 681.2]
-  height_m: 4.6
+  box_m: [1671.5, 705.0, 1676.5, 709.0]
+  height_m: 4.4
 - id: oh_house_038
-  box_m: [1729.0, 672.8, 1739.0, 681.2]
-  height_m: 4.6
+  box_m: [1708.0, 704.0, 1716.0, 710.0]
+  height_m: 6.5
 - id: oh_house_039
-  box_m: [1763.0, 672.8, 1773.0, 681.2]
-  height_m: 4.6
+  box_m: [1747.5, 705.0, 1752.5, 709.0]
+  height_m: 4.4
 - id: oh_house_040
-  box_m: [1327.0, 702.8, 1337.0, 711.2]
-  height_m: 4.6
+  box_m: [1335.5, 735.0, 1340.5, 739.0]
+  height_m: 4.4
 - id: oh_house_041
-  box_m: [1361.0, 702.8, 1371.0, 711.2]
-  height_m: 4.6
+  box_m: [1372.0, 734.0, 1380.0, 740.0]
+  height_m: 6.5
 - id: oh_house_042
-  box_m: [1395.0, 702.8, 1405.0, 711.2]
-  height_m: 4.6
+  box_m: [1411.5, 735.0, 1416.5, 739.0]
+  height_m: 4.4
 - id: oh_house_043
-  box_m: [1429.0, 702.8, 1439.0, 711.2]
-  height_m: 4.6
+  box_m: [1594.0, 734.0, 1602.0, 740.0]
+  height_m: 6.5
 - id: oh_house_044
-  box_m: [1593.0, 702.8, 1603.0, 711.2]
-  height_m: 4.6
+  box_m: [1633.5, 735.0, 1638.5, 739.0]
+  height_m: 4.4
 - id: oh_house_045
-  box_m: [1627.0, 702.8, 1637.0, 711.2]
-  height_m: 4.6
+  box_m: [1670.0, 734.0, 1678.0, 740.0]
+  height_m: 6.5
 - id: oh_house_046
-  box_m: [1661.0, 702.8, 1671.0, 711.2]
-  height_m: 4.6
+  box_m: [1709.5, 735.0, 1714.5, 739.0]
+  height_m: 4.4
 - id: oh_house_047
-  box_m: [1695.0, 702.8, 1705.0, 711.2]
-  height_m: 4.6
-- id: oh_house_048
-  box_m: [1729.0, 702.8, 1739.0, 711.2]
-  height_m: 4.6
-- id: oh_house_049
-  box_m: [1763.0, 702.8, 1773.0, 711.2]
-  height_m: 4.6
-- id: oh_house_050
-  box_m: [1327.0, 732.8, 1337.0, 741.2]
-  height_m: 4.6
-- id: oh_house_051
-  box_m: [1361.0, 732.8, 1371.0, 741.2]
-  height_m: 4.6
-- id: oh_house_052
-  box_m: [1395.0, 732.8, 1405.0, 741.2]
-  height_m: 4.6
-- id: oh_house_053
-  box_m: [1429.0, 732.8, 1439.0, 741.2]
-  height_m: 4.6
-- id: oh_house_054
-  box_m: [1593.0, 732.8, 1603.0, 741.2]
-  height_m: 4.6
-- id: oh_house_055
-  box_m: [1627.0, 732.8, 1637.0, 741.2]
-  height_m: 4.6
-- id: oh_house_056
-  box_m: [1661.0, 732.8, 1671.0, 741.2]
-  height_m: 4.6
-- id: oh_house_057
-  box_m: [1695.0, 732.8, 1705.0, 741.2]
-  height_m: 4.6
-- id: oh_house_058
-  box_m: [1729.0, 732.8, 1739.0, 741.2]
-  height_m: 4.6
-- id: oh_house_059
-  box_m: [1763.0, 732.8, 1773.0, 741.2]
-  height_m: 4.6
+  box_m: [1746.0, 734.0, 1754.0, 740.0]
+  height_m: 6.5
 - id: oh_long_survey_hq
-  box_m: [1560.0, 760.5, 1584.0, 773.5]
-  height_m: 6.0
+  box_m: [1568.0, 764.0, 1576.0, 770.0]
+  height_m: 6.5
 - id: oh_exchange_granary
-  box_m: [1646.0, 762.0, 1658.0, 772.0]
-  height_m: 5.6
+  box_m: [1620.2, 765.5, 1623.8, 768.5]
+  height_m: 3.6
 - id: oh_harbour_smithy
-  box_m: [1496.0, 762.0, 1508.0, 772.0]
-  height_m: 4.8
+  box_m: [1529.0, 764.5, 1535.0, 769.5]
+  height_m: 5.0
 - id: oh_quay_prop_000
-  circle_m: [1324.0, 444.0, 0.7]
+  circle_m: [1322.0, 444.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_001
-  circle_m: [1328.0, 444.0, 0.7]
+  circle_m: [1326.0, 444.0, 0.6]
   height_m: 1.0
 - id: oh_quay_prop_002
-  circle_m: [1352.0, 444.0, 0.7]
+  circle_m: [1348.0, 444.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_003
-  circle_m: [1360.0, 444.0, 0.7]
+  circle_m: [1358.0, 444.0, 0.6]
   height_m: 2.6
 - id: oh_quay_prop_004
-  circle_m: [1324.0, 480.0, 0.7]
+  circle_m: [1322.0, 480.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_005
-  circle_m: [1328.0, 480.0, 0.7]
+  circle_m: [1326.0, 480.0, 0.6]
   height_m: 1.0
 - id: oh_quay_prop_006
-  circle_m: [1352.0, 480.0, 0.7]
+  circle_m: [1348.0, 480.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_007
-  circle_m: [1360.0, 480.0, 0.7]
+  circle_m: [1358.0, 480.0, 0.6]
   height_m: 2.6
 - id: oh_quay_prop_008
-  circle_m: [1324.0, 516.0, 0.7]
+  circle_m: [1322.0, 516.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_009
-  circle_m: [1328.0, 516.0, 0.7]
+  circle_m: [1326.0, 516.0, 0.6]
   height_m: 1.0
 - id: oh_quay_prop_010
-  circle_m: [1352.0, 516.0, 0.7]
+  circle_m: [1348.0, 516.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_011
-  circle_m: [1360.0, 516.0, 0.7]
+  circle_m: [1358.0, 516.0, 0.6]
   height_m: 2.6
 - id: oh_quay_prop_012
-  circle_m: [1324.0, 552.0, 0.7]
+  circle_m: [1322.0, 552.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_013
-  circle_m: [1328.0, 552.0, 0.7]
+  circle_m: [1326.0, 552.0, 0.6]
   height_m: 1.0
 - id: oh_quay_prop_014
-  circle_m: [1352.0, 552.0, 0.7]
+  circle_m: [1348.0, 552.0, 0.6]
   height_m: 0.9
 - id: oh_quay_prop_015
-  circle_m: [1360.0, 552.0, 0.7]
+  circle_m: [1358.0, 552.0, 0.6]
   height_m: 2.6
 - id: oh_shore_rock_000
-  circle_m: [1252.0, 424.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 424.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_001
-  circle_m: [1264.0, 424.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 424.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_002
-  circle_m: [1252.0, 464.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 464.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_003
-  circle_m: [1264.0, 464.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 464.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_004
-  circle_m: [1252.0, 504.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 504.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_005
-  circle_m: [1264.0, 504.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 504.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_006
-  circle_m: [1252.0, 544.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 544.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_007
-  circle_m: [1264.0, 544.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 544.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_008
-  circle_m: [1252.0, 584.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 584.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_009
-  circle_m: [1264.0, 584.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 584.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_010
-  circle_m: [1252.0, 624.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 624.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_011
-  circle_m: [1264.0, 624.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 624.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_012
-  circle_m: [1252.0, 664.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 664.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_013
-  circle_m: [1264.0, 664.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 664.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_014
-  circle_m: [1252.0, 704.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 704.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_015
-  circle_m: [1264.0, 704.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 704.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_016
-  circle_m: [1252.0, 744.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 744.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_017
-  circle_m: [1264.0, 744.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 744.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_018
-  circle_m: [1252.0, 784.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 784.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_019
-  circle_m: [1264.0, 784.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 784.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_020
-  circle_m: [1252.0, 824.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 824.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_021
-  circle_m: [1264.0, 824.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 824.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_022
-  circle_m: [1252.0, 864.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 864.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_023
-  circle_m: [1264.0, 864.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 864.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_024
-  circle_m: [1252.0, 904.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 904.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_025
-  circle_m: [1264.0, 904.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 904.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_026
-  circle_m: [1252.0, 944.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 944.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_027
-  circle_m: [1264.0, 944.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 944.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_028
-  circle_m: [1252.0, 984.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 984.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_029
-  circle_m: [1264.0, 984.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 984.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_030
-  circle_m: [1252.0, 1024.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 1024.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_031
-  circle_m: [1264.0, 1024.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 1024.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_032
-  circle_m: [1252.0, 1064.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 1064.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_033
-  circle_m: [1264.0, 1064.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 1064.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_034
-  circle_m: [1252.0, 1104.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 1104.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_035
-  circle_m: [1264.0, 1104.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 1104.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_036
-  circle_m: [1252.0, 1144.0, 1.3]
-  height_m: 1.4
+  circle_m: [1252.0, 1144.0, 1.2]
+  height_m: 1.3
 - id: oh_shore_rock_037
-  circle_m: [1264.0, 1144.0, 1.3]
-  height_m: 1.4
+  circle_m: [1262.0, 1144.0, 1.2]
+  height_m: 1.3
 - id: oh_waystone
   circle_m: [1482.0, 589.0, 1.1]
   height_m: 2.6
