@@ -95,7 +95,8 @@ public partial class NpcsView : Node3D
                 var definition = simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id);
                 string? sex = definition?.Sex ?? simulation.Setup.NpcLife.Routines.GetValueOrDefault(npc.Id)?.Sex;
                 var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance, sex);
-                string? peopleId = definition?.PeopleId ?? npc.PeopleId ?? appearance?.PeopleId;
+                string? peopleId = definition?.PeopleId ?? npc.PeopleId
+                    ?? simulation.Setup.NpcLife.Routines.GetValueOrDefault(npc.Id)?.PeopleId ?? appearance?.PeopleId;
                 var worn = LookOf(simulation, npc, definition, peopleId, sex);
                 // F1 Gate C: a person with a look is drawn on their people's creator body - the one base mesh a sex has, shaped by the
                 // record's blend shapes, face textures, groom, garment and stature - even where the MetaHuman bundle is installed, where
