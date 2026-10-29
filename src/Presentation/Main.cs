@@ -424,7 +424,7 @@ public partial class Main : Node3D
         bool scripted = !c1Review && (playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
                         || _options.ContainsKey("--ui-shots")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
-                        || _options.ContainsKey("--shot") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
+                        || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
                         || _options.ContainsKey("--pet-review") || _options.ContainsKey("--camp-review"));
@@ -450,7 +450,7 @@ public partial class Main : Node3D
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                           || _options.ContainsKey("--survey")
                           || _options.ContainsKey("--connected-check")
-                          || _options.ContainsKey("--shot") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
+                          || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
                           || _options.ContainsKey("--inn-shots")
                           || _options.ContainsKey("--pet-review")
@@ -737,6 +737,16 @@ public partial class Main : Node3D
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
             _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf),
                 _options.GetValueOrDefault("--frontier-hide"));
+        }
+        else if (_options.TryGetValue("--shot-actions", out string? actionDir))
+        {
+            // --shot-actions <dir> --shot-beat fish|lock|mine: the timed activities --shot cannot reach, because --shot only steers.
+            // Where to stand comes from --stand, and the camera is the beat's own. The interface stays: the toast that says what was
+            // taken and the skill line that says it was practised are the proof that the beat happened, and they sit at the frame's
+            // edges where they cover none of it.
+            Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
+            _actions = new ActionShots(this, _session, _controller, _camera, Path.GetFullPath(actionDir),
+                _options.GetValueOrDefault("--shot-beat") ?? "fish");
         }
         else if (_options.TryGetValue("--shot", out string? shotSpec))
         {
@@ -1432,6 +1442,20 @@ public partial class Main : Node3D
                     break;
             }
         }
+        else if (_actions is not null)
+        {
+            // The action capture presses the game's own keys (<see cref="ActionShots"/>) and the game reads them exactly as it reads a
+            // player's, so the world it shows is the world a player's press reaches.
+            switch (_actions.Update(ReadInput))
+            {
+                case "done":
+                    CaptureQuit.At(this, 0);
+                    return;
+                case { } shot:
+                    SaveScreenshot(_actions.Directory, shot);
+                    break;
+            }
+        }
         else
         {
             ReadInput();
@@ -1465,7 +1489,7 @@ public partial class Main : Node3D
         ulong sessionStarted = _barrowworksReview is null ? 0 : Time.GetTicksUsec();
         ulong simulationStarted = _frontierPerf is null ? 0 : Time.GetTicksUsec();
         long gcPauseTicks = _frontierPerf is null ? 0 : GC.GetTotalPauseDuration().Ticks;
-        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _audit is not null || _auditAb is not null
+        var frame = _session.Frame(_smoke is not null || _connectedCheck is not null || (_barrowworksReview is not null && !_realtime) || (_play is not null && !_realtime) || _delta is not null || _survey is not null || _actions is not null || _audit is not null || _auditAb is not null
             ? _session.TickSeconds : delta);
         _barrowworksReview?.Phase("simulation", sessionStarted);
         _ticksLastFrame = frame.TicksRun;
@@ -1699,6 +1723,8 @@ public partial class Main : Node3D
         // A swing at a node plays its own state, once for each swing the simulation counts.
         if (simulation.Activity is { Kind: UNNAMED.Domain.ActivityKind.Swing } swing)
             _avatar.Swinging(swing.StartedTick);
+        // A wash is the water's second use: a rest at the bank, shown for as long as the simulation holds it.
+        _avatar.Washing(simulation.Activity is { Kind: UNNAMED.Domain.ActivityKind.Wash });
         _avatar.SetDowned(combat.Defeated);
         DrawOpening(delta);
         // Downed is not dead (OD-13 = B): the character lies in view until helped up, and the fade waits for a death.
@@ -1728,6 +1754,7 @@ public partial class Main : Node3D
         _avatar.SetPosture(crouched, airborne);
         DrawWings(posture);
         _avatar.SetGliding(posture.Aloft && posture.Wing != UNNAMED.Domain.Spatial.WingState.Fall);
+        _avatar.Swimming(simulation.Swimming);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
         _soundEvents.ObserveFootPlants(_avatar,speed,airborne);
         _avatar.Pose(feet, facing, speed, delta);
@@ -1947,7 +1974,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-actions" or "--shot-beat" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
