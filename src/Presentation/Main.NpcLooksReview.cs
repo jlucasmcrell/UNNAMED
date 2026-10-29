@@ -164,12 +164,16 @@ public partial class Main
         var shots = new List<object>();
         if (feet.Count == 0 || wides == 0)
             return shots;
+        // The median person's neighbourhood: one NPC working a site far from the village must not drag the frame off the rest.
+        var ordered = feet.OrderBy(at => at.X).ThenBy(at => at.Z).ToList();
+        Vector3 median = ordered[ordered.Count / 2];
+        var cluster = feet.Where(at => at.DistanceTo(median) <= 30f).ToList();
         Vector3 centre = Vector3.Zero;
-        foreach (var at in feet)
+        foreach (var at in cluster)
             centre += at;
-        centre /= feet.Count;
+        centre /= cluster.Count;
         var ground = _npcs.Ground ?? ((x, z) => centre.Y);
-        float reach = Mathf.Clamp(feet.Max(at => at.DistanceTo(centre)) + 9f, 11f, 40f);
+        float reach = Mathf.Clamp(cluster.Max(at => at.DistanceTo(centre)) + 8f, 10f, 28f);
         for (int shot = 0; shot < wides; shot++)
         {
             float yaw = Mathf.Tau * shot / wides;
