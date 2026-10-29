@@ -273,14 +273,28 @@ public partial class Main
         });
         // Fishing: one line at each turn of the loop - the cast as it goes out, the line when it lands, and the catch by name. A line that
         // comes back empty says why in the simulation's own words.
-        _session.Subscribe<FishCastStarted>(_ => Notice(NoticeKind.World, "You cast", 2));
-        _session.Subscribe<FishingLineOut>(_ => _hud.Log("The line is out"));
+        _session.Subscribe<FishCastStarted>(_ =>
+        {
+            Notice(NoticeKind.World, "You cast", 2);
+            Tackle().LineOut = false;
+        });
+        _session.Subscribe<FishingLineOut>(_ =>
+        {
+            _hud.Log("The line is out");
+            Tackle().LineOut = true;
+            Tackle().Biting = false;
+        });
         _session.Subscribe<FishCaught>(e =>
         {
+            Tackle().LineOut = false;
             _inventory.Refresh();
             Notice(NoticeKind.Items, $"You have it: {Names.Of(_session, e.ItemId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
         });
-        _session.Subscribe<FishLost>(e => _hud.Log(e.Reason));
+        _session.Subscribe<FishLost>(e =>
+        {
+            _hud.Log(e.Reason);
+            Tackle().LineOut = false;
+        });
         // The water's second use (D20): a wash is a rest at the bank, and going under is the swim's own lesson, in the HUD's own words.
         _session.Subscribe<Washed>(_ => Notice(NoticeKind.World, "You wash at the water's edge", 3));
         _session.Subscribe<WentUnder>(_ => Notice(NoticeKind.World, "You go under - the water puts you ashore", 4));
@@ -560,4 +574,16 @@ public partial class Main
 
     private string CreatureDef(Domain.EntityId id) =>
         _session.Simulation!.Creatures.FirstOrDefault(c => c.Id == id)?.DefId ?? "creature";
+
+    /// <summary>The rod, line and float the character fishes with, made once and kept on the player's body.</summary>
+    private Art.FishingTackle? _tackle;
+
+    private Art.FishingTackle Tackle()
+    {
+        if (_tackle is not null && GodotObject.IsInstanceValid(_tackle))
+            return _tackle;
+        _tackle = new Art.FishingTackle { Name = "Tackle" };
+        (_avatar as Node3D ?? this).AddChild(_tackle);
+        return _tackle;
+    }
 }
