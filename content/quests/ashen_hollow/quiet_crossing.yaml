@@ -1,0 +1,21 @@
+id: quest.ashen_hollow.quiet_crossing
+kind: quest
+schema: 1
+display_key: quest.ashen_hollow.quiet_crossing.name
+tags: [quest, stealth]
+notes: "D23 S6: the non-lethal way as a real choice. Durn pays for a crossing of the frontier that killed nothing and raised no one - canon's Ghost tag, which the world detects from signed facts, so this is a reward for how the player travelled and not for a pop-up (STEALTH.md 9.3)."
+title: The Quiet Crossing
+summary: Durn wants the road walked without a body on it. Cross the frontier out of a space without killing and without being seen doing it.
+track: side
+giver_ref: npc.cairnwold.durn_skell
+on_new_game: true   # always in the journal: it is a way to travel, not an errand to be found
+entry_objective: o_ghost
+objectives:
+  - id: o_ghost
+    type: deed
+    description: Leave a space without a kill and without anyone growing suspicious on sight (a ghost crossing).
+    params: { deed: ghosted, count: 1 }
+rewards:
+  - { kind: xp, amount: 60 }
+  - { kind: currency, amount: 15 }
+repeat_policy: { repeatable: false }

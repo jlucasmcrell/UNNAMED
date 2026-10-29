@@ -193,6 +193,18 @@ public sealed record KillCreature(string CreatureId, int Count) : ObjectiveCondi
 }
 
 /// <summary><c>deliver_item</c>: this many handed to the NPC in conversation while the objective is active.</summary>
+/// <summary>
+/// <c>deed</c>: a stealth deed done while the objective is active (D23 S6). Canon's Ghost, Unseen and Spared tags are deeds, not a hidden score, so a
+/// quest asks for one the same way it asks for a kill - which is how the non-lethal way becomes a route a player can be paid for taking.
+/// A null <paramref name="SubjectId"/> counts the deed in any space.
+/// </summary>
+public sealed record DeedObjective(DeedKind Kind, string? SubjectId, int Count) : ObjectiveCondition
+{
+    public override string Type => "deed";
+
+    public override bool CountsDeeds => true;
+}
+
 public sealed record DeliverItem(string NpcId, string ItemId, int Count) : ObjectiveCondition
 {
     public override string Type => "deliver_item";
@@ -273,7 +285,7 @@ public static class ObjectiveTypes
         "talk_to", "visit_location", "explore_location", "acquire_item", "craft_item", "harvest_resource", "kill_creature",
         "deliver_item", "world_state", "relationship_value", "wait_until",
         "defeat_creature", "defeat_boss", "companion_present", "dialogue_choice", "travel_to", "waystone_known",
-        "faction_reputation");
+        "faction_reputation", "deed");
 
     /// <summary>Named by the closed set and not built yet, each with what it waits for.</summary>
     public static readonly ImmutableSortedDictionary<string, string> NotBuilt = new Dictionary<string, string>
@@ -669,6 +681,7 @@ public static class QuestRules
         CraftItem c => deed.Kind == DeedKind.Crafted && deed.Subject == c.ItemId && deed.Quality >= c.QualityMin,
         HarvestResource h => deed.Kind == DeedKind.Harvested && deed.Subject == h.ResourceId,
         KillCreature k => deed.Kind == DeedKind.Killed && deed.Subject == k.CreatureId,
+        DeedObjective d => deed.Kind == d.Kind && (d.SubjectId is null || deed.Subject == d.SubjectId),
         DeliverItem d => deed.Kind == DeedKind.Delivered && deed.Subject == d.ItemId && deed.NpcId == d.NpcId,
         ChoiceGiven c => deed.Kind == DeedKind.Chose && deed.Subject == c.Subject && deed.NpcId == c.NpcId,
         TravelTo t => deed.Kind == DeedKind.Travelled && deed.Subject == t.StoneKey,

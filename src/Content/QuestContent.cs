@@ -200,6 +200,8 @@ public static class QuestContent
             "craft_item" => new CraftItem(Defined(loader, Text(p, "item_ref"), "item", where), Positive(p, "count", where, 1), QualityMin(p, where)),
             "harvest_resource" => new HarvestResource(Defined(loader, Text(p, "resource_ref"), "resource", where), Positive(p, "count", where, 1)),
             "kill_creature" => new KillCreature(Defined(loader, Text(p, "creature_ref"), "creature", where), Positive(p, "count", where, 1)),
+            "deed" => new DeedObjective(DeedKindOf(Text(p, "deed"), where),
+                p.ContainsKey("subject_ref") ? Text(p, "subject_ref") : null, Positive(p, "count", where, 1)),
             "deliver_item" => new DeliverItem(Defined(loader, Text(p, "npc_ref"), "npc", where), Defined(loader, Text(p, "item_ref"), "item", where),
                 Positive(p, "count", where, 1)),
             "world_state" => new WorldStateObjective(Defined(loader, Text(p, "flag_ref"), "world_flag", where),
@@ -248,6 +250,7 @@ public static class QuestContent
         "craft_item" => new[] { "item_ref", "count", "quality_min", "ever" },
         "harvest_resource" => new[] { "resource_ref", "count" },
         "kill_creature" => new[] { "creature_ref", "count" },
+        "deed" => new[] { "deed", "subject_ref", "count" },
         "deliver_item" => new[] { "npc_ref", "item_ref", "count" },
         "world_state" => new[] { "flag_ref", "location_ref", "value", "min", "max" },
         "relationship_value" => new[] { "npc_ref", "dimension", "min", "max" },
@@ -637,6 +640,15 @@ public static class QuestContent
         loader.Definitions.TryGetValue(id, out var definition) && (definition.Kind == kind || definition.Kind.StartsWith(kind + ".", StringComparison.Ordinal))
             ? id
             : throw new FormatException($"{at}: {id} is not a defined {kind}");
+
+    /// <summary>The deed kinds a quest objective may ask for (D23 S6): the three a stealth crossing leaves.</summary>
+    private static DeedKind DeedKindOf(string deed, string at) => deed switch
+    {
+        "ghosted" => DeedKind.Ghosted,
+        "spared" => DeedKind.Spared,
+        "unseen" => DeedKind.Unseen,
+        _ => throw new FormatException($"{at}: deed is ghosted, spared or unseen, not '{deed}'"),
+    };
 
     private static string Dimension(string dimension, string at) =>
         Relationships.IsDimension(dimension)

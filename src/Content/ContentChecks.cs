@@ -19,6 +19,8 @@ public static class ContentChecks
     {
         ["item_ref"] = new[] { "item", "item.weapon", "item.armor" },
         ["creature_ref"] = new[] { "creature" },
+    // D23 S6: a stealth deed objective may name the space whose crossing it counts.
+    ["subject_ref"] = new[] { "space" },
         // D18 SYSTEMS (needed-2): a body's skinning node, so carcass_ref may name a node kind.
         ["carcass_ref"] = new[] { "node" },
         ["npc_ref"] = new[] { "npc" },

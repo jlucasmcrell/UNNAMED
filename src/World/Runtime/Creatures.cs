@@ -711,7 +711,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             string left = _ghostSpace;
             // The exterior is the default space and its name is the empty string, so a crossing of it is labelled for the record.
-            string label = left.Length == 0 ? "exterior" : left;
+            // A deed's subject is a definition id (PlayerState checks it), so the exterior is named as a space: space.exterior.
+            string label = left.Length == 0 ? "space.exterior" : left;
             if (left != _ghostPaidSpace && !_ghostKilled && !_ghostNoticed)
             {
                 // GHOST: nothing died and nobody grew suspicious on sight (STEALTH.md 9.3). UNSEEN: on top of that, nothing ever engaged.
