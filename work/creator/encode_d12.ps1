@@ -1,8 +1,8 @@
 $ErrorActionPreference = 'Stop'
 # Encode the D12 film frames into one clip per character, then both into one proof clip.
 $ffmpeg = 'C:\Otherreach_Worker\tools\ffmpeg\bin\ffmpeg.exe'
-$dir = 'D:\Otherreach_Scratch\codex_f1_siann_wt\work\creator\out\d12proof03'
-$outDir = 'D:\Otherreach_Scratch\codex_f1_siann_wt\work\creator\out\d12proof03\clips'
+$dir = 'D:\Otherreach_Scratch\codex_f1_siann_wt\work\creator\out\d12proof05'
+$outDir = 'D:\Otherreach_Scratch\codex_f1_siann_wt\work\creator\out\d12proof05\clips'
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 $actions = 'idle', 'walk', 'run', 'turn', 'jump', 'stop'
 $parts = @()
