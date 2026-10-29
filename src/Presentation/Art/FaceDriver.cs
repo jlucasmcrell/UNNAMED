@@ -416,26 +416,7 @@ public sealed partial class FaceDriver : Node
         }
         char c = char.ToLowerInvariant(_line[at]);
         char next = at + 1 < _line.Length ? char.ToLowerInvariant(_line[at + 1]) : ' ';
-        (string shape, float jaw) = c switch
-        {
-            'a' => ("viseme_aa", 0.55f),
-            'e' => ("viseme_E", 0.35f),
-            'i' or 'y' => ("viseme_I", 0.25f),
-            'o' => ("viseme_O", 0.45f),
-            'u' or 'w' => ("viseme_U", 0.25f),
-            'p' or 'b' or 'm' => ("viseme_PP", 0f),
-            'f' or 'v' => ("viseme_FF", 0.08f),
-            't' when next == 'h' => ("viseme_TH", 0.12f),
-            't' or 'd' => ("viseme_DD", 0.15f),
-            'k' or 'g' or 'c' or 'q' => ("viseme_kk", 0.2f),
-            's' when next == 'h' => ("viseme_CH", 0.12f),
-            'j' => ("viseme_CH", 0.12f),
-            's' or 'z' or 'x' => ("viseme_SS", 0.08f),
-            'n' or 'l' => ("viseme_nn", 0.15f),
-            'r' => ("viseme_RR", 0.18f),
-            'h' => ("viseme_aa", 0.2f),
-            _ => ("viseme_sil", 0f),
-        };
+        (string shape, float jaw) = Speech.Shape(at > 0 ? char.ToLowerInvariant(_line[at - 1]) : ' ', c, next);
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
         _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f * (recording is { } sounding ? Mathf.Clamp(sounding.Jaw * 8, 0, 1) : 1);
         // The recording supplies energy, while the phoneme supplies articulation:

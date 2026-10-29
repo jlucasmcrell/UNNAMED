@@ -638,7 +638,8 @@ public sealed partial class SkinnedFigure : Figure
             { Holds: Held.Nothing } when m.Has("unarmed_attack_1") => "unarmed_attack",
             _ => null,
         };
-        if (!s.Casting && _equipped?.Family is { } family && m.Has(family + "_attack_1")) action = family + "_attack";
+        if (!s.Casting && _equipped?.Family is { } family
+            && (m.Has(family + "_attack_1") || m.Has(family + "_attack"))) action = family + "_attack";
         // A fresh windup picks its blow; the same blow plays on through its active window and recovery.
         if (s.Phase == CombatPhase.Windup && _lastPhase != CombatPhase.Windup && action is not null)
             _attack = NextAttack(action);
@@ -692,8 +693,8 @@ public sealed partial class SkinnedFigure : Figure
         {
             _airTime = _wasAirborne ? _airTime + delta : 0;
             _wasAirborne = true;
-            if (_airTime < TakeOff && m.Has("jump_start"))
-                m.Play("jump_start", 0.08f, 1f, _airTime == 0);
+            if (_airTime < TakeOff && (m.Has("jump_start") || m.Has("jump")))
+                m.Play(m.Has("jump_start") ? "jump_start" : "jump", 0.08f, 1f, _airTime == 0);
             else
                 m.Play("fall", 0.15f);
             return;

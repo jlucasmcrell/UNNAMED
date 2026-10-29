@@ -16,7 +16,21 @@ while($true){
 if($LASTEXITCODE -ne 0){throw 'Gate D selection preparation failed'}
 function Epic([string]$Script,[string]$Name){
  $path=(Join-Path $PSScriptRoot $Script).Replace('\','/')
- & $guard -Executable $ue -JobArguments @((Join-Path $JobRoot 'project\OtherreachHumGenMotion.uproject'),'-run=pythonscript',('-script="'+$path+'"'),'-NullRHI','-unattended','-nosplash','-nosound','-nop4','-stdout','-FullStdOutLogOutput') -Log (Join-Path $JobRoot ($Name+'.log')) -Job ('gate-d-'+$Name) -LimitSeconds 14400
+ for($attempt=1;$attempt -le 3;$attempt++){
+  $suffix=if($attempt -eq 1){''}else{'_resume'+$attempt}
+  $log=Join-Path $JobRoot ($Name+$suffix+'.log')
+  try {
+   & $guard -Executable $ue -JobArguments @((Join-Path $JobRoot 'project\OtherreachHumGenMotion.uproject'),'-run=pythonscript',('-script="'+$path+'"'),'-NullRHI','-unattended','-nosplash','-nosound','-nop4','-stdout','-FullStdOutLogOutput') -Log $log -Job ('gate-d-'+$Name) -LimitSeconds 14400
+   return
+  } catch {
+   # Epic can retain thousands of source/retarget packages until process exit.
+   # Resume the exact checked transports in a fresh process; never alter keys or
+   # source quality to fit an offline batch into the workstation's commit limit.
+   if($Script -ne 'retarget_humgen_probe.py' -or $attempt -eq 3 -or
+      !(Select-String -LiteralPath $log -Pattern 'paging file is too small' -Quiet)){throw}
+   Write-Output 'Native batch reached the Windows commit limit; resuming its exact-target checkpoint in a fresh process.'
+  }
+ }
 }
 Epic 'import_gate_d_sources.py' 'import_owned_sources'
 $imported=Get-Content -LiteralPath (Join-Path $JobRoot 'extra_sources.json') -Raw | ConvertFrom-Json

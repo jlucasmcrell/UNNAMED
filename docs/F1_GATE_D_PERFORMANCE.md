@@ -112,3 +112,19 @@ build and export succeed. Neither implementation part has its FINISHED marker ye
 D15 hooks: existing Ashen Hollow smith/cook/resident schedules and conversations are the
 world hooks. No new skill or technique is added. Hooks lint and dossier reconciliation
 remain required before FINISHED. No new texture/LOD/VRAM savings introduced.
+
+The complete source import now has3,221 groups /4,202 states /zero failures. Native
+supplements and contextual aliases select4,211 states. The female export checkpoint
+contains3,900 states; Epic reached the Windows commit limit while loading later packs.
+Only that explicit offline memory failure may resume in a fresh process, at most twice.
+The retarget script, source keys, target hash and checked clip files remain identical.
+Completed native libraries are audited in the job directory before atomic promotion.
+
+The close proof launch had a parser defect: `--gate-d` and `--gate-d-out` were missing
+from the value-taking argument list. Thus farm attempts01–04 never entered the route;
+no frames or streaming result are claimed from them. Fixed route05 is pending. It uses
+the existing scatter residency implementation with the original density/ranges and
+unchanged character assets. Full-world device-loss failures remain recorded. No separate
+studio replacement has been implemented. Speech's digraph helper and its focused checks
+are reused from DeepSeek commit486b2cac, retaining this branch's recorded-energy jaw
+articulation. Latest focused performance checks16 passed; build/export succeed.

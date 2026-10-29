@@ -218,6 +218,9 @@ sections:
         text: "Motion capture assets by Rokoko (rokoko.com)."
       - ledger: [AN06]
         text: "Walking, running and idle motion capture: Sample Animation Pack and VanillaLoop, used under the Fab Standard License."
+      - text: "Additional character motion: Kenney Animated Characters (CC0); Humanizer's retained animation library (public domain); Free Animation Library."
+      - text: "Additional motion from acquired packs: ActorCore Sample Motions, Dramatic Death, Dynamic Falling, MCO Mocap Basics, MC Sample, Mudra Samples, Qi Gong Animations, RIGIPO Free Anims, FLifeAnimPack, Free Animation Set, Free Animations Pack 1 and 2, Free Anims Mix Pack, Free Sample Animation Set, Free Sword Animation, Free Crawl Animation, Free Interaction Animation, Free Magic, Free Spells, Look Window Pack, Hyper Farming, and Clown Monster."
+      - text: "Retained humanoid demo motion from acquired Aura, DashFX, Dwarven Citadel, GBH Actor Health System, LevitationFX, Magical FootstepFX, Quantum Character, Struggle to Ascension, Time Warper, Underwater Sunken Ship and Unreal Bucket packs. Original source and licence records are retained in the asset catalogue."
 
   - id: audio
     title: "Audio"

@@ -303,6 +303,9 @@ public partial class Main : Node3D
             OS.SetEnvironment("OTHERREACH_MH_REVIEW_OUT", gateOut);
             OS.SetEnvironment("OTHERREACH_RCD3_REVIEW", "1");
             OS.SetEnvironment("OTHERREACH_LIGHTING_FAST", "1");
+            // Existing scatter streaming retains density and visible ranges while the
+            // close character proof moves through town; no character quality changes.
+            OS.SetEnvironment("UNNAMED_SCATTER_RESIDENCY", "1");
         }
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
@@ -1922,7 +1925,7 @@ public partial class Main : Node3D
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
-                    or "--anim-person" or "--anim-compare" or "--anim-phase"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--gate-d" or "--gate-d-out"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

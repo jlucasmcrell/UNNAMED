@@ -80,7 +80,7 @@ public partial class Main
         }
         File.WriteAllText(Path.Combine(directory, "performance.json"), JsonSerializer.Serialize(new {
             status = "CAPTURED_PENDING_VISUAL_REVIEW", npc, model = figure.ModelId,
-            line = spoken?.LineId, text = spoken?.Text, frames
+            line = spoken?.LineId, text = spoken?.Text, peak_video_mib = _mhPeakVideoMiB, frames
         }, new JsonSerializerOptions { WriteIndented = true }));
     }
 }
