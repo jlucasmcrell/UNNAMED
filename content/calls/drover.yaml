@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "Drove stock, did you?
 notes: "D14 Call (design, 2026-10-28) - the pack's proposed animal start (11_CALLS 5.11), kept. No starting animal (17/18 decide). Uses the shipped skill.handling (D13's animal_handling) and needs skill.riding. Grants no technique."
 attribute_bias: { endurance: 2, might: 1, presence: 1 }
 skills: { skill.handling: 15, skill.riding: 15 }
+techniques:
+  - ability.catalogue.riding.mount_and_settle
+  - ability.catalogue.one_hand_blade.beat_the_guard
+
 kit:
   - { item_ref: item.armor.cloak, count: 1, equip: true }
   - { item_ref: item.consumable.snarebind_resin, count: 2 }

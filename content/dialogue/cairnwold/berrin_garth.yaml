@@ -12,6 +12,10 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "Come in, come in — you've the coat for it, all down the collar. Timber does that. It tells on a man before he says a word."
+        conditions: [{ kind: call, call_ref: call.woodsman }]
+        next: recognised
       - id: books
         text: "Is there anything here I could learn from?"
         next: primer
@@ -53,6 +57,9 @@ nodes:
         next: crag_stone
       - id: leave
         text: "Later."
+  recognised:
+    text: "Come in, come in — you've the coat for it, all down the collar. Timber does that. It tells on a man before he says a word."
+
   oath_half:
     text: "Your line, is it? Sit - no, stand, you'll want to see this. ... Here. The Hallows. They built this lodge, the Hallows did, and they're down to me and this book, near enough. 'Owed by your line to the Hallows: a winter's roof timber for the long lodge. Sworn at the waystation.' Two lifetimes ago, and never kept. They counted it, the Hallows. Every winter the roof leaked, they counted it again. I've been meaning to forget it for years, and I can't. It's written down."
     choices:

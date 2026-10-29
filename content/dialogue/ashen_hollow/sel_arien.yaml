@@ -12,6 +12,30 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "Hold your hand out. … Yes. You've held something shut for a night and it cost you. That is in the hand."
+        conditions: [{ kind: call, call_ref: call.ward_keeper }]
+        next: recognised
+      - id: recognition_2
+        text: "You've had things apart. Not mine — ask first. Half of it's older than the waystation."
+        conditions: [{ kind: call, call_ref: call.tinker }]
+        next: recognised
+      - id: recognition_3
+        text: "You read. Thank the quiet for that. Most people who come off that road can't."
+        conditions: [{ kind: call, call_ref: call.scholar }]
+        next: recognised
+      - id: recognition_4
+        text: "Don't wash it. I mean it. Washing it changes it and then I am measuring you."
+        conditions: [{ kind: call, call_ref: call.herbalist }]
+        next: recognised
+      - id: recognition_5
+        text: "Put your odd things on the table. All of them. I have a page for this, and it is short."
+        conditions: [{ kind: call, call_ref: call.fell_through }]
+        next: recognised
+      - id: recognition_6
+        text: "You came over the ridge and you can already tell me which way it runs. Good. Write it down before somebody tells you what it was."
+        conditions: [{ kind: call, call_ref: call.cartographers_apprentice }]
+        next: recognised
       - id: books
         text: "Is there anything here I could learn from?"
         next: notes
@@ -41,6 +65,14 @@ nodes:
           - { kind: world_state, flag_ref: world.barrowworks.headworks_dismantled, location_ref: location.barrowworks.headworks, min: 1 }
           - { kind: visited, node: barrowworks_report, not: true }
         next: barrowworks_report
+  recognised:
+    text: "Hold your hand out. … Yes. You've held something shut for a night and it cost you. That is in the hand."
+
+
+
+
+
+
   again:
     text: "You again. Good. I've been talking to the stones, and they make poor witnesses."
     choices:

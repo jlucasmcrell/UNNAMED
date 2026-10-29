@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "Ha — that's a quarr
 notes: "D14 Call (design, 2026-10-28) - the mining and prospecting start (D13 §3.6). Needs skill.mining and skill.prospecting. Grants no technique."
 attribute_bias: { might: 1, endurance: 2, insight: 1 }
 skills: { skill.mining: 15, skill.prospecting: 15 }
+techniques:
+  - ability.catalogue.mining.iron_seam
+  - ability.catalogue.prospecting.ground_colour
+
 kit:
   - { item_ref: item.material.iron_ore, count: 3 }
   - { item_ref: item.armor.hide_cap, count: 1, equip: true }

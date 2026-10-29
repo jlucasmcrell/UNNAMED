@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "You've had things apa
 notes: "D14 Call (design, 2026-10-28) - the pack's proposed engineering start (11_CALLS 5.8), kept with D13 skills. Needs skill.mechanisms. Grants no technique."
 attribute_bias: { might: 1, endurance: 1, insight: 1, precision: 1 }
 skills: { skill.mechanisms: 15, skill.salvage: 15 }
+techniques:
+  - ability.catalogue.mechanisms.lock_and_key
+  - ability.catalogue.salvage.teardown
+
 kit:
   - { item_ref: item.tool.fitting_wedge, count: 1 }
   - { item_ref: item.material.lamp_oil, count: 1 }

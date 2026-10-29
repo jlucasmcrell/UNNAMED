@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "…and not your first
 notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98) - the content bible's working package name (§14). Built only from existing items, skills and NPCs. The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo.
 attribute_bias: { endurance: 2, might: 1, agility: 1 }
 skills: { skill.athletics: 15, skill.one_hand_blade: 15 }
+techniques:
+  - ability.catalogue.athletics.carry_the_load
+  - ability.catalogue.one_hand_blade.beat_the_guard
+
 kit:
   - { item_ref: item.armor.hide_vest, count: 1, equip: true }
   - { item_ref: item.consumable.roast_meat, count: 2 }

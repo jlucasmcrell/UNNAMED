@@ -12,6 +12,30 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "You've held a hammer. Good. Then you know the fire doesn't care about excuses."
+        conditions: [{ kind: call, call_ref: call.smiths_hand }]
+        next: recognised
+      - id: recognition_2
+        text: "Ha — that's a quarry shoulder. You've broken stone, not heated it. Come here, let me see your hands."
+        conditions: [{ kind: call, call_ref: call.quarry_hand }]
+        next: recognised
+      - id: recognition_3
+        text: "Ha — what is that on your hands? No. No, I know what that is. That is burnt powder, and not from any forge on this road. Keep it off my fire."
+        conditions: [{ kind: call, call_ref: call.powder_hand }]
+        next: recognised
+      - id: recognition_4
+        text: "A trader. Then you'll know I don't haggle."
+        conditions: [{ kind: call, call_ref: call.pedlar }]
+        next: recognised
+      - id: recognition_5
+        text: "Ha! Hold-fostered. I know that grip — they put a level in your hands before a spoon. Sit down, fostered thing, and let me look at your shoulders."
+        conditions: [{ kind: call, call_ref: call.hold_fostered }]
+        next: recognised
+      - id: recognition_6
+        text: "You've stood a post. That thing down there has stood one for longer than anyone's been counting."
+        conditions: [{ kind: call, call_ref: call.guard }]
+        next: recognised
       - id: teach
         text: "Then teach me the forge."
         consequences:
@@ -54,6 +78,14 @@ nodes:
         consequences: [{ command: open_service, service: trade }]
       - id: leave
         text: "Another time."
+  recognised:
+    text: "You've held a hammer. Good. Then you know the fire doesn't care about excuses."
+
+
+
+
+
+
   again:
     text: "Back, and all your fingers still on. That's a good start."
     choices:

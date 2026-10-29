@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "Put your odd things o
 notes: "D14 Call (design, 2026-10-28) - the arrival start, written to keep the arrival UNSTATED (OD-02; 22 §5.3): it grants objects and skills, never a confirmation of what the character is. See OQ-3. Needs skill.electronics; skill.salvage exists. Needs item.tool.salvaged_instrument authored (see 6.2); until then the Call cannot lint."
 attribute_bias: { will: 2, insight: 1, endurance: 1 }
 skills: { skill.salvage: 15, skill.electronics: 15 }
+techniques:
+  - ability.catalogue.salvage.teardown
+  - ability.catalogue.electronics.cell_and_coil
+
 kit:
   - { item_ref: item.tool.salvaged_instrument, count: 1 }
   - { item_ref: item.consumable.salve_minor, count: 1 }

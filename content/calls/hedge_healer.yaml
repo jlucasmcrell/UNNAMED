@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "A healer? Then the sa
 notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98). Built only from existing items, skills and NPCs; the contact is Renn (C11:168), who also speaks its recognition line. The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo. It knows no formula and carries no woundmoss, so Sel's survey is walked as before.
 attribute_bias: { will: 2, endurance: 1, insight: 1 }
 skills: { skill.vital: 15, skill.survival: 15 }
+techniques:
+  - ability.catalogue.vital.mending_thread
+  - ability.catalogue.survival.fire_in_the_wet
+
 kit:
   - { item_ref: item.consumable.salve_minor, count: 2 }
 contact: { npc_ref: npc.ashen_hollow.renn_vale, trust: 5 }

@@ -22,8 +22,8 @@ public class CharacterCreationTests
 
         // Owner, 2026-10-24: four playable peoples to start; the other four are NPC-only for now.
         Assert.Equal(new[] { "people.kal", "people.orenth", "people.siann", "people.veth" }, session.Characters.PlayablePeoples.Select(p => p.Id));
-        Assert.Equal(new[] { "call.hedge_healer", "call.scholar", "call.smiths_hand", "call.wayfarer" }, session.Characters.Calls.Keys);
-        Assert.Equal(new[] { "Hedge healer", "Scholar", "Smith's hand", "Wayfarer" }, session.Characters.Calls.Keys.Select(session.DisplayName));
+        Assert.Equal(24, session.Characters.Calls.Count);
+        Assert.Contains("call.scholar", session.Characters.Calls.Keys);
     }
 
     [Theory]
@@ -54,7 +54,11 @@ public class CharacterCreationTests
         // Skills: two at 15, and nothing else started.
         Assert.Equal(call.Package.Skills.Keys, record.Progression.Skills.Where(s => s.Value.Level > 0).Select(s => s.Key));
         Assert.All(call.Package.Skills.Keys, skill => Assert.Equal(CallDefinition.SkillLevel, record.Progression.Skills[skill].Level));
-        Assert.Empty(record.Progression.Known);   // a Call teaches nothing: formulas and recipes come from people and books
+        // Techniques: D14 gives a Call its own starting techniques, learned as the starting package (formulas and recipes still come from
+        // people and books, and are not in Known until they are taught).
+        Assert.Equal(call.Package.Techniques.OrderBy(t => t, StringComparer.Ordinal),
+            record.Progression.Known.Keys.OrderBy(k => k, StringComparer.Ordinal));
+        Assert.All(record.Progression.Known.Values, k => Assert.Equal(LearningSource.StartingPackage, k.Source));
         // Kit: the common kit, plus the Call's, worn where it says.
         var expected = plain.Inventory.Select(e => (e.DefId, e.Count)).Concat(call.Kit.Select(k => (k.ItemId, k.Count))).OrderBy(e => e.Item1).ThenBy(e => e.Item2);
         Assert.Equal(expected, record.Inventory.Select(e => (e.DefId, e.Count)).OrderBy(e => e.DefId).ThenBy(e => e.Count));

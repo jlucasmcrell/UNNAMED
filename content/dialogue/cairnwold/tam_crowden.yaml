@@ -12,6 +12,10 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "Hold there! Eighteen. … Sorry. Nineteen. You've been cooking — there's flour in your eyebrow. That's how I count a cook."
+        conditions: [{ kind: call, call_ref: call.hearth_keeper }]
+        next: recognised
       - id: moor
         text: "What is out on the moor?"
         next: moor
@@ -29,6 +33,9 @@ nodes:
         next: halda
       - id: leave
         text: "Just passing."
+  recognised:
+    text: "Hold there! Eighteen. … Sorry. Nineteen. You've been cooking — there's flour in your eyebrow. That's how I count a cook."
+
   again:
     text: "Oh - you again. Good. That's you in, and out, and in. I like a number that comes back."
     choices:

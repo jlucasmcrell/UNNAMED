@@ -300,7 +300,7 @@ public sealed class Simulation
         _state = new RuntimeState(world, worldTick, new Body(player.XMm, player.YMm, player.ZMm, player.FacingMdeg), player,
             setup.Layout.SpaceId);
         var bus = new SimulationEvents(events);
-        _context = new SystemContext(_state, setup, bus, Dispatch) { PlayerPeople = player.Identity.PeopleId };
+        _context = new SystemContext(_state, setup, bus, Dispatch) { PlayerPeople = player.Identity.PeopleId, PlayerCall = player.Identity.CallId };
         // Everything carried is an instance like any other: the registry knows it, and an ID held twice is an error (D-10).
         foreach (var entry in player.Inventory)
         {

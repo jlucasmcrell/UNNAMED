@@ -125,6 +125,9 @@ internal sealed class SystemContext
     /// <summary>The character's people, as the creator made it: who may use and trade heritage items (owner, 2026-10-24).</summary>
     public string PlayerPeople { get; init; } = CharacterSpec.DefaultPeople;
 
+    /// <summary>The character's Call (D14), so a contact can recognise their own and say the Call's own line.</summary>
+    public string? PlayerCall { get; init; }
+
     /// <summary>
     /// The space this layout's sites stand in. Every authored site's cell is resolved in it, so a door's flag and
     /// the quest that reads that flag are always the same cell (review B2).

@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "You came over the rid
 notes: "D14 Call (design, 2026-10-28) - the pack's PT-era ranged start (11_CALLS 5.3), kept. Ships with existing skills, items and NPCs; grants no technique."
 attribute_bias: { might: 1, endurance: 1, agility: 1, precision: 1 }
 skills: { skill.bow: 15, skill.survival: 15 }
+techniques:
+  - ability.catalogue.bow.field_fletching
+  - ability.catalogue.survival.fire_in_the_wet
+
 kit:
   - { item_ref: item.weapon.hunting_bow, count: 1 }
   - { item_ref: item.ammo.arrow_rough, count: 12 }

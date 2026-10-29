@@ -25,7 +25,7 @@ public static class SocialContent
         { "villager", "merchant", "guard", "craftsperson", "quest_giver", "trainer", "innkeeper", "noble", "bandit", "scholar", "steward" };
 
     private static readonly string[] Conditions =
-        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done", "near", "people" };
+        { "visited", "world_state", "has_item", "relationship", "skill", "level", "quest_state", "companion_present", "deed", "standing", "act_done", "near", "people", "call" };
 
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
@@ -330,6 +330,7 @@ public static class SocialContent
             "near" => new NearCondition(Defined(loader, Text(map, "location_ref"), "location", at),
                 map.ContainsKey("radius_m") ? Mm(map, "radius_m") is var radius && radius > 0 ? radius : throw new FormatException($"{at}: radius_m is positive") : null),
             "people" => new PeopleCondition(Defined(loader, Text(map, "people_ref"), "people", at)),
+        "call" => new CallCondition(Defined(loader, Text(map, "call_ref"), "call", at)),
             _ => throw new FormatException($"{at}: condition '{kind}' is not built in Phase 1 ({string.Join(", ", Conditions)})"),
         };
     }

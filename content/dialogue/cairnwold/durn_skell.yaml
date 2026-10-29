@@ -12,6 +12,10 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "Two blades. The left one is for the one in front. Good."
+        conditions: [{ kind: call, call_ref: call.blade_for_hire }]
+        next: recognised
       - id: teach
         text: "Teach me the forge."
         consequences:
@@ -24,6 +28,9 @@ nodes:
         consequences: [{ command: open_service, service: trade }]
       - id: leave
         text: "Another time."
+  recognised:
+    text: "Two blades. The left one is for the one in front. Good."
+
   again:
     text: "He glances up, once. \"Back.\""
     choices:

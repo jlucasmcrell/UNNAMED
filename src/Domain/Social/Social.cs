@@ -192,6 +192,9 @@ public sealed record NearCondition(string LocationId, long? RadiusMm) : Dialogue
 /// <summary><c>people</c> (owner, 2026-10-24): the character is of this people - a heritage keeper's lines are for their own.</summary>
 public sealed record PeopleCondition(string PeopleId) : DialogueCondition;
 
+/// <summary>A choice only somebody of a given Call sees (D14): the recognition a Call's own contact gives its own people.</summary>
+public sealed record CallCondition(string CallId) : DialogueCondition;
+
 /// <summary>
 /// <c>standing</c> (WP6): the character's standing with a faction is at a tier from <c>min_tier</c> to <c>max_tier</c>, compared by level.
 /// FAC001 holds it to the speaker's own faction.
@@ -331,6 +334,9 @@ public interface IDialogueFacts
 
     /// <summary>The character's people (the creator's choice); null when none is known.</summary>
     string? People => null;
+
+    /// <summary>The character's Call, if they have one (D14).</summary>
+    string? Call => null;
 }
 
 public static class DialogueRules
@@ -351,6 +357,7 @@ public static class DialogueRules
         DeedCondition d => facts.Deeds(d.Kind, d.SubjectId, d.NpcId) >= d.Count != d.Negated,
         NearCondition n => facts.Near(n.LocationId, n.RadiusMm),
         PeopleCondition p => facts.People == p.PeopleId,
+        CallCondition c => facts.Call == c.CallId,
         StandingCondition s => facts.StandingLevel(s.FactionId) is var level && level >= s.MinLevel && level <= s.MaxLevel,
         ActDoneCondition a => facts.ActDone(a.Kind, a.Subject),
         _ => throw new ArgumentOutOfRangeException(nameof(condition), condition, "Unknown dialogue condition"),

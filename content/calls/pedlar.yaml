@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "A trader. Then you'll
 notes: "D14 Call (design, 2026-10-28) - the pack's proposed social start (11_CALLS 5.10), kept. Needs skill.barter and skill.persuasion content. Grants no technique."
 attribute_bias: { presence: 2, will: 2 }
 skills: { skill.barter: 15, skill.persuasion: 15 }
+techniques:
+  - ability.catalogue.barter.appraise
+  - ability.catalogue.persuasion.appeal_to_interest
+
 kit:
   - { item_ref: item.armor.cloak, count: 1, equip: true }
   - { item_ref: item.consumable.herb_tea, count: 2 }

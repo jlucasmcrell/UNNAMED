@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.tavar_orr, line: "You got out. … What
 notes: "D14 Call (design, 2026-10-28) - the Other start, expansion only (D13 §3.4, §5.5; OD-C06 contained consequences). Needs skill.othercraft and skill.otherlore. Do not ship before the Other's rules do. Tavar's greeting lands after the Foldscar."
 attribute_bias: { will: 2, insight: 1, agility: 1 }
 skills: { skill.othercraft: 15, skill.otherlore: 15 }
+techniques:
+  - ability.catalogue.othercraft.fold_step
+  - ability.catalogue.otherlore.name_the_thing
+
 kit:
   - { item_ref: item.material.boneleaf, count: 2 }
   - { item_ref: item.tool.torch, count: 1, equip: true }

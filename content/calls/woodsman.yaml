@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.cairnwold.berrin_garth, line: "Come in, come in — 
 notes: "D14 Call (design, 2026-10-28) - the forestry and carpentry start (D13 §3.6). Needs skill.logging and skill.woodworking. Grants no technique. Contact is in Cairnwold."
 attribute_bias: { endurance: 2, might: 1, precision: 1 }
 skills: { skill.logging: 15, skill.woodworking: 15 }
+techniques:
+  - ability.catalogue.logging.fell_where_it_falls
+  - ability.catalogue.woodworking.joint_that_holds
+
 kit:
   - { item_ref: item.material.timber, count: 4 }
   - { item_ref: item.armor.hide_boots, count: 1, equip: true }

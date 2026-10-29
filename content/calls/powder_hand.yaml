@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "Ha — what is that o
 notes: "D14 Call (design, 2026-10-28) - the gunpowder start, staged per D13 §4.1 (owner accepted OQ-1: powder exists as salvage, never as a general layer). Needs skill.gunsmithing and skill.alchemy. No powder item exists; the Call ships with the skills, not a barrel."
 attribute_bias: { will: 1, precision: 2, endurance: 1 }
 skills: { skill.gunsmithing: 15, skill.alchemy: 15 }
+techniques:
+  - ability.catalogue.gunsmithing.powder_charge
+  - ability.catalogue.alchemy.boil_clean
+
 kit:
   - { item_ref: item.armor.smith_gloves, count: 1, equip: true }
   - { item_ref: item.material.lamp_oil, count: 1 }

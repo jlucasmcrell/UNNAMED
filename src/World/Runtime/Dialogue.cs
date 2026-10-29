@@ -322,6 +322,9 @@ internal sealed class DialogueSystem : IDialogueFacts
 
     public string? People => _context.PlayerPeople;
 
+    /// <summary>The character's own Call (D14), so a contact can recognise their own.</summary>
+    public string? Call => _context.PlayerCall;
+
     public string QuestState(string questId, string? objectiveId)
     {
         if (!State.Quests.TryGetValue(questId, out var quest))
@@ -415,5 +418,7 @@ internal sealed class DialogueSystem : IDialogueFacts
         public bool Near(string locationId, long? radiusMm) => _system.Near(locationId, radiusMm);
 
         public string? People => _system.People;
+
+    public string? Call => _system.Call;
     }
 }

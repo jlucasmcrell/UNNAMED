@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.cairnwold.mara_ling, line: "Still blood. Still on yo
 notes: "D14 Call (design, 2026-10-28) - the medicine start (D13 §3.5). Needs skill.medicine and skill.first_aid. Grants no formula. Contact is in Cairnwold."
 attribute_bias: { will: 2, insight: 1, precision: 1 }
 skills: { skill.medicine: 15, skill.first_aid: 15 }
+techniques:
+  - ability.catalogue.medicine.clean_and_close
+  - ability.catalogue.first_aid.splint
+
 kit:
   - { item_ref: item.consumable.salve_minor, count: 2 }
   - { item_ref: item.consumable.salve_ember, count: 1 }

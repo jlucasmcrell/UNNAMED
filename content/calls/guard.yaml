@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "You've stood a post. 
 notes: "D14 Call (design, 2026-10-28) - the pack's PT-era melee start (11_CALLS 5.2), kept with D13 skills. Grants no technique; its first one is the shield family's, learned in play. Needs skill.shield and skill.armour_use content."
 attribute_bias: { might: 2, endurance: 1, agility: 1 }
 skills: { skill.shield: 15, skill.armour_use: 15 }
+techniques:
+  - ability.catalogue.shield.cover_an_ally
+  - ability.catalogue.armour_use.settle_the_harness
+
 kit:
   - { item_ref: item.armor.hide_vest, count: 1, equip: true }
   - { item_ref: item.consumable.salve_minor, count: 1 }

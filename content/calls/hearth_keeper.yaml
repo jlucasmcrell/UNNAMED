@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.cairnwold.tam_crowden, line: "Hold there! Eighteen. 
 notes: "D14 Call (design, 2026-10-28) - the cooking start (D13 §3.5). Needs skill.cooking; skill.survival exists. Grants no recipe: roast meat stays Tam's, the teas and salves stay Kera's and Sel's. Contact is in Cairnwold."
 attribute_bias: { endurance: 2, presence: 1, insight: 1 }
 skills: { skill.cooking: 15, skill.survival: 15 }
+techniques:
+  - ability.catalogue.cooking.field_torch_by_fire
+  - ability.catalogue.survival.fire_in_the_wet
+
 kit:
   - { item_ref: item.consumable.roast_meat, count: 3 }
   - { item_ref: item.material.boiled_water, count: 2 }

@@ -186,6 +186,11 @@ public sealed record CallDefinition(
     public const int SkillCount = 2;
 
     public const int SkillLevel = 15;
+    /// <summary>
+    /// The line a Call's own contact says when they meet somebody of that Call (C11): the recognition that makes a Call a life rather than a
+    /// list of starting numbers. Null when a Call names no contact line.
+    /// </summary>
+    public CallRecognition? Recognition { get; init; }
 }
 
 /// <summary>A people (race) a character can belong to, and the names its members are given.</summary>
@@ -356,3 +361,6 @@ public sealed record CharacterSetup(
             throw new ArgumentException($"{spec.BodyPresetId} is not a body a {spec.PeopleId} character can be made with", nameof(spec));
     }
 }
+
+/// <summary>What a Call's contact says when they recognise the character's Call, and who says it.</summary>
+public sealed record CallRecognition(string NpcId, string Line);

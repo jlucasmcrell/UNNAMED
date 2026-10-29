@@ -12,6 +12,26 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition_wayfarer
+        text: "…and not your first road, by the look of those boots."
+        conditions: [{ kind: call, call_ref: call.wayfarer }]
+        next: recognised
+      - id: recognition_hunter
+        text: "You came over the ridge quiet. Charwood will suit you — mind the hound."
+        conditions: [{ kind: call, call_ref: call.hunter }]
+        next: recognised
+      - id: recognition_hedge_healer
+        text: "A healer? Then the salve in that chest is better in your hands than in mine."
+        conditions: [{ kind: call, call_ref: call.hedge_healer }]
+        next: recognised
+      - id: recognition_drover
+        text: "Drove stock, did you? Then you'll know why nobody grazes past the ridge."
+        conditions: [{ kind: call, call_ref: call.drover }]
+        next: recognised
+      - id: recognition_courier
+        text: "A runner? Then you know a waystation's worth more than its walls."
+        conditions: [{ kind: call, call_ref: call.courier }]
+        next: recognised
       - id: place
         text: "What is this place?"
         next: place
@@ -43,6 +63,9 @@ nodes:
         next: recopied
       - id: leave
         text: "I'll look around."
+  recognised:
+    text: "A runner? Then you know a waystation's worth more than its walls."
+
   again:
     text: "Traveller. What'll it be - a bed, directions, or someone to tell you you're doing fine?"
     choices:

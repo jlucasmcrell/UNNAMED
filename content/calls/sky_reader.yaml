@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.tavar_orr, line: "You've been out in it
 notes: "D14 Call (design, 2026-10-28) - the cosmic start (D13 §3.4). Needs skill.cosmic and skill.star_reading. Grants no formula. Tavar's greeting lands after the Foldscar, like every one of his."
 attribute_bias: { will: 2, insight: 2 }
 skills: { skill.cosmic: 15, skill.star_reading: 15 }
+techniques:
+  - ability.catalogue.cosmic.read_the_tide
+  - ability.catalogue.one_hand_blade.beat_the_guard
+
 kit:
   - { item_ref: item.tool.lantern, count: 1, equip: true }
   - { item_ref: item.material.lamp_oil, count: 2 }

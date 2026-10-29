@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "You came over the rid
 notes: "D14 Call (design, 2026-10-28) - the cartography and navigation start (D13 §3.7, MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE §7). Needs skill.cartography and skill.navigation. Grants no technique."
 attribute_bias: { will: 2, insight: 1, precision: 1 }
 skills: { skill.cartography: 15, skill.navigation: 15 }
+techniques:
+  - ability.catalogue.cartography.grade_your_confidence
+  - ability.catalogue.navigation.roads_water_and_stars
+
 kit:
   - { item_ref: item.material.feathers, count: 3 }
   - { item_ref: item.consumable.salve_minor, count: 1 }

@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "Don't wash it. I mean
 notes: "D14 Call (design, 2026-10-28) - the herbalism start (D13 §3.6, §3.5). Needs skill.herbalism and skill.herbal_medicine. Grants no recipe or formula: the salve recipes stay with Sel, Kera and Tam, as shipped."
 attribute_bias: { insight: 2, will: 1, endurance: 1 }
 skills: { skill.herbalism: 15, skill.herbal_medicine: 15 }
+techniques:
+  - ability.catalogue.herbalism.preserve_potency
+  - ability.catalogue.herbal_medicine.poultice
+
 kit:
   - { item_ref: item.material.herb_woundmoss, count: 3 }
   - { item_ref: item.consumable.salve_minor, count: 1 }

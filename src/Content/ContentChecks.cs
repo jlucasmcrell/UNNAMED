@@ -24,6 +24,7 @@ public static class ContentChecks
         ["npc_ref"] = new[] { "npc" },
         ["spell_ref"] = new[] { "spell" },
         ["ability_ref"] = new[] { "ability" },
+        ["call_ref"] = new[] { "call" },
         ["technique_ref"] = new[] { "ability" },
         ["effect_ref"] = new[] { "effect" },
         ["affix_ref"] = new[] { "affix" },

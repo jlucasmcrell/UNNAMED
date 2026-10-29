@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.tavar_orr, line: "You check the doors b
 notes: "D14 Call (design, 2026-10-28) - the pack's PT-era stealth start (11_CALLS 5.7), kept; contact moved to Tavar, as the pack's own recognition line names him. Needs skill.evasion. Grants no technique."
 attribute_bias: { agility: 2, will: 2 }
 skills: { skill.stealth: 15, skill.evasion: 15 }
+techniques:
+  - ability.catalogue.stealth.misdirect
+  - ability.catalogue.evasion.read_the_windup
+
 kit:
   - { item_ref: item.weapon.iron_dagger, count: 1 }
   - { item_ref: item.armor.cloak, count: 1, equip: true }

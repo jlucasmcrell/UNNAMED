@@ -336,8 +336,21 @@ public static class CharacterContent
         if (trust != Relationships.Clamp(trust))
             throw new FormatException($"{id} contact.trust {trust} is outside {Relationships.Min}..{Relationships.Max}");
 
-        return new CallDefinition(id, Text(map, "tagline"), Text(map, "description"), new StartingPackage(bias, skills, ImmutableArray<string>.Empty), kit,
-            new CallContact(Defined(loader, Text(contact, "npc_ref"), "npc", $"{id} contact"), trust));
+        var techniques = (map.ContainsKey("techniques") ? List(map, "techniques") : new List<object>())
+            .Select((t, i) => Defined(loader, t as string ?? throw new FormatException($"{id} techniques[{i}] is a definition ID"), "ability", $"{id} techniques[{i}]"))
+            .ToImmutableArray();
+        if (techniques.Distinct(StringComparer.Ordinal).Count() != techniques.Length)
+            throw new FormatException($"{id} names a starting technique twice");
+        var recognition = map.GetValueOrDefault("recognition") is Dictionary<object, object> seen
+            ? new CallRecognition(Defined(loader, Text(seen, "npc_ref"), "npc", $"{id} recognition"),
+                Text(seen, "line").Length > 0 ? Text(seen, "line") : throw new FormatException($"{id} recognition.line is empty"))
+            : null;
+        return new CallDefinition(id, Text(map, "tagline"), Text(map, "description"),
+            new StartingPackage(bias, skills, techniques), kit,
+            new CallContact(Defined(loader, Text(contact, "npc_ref"), "npc", $"{id} contact"), trust))
+        {
+            Recognition = recognition,
+        };
     }
 
     private static bool Flag(Dictionary<object, object> map, string key) => map.GetValueOrDefault(key) switch

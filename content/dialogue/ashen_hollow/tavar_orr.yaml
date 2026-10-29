@@ -12,6 +12,18 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "You've been out in it all night. I can tell — everything about you arrives a beat late."
+        conditions: [{ kind: call, call_ref: call.sky_reader }]
+        next: recognised
+      - id: recognition_2
+        text: "You got out. … What did it take? Nobody goes in and comes out with the same number of things."
+        conditions: [{ kind: call, call_ref: call.fold_touched }]
+        next: recognised
+      - id: recognition_3
+        text: "You check the doors before you sit. So do I."
+        conditions: [{ kind: call, call_ref: call.drifter }]
+        next: recognised
       # Hearing this line completes Quest 2, so "Sel sent me" asks whether she ever gave it, not whether it is still open.
       - id: sent
         text: "Sel sent me."
@@ -25,6 +37,11 @@ nodes:
         consequences:
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
         next: caught
+  recognised:
+    text: "You've been out in it all night. I can tell — everything about you arrives a beat late."
+
+
+
   caught:
     text: "\"Three days, Sel will say. For me it was one long afternoon where everything arrived a breath late. I could see the waystation smoke. I heard you coming from the wrong side.\" He opens and closes his hands, as if checking they are his."
     choices:

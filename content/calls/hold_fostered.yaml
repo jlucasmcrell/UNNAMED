@@ -10,6 +10,10 @@ recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "Ha! Hold-fostered. I 
 notes: "D14 Call (design, 2026-10-28) - the Kal cultural start (D13 §6.1, RACES/D.3). A Call names where you were RAISED, never what you are: any people may take it. Needs skill.stonesense and skill.masonry. Grants no technique and no heritage keepsake (heritage comes from people)."
 attribute_bias: { endurance: 2, might: 1, presence: 1 }
 skills: { skill.stonesense: 15, skill.masonry: 15 }
+techniques:
+  - ability.catalogue.masonry.drystone
+  - ability.catalogue.one_hand_blade.beat_the_guard
+
 kit:
   - { item_ref: item.material.iron_ingot, count: 1 }
   - { item_ref: item.armor.hide_vest, count: 1, equip: true }

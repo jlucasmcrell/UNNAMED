@@ -12,6 +12,10 @@ nodes:
     once: true
     next_if_exhausted: again
     choices:
+      - id: recognition
+        text: "Still blood. Still on your cuffs. Still nobody else in this village who knows what to do with it."
+        conditions: [{ kind: call, call_ref: call.field_surgeon }]
+        next: recognised
       - id: bog_return
         text: "I brought three ashbloom."
         conditions:
@@ -25,6 +29,9 @@ nodes:
         next: complaint
       - id: leave
         text: "Not today."
+  recognised:
+    text: "Still blood. Still on your cuffs. Still nobody else in this village who knows what to do with it."
+
   again:
     text: "Still drawing. Still thinner than it was. Still nobody listening - present company possibly excepted."
     choices:
