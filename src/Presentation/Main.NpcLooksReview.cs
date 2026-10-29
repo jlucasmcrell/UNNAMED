@@ -108,7 +108,7 @@ public partial class Main
                 // Two metres from the eyes, level with them: along the line to the player where the game has them looking at the player
                 // (the head turns within six metres), and along the way they face where it does not.
                 Vector3 aim = figure.Head ?? figure.GlobalPosition + Vector3.Up * height;
-                if (fullBody) aim=figure.GlobalPosition+Vector3.Up*((aim.Y-figure.GlobalPosition.Y)*.52f);
+                if (fullBody) aim=figure.GlobalPosition+Vector3.Up*((worn?.StatureMm??1700)/1000f*.5f);
                 void Face()
                 {
                     Vector3 towards = _npcs.PlayerHead.GlobalPosition.DistanceTo(aim) < 6f
@@ -164,7 +164,7 @@ public partial class Main
                 }
                 if (fullBody && people==PeopleLooks.Kal)
                 {
-                    Vector3 torso=figure.GlobalPosition+Vector3.Up*1.25f;
+                    Vector3 torso=figure.GlobalPosition+Vector3.Up*((worn?.StatureMm??1700)/1000f*.67f);
                     foreach (var side in new[]{("chest",1f),("back",-1f)})
                     {
                         camera.Fov=40;
