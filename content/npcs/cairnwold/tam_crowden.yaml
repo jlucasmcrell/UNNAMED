@@ -15,7 +15,7 @@ appearance:
   stature_cm: 163
   face: face.f.caucasian_presets.caucasian_2
   hair: hair.short.short_side_part
-  outfit: outfit.extra_outfits_pack.flight_suit
+  outfit: outfit.extra_outfits_pack.lab_tech
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 28

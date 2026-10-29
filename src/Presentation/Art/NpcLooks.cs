@@ -33,12 +33,11 @@ public static class NpcLooks
     /// </summary>
     public static string RoleOutfit(string role) => role switch
     {
-        // The rugged roles take the long coat: the outdoor knit this used to use carries pale panels that read as bare stone skin.
+        // Only wardrobes whose every piece is lined: the coat, the smock and the robe close their own openings, so no body shows.
         "guard" or "hunter" or "trapper" or "miner" or "woodcutter" or "herder" => "outfit.winter.frosty_evening",
-        "cook" or "smith" or "craftsperson" or "fletcher" or "herbalist" => "outfit.extra_outfits_pack.lab_tech",
-        "steward" or "quartermaster" or "guide" => "outfit.office.open_suit",
+        "steward" or "quartermaster" or "guide" => "outfit.winter.frosty_evening",
         "scholar" => "outfit.extra_outfits_pack.kimono",
-        _ => "outfit.extra_outfits_pack.flight_suit",
+        _ => "outfit.extra_outfits_pack.lab_tech",
     };
 
     /// <summary>The role a slot id names, which is what its wardrobe is chosen from.</summary>
