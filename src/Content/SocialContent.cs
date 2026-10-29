@@ -327,7 +327,11 @@ public static class SocialContent
         if (variants.FirstOrDefault(v => v.Conditions.IsEmpty) is { } always)
             throw new FormatException($"{where}: variant {variants.IndexOf(always) + 1} has no conditions, so the line's own text is never said");
         return new DialogueNode(nodeId, Text(map, "text"), choices, next, map.GetValueOrDefault("once") as string == "true",
-            map.GetValueOrDefault("next_if_exhausted") as string) { Variants = variants };
+            map.GetValueOrDefault("next_if_exhausted") as string)
+        {
+            Variants = variants,
+            Mood = map.GetValueOrDefault("mood") as string,
+        };
     }
 
     private static DialogueChoice Choice(string where, Dictionary<object, object> map, ContentLoader loader)

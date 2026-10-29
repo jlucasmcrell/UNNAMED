@@ -100,6 +100,9 @@ public sealed record DialogueNode(string Id, string Text, ImmutableArray<Dialogu
     /// said. The node, its replies and where it goes are the same whichever wording is said.
     /// </summary>
     public ImmutableArray<DialogueVariant> Variants { get; init; } = ImmutableArray<DialogueVariant>.Empty;
+
+    /// <summary>The expression the line is said in (<c>mood:</c> in content): the name of a face expression, or null for the plain face.</summary>
+    public string? Mood { get; init; }
 }
 
 /// <summary>A wording of a node's line (E-6), said while its conditions hold (the same conditions a reply takes).</summary>

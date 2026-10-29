@@ -37,6 +37,39 @@ public partial class NpcsView : Node3D
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
     private Simulation? _activeSimulation;
 
+    /// <summary>
+    /// The face's expression: the open line's own mood while the NPC speaks it, and otherwise a quiet emote their role carries. A face
+    /// with no drivers (a body without the FACS channels) simply keeps its neutral pose.
+    /// </summary>
+    private void FaceMood(Node3D figure, NpcView npc, Simulation simulation, double delta)
+    {
+        string? mood = simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Mood : null;
+        float strength = mood is null ? 0f : 1f;
+        if (mood is null)
+        {
+            mood = RoleEmote(npc, simulation, out strength);
+        }
+        foreach (var face in figure.FindChildren("*", "", true, false).OfType<Art.FaceDriver>())
+            face.Express(mood, strength);
+    }
+
+    /// <summary>The expression a role rests in: what their hands are doing, at a strength low enough to read as a face rather than a pose.</summary>
+    private static string? RoleEmote(NpcView npc, Simulation simulation, out float strength)
+    {
+        strength = .45f;
+        return simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id)?.Role switch
+        {
+            "craftsperson" or "smith" => "focus",
+            "cook" => "warm",
+            "guard" => "focus",
+            "hunter" or "trapper" or "miner" or "woodcutter" => "focus",
+            "steward" or "quartermaster" => "concern",
+            "scholar" => "concern",
+            "villager" => "warm",
+            _ => null,
+        };
+    }
+
     /// <summary>The asset library and its bindings; without them, greybox.</summary>
     public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
     {
@@ -171,6 +204,7 @@ public partial class NpcsView : Node3D
             figure.SetPosture(held, false);
             figure.SetTalking(npc.Talking && !held);
             figure.Say(simulation.Conversation is { } talk && talk.NpcId == npc.Id ? talk.Text : Bark(simulation, npc, figure, feet, delta));
+            FaceMood(figure, npc, simulation, delta);
             var furniture = FurnitureAt(simulation,npc,feet,speed,occupiedFurniture);
             bool resting = figure.SetRestPose(held && VisualOptions.ComparisonCast == "humgen" ? "captive_kneel" : furniture?.Clip);
             figure.Pose(feet, PlayerController.FacingRadians(npc.Body.FacingMdeg), speed, delta);

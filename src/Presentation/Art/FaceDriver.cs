@@ -42,15 +42,40 @@ public sealed partial class FaceDriver : Node
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
     public bool GentleRest { get; set; }
     private float _restingLid = .17f;
+    private string? _expressionName;
+    private float _expressionStrength;
+    private float _expressionRamp;
+    private double _expressionHold;
+    private double _expressionClock;
     public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
     internal float? ReviewJawOpen { get; set; }
+
+    /// <summary>The expression now on the face, by its library name, or null for the plain face.</summary>
+    public string? Expression => _expressionName;
+
+    /// <summary>
+    /// Put a named expression on the face (<see cref="FaceExpression"/>), held for <paramref name="hold"/> seconds or until the next call
+    /// when <paramref name="hold"/> is zero. It adds to whatever a blink or a viseme is doing rather than replacing it, so a line said in
+    /// grief still blinks and still shapes its vowels.
+    /// </summary>
+    public void Express(string? name, float strength = 1f, double hold = 0)
+    {
+        _expressionName = FaceExpression.Find(name) is null ? null : name;
+        _expressionStrength = Mathf.Clamp(strength, 0f, 1f);
+        _expressionHold = hold;
+        _expressionClock = 0;
+    }
 
     private static readonly string[] Channels =
     {
         "eyeBlinkLeft", "eyeBlinkRight", "eyeSquintLeft", "eyeSquintRight", "eyeLookInLeft", "eyeLookOutLeft", "eyeLookInRight", "eyeLookOutRight", "eyeLookUpLeft", "eyeLookUpRight", "eyeLookDownLeft", "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthSmileLeft", "mouthSmileRight", "jawOpen", "mouthClose", "browInnerUp", "viseme_sil", "viseme_PP", "viseme_FF", "viseme_TH",
         "viseme_DD", "viseme_kk", "viseme_CH", "viseme_SS", "viseme_nn", "viseme_RR", "viseme_aa", "viseme_E", "viseme_I", "viseme_O",
         "viseme_U",
+        // The expression library's channels: the creator rig carries these shapes, and they are eased and reset like the rest.
+        "browInnerUp", "browDownLeft", "browDownRight", "mouthFrownLeft", "mouthFrownRight", "cheekSquintLeft", "cheekSquintRight",
+        "eyeWideLeft", "eyeWideRight", "noseSneerLeft", "noseSneerRight", "mouthPressLeft", "mouthPressRight", "mouthStretchLeft",
+        "mouthStretchRight", "eyeSquintLeft", "eyeSquintRight",
     };
 
     /// <summary>
@@ -212,6 +237,19 @@ public sealed partial class FaceDriver : Node
         _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + ahead * 2;
     }
 
+    /// <summary>The library pose on the face, eased in, held, and released when its line is over.</summary>
+    private void HoldExpression(double delta)
+    {
+        var pose = FaceExpression.Find(_expressionName);
+        float wanted = pose is null ? 0f : _expressionHold > 0 && _expressionClock > _expressionHold ? 0f : _expressionStrength;
+        _expressionClock += delta;
+        _expressionRamp = Mathf.MoveToward(_expressionRamp, wanted, (float)delta * (wanted > _expressionRamp ? 3.5f : 1.2f));
+        if (pose is null || _expressionRamp <= 0.001f)
+            return;
+        foreach (var (channel, weight) in pose.Weights)
+            _targets[channel] = Mathf.Clamp(_targets.GetValueOrDefault(channel) + weight * _expressionRamp, 0f, 1f);
+    }
+
     private static int ShapeIndex(MeshInstance3D mesh, string channel)
     {
         int exact = mesh.FindBlendShapeByName(channel);
@@ -241,6 +279,7 @@ public sealed partial class FaceDriver : Node
         RestAndGaze(delta);
         Blink(delta);
         Speak(delta);
+        HoldExpression(delta);
         if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
         // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.
         float rate = 1f - Mathf.Exp(-16f * (float)delta);
