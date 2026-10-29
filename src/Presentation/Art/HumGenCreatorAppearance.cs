@@ -86,6 +86,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        controller.Standoff(model); // After dye: Colour starts again from the native material.
         if (OS.GetEnvironment("OTHERREACH_HIDE_BODY") == "1")
             foreach (var hidden in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
                 if (!hidden.HasMeta("creator_part_kind"))
@@ -231,13 +232,19 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (kind is not ("Outfit" or "Footwear")) continue;
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
             {
-                if ((mesh.HasMeta("creator_part_kind") ? Origin(mesh, surface) : mesh.GetSurfaceOverrideMaterial(surface)) is not BaseMaterial3D cloth) continue;
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? Origin(mesh, surface)) is not BaseMaterial3D cloth) continue;
                 if (cloth.HasMeta("creator_standoff")) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
                 bool fittedRole = _worn?.Contains("_outfit_period_",StringComparison.Ordinal)==true;
                 grown.Grow = cloth.Grow || fittedRole;
-                grown.GrowAmount = fittedRole ? .0035f : GarmentStandoff;
+                string piece=mesh.Name.ToString();
+                float layer=piece.Contains("_elvs_mens_apron1_",StringComparison.OrdinalIgnoreCase)
+                    || piece.Contains("cloak",StringComparison.OrdinalIgnoreCase) ? .008f : 0f;
+                // The reversed lining moves in the same physical direction as its outer shell,
+                // retaining its authored 3 mm thickness. Apron/cape shells sit over the tunic.
+                float direction=piece.EndsWith("_lining",StringComparison.Ordinal)?-1f:1f;
+                grown.GrowAmount = fittedRole ? direction*(.0035f+layer) : GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
@@ -540,7 +547,6 @@ public sealed partial class HumGenCreatorAppearance : Node
                     }
                 _meshes.Add((mesh, keys));
             }
-            Standoff(body);
             foreach (var driver in (body.GetParent() ?? model).FindChildren("*", "", true, false).OfType<FaceDriver>()) driver.Rebind(body);
             _parts[choice] = asset;
         }

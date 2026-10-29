@@ -2,7 +2,7 @@
 
 Branch: `npc/gate-c-outfits`, based on `npc/gate-c` at `3dd4b4ee` (includes the Kal lining/stencil fix).
 
-The two native creator bodies remain unchanged. Role garments use the native MakeHuman fitting service where applicable, HumGen custom-content bilaplacian skinning, HumGen correctives and four native LODs. Creator body controls follow through HumGen's fitting field. Linings retain the same controls and a single armature modifier. Fitted role garments use 3.5 mm runtime stand-off, per-outfit UV coverage masks, and the existing LOD0 exclusivity rule.
+The two native creator bodies remain unchanged. Role garments use the native MakeHuman fitting service where applicable, HumGen custom-content bilaplacian skinning, retained HumGen correctives and four native LODs. Creator body controls follow through HumGen's fitting field. Linings retain the same controls and a single armature modifier. Fitted role garments use 3.5 mm base stand-off and per-outfit UV coverage masks. Aprons and capes receive another 8 mm of layer clearance over the tunic. Reversed linings use the opposite growth sign, preserving their authored 3 mm thickness. Stand-off runs after the dye pass and preserves its colours. Lining meshes join the same existing LOD ladder as their outer shells.
 
 | Role | Option | Source catalogue row |
 |---|---|---|
@@ -20,6 +20,6 @@ Delivery delta: `D:\gc_delivery\game\primary`. It contains fifteen garment varia
 
 File gates: `D:\gc_delivery\NATIVE_ROLE_GUARD.json` (15 exact native body/rest/control/LOD checks), `FULL_TEXTURE_GATE.json` (140 full-resolution signed BC7 references). Focused checks: six NpcLooks tests and twenty CreditsContent tests; presentation build succeeds. These file checks do not constitute visual clipping acceptance.
 
-The NPC review uses the actual town actors and their assigned looks. Its opt-in clear-ground placement changes only their temporary presentation transform, restores it afterwards, and records original/review positions. Native walk/run/crouch/sword poses are sampled with bone-origin readbacks. Town sheets and Kal chest/back crops remain the required visual gate.
+The NPC review uses the actual town actors and their assigned looks. Its opt-in fixture omits unrelated creature imports and speculative prefetch; it retains the town scenery and full NPC/garment quality. Main's normal draw loop pauses during temporary staging, and intervening actors are hidden per shot; original transforms/visibility are restored. Native walk/run/crouch/sword poses are sampled with bone-origin and actual material-growth readbacks. Town sheets and Kal chest/back crops remain the required visual gate. This fixture provides appearance evidence, not a world-memory or performance result.
 
 Licences are credited in `content/credits.yaml`: Donitz, Rehman Polanski and MRT (CC0); punkduck coat (CC BY 3.0), punkduck dress (CC BY 4.0), Elvaerwyn apron (CC BY, version unspecified in held notice); Paradoox cloak (owned Fab); owned Unity knight; ambientCG Leather014 (CC0). The Unity source materials are reconstructed from their authored maps because FBX import does not attach Unity materials.

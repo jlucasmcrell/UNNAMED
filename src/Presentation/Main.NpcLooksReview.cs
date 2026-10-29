@@ -95,7 +95,7 @@ public partial class Main
                 {
                     foreach(var other in reviewFigures)other.Figure.Visible=other.Figure==figure;
                     figure.Visible=true;
-                    Vector2 stage=settlement=="ashen_hollow"?new Vector2(450,749):new Vector2(949,695);
+                    Vector2 stage=settlement=="ashen_hollow"?new Vector2(426,754):new Vector2(949,695);
                     float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
                     figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
                     if(fullBody && FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>().FirstOrDefault(light=>light.Name.ToString().Contains("Sun",StringComparison.OrdinalIgnoreCase)) is {} stageSun)
@@ -207,6 +207,11 @@ public partial class Main
                         : figure is MHCharacters.MetaHumanFigure native ? "mh:" + native.CharacterId : figure.GetType().Name,
                     stature_scale = figure is SkinnedFigure scaled ? scaled.StatureScale : 1f,
                     original_position=originalTransform.Origin.ToString(),review_position=figure.GlobalPosition.ToString(),
+                    garment_materials=figure.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>()
+                        .Where(mesh=>mesh.IsVisibleInTree() && mesh.Mesh is not null && mesh.GetMeta("creator_part_kind","").AsString() is "Outfit" or "Footwear")
+                        .SelectMany(mesh=>Enumerable.Range(0,mesh.Mesh!.GetSurfaceCount()).Select(surface=>new {
+                            mesh=mesh.Name.ToString(),surface,grow=(mesh.GetSurfaceOverrideMaterial(surface) as BaseMaterial3D)?.Grow,
+                            grow_amount=(mesh.GetSurfaceOverrideMaterial(surface) as BaseMaterial3D)?.GrowAmount})).ToArray(),
                 });
                 figure.GlobalTransform=originalTransform;
                 foreach(var other in reviewFigures)other.Figure.Visible=other.Visible;

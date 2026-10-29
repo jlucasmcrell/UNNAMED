@@ -19,6 +19,12 @@ for town in ['ashen_hollow','cairnwold']:
         if any(p['requested']!=p['actual'] for p in samples):errors.append(identifier+': wrong held motion')
         if len({json.dumps(p['bone_origins']) for p in samples})!=4:errors.append(identifier+': repeated bone pose')
         if any(not math.isfinite(v) for p in samples for bone in p['bone_origins'] for v in bone):errors.append(identifier+': nonfinite pose')
+        materials=row.get('garment_materials',[])
+        if not materials:errors.append(identifier+': material readback missing')
+        for material in materials:
+            name=material['mesh'].lower()
+            amount=(.0115 if '_elvs_mens_apron1_' in name or 'cloak' in name else .0035)*(-1 if name.endswith('_lining') else 1)
+            if not material['grow'] or not math.isclose(material['grow_amount'] or 0,amount,abs_tol=1e-6):errors.append(identifier+': material stand-off/layer was overwritten: '+name)
         files=[folder/(identifier+'.png')]+[folder/(identifier+'_motion_'+p['requested']+'.png') for p in samples]
         if row['people']=='people.kal':files += [folder/(identifier+'_'+side+'.png') for side in ['chest','back']]
         for file in files:

@@ -36,11 +36,13 @@ public sealed class HumGenLods
     {
         string name = mesh.Name.ToString();
         int at = name.LastIndexOf("_LOD", StringComparison.Ordinal);
-        if (at < 0 || !int.TryParse(name.AsSpan(at + 4), out int level))
+        bool lining=name.EndsWith("_lining",StringComparison.Ordinal);
+        int end=lining?name.Length-"_lining".Length:name.Length;
+        if (at < 0 || !int.TryParse(name.AsSpan(at + 4,end-at-4), out int level))
             return null;
         mesh.VisibilityRangeBegin = 0;
         mesh.VisibilityRangeEnd = 0;
-        return new Part(mesh, name[..at], level);
+        return new Part(mesh, name[..at]+(lining?"_lining":""), level);
     }).OfType<Part>().ToList();
 
     public void OutfitVisible(MeshInstance3D mesh, bool shown)
