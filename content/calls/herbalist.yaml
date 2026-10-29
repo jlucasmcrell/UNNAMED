@@ -1,0 +1,16 @@
+id: call.herbalist
+kind: call
+schema: 1
+display_key: call.herbalist.name
+tags: [call]
+name: Herbalist
+tagline: "You know which plants kill and which only taste like it."
+description: "You know which plants kill and which only taste like it, and you know it by the leaf and the ground rather than by a book. You can take a cutting without spoiling its virtue, dry it so it keeps, and put it to work on a person without guessing at the dose."
+recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "Don't wash it. I mean it. Washing it changes it and then I am measuring you." }
+notes: "D14 Call (design, 2026-10-28) - the herbalism start (D13 §3.6, §3.5). Needs skill.herbalism and skill.herbal_medicine. Grants no recipe or formula: the salve recipes stay with Sel, Kera and Tam, as shipped."
+attribute_bias: { insight: 2, will: 1, endurance: 1 }
+skills: { skill.herbalism: 15, skill.herbal_medicine: 15 }
+kit:
+  - { item_ref: item.material.herb_woundmoss, count: 3 }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.sel_arien, trust: 5 }

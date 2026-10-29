@@ -1,0 +1,16 @@
+id: call.hold_fostered
+kind: call
+schema: 1
+display_key: call.hold_fostered.name
+tags: [call]
+name: Hold-fostered
+tagline: "A Kal hold took you in and taught you what stone is for."
+description: "A Kal hold took you in and taught you what stone is for. You know how a weight goes down through a wall, what the underside of a gallery sounds like, and the one rule they never say twice: nothing is finished until it is finished. You have a hold mark, a level hand, and no intention of explaining either."
+recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "Ha! Hold-fostered. I know that grip — they put a level in your hands before a spoon. Sit down, fostered thing, and let me look at your shoulders." }
+notes: "D14 Call (design, 2026-10-28) - the Kal cultural start (D13 §6.1, RACES/D.3). A Call names where you were RAISED, never what you are: any people may take it. Needs skill.stonesense and skill.masonry. Grants no technique and no heritage keepsake (heritage comes from people)."
+attribute_bias: { endurance: 2, might: 1, presence: 1 }
+skills: { skill.stonesense: 15, skill.masonry: 15 }
+kit:
+  - { item_ref: item.material.iron_ingot, count: 1 }
+  - { item_ref: item.armor.hide_vest, count: 1, equip: true }
+contact: { npc_ref: npc.ashen_hollow.kera_voss, trust: 5 }

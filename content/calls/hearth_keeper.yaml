@@ -1,0 +1,16 @@
+id: call.hearth_keeper
+kind: call
+schema: 1
+display_key: call.hearth_keeper.name
+tags: [call]
+name: Hearth-keeper
+tagline: "You fed people who then lived."
+description: "You fed people and they went on living, which is a thing your hands were part of. You know what a fire wants, how to make nine meals out of one, and what food does for a person besides stop them being hungry. You have never once let a pot boil over in company, and you are insufferable about it."
+recognition: { npc_ref: npc.cairnwold.tam_crowden, line: "Hold there! Eighteen. … Sorry. Nineteen. You've been cooking — there's flour in your eyebrow. That's how I count a cook." }
+notes: "D14 Call (design, 2026-10-28) - the cooking start (D13 §3.5). Needs skill.cooking; skill.survival exists. Grants no recipe: roast meat stays Tam's, the teas and salves stay Kera's and Sel's. Contact is in Cairnwold."
+attribute_bias: { endurance: 2, presence: 1, insight: 1 }
+skills: { skill.cooking: 15, skill.survival: 15 }
+kit:
+  - { item_ref: item.consumable.roast_meat, count: 3 }
+  - { item_ref: item.material.boiled_water, count: 2 }
+contact: { npc_ref: npc.cairnwold.tam_crowden, trust: 5 }

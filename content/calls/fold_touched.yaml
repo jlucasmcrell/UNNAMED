@@ -1,0 +1,16 @@
+id: call.fold_touched
+kind: call
+schema: 1
+display_key: call.fold_touched.name
+tags: [call]
+name: Fold-touched
+tagline: "You went in for something and came out later."
+description: "You went in for something small and came out later, and nobody agrees on how much later. You know the words the surveyors use and the words the farmers use for the same thing, and you know that a fold can be read before it is entered, which is the only reason you are still walking about. You do not go near the stones for fun."
+recognition: { npc_ref: npc.ashen_hollow.tavar_orr, line: "You got out. … What did it take? Nobody goes in and comes out with the same number of things." }
+notes: "D14 Call (design, 2026-10-28) - the Other start, expansion only (D13 §3.4, §5.5; OD-C06 contained consequences). Needs skill.othercraft and skill.otherlore. Do not ship before the Other's rules do. Tavar's greeting lands after the Foldscar."
+attribute_bias: { will: 2, insight: 1, agility: 1 }
+skills: { skill.othercraft: 15, skill.otherlore: 15 }
+kit:
+  - { item_ref: item.material.boneleaf, count: 2 }
+  - { item_ref: item.tool.torch, count: 1, equip: true }
+contact: { npc_ref: npc.ashen_hollow.tavar_orr, trust: 5 }

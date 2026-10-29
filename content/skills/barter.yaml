@@ -1,0 +1,9 @@
+id: skill.barter
+kind: skill
+schema: 1
+display_key: skill.barter.name
+tags: [skill]
+name: Barter
+family: social
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides presence, insight. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "a price moved in your favour across a real negotiation"

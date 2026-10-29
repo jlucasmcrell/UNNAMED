@@ -1,0 +1,9 @@
+id: skill.enchanting
+kind: skill
+schema: 1
+display_key: skill.enchanting.name
+tags: [skill]
+name: Enchanting
+family: magic
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides insight, precision. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "a working that stayed stable after you stopped holding it"

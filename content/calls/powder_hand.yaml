@@ -1,0 +1,16 @@
+id: call.powder_hand
+kind: call
+schema: 1
+display_key: call.powder_hand.name
+tags: [call]
+name: Powder-hand
+tagline: "You worked with the powder, and you are still here."
+description: "You worked with the powder: grinding it, corning it, loading it under a barrel that was never as thick as you wanted. You know what a lock and a bore will take, how much is too much, and you are one of perhaps a hundred people in this world who knows anything about it at all. It has cost you hearing in one ear and most of your eyebrows."
+recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "Ha — what is that on your hands? No. No, I know what that is. That is burnt powder, and not from any forge on this road. Keep it off my fire." }
+notes: "D14 Call (design, 2026-10-28) - the gunpowder start, staged per D13 §4.1 (owner accepted OQ-1: powder exists as salvage, never as a general layer). Needs skill.gunsmithing and skill.alchemy. No powder item exists; the Call ships with the skills, not a barrel."
+attribute_bias: { will: 1, precision: 2, endurance: 1 }
+skills: { skill.gunsmithing: 15, skill.alchemy: 15 }
+kit:
+  - { item_ref: item.armor.smith_gloves, count: 1, equip: true }
+  - { item_ref: item.material.lamp_oil, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.kera_voss, trust: 5 }

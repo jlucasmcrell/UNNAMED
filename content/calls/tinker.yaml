@@ -1,0 +1,17 @@
+id: call.tinker
+kind: call
+schema: 1
+display_key: call.tinker.name
+tags: [call]
+name: Tinker
+tagline: "Old things turn up on the frontier. Someone has to know what they do."
+description: "Old things turn up out here - a hinge that argues, a lid nobody can lift, a lamp nobody alive can light - and somebody has to know what they do. You take them apart, you put most of them back, and you have not yet been killed by the rest."
+recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "You've had things apart. Not mine — ask first. Half of it's older than the waystation." }
+notes: "D14 Call (design, 2026-10-28) - the pack's proposed engineering start (11_CALLS 5.8), kept with D13 skills. Needs skill.mechanisms. Grants no technique."
+attribute_bias: { might: 1, endurance: 1, insight: 1, precision: 1 }
+skills: { skill.mechanisms: 15, skill.salvage: 15 }
+kit:
+  - { item_ref: item.tool.fitting_wedge, count: 1 }
+  - { item_ref: item.material.lamp_oil, count: 1 }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.sel_arien, trust: 5 }

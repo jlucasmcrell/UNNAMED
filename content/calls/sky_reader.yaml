@@ -1,0 +1,16 @@
+id: call.sky_reader
+kind: call
+schema: 1
+display_key: call.sky_reader.name
+tags: [call]
+name: Sky-reader
+tagline: "You watch the sky because it is doing something."
+description: "You watch the sky because it is doing something, and because what happens up there arrives down here on a schedule nobody respects twice. You know the tides by their weather, you can fix a bearing at night, and you have been right about the sky in front of people who would have remembered it if you were wrong."
+recognition: { npc_ref: npc.ashen_hollow.tavar_orr, line: "You've been out in it all night. I can tell — everything about you arrives a beat late." }
+notes: "D14 Call (design, 2026-10-28) - the cosmic start (D13 §3.4). Needs skill.cosmic and skill.star_reading. Grants no formula. Tavar's greeting lands after the Foldscar, like every one of his."
+attribute_bias: { will: 2, insight: 2 }
+skills: { skill.cosmic: 15, skill.star_reading: 15 }
+kit:
+  - { item_ref: item.tool.lantern, count: 1, equip: true }
+  - { item_ref: item.material.lamp_oil, count: 2 }
+contact: { npc_ref: npc.ashen_hollow.tavar_orr, trust: 5 }

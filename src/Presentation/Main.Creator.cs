@@ -534,8 +534,10 @@ public partial class Main
         {
             (N("identity_empty"), () => _creator.Use(_creator.Draft with { Name = "Wenna Lind", Pronouns = Pronouns.She }), 1500),
             (N("identity_named"), () => _creator.Go(CreatorStep.Call), 1500),
-            (N("call_wayfarer"), () => _creator.Use(_creator.Draft with { CallId = "call.smiths_hand" }), 1500),
-            (N("call_smiths_hand"), () => _creator.Go(CreatorStep.Confirm), 1500),
+            // The Call grid as a player meets it, then a Call that did not ship before D14, so the new game below is
+            // started from a new Call (D14 CALLS: twenty-four Calls, four of them kept).
+            (N("call_grid"), () => _creator.Use(_creator.Draft with { CallId = "call.field_surgeon" }), 1500),
+            (N("call_field_surgeon"), () => _creator.Go(CreatorStep.Confirm), 1500),
             (N("confirm"), () =>
             {
                 _creator.RoadWalked = true;

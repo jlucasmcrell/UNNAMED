@@ -1,0 +1,17 @@
+id: call.blade_for_hire
+kind: call
+schema: 1
+display_key: call.blade_for_hire.name
+tags: [call]
+name: Blade for hire
+tagline: "You were paid to be the one in front."
+description: "You were paid to be the one in front, and for a while you were worth the pay. You fight with a blade in each hand, or a blade and an empty one, and you know what a fight costs before it starts, which is why you are still here to be hired."
+recognition: { npc_ref: npc.cairnwold.durn_skell, line: "Two blades. The left one is for the one in front. Good." }
+notes: "D14 Call (design, 2026-10-28) - the paired-weapons start, opening the D13 dual_wield skill. Needs skill.dual_wield. Grants no technique. Contact is in Cairnwold, so recognition comes after the walk east."
+attribute_bias: { agility: 2, might: 1, endurance: 1 }
+skills: { skill.one_hand_blade: 15, skill.dual_wield: 15 }
+kit:
+  - { item_ref: item.weapon.iron_dagger, count: 1 }
+  - { item_ref: item.armor.hide_vest, count: 1, equip: true }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.cairnwold.durn_skell, trust: 5 }

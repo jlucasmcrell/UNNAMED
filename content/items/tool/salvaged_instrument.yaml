@@ -1,0 +1,12 @@
+id: item.tool.salvaged_instrument
+kind: item
+schema: 1
+display_key: item.tool.salvaged_instrument.name
+tags: [item]
+name: A Salved Instrument
+notes: "D14 CALLS: the Fell-through Call's kit. It is a lamp with no flame, no oil and no place for either, and it does not work. It is carried because it was found, not because it is useful - the Call grants objects, never a confirmation of what the character is."
+category: tool
+stack_max: 1
+weight: 0.8
+value_base: 12
+rarity: common

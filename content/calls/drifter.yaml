@@ -1,0 +1,17 @@
+id: call.drifter
+kind: call
+schema: 1
+display_key: call.drifter.name
+tags: [call]
+name: Drifter
+tagline: "You left somewhere in a hurry, and nobody here knows your face."
+description: "You left a place in a hurry, and the point of it was that nobody in the next one would know your face. You know how to move through a room without being its subject, how to leave a fight you did not start, and how local watches and bounties actually work."
+recognition: { npc_ref: npc.ashen_hollow.tavar_orr, line: "You check the doors before you sit. So do I." }
+notes: "D14 Call (design, 2026-10-28) - the pack's PT-era stealth start (11_CALLS 5.7), kept; contact moved to Tavar, as the pack's own recognition line names him. Needs skill.evasion. Grants no technique."
+attribute_bias: { agility: 2, will: 2 }
+skills: { skill.stealth: 15, skill.evasion: 15 }
+kit:
+  - { item_ref: item.weapon.iron_dagger, count: 1 }
+  - { item_ref: item.armor.cloak, count: 1, equip: true }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.tavar_orr, trust: 5 }

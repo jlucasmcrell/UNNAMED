@@ -1,0 +1,16 @@
+id: call.field_surgeon
+kind: call
+schema: 1
+display_key: call.field_surgeon.name
+tags: [call]
+name: Field surgeon
+tagline: "You have put people back together with less than you needed."
+description: "You have put people back together with less than you needed and in worse light than anyone should work in. You know what a wound is doing under the blood, which of the three people in front of you to start with, and how long you have before the answer stops being yours to give."
+recognition: { npc_ref: npc.cairnwold.mara_ling, line: "Still blood. Still on your cuffs. Still nobody else in this village who knows what to do with it." }
+notes: "D14 Call (design, 2026-10-28) - the medicine start (D13 §3.5). Needs skill.medicine and skill.first_aid. Grants no formula. Contact is in Cairnwold."
+attribute_bias: { will: 2, insight: 1, precision: 1 }
+skills: { skill.medicine: 15, skill.first_aid: 15 }
+kit:
+  - { item_ref: item.consumable.salve_minor, count: 2 }
+  - { item_ref: item.consumable.salve_ember, count: 1 }
+contact: { npc_ref: npc.cairnwold.mara_ling, trust: 5 }

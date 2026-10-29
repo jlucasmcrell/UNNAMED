@@ -1,0 +1,16 @@
+id: call.ward_keeper
+kind: call
+schema: 1
+display_key: call.ward_keeper.name
+tags: [call]
+name: Ward-keeper
+tagline: "You kept a place that kept other people alive."
+description: "You kept a place that kept other people alive: a door, a shrine, a store, a hatch that had to stay shut. You know what a ward is anchored to, how a threshold seal goes soft, and how much of a night it costs to hold one. You have fallen asleep standing up and called it a watch."
+recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "Hold your hand out. … Yes. You've held something shut for a night and it cost you. That is in the hand." }
+notes: "D14 Call (design, 2026-10-28) - the warding start (D13 §3.3). Needs skill.enchanting; skill.warding exists. Grants no formula: the warding formulas are learned from the primer and Sel, as shipped."
+attribute_bias: { will: 2, insight: 1, endurance: 1 }
+skills: { skill.warding: 15, skill.enchanting: 15 }
+kit:
+  - { item_ref: item.tool.torch, count: 1, equip: true }
+  - { item_ref: item.consumable.salve_ember, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.sel_arien, trust: 5 }

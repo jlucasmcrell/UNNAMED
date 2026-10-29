@@ -1,0 +1,9 @@
+id: skill.otherlore
+kind: skill
+schema: 1
+display_key: skill.otherlore.name
+tags: [skill]
+name: Otherlore
+family: magic
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides insight, will. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "being right about the Other: a fold's behaviour, a mark's meaning, a tide's arrival"

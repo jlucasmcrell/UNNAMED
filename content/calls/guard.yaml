@@ -1,0 +1,16 @@
+id: call.guard
+kind: call
+schema: 1
+display_key: call.guard.name
+tags: [call]
+name: Guard
+tagline: "You stood a post until the post was cancelled."
+description: "You stood a post: a gate, a store, a door somebody said mattered. You know a shield's angle, what a harness does to a long day, and what a post is worth when the pay stops. You have been hit while standing still, which is the whole trade."
+recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "You've stood a post. That thing down there has stood one for longer than anyone's been counting." }
+notes: "D14 Call (design, 2026-10-28) - the pack's PT-era melee start (11_CALLS 5.2), kept with D13 skills. Grants no technique; its first one is the shield family's, learned in play. Needs skill.shield and skill.armour_use content."
+attribute_bias: { might: 2, endurance: 1, agility: 1 }
+skills: { skill.shield: 15, skill.armour_use: 15 }
+kit:
+  - { item_ref: item.armor.hide_vest, count: 1, equip: true }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.kera_voss, trust: 5 }

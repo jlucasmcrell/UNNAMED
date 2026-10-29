@@ -1,0 +1,9 @@
+id: skill.mechanisms
+kind: skill
+schema: 1
+display_key: skill.mechanisms.name
+tags: [skill]
+name: Mechanisms
+family: crafting
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides precision, insight. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "a mechanism that runs for a week without your hand on it"

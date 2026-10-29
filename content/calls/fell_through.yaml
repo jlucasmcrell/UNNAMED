@@ -1,0 +1,16 @@
+id: call.fell_through
+kind: call
+schema: 1
+display_key: call.fell_through.name
+tags: [call]
+name: Fell-through
+tagline: "You came in off the road with things nobody here can name."
+description: "You came in off the road with things nobody here can name, and you cannot name them either. You have spent your life taking other people's machines apart to find out what they are for, and you are better at it than anyone has any reason to be out here. The lamp in your pack has no flame and no oil and does not work. You have kept it anyway."
+recognition: { npc_ref: npc.ashen_hollow.sel_arien, line: "Put your odd things on the table. All of them. I have a page for this, and it is short." }
+notes: "D14 Call (design, 2026-10-28) - the arrival start, written to keep the arrival UNSTATED (OD-02; 22 §5.3): it grants objects and skills, never a confirmation of what the character is. See OQ-3. Needs skill.electronics; skill.salvage exists. Needs item.tool.salvaged_instrument authored (see 6.2); until then the Call cannot lint."
+attribute_bias: { will: 2, insight: 1, endurance: 1 }
+skills: { skill.salvage: 15, skill.electronics: 15 }
+kit:
+  - { item_ref: item.tool.salvaged_instrument, count: 1 }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.sel_arien, trust: 5 }

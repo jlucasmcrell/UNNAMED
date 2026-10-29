@@ -1,0 +1,9 @@
+id: skill.shield
+kind: skill
+schema: 1
+display_key: skill.shield.name
+tags: [skill]
+name: Shield
+family: combat
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides endurance, might. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "blocking and bashing what is actually trying to kill you; keeping a wall with friends behind it"

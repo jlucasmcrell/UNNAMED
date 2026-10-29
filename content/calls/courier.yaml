@@ -1,0 +1,16 @@
+id: call.courier
+kind: call
+schema: 1
+display_key: call.courier.name
+tags: [call]
+name: Courier
+tagline: "The route you ran ended. The road didn't."
+description: "You ran things from one place to another and were paid for the half of it that arrived. You know roads, marks, ferries and which waystation will feed you, you can hold a bearing past dark, and you have never once been late by your own reckoning."
+recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "A runner? Then you know a waystation's worth more than its walls." }
+notes: "D14 Call (design, 2026-10-28) - the pack's proposed exploration start (11_CALLS 5.9), kept. Needs skill.cartography; ships with existing items and NPCs. Grants no technique."
+attribute_bias: { endurance: 2, agility: 1, will: 1 }
+skills: { skill.athletics: 15, skill.cartography: 15 }
+kit:
+  - { item_ref: item.armor.hide_boots, count: 1, equip: true }
+  - { item_ref: item.consumable.salve_minor, count: 1 }
+contact: { npc_ref: npc.ashen_hollow.renn_vale, trust: 5 }

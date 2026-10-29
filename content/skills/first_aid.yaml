@@ -1,0 +1,9 @@
+id: skill.first_aid
+kind: skill
+schema: 1
+display_key: skill.first_aid.name
+tags: [skill]
+name: First aid
+family: social
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides precision, will. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "a bleed stopped, a splint stayed, a dying stranger stabilised"

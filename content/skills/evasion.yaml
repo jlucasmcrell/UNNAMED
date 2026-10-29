@@ -1,0 +1,9 @@
+id: skill.evasion
+kind: skill
+schema: 1
+display_key: skill.evasion.name
+tags: [skill]
+name: Evasion
+family: combat
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides agility, precision. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "not being hit by something that was aimed at you"

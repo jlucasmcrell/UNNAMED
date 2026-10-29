@@ -625,28 +625,55 @@ public partial class CreatorScreen : CanvasLayer
         return name;
     }
 
-    /// <summary>Step 4: the four Calls, each with its package - its leaning, the two skills it starts, its kit and its contact (PJ05).</summary>
+    /// <summary>
+    /// Step 4: the Calls as a grid of cards, each with its name, its tagline and its description, so the whole set can be
+    /// seen at once and compared by what the character used to do (D14: twenty-four Calls, and every skill family has one
+    /// that starts it). The chosen card's package - leaning, skills, kit, contact - is read under the grid.
+    /// </summary>
     private void CallStep()
     {
-        var list = UiKit.Section("What you did before");
-        foreach (var call in _session.Characters.Calls.Values.OrderBy(c => c.Id == CreatorDraft.FirstCall ? 0 : 1).ThenBy(c => Names.Of(_session, c.Id)))
+        var section = UiKit.Section("What you did before",
+            "A Call is the work you came from, not a class: it spends four attribute points and starts two skills at 15. "
+            + "Everything it gives, anyone can earn later.");
+        var grid = new GridContainer { Columns = 2 };
+        grid.AddThemeConstantOverride("h_separation", 8);
+        grid.AddThemeConstantOverride("v_separation", 6);
+        section.AddChild(grid);
+        foreach (var call in _session.Characters.Calls.Values
+                     .OrderBy(c => c.Id == CreatorDraft.FirstCall ? 0 : 1)
+                     .ThenBy(c => Names.Of(_session, c.Id)))
         {
             string id = "creator.call." + call.Id;
-            var row = UiKit.ListRow(id, Names.Of(_session, call.Id), Leaning(call), height: 48);
+            var card = UiKit.ListRow(id, Names.Of(_session, call.Id), call.Tagline, height: 126);
+            card.Button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+            card.Button.CustomMinimumSize = new Vector2(0, 126);
+            card.Button.ClipContents = true;
+            var words = UiKit.Words(Opening(call.Description), 14, HudStyle.Ash);
+            words.MaxLinesVisible = 4;
+            words.TextOverrunBehavior = TextServer.OverrunBehavior.TrimWordEllipsis;
+            card.Middle.AddChild(words);
+            card.Middle.AddChild(UiKit.Caption(Leaning(call)));
             if (call.Id == CreatorDraft.FirstCall)
-                row.Right.AddChild(UiKit.Chip("First character", HudStyle.Iron, HudStyle.Ash));
-            UiKit.Select(row.Button, Draft.CallId == call.Id);
+                card.Right.AddChild(UiKit.Chip("First", HudStyle.Iron, HudStyle.Ash));
+            UiKit.Select(card.Button, Draft.CallId == call.Id);
             string callId = call.Id;
-            row.Button.Pressed += Deferred(() =>
+            card.Button.Pressed += Deferred(() =>
             {
                 _draft = Draft with { CallId = callId };
                 Render(id);
             });
-            list.AddChild(row.Button);
+            grid.AddChild(card.Button);
         }
-        _body.AddChild(list);
+        _body.AddChild(section);
         if (Draft.CallId is { } chosen && _session.Characters.Calls.TryGetValue(chosen, out var picked))
             _body.AddChild(Package(picked));
+    }
+
+    /// <summary>The first sentence of a Call's description, for the card: the rest is read in the package under the grid.</summary>
+    private static string Opening(string description)
+    {
+        int stop = description.IndexOf(". ", StringComparison.Ordinal);
+        return stop > 40 ? description[..(stop + 1)] : description;
     }
 
     /// <summary>A Call's attribute leaning, in words: "Endurance +2 · Might +1 · Agility +1".</summary>

@@ -1,0 +1,9 @@
+id: skill.electronics
+kind: skill
+schema: 1
+display_key: skill.electronics.name
+tags: [skill]
+name: Electrics and electronics
+family: crafting
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides insight, precision. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "a circuit, a coil, a power cell or a control loop that works and can be repaired"

@@ -1,0 +1,16 @@
+id: call.woodsman
+kind: call
+schema: 1
+display_key: call.woodsman.name
+tags: [call]
+name: Woodsman
+tagline: "You know what a tree will do when it falls."
+description: "You know what a tree will do when it falls, and how to make it fall where you said. You read timber standing, seasoned it in the stack, and you have never yet been the one a log went through. The coat smells of sawdust and will keep doing so."
+recognition: { npc_ref: npc.cairnwold.berrin_garth, line: "Come in, come in — you've the coat for it, all down the collar. Timber does that. It tells on a man before he says a word." }
+notes: "D14 Call (design, 2026-10-28) - the forestry and carpentry start (D13 §3.6). Needs skill.logging and skill.woodworking. Grants no technique. Contact is in Cairnwold."
+attribute_bias: { endurance: 2, might: 1, precision: 1 }
+skills: { skill.logging: 15, skill.woodworking: 15 }
+kit:
+  - { item_ref: item.material.timber, count: 4 }
+  - { item_ref: item.armor.hide_boots, count: 1, equip: true }
+contact: { npc_ref: npc.cairnwold.berrin_garth, trust: 5 }

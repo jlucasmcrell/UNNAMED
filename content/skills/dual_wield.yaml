@@ -1,0 +1,9 @@
+id: skill.dual_wield
+kind: skill
+schema: 1
+display_key: skill.dual_wield.name
+tags: [skill]
+name: Paired weapons
+family: combat
+notes: "D14 CALLS: taken from canon SKILLS_AND_TECHNIQUES.md (D13), which rides agility, precision. Authored because the 24 Calls start it at 15 and the build did not have it."
+teaches: "off-hand work under pressure: covering, deflecting, and the second strike"

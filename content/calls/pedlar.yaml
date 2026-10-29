@@ -1,0 +1,16 @@
+id: call.pedlar
+kind: call
+schema: 1
+display_key: call.pedlar.name
+tags: [call]
+name: Pedlar
+tagline: "The frontier is always short of something."
+description: "Goods go where people are short of them, and the frontier is always short. You know what a thing is worth in three towns at once, what a price will bear, and how to talk a stranger into a bargain they will not regret too much."
+recognition: { npc_ref: npc.ashen_hollow.kera_voss, line: "A trader. Then you'll know I don't haggle." }
+notes: "D14 Call (design, 2026-10-28) - the pack's proposed social start (11_CALLS 5.10), kept. Needs skill.barter and skill.persuasion content. Grants no technique."
+attribute_bias: { presence: 2, will: 2 }
+skills: { skill.barter: 15, skill.persuasion: 15 }
+kit:
+  - { item_ref: item.armor.cloak, count: 1, equip: true }
+  - { item_ref: item.consumable.herb_tea, count: 2 }
+contact: { npc_ref: npc.ashen_hollow.kera_voss, trust: 5 }
