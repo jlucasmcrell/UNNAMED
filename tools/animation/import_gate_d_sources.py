@@ -11,9 +11,14 @@ rows = json.loads(Path(os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY', str(
 cmu = job.parent / 'cmu_sources/inventory.json'
 if not os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY') and cmu.exists():
     rows.extend(json.loads(cmu.read_text()))
+mobility = job.parent / 'mobility_sources/inventory.json'
+if not os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY') and mobility.exists():
+    rows.extend(json.loads(mobility.read_text()))
 if os.environ.get('OTHERREACH_GATE_D_SOURCE_LIMIT'):
     rows = rows[:int(os.environ['OTHERREACH_GATE_D_SOURCE_LIMIT'])]
-report = dict(status='IMPORTING', sources=[], failures=[])
+facial_path = job.parent / 'facial_sources/inventory.json'
+facial = json.loads(facial_path.read_text()) if facial_path.exists() else []
+report = dict(status='IMPORTING', sources=[], failures=[], facial_sources=facial)
 tools = unreal.AssetToolsHelpers.get_asset_tools()
 selection = json.loads((job / 'selection.json').read_text())
 semantic = {
@@ -30,9 +35,12 @@ semantic = {
     'great_sword_blocking': 'greatsword_block',
     'sword_and_shield_slash_1': 'shield_sword_attack_1', 'sword_and_shield_slash_2': 'shield_sword_attack_2',
     'sword_and_shield_block': 'shield_sword_block', 'sword_and_shield_block_idle': 'shield_sword_ready',
+    'clap_slowclap_hik': 'emote_clap', 'laughs_hik': 'emote_laugh',
 }
 for row in rows:
     if row['status'] != 'SOURCE_EXPORTED_NOT_RETARGETED':
+        if any(face['source'] == row['source'] and face['status'] == 'FACIAL_EXPORTED' for face in facial):
+            continue
         report['failures'].append(row)
         continue
     try:
@@ -59,12 +67,40 @@ for row in rows:
         source_name = re.sub('[^a-z0-9]+', '_', Path(row['source']).stem.lower()).strip('_')
         if source_name in semantic and len(takes) == 1:
             selection[semantic[source_name]] = [row['id'], takes[0]['name']]
+        if row['id'] == 'cmu_13_23' and len(takes) == 1:
+            # CMU's original subject/trial description: sweeping the floor.
+            # https://mocap.cs.cmu.edu/search.php?subjectnumber=13&trinum=23
+            selection['work_sweep'] = [row['id'], takes[0]['name']]
         report['sources'].append(dict(id=row['id'], path=row['path'], original=row['source'], assets=assets,
                                      source_root_offset_cm=row.get('source_root_offset_cm')))
     except Exception:
         report['failures'].append(dict(source=row['source'], error=traceback.format_exc()))
     (job / 'extra_sources.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
     (job / 'selection.json').write_text(json.dumps(selection, indent=2), encoding='utf-8')
+catalog = job / 'catalog_sources.json'
+if not os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY'):
+    assert catalog.exists(), 'Native catalog migration has not finished'
+    native = json.loads(catalog.read_text())
+    for supplement in job.glob('catalog_sources_*.json'):
+        part = json.loads(supplement.read_text())
+        assert part['status'] == 'DONE', part.get('error', str(supplement))
+        native['sources'].extend(part['sources'])
+        native['excluded'].extend(part['excluded'])
+    assert native['status'] == 'DONE', native.get('error', 'Native catalog migration incomplete')
+    for source in native['sources']:
+        source = dict(source, assets=[item for item in source['assets'] if '/Rigs/Poses/' not in item['asset']])
+        if not any(item['kind'] == 'animation' for item in source['assets']):
+            continue
+        for item in source['assets']:
+            assert unreal.load_asset(item['asset']) is not None, item['asset']
+            if item['kind'] == 'animation':
+                state = 'owned_' + re.sub('[^a-z0-9]+', '_', item['asset'].split('.')[0].lower()).strip('_')
+                selection[state] = [source['id'], item['asset']]
+        report['sources'].append(source)
+    report['catalog_exclusions'] = native['excluded']
+    report['catalog_exclusions'].extend(dict(asset=item['asset'], reason='Source mannequin corrective calibration, not a performance take')
+        for source in native['sources'] for item in source['assets'] if '/Rigs/Poses/' in item['asset'])
 report['status'] = 'DONE'
 (job / 'extra_sources.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
+(job / 'selection.json').write_text(json.dumps(selection, indent=2), encoding='utf-8')
 unreal.SystemLibrary.quit_editor()

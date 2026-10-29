@@ -189,7 +189,7 @@ func build() -> void:
   var single := AnimationLibrary.new()
   single.add_animation(entry.state,animation)
   measurement.add_animation_library("",single)
-  var measured := contacts(measurement,rig,entry.state)
+  var measured := contacts(measurement,rig,entry.state) if entry.state in gaits else {"length":animation.length}
   if entry.state in gaits:
    assert(measured.pace>.05,"No measurable native gait "+entry.state)
    assert(absf(measured.shoulder_heading_degrees)<38,"Gait faces sideways: "+entry.state+" "+str(measured.shoulder_heading_degrees))

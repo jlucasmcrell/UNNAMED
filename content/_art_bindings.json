@@ -1,5 +1,12 @@
 {
   "comment": "CAIRNWOLD's own art, layered over the shared bindings: the game merges this file onto art_bindings.json key by key, so the HUD, the icons, the effect sheets and the audio beds are the ones every region uses and only the world is this region's. A structure_prefixes key matches every placement whose id starts with it and picks one of its models per placement, which is how 90 birches share two trees. A building_walls key instead GATHERS every placement under it into one building, which is how Ashen Hollow builds a longhouse from four thin wall runs - so each cottage here has a key of its own.",
+  "work_tools": {
+    "work_smith": {
+      "model": "bw_codex_mine_hammer",
+      "grip": { "at": [-0.15, 0.02, 0], "primary": [1, 0, 0], "secondary": [0, 1, 0] },
+      "note": "Reuse the shipped Old Mine hammer at source size. Grip is on its wooden haft, head toward +X."
+    }
+  },
   "structure_prefixes": {
     "cw_birch_": {
       "models": [

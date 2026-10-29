@@ -24,6 +24,8 @@ public partial class ChatPanel : CanvasLayer
     private GameSession? _session;
     private ChatTab _tab = ChatTab.All;
     private string _drawn = string.Empty;
+    public Func<IReadOnlyList<string>>? AvailableGestures { get; set; }
+    public Action<string>? Gesture { get; set; }
     /// <summary>What Ask showed, by who asked about: kept while the screen lives, never saved and never said into the world.</summary>
     private readonly Dictionary<EntityId, string> _asked = new();
 
@@ -93,6 +95,20 @@ public partial class ChatPanel : CanvasLayer
             _drawn = string.Empty;
         }, compact: true));
         _sheet.Body.AddChild(mode);
+        var gestures = AvailableGestures?.Invoke() ?? Array.Empty<string>();
+        if (gestures.Count > 0)
+        {
+            var row = new HFlowContainer();
+            row.AddChild(UiKit.Caption("Gestures"));
+            foreach (string clip in gestures)
+            {
+                string label = clip["emote_".Length..].Replace('_', ' ');
+                var button = new Button { Text = char.ToUpperInvariant(label[0]) + label[1..] };
+                button.Pressed += () => { Gesture?.Invoke(clip); Visible = false; };
+                row.AddChild(button);
+            }
+            _sheet.Body.AddChild(row);
+        }
         _sheet.Body.AddChild(HudStyle.Rule(4));
         if (_tab == ChatTab.Groups)
             DrawBoard(simulation);

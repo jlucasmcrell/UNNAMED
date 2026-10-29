@@ -45,6 +45,13 @@ public sealed partial class FaceDriver : Node
     public string? Mood { get; set; }
     private float _restingLid = .17f;
     public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
+    private FacialPerformance? _performance;
+    private double _performanceTime;
+    public void PlayPerformance(string? path)
+    {
+        _performance = path is null ? null : FacialPerformance.Load(path);
+        _performanceTime = 0;
+    }
     // Opt-in native FACS inspection; ordinary speech leaves this unset.
     internal float? ReviewJawOpen { get; set; }
 
@@ -53,6 +60,10 @@ public sealed partial class FaceDriver : Node
         "eyeBlinkLeft", "eyeBlinkRight", "eyeSquintLeft", "eyeSquintRight", "eyeLookInLeft", "eyeLookOutLeft", "eyeLookInRight", "eyeLookOutRight", "eyeLookUpLeft", "eyeLookUpRight", "eyeLookDownLeft", "eyeLookDownRight", "browDownLeft", "browDownRight", "mouthSmileLeft", "mouthSmileRight", "jawOpen", "mouthClose", "browInnerUp", "viseme_sil", "viseme_PP", "viseme_FF", "viseme_TH",
         "viseme_DD", "viseme_kk", "viseme_CH", "viseme_SS", "viseme_nn", "viseme_RR", "viseme_aa", "viseme_E", "viseme_I", "viseme_O",
         "viseme_U", "mouthFrownLeft", "mouthFrownRight", "browOuterUpLeft", "browOuterUpRight", "eyeWideLeft", "eyeWideRight",
+        "cheekPuff", "cheekSquintLeft", "cheekSquintRight", "jawForward", "jawLeft", "jawRight",
+        "mouthDimpleLeft", "mouthDimpleRight", "mouthFunnel", "mouthLeft", "mouthRight", "mouthLowerDownLeft", "mouthLowerDownRight",
+        "mouthPressLeft", "mouthPressRight", "mouthPucker", "mouthRollLower", "mouthRollUpper", "mouthShrugLower", "mouthShrugUpper",
+        "mouthStretchLeft", "mouthStretchRight", "mouthUpperUpLeft", "mouthUpperUpRight", "noseSneerLeft", "noseSneerRight", "tongueOut",
     };
 
     /// <summary>
@@ -245,6 +256,14 @@ public sealed partial class FaceDriver : Node
         RestAndGaze(delta);
         Expression();
         if (Mood != "sleep") Blink(delta);
+        if (_performance is { } performance)
+        {
+            performance.Sample(_performanceTime, _targets);
+            UpdateNativeEyes(new Vector2((_targets["eyeLookOutLeft"] + _targets["eyeLookInRight"] - _targets["eyeLookInLeft"] - _targets["eyeLookOutRight"]) * .5f,
+                (_targets["eyeLookUpLeft"] + _targets["eyeLookUpRight"] - _targets["eyeLookDownLeft"] - _targets["eyeLookDownRight"]) * .5f));
+            _performanceTime += delta;
+            if (_performanceTime > performance.Seconds) _performance = null;
+        }
         Speak(delta);
         if (ReviewJawOpen is { } jaw) _targets["jawOpen"] = Mathf.Clamp(jaw, 0, 1);
         // Visemes and the jaw ease in and out (about 60 ms): the mouth moves between shapes, never snaps.

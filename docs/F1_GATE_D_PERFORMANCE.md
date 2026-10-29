@@ -52,6 +52,29 @@ transport evidence, not a substitute for the owed working clip. All 2,548 owned 
 source-only preview transports; a sampled CMU import and native retarget pass the rest/motion check.
 The remaining source batch and full library packaging are still running/pending.
 
+The source scan is complete: 600 distinct Mixamo/Rokoko files, including six face-only
+ARKit takes. Those facial channels are preserved at their original 100Hz timing and can
+play on the native face from the creator's motion preview. Body source imports also include
+the 38 acquired mobility FBXs, all 2,548 CMU takes and the native humanoid catalog packs.
+The expanded Fab project migration found 688 takes; separate ActorCore, MCO/death and
+Hyper humanoid sources supplement it. Full imports/retargets are still in progress.
+Source mannequin corrective calibration and creature/weapon-only rigs are distinguished
+in the source inventory. CMU subject 13 trial 23 is the original sweeping-floor motion:
+https://mocap.cs.cmu.edu/search.php?subjectnumber=13&trinum=23 .
+
+Named player gestures are offered in Chat; movement/combat interrupt them. Idle pools
+follow role and mood. Native sleep motion uses the existing furniture support. Kera's work
+anchor now sits within reach of the existing anvil, and the existing Old Mine hammer is
+mounted at its authored-size wooden haft during the smith take. These need rendered review.
+
+The first farm package stopped before rendering because the private copy had overwritten
+the world texture-cache manifest with the smaller creator manifest. They are now merged.
+Native creator body/face cache entries retain source resolution; the separate native outfit
+entries are being refreshed through the usual headless cache builder. The broad retained-tree
+cache scan also reports older world mip entries, which are outside this character change;
+it is not reported as a package acceptance pass. No source texture has been reduced.
+The staging helper now carries native facial-performance JSON alongside the motion resources.
+
 D15 hooks: existing Ashen Hollow smith/cook/resident schedules and conversations are the
 world hooks. No new skill or technique is added. Hooks lint and dossier reconciliation
 remain required before FINISHED. No new texture/LOD/VRAM savings introduced.

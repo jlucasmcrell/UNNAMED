@@ -12,5 +12,5 @@ roles: [smith, vendor, quest_giver]           # WP12b: town roles (config.npc_li
 work_hours: [6, 20]
 anchors:
   home: { position_m: [455, 744.3], facing_deg: 90 }
-  work: { position_m: [461.6, 739.6], facing_deg: 300 }
+  work: { position_m: [458.4, 740.0], facing_deg: 300 } # within hammer reach of the existing forge anvil
 job: { market_ref: market.ashen_hollow, item_ref: item.material.iron_ingot, per_day: 1 }   # each day it is held, the market makes the larger of its floor and its jobs (WP12b: max(floor, jobs))

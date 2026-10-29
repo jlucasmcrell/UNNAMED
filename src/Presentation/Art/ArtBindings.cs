@@ -138,6 +138,7 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
 public sealed record WeaponArt(string Model, string Family, bool OffHand);
+public sealed record WorkToolArt(string Model, Transform3D Grip);
 
 public sealed record CellSound(string Bed, IReadOnlyList<string> Details, string Surface);
 
@@ -219,6 +220,7 @@ public sealed class ArtBindings
     /// <summary>The bodies the character creator offers (<c>player_bodies</c>, WP2), each drawn on the player's binding.</summary>
     public PlayerBodies Bodies { get; private init; } = PlayerBodies.None;
     public IReadOnlyDictionary<string, WeaponArt> Weapons { get; private init; } = new Dictionary<string, WeaponArt>();
+    public IReadOnlyDictionary<string, WorkToolArt> WorkTools { get; private init; } = new Dictionary<string, WorkToolArt>();
     public WeaponArt? CompanionWeapon { get; private init; }
     /// <summary>A shot's model by its kind ("arrow"), for <see cref="Greybox.ProjectilesView"/>; no entry, no entry loaded, greybox.</summary>
     public IReadOnlyDictionary<string, string> Projectiles { get; private init; } = new Dictionary<string, string>();
@@ -304,6 +306,8 @@ public sealed class ArtBindings
         }
         foreach (var weapon in Weapons.Values)
             yield return weapon.Model;
+        foreach (var tool in WorkTools.Values)
+            yield return tool.Model;
         foreach (string model in Projectiles.Values)
             yield return model;
         if (GroundItem?.Model is { } item)
@@ -457,6 +461,10 @@ public sealed class ArtBindings
                     ? weapons.EnumerateObject().ToDictionary(w => w.Name, w => Weapon(w.Value), StringComparer.Ordinal)
                     : new Dictionary<string, WeaponArt>(),
                 CompanionWeapon = root.TryGetProperty("companion_weapon", out var companion) ? Weapon(companion) : null,
+                WorkTools = root.TryGetProperty("work_tools", out var tools)
+                    ? tools.EnumerateObject().ToDictionary(t => t.Name, t => new WorkToolArt(Text(t.Value, "model")!,
+                        Grip(t.Value, "grip") ?? throw new FormatException("Work tool needs its authored grip: " + t.Name)), StringComparer.Ordinal)
+                    : new Dictionary<string, WorkToolArt>(),
                 Projectiles = root.TryGetProperty("projectiles", out var projectiles)
                     ? projectiles.EnumerateObject().Where(p => Text(p.Value, "model") is not null).ToDictionary(p => p.Name, p => Text(p.Value, "model")!, StringComparer.Ordinal)
                     : new Dictionary<string, string>(),

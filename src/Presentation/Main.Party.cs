@@ -30,6 +30,8 @@ public partial class Main
     {
         _chat = new ChatPanel { Name = "Chat" };
         _chat.Bind(_session);
+        _chat.AvailableGestures = () => _avatar.PerformanceClips.Where(c => c.StartsWith("emote_", StringComparison.Ordinal)).ToArray();
+        _chat.Gesture = clip => _avatar.Perform(clip);
         AddChild(_chat);
         _hire = new HirePanel { Name = "Hire", ShowParty = ShowParty };
         _hire.Bind(_session);

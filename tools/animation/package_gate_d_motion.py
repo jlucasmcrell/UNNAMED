@@ -27,7 +27,7 @@ def package(job, actor, runtime):
     manifest.write_text(json.dumps(dict(body=str(body), output=str(output), clips=receipt['clips']), indent=2), encoding='utf-8')
     subprocess.run(['C:/Otherreach_Worker/tools/godot_4_7_2_net8_0_31/godot/Godot_v4.7.2-stable_mono_win64_console.exe',
         '--headless', '--path', str(job / 'rig_gate'), '--script',
-        str(Path(__file__).with_name('build_humgen_motion.gd').resolve()), '--', str(manifest)], check=True, timeout=600)
+        str(Path(__file__).with_name('build_humgen_motion.gd').resolve()), '--', str(manifest)], check=True, timeout=3600)
     assert output.with_suffix('.res.audit.json').exists(), 'Exact-target package audit missing'
 
 if __name__ == '__main__':

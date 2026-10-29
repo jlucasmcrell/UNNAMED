@@ -17,7 +17,7 @@ public sealed class IdleVariety
         _left = 3 + _random.NextDouble() * 12;
     }
 
-    public string Step(double delta, string? role, Func<string, bool> has, Func<string, double> length)
+    public string Step(double delta, string? role, Func<string, bool> has, Func<string, double> length, string? mood = null)
     {
         _left -= delta;
         if (_left > 0) return _clip;
@@ -27,9 +27,11 @@ public sealed class IdleVariety
             _left = 6 + _random.NextDouble() * 12;
             return _clip;
         }
-        string[] wanted = role?.Contains("guard", StringComparison.OrdinalIgnoreCase) == true
+        string[] wanted = mood is "worried" or "sad"
+            ? ["idle_breathe", "idle_nervous", "idle_look"]
+            : mood is "stern" or "angry" || role?.Contains("guard", StringComparison.OrdinalIgnoreCase) == true
             ? ["idle_foldarms", "idle_foldarms", "idle_look", "idle_shift"]
-            : ["idle_shift", "idle_look", "idle_look", "idle_foldarms", "idle_breathe", "idle_nervous"];
+            : ["idle_shift", "idle_look", "idle_look", "idle_foldarms", "idle_breathe"];
         var pool = wanted.Where(has).ToArray();
         _clip = pool.Length == 0 ? "idle" : pool[_random.Next(pool.Length)];
         _left = _clip == "idle" ? 6 + _random.NextDouble() * 12 : Math.Max(.4, length(_clip));

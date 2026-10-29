@@ -60,6 +60,7 @@ public sealed partial class SkinnedFigure : Figure
     private string? _restPose;
     public override bool SetRestPose(string? clip)
     {
+        if (clip == "lie_to_idle" && _model.Has("sleep")) clip = "sleep";
         _restPose = clip is not null && _model.Has(clip) ? clip : null;
         return _restPose is not null;
     }
@@ -74,20 +75,35 @@ public sealed partial class SkinnedFigure : Figure
                 return bone>=0?Skeleton.GlobalTransform*Skeleton.GetBoneGlobalPose(bone).Origin:GlobalPosition;
             }
             var pelvis=At("pelvis");
-            if (_restPose!="lie_to_idle") return pelvis-Vector3.Up*(.085f*_uniformScale);
+            if (_restPose is not ("lie_to_idle" or "sleep")) return pelvis-Vector3.Up*(.085f*_uniformScale);
             var centre=(At("head")+(At("foot.L")+At("foot.R"))*.5f)*.5f;
             return new Vector3(centre.X,pelvis.Y-.115f*_uniformScale,centre.Z);
         }
     }
     public override void SetIdleRole(string? role) => _idleRole = role;
-    public override void SetExpression(string? mood) { if (_face is not null) _face.Mood = mood; }
+    private string? _mood;
+    public override void SetExpression(string? mood) { _mood = mood; if (_face is not null) _face.Mood = mood; }
     private string? _activity;
+    private Node3D? _workTool;
+    private string? _workToolClip;
     public override void SetActivity(string? activity, string? role) => _activity = Ui.Models.CharacterActivity.Clip(activity, role);
     private string? _performance;
     private double _performanceLeft;
-    public override IReadOnlyList<string> PerformanceClips => _model.States;
+    private Dictionary<string, string>? _facialTakes;
+    private Dictionary<string, string> FacialTakes => _facialTakes ??= Directory.Exists(FacialPerformance.Folder)
+        ? Directory.EnumerateFiles(FacialPerformance.Folder, "*.json").Where(p => Path.GetFileName(p) != "inventory.json")
+            .ToDictionary(p => "face/" + Path.GetFileNameWithoutExtension(p), p => p, StringComparer.Ordinal)
+        : new(StringComparer.Ordinal);
+    public override IReadOnlyList<string> PerformanceClips => _model.States.Concat(FacialTakes.Keys).ToArray();
     public override bool Perform(string? clip)
     {
+        if (clip is not null && FacialTakes.TryGetValue(clip, out string? facePath))
+        {
+            if (_face is null) return false;
+            _face.PlayPerformance(facePath);
+            return true;
+        }
+        _face?.PlayPerformance(null);
         if (clip is not null && !_model.Has(clip)) return false;
         _performance = clip;
         _performanceLeft = clip is null ? 0 : _model.Length(clip);
@@ -235,7 +251,7 @@ public sealed partial class SkinnedFigure : Figure
         if (_fingers is not null)
         {
             _fingers.UseAuthored = _equipped?.Family == "sword";
-            _fingers.Closed = _held is not null && !off ? 1f : _fingers.AuthoredRotations is null ? RelaxedHand : 0f;
+            _fingers.Closed = (_held is not null && !off) || _workTool is not null ? 1f : _fingers.AuthoredRotations is null ? RelaxedHand : 0f;
         }
         if (_offFingers is not null)
             _offFingers.Closed = _held is not null && off ? 1f : RelaxedHand;
@@ -451,6 +467,7 @@ public sealed partial class SkinnedFigure : Figure
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
         _tuck = Mathf.MoveToward(_tuck, _airborne ? 1f : 0f, (float)delta * 8f);
         Animate(speedMetresPerSecond, delta);
+        WorkTool();
         _crouchHead.Crouched=_crouched && _model.Current is "crouch_idle" or "crouch_walk" or "crouch_move";
         HoldTheHaft(delta);
         if (_posture is not null)
@@ -464,6 +481,21 @@ public sealed partial class SkinnedFigure : Figure
 
     /// <summary>The pace a gait clip was authored at: the bindings' (a retargeted clip's own), or the game's clips' default.</summary>
     private float Pace(string state, float fallback) => _paces.GetValueOrDefault(state, fallback) * _uniformScale;
+
+    private void WorkTool()
+    {
+        string? clip = _equipped is null && !_talking && _activity == _model.Current ? _activity : null;
+        if (clip == _workToolClip) return;
+        _workTool?.QueueFree();
+        _workTool = null;
+        _workToolClip = clip;
+        if (clip is not null && _bindings.WorkTools.TryGetValue(clip, out var tool) && _hand is not null && _grip is { } grip)
+        {
+            _workTool = HeldWeapon.Mount(_art, tool.Model, grip, 1 / _uniformScale, tool.Grip);
+            if (_workTool is not null) _hand.AddChild(_workTool);
+        }
+        Relax();
+    }
 
     private float _uniformScale = 1;
     private IReadOnlyDictionary<string, float> _paces = new Dictionary<string, float>();
@@ -734,7 +766,7 @@ public sealed partial class SkinnedFigure : Figure
             m.Play(ready, 0.3f);
             return;
         }
-        m.Play(_equipped is null ? _idles.Step(delta, _idleRole, m.Has, m.Length) : "idle", .4f);
+        m.Play(_equipped is null ? _idles.Step(delta, _idleRole, m.Has, m.Length, _mood) : "idle", .4f);
     }
 }
 

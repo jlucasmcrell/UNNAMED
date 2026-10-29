@@ -47,14 +47,15 @@ public static class HeldWeapon
     }
 
     /// <summary>The weapon <paramref name="modelId"/> with its grip socket on <paramref name="grip"/>; null without the model or the socket.</summary>
-    public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip, float scale = 1)
+    public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip, float scale = 1, Transform3D? authoredSocket = null)
     {
         if (art.Model(modelId) is not { } model)
         {
             art.Coverage.Fallback("weapon", modelId, $"{art.Why(modelId) ?? "not drawn"}: a greybox weapon", modelId);
             return null;
         }
-        if (model.FindChild(GripSocket, true, false) is not Node3D socket)
+        var socket = model.FindChild(GripSocket, true, false) as Node3D;
+        if (socket is null && authoredSocket is null)
         {
             art.Report(modelId, $"no {GripSocket} socket to hold it by", modelId);
             art.Coverage.Fallback("weapon", modelId, $"no {GripSocket} socket to hold it by: a greybox weapon", modelId);
@@ -64,7 +65,7 @@ public static class HeldWeapon
         // Scale around the equipment socket. Scaling the mounted root afterwards
         // displaces an off-origin socket and pushes the handle through the hand.
         model.Transform = grip * new Transform3D(Basis.FromScale(Vector3.One * scale), Vector3.Zero)
-            * ArtLibrary.Relative(model, socket).AffineInverse();
+            * (authoredSocket ?? ArtLibrary.Relative(model, socket!)).AffineInverse();
         // Equipment attaches after the body receives its character-light layer.
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
                      .Prepend(model as MeshInstance3D).OfType<MeshInstance3D>())

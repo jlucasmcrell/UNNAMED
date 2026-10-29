@@ -17,6 +17,8 @@ with tempfile.TemporaryDirectory() as directory:
     (source/'humgen_characters/native.audit.json').write_text('{"runtime":"keep"}')
     (source/'humgen_characters/mocap_motion').mkdir()
     (source/'humgen_characters/mocap_motion/body_motion.res').write_bytes(b'exact native library')
+    (source/'humgen_characters/facial_motion').mkdir()
+    (source/'humgen_characters/facial_motion/expression.json').write_text('{"fps":100,"frames":[]}')
     result=stage(source,target)
     assert result['omitted_orphan_dds_bytes']==6
     assert (cache/'orphan.dds').read_bytes()==b'orphan'
@@ -26,6 +28,7 @@ with tempfile.TemporaryDirectory() as directory:
     assert not (target/'humgen_characters/native.audit.json').exists()
     assert (source/'humgen_characters/native.audit.json').is_file()
     assert (target/'humgen_characters/mocap_motion/body_motion.res').read_bytes()==b'exact native library'
+    assert (target/'humgen_characters/facial_motion/expression.json').read_bytes()==(source/'humgen_characters/facial_motion/expression.json').read_bytes()
     entries=json.loads((target/'primary/texture_cache/manifest.json').read_text())['entries']
     assert list(entries)==['model.glb#image0']
     try:

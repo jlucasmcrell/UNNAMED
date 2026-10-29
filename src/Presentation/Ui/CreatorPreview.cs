@@ -56,6 +56,7 @@ public sealed partial class CreatorPreview : TextureRect
     public void Expression(string mood)
     {
         _expression = mood;
+        _figure?.Perform(null);
         _figure?.SetExpression(mood);
     }
     public IReadOnlyList<string> PerformanceClips => _figure?.PerformanceClips ?? Array.Empty<string>();

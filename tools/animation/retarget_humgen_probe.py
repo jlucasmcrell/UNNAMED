@@ -26,6 +26,11 @@ state.update(target_id=target_id, selection_sha256=hashlib.sha256(json.dumps(sel
 
 def save(status, **values):
     state.update(status=status, **values)
+    if status in ('EXPORTED', 'RETARGETING'):
+        (root / ('retarget_progress_' + target_id + '.json')).write_text(
+            json.dumps(dict(status=status, current=values.get('current'), exported=len(state['clips']), selected=len(selected))), encoding='utf-8')
+        if len(state['clips']) % 50:
+            return
     report.write_text(json.dumps(state, indent=2, default=str), encoding="utf-8")
 
 def asset(folder, name, factory):
@@ -97,15 +102,16 @@ try:
         source_controller = unreal.IKRigController.get_controller(rig)
         assert source_controller.set_skeletal_mesh(source_mesh)
         source_controller.apply_auto_generated_retarget_definition()
-        assert source_controller.set_root_motion_bone("root")
+        component = unreal.new_object(unreal.SkeletalMeshComponent)
+        component.set_skeletal_mesh_asset(source_mesh)
+        source_bones = [str(component.get_bone_name(i)) for i in range(component.get_num_bones())]
+        source_root = 'root' if 'root' in source_bones else source_bones[0]
+        assert source_controller.set_root_motion_bone(source_root)
         if not source_controller.get_retarget_chains():
             # Epic's auto-characterizer does not recognize the colon-prefixed
             # Mixamo/HumanIK names retained by the source-only glTF transport.
             # Define source chains explicitly; never rename/rebase the paid target.
             import re
-            component = unreal.new_object(unreal.SkeletalMeshComponent)
-            component.set_skeletal_mesh_asset(source_mesh)
-            source_bones = [str(component.get_bone_name(i)) for i in range(component.get_num_bones())]
             def source_bone(*ends):
                 for end in ends:
                     suffix = re.sub('[^a-z0-9]', '', end.lower())
@@ -114,15 +120,15 @@ try:
                         return matches[0]
                 raise ValueError(('Source bone missing/ambiguous', sid, ends, source_bones))
             assert source_controller.set_retarget_root(source_bone('hips', 'pelvis', 'hip'))
-            definitions = [('Spine', ('spine', 'abdomen', 'lowerback'), ('spine2', 'spine1', 'chest', 'upperback')),
-                ('Neck', ('neck', 'neck1'), ('neck', 'neck1')), ('Head', ('head',), ('head',))]
+            definitions = [('Spine', ('spine', 'spine01', 'waist', 'abdomen', 'lowerback'), ('spine2', 'spine02', 'spine1', 'chest', 'upperback')),
+                ('Neck', ('neck', 'neck1', 'necktwist01'), ('neck', 'neck1', 'necktwist01')), ('Head', ('head',), ('head',))]
             for side in ('Left', 'Right'):
                 short = side[0].lower()
-                definitions.extend([(side+'Clavicle', (side+'shoulder', short+'collar'), (side+'shoulder', short+'collar')),
-                    (side+'Arm', (side+'arm', side+'upperarm', short+'shldr'), (side+'hand', short+'hand')),
+                definitions.extend([(side+'Clavicle', (side+'shoulder', short+'collar', short+'clavicle'), (side+'shoulder', short+'collar', short+'clavicle')),
+                    (side+'Arm', (side+'arm', side+'upperarm', short+'shldr', short+'upperarm'), (side+'hand', short+'hand')),
                     (side+'Leg', (side+'upleg', side+'upperleg', short+'thigh'), (side+'foot', short+'foot'))])
                 try:
-                    toe = source_bone(side+'toebase', side+'toes')
+                    toe = source_bone(side+'toebase', side+'toes', short+'toebase')
                     definitions.append((side+'Foot', (toe,), (toe,)))
                 except ValueError:
                     pass  # Native CMU rigs have no toe joint; keep the target toe at its own rest.
@@ -185,12 +191,13 @@ try:
             settings.pose_to_apply = facing_pose
             settings.alpha = 1
             op.set_settings(settings)
-        candidates = {a["name"]: unreal.load_asset(a["asset"]) for a in source["assets"] if a["kind"] == "animation"}
+        candidates = [(a["name"], unreal.load_asset(a["asset"])) for a in source["assets"] if a["kind"] == "animation"]
         prefix = Path(source["path"]).stem
         chosen = {}
         for key, name in todo.items():
-            matches = [animation for candidate, animation in candidates.items() if candidate in (name, prefix + name, prefix + "_" + name)]
-            assert len(matches) == 1, (sid, key, list(candidates))
+            matches = [animation for candidate, animation in candidates if animation.get_path_name() == name
+                       or candidate in (name, prefix + name, prefix + "_" + name)]
+            assert len(matches) == 1, (sid, key, [candidate for candidate, _ in candidates])
             chosen[key] = matches[0]
         inputs = unreal.IKRetargetBatchOperationInputs()
         inputs.assets_to_retarget = [unreal.EditorAssetLibrary.find_asset_data(a.get_path_name()) for a in dict.fromkeys(chosen.values())]
@@ -237,7 +244,7 @@ try:
             assert len(gltf["skins"][0]["joints"]) == 59 and gltf.get("animations")
             state["clips"].append({"state": key, "source": sid + "/" + todo[key], "source_asset": original.get_path_name(),
                                    "asset": animation.get_path_name(), "path": str(path), "seconds": animation.sequence_length,
-                                   "loop": todo[key].lower().endswith("_loop") or key.startswith("work_") or key in ("eat", "drink", "idle", "idle_look", "walk", "run", "sprint", "talk", "sit", "sit_talk", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
+                                   "loop": original.get_name().lower().endswith("_loop") or key.startswith("work_") or key in ("eat", "drink", "sleep", "idle", "idle_look", "walk", "run", "sprint", "talk", "talk_1", "talk_2", "talk_3", "sit", "sit_talk", "fall", "sword_ready", "spear_ready", "bow_ready", "crouch_idle", "crouch_walk", "captive_kneel"),
                                    "source_rate_scale": original.get_editor_property("rate_scale")})
             save("EXPORTED", current=key)
     assert len(state["clips"]) == len(selected), "Not every selected source was exported"
