@@ -87,7 +87,8 @@ public class CraftingTests
 
         Assert.Equal(new[]
             {
-                "ash_stand", "birch_woundmoss_1", "birch_woundmoss_2", "blackvein_spoil_1", "blackvein_spoil_2", "bog_ashbloom_1", "bog_ashbloom_2",
+                "ah_yard_bog_cotton", "ah_yard_boneleaf", "ah_yard_woundmoss",
+                "ash_stand", "birch_woundmoss_1", "birch_woundmoss_2", "blackvein_deep_seam", "blackvein_iron_seam", "blackvein_spoil_1", "blackvein_spoil_2", "bog_ashbloom_1", "bog_ashbloom_2",
                 "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
                 "charwood_deadfall_2", "crag_spoil_1", "crag_spoil_2", "foldscar_boneleaf_1", "foldscar_boneleaf_2", "foldscar_boneleaf_3",
                 "halda_larder_snare_east", "halda_larder_snare_west", "halda_pelt_snare_east", "halda_pelt_snare_west", "hollow_ash_stand_2", "hollow_woundmoss_1", "hollow_woundmoss_2", "hollow_woundmoss_3", "iron_seam", "moor_deadfall_1", "moor_deadfall_2",
