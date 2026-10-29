@@ -142543,17 +142543,17 @@ structures:
   # The gateposts where the Old East Road leaves the hamlet (464, 748): the party is seen walking out between them, and back in.
 - id: ah_gate_post_south
   box_m:
-  - 463.6
-  - 746.9
-  - 464.0
-  - 747.3
+  - 463.7
+  - 747.0
+  - 463.9
+  - 747.2
   height_m: 2.2
 - id: ah_gate_post_north
   box_m:
-  - 463.6
-  - 748.7
-  - 464.0
-  - 749.1
+  - 463.7
+  - 748.8
+  - 463.9
+  - 749.0
   height_m: 2.2
 - id: cw_house_01_west
   box_m:
