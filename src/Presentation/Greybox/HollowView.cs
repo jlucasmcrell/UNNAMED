@@ -185,8 +185,10 @@ public partial class HollowView : Node3D
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
-            var (placed, skipped) = Dressing.Place(this, _art, (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f,
-                _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
+            var (placed, skipped) = Dressing.Place(this, _art,
+            (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f,
+            _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null,
+            underWater: (x, z) => InWater(layout.Space, x, z));
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
         var ravine = BuildRavine(layout.Space, terrain);
@@ -906,6 +908,36 @@ public partial class HollowView : Node3D
     /// An authored water body (D18) drawn where the content puts it: a ribbon along its line at its own level, or a disc where it
     /// stands in one place. The channel under it is cut into the terrain, so the water is only seen where the ground lets it through.
     /// </summary>
+
+    /// <summary>Whether a spot lies inside a declared water body, with a margin, so dressing stays out of the water.</summary>
+    private static bool InWater(WalkSpace space, float x, float z)
+    {
+        foreach (var water in space.Waters)
+        {
+            float half = water.WidthMm / 2000f + 1.5f;
+            var points = water.PointsMm;
+            if (points.Length == 1)
+            {
+                float dx = x - points[0].XMm / 1000f, dz = z - points[0].ZMm / 1000f;
+                if (dx * dx + dz * dz <= half * half)
+                    return true;
+                continue;
+            }
+            for (int i = 0; i < points.Length - 1; i++)
+            {
+                float ax = points[i].XMm / 1000f, az = points[i].ZMm / 1000f;
+                float bx = points[i + 1].XMm / 1000f, bz = points[i + 1].ZMm / 1000f;
+                float vx = bx - ax, vz = bz - az;
+                float length = vx * vx + vz * vz;
+                float t = length == 0 ? 0 : Mathf.Clamp(((x - ax) * vx + (z - az) * vz) / length, 0f, 1f);
+                float px = x - (ax + t * vx), pz = z - (az + t * vz);
+                if (px * px + pz * pz <= half * half)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     private static MeshInstance3D WaterRibbon(WaterSite water, System.Func<float, float, float> heightMm)
     {
         float half = water.WidthMm / 2000f;

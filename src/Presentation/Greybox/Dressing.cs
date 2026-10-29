@@ -23,7 +23,7 @@ public static class Dressing
     /// a place lived in belong to the place, and a second region's village wants its own barrels at its own doors rather than
     /// the first region's list, whose every entry would fail to load and leave the ground bare.
     /// </summary>
-    public static (int Placed, int Skipped) Place(Node3D parent, ArtLibrary art, Func<float, float, float> ground, string? regionPath = null)
+    public static (int Placed, int Skipped) Place(Node3D parent, ArtLibrary art, Func<float, float, float> ground, string? regionPath = null, Func<float, float, bool>? underWater = null)
     {
         string path = regionPath is not null && Godot.FileAccess.FileExists(regionPath) ? regionPath : ResourcePath;
         if (Godot.FileAccess.FileExists(regionPath ?? string.Empty))
@@ -45,6 +45,11 @@ public static class Dressing
                 continue;
             }
             float x = (float)at[0].GetDouble(), z = (float)at[1].GetDouble();
+            if (underWater is not null && underWater(x, z))
+            {
+                skipped++;
+                continue;
+            }
             float yaw = entry.TryGetProperty("yaw", out var y) ? (float)y.GetDouble() : 0;
             float above = entry.TryGetProperty("y", out var h) ? (float)h.GetDouble() : 0;
             float sink = entry.TryGetProperty("sink", out var s) ? (float)s.GetDouble() : 0.02f;
