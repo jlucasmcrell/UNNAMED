@@ -57,15 +57,31 @@ for row in rows:
     try:
         assert Path(row['path']).is_absolute() and Path(row['path']).is_file(), 'Source transport path must be absolute and exist'
         version = row.get('source_import_version')
-        folder = ('/Game/GateDAlignedSceneSourcesV3/' if version else '/Game/GateDSources/') + row['id']
+        native_fbx = bool(version and Path(row['source']).stem.lower().endswith('_ue'))
+        folder = ('/Game/GateDOriginalFbxSources/' if native_fbx else '/Game/GateDAlignedSceneSourcesV3/' if version else '/Game/GateDSources/') + row['id']
         cached = previous.get(row['id'])
-        reusable = cached and cached['path'] == row['path'] and cached.get('source_import_version') == version and all(
+        reusable = cached and cached['path'] == row['path'] and cached.get('source_import_version') == version and bool(cached.get('native_original_fbx')) == native_fbx and all(
             (job / 'project/Content' / (item['asset'].split('.')[0].removeprefix('/Game/') + '.uasset')).is_file()
             for item in cached['assets'])
         if reusable:
             assets = cached['assets']
         else:
-            if version:
+            if native_fbx:
+                # These vendor Unreal files already contain a native preview
+                # mesh. Their FBX reference is authoritative; Blender's glTF
+                # intermediary gives their pelvis a sideways reference.
+                task = unreal.AssetImportTask()
+                task.filename, task.destination_path = row['source'], folder
+                task.automated, task.save, task.replace_existing = True, True, True
+                options = unreal.FbxImportUI()
+                options.import_as_skeletal, options.import_animations = True, True
+                options.import_materials, options.import_textures = False, False
+                options.mesh_type_to_import = unreal.FBXImportType.FBXIT_SKELETAL_MESH
+                options.anim_sequence_import_data.set_editor_property('use_default_sample_rate', False)
+                options.anim_sequence_import_data.set_editor_property('custom_sample_rate', row['source_sample_rate'])
+                task.options = options
+                tools.import_asset_tasks([task])
+            elif version:
                 # Preserve the acquired sampling rate; automatic glTF import
                 # reduced a 100 Hz Rokoko performance to 25 Hz.
                 pipeline = unreal.InterchangeGenericAssetsPipeline()
@@ -118,6 +134,7 @@ for row in rows:
             selection['work_sweep'] = [row['id'], takes[0]['name']]
         report['sources'].append(dict(id=row['id'], path=row['path'], original=row['source'], assets=assets,
                                      source_import_version=version, source_sample_rate=row.get('source_sample_rate'),
+                                     native_original_fbx=native_fbx,
                                      source_root_offset_cm=row.get('source_root_offset_cm')))
     except Exception:
         report['failures'].append(dict(source=row['source'], error=traceback.format_exc()))

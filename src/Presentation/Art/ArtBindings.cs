@@ -138,7 +138,7 @@ public sealed record PersonArt(string Model, string Hand, string? OffHand, IRead
 
 /// <summary>A weapon held in the hand: its model (held by its own grip socket), its family, and whether the off hand holds it.</summary>
 public sealed record WeaponArt(string Model, string Family, bool OffHand);
-public sealed record WorkToolArt(string Model, Transform3D Grip);
+public sealed record WorkToolArt(string Model, Transform3D Grip, Vector2? LoopSeconds = null);
 
 public sealed record CellSound(string Bed, IReadOnlyList<string> Details, string Surface);
 
@@ -463,7 +463,7 @@ public sealed class ArtBindings
                 CompanionWeapon = root.TryGetProperty("companion_weapon", out var companion) ? Weapon(companion) : null,
                 WorkTools = root.TryGetProperty("work_tools", out var tools)
                     ? tools.EnumerateObject().ToDictionary(t => t.Name, t => new WorkToolArt(Text(t.Value, "model")!,
-                        Grip(t.Value, "grip") ?? throw new FormatException("Work tool needs its authored grip: " + t.Name)), StringComparer.Ordinal)
+                        Grip(t.Value, "grip") ?? throw new FormatException("Work tool needs its authored grip: " + t.Name), WorkLoop(t.Value)), StringComparer.Ordinal)
                     : new Dictionary<string, WorkToolArt>(),
                 Projectiles = root.TryGetProperty("projectiles", out var projectiles)
                     ? projectiles.EnumerateObject().Where(p => Text(p.Value, "model") is not null).ToDictionary(p => p.Name, p => Text(p.Value, "model")!, StringComparer.Ordinal)
@@ -823,6 +823,15 @@ public sealed class ArtBindings
         e.ValueKind == JsonValueKind.Array && e.GetArrayLength() == 3 && e.EnumerateArray().All(v => v.ValueKind == JsonValueKind.Number);
 
     private static WeaponArt Weapon(JsonElement e) => new(Text(e, "model")!, Text(e, "family") ?? "sword", Text(e, "hand") == "off_hand");
+
+    private static Vector2? WorkLoop(JsonElement entry)
+    {
+        if (!entry.TryGetProperty("loop_seconds", out var loop)) return null;
+        var times = loop.EnumerateArray().Select(value => value.GetSingle()).ToArray();
+        if (times.Length != 2 || !float.IsFinite(times[0]) || !float.IsFinite(times[1]) || times[0] < 0 || times[1] <= times[0])
+            throw new FormatException("Work loop needs an increasing source-time pair");
+        return new Vector2(times[0], times[1]);
+    }
 
     private static Transform3D? Grip(JsonElement e, string name) =>
         e.TryGetProperty(name, out var grip) && grip.ValueKind == JsonValueKind.Object

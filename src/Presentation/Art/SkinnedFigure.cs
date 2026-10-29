@@ -100,6 +100,8 @@ public sealed partial class SkinnedFigure : Figure
     public override void SetSpeechClock(Func<(double Position, double Duration, float Jaw)?>? clock)
     { if (_face is not null) _face.RecordedSpeech = clock; }
     private string? _activity;
+    private double _workClock;
+    public double MotionSeconds => _model.MotionSeconds;
     private Node3D? _workTool;
     private string? _workToolClip;
     public override void SetActivity(string? activity, string? role) => _activity = Ui.Models.CharacterActivity.Clip(activity, role);
@@ -495,6 +497,8 @@ public sealed partial class SkinnedFigure : Figure
         _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
         _tuck = Mathf.MoveToward(_tuck, _airborne ? 1f : 0f, (float)delta * 8f);
         Animate(speedMetresPerSecond, delta);
+        if (_face is not null)
+            _face.PreserveAuthoredPitch = !_model.StateName(_model.Current ?? "idle").StartsWith("UAL", StringComparison.OrdinalIgnoreCase);
         WorkTool();
         _crouchHead.Crouched=_crouched && _model.Current is "crouch_idle" or "crouch_walk" or "crouch_move";
         HoldTheHaft(delta);
@@ -734,7 +738,15 @@ public sealed partial class SkinnedFigure : Figure
         }
         if (!_talking && speed < .25f && _activity is { } activity && m.Has(activity))
         {
-            m.Play(activity, .3f);
+            if (_bindings.WorkTools.TryGetValue(activity, out var tool) && tool.LoopSeconds is { } window)
+            {
+                if (window.Y > m.Length(activity)) throw new InvalidDataException("Work phase exceeds its source: " + activity);
+                double duration = window.Y - window.X;
+                if (m.Current != activity) _workClock = m.IdleStartPhase * duration;
+                _workClock += delta;
+                m.HoldWindow(activity, window.X + _workClock % duration);
+            }
+            else m.Play(activity, .3f);
             return;
         }
         // Crouched, a body with crouch clips plays them (a crouched walk is authored at 1.6 m/s, the simulation's crouched pace).

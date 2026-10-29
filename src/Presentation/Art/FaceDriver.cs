@@ -41,6 +41,7 @@ public sealed partial class FaceDriver : Node
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
     public bool GentleRest { get; set; }
+    public bool PreserveAuthoredPitch { get; set; }
     /// <summary>Presentation mood supplied by a dialogue performance or creator expression preview.</summary>
     public string? Mood { get; set; }
     private float _restingLid = .17f;
@@ -208,7 +209,7 @@ public sealed partial class FaceDriver : Node
         if (_headBone >= 0)
             _headAxis = (rig.GetBoneGlobalRest(_headBone).Basis.Inverse() * (rig.GlobalBasis.Inverse() * body.GlobalBasis.Z)).Normalized();
         UpdateNativeEyes(Vector2.Zero);
-        rig.AddChild(new HumGenHeadLevel { Name = "HeadLevel", Body = body });
+        rig.AddChild(new HumGenHeadLevel { Name = "HeadLevel", Body = body, ApplyLift = () => !PreserveAuthoredPitch });
         var eyes = new HumGenEyes { Name = "FACSEyes", Body = body, WorldTarget = () => _eyeTarget.GlobalPosition };
         rig.AddChild(eyes);
         NativeEyeBindings = eyes.BoundCount;
@@ -221,10 +222,16 @@ public sealed partial class FaceDriver : Node
         if (left < 0 || right < 0) return;
         var direction = new Vector3(Mathf.Tan(look.X * .65f), Mathf.Tan(look.Y * .5f), 1).Normalized();
         var centre = (rig.GetBoneGlobalPose(left).Origin + rig.GetBoneGlobalPose(right).Origin) * .5f;
-        var ahead = body.GlobalBasis * direction;
-        if (_headBone >= 0)
-            ahead = new Quaternion(body.GlobalBasis.Z.Normalized(), HumGenHeadLevel.Level((rig.GlobalBasis * (rig.GetBoneGlobalPose(_headBone).Basis * _headAxis)).Normalized(), Vector3.Up)) * ahead;
+        var ahead = body.GlobalBasis * (NativeHeadTurn() * direction);
         _eyeTarget.GlobalPosition = rig.GlobalTransform * centre + ahead * 2;
+    }
+
+    private Quaternion NativeHeadTurn()
+    {
+        if (_headBone < 0 || _nativeRig is not { } rig || _nativeBody is not { } body) return Quaternion.Identity;
+        var facing = (body.GlobalBasis.Inverse() * rig.GlobalBasis * (rig.GetBoneGlobalPose(_headBone).Basis * _headAxis)).Normalized();
+        if (!PreserveAuthoredPitch) facing = HumGenHeadLevel.Level(facing, (body.GlobalBasis.Inverse() * Vector3.Up).Normalized());
+        return new Quaternion(Vector3.Back, facing);
     }
 
     private static int ShapeIndex(MeshInstance3D mesh, string channel)
@@ -329,7 +336,11 @@ public sealed partial class FaceDriver : Node
             _gazeIn = _random.RandfRange(.4f, 1.8f);
         }
         var look = _saccade;
-        if (_gaze is { Z: > .2f } gaze)
+        // The target arrives in body space, while eye motion is relative to the
+        // animated head. Otherwise an upward head turn adds the target's upward
+        // angle again and makes a talking person stare over the listener.
+        var relativeGaze = _gaze is { } target ? NativeHeadTurn().Inverse() * target : (Vector3?)null;
+        if (relativeGaze is { Z: > .2f } gaze)
             look += new Vector2(Mathf.Clamp(Mathf.Atan2(gaze.X, gaze.Z) / .65f, -.45f, .45f),
                 Mathf.Clamp(Mathf.Atan2(gaze.Y, gaze.Z) / .5f, -.3f, .3f));
         UpdateNativeEyes(look);

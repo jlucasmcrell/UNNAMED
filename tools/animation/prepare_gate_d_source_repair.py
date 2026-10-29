@@ -5,7 +5,7 @@ from pathlib import Path
 def prepare(job):
  report=json.loads((job/'extra_sources.json').read_text());assert report['status']=='DONE' and not report['failures']
  sources=[r for r in report['sources']if r.get('source_import_version')==3];assert len(sources)==632
- ids={r['id']for r in sources};canonical={}
+ ids={r['id']for r in sources};canonical={};affected=set()
  for actor in ('humgen_creator_female','humgen_creator_male'):
   full=job/('retarget_'+actor+'.json');base=job/('retarget_base_'+actor+'.json');previous=json.loads(base.read_text())
   if not previous.get('source_frames_repair_baseline'):
@@ -15,6 +15,7 @@ def prepare(job):
    clips={c['state']:c for c in previous['clips']};clips.update({c['state']:c for c in current['clips']});previous=current|dict(clips=list(clips.values()),source_frames_repair_baseline=True);base.write_text(json.dumps(previous,indent=2))
   for clip in previous['clips']:
    provider,name=clip['source'].split('/',1)
+   if provider in ids:affected.add(clip['state'])
    if provider in ids and clip['state'].startswith('owned_'+provider+'_'):
     canonical[provider]=(clip['state'],name)
  assert len(canonical)==len(ids),(len(canonical),len(ids))
@@ -25,7 +26,10 @@ def prepare(job):
   state,alias=canonical[source['id']];takes[0]['name']=alias;selection[state]=[source['id'],alias]
   for key,value in list(selection.items()):
    if value[0]==source['id']:selection[key]=[source['id'],alias]
- subset={k:v for k,v in selection.items()if v[0]in ids}
+ # Semantic aliases such as reading/mining may have been replaced by a better
+ # inspected native source in the full pass. Repair only their actual providers.
+ subset={k:v for k,v in selection.items()if k in affected}
+ assert set(subset)==affected,(affected-set(subset))
  (job/'source_frames_extra.json').write_text(json.dumps(dict(status='DONE',sources=sources,failures=[]),indent=2));(job/'source_frames_selection.json').write_text(json.dumps(subset,indent=2));(job/'selection.json').write_text(json.dumps(selection,indent=2));print('Corrected source supplement:',len(sources),'groups /',len(subset),'states; complete native baselines retained')
 if __name__=='__main__':
  p=argparse.ArgumentParser();p.add_argument('job',type=Path);a=p.parse_args();prepare(a.job)

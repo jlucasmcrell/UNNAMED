@@ -10,6 +10,7 @@ namespace UNNAMED.Presentation.Art;
 public partial class HumGenHeadLevel : SkeletonModifier3D
 {
     public Node3D Body { get; set; } = null!;
+    public Func<bool> ApplyLift { get; set; } = () => true;
     private const float Strength = .7f;
     private static readonly float MaxLift = Mathf.DegToRad(20);
     private int _head = -1;
@@ -25,7 +26,7 @@ public partial class HumGenHeadLevel : SkeletonModifier3D
 
     public override void _ProcessModificationWithDelta(double delta)
     {
-        if (_head < 0) return;
+        if (_head < 0 || !ApplyLift()) return;
         var rig = GetSkeleton();
         var pose = rig.GetBoneGlobalPose(_head);
         var facing = (pose.Basis * _axis).Normalized();

@@ -47,7 +47,10 @@ and hierarchy while verifying unchanged world joint/skin motion. Fresh Epic impo
 the original sampling rate (the old automatic importer reduced one 100 Hz source to 25 Hz).
 Fractional final samples extend to the next sample boundary rather than being trimmed.
 Two-source native probes now have correct metre-scale motion and original sampling. The
-632-source repair and both complete native body batches are still pending completion.
+632-source repair is complete. All 61 vendor Unreal variants use their original native FBX
+rigs: the Blender intermediary had a different pelvis-reference fault. Both full libraries
+pass 4,211 transport checks and package 4,218 runtime states each, including standard aliases.
+Their combined payload is 2,990,882,410 bytes.
 An absolute hip-height check now rejects the formerly accepted bad transports.
 
 ## Evidence and remaining work
@@ -73,3 +76,10 @@ skill, technique or lore system is introduced. The F1 baseline hooks check repor
 52 placed / 106 missing / 99 unmodelled across nine areas; this is an older branch baseline,
 not a replacement for the accepted D18 totals. Canon hooks are on `npc/gate-d-performance`
 (commit `2462498`, pushed). Final dossier/evidence reconciliation remains outstanding.
+
+The work proof exposed a contextual issue in the full 34-second smith take. Its scheduled
+activity now repeats the genuine 10.02–12.84 second strike phase, crossfading between two
+playback slots sharing the complete original animation. No keys, rotations or source takes
+are removed. Kera's existing anvil stance is aligned to that phase. Eye aim is relative to
+the animated head, avoiding a doubled head/target angle. Native pitch is preserved outside
+the existing UAL head-level correction. Final contact/eye-centred proof review is pending.

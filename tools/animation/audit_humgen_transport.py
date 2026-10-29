@@ -83,10 +83,10 @@ class Glb:
         return {name: world(i) for name, i in self.names.items()}
 
 
-def audit(body_path, clips):
+def audit(body_path, clips, collect_failures=False):
     body = Glb(body_path)
     rest = body.globals()
-    report = {'body': str(body_path), 'clips': []}
+    report = {'body': str(body_path), 'clips': [], 'motion_failures': []}
     for clip_path in clips:
         clip = Glb(clip_path)
         assert body.names.keys() == clip.names.keys(), 'Joint vocabulary changed'
@@ -109,9 +109,14 @@ def audit(body_path, clips):
         # A valid rest alone missed an imported Y-up reference / Z-up animation
         # mismatch: Epic amplified hip motion to 55–77 metres. Reject that
         # transport before it can replace a working runtime library.
-        assert np.max(np.abs(heights)) < 20, ('Implausible absolute hip height', clip_path, heights.tolist())
+        failure = ('Implausible absolute hip height', str(clip_path), heights.tolist()) if np.max(np.abs(heights)) >= 20 else None
         if clip_path.stem in ('work_smith', 'work_cook', 'work_write', 'work_carry', 'talk_1', 'talk_2', 'talk_3'):
-            assert np.max(np.abs(heights)) < 3, ('Standing performance outside character scale', clip_path, heights.tolist())
+            if np.max(np.abs(heights)) >= 3:
+                failure = ('Standing performance outside character scale', str(clip_path), heights.tolist())
+        if failure:
+            if not collect_failures:
+                raise AssertionError(failure)
+            report['motion_failures'].append(failure)
         measurements = {}
         for name in ['Head', 'LeftUpperArm', 'LeftLowerArm', 'LeftHand', 'RightHand', 'LeftFoot', 'RightFoot']:
             points = np.array([s[name][:3, 3] - s['Hips'][:3, 3] for s in samples])
@@ -134,8 +139,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     clips = args.clips + ([Path(clip['path']) for clip in json.loads(args.manifest.read_text())['clips']] if args.manifest else [])
     assert clips, 'No native transports supplied'
-    result = audit(args.body, clips)
+    result = audit(args.body, clips, collect_failures=True)
     args.report.write_text(json.dumps(result, indent=2), encoding='utf-8')
+    assert not result['motion_failures'], ('Absolute motion failures', len(result['motion_failures']), str(args.report))
     for c in result['clips']:
         print(Path(c['clip']).stem, 'rest error mm', round(c['rest_position_error_m']*1000, 4),
               'hand movement m', c['motion']['LeftHand']['max_displacement_m'], c['motion']['RightHand']['max_displacement_m'],

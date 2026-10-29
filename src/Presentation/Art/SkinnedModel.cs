@@ -56,6 +56,10 @@ public sealed partial class SkinnedModel : Node3D
 
     /// <summary>The state showing now, or null before the first.</summary>
     public string? Current { get; private set; }
+    public double MotionSeconds => _player.CurrentAnimationPosition;
+    private string? _windowState;
+    private double _windowPrevious;
+    private bool _windowSide;
 
     /// <summary>
     /// The rigged model <paramref name="assetId"/> with <paramref name="clips"/> (state to clip ID); null without the model. With an
@@ -423,6 +427,28 @@ public sealed partial class SkinnedModel : Node3D
         // the fade from the last state froze at its start and the last state went on showing (the held blow never appeared).
         _player.SpeedScale = 1;
         _player.Seek(Mathf.Clamp(fraction, 0, 1) * _player.GetAnimation(state).Length, true);
+    }
+
+    /// <summary>Repeat an authored work phase; alternate playback slots crossfade its seam.
+    /// Both slots share the complete original animation. No keys or rotations are changed.</summary>
+    public void HoldWindow(string state, double seconds, float blend = .15f)
+    {
+        if (!_states.Contains(state)) return;
+        _ensureNativeClip?.Invoke(state);
+        if (_locomotion?.Call("stop").AsBool() == true) Current = null;
+        if (Current != state || _windowState != state || seconds < _windowPrevious)
+        {
+            _windowSide = !_windowSide;
+            string alias = state + (_windowSide ? "__window_a" : "__window_b");
+            var live = _player.GetAnimationLibrary("");
+            if (!live.HasAnimation(alias)) live.AddAnimation(alias, live.GetAnimation(state));
+            _player.Play(alias, blend);
+            Current = state;
+            _windowState = state;
+        }
+        _player.SpeedScale = 1;
+        _player.Seek(seconds, true);
+        _windowPrevious = seconds;
     }
 
     /// <summary>Something carried on a bone (a weapon in the hand), placed relative to it.</summary>

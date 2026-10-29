@@ -66,6 +66,7 @@ public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bo
             _npcs.Draw(simulation, .05, _session.TickSeconds);
             var figure = _npcs.FigureOf(npc) as SkinnedFigure ?? throw new InvalidDataException("Native NPC missing");
             var face = figure.FindChildren("*", "", true, false).OfType<FaceDriver>().Single();
+            Vector3? workSite = null;
             if (part == "animation")
             {
                 var station = simulation.ActiveLayout.Stations.Where(s => s.Kind == "anvil")
@@ -73,6 +74,7 @@ public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bo
                 var look = bindings.Stations[station.Kind];
                 var at = new Vector3(station.XMm / 1000f,
                     simulation.ActiveLayout.Space.Terrain.HeightAtMm(station.XMm, station.ZMm) / 1000f, station.ZMm / 1000f);
+                workSite = at;
                 AddChild(Fitting.Site(art, look, at) ?? throw new InvalidDataException("Owned anvil missing"));
             }
             _running = true;
@@ -95,8 +97,21 @@ public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bo
             }
             void Aim()
             {
-                var target = (figure.Head ?? figure.GlobalPosition + Vector3.Up * 1.6f) - Vector3.Up * (part == "face" ? .07f : .45f);
-                camera.GlobalPosition = target + figure.GlobalBasis * new Vector3(.35f, .02f, part == "face" ? 1.2f : 2.8f);
+                var target = (figure.Head ?? figure.GlobalPosition + Vector3.Up * 1.6f) - Vector3.Up * (part == "face" ? .03f : .65f);
+                if (part == "face")
+                {
+                    int left = figure.Skeleton.FindBone("LeftEye"), right = figure.Skeleton.FindBone("RightEye");
+                    if (left >= 0 && right >= 0)
+                        target = figure.Skeleton.GlobalTransform * ((figure.Skeleton.GetBoneGlobalPose(left).Origin
+                            + figure.Skeleton.GetBoneGlobalPose(right).Origin) * .5f) - Vector3.Up * .025f;
+                }
+                camera.GlobalPosition = target + figure.GlobalBasis * new Vector3(part == "face" ? .18f : .35f, .02f, part == "face" ? .7f : 3.2f);
+                if (workSite is { } stationAt)
+                {
+                    var forward = stationAt - figure.GlobalPosition; forward.Y = 0; forward = forward.Normalized();
+                    var right = Vector3.Up.Cross(forward);
+                    camera.GlobalPosition = target + (forward + right).Normalized() * 3.2f + Vector3.Up * .55f;
+                }
                 camera.LookAt(target);
             }
             var frames = new List<object>();
@@ -122,6 +137,7 @@ public partial class GateDStudio(IReadOnlyDictionary<string, string> options, bo
                         finally { image.Dispose(); slots.Release(); }
                     }));
                     frames.Add(new { file, segment, seconds = at, clip = npcFace ? figure.ClipState : null,
+                        clip_seconds = npcFace ? (double?)figure.MotionSeconds : null,
                         jaw = npcFace ? (float?)face.JawWeight : null, blink = npcFace ? (float?)face.BlinkWeight : null,
                         mood = npcFace ? face.Mood : segment, voice_position = recording?.Position, voice_duration = recording?.Duration });
                     await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
