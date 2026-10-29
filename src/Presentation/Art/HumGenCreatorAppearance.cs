@@ -503,7 +503,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                     // export is corrected, while the body-coverage mask (baked per part) hides the covered body instead.
                     // A part ships four LODs of every piece and they are near-coincident surfaces that z-fight into pale slivers,
                     // so only LOD0 is ever drawn.
-                    if (drawn.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) || !IsDetailZero(drawn.Name))
+                    if (!IsDetailZero(drawn.Name))
                         drawn.Visible = false;
                 }
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
