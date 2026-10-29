@@ -490,6 +490,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         _stealthLevel = ProgressionEngine.SkillLevel(State.Progression, "skill.stealth");
         PracticeStealth(tick);
         PracticeUnnoticedPass(tick);
+        TrackGhostCrossing(tick);
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
@@ -666,6 +667,69 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return;
         _nextCloseCall = tick + CloseCallTicks;
         _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", 1, PracticeOutcome.Success, tick)));
+    }
+
+    /// <summary>
+    /// The space the ghost tally is counting, and whether it has been spoiled (STEALTH.md 9.3): a crossing is a GHOST when nothing reached
+    /// suspicion-by-sight and nothing died, and UNSEEN when nothing even left its unaware band. Both are paid on the way out, once per space, and
+    /// paid as a deed so a quest can wait for one.
+    /// </summary>
+    private string? _ghostSpace;
+
+    private string? _ghostPending;
+
+    private bool _ghostEngaged;
+
+    private bool _ghostNoticed;
+
+    private bool _ghostKilled;
+
+    /// <summary>The space left last, so a doorway walked back and forth is not a farm.</summary>
+    private string? _ghostPaidSpace;
+
+    private const int GhostXp = 25;
+
+    /// <summary>The alarm count a crossing must have stayed under: alarm bells are the third leg of canon's Ghost tag.</summary>
+    private void TrackGhostCrossing(long tick)
+    {
+        string space = State.Space.ToString();
+        if (_ghostSpace is null)
+        {
+            _ghostSpace = space;
+            return;
+        }
+        if (_ghostSpace != space)
+        {
+            string left = _ghostSpace;
+            // The exterior is the default space and its name is the empty string, so a crossing of it is labelled for the record.
+            string label = left.Length == 0 ? "exterior" : left;
+            if (left != _ghostPaidSpace && !_ghostKilled && !_ghostNoticed)
+            {
+                // GHOST: nothing died and nobody grew suspicious on sight (STEALTH.md 9.3). UNSEEN: on top of that, nothing ever engaged.
+                _ghostPaidSpace = left;
+                _context.Dispatch(new RecordDeed(new Deed(DeedKind.Ghosted, label, 1, Domain.Crafting.Quality.Standard, null, tick)));
+                _context.Dispatch(new AwardExperience(new XpAward(XpSource.Stealth, GhostXp, tick) { FirstKey = $"ghost|{label}" }));
+                if (!_ghostEngaged)
+                {
+                    _context.Dispatch(new RecordDeed(new Deed(DeedKind.Unseen, label, 1, Domain.Crafting.Quality.Standard, null, tick)));
+                    _context.Dispatch(new AwardExperience(new XpAward(XpSource.Stealth, GhostXp, tick) { FirstKey = $"unseen|{label}" }));
+                }
+            }
+            _ghostSpace = space;
+            _ghostEngaged = false;
+            _ghostNoticed = false;
+            _ghostKilled = false;
+        }
+        foreach (var creature in State.Creatures.Values)
+        {
+            // A body that kept its post and never looked is the best kind of crossing; one that looked is still a ghost if it never raised the alarm.
+            if (!creature.Alive || creature.Site.Space.ToString() != space)
+                continue;
+            if (creature.Awareness >= Setup.Awareness.Suspicious)
+                _ghostNoticed = true;
+            if (creature.Mind == CreatureMind.Engaged)
+                _ghostEngaged = true;
+        }
     }
 
     private CreatureState Live(CreatureState c, long tick, List<Noise> noises)
@@ -1298,6 +1362,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             || State.Companions.Values.Any(p => State.Npcs.TryGetValue(p.NpcId, out var npc) && npc.InstanceId == killer))
             killer = _player;
         _context.Dispatch(new ClearEffects(c.Id));
+        _ghostKilled = true;
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick) { DirectAttacker = directAttacker });
 
         // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a
