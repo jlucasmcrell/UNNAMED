@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.axe.head.broad.name
 asset: "D21 Axe head: Thor's Battle Axe [BK B], PARTIAL"
+noun: "broadaxe"
 tags: [head, broad]
 name: Broad Axe Head
 notes: "A wide bit: the axe that fells a tree and a door in the same afternoon."

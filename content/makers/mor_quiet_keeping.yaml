@@ -21,6 +21,7 @@ material_palette: [{ material_ref: mat.wood.ash, weight: 5 }, { material_ref: ma
 signature: { tendency: quiet, stat_bias: { weight_mult: 0.95, speed_mult: 1.02 } }
 tier_range: [1, 3]
 name_grammar: name.maker.mor_quiet_keeping
+maker_words: ["Quiet", "Keeping", "Kept"]
 tooltip_line_key: maker.mor.quiet_keeping.line
 source_notes:
   - "Mor are known by what they keep: boneleaf, quiet strings, and bindings that do not creak."

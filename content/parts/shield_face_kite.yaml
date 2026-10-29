@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.shield.face.kite.name
 asset: "D21 Shield board: kite_shield [B], OWNED"
+noun: "kite shield"
 tags: [face, kite]
 name: Kite Board
 notes: "A kite board: long enough to cover a leg when the line closes."

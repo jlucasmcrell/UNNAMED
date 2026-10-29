@@ -17,6 +17,9 @@ public sealed record PartDefinition(
     PartStats Stats,
     ImmutableArray<string> Tags)
 {
+    /// <summary>The item noun this part gives the piece it dominates (canon section 8: a leaf blade is an arming sword). Null for parts that name nothing.</summary>
+    public string? Noun { get; init; }
+
     /// <summary>Which parts of its neighbours it legally fits against, from <c>compat.requires_tags_on</c>: slot to the tags that slot needs.</summary>
     public ImmutableSortedDictionary<string, ImmutableArray<string>> RequiresTagsOn { get; init; } =
         ImmutableSortedDictionary.Create<string, ImmutableArray<string>>(StringComparer.Ordinal);
@@ -73,6 +76,9 @@ public sealed record MakerDefinition(
     /// <summary>The written reason this maker's materials and tendencies are what they are (canon §2.3 <c>source_notes</c>).</summary>
     public ImmutableArray<string> SourceNotes { get; init; } = ImmutableArray<string>.Empty;
 
+    /// <summary>The authored words this maker's readable names are built from (canon section 8's maker adjective list, 3-6 words).</summary>
+    public ImmutableArray<string> Words { get; init; } = ImmutableArray<string>.Empty;
+
     /// <summary>The affix flavours this maker's loot leans to, by tag.</summary>
     public ImmutableArray<string> AffixPoolTags { get; init; } = ImmutableArray<string>.Empty;
 }
@@ -83,6 +89,9 @@ public sealed record MakerDefinition(
 /// </summary>
 public sealed record MaterialDefinition(string Id, string Class, string RefItemId, MaterialMultipliers Mult, int TierMin)
 {
+    /// <summary>The material's word in a readable name (canon section 8: only notable materials appear, so plain iron has none).</summary>
+    public string? Word { get; init; }
+
     /// <summary>The closed material classes canon allows.</summary>
     public static readonly ImmutableArray<string> Classes =
         ImmutableArray.Create("metal", "stone", "hide", "wood", "bone", "fibre", "exotic");

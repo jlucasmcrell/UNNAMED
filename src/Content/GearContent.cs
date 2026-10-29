@@ -78,6 +78,9 @@ public static class GearContent
                 stats.ContainsKey("durability_add") ? Int(stats, "durability_add") : 0),
             Texts(map, "tags"));
 
+        if (map.GetValueOrDefault("noun") is string noun)
+            part = part with { Noun = noun };
+
         if (part.TierMin < 1)
             throw new FormatException($"{id}: tier_min is 1 or more");
         if (part.Stats.DamageMult <= 0 || part.Stats.SpeedMult <= 0)
@@ -159,6 +162,7 @@ public static class GearContent
         {
             SourceNotes = Texts(map, "source_notes"),
             AffixPoolTags = Texts(map, "affix_pool_tags"),
+            Words = Texts(map, "maker_words"),
         };
     }
 
@@ -180,6 +184,8 @@ public static class GearContent
                 mult.ContainsKey("durability") ? Number(mult, "durability") : 1.0,
                 mult.ContainsKey("value") ? Number(mult, "value") : 1.0),
             Int(map, "tier_min"));
+        if (map.GetValueOrDefault("word") is string word)
+            material = material with { Word = word };
         if (material.TierMin < 1)
             throw new FormatException($"{id}: tier_min is 1 or more");
         return material;

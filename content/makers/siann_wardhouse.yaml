@@ -21,6 +21,7 @@ material_palette: [{ material_ref: mat.wood.ash, weight: 5 }, { material_ref: ma
 signature: { tendency: light_and_quick, stat_bias: { weight_mult: 0.93, speed_mult: 1.06 } }
 tier_range: [1, 4]
 name_grammar: name.maker.siann_wardhouse
+maker_words: ["Wardhouse", "Siann", "Perception"]
 tooltip_line_key: maker.siann.wardhouse.line
 source_notes:
   - "WORLD_ATLAS Siann row: ward, perception and old wood."

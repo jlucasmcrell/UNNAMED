@@ -25,6 +25,7 @@ material_palette: [{ material_ref: mat.iron.plain, weight: 4 }, { material_ref: 
 signature: { tendency: reach, stat_bias: { weight_mult: 0.97, speed_mult: 1.03 } }
 tier_range: [1, 4]
 name_grammar: name.maker.orenth_road_armoury
+maker_words: ["Road", "Drover's", "Route"]
 tooltip_line_key: maker.orenth.road_armoury.line
 source_notes:
   - "WORLD_ATLAS Orenth row: the road, the route and the step are the people's own materials."

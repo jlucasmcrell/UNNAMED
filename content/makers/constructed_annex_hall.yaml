@@ -26,6 +26,7 @@ material_palette: [{ material_ref: mat.iron.charcoal_steel, weight: 4 }, { mater
 signature: { tendency: high_socket, stat_bias: { weight_mult: 0.98, durability_mult: 1.04 } }
 tier_range: [1, 5]
 name_grammar: name.maker.constructed_annex_hall
+maker_words: ["Annex", "Hall", "Recorded"]
 tooltip_line_key: maker.constructed.annex_hall.line
 source_notes:
   - "Constructed work: documentation nouns, measured tolerances, and a socket for whatever comes next."

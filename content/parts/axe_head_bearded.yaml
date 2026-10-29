@@ -3,6 +3,7 @@ kind: part
 schema: 1
 display_key: part.axe.head.bearded.name
 asset: "D21 Axe head: Thor's Battle Axe [BK B], PARTIAL"
+noun: "bearded axe"
 tags: [head, bearded]
 name: Bearded Axe Head
 notes: "A head with a beard below the edge: more cutting surface where a shield is."
