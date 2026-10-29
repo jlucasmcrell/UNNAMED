@@ -16,5 +16,9 @@ public class CharacterPerformanceTests
         Assert.Null(CharacterActivity.Clip("idle", "smith"));
         Assert.Null(CharacterActivity.Clip("work", "unknown"));
         Assert.Null(CharacterActivity.Clip("sleep", "smith"));
+        var smith = new UNNAMED.Domain.Social.RoutineDefinition("routine.smith", "npc.smith", "town", "craftsperson",
+            System.Collections.Immutable.ImmutableSortedDictionary<string, UNNAMED.Domain.Social.NpcAnchor>.Empty, 6, 20)
+        { Roles = System.Collections.Immutable.ImmutableArray.Create("smith", "vendor") };
+        Assert.Equal("work_smith", CharacterActivity.Clip("work", CharacterActivity.Role("work", "npc.smith", "craftsperson", [smith])));
     }
 }

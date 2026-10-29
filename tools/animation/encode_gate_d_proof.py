@@ -15,6 +15,7 @@ frames = data['frames']
 assert frames, 'No real frames captured'
 lines = ['ffconcat version 1.0']
 duration = 0
+voiced_duration = 0
 for index, frame in enumerate(frames):
     same_segment = index + 1 < len(frames) and frames[index + 1]['segment'] == frame['segment']
     if same_segment:
@@ -29,6 +30,8 @@ for index, frame in enumerate(frames):
     escaped = path.as_posix().replace("'", "'\\''")
     lines.extend(["file '" + escaped + "'", f'duration {step:.6f}'])
     duration += step
+    if frame.get('voice_position') is not None:
+        voiced_duration += step
 lines.append(lines[-2])  # Concat needs the last image repeated to retain its duration.
 manifest = args.frames / 'timed_frames.ffconcat'
 manifest.write_text('\n'.join(lines) + '\n', encoding='utf-8')
@@ -40,7 +43,7 @@ if args.voice_root and data.get('line'):
     assert voice.is_file(), voice
     position = frames[0].get('voice_position')
     assert position is not None, 'Capture predates voice-clock metadata; recapture before muxing'
-    command += ['-ss', str(position), '-i', str(voice), '-af', 'apad', '-c:a', 'aac', '-b:a', '192k']
+    command += ['-ss', str(position), '-i', str(voice), '-af', f'atrim=duration={voiced_duration:.6f},apad', '-c:a', 'aac', '-b:a', '192k']
 args.output.parent.mkdir(parents=True, exist_ok=True)
 command += ['-vf', 'fps=30', '-c:v', 'libx264', '-preset', 'fast', '-crf', '18',
             '-pix_fmt', 'yuv420p', '-t', str(duration), '-movflags', '+faststart', str(args.output)]

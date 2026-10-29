@@ -1,4 +1,5 @@
-param([Parameter(Mandatory)][string]$JobRoot,[Parameter(Mandatory)][string]$CreatorRoot,[string]$RuntimeRoot='')
+param([Parameter(Mandatory)][string]$JobRoot,[Parameter(Mandatory)][string]$CreatorRoot,[string]$RuntimeRoot='',
+ [switch]$ReuseSourceImport,[switch]$RepairSourceFrames)
 $ErrorActionPreference='Stop'
 $guard=Join-Path $PSScriptRoot 'run_cpu_tool.ps1'
 $ue='C:\Program Files\Epic Games\UE_5.8\Engine\Binaries\Win64\UnrealEditor-Cmd.exe'
@@ -32,11 +33,22 @@ function Epic([string]$Script,[string]$Name){
   }
  }
 }
-Epic 'import_gate_d_sources.py' 'import_owned_sources'
+if(!$ReuseSourceImport){
+ & python (Join-Path $PSScriptRoot 'prepare_gate_d_source_frames.py') (Join-Path (Split-Path $JobRoot -Parent) 'source_frames') (Join-Path (Split-Path $JobRoot -Parent) 'sources/inventory.json') (Join-Path (Split-Path $JobRoot -Parent) 'mobility_sources/inventory.json')
+ if($LASTEXITCODE -ne 0){throw 'Source reference/unit preparation failed'}
+ Epic 'import_gate_d_sources.py' 'import_owned_sources'
+}
 $imported=Get-Content -LiteralPath (Join-Path $JobRoot 'extra_sources.json') -Raw | ConvertFrom-Json
 if($imported.status -ne 'DONE' -or $imported.failures.Count -gt 0){throw ('Owned motion import is incomplete; review extra_sources.json ('+$imported.failures.Count+' failures)')}
 $env:OTHERREACH_HUMGEN_EXTRA_SOURCES=Join-Path $JobRoot 'extra_sources.json'
 $env:OTHERREACH_HUMGEN_SOURCE_SELECTION=Join-Path $JobRoot 'selection.json'
+if($RepairSourceFrames){
+ & python (Join-Path $PSScriptRoot 'prepare_gate_d_source_repair.py') $JobRoot
+ if($LASTEXITCODE -ne 0){throw 'Corrected source supplement preparation failed'}
+ $env:OTHERREACH_HUMGEN_EXTRA_SOURCES=Join-Path $JobRoot 'source_frames_extra.json'
+ $env:OTHERREACH_HUMGEN_SOURCE_SELECTION=Join-Path $JobRoot 'source_frames_selection.json'
+ $env:OTHERREACH_HUMGEN_EXTRA_ONLY='1'
+}else{$env:OTHERREACH_HUMGEN_EXTRA_ONLY='0'}
 foreach($actor in @('humgen_creator_female','humgen_creator_male')){
  $snapshot=Join-Path $JobRoot ('targets\'+$actor+'.glb')
  New-Item -ItemType Directory -Force (Split-Path $snapshot -Parent) | Out-Null

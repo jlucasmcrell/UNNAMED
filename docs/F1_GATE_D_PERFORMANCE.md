@@ -1,130 +1,75 @@
 # Gate D parts 2–3: animations and face
 
-Branch `npc/gate-d`, base `78c2f3d3` from `codex/f1-siann-faces`.
-Own checkout: `D:\Otherreach_Scratch\npc_gate_d`. Gate C's checkout is read-only to this lane.
+Branch `npc/gate-d`, base `78c2f3d3`. Own checkout: `D:\Otherreach_Scratch\npc_gate_d`.
+Status: IN PROGRESS; neither implementation part is FINISHED or visually accepted.
+Gate C snapshot `e3fcae86` was merged as `0064d926`; subsequent Gate C work remains separate.
 
-Status: IN PROGRESS. Neither part is FINISHED or ready for visual acceptance.
-Gate C snapshot `e3fcae86` is integrated on this lane as merge `0064d926`; its own checkout is untouched.
+## Runtime
 
-The shared native face keeps blinks and saccades and now accepts authored dialogue `mood`
-(`neutral`, `warm`, `curious`, `worried`, `stern`, `sad`, `surprised`). Existing unannotated
-lines get restrained text direction. Conversation views carry that direction. Ambient
-voiced barks supply the speaker's playback clock to the same text-viseme driver as dialogue.
-The jaw amplitude uses per-recording 20ms envelopes where staged (all 75 existing recordings
-prepared), with the existing voice-bus fallback for recordings without a sidecar. Facial jaw/eye binding also accepts native rigs extended by
-hair/cloth bones. The creator's FACE tab previews expressions without changing identity.
+The player and NPC native rigs share the complete acquired motion library. Role and mood
+choose quiet idles; actual schedule activity chooses smithing, cooking, sweeping, carrying,
+harvest, mining, reading and writing. Routine roles resolve through `RoutineDefinition.Key`,
+which can differ from the routine record ID. Sleeping and seated performances use furniture
+support; entry/exit, ground pickup, bow release and weapon-family performances use the
+existing gameplay clocks. Unknown roles do not get an unrelated work animation. The smith
+holds the acquired hammer at the existing anvil. Motion preview exposes the full catalogue
+with source names. Standing talk uses standing sources; Mixamo Talking_1 remains available
+as an acquired seated take. Optional clips join the actor's live FootPlants library.
 
-NPC work motion is selected from its real schedule activity and role; unavailable clips
-are not substituted with an unrelated work take. Sleep/seating retain furniture support.
-Source expansion starts from these catalog rows in `asset_library/RECONCILED/ANIMATION_LIBRARIES.md`:
+All native faces retain blink, saccades and look-at, with seven authored dialogue moods.
+Voiced dialogue and barks use their own playback clocks, text articulation and per-recording
+20 ms envelopes (all 75 recordings staged). Loud consonants can still close the mouth.
+Six acquired facial takes retain their original 100 Hz / 52 ARKit channels. The creator
+previews mood expressions and facial takes without changing identity. The same speech-clock
+API is available for player story dialogue; the existing opening is a narrator film and is
+not relabelled as player speech.
 
-- `ANIM-e4b3381d0a46`: Quaternius UAL1.
-- `ANIM-3b794dbb1160`: Quaternius UAL2.
-- `ANIM-db979793fbdf`: FreeAnimationLibrary.
-- `ANIM-7d2eed57d3f5`: Mixamo acquired library.
-- `ANIM-948eb573a956`: Rokoko free library.
-- `ANIM-74d0b7a7bb52`: CMU library, still to extend beyond the existing bow source.
+## Source quality and native contract
 
-Initial UAL/FAL pass exported 138 states per native sex target. These are intermediate
-transports, not a promoted runtime library. Full Mixamo/Rokoko source preparation runs on
-CPU, retaining native rigs and keys. Original source bones get marker triangles only for
-Epic's skeletal import. The final target pass snapshots and probes the current creator
-bodies, which have changed since the older target reports. Native rest/hierarchy audits
-remain mandatory before packaging a library.
+The full import has 3,221 groups / 4,202 selected states, plus native supplements and contextual
+aliases. Packaging adds the established locomotion aliases. Sources include UAL1/2, FAL,
+594 skeletal Mixamo/Rokoko files, 2,548 CMU takes, 38 mobility FBXs, native Fab libraries,
+ActorCore, Hyperhuman and Clownhuman, plus retained Kenney/Humanizer takes. Credits stay in
+`content/credits.yaml`. The six face-only files are facial performances. The MakeHuman BVHs
+are chiefly static poses; Ryzom's topology-specific facial morphs have no native ARKit mapping.
+KayKit, creature rigs and weapon-only rigs do not become humanoid performance sources.
 
-Minimal checks so far: Presentation build succeeds; focused CharacterPerformanceTests and
-authored-mood Content check pass. No GPU run or visual acceptance claimed.
+The original HumGen bodies, all 59 core rests/parents, and full materials/textures are kept.
+Epic IK retargeting exports transports for the exact frozen body; Godot does no rest-frame
+conversion or manual posing. The existing finger/feet/eye/jaw retarget contract remains.
+Only planar Root travel is extracted. Original source playback rate, including its sign, is
+retained. Atomic publication waits for rest, hierarchy, finger and motion checks.
 
-One opt-in no-HUD proof route is `OTHERREACH_GATE_D=animation|face` through the existing
-RCD3 review launcher. Animation requires the smith's actual schedule to be working and the
-native `work_smith` clip to be active. Face opens a normal Sel conversation, then shows
-the creator's expression previews. Timestamped frames retain actual playback timing.
-The clips have not yet been captured or inspected.
+A rejected proof exposed an imported reference-axis mismatch: Mixamo/Rokoko reference rigs
+lay sideways while their animation was upright. Epic's height normalization then amplified
+pelvis motion to 55–77 metres. Corrected source-only transports bake constant ancestor units
+and hierarchy while verifying unchanged world joint/skin motion. Fresh Epic imports preserve
+the original sampling rate (the old automatic importer reduced one 100 Hz source to 25 Hz).
+Fractional final samples extend to the next sample boundary rather than being trimmed.
+Two-source native probes now have correct metre-scale motion and original sampling. The
+632-source repair and both complete native body batches are still pending completion.
+An absolute hip-height check now rejects the formerly accepted bad transports.
 
-The first face proof job is submitted to the 6900XT farm (`f1_gate_d_face_20261029_01`), using a private
-copied art tree and a newly created character named Eris. Its results are pending. Existing in-game
-credits already cover these motion sources under AN01–AN06; no new licence claim is introduced.
+## Evidence and remaining work
 
-The initial source auto-characterizer produced empty chains for Mixamo/HumanIK prefixes. The numeric
-motion audit caught static smith/cook exports. Explicit source chains corrected them, preserving the
-native target; audited hand displacement is about 1.17/1.12m with ~0.002mm rest error. These checks are
-transport evidence, not a substitute for the owed working clip. All 2,548 owned CMU takes now have
-source-only preview transports; a sampled CMU import and native retarget pass the rest/motion check.
-The remaining source batch and full library packaging are still running/pending.
+Focused speech/performance checks passed (16), as did the named-routine regression. The new
+absolute-motion check rejects the old smith export and accepts the corrected sources. Latest
+Presentation build/export succeeds. No local GPU was used; farm jobs use the dedicated 6900XT.
 
-The source scan is complete: 600 distinct Mixamo/Rokoko files, including six face-only
-ARKit takes. Those facial channels are preserved at their original 100Hz timing and can
-play on the native face from the creator's motion preview. Body source imports also include
-the 38 acquired mobility FBXs, all 2,548 CMU takes and the native humanoid catalog packs.
-The expanded Fab project migration found 688 takes; separate ActorCore, MCO/death and
-Hyper humanoid sources supplement it. Full imports/retargets are still in progress.
-Source mannequin corrective calibration and creature/weapon-only rigs are distinguished
-in the source inventory. CMU subject 13 trial 23 is the original sweeping-floor motion:
-https://mocap.cs.cmu.edu/search.php?subjectnumber=13&trinum=23 .
+The full-town proof repeatedly lost its GPU device before capture. A focused studio harness
+runs normal simulation, NPC schedules, dialogue, voice and the actual creator, using acquired
+art and a real work station. Earlier studio captures were visually rejected for the source
+scale error. They are not acceptance evidence. One corrected short close proof per part is
+still owed, with every frame inspected. PNG compression runs off the game thread; encoding
+retains actual frame timestamps and the owned voice offset, with silence during creator poses.
+Studio evidence will be labelled explicitly and cannot establish full-world GPU acceptance.
 
-Named player gestures are offered in Chat; movement/combat interrupt them. Idle pools
-follow role and mood. Native sleep motion uses the existing furniture support. Kera's work
-anchor now sits within reach of the existing anvil, and the existing Old Mine hammer is
-mounted at its authored-size wooden haft during the smith take. These need rendered review.
+HumGen shader-sidecar maps, including every hair-LOD flow map, now participate in the normal
+signed texture-cache preflight. No source texture, mesh or LOD quality was reduced. Offline
+source/transport archives are preserved separately; their size is not a shipped-package total.
 
-The first farm package stopped before rendering because the private copy had overwritten
-the world texture-cache manifest with the smaller creator manifest. They are now merged.
-Native creator body/face cache entries retain source resolution; the separate native outfit
-entries are being refreshed through the usual headless cache builder. The broad retained-tree
-cache scan also reports older world mip entries, which are outside this character change;
-it is not reported as a package acceptance pass. No source texture has been reduced.
-The staging helper now carries native facial-performance JSON alongside the motion resources.
-
-The native refresh passed all 2,057 primary entries at original dimensions. Another 2,961
-byte-matching fallback entries reuse those prepared DDS files. One interrupted DDS was rebuilt
-from its original source image. The current 1080p face proof retry is farm job
-`f1_gate_d_face_20261029_02`; results are pending. The corrected intermediate motion libraries
-have 157 states on each native sex, including moving smith/cook/talking takes. They support
-the face proof while the complete library finishes.
-
-The shared figure API supplies a recorded speech clock to player or NPC story speech.
-Current opening narration is a narrator over the existing film, not an in-engine player line;
-no player voice or story dialogue has been fabricated. The player creator previews the same
-kept face channels. Combat readiness, stagger and downing also choose restrained expressions.
-Successful ground pickups drive the owned pickup take. Bow active/recovery now use the
-separate release take with the established CMU source marks retained. Seating drives native
-entry/exit takes, interrupted by movement, with support weight eased during entry. The inn's
-authored breakfast seating uses the inspected seated eating take; seated drinking has its own
-take. Scribes write; scholars use the genuine reading-loop source; miners use the owned pickaxe
-source. These are motion bindings, with authoritative movement and combat clocks unchanged.
-
-Source reconciliation also located three Kenney takes and the retained two-take Humanizer
-library; the supplemental native import preserves them. The MakeHuman pose collection is
-predominantly constant poses (287 of 290 BVHs constant; the remaining three have only 2–3
-distinct samples), rather than recorded body performances. The Ryzom facial file contains
-topology-specific `visage_*` morphs without native ARKit correspondence; those meshes cannot
-be applied as HumGen face channels. HumGen's static pose-library audit belongs to part 1.
-The native-motion policy still excludes KayKit. Creature/weapon-only source rigs remain with
-their existing actors. Source claims do not treat these incompatible or static assets as
-newly bound humanoid performance takes.
-
-Long CPU batches now resume completed source imports and exact-target retarget checkpoints.
-The transport auditor reads a manifest to avoid Windows' command-line length limit. Native
-packaging uses the headless process guard and fails immediately on script/assertion errors.
-No local GPU lease has been taken. Latest focused performance check passes; Presentation
-build and export succeed. Neither implementation part has its FINISHED marker yet.
-
-D15 hooks: existing Ashen Hollow smith/cook/resident schedules and conversations are the
-world hooks. No new skill or technique is added. Hooks lint and dossier reconciliation
-remain required before FINISHED. No new texture/LOD/VRAM savings introduced.
-
-The complete source import now has3,221 groups /4,202 states /zero failures. Native
-supplements and contextual aliases select4,211 states. The female export checkpoint
-contains3,900 states; Epic reached the Windows commit limit while loading later packs.
-Only that explicit offline memory failure may resume in a fresh process, at most twice.
-The retarget script, source keys, target hash and checked clip files remain identical.
-Completed native libraries are audited in the job directory before atomic promotion.
-
-The close proof launch had a parser defect: `--gate-d` and `--gate-d-out` were missing
-from the value-taking argument list. Thus farm attempts01–04 never entered the route;
-no frames or streaming result are claimed from them. Fixed route05 is pending. It uses
-the existing scatter residency implementation with the original density/ranges and
-unchanged character assets. Full-world device-loss failures remain recorded. No separate
-studio replacement has been implemented. Speech's digraph helper and its focused checks
-are reused from DeepSeek commit486b2cac, retaining this branch's recorded-energy jaw
-articulation. Latest focused performance checks16 passed; build/export succeed.
+D15 uses existing Ashen Hollow/Cairnwold work routines, stations and conversations. No new
+skill, technique or lore system is introduced. The F1 baseline hooks check reports
+52 placed / 106 missing / 99 unmodelled across nine areas; this is an older branch baseline,
+not a replacement for the accepted D18 totals. Canon hooks are on `npc/gate-d-performance`
+(commit `2462498`, pushed). Final dossier/evidence reconciliation remains outstanding.

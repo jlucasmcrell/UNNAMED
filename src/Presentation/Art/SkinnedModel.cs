@@ -209,7 +209,10 @@ public sealed partial class SkinnedModel : Node3D
                 motion.GetMeta("foot_plants_schema", 0).AsInt32(), motion.GetMeta("source_playback_schema", 0).AsInt32());
         void Install(string clip)
         {
-            if (library.HasAnimation(clip)) return;
+            // FootPlants installs a per-actor library copy after construction.
+            // Optional takes must join that live copy, not the original library.
+            var live = _player is null ? library : _player.GetAnimationLibrary("");
+            if (live.HasAnimation(clip)) return;
             var animation = (Animation)motion.GetAnimation(clip).Duplicate();
             for (int track = 0; track < animation.GetTrackCount(); track++)
             {
@@ -217,7 +220,7 @@ public sealed partial class SkinnedModel : Node3D
                 if (Skeleton.FindBone(bone) < 0) throw new InvalidDataException("comparison motion bone missing: " + bone);
                 animation.TrackSetPath(track, new NodePath($"{skeletonPath}:{bone}"));
             }
-            library.AddAnimation(clip, animation);
+            live.AddAnimation(clip, animation);
         }
         // Keep the complete owned library available. As with the usual asset
         // cache, instantiate a person's optional performance only when requested;

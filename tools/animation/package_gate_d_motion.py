@@ -27,8 +27,9 @@ def package(job, actor, runtime):
     for clip in receipt['clips']:
         clip.setdefault('display_name', clip['source'].rsplit('/', 1)[-1])
     manifest.write_text(json.dumps(dict(body=str(body), output=str(staged_output), clips=receipt['clips']), indent=2), encoding='utf-8')
-    subprocess.run([sys.executable, str(Path(__file__).with_name('audit_humgen_transport.py')), str(body)]
-        + ['--manifest', str(manifest), '--report', str(job / ('audit_final_' + actor + '.json'))], check=True)
+    with (job / ('audit_final_' + actor + '.log')).open('w') as log:
+        subprocess.run([sys.executable, str(Path(__file__).with_name('audit_humgen_transport.py')), str(body)]
+            + ['--manifest', str(manifest), '--report', str(job / ('audit_final_' + actor + '.json'))], check=True, stdout=log)
     audit = json.loads((job / ('audit_final_' + actor + '.json')).read_text())
     for clip in audit['clips']:
         if Path(clip['clip']).stem == 'work_read':

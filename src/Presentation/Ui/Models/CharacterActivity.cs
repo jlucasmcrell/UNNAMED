@@ -3,6 +3,10 @@ namespace UNNAMED.Presentation.Ui.Models;
 /// <summary>Schedule activities choose authored motion; unavailable motion stays explicit in the asset coverage.</summary>
 public static class CharacterActivity
 {
+    public static string? Role(string? activity, string npc, string? fallback,
+        IEnumerable<UNNAMED.Domain.Social.RoutineDefinition> routines) =>
+        routines.FirstOrDefault(r => r.Key == npc)?.Roles.FirstOrDefault(role => Clip(activity, role) is not null) ?? fallback;
+
     public static string? Clip(string? activity, string? role) => activity switch
     {
         "sleep" => null, // FurnitureAt owns support height and the lying pose.

@@ -331,7 +331,9 @@ public sealed partial class SkinnedFigure : Figure
     {
         if (line is not null && line != _spokenLine)
         {
-            var choices = new[] { "talk", "talk_1", "talk_2", "talk_3" }.Where(_model.Has).ToArray();
+            // Mixamo Talking_1 is seated. Keep its full take in the catalogue,
+            // but choose standing performances for an upright conversation.
+            var choices = new[] { "talk", "talk_2", "talk_3" }.Where(_model.Has).ToArray();
             if (choices.Length > 0) _talkClip = choices[_talkTurn++ % choices.Length];
         }
         _spokenLine = line;

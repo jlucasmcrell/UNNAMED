@@ -89,6 +89,15 @@ for root in (a.game/'primary', a.game/'fallback'):
     for file in sorted(root.glob('rigged/*/quality_4k/*.png')):
         role = 'normal' if file.stem.endswith('_normal') else 'data' if file.stem.endswith('_orm') else 'color'
         add(root, file, file.relative_to(root).as_posix(), file.read_bytes(), 0, 'png', role)
+    # HumGen's shader sidecars carry maps which glTF cannot name, including
+    # anisotropy flow for every hair LOD. They use the same signed native cache.
+    for metadata in sorted(root.glob('rigged/humgen_*/native_materials.json')):
+        for name, value in json.loads(metadata.read_text()).items():
+            if name not in ('skin_pbr', 'cornea_normal', 'eye_scatter') and not name.startswith('hair_flow'):
+                continue
+            file = metadata.parent / value
+            role = 'normal' if name == 'cornea_normal' else 'data'
+            add(root, file, file.relative_to(root).as_posix(), file.read_bytes(), 0, file.suffix.lstrip('.'), role)
     for folder in ('materials', 'sky', 'ui', 'vfx'):
         for file in sorted((root/folder).rglob('*')):
             fmt = file.suffix.lower().lstrip('.').replace('jpeg', 'jpg')

@@ -247,6 +247,15 @@ public partial class Main : Node3D
         // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
         try
         {
+            if (OS.GetCmdlineUserArgs().Contains("--gate-d-studio", StringComparer.Ordinal))
+            {
+                ParseArguments(OS.GetCmdlineUserArgs());
+                VisualOptions.Parse(_options.GetValueOrDefault("--visual"));
+                VisualOptions.Apply(GetViewport());
+                SetProcess(false);
+                AddChild(new Diagnostics.GateDStudio(_options, _flags.Contains("--gate-d-inspect")));
+                return;
+            }
             // Isolated fresh-character lane: enter before content/art boot can load retired character outputs.
             if (OS.GetCmdlineUserArgs().Contains("--mh-slice", StringComparer.Ordinal))
             {

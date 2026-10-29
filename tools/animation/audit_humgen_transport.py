@@ -16,16 +16,21 @@ class Glb:
         self.joints = self.doc['skins'][0]['joints']
         self.names = {self.nodes[i]['name']: i for i in self.joints}
         self.parents = {child: i for i, node in enumerate(self.nodes) for child in node.get('children', [])}
+        self._accessors = {}
 
     def accessor(self, index):
+        if index in self._accessors:
+            return self._accessors[index]
         a = self.doc['accessors'][index]
         v = self.doc['bufferViews'][a['bufferView']]
         dtype = {5126: '<f4', 5125: '<u4', 5123: '<u2', 5121: 'u1'}[a['componentType']]
         width = {'SCALAR': 1, 'VEC2': 2, 'VEC3': 3, 'VEC4': 4, 'MAT4': 16}[a['type']]
         stride = v.get('byteStride', np.dtype(dtype).itemsize * width)
-        return np.ndarray((a['count'], width), dtype=dtype, buffer=self.binary,
+        result = np.ndarray((a['count'], width), dtype=dtype, buffer=self.binary,
                           offset=v.get('byteOffset', 0) + a.get('byteOffset', 0),
                           strides=(stride, np.dtype(dtype).itemsize)).astype(float)
+        self._accessors[index] = result
+        return result
 
     def globals(self, at=None):
         overrides = {}
@@ -96,7 +101,17 @@ def audit(body_path, clips):
         assert position_error < .0001 and matrix_error < .0001, ('Native rest changed', position_error, matrix_error)
         animation = clip.doc['animations'][0]
         end = max(float(clip.accessor(s['input'])[-1, 0]) for s in animation['samplers'])
-        samples = [clip.globals(t) for t in np.linspace(0, end, 13)]
+        # Inspect working/gesture bindings closely; two endpoints suffice for
+        # the unbound catalogue here. The native importer checks every key.
+        focused = not clip_path.stem.startswith('owned_')
+        samples = [clip.globals(t) for t in np.linspace(0, end, 13 if focused else 3)]
+        heights = np.array([s['Hips'][1, 3] for s in samples])
+        # A valid rest alone missed an imported Y-up reference / Z-up animation
+        # mismatch: Epic amplified hip motion to 55–77 metres. Reject that
+        # transport before it can replace a working runtime library.
+        assert np.max(np.abs(heights)) < 20, ('Implausible absolute hip height', clip_path, heights.tolist())
+        if clip_path.stem in ('work_smith', 'work_cook', 'work_write', 'work_carry', 'talk_1', 'talk_2', 'talk_3'):
+            assert np.max(np.abs(heights)) < 3, ('Standing performance outside character scale', clip_path, heights.tolist())
         measurements = {}
         for name in ['Head', 'LeftUpperArm', 'LeftLowerArm', 'LeftHand', 'RightHand', 'LeftFoot', 'RightFoot']:
             points = np.array([s[name][:3, 3] - s['Hips'][:3, 3] for s in samples])
@@ -105,6 +120,7 @@ def audit(body_path, clips):
                                   'max_displacement_m': round(max(float(np.linalg.norm(a-b)) for a in points for b in points), 4)}
         report['clips'].append({'clip': str(clip_path), 'bones': len(clip.names), 'seconds': end,
                                 'rest_position_error_m': position_error, 'rest_matrix_error': matrix_error,
+                                'hip_height_range_m': [float(heights.min()), float(heights.max())],
                                 'motion': measurements})
     return report
 

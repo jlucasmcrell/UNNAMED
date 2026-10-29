@@ -18,6 +18,8 @@ namespace UNNAMED.Presentation.Greybox;
 public partial class NpcsView : Node3D
 {
     public bool SuppressPresentationForBenchmark { get; set; }
+    // Focused proof set only; normal worlds draw their complete population.
+    internal string? ReviewOnlyNpc { get; init; }
     private int _performanceStage = System.Environment.GetEnvironmentVariable("OTHERREACH_MH_PERF_SWEEP") == "1" ? 0 : 4;
     public int PerformanceStage => _performanceStage;
     public void SetPerformanceStage(int stage)
@@ -85,6 +87,7 @@ public partial class NpcsView : Node3D
         var occupiedFurniture = new HashSet<string>(StringComparer.Ordinal);
         foreach (var npc in people)
         {
+            if (ReviewOnlyNpc is { } only && npc.Id != only) continue;
             string instance = npc.InstanceId.ToString();
             if (_instances.TryGetValue(npc.Id, out var previous) && previous != instance)
                 Forget(npc.Id);
@@ -167,9 +170,8 @@ public partial class NpcsView : Node3D
             float speed = gait.Speed;
             figure.SetStance(CombatStance.AtRest);
             figure.SetIdleRole(npc.Role);
-            string? activityRole = npc.Role;
-            if (simulation.Setup.NpcLife.Routines.TryGetValue(npc.Id, out var routine))
-                activityRole = routine.Roles.FirstOrDefault(role => Ui.Models.CharacterActivity.Clip(npc.Activity, role) is not null) ?? activityRole;
+            string? activityRole = Ui.Models.CharacterActivity.Role(npc.Activity, npc.Id, npc.Role,
+                simulation.Setup.NpcLife.Routines.Values);
             figure.SetActivity(npc.Activity, activityRole);
             bool held = npc.Id == FoldEcho.Held && simulation.Barriers.Any(b => b.Site.Key == FoldEcho.Barrier && b.Standing);
             figure.SetPosture(held, false);

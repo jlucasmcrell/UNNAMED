@@ -14,6 +14,11 @@ if not os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY') and cmu.exists():
 mobility = job.parent / 'mobility_sources/inventory.json'
 if not os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY') and mobility.exists():
     rows.extend(json.loads(mobility.read_text()))
+frames = job.parent / 'source_frames/inventory.json'
+if not os.environ.get('OTHERREACH_GATE_D_SOURCE_INVENTORY'):
+    assert frames.exists() and (frames.parent / 'verification.json').exists(), 'Source frame preparation is incomplete'
+    upright = {row['id']: row for row in json.loads(frames.read_text())}
+    rows = [upright.get(row['id'], row) for row in rows]
 if os.environ.get('OTHERREACH_GATE_D_SOURCE_LIMIT'):
     rows = rows[:int(os.environ['OTHERREACH_GATE_D_SOURCE_LIMIT'])]
 facial_path = job.parent / 'facial_sources/inventory.json'
@@ -51,21 +56,45 @@ for row in rows:
         continue
     try:
         assert Path(row['path']).is_absolute() and Path(row['path']).is_file(), 'Source transport path must be absolute and exist'
-        folder = '/Game/GateDSources/' + row['id']
+        version = row.get('source_import_version')
+        folder = ('/Game/GateDAlignedSceneSourcesV3/' if version else '/Game/GateDSources/') + row['id']
         cached = previous.get(row['id'])
-        reusable = cached and cached['path'] == row['path'] and all(
+        reusable = cached and cached['path'] == row['path'] and cached.get('source_import_version') == version and all(
             (job / 'project/Content' / (item['asset'].split('.')[0].removeprefix('/Game/') + '.uasset')).is_file()
             for item in cached['assets'])
         if reusable:
             assets = cached['assets']
         else:
-            task = unreal.AssetImportTask()
-            task.filename = row['path']
-            task.destination_path = folder
-            task.automated = True
-            task.save = True
-            task.replace_existing = True
-            tools.import_asset_tasks([task])
+            if version:
+                # Preserve the acquired sampling rate; automatic glTF import
+                # reduced a 100 Hz Rokoko performance to 25 Hz.
+                pipeline = unreal.InterchangeGenericAssetsPipeline()
+                animation_pipeline = pipeline.get_editor_property('animation_pipeline')
+                animation_pipeline.set_editor_property('use30_hz_to_bake_bone_animation', False)
+                animation_pipeline.set_editor_property('custom_bone_animation_sample_rate', row['source_sample_rate'])
+                # Some acquired FBX takes end between sample boundaries. Extend
+                # only that final held sample; never trim their last motion.
+                animation_pipeline.set_editor_property('frame_alignment', unreal.InterchangeFrameAlignment.SNAP_TO_CEILING)
+                params = unreal.ImportAssetParameters()
+                params.is_automated = True
+                params.replace_existing = True
+                params.override_pipelines = [unreal.SoftObjectPath(pipeline.get_path_name())]
+                source_data = unreal.InterchangeManager.create_source_data(row['path'])
+                unreal.InterchangeManager.get_interchange_manager_scripted().import_asset(folder, source_data, params)
+                unreal.EditorAssetLibrary.save_directory(folder, only_if_is_dirty=True, recursive=True)
+            else:
+                # A partial report can precede CMU rows after interruption.
+                # Its unchanged source transports already exist in this isolated
+                # project; do not reimport 2,548 untouched performances.
+                existing_cmu = row['id'].startswith('cmu_') and unreal.EditorAssetLibrary.list_assets(folder, True, False)
+                if not existing_cmu:
+                    task = unreal.AssetImportTask()
+                    task.filename = row['path']
+                    task.destination_path = folder
+                    task.automated = True
+                    task.save = True
+                    task.replace_existing = True
+                    tools.import_asset_tasks([task])
             assets = []
             for path in unreal.EditorAssetLibrary.list_assets(folder, recursive=True, include_folder=False):
                 data = unreal.EditorAssetLibrary.find_asset_data(path)
@@ -88,6 +117,7 @@ for row in rows:
             # https://mocap.cs.cmu.edu/search.php?subjectnumber=13&trinum=23
             selection['work_sweep'] = [row['id'], takes[0]['name']]
         report['sources'].append(dict(id=row['id'], path=row['path'], original=row['source'], assets=assets,
+                                     source_import_version=version, source_sample_rate=row.get('source_sample_rate'),
                                      source_root_offset_cm=row.get('source_root_offset_cm')))
     except Exception:
         report['failures'].append(dict(source=row['source'], error=traceback.format_exc()))
