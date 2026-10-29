@@ -177,3 +177,28 @@ ode.carcass.grey_wolf). The stag and hind files are not where I expected
 **Still owed for carcass and skinning:** the kill-to-carcass wire itself (on CreatureKilled, place a carcass node at
 the body's position - needs RegionLayout.Nodes to grow at runtime and the crafting session to learn the new node),
 the stag/hind refs, a tanning station kind, carcass art, and a clip.
+
+### Round 8 - the kill-to-carcass wire is in the code
+Commit **a0be552**, builds clean (Content and Presentation), lint 0:
+- GatheringSystem keeps its nodes in a **list it can grow**; LeaveCarcass(key, nodeDefId, xMm, zMm) adds one in the
+  cell the body fell in, refusing a duplicate key. Because a carcass is an ordinary node, the existing GatherCommand,
+  its reach check, its charges and the skill it trains (skill.skinning) all work on it unchanged.
+- Simulation.LeaveCarcass(...) exposes it; Main.Events.cs subscribes CreatureKilled, reads the fallen body's
+  position from simulation.Creatures and, when the creature's definition names a carcass_ref, leaves the node and
+  refreshes the crafting view so the body is drawn.
+- CreatureDefinition.CarcassRef (+ loader, + ContentChecks reference registration ["carcass_ref"] = ["node"]), set
+  on **wolf_grey, wolf_grey_alpha** (
+ode.carcass.grey_wolf), **buck, doe** (
+ode.carcass.deer) and
+  **bristleback_boar** (
+ode.carcass.boar, a new node).
+
+**What is NOT yet proved:** no run has yet killed a creature with this build and then shown the carcass, and the carcass
+has **no art** (the library has dead trees, not bodies), so a frame today would be a greybox lump. That is why there is
+no FINISHED post for carcass and skinning.
+
+**Next, concretely:** a test using the existing Arena.OpenCreatures(...) helper in
+	ests\Application.Tests\CombatTests.cs - open a wolf, attack until CreatureKilled, assert
+Simulation.Nodes gains a 
+ode.carcass.grey_wolf within reach of the corpse. That is the cheapest real proof of the
+wire; a clip follows once a carcass model exists or a placeholder is agreed.
