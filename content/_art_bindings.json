@@ -2899,6 +2899,86 @@
       "material": "stone",
       "note": "D18: the gravel bar at the creek's ford."
     },
+    "cw_jetty_pad_1": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "D18: a jetty deck board - the waystation's own timber pad."
+    },
+    "cw_jetty_pad_2": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "D18: a jetty deck board - the waystation's own timber pad."
+    },
+    "cw_jetty_pad_3": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "D18: a jetty deck board - the waystation's own timber pad."
+    },
+    "cw_jetty_pad_4": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "note": "D18: a jetty deck board - the waystation's own timber pad."
+    },
+    "cw_jetty_post_1": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "D18: a jetty piling, the timber wall piece stood on end."
+    },
+    "cw_jetty_post_2": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "D18: a jetty piling, the timber wall piece stood on end."
+    },
+    "cw_jetty_post_3": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "D18: a jetty piling, the timber wall piece stood on end."
+    },
+    "cw_pond_reeds_1": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the millpond's bank."
+    },
+    "cw_pond_reeds_2": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the millpond's bank."
+    },
+    "cw_pond_reeds_3": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the millpond's bank."
+    },
+    "cw_pond_reeds_4": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the millpond's bank."
+    },
+    "cw_pond_reeds_5": {
+      "model": "flora_cattail_clump",
+      "material": "reed",
+      "note": "D18: cattails on the millpond's bank."
+    },
+    "cw_pond_stone_1": {
+      "model": "rock_ph_moss_pebble_a",
+      "material": "stone",
+      "note": "D18: a moss pebble on the pond's edge."
+    },
+    "cw_pond_stone_2": {
+      "model": "rock_ph_moss_pebble_a",
+      "material": "stone",
+      "note": "D18: a moss pebble on the pond's edge."
+    },
+    "cw_pond_stone_3": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "D18: a small mossy rock at the water's edge."
+    },
+    "cw_pond_stone_4": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "D18: a small mossy rock at the water's edge."
+    },
     "cw_reeds": {
       "model": "flora_cattail_clump",
       "material": "reed",
