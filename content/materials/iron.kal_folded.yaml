@@ -1,0 +1,11 @@
+id: mat.iron.kal_folded
+kind: material
+schema: 1
+display_key: mat.iron.kal_folded.name
+tags: [material]
+name: Kal Folded Steel
+notes: "Folded and fire-welded the Kal way: no magic at all, and none needed (WORLD_ATLAS Kal row)."
+class: metal
+material_ref_item: item.material.iron_ingot
+mult: { damage: 1.12, armor: 1.1, weight: 1.0, durability: 1.25, value: 1.8 }
+tier_min: 3

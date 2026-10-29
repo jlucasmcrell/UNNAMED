@@ -33,6 +33,7 @@ public static class GearResolver
         long ReachMm,
         long WeightGrams,
         int AttackMs,
+        int DrawMs,
         int Durability,
         int Armor,
         long Value,
@@ -99,6 +100,7 @@ public static class GearResolver
         int baseMax = weapon?.DamageMax ?? 0;
         long baseReach = weapon?.ReachMm ?? 0;
         int baseAttack = weapon?.AttackMs ?? 0;
+        int baseDraw = weapon?.DrawMs ?? 0;
         int baseDurability = item.DurabilityMax;
         long baseWeight = item.WeightGrams;
         long baseValue = item.ValueBase;
@@ -113,12 +115,12 @@ public static class GearResolver
             baseDurability, band.Durability, clamped);
         long resolvedValue = Clamp("value", (long)Math.Round(baseValue * value, MidpointRounding.AwayFromZero), baseValue, band.Value, clamped);
 
-        // A quicker piece attacks sooner: speed_mult acts on the interval, and never below half the template's own.
-        int attackMs = baseAttack == 0
-            ? 0
-            : (int)Math.Round(baseAttack / Math.Clamp(speed, 1.0 / band.Speed, band.Speed), MidpointRounding.AwayFromZero);
+        // A quicker piece attacks (or draws) sooner: speed acts on the interval, and never past the envelope's own bound.
+        double pace = Math.Clamp(speed, 1.0 / band.Speed, band.Speed);
+        int attackMs = baseAttack == 0 ? 0 : (int)Math.Round(baseAttack / pace, MidpointRounding.AwayFromZero);
+        int drawMs = baseDraw == 0 ? 0 : (int)Math.Round(baseDraw / pace, MidpointRounding.AwayFromZero);
 
-        return new ResolvedGear(damageMin, damageMax, reachMm, weightGrams, attackMs, durability, item.ArmorValue, resolvedValue,
+        return new ResolvedGear(damageMin, damageMax, reachMm, weightGrams, attackMs, drawMs, durability, item.ArmorValue, resolvedValue,
             clamped.Count > 0)
         {
             ClampedStats = clamped.ToImmutable(),

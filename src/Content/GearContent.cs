@@ -69,7 +69,7 @@ public static class GearContent
 
         var stats = Map(map, "stat_contrib");
         var part = new PartDefinition(
-            id, family, slot, Text(map, "mesh_ref"), materialSlots, Int(map, "tier_min"),
+            id, family, slot, Text(map, "mesh"), materialSlots, Int(map, "tier_min"),
             new PartStats(
                 stats.ContainsKey("damage_mult") ? Number(stats, "damage_mult") : 1.0,
                 stats.ContainsKey("reach_add") ? (long)Math.Round(Number(stats, "reach_add") * 1000, MidpointRounding.AwayFromZero) : 0,

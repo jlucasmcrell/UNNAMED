@@ -1,0 +1,14 @@
+id: part.sword.pommel.faceted
+kind: part
+schema: 1
+display_key: part.sword.pommel.faceted.name
+asset: "D21 Pommel: pommel_01 [B], OWNED"
+tags: [pommel, faceted]
+name: Faceted Pommel
+notes: "A cut pommel: the same weight in a shape that does not catch the wrist."
+family: sword
+slot: pommel
+mesh: mesh.part.sword.pommel.faceted
+material_slots: [metal_pommel]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.06, speed_mult: 1.01, durability_add: 5 }

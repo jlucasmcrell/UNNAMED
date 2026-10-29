@@ -1,0 +1,14 @@
+id: part.bow.limbs.self
+kind: part
+schema: 1
+display_key: part.bow.limbs.self.name
+asset: "D21 Bow limbs: SM_Bow [B], PARTIAL"
+tags: [limbs, self]
+name: Self-Bow Limbs
+notes: "One stave of ash, worked thin toward the tips: the bow a hunter can make."
+family: bow
+slot: limbs
+mesh: mesh.part.bow.limbs.self
+material_slots: [wood]
+tier_min: 1
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.0, speed_mult: 1.0, durability_add: 0 }

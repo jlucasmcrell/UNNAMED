@@ -1,0 +1,14 @@
+id: part.shield.rim.iron
+kind: part
+schema: 1
+display_key: part.shield.rim.iron.name
+asset: "D21 separate rim, PARTIAL"
+tags: [rim, iron]
+name: Iron Rim
+notes: "An iron rim: the edge that takes the hits so the boards do not."
+family: shield
+slot: rim
+mesh: mesh.part.shield.rim.iron
+material_slots: [metal_rim]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.2, speed_mult: 1.0, durability_add: 20 }

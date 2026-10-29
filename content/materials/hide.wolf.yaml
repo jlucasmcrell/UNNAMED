@@ -1,0 +1,11 @@
+id: mat.hide.wolf
+kind: material
+schema: 1
+display_key: mat.hide.wolf.name
+tags: [material]
+name: Wolf Hide
+notes: "Thick wolf hide off the ridge; a grip that does not slip when it is wet."
+class: hide
+material_ref_item: item.material.wolf_hide
+mult: { damage: 0.95, armor: 1.0, weight: 0.95, durability: 1.1, value: 1.2 }
+tier_min: 2

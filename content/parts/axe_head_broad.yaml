@@ -1,0 +1,14 @@
+id: part.axe.head.broad
+kind: part
+schema: 1
+display_key: part.axe.head.broad.name
+asset: "D21 Axe head: Thor's Battle Axe [BK B], PARTIAL"
+tags: [head, broad]
+name: Broad Axe Head
+notes: "A wide bit: the axe that fells a tree and a door in the same afternoon."
+family: axe
+slot: head
+mesh: mesh.part.axe.head.broad
+material_slots: [metal_edge]
+tier_min: 2
+stat_contrib: { damage_mult: 1.1, reach_add: 0.0, weight_add: 0.4, speed_mult: 0.95, durability_add: 5 }
