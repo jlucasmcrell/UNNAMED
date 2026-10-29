@@ -241,8 +241,9 @@ public sealed partial class HumGenCreatorAppearance : Node
                 if (cloth.HasMeta("creator_standoff")) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
-                grown.Grow = true;
-                grown.GrowAmount = _worn?.Contains("_outfit_period_",StringComparison.Ordinal)==true ? .0035f : GarmentStandoff;
+                bool fittedRole = _worn?.Contains("_outfit_period_",StringComparison.Ordinal)==true;
+                grown.Grow = cloth.Grow || fittedRole;
+                grown.GrowAmount = fittedRole ? .0035f : GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
