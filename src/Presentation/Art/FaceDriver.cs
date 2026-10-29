@@ -75,7 +75,7 @@ public sealed partial class FaceDriver : Node
         // The expression library's channels: the creator rig carries these shapes, and they are eased and reset like the rest.
         "browInnerUp", "browDownLeft", "browDownRight", "mouthFrownLeft", "mouthFrownRight", "cheekSquintLeft", "cheekSquintRight",
         "eyeWideLeft", "eyeWideRight", "noseSneerLeft", "noseSneerRight", "mouthPressLeft", "mouthPressRight", "mouthStretchLeft",
-        "mouthStretchRight", "eyeSquintLeft", "eyeSquintRight",
+        "mouthStretchRight", "eyeSquintLeft", "eyeSquintRight", "tongueOut",
     };
 
     /// <summary>
@@ -399,6 +399,8 @@ public sealed partial class FaceDriver : Node
         char c = char.ToLowerInvariant(_line[at]);
         char next = at + 1 < _line.Length ? char.ToLowerInvariant(_line[at + 1]) : ' ';
         (string shape, float jaw) = Speech.Shape(at > 0 ? char.ToLowerInvariant(_line[at - 1]) : ' ', c, next);
+        // The tongue shows on a TH and lifts on an L; everywhere else it rests.
+        _targets["tongueOut"] = c switch { 't' when next == 'h' => .35f, 'l' => .12f, 'd' => .08f, _ => 0f };
         // Punctuation holds the mouth shut a little longer; a question lifts the brows.
         _targets[shape] = shape == "viseme_sil" ? 0.6f : 0.85f;
         _targets["jawOpen"] = recording?.Jaw ?? jaw * 0.6f;
