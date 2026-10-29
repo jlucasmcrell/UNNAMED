@@ -474,7 +474,6 @@ public partial class HollowView : Node3D
     private Node3D? ArtStructure(Blocker blocker, TerrainGrid terrain)
     {
         string shape = blocker is CircleBlocker ? "a cylinder" : "a box";
-        if (blocker.Id.StartsWith("grave_marker", StringComparison.Ordinal))
         if (_bindings.Structure(blocker.Id) is not { } look)
         {
             Coverage.Fallback("structure", blocker.Id, $"no binding: {shape}");
