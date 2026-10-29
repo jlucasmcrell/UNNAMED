@@ -1,0 +1,12 @@
+id: item.tool.detector_thermal
+kind: item
+schema: 1
+display_key: item.tool.detector_thermal.name
+tags: [tool, tech, detector]
+name: Thermal Sensor
+notes: "A thermal sensor (STEALTH.md 10): warm bodies through light cover, and blind through stone, water and a cloak's cold outer layer."
+category: tool
+stack_max: 1
+weight: 1.1
+value_base: 240
+item_class: ordinary

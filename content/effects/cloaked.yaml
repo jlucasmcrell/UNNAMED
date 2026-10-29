@@ -1,0 +1,13 @@
+id: effect.cloaked
+kind: effect
+schema: 1
+display_key: effect.cloaked.name
+tags: [effect, stealth, magic]
+name: Cloaked
+notes: "An optical cloak's shimmer (STEALTH.md 10): a body a quarter as likely to be read standing still, and six tenths while moving. It fails in rain, fog, dust and water, and it never makes a body invisible - an observer inside six metres sees the shimmer move."
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 10.0
+tick_interval_min: 0
+dispel_category: magic

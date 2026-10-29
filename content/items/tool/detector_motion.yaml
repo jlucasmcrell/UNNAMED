@@ -1,0 +1,12 @@
+id: item.tool.detector_motion
+kind: item
+schema: 1
+display_key: item.tool.detector_motion.name
+tags: [tool, tech, detector]
+name: Motion Sensor
+notes: "A Constructed motion sensor (STEALTH.md 10): a six-metre cone that reads only what moves. Blind to a body that keeps still and to one that crawls."
+category: tool
+stack_max: 1
+weight: 0.9
+value_base: 210
+item_class: ordinary

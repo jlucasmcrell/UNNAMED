@@ -610,7 +610,16 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// </summary>
     private int _stealthLevel;
 
-    private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel);
+    private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel) * StealthGear.Noise(PlayerEffectIds());
+
+    /// <summary>
+    /// The stealth kit's effects on the character right now (STEALTH.md 10). Read per call, like the skill level: a cloak ending, or a dampener's cell
+    /// running out, takes effect on the next sight check rather than at the next turn.
+    /// </summary>
+    private ImmutableArray<string> PlayerEffectIds() =>
+        State.Effects.TryGetValue(_player, out var effects)
+            ? effects.Select(e => e.EffectId).ToImmutableArray()
+            : ImmutableArray<string>.Empty;
 
     private double StealthAwarenessFactor() => StealthRules.AwarenessFactor(_stealthLevel);
 
@@ -814,7 +823,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // The periphery is the band that reads movement, and only near: a body standing still beyond six metres is scenery to it (§2.3).
         if (peripheral && (distance > 6_000 || !_intent().IsMoving))
             return 0;
-        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouette: false);
+        // What the character is wearing or carrying (STEALTH.md 10, S7): a cloak's worth, applied to the physical reading above, never instead of it.
+        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouette: false,
+            gearFactor: StealthGear.Visibility(PlayerEffectIds(), _intent().IsMoving));
         // Bright gear and gilt read at a distance in good light (STEALTH §3.3).
         double penalty = _context.PlayerStealthPenalty();
         return penalty > 0 ? factor * (1 + penalty) : factor;

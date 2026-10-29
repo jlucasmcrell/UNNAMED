@@ -132,15 +132,20 @@ public static class Visibility
     /// gain, whether the observer has only its periphery on it, and a silhouette against a bright backdrop. Never zero: 0.35 at two metres is
     /// still a body standing in front of you.
     /// </summary>
+    /// <param name="gearFactor">
+    /// What the character is wearing or carrying does to being seen (STEALTH.md 10): an optical cloak's 0.25 standing still or 0.6 moving, and 1.0
+    /// for nothing. It scales the whole product, so no piece of kit ever makes a body unseeable - it only makes them less likely to be seen under the
+    /// stated conditions, exactly as the canon table says.
+    /// </param>
     public static double Factor(LightRules rules, LightBand band, bool nightSight, double seenFraction, PostureRule posture,
-        bool peripheralOnly, bool silhouette)
+        bool peripheralOnly, bool silhouette, double gearFactor = 1.0)
     {
         double factor = rules.SightFactor(band, nightSight) * Math.Clamp(seenFraction, 0.0, 1.0) * posture.SightGain;
         if (peripheralOnly)
             factor *= 0.4;
         if (silhouette)
             factor *= rules.BrightFactor;
-        return factor;
+        return factor * Math.Clamp(gearFactor, 0.05, 1.0);
     }
 
     /// <summary>
