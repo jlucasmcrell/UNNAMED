@@ -918,8 +918,9 @@ public partial class HollowView : Node3D
         {
             // A pond, spring or well: one quad round the point, big enough to read through its opening.
             var c = points[0];
-            // Counter-clockwise seen from above (+Y facing), or the top face is culled and the surface never draws.
-            foreach (var (a, b) in new[] { (-1f, -1f), (1f, 1f), (1f, -1f), (-1f, -1f), (-1f, 1f), (1f, 1f) })
+            // Counter-clockwise seen from above (+Y facing). The first cut was degenerate as well as backwards - two of
+            // the three corners lay on one line - so a pond drew nothing at all while the creek's ribbon drew.
+            foreach (var (a, b) in new[] { (-1f, -1f), (-1f, 1f), (1f, 1f), (-1f, -1f), (1f, 1f), (1f, -1f) })
             {
                 surface.SetNormal(Vector3.Up);
                 surface.SetUV(new Vector2((a + 1) * 0.5f, (b + 1) * 0.5f));
