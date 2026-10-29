@@ -150646,8 +150646,8 @@ npcs:
   facing_deg: 180
 - npc_ref: npc.road.rim_keeper
   position_m:
-  - 700.0
-  - 658.0
+  - 704.5
+  - 661.5
   facing_deg: 200
 nodes:
 # D18: what grows and stands inside the walls, so the first hour has something to gather.
