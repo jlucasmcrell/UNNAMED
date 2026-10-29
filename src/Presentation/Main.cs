@@ -62,6 +62,7 @@ public partial class Main : Node3D
     private TalkCamera _talkCamera = null!;
     private PlayerController _controller = null!;
     private Hud _hud = null!;
+    private bool _shotHudOff;
     private ItemsView _items = null!;
     private CreaturesView _creatures = null!;
     private CreaturesView _exteriorCreatures = null!;
@@ -747,8 +748,7 @@ public partial class Main : Node3D
             Engine.MaxFps = (int)Math.Round(1 / _session.TickSeconds);
             string shotDir = _options.GetValueOrDefault("--shot-out") ?? Path.Combine(OS.GetUserDataDir(), "scratch", "shot");
             // A still is proof of the world, not of the interface: hide the HUD with everything else already wired.
-            if (_options.ContainsKey("--shot-hud"))
-                _hud.Visible = false;
+            _shotHudOff = _options.ContainsKey("--shot-hud");
             _survey = SurveyShots.One(_session, _controller, _camera, Path.GetFullPath(shotDir), shotSpec);
         }
         else if (_options.TryGetValue("--survey", out string? survey))
@@ -1213,6 +1213,9 @@ public partial class Main : Node3D
 
     public override void _Process(double delta)
     {
+        // Entering the world shows the HUD; a proof shot wants the world only, every frame.
+        if (_shotHudOff && _hud is not null && _hud.Visible)
+            _hud.Visible = false;
         ApplyMetaHumanReviewInputs();
         if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
             ResumeShots(resumeShots);

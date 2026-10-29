@@ -2920,19 +2920,19 @@
       "note": "D18: a jetty deck board - the waystation's own timber pad."
     },
     "cw_jetty_post_1": {
-      "model": "prop_bp_beam_mossy",
+      "model": "piece_bp_timber_wall",
       "material": "wood",
-      "note": "D18: a piling driven into the pond bed."
+      "note": "D18: a jetty piling, the timber wall piece stood on end."
     },
     "cw_jetty_post_2": {
-      "model": "prop_bp_beam_mossy",
+      "model": "piece_bp_timber_wall",
       "material": "wood",
-      "note": "D18: a piling driven into the pond bed."
+      "note": "D18: a jetty piling, the timber wall piece stood on end."
     },
     "cw_jetty_post_3": {
-      "model": "prop_bp_beam_mossy",
+      "model": "piece_bp_timber_wall",
       "material": "wood",
-      "note": "D18: a piling driven into the pond bed."
+      "note": "D18: a jetty piling, the timber wall piece stood on end."
     },
     "cw_pond_reeds_1": {
       "model": "flora_cattail_clump",
