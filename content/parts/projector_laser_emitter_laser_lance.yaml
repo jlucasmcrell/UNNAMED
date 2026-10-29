@@ -12,4 +12,4 @@ slot: emitter
 mesh: mesh.part.projector.laser.emitter.laser_lance
 material_slots: [emitter_main, lens]
 tier_min: 3
-stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.55, speed_mult: 0.95, durability_add: 5 }
+stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.35, speed_mult: 0.95, durability_add: 5 }

@@ -11,4 +11,4 @@ slot: frame
 mesh: mesh.part.projector.laser.frame.frame_salvage
 material_slots: [frame]
 tier_min: 3
-stat_contrib: { damage_mult: 1.02, reach_add: 0.0, weight_add: 0.3, speed_mult: 0.99, durability_add: 12 }
+stat_contrib: { damage_mult: 1.02, reach_add: 0.0, weight_add: 0.2, speed_mult: 0.99, durability_add: 12 }

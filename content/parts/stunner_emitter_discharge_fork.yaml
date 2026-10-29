@@ -12,4 +12,4 @@ slot: emitter
 mesh: mesh.part.stunner.emitter.discharge_fork
 material_slots: [emitter_main]
 tier_min: 3
-stat_contrib: { damage_mult: 1.02, reach_add: 0.1, weight_add: 0.25, speed_mult: 1.0, durability_add: 0 }
+stat_contrib: { damage_mult: 1.02, reach_add: 0.1, weight_add: 0.2, speed_mult: 1.0, durability_add: 0 }

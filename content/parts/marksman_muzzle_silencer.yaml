@@ -12,4 +12,4 @@ slot: muzzle
 mesh: mesh.part.marksman.muzzle.silencer
 material_slots: [muzzle]
 tier_min: 2
-stat_contrib: { damage_mult: 0.94, reach_add: 0.00, weight_add: 0.35, speed_mult: 0.98, durability_add: 4 }
+stat_contrib: { damage_mult: 0.94, reach_add: 0.00, weight_add: 0.1, speed_mult: 0.98, durability_add: 4 }

@@ -7,7 +7,7 @@ name: Cosmic Projector
 notes: "A cosmic collimator with a sealed star-metal core: hand-placed relic only, never rolled (4.1.1, 4.1.2)."
 category: weapon
 stack_max: 1
-weight: 4.6
+weight: 3.6
 value_base: 900
 item_class: ordinary
 damage: [9, 12]

@@ -11,4 +11,4 @@ slot: stabiliser
 mesh: mesh.part.marksman.stabiliser.bipod
 material_slots: [frame]
 tier_min: 2
-stat_contrib: { damage_mult: 1.02, reach_add: 0.0, weight_add: 0.3, speed_mult: 1.0, durability_add: 5 }
+stat_contrib: { damage_mult: 1.02, reach_add: 0.0, weight_add: 0.15, speed_mult: 1.0, durability_add: 5 }

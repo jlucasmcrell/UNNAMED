@@ -7,7 +7,7 @@ name: Fold Projector
 notes: "A reality-bending device on an anchor cell: Other-tech, hand-placed at the Foldscar and the Hinge (4.1.1)."
 category: weapon
 stack_max: 1
-weight: 5.0
+weight: 4.0
 value_base: 900
 item_class: ordinary
 damage: [8, 11]

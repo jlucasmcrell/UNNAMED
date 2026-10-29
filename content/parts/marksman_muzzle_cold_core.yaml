@@ -12,4 +12,4 @@ slot: muzzle
 mesh: mesh.part.marksman.muzzle.cold_core
 material_slots: [muzzle]
 tier_min: 3
-stat_contrib: { damage_mult: 0.97, reach_add: 0.10, weight_add: 0.45, speed_mult: 0.97, durability_add: 6 }
+stat_contrib: { damage_mult: 0.97, reach_add: 0.10, weight_add: 0.1, speed_mult: 0.97, durability_add: 6 }

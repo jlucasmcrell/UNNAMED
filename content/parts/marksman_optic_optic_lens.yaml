@@ -12,4 +12,4 @@ slot: optic
 mesh: mesh.part.marksman.optic.optic_lens
 material_slots: [optic]
 tier_min: 2
-stat_contrib: { damage_mult: 1.00, reach_add: 0.20, weight_add: 0.06, speed_mult: 1.00, durability_add: 0 }
+stat_contrib: { damage_mult: 1.00, reach_add: 0.20, weight_add: 0.1, speed_mult: 1.00, durability_add: 0 }

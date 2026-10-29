@@ -7,7 +7,7 @@ name: Charge Rifle
 notes: "The rail line: a slug accelerated by a coil, loud and heavy and indifferent to wind (4.2)."
 category: weapon
 stack_max: 1
-weight: 4.6
+weight: 4.0
 value_base: 260
 item_class: ordinary
 damage: [11, 14]

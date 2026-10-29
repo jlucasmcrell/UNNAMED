@@ -11,4 +11,4 @@ slot: stabiliser
 mesh: mesh.part.marksman.stabiliser.gyro
 material_slots: [frame]
 tier_min: 3
-stat_contrib: { damage_mult: 1.03, reach_add: 0.0, weight_add: 0.4, speed_mult: 0.99, durability_add: 5 }
+stat_contrib: { damage_mult: 1.03, reach_add: 0.0, weight_add: 0.15, speed_mult: 0.99, durability_add: 5 }

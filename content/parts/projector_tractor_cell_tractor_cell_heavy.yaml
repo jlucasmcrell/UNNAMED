@@ -11,4 +11,4 @@ slot: cell
 mesh: mesh.part.projector.tractor.cell.tractor_cell_heavy
 material_slots: [cell]
 tier_min: 3
-stat_contrib: { damage_mult: 1.04, reach_add: 0.0, weight_add: 0.45, speed_mult: 0.98, durability_add: 0 }
+stat_contrib: { damage_mult: 1.04, reach_add: 0.0, weight_add: 0.25, speed_mult: 0.98, durability_add: 0 }

@@ -7,7 +7,7 @@ name: Stun Device
 notes: "A contact stunner: shock at low damage and a short interrupt, never sleep (4.3.1)."
 category: weapon
 stack_max: 1
-weight: 1.4
+weight: 1.8
 value_base: 110
 item_class: ordinary
 damage: [2, 3]

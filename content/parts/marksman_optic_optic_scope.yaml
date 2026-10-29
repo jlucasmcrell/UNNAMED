@@ -11,4 +11,4 @@ slot: optic
 mesh: mesh.part.marksman.optic.optic_scope
 material_slots: [optic]
 tier_min: 3
-stat_contrib: { damage_mult: 1.03, reach_add: 0.3, weight_add: 0.2, speed_mult: 1.0, durability_add: 0 }
+stat_contrib: { damage_mult: 1.03, reach_add: 0.3, weight_add: 0.1, speed_mult: 1.0, durability_add: 0 }
