@@ -33,11 +33,10 @@ public static class NpcLooks
     /// </summary>
     public static string RoleOutfit(string role) => role switch
     {
-        // Only wardrobes whose every piece is lined: the coat, the smock and the robe close their own openings, so no body shows.
-        "guard" or "hunter" or "trapper" or "miner" or "woodcutter" or "herder" => "outfit.winter.frosty_evening",
-        "steward" or "quartermaster" or "guide" => "outfit.winter.frosty_evening",
+        // A frontier waystation wears period garb: the period set from the wardrobe for every trade, and the robe for a scholar.
+        // Modern clothing belongs to Otherborn arrivals, which these towns do not have.
         "scholar" => "outfit.extra_outfits_pack.kimono",
-        _ => "outfit.extra_outfits_pack.lab_tech",
+        _ => "outfit.extra_outfits_pack.pirate",
     };
 
     /// <summary>The role a slot id names, which is what its wardrobe is chosen from.</summary>
