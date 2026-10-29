@@ -1,0 +1,27 @@
+id: spawn.boss.barrowworks.ring_custodian.deep
+kind: spawn
+schema: 1
+display_key: spawn.boss.barrowworks.ring_custodian.deep.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.1): the Custodian of the Measure, the end boss it was always written to be. Three phases, and each is a reading: the Gauge Sweep reads the room, the Measure Falls makes the floor the mechanic, the Index Grasp takes what stands still. DUNGEON END, band 8, no respawn."
+region_ref: region.barrowworks
+creatures:
+- creature_ref: creature.construct.ring_custodian
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 50.0
+  - 106.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: A
+encounter_recovery: { min_x_m: 36.0, min_z_m: 94.0, max_x_m: 64.0, max_z_m: 118.0, safe_x_m: 50.0, safe_z_m: 84.0 }

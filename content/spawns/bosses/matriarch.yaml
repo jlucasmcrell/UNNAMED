@@ -1,0 +1,27 @@
+id: spawn.boss.den_gorge.matriarch
+kind: spawn
+schema: 1
+display_key: spawn.boss.den_gorge.matriarch.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.1): the Matriarch, already shipped as a creature and already feared; this gives her a room and a rule. P1 the lair - the webs across the rope cave are cuttable, and cutting them chooses where the fight happens. P2 she drops the ceiling, telegraphed by the rope going slack. FIELD, band 7."
+region_ref: region.den_gorge_cave
+creatures:
+- creature_ref: creature.beast.hunting_spider_matriarch
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 541.0
+  - 785.0
+  radius_m: 2
+level_band:
+- 4
+- 4
+respawn:
+  kind: none
+tier_hint: B
+encounter_recovery: { min_x_m: 528, min_z_m: 772, max_x_m: 554, max_z_m: 798, safe_x_m: 541, safe_z_m: 770 }

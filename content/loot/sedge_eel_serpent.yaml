@@ -1,0 +1,10 @@
+id: loot.sedge_eel_serpent
+kind: loot
+schema: 1
+display_key: loot.sedge_eel_serpent.name
+tags: [loot]
+notes: "D19 (canon/BOSSES.md 3.2): what Old Channel has been swallowing in the channel under the causeway - and the tide table it has been reading instead of eating. The Tide Reader is the drop's weight: an eel-serpent's stomach is a museum of everything the channel has taken."
+rolls: 0
+entries:
+  - { item_ref: item.material.fish_eel, chance: 1.0, count_range: [2, 4] }
+  - { item_ref: item.legend.tide_reader, chance: 1.0, count_range: [1, 1] }

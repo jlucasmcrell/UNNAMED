@@ -1,0 +1,28 @@
+id: spawn.boss.old_late.the_breath_late
+kind: spawn
+schema: 1
+display_key: spawn.boss.old_late.the_breath_late.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.1): the thing that answers when Old Late's crown answers a breath late - the quiet half-second after the wind. The document says plainly that this one needs art and wants an audio-and-silhouette treatment; until that exists it is carried by the gate tender's stone body, which the document names as its acceptable stone echo. FIELD, band 7."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.construct.gate_tender
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 521.0
+  - 767.0
+  radius_m: 2
+level_band:
+- 4
+- 4
+respawn:
+  kind: timer
+  window_ticks: 4800
+tier_hint: B
+encounter_recovery: { min_x_m: 511.0, min_z_m: 757.0, max_x_m: 531.0, max_z_m: 777.0, safe_x_m: 521.0, safe_z_m: 790.0 }
