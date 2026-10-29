@@ -150387,14 +150387,14 @@ structures:
   height_m: 1.6
 - id: cw_crag_old_late_1
   circle_m:
-  - 658
-  - 746.5
+  - 672
+  - 736.0
   - 2.6
   height_m: 7.0
 - id: cw_crag_old_late_2
   circle_m:
-  - 658
-  - 784.4
+  - 672
+  - 792.0
   - 2.6
   height_m: 7.0
 doors:
