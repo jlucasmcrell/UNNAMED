@@ -1,0 +1,11 @@
+id: ability.tracking.walk_their_road
+kind: ability
+schema: 1
+display_key: ability.tracking.walk_their_road.name
+tags: [ability, tracking]
+name: Walk Their Road
+notes: Canon A, a cross of tracking and stealth - "follow a route a cautious person took, without becoming the one followed". The follower sets their feet where the quarry's prints are, so a follow stays inside a walk's noise_m instead of a run's; both take the stealth skill's own reduction (StealthRules.NoiseFactor).
+class: technique
+discipline: skill.tracking
+grade: A
+needs: { tracking: 45, stealth: 45 }

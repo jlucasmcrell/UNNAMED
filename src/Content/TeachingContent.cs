@@ -19,8 +19,8 @@ namespace UNNAMED.Content;
 /// </summary>
 public static class TeachingContent
 {
-    /// <summary>The ability classes built: a creature's attack (M3c) and the player's active technique (WP9). The rest of §4.7's arrive with their systems.</summary>
-    private static readonly string[] AbilityClasses = { "creature", "active", "people" };
+    /// <summary>The ability classes built: a creature's attack (M3c) and the player's active technique (WP9), a people's innate one (WP2), and the skill catalogue's own (a technique that needs a competences, built by the skill that owns it - TrackingContent is the first). The rest of §4.7's arrive with their systems.</summary>
+    private static readonly string[] AbilityClasses = { "creature", "active", "people", "technique" };
 
     private static readonly string[] EntryFields = { "kind", "recipe_ref", "ability_ref", "spell_ref", "piece_ref", "fee", "by_dialogue", "requires" };
 

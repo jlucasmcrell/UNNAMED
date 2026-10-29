@@ -1,0 +1,11 @@
+id: ability.tracking.what_the_trail_refuses_to_say
+kind: ability
+schema: 1
+display_key: ability.tracking.what_the_trail_refuses_to_say.name
+tags: [ability, tracking]
+name: What the Trail Refuses to Say
+notes: Canon E, the last rung - "know the limits of your own read - age, water, stone, and honest uncertainty". Without it a read over ground that keeps nothing, or a trail too old to date, comes back confident and wrong; with it, the read is marked uncertain and says which limit it ran into.
+class: technique
+discipline: skill.tracking
+grade: E
+needs: { tracking: 60, insight: 30 }

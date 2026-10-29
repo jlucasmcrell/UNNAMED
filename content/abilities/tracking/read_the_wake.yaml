@@ -1,0 +1,11 @@
+id: ability.tracking.read_the_wake
+kind: ability
+schema: 1
+display_key: ability.tracking.read_the_wake.name
+tags: [ability, tracking]
+name: Read the Wake
+notes: Canon A - "follow an Otherwake after the ground has forgotten the tracks". Its otherlore leg is canon's, and this content pack carries no otherlore skill yet, so the technique waits on one. The wake is read the way the ground is read, and only the mark is left by something the ground never held.
+class: technique
+discipline: skill.tracking
+grade: A
+needs: { tracking: 45, otherlore: 30 }

@@ -165,6 +165,13 @@ public static class Weather
         }
         throw new InvalidOperationException("a weighted draw fell outside its weights");
     }
+
+    /// <summary>
+    /// The wind over a front: the bearing it blows *from*, in millidegrees. It is the front's own draw, so it holds for the whole front
+    /// and a region's wind turns when its weather does - which is what a scent carried to a reader, or past one, hangs on (STEALTH §18).
+    /// </summary>
+    public static int WindFromMdeg(ulong worldSeed, CellKey region, string regionId, long frontStartHour) =>
+        RngChannel.Open(worldSeed, region, "weather", $"{regionId}/{frontStartHour}/wind").Int(0, 0, 360_000);
 }
 
 /// <summary>
@@ -192,6 +199,21 @@ internal sealed class WeatherSystem : IAbstractAdvance
     private string RegionId => _context.Setup.Layout.Id;
 
     public WeatherFront FrontAt(long tick) => FrontOfHour(Clock.Hour(tick));
+
+    private long _windFront = long.MinValue;
+    private int _windFromMdeg;
+
+    /// <summary>The bearing the wind blows from now: one draw per front, read by anything that carries a scent or seeks one.</summary>
+    public int WindFromMdeg(long tick)
+    {
+        var front = FrontAt(tick);
+        if (_windFront != front.StartHour)
+        {
+            _windFromMdeg = Weather.WindFromMdeg(State.World.WorldSeed, _region, RegionId, front.StartHour);
+            _windFront = front.StartHour;
+        }
+        return _windFromMdeg;
+    }
 
     public WeatherView View(long tick)
     {

@@ -534,7 +534,9 @@ public class ContentLoaderTests
                 "ability.people.ondrek.stonesense", "ability.people.orenth.afterimage", "ability.people.orenth.anchor_recall", "ability.people.orenth.blink",
                 "ability.people.orenth.planar_anchor", "ability.people.orenth.wraith_step", "ability.people.siann.kindled_ring", "ability.people.siann.perfect_recall",
                 "ability.people.vaskaal.long_sight", "ability.people.vaskaal.thermal_read", "ability.people.veth.quick_study", "ability.people.veth.supple",
-                "ability.polearm.long_thrust", "body.kal_f.average", "body.kal_m.average", "body.orenth_f.average",
+                "ability.polearm.long_thrust", "ability.tracking.follow_the_quarry", "ability.tracking.predators_bearing", "ability.tracking.read_the_ground",
+                "ability.tracking.read_the_wake", "ability.tracking.trail_sign", "ability.tracking.walk_their_road", "ability.tracking.what_the_trail_refuses_to_say",
+                "body.kal_f.average", "body.kal_m.average", "body.orenth_f.average",
                 "body.orenth_m.average", "body.siann_f.average", "body.siann_m.average", "body.veth_f.average",
                 "body.veth_f.heavy", "body.veth_f.lean", "body.veth_f.very_heavy", "body.veth_f.very_lean",
                 "body.veth_m.average", "body.veth_m.heavy", "body.veth_m.lean", "body.veth_m.very_heavy",
@@ -551,6 +553,10 @@ public class ContentLoaderTests
                 "config.weather", "config.xp_curve", "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar",
                 "creature.beast.buck", "creature.beast.cave_hunting_spider", "creature.beast.chicken", "creature.beast.doe",
                 "creature.beast.elk", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox",
+                "config.simulation_tiers", "config.teaching", "config.time", "config.tracking",
+                "config.travel", "config.weather", "config.xp_curve", "creature.beast.ash_ember_hound",
+                "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider", "creature.beast.chicken", "creature.beast.doe",
+                "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox",
                 "creature.beast.rooster", "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour",
                 "creature.construct.gate_tender", "creature.construct.gate_warden", "creature.construct.ring_custodian", "creature.grazer.barrowback",
                 "creature.grazer.fellhorn", "creature.undead.bone_walker_husk", "dialogue.ashen_hollow.kera_voss", "dialogue.ashen_hollow.renn_vale",
@@ -671,7 +677,8 @@ public class ContentLoaderTests
                 "skill.athletics", "skill.bow", "skill.cooking", "skill.fishing", "skill.foraging",
                 "skill.force", "skill.handling", "skill.herbalism", "skill.lockpicking", "skill.logging",
                 "skill.mining", "skill.one_hand_blade", "skill.polearm", "skill.salvage", "skill.skinning",
-                "skill.smithing", "skill.stealth", "skill.survival", "skill.vital", "skill.warding",
+                "skill.smithing", "skill.stealth", "skill.survival", "skill.tracking", "skill.vital",
+                "skill.warding",
                 "skill.woodworking",
                 "spawn.barrowworks.bend_husk", "spawn.barrowworks.inspection_spiders", "spawn.barrowworks.ring_custodian", "spawn.barrowworks.sorting_spider_north",
                 "spawn.barrowworks.sorting_spider_south", "spawn.barrowworks.wash_spider", "spawn.cairnwold.barrow_sentinel", "spawn.cairnwold.birch_boar",
@@ -807,3 +814,4 @@ public class AliasFileTests : IDisposable
     public void AnUnknownSection_IsAnError() =>
         Assert.Contains(Load("renamed:\n  item.weapon.ironsword: item.weapon.iron_sword\n").Errors, e => e.Code == "ALIAS005");
 }
+

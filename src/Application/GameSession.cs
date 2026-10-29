@@ -301,6 +301,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             NpcLife = NpcLifeContent.Build(loader, options.RegionId),
             Adventurers = AdventurerContent.Build(loader),
             Lore = LoreContent.Build(loader),
+            // The tracking skill: the spoor's own numbers, and the techniques canon's needs unlock (canon skill.tracking).
+            Tracking = TrackingContent.Build(loader),
             // Pets (spec 43): the taming rules and the species a creature is a pet as; null in a pack with none.
             Pets = options.EnablePets && PetContent.BuildSpecies(loader) is { Count: > 0 } species
                 ? new UNNAMED.Domain.Pets.PetSetup(PetContent.BuildRules(loader), species)

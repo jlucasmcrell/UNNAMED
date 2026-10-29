@@ -266,6 +266,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>The Orenth afterimages lingering now (owner ruling 2026-10-25): a creature after one of them may strike the ghost instead.</summary>
     public Func<IEnumerable<Afterimage>>? Afterimages { get; set; }
 
+    /// <summary>
+    /// How far the character's step carries while they follow a trail, or null when they are not following one (the tracking skill's
+    /// Walk Their Road). A follow keeps to a walk's quiet where an ordinary one has to hurry, so the quarry's own awareness of the
+    /// character is what the tracking skill buys - never a read that reveals the animal (STEALTH §1).
+    /// </summary>
+    public Func<long?>? FollowingStepMm { get; set; }
+
     private EncounterScale ScaleOf() => Scale?.Invoke() ?? EncounterScale.Authored;
 
     /// <summary>An attack as a scaled body throws it: the same windup and reach, more force behind it.</summary>
@@ -543,6 +550,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         if (radius > 0)
             radius = Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero));
+        // A follower sets their feet where the quarry's prints are: the step is a walk's however fast they are going (Walk Their Road).
+        if (radius > 0 && FollowingStepMm?.Invoke() is { } following)
+            radius = Math.Min(radius, following);
         if (radius > 0)
             yield return new Noise(body.XMm, body.ZMm, radius);
     }

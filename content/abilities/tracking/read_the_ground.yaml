@@ -1,0 +1,11 @@
+id: ability.tracking.read_the_ground
+kind: ability
+schema: 1
+display_key: ability.tracking.read_the_ground.name
+tags: [ability, tracking]
+name: Read the Ground
+notes: Canon N (novice), the skill's first rung and the one the whole catalogue stands on - "which way, how long ago, how many, what they carried". Below its needs the character still finds sign, and cannot say what it means. Canon's table gives no cost for a read; a read costs nothing but the standing still.
+class: technique
+discipline: skill.tracking
+grade: N
+needs: { tracking: 15, insight: 12 }

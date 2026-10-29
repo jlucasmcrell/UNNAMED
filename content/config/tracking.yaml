@@ -1,0 +1,12 @@
+id: config.tracking
+kind: config
+schema: 1
+display_key: config.tracking.name
+tags: [config]
+notes: The tracking skill's own numbers (canon skill.tracking; STEALTH_DETECTION_AND_THREAT.md §2's tracks and scent, §4's last known position). A mark ages, fades, and is read off the ground by whoever has the skill for it; nothing here is a perception model of its own - a scent is the weather's wind, and following quietly is the stealth skill's noise.
+spoor:
+  fresh_s: 30                 # younger than this and the trail is anyone's to find; older and it is cold, and needs Follow the Quarry
+  fade_s: 150                 # a print, a broken stem, blood or droppings: gone by then
+  scent_s: 60                 # a scent hangs less long than a print, because the wind takes it
+  cone_mdeg: 90000            # the arc the wind carries a scent through: read only from downwind (STEALTH §18)
+  spacing_m: 1.5              # how far a creature walks before it leaves the next mark
