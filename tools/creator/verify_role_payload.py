@@ -6,7 +6,8 @@ wt=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(wt/'tools/animation'))
 from audit_humgen_transport import Glb
 rows=[]
-for folder in sorted(Path('D:/gc_delivery/game/primary/rigged').iterdir()):
+delivery=Path(sys.argv[1]) if len(sys.argv)>1 else Path('D:/gc_delivery')
+for folder in sorted((delivery/'game/primary/rigged').iterdir()):
     contract=json.loads((folder/'creator_part.json').read_text())
     target=Path('D:/Otherreach_Scratch/codex_f1_siann_wt/work/creator/game/primary/rigged')/contract['target_base']/(contract['target_base']+'_rigged.glb')
     body=Glb(target);part_file=folder/(folder.name+'_rigged.glb');part=Glb(part_file)
@@ -22,5 +23,5 @@ for folder in sorted(Path('D:/gc_delivery/game/primary/rigged').iterdir()):
     assert (folder/'body_coverage.png').is_file()
     rows.append(dict(id=folder.name,body_sha256=contract['target_body_sha256'],garment_sha256=hashlib.sha256(part_file.read_bytes()).hexdigest(),max_global_rest_error=error,meshes=len(meshes)))
 assert len(rows)==15,len(rows)
-Path('D:/gc_delivery/NATIVE_ROLE_GUARD.json').write_text(json.dumps(dict(status='PASS',rows=rows,scope='File-level native body/rest/morph/LOD contract; visual/gameplay clipping judged separately'),indent=2))
+(delivery/'NATIVE_ROLE_GUARD.json').write_text(json.dumps(dict(status='PASS',rows=rows,scope='File-level native body/rest/morph/LOD contract; visual/gameplay clipping judged separately'),indent=2))
 print('NATIVE_ROLE_GUARD_PASS',len(rows))

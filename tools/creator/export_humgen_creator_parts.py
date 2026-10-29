@@ -279,6 +279,10 @@ def add_lining(meshes):
     """Copy each worn mesh, flip it inside out and pull it 3 mm toward the body: the cloth seen through an opening."""
     lining = []
     for obj in meshes:
+        # This cape already has its authored inner/outer surfaces. A generated
+        # 3 mm copy crosses that thin shell and fights it instead of lining it.
+        if 'Medieval_Hooded_Cloak' in obj.name:
+            continue
         # Only a skinned garment piece gets a lining: a static piece (a collar) has no bones to follow and would sit apart.
         if not any(modifier.type == 'ARMATURE' for modifier in obj.modifiers):
             continue

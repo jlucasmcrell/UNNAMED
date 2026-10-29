@@ -1,9 +1,10 @@
 """Layer the completed delta into an isolated review root, sharing immutable art."""
-import json,os,subprocess
+import json,os,subprocess,sys
 from pathlib import Path
 baseline=Path('D:/Otherreach_Scratch/codex_f1_siann_wt/work/creator/game/world_fallback')
-delta=Path('D:/gc_delivery/game/primary')
-out=Path('D:/gc_finalreview/world_fallback');(out/'rigged').mkdir(parents=True,exist_ok=True)
+delta=Path(sys.argv[1]) if len(sys.argv)>1 else Path('D:/gc_delivery/game/primary')
+out=Path(sys.argv[2]) if len(sys.argv)>2 else Path('D:/gc_finalreview/world_fallback')
+(out/'rigged').mkdir(parents=True,exist_ok=True)
 def link(path,target):
     if path.exists():return
     if target.is_dir():
@@ -11,7 +12,8 @@ def link(path,target):
     else:os.link(target,path)
 for file in baseline.iterdir():
     if file.name not in ('rigged','texture_cache'):link(out/file.name,file)
-for folder in (baseline/'rigged').iterdir():link(out/'rigged'/folder.name,folder)
+for folder in (baseline/'rigged').iterdir():
+    if not (delta/'rigged'/folder.name).exists():link(out/'rigged'/folder.name,folder)
 for folder in (delta/'rigged').iterdir():link(out/'rigged'/folder.name,folder)
 entries={}
 for root in [baseline,delta]:

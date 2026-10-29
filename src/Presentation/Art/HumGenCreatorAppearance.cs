@@ -486,6 +486,15 @@ public sealed partial class HumGenCreatorAppearance : Node
                 var source = art.Rigged(asset) ?? throw new InvalidDataException("Native part could not load: " + asset);
                 if (choice == CreatorChoice.Outfit) _worn = asset;
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
+                // The authored cape already renders inside and outside. Our generated
+                // duplicate shell crosses its thin folds; retain the original mesh buffers.
+                foreach(var duplicate in source.FindChildren("*",nameof(MeshInstance3D),true,false).OfType<MeshInstance3D>()
+                    .Where(mesh=>mesh.Name.ToString().Contains("Medieval_Hooded_Cloak",StringComparison.Ordinal)
+                        && mesh.Name.ToString().EndsWith("_lining",StringComparison.Ordinal)).ToArray())
+                {
+                    duplicate.GetParent().RemoveChild(duplicate);
+                    duplicate.Free();
+                }
                 CharacterMaterials.Upgrade(source, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
                 HumGenMaterials.Apply(source, art, asset);
                 // Cloth is opaque and two-sided: an alpha cutout on a garment texture drops triangles and shows the body through them.
