@@ -198,20 +198,22 @@ public sealed class WaterShore
     public float Carve(float x, float z, float existing)
     {
         var (inside, along) = Find(x, z);
-        float bank = Bank;
+        // The bank is a distance in from the authored edge, never the whole body: a 2 m spring would otherwise have no bed at all.
+        float bank = MathF.Min(Bank, _half);
         float bed = MathF.Min(existing, Level - Depth);
-        if (inside <= -bank)
+        if (inside >= bank)
             return bed;
-        if (inside <= 0f)
+        if (inside > 0f)
         {
+            // From the edge down to the bed: to the land where the land already holds the water, to the lip where it does not.
             float to = _pan ? Level + LipM : existing;
-            return Mathf.Lerp(bed, to, GroundField.SmoothStep(0f, 1f, (inside + bank) / bank));
+            return Mathf.Lerp(bed, to, 1f - inside / bank);
         }
-        if (!_pan || inside >= Apron)
+        if (!_pan || inside <= -Apron)
             return existing;
         // The bank is held just over the surface for a step past the edge, then the land settles back to what it was.
         float lip = MathF.Max(existing, Level + LipM);
-        return Mathf.Lerp(lip, existing, GroundField.SmoothStep(0f, 1f, inside / Apron));
+        return Mathf.Lerp(lip, existing, GroundField.SmoothStep(0f, 1f, -inside / Apron));
     }
 
     /// <summary>
