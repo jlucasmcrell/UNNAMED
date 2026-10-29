@@ -1,0 +1,30 @@
+id: dialogue.sedge.nessa_reed
+kind: dialogue
+schema: 1
+display_key: dialogue.sedge.nessa_reed.name
+tags:
+- dialogue
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+participants:
+- npc.sedge.nessa_reed
+root_node: greet
+nodes:
+  greet:
+    text: Mind the gap between the planks. Food here, dry bedding behind the lamps. The tide keeps its hours; we keep ours.
+    choices:
+    - id: trade
+      text: Show me your stock.
+      consequences:
+      - command: open_service
+        service: trade
+    - id: rest
+      text: A dry berth and a rest.
+      consequences:
+      - command: rent_room
+    - id: teach
+      text: "Show me how you make that."
+      consequences:
+      - command: teach
+        refs: [recipe.cooking.roast_meat, recipe.herbal.salve_minor]
+    - id: leave
+      text: Goodbye.

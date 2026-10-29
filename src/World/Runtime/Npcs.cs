@@ -124,7 +124,7 @@ internal sealed partial class NpcSystem
             var id = InstanceIdOf(site.NpcId);
             if (!State.World.Registry.Exists(id))
                 State.World.Registry.CreateEntity(DefinitionId.Parse(site.NpcId), id);
-            long y = _context.Setup.SpaceFor(home.SpaceId).Terrain.HeightAtMm(site.XMm, site.ZMm);
+            long y = _context.Setup.SpaceFor(home.SpaceId).HeightAtMm(site.XMm, site.ZMm);
             State.SetNpc(_owner, new NpcState(definition, id, site, new Body(site.XMm, y, site.ZMm, site.FacingMdeg)) { Space = home.SpaceId });
         }
         PopulateLives();
@@ -248,7 +248,7 @@ internal sealed partial class NpcSystem
             };
         }).ToImmutableArray();
 
-    /// <summary>A body on the ground at a place: its height is the terrain's there.</summary>
+    /// <summary>A body on the walkable surface, including bridges above the terrain.</summary>
     private Body BodyAt(long xMm, long zMm, int facingMdeg) =>
         new(xMm, _context.Setup.Layout.Space.HeightAtMm(xMm, zMm), zMm, facingMdeg);
 

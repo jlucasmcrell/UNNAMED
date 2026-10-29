@@ -1,0 +1,18 @@
+SEDGE LEVELS GATE 4 - CREATURE ATTRIBUTIONS
+
+This work is based on "Cursed Undead Soldier Rig" by DM-913 (SuperKapoo913):
+https://sketchfab.com/3d-models/cursed-undead-soldier-rig-b2e39de76b834d978adee5716aec814d
+https://sketchfab.com/SuperKapoo913
+CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Changes: conversion and retargeted additional motion. Native soldier surfaces retained.
+Motion source: Quaternius Universal Animation Library 1, CC0 (quaternius.com).
+
+This work is based on "Eel monster rigged" by KrazyKaijus (pincers60):
+https://sketchfab.com/3d-models/eel-monster-rigged-7747294b15b348cabd6f6a7c3f741f74
+https://sketchfab.com/pincers60
+CC BY 4.0: https://creativecommons.org/licenses/by/4.0/
+Changes: uniform metric placement, olive pigment treatment and additional native-rig motion.
+Original anatomy, skin weights and rest skeleton retained; native 4K detail preserved.
+
+The accepted Human Generator character, garment and motion credits remain in the game's
+main Credits screen and source notices. No character anatomy was edited for this area.

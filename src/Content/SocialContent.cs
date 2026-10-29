@@ -29,7 +29,7 @@ public static class SocialContent
 
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
-          "report_act", "hire_hireling", "dismiss_companion", "rent_room", "tell_lore" };
+          "report_act", "hire_hireling", "dismiss_companion", "rent_room", "tell_lore", "take_passage" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -295,8 +295,8 @@ public static class SocialContent
         // An item changing hands, a hire and a lesson are the consequences that can be refused, so a reply carries at most one and it goes first.
         if (consequences.OfType<TransferItemConsequence>().Count() > 1)
             throw new FormatException($"{at}: a reply moves at most one item (transfer_item)");
-        if (consequences.Count(c => c is TransferItemConsequence or HireHirelingConsequence or TeachConsequence) > 1)
-            throw new FormatException($"{at}: a reply carries at most one consequence that can be refused (transfer_item, hire_hireling, teach)");
+        if (consequences.Count(c => c is TransferItemConsequence or HireHirelingConsequence or TeachConsequence or TakePassageConsequence) > 1)
+            throw new FormatException($"{at}: a reply carries at most one consequence that can be refused (transfer_item, hire_hireling, teach) or take_passage");
         return new DialogueChoice(Text(map, "id"), Text(map, "text"),
             Rows(map, "conditions", at).Select(c => Condition(at, c, loader)).ToImmutableArray(), consequences,
             map.GetValueOrDefault("next") as string);
@@ -334,6 +334,17 @@ public static class SocialContent
         };
     }
 
+    private static TakePassageConsequence Passage(string at, Dictionary<object, object> map, ContentLoader loader)
+    {
+        var point = map.GetValueOrDefault("arrival_m") as List<object>;
+        long coin = LongOr(map, "coin", 0);
+        if (point is not { Count: 2 } || coin < 0)
+            throw new FormatException($"{at}: take_passage needs arrival_m: [x,z] and nonnegative coin");
+        return new TakePassageConsequence(Defined(loader, Text(map, "location_ref"), "location", at),
+            checked((long)Math.Round(double.Parse(point[0].ToString()!, System.Globalization.CultureInfo.InvariantCulture) * 1000)),
+            checked((long)Math.Round(double.Parse(point[1].ToString()!, System.Globalization.CultureInfo.InvariantCulture) * 1000)), coin, map.ContainsKey("min_tide_mm") ? LongOr(map,"min_tide_mm",0) : null);
+    }
+
     private static DialogueConsequence Consequence(string at, Dictionary<object, object> map, ContentLoader loader)
     {
         string command = Text(map, "command");
@@ -347,6 +358,7 @@ public static class SocialContent
                     var to => throw new FormatException($"{at}: transfer_item goes to player or npc, not '{to}'"),
                 }),
             "teach" => Teach(at, map),
+            "take_passage" => Passage(at, map, loader),
             "give_recipe" => throw new FormatException($"{at}: give_recipe is replaced by teach, naming entries of the speaker's teaches block (WP9)"),
             "set_world_flag" => new SetWorldFlagConsequence(Defined(loader, Text(map, "flag_ref"), "world_flag", at), LongOr(map, "value", 1)),
             "record_relationship_event" => new RelationshipEventConsequence(Defined(loader, Text(map, "npc_ref"), "npc", at),

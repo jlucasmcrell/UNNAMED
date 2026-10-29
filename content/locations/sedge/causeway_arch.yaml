@@ -1,0 +1,19 @@
+id: location.sedge_causeway_arch
+kind: location
+schema: 1
+display_key: location.sedge_causeway_arch.name
+tags: [location]
+name: Causeway Arch
+region_ref: region.sedge_levels
+anchor:
+  world: [5000, 0, 80]
+kind_of_place: landmark
+discovery:
+  methods: [visited]
+  radius_m: 20
+  xp: 0
+map:
+  reveals_radius_m: 100
+  marker: none
+fast_travel:
+  node: false

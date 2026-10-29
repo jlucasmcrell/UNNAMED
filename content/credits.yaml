@@ -129,6 +129,8 @@ sections:
         text: "The Foldscar's Quiet Stones, its heart and the heart's debris: Frozen Norse Environment by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com)."
       - binds: [gs_old_late]
         text: "Old Late, the stone giant: Dwarven Citadel Megapack by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com), its head weathered away."
+      - binds: [landmark_dc_brannock_hold_mouth]
+        text: "The Brannock hold's mouth: Dwarven Citadel Megapack by Leartes Studios, Cosmos Premium (cosmos.leartesstudios.com), a stone lifted from its lintel."
       - binds: [gs_waystone_]
         text: "The Waystones: rock_moss_set_01 by Poly Haven (polyhaven.com), CC0."
       - binds: [gs_fold_fluorite]
@@ -288,6 +290,24 @@ sections:
         text: "MessagePack for C#, YamlDotNet"
       - ledger: [F01, F02, F03, F04]
         text: "Fonts: Barlow and Barlow Condensed, Montserrat, Nunito, Outfit, under the SIL Open Font License 1.1"
+
+  - id: sedge_creatures
+    title: "Sedge creatures"
+    entries:
+      - binds: [sedge_drowned]
+        text: "Cursed Undead Soldier Rig by DM-913 (SuperKapoo913), CC BY 4.0. Converted and retargeted for the Drowned Oath-Keeper; native soldier surfaces retained. Additional motion from Quaternius Universal Animation Library 1, CC0."
+        url: "https://sketchfab.com/3d-models/cursed-undead-soldier-rig-b2e39de76b834d978adee5716aec814d"
+        lines:
+          - "Source: https://sketchfab.com/3d-models/cursed-undead-soldier-rig-b2e39de76b834d978adee5716aec814d"
+          - "Artist: https://sketchfab.com/SuperKapoo913"
+          - "Licence: https://creativecommons.org/licenses/by/4.0/"
+      - binds: [sedge_eel_serpent]
+        text: "Eel monster rigged by KrazyKaijus (pincers60), CC BY 4.0. Uniform metric placement, olive pigment treatment and additional native-rig motion for Otherreach; original anatomy, skin weights and rest skeleton retained."
+        url: "https://sketchfab.com/3d-models/eel-monster-rigged-7747294b15b348cabd6f6a7c3f741f74"
+        lines:
+          - "Source: https://sketchfab.com/3d-models/eel-monster-rigged-7747294b15b348cabd6f6a7c3f741f74"
+          - "Artist: https://sketchfab.com/pincers60"
+          - "Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/"
 
   - id: notices
     title: "Licence notices"

@@ -1,0 +1,37 @@
+id: market.sedge_tollpiles
+kind: market
+schema: 1
+display_key: market.sedge_tollpiles.name
+tags:
+- market
+notes: PROPOSED Gate 4 Tollpiles working stock and tuning; no free rest or world-time
+  advance.
+merchants:
+- merchant_ref: merchant.sedge.nessa_reed
+- merchant_ref: merchant.sedge.oren_pin
+goods:
+- item_ref: item.consumable.roast_meat
+  target: 8
+  min: 0
+  max: 24
+  elasticity: 0.4
+- item_ref: item.material.ash_haft
+  target: 8
+  min: 0
+  max: 24
+  elasticity: 0.4
+- item_ref: item.material.iron_ingot
+  target: 4
+  min: 0
+  max: 12
+  elasticity: 0.4
+- item_ref: item.armor.hide_vest
+  target: 2
+  min: 0
+  max: 6
+  elasticity: 0.4
+- item_ref: item.bag.satchel
+  target: 2
+  min: 0
+  max: 6
+  elasticity: 0.4

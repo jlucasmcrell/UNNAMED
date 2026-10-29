@@ -36,7 +36,7 @@ public static class DialogueMenu
             return Group.Trade;
         if (consequences.Any(c => c is TeachConsequence))
             return Group.Learn;
-        if (consequences.Any(c => c is RecruitCompanionConsequence or HireHirelingConsequence or DismissCompanionConsequence))
+        if (consequences.Any(c => c is RecruitCompanionConsequence or HireHirelingConsequence or DismissCompanionConsequence or TakePassageConsequence))
             return Group.Service;
         return choice.Next is null && consequences.IsEmpty ? Group.Close : Group.Topic;
     }

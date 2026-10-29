@@ -1,0 +1,60 @@
+id: dialogue.sedge.sella_tally
+kind: dialogue
+schema: 1
+display_key: dialogue.sedge.sella_tally.name
+tags:
+- dialogue
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+participants:
+- npc.sedge.sella_tally
+root_node: greet
+nodes:
+  greet:
+    text: 'Two columns: what the water covers, and what people swear was dry. I need someone to walk the marks, not another opinion.'
+    choices:
+    - id: survey
+      text: I will walk the crossing marks.
+      conditions:
+      - kind: quest_state
+        quest_ref: quest.sedge.the_kept_crossing
+        is: available
+      consequences:
+      - command: start_quest
+        quest_ref: quest.sedge.the_kept_crossing
+      next: brief
+    - id: public_report
+      text: Enter the observations in the public chart.
+      conditions:
+      - kind: quest_state
+        quest_ref: quest.sedge.the_kept_crossing
+        objective: o_public
+        is: active
+      next: public_report
+    - id: private_report
+      text: Keep this account for the ferry families.
+      conditions:
+      - kind: quest_state
+        quest_ref: quest.sedge.the_kept_crossing
+        objective: o_private
+        is: active
+      next: private_report
+    - id: leave
+      text: Goodbye.
+  brief:
+    text: Compare Pellow Cuts with the Causeway Arch, and ask Oren what the crew needs. Take the raised walk when the middle span is
+      covered. Compare the hanging tally-staves in the outer record hall beside the Arch. The barred deep stair is level 30+ danger; the survey ends before it.
+    choices:
+    - id: go
+      text: I will use the dry walk.
+  public_report:
+    text: I will copy the marks for the Wayhold and the ferry families. A crest opens the Arch; slack water sounds the bell. Those are
+      observations, not an explanation of the drowned country.
+    choices:
+    - id: leave
+      text: Keep the crossing open.
+  private_report:
+    text: A private copy for the families, then. The public chart keeps its old warning. You have not taken a cargo through the Arch,
+      and I will not write that you have. A crest and slack water are different marks.
+    choices:
+    - id: leave
+      text: Keep the crossing open.

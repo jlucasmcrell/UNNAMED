@@ -19,6 +19,19 @@ public class CreditsContentTests
 
     private static CreditsContent Credits => CreditsContent.Load(Path.Combine(Repo, "content", "credits.yaml"));
 
+    [Theory]
+    [InlineData("sedge_drowned","DM-913")]
+    [InlineData("sedge_eel_serpent","KrazyKaijus")]
+    public void SedgeImportedCreaturesKeepTheirArtistAndLicence(string model,string artist)
+    {
+        var entry=Credits.Credit(model);
+        Assert.NotNull(entry);
+        Assert.False(Credits.IsFirstParty(model));
+        Assert.Contains(artist,entry!.Text);
+        Assert.Contains("CC BY 4.0",entry.Text);
+        Assert.Contains(entry.Lines,line=>line.Contains("sketchfab.com",StringComparison.Ordinal));
+    }
+
     [Fact]
     public void BothDisclosuresNameAmbientChatGeneratedImageTexturesAndVoice()
     {

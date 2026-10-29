@@ -1,0 +1,34 @@
+id: creature.undead.sedge_drowned
+kind: creature
+schema: 1
+display_key: creature.undead.sedge_drowned.name
+tags:
+- creature
+- undead
+notes: PROPOSED Gate 4 hostile encounter. Mor custodians are living people, never this undead family.
+name: Drowned Oath-Keeper
+family: undead
+archetype: undead
+level_band:
+- 12
+- 12
+pools:
+  health: 85
+attack_set:
+- ability.creature.sedge_drowned_heavy
+- ability.creature.sedge_drowned_rush
+- ability.creature.sedge_drowned_light
+armor:
+  head: 2
+  torso: 3
+  limbs: 1
+move_speed_m_s: 2.3
+turn_deg_s: 180
+body_radius_m: 0.38
+xp_value: 60
+perception:
+  sight_m: 18
+  hearing_m: 14
+  fov_deg: 130
+tier_hint: A
+tameable: false

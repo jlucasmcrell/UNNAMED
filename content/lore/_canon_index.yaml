@@ -16,6 +16,14 @@ concepts:
   source: content/creatures/beast/ash_ember_hound.yaml notes
   covered_by:
   - lore.ember_hounds
+- id: canon.brannock_stone
+  name: The Brannock Stone
+  kind: history
+  status: covered
+  fact: Cairnwold carted a dressed lintel stone from the Brannock hold in the south crags east and sold it to the Ondrek, the year the beck froze; where they took it nobody in Cairnwold knows.
+  source: content/dialogue/cairnwold/berrin_garth.yaml told; content/quests/heritage/unfinished_joint.yaml notes
+  covered_by:
+  - lore.brannock_stone
 - id: canon.ashbloom
   name: Ashbloom
   kind: material

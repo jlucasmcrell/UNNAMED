@@ -156,6 +156,47 @@
         "overcast"
       ],
       "note": "Bats hunting low and fast at night, where the crows were by day (world life 2026-10-15)."
+    },
+    "sedge_arch_crows": {
+      "region": "region.sedge_levels",
+      "mesh": "bird",
+      "count": 12,
+      "flocks": 2,
+      "centres": [
+        [
+          5000,
+          92,
+          22
+        ],
+        [
+          5012,
+          108,
+          40
+        ]
+      ],
+      "altitude": [
+        92,
+        108
+      ],
+      "radius": [
+        10,
+        18
+      ],
+      "speed": [
+        0.022,
+        0.033
+      ],
+      "size": [
+        0.8,
+        1.1
+      ],
+      "day_only": true,
+      "weather": [
+        "fair",
+        "clear",
+        "overcast"
+      ],
+      "note": "PROPOSED normal-size crows at the high broken deck: existing native flock renderer, no giant birds or new art pipeline."
     }
   },
   "perched": {

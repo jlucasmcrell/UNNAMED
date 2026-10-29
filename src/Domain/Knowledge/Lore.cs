@@ -14,6 +14,8 @@ public enum LoreCategory
     Creatures,
     History,
     Faith,
+    /// <summary>Leads: what someone said is out there, past where the character can go yet - heard, never a quest objective.</summary>
+    Rumours,
 }
 
 public static class LoreCategories
@@ -25,6 +27,7 @@ public static class LoreCategories
         LoreCategory.Creatures => "creatures",
         LoreCategory.History => "history",
         LoreCategory.Faith => "faith",
+        LoreCategory.Rumours => "rumours",
         _ => throw new ArgumentOutOfRangeException(nameof(category), category, "Unknown lore category"),
     };
 
@@ -35,12 +38,13 @@ public static class LoreCategories
         "creatures" => LoreCategory.Creatures,
         "history" => LoreCategory.History,
         "faith" => LoreCategory.Faith,
+        "rumours" => LoreCategory.Rumours,
         _ => null,
     };
 
     /// <summary>The journal's order of the headings.</summary>
     public static readonly ImmutableArray<LoreCategory> All =
-        ImmutableArray.Create(LoreCategory.Places, LoreCategory.Peoples, LoreCategory.Creatures, LoreCategory.History, LoreCategory.Faith);
+        ImmutableArray.Create(LoreCategory.Places, LoreCategory.Peoples, LoreCategory.Creatures, LoreCategory.History, LoreCategory.Faith, LoreCategory.Rumours);
 }
 
 /// <summary>

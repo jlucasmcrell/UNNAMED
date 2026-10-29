@@ -1,0 +1,20 @@
+id: npc.sedge.nessa_reed
+kind: npc
+schema: 1
+display_key: npc.sedge.nessa_reed.name
+tags:
+- npc
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+sex: f
+name: Nessa Reed
+role: innkeeper
+services:
+- trade
+people_ref: people.veth
+dialogue_ref: dialogue.sedge.nessa_reed
+unique: true
+merchant_ref: merchant.sedge.nessa_reed
+# D18: the inn's fire is where the fen's meat and simples are made eatable and useful.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.cooking.roast_meat, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.herbal.salve_minor, by_dialogue: true }

@@ -1363,6 +1363,7 @@ public sealed class Simulation
         AdventurerPartyChanged changed => _adventurers.Handle(changed),
         ShareBounty share => _adventurers.Handle(share, Now),
         RentRoom rent => RentRoom(rent),
+        TakePassage passage => _travel.Handle(passage, Now),
         _ => throw new InvalidOperationException($"No system handles {command.GetType().Name}"),
     };
 }

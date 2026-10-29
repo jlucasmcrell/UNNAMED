@@ -1,0 +1,20 @@
+id: npc.sedge.tess_ferry
+kind: npc
+schema: 1
+display_key: npc.sedge.tess_ferry.name
+tags:
+- npc
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+sex: f
+name: Tess Ferry
+role: villager
+services: []
+people_ref: people.veth
+dialogue_ref: dialogue.sedge.tess_ferry
+unique: true
+# D18: the ferryman fowls the fen; a band-11 area with no technique teacher taught nothing at all.
+teaches:
+  - kind: technique
+    ability_ref: ability.bow.aimed_shot
+    fee: 30
+    by_dialogue: true

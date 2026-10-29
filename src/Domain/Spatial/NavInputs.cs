@@ -7,7 +7,7 @@ namespace UNNAMED.Domain.Spatial;
 /// A solid always blocks. A door and a barrier are gates: read at query time, never baked into the grid's solid layer, so opening one
 /// rebuilds nothing.
 /// </summary>
-public enum NavInputKind { Solid, Door, Barrier }
+public enum NavInputKind { Solid, Door, Barrier, Tide }
 
 /// <summary>One footprint navigation is built from: an authored structure, door or barrier. A gate carries the key its state is read by.</summary>
 public sealed record NavInput(NavInputKind Kind, Blocker Shape, string? GateKey)

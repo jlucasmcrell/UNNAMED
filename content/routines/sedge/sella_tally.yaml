@@ -1,0 +1,25 @@
+id: routine.sedge.sella_tally
+kind: routine
+schema: 1
+display_key: routine.sedge.sella_tally.name
+tags:
+- routine
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+region_ref: region.sedge_levels
+npc_ref: npc.sedge.sella_tally
+settlement: sedge_tollpiles
+role: quest_giver
+roles:
+- quest_giver
+work_hours:
+- 6
+- 20
+anchors:
+  home:
+    position_m: &id001
+    - 5001.4
+    - 1072
+    facing_deg: 180
+  work:
+    position_m: *id001
+    facing_deg: 180

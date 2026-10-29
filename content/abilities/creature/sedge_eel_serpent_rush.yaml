@@ -1,0 +1,29 @@
+id: ability.creature.sedge_eel_serpent_rush
+kind: ability
+schema: 1
+display_key: ability.creature.sedge_eel_serpent_rush.name
+tags:
+- ability
+notes: PROPOSED Sedge Gate 4. Distinct tell, range and punishable recovery; tune after
+  native combat review.
+name: Channel lunge
+class: creature
+range_m: 1.54
+windup_s: 0.9
+active_s: 0.2
+recovery_s: 1.0
+cost:
+  stamina: 0
+payload:
+- type: damage
+  damage_type: physical_pierce
+  amount:
+  - 9
+  - 14
+charge:
+  speed_m_s: 8
+  min_range_m: 3.5
+  max_distance_m: 10
+  stun_s: 1.6
+cooldown_s: 7
+commit_facing: true

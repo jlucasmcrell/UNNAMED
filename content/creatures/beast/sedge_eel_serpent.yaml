@@ -1,0 +1,34 @@
+id: creature.beast.sedge_eel_serpent
+kind: creature
+schema: 1
+display_key: creature.beast.sedge_eel_serpent.name
+tags:
+- creature
+- beast
+notes: PROPOSED Gate 4 local hostile. Avoidable encounter; never hostility assigned to an entire people.
+name: Eel-Serpent
+family: beast
+archetype: predator
+level_band:
+- 12
+- 12
+pools:
+  health: 95
+attack_set:
+- ability.creature.sedge_eel_serpent_heavy
+- ability.creature.sedge_eel_serpent_rush
+- ability.creature.sedge_eel_serpent_light
+armor:
+  head: 2
+  torso: 3
+  limbs: 1
+move_speed_m_s: 3.3
+turn_deg_s: 300
+body_radius_m: 0.65
+xp_value: 60
+perception:
+  sight_m: 18
+  hearing_m: 14
+  fov_deg: 130
+tier_hint: A
+tameable: false

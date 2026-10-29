@@ -1,0 +1,14 @@
+id: npc.sedge.keeper_of_names
+kind: npc
+schema: 1
+display_key: npc.sedge.keeper_of_names.name
+tags:
+- npc
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+sex: f
+name: Keeper of Names
+role: scholar
+services: []
+people_ref: people.mor
+dialogue_ref: dialogue.sedge.keeper_of_names
+unique: true

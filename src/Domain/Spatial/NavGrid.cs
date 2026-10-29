@@ -160,7 +160,7 @@ public sealed class NavGrid
 
     /// <summary>A barrier lets anyone by only when lifted; a door lets by an agent that opens doors, and anyone else only when open.</summary>
     public static bool Passable(NavInput gate, NavAgent agent, Func<NavInput, bool> isGateOpen) =>
-        gate.Kind == NavInputKind.Barrier ? isGateOpen(gate) : agent.OpensDoors || isGateOpen(gate);
+        gate.Kind == NavInputKind.Door ? agent.OpensDoors || isGateOpen(gate) : isGateOpen(gate);
 
     /// <summary>
     /// The first 8 bytes of a digest of every tile meeting the watch rectangle: a route planned inside the window sees any change of

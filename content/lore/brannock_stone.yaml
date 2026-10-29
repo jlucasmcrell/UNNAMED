@@ -1,0 +1,18 @@
+id: lore.brannock_stone
+kind: lore
+schema: 1
+display_key: lore.brannock_stone.title
+tags: [lore, rumours]
+title: The Brannock Stone
+category: rumours
+notes: "The Unfinished Joint's lead east (owner K-1, 2026-10-26): Berrin Garth's lodge book on the dressed stone Cairnwold carted from the Brannock hold's lintel and sold to the Ondrek (content/dialogue/cairnwold/berrin_garth.yaml crag_stone; STONE_QUESTION.md - the Ondrek quarry and buy the stone the Kal hold to be waiting ancestors). A rumour for a later road, not an objective: canon gives the Ondrek no place in the frontier (LORE_OWNER_QUESTIONS.md)."
+pages:
+  - page: 1
+    text: >
+      Berrin Garth reads it out of his grandmother's hand in the lodge book: one dressed stone from the crag face, fit for
+      a lintel, carted east and sold to the stone-buyers, the year the beck froze. The Brannock hold's door has stood open
+      at the top ever since. The stone-buyers were the Ondrek, who pay fair and say what they take was never anyone. Where
+      they took it, nobody in Cairnwold knows; east, past the frontier, past where the road goes. Berrin wrote it down, and
+      has not thought on it since.
+    sources:
+      - { how: told, ref: dialogue.cairnwold.berrin_garth }

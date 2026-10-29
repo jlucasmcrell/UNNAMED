@@ -1,0 +1,34 @@
+id: creature.humanoid.back_ledger_raider
+kind: creature
+schema: 1
+display_key: creature.humanoid.back_ledger_raider.name
+tags:
+- creature
+- humanoid
+notes: PROPOSED Gate 4 local hostile. Avoidable encounter; never hostility assigned to an entire people.
+name: Back Ledger Raider
+family: humanoid
+archetype: predator
+level_band:
+- 12
+- 12
+pools:
+  health: 75
+attack_set:
+- ability.creature.back_ledger_raider_heavy
+- ability.creature.back_ledger_raider_rush
+- ability.creature.back_ledger_raider_light
+armor:
+  head: 2
+  torso: 3
+  limbs: 1
+move_speed_m_s: 4.4
+turn_deg_s: 300
+body_radius_m: 0.35
+xp_value: 60
+perception:
+  sight_m: 18
+  hearing_m: 14
+  fov_deg: 130
+tier_hint: A
+tameable: false

@@ -17,7 +17,7 @@ public static class AmbientLife
     public const string ResourcePath = "res://Art/ambient_life.json";
 
     /// <summary>The run's ambient life under <paramref name="parent"/>; returns how many animals it drew.</summary>
-    public static int Build(Node3D parent, GroundField ground, ulong seed, IReadOnlyList<Rect2>? indoors = null)
+    public static int Build(Node3D parent, GroundField ground, ulong seed, IReadOnlyList<Rect2>? indoors = null, string? regionId = null)
     {
         _indoors = indoors ?? Array.Empty<Rect2>();
         if (!Godot.FileAccess.FileExists(ResourcePath))
@@ -31,6 +31,7 @@ public static class AmbientLife
         foreach (var kind in json.RootElement.GetProperty("kinds").EnumerateObject())
         {
             var k = kind.Value;
+            if (k.TryGetProperty("region",out var onlyRegion) && onlyRegion.GetString()!=regionId) continue;
             bool dayOnly = k.TryGetProperty("day_only", out var d) && d.ValueKind == JsonValueKind.True;
             bool nightOnly = k.TryGetProperty("night_only", out var n) && n.ValueKind == JsonValueKind.True;
             var weathers = k.TryGetProperty("weather", out var w) ? w.EnumerateArray().Select(x => x.GetString()!).ToHashSet() : null;
@@ -77,6 +78,11 @@ public static class AmbientLife
                 for (int flock = 0; flock < flocks; flock++)
                 {
                     var centre = Anchor();
+                    if (k.TryGetProperty("centres",out var centres) && centres.GetArrayLength()>0)
+                    {
+                        var at=centres[flock%centres.GetArrayLength()];
+                        centre=new Vector3(at[0].GetSingle(),at[1].GetSingle(),at[2].GetSingle());
+                    }
                     float radius = random.RandfRange(radLo, radHi), speed = random.RandfRange(spdLo, spdHi), phase = random.Randf();
                     for (int i = 0; i < count / flocks; i++)
                         placed.Add((centre + new Vector3(0, random.RandfRange(-2, 2), 0),

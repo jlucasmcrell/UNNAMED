@@ -196,7 +196,13 @@ internal sealed class SystemContext
         CellKey.OfInterior(space, xMm / 1000.0, zMm / 1000.0);
 
     /// <summary>Closed doors and standing barriers: the footprints whose passability is a world flag.</summary>
-    public ImmutableArray<Blocker> ClosedDoors(SpaceId? space = null) => Setup.LayoutFor(space ?? State.Space).ClosedDoors(IsOpen, IsLifted);
+    public ImmutableArray<Blocker> ClosedDoors(SpaceId? space = null)
+    {
+        var layout = Setup.LayoutFor(space ?? State.Space);
+        var doors = layout.ClosedDoors(IsOpen, IsLifted);
+        return layout.Tide is { } tide
+            ? doors.AddRange(tide.Passages.Where(p => !tide.Open(p, State.WorldTick)).Select(p => p.Footprint)) : doors;
+    }
 
     /// <summary>An authored container, or a corpse lying where its creature fell (M3d).</summary>
     public ContainerSite? FindContainer(string key) =>

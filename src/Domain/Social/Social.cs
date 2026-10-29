@@ -386,3 +386,6 @@ public static class DialogueRules
         return node;
     }
 }
+
+/// <summary>A paid, authored local passage. Arrival belongs to the named location; no world clock is skipped.</summary>
+public sealed record TakePassageConsequence(string LocationId, long XMm, long ZMm, long Coin, long? MinTideMm = null) : DialogueConsequence;

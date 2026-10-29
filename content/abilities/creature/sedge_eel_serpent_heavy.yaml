@@ -1,0 +1,24 @@
+id: ability.creature.sedge_eel_serpent_heavy
+kind: ability
+schema: 1
+display_key: ability.creature.sedge_eel_serpent_heavy.name
+tags:
+- ability
+notes: PROPOSED Sedge Gate 4. Distinct tell, range and punishable recovery; tune after
+  native combat review.
+name: Coiling lash
+class: creature
+range_m: 2.8
+windup_s: 1.15
+active_s: 0.3
+recovery_s: 1.15
+cost:
+  stamina: 0
+payload:
+- type: damage
+  damage_type: physical_pierce
+  amount:
+  - 12
+  - 18
+forces_stagger: true
+commit_facing: true

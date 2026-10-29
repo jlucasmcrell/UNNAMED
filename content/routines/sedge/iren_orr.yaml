@@ -1,0 +1,25 @@
+id: routine.sedge.iren_orr
+kind: routine
+schema: 1
+display_key: routine.sedge.iren_orr.name
+tags:
+- routine
+notes: PROPOSED Sedge Gate 4 authoring; existing settlement, people and tide facts retained. New identity and tuning pending gate review.
+region_ref: region.sedge_levels
+npc_ref: npc.sedge.iren_orr
+settlement: sedge_orr_camp
+role: guide
+roles:
+- guide
+work_hours:
+- 6
+- 20
+anchors:
+  home:
+    position_m: &id001
+    - 4754
+    - 1343
+    facing_deg: 180
+  work:
+    position_m: *id001
+    facing_deg: 180

@@ -3,6 +3,7 @@ using System.Collections.Immutable;
 using System.Text.Json;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Persistence;
 using UNNAMED.Presentation.Player;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
@@ -40,6 +41,16 @@ public partial class Main
         if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="peoples")
         {
             await HeritageKal(directory);
+            return;
+        }
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW")=="kalkera")
+        {
+            await HeritageKera(directory);
+            return;
+        }
+        if(OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW") is "kaljoint" or "kaljoint2" or "kaljoint3")
+        {
+            await HeritageJoint(directory);
             return;
         }
 
@@ -235,6 +246,137 @@ public partial class Main
             await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
     }
 
+    /// <summary>
+    /// The Unfinished Joint for a new Kal, in leases of under ten minutes, each saved for the next. The first (OTHERREACH_HERITAGE_REVIEW=kaljoint):
+    /// Kera reads the tool's grip, the road east to the Brannock hold in the south crags, and Berrin's book on the taken stone. The second
+    /// (kaljoint2): the road back to Ashen Hollow. The third (kaljoint3): Kera, to trace the stone east (the new character has no iron for the
+    /// cramp) and have the tool marked; the character sheet names the character in the hold.
+    /// </summary>
+    private async Task HeritageJoint(string directory)
+    {
+        var sim=_session.Simulation!;
+        const string Quest="quest.heritage.unfinished_joint",Kera="npc.ashen_hollow.kera_voss",Berrin="npc.cairnwold.berrin_garth";
+        if(sim.Player.Identity.PeopleId!="people.kal")throw new InvalidDataException("The run did not begin as a Kal");
+        string Open()=>string.Join(",",sim.Quests.Single(q=>q.Id==Quest).Objectives.Where(o=>o.Status==UNNAMED.Domain.Quests.ObjectiveStatus.Active).Select(o=>o.Id));
+        var nodes=new List<string>();
+        async Task Say(string npc,params string[] replies)
+        {
+            _session.Submit(new TalkCommand(sim.PlayerId,npc));await Rcd3Wait(3);
+            foreach(string reply in replies)
+            {
+                if(sim.Conversation?.Replies.Any(r=>r.Id==reply)!=true)throw new InvalidDataException($"{npc} offers no '{reply}' (quest at {Open()})");
+                _session.Submit(new ChooseCommand(sim.PlayerId,reply));await Rcd3Wait(reply=="back"?1:14);
+                if(reply!="back")nodes.Add(sim.Conversation?.NodeId ?? "");
+            }
+            _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(2);
+        }
+        Show(_journal);await Rcd3Wait(6);CloseScreens();await Rcd3Wait(1);
+        var road=sim.Setup.Layout.Roads.Single(r=>r.Id.EndsWith("old_east_road",StringComparison.Ordinal)).Points;
+        var east=road.Skip(2).Take(road.Length-4).ToImmutableArray();
+        string branch,mode=OS.GetEnvironment("OTHERREACH_HERITAGE_REVIEW");
+        // A lease ends saved, its journal shown, for the next lease to continue from.
+        async Task Saved(string status)
+        {
+            _session.Save(SaveSlots.Manual("heritage_kaljoint"));await Rcd3Wait(2);
+            Show(_journal);await Rcd3Wait(5);CloseScreens();
+            File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+            File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+                status,people=sim.Player.Identity.PeopleId,nodes,quest_open=Open(),tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),
+                world_tick=sim.WorldTick,profile="Ordinary steering and commands; no desktop input; saved as heritage_kaljoint for the next lease"},
+                new JsonSerializerOptions{WriteIndented=true}));
+            ulong half=Time.GetTicksMsec()+20000;
+            while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<half)
+                await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+        }
+        if(mode is "kaljoint2" or "kaljoint3")
+        {
+            branch=Open();
+            if(branch!="o_finish,o_trace")throw new InvalidDataException("The save is not at the joint's choice: "+branch);
+            if(mode=="kaljoint2")goto back;
+            goto kera;
+        }
+
+        // 1. Kera reads Ottra's grip on the handle.
+        var shed=await HeritageWalkTo(Kera);
+        await Say(Kera,"grip","back");
+        foreach(var (x,z) in Enumerable.Reverse(shed))await HeritageStep(x,z);   // out of the forge shed the way the character came in
+
+        // 2. The road east, and the old Brannock hold in the south crags.
+        await HeritageAlong(east);
+        var crags=sim.Setup.Layout.Locations.Single(l=>l.Id=="location.cairnwold.the_crags");
+        bool AtHold()=>Open()!="o_hold";
+        // The crag line itself is rock: the walk goes to its foot, on the village side, until the hold is found.
+        foreach(long back in new[]{0L,15000L,30000L})
+        {
+            if(AtHold())break;
+            await HeritageRoute(crags.XMm,crags.ZMm+back,AtHold,Gait.Run);
+        }
+        if(!AtHold())throw new InvalidDataException("The walk did not find the Brannock hold");
+        _controller.SteerWorld(Vector3.Zero,Gait.Walk,_camera);await Rcd3Wait(6);   // the open joint over the hold's mouth
+
+        // 3. Berrin's book: the dressed stone carted east and sold.
+        await HeritageWalkTo(Berrin);
+        await Say(Berrin,"crag_stone","back");
+        branch=Open();
+        await Saved("HERITAGE_KAL_JOINT_LEASE1_REALTIME_REQUIRES_CLAUDE_REVIEW");
+        return;
+
+        // 4. The road back to Ashen Hollow.
+        back:
+        await HeritageAlong(east.Reverse().ToImmutableArray());
+        await Saved("HERITAGE_KAL_JOINT_LEASE2_REALTIME_REQUIRES_CLAUDE_REVIEW");
+        return;
+
+        // 5. Kera: trace the stone east, and the tool marked beside Ottra's.
+        kera:
+        await HeritageWalkTo(Kera);
+        await Say(Kera,"joint","trace","back","mark","back");
+        Show(_character);await Rcd3Wait(8);CloseScreens();
+        Show(_journal);await Rcd3Wait(5);CloseScreens();
+        var done=sim.Quests.Single(q=>q.Id==Quest);
+
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_KAL_JOINT_LEASE3_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,nodes,branch_after_berrin=branch,
+            quest_status=done.Status.ToString(),titles=sim.Titles,tool_carried=sim.Player.Inventory.Any(e=>e.DefId=="item.heritage.finishing_tool"),
+            world_tick=sim.WorldTick,profile="The second lease's save at Ashen Hollow (heritage_kaljoint); ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
+    /// <summary>
+    /// A new Kal on the Kal body at Kera's counter (OTHERREACH_HERITAGE_REVIEW=kalkera), one short lease: the Finishing Tool in the pack, then
+    /// Kera, a Kal, reading a Kal's tool - The Unfinished Joint's first step.
+    /// </summary>
+    private async Task HeritageKera(string directory)
+    {
+        var sim=_session.Simulation!;
+        const string Kera="npc.ashen_hollow.kera_voss";
+        if(sim.Player.Identity.PeopleId!="people.kal")throw new InvalidDataException("The run did not begin as a Kal");
+        var tool=sim.Player.Inventory.SingleOrDefault(e=>e.DefId=="item.heritage.finishing_tool") ?? throw new InvalidDataException("A new Kal carries no Finishing Tool");
+        _inventory.Open(null);await Rcd3Wait(1.5);
+        _inventory.FindChildren("*","",true,false).OfType<Control>()
+            .First(c=>c.HasMeta("item_reference") && c.GetMeta("item_reference").AsString()==tool.ItemId.Value).EmitSignal(Control.SignalName.MouseEntered);
+        await Rcd3Wait(5);CloseScreens();await Rcd3Wait(1);
+        await HeritageWalkTo(Kera);
+        _session.Submit(new TalkCommand(sim.PlayerId,Kera));await Rcd3Wait(3);
+        if(sim.Conversation?.Replies.Any(r=>r.Id=="grip")!=true)throw new InvalidDataException("Kera offers no reading of the grip");
+        _session.Submit(new ChooseCommand(sim.PlayerId,"grip"));await Rcd3Wait(18);
+        string node=sim.Conversation?.NodeId ?? "";
+        _session.Submit(new ChooseCommand(sim.PlayerId,"back"));await Rcd3Wait(1);
+        _session.Submit(new LeaveCommand(sim.PlayerId));await Rcd3Wait(4);
+        File.WriteAllText(Path.Combine(directory,"recording.finished"),DateTime.Now.ToString("o"));
+        File.WriteAllText(Path.Combine(directory,"complete.json"),JsonSerializer.Serialize(new {
+            status="HERITAGE_KAL_KERA_REALTIME_REQUIRES_CLAUDE_REVIEW",people=sim.Player.Identity.PeopleId,body=sim.Player.Identity.BodyPresetId,node,
+            world_tick=sim.WorldTick,profile="Fresh isolated profile; creator Begin as a Kal on the Kal body; ordinary steering and commands; no desktop input"},
+            new JsonSerializerOptions{WriteIndented=true}));
+        ulong deadline=Time.GetTicksMsec()+20000;
+        while(!File.Exists(Path.Combine(directory,"recording.stopped")) && Time.GetTicksMsec()<deadline)
+            await ToSignal(GetTree(),SceneTree.SignalName.ProcessFrame);
+    }
+
     /// <summary>Along a road from its point nearest the character, at a run; the way to that point is planned like any other.</summary>
     private async Task HeritageAlong(ImmutableArray<(long XMm,long ZMm)> points)
     {
@@ -250,7 +392,7 @@ public partial class Main
     /// The way a person would go to a point, from the world's own navigation grid - doors count as passable, since the walk opens them - until
     /// <paramref name="arrived"/> says the walk is done.
     /// </summary>
-    private async Task<List<(long X,long Z)>> HeritageRoute(long xMm,long zMm,Func<bool> arrived)
+    private async Task<List<(long X,long Z)>> HeritageRoute(long xMm,long zMm,Func<bool> arrived,Gait gait=Gait.Walk)
     {
         var walked=new List<(long X,long Z)>{(_controller.Authoritative.XMm,_controller.Authoritative.ZMm)};
         var sim=_session.Simulation!;
@@ -263,7 +405,7 @@ public partial class Main
         foreach(var corner in plan.Corners.Skip(1))
         {
             if(arrived())break;
-            await HeritageStep(corner.XMm,corner.ZMm,arrived:arrived);
+            await HeritageStep(corner.XMm,corner.ZMm,gait,arrived);
             walked.Add((corner.XMm,corner.ZMm));
         }
         return walked;
