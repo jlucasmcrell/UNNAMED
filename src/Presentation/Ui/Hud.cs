@@ -309,7 +309,8 @@ public partial class Hud : CanvasLayer
     public void SetAwareness(IReadOnlyList<AwarenessCue> cues) => _awareness.Set(cues);
 
     /// <summary>The band the character stands in and the radius they are heard at: both are the simulation's own numbers (STEALTH §2.7).</summary>
-    public void SetStealth(LightGemModel gem, NoiseRingModel noise, bool crouched) => _gem.Set(gem, noise, crouched);
+    public void SetStealth(LightGemModel gem, NoiseRingModel noise, bool crouched, DetectorReadModel detector = default) =>
+        _gem.Set(gem, noise, crouched, detector);
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(TargetPlate? plate)

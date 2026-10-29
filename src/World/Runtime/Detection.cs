@@ -31,6 +31,9 @@ internal sealed class DetectionSystem
     private readonly SystemContext _context;
     private readonly EntityId _player;
     private readonly HashSet<string> _contacts = new(StringComparer.Ordinal);
+
+    /// <summary>What the carried sensors read this tick: transient, and empty when nothing is carried.</summary>
+    public ImmutableArray<DetectorContact> Contacts { get; private set; } = ImmutableArray<DetectorContact>.Empty;
     private readonly HashSet<string> _tripped = new(StringComparer.Ordinal);
 
     public DetectionSystem(SystemContext context, EntityId player)
@@ -48,8 +51,10 @@ internal sealed class DetectionSystem
         if (!motion && !thermal)
         {
             _contacts.Clear();
+            Contacts = ImmutableArray<DetectorContact>.Empty;
             return;
         }
+        var reading = ImmutableArray.CreateBuilder<DetectorContact>();
         var lens = State.Body;
         var space = State.Space;
         var seen = new HashSet<string>(StringComparer.Ordinal);
@@ -76,10 +81,12 @@ internal sealed class DetectionSystem
             if (read is null)
                 continue;
             seen.Add(creature.Key);
+            reading.Add(new DetectorContact(read.Sense, creature.Key, creature.Body.XMm, creature.Body.ZMm, tick));
             if (_contacts.Add(creature.Key))
-                _context.Events.Publish(new DetectorContact(read.Sense, creature.Key, creature.Body.XMm, creature.Body.ZMm, tick));
+                _context.Events.Publish(reading[^1]);
         }
         _contacts.IntersectWith(seen);
+        Contacts = reading.ToImmutable();
 
         foreach (var ward in _context.Setup.LayoutFor(space).Wards)
         {

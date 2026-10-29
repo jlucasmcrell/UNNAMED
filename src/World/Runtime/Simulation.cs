@@ -573,6 +573,9 @@ public sealed class Simulation
     /// <summary>The sparse world delta. Its public members only read (tests/Architecture.Tests).</summary>
     public WorldDelta World => _state.World;
 
+    /// <summary>What the character's carried sensors read this tick (D23 S7): transient, empty when nothing is carried.</summary>
+    public ImmutableArray<DetectorContact> DetectorContacts => _detection.Contacts;
+
     /// <summary>Standing or crouched, and how far into a jump (the owner's M6 playtest): cheap to read every frame.</summary>
     public Posture Posture => _state.Posture;
 

@@ -32,6 +32,7 @@ public partial class LightGem : Control
     private LightGemModel _gem = LightGemModel.From(LightBand.Lit);
     private NoiseRingModel _noise = NoiseRingModel.From(0);
     private bool _crouched;
+    private DetectorReadModel _detector = DetectorReadModel.None;
 
     public override void _Ready()
     {
@@ -41,15 +42,18 @@ public partial class LightGem : Control
     }
 
     /// <summary>Hand it the band and the noise radius from the simulation; both are already the real quantities.</summary>
-    public void Set(LightGemModel gem, NoiseRingModel noise, bool crouched)
+    public void Set(LightGemModel gem, NoiseRingModel noise, bool crouched, DetectorReadModel detector = default)
     {
-        if (_gem == gem && _noise == noise && _crouched == crouched)
+        var read = detector.Contacts == 0 && detector.Words.Length == 0 ? DetectorReadModel.None : detector;
+        if (_gem == gem && _noise == noise && _crouched == crouched && _detector == read)
             return;
         _gem = gem;
         _noise = noise;
         _crouched = crouched;
+        _detector = read;
         QueueRedraw();
     }
+
 
     public override void _Draw()
     {
@@ -61,6 +65,12 @@ public partial class LightGem : Control
         DrawString(font, new Vector2(2 * GemRadius + 18, 20), _gem.Words, HorizontalAlignment.Left, -1, 13, colour);
         DrawString(font, new Vector2(2 * GemRadius + 18, 36), _crouched ? "Crouched" : _noise.Words, HorizontalAlignment.Left, -1, 11, Words);
         DrawNoiseRing(new Vector2(2 * GemRadius + 18 + 150, 23), _noise.RadiusMetres);
+        // The sensors' own line, and only when one is carried: a detector readout that is always on would be a wall-hack (STEALTH.md 10).
+        if (_detector.Contacts > 0)
+        {
+            var sensor = new Color(0.55f, 0.85f, 0.78f, 0.95f);
+            DrawString(font, new Vector2(2 * GemRadius + 18, 50), _detector.Words, HorizontalAlignment.Left, -1, 11, sensor);
+        }
     }
 
     /// <summary>

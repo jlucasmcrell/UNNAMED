@@ -146,7 +146,9 @@ public partial class Main
         // The light gem and the noise ring, from the same numbers the creatures are read by (STEALTH §2.7).
         _hud.SetStealth(UNNAMED.Presentation.Ui.Models.LightGemModel.From(simulation.PlayerLightBand),
             UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm),
-            posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched);
+            posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched,
+            UNNAMED.Presentation.Ui.Models.DetectorReadModel.From(
+                simulation.DetectorContacts.Select(c => (c.Sense, c.XMm, c.ZMm)), playerBody.XMm, playerBody.ZMm));
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         var questRows = QuestPresentation.Tracker(quests, tracked);
