@@ -2895,9 +2895,8 @@
       "note": "D18: a rock sunk into the creek's bank."
     },
     "cw_creek_ford_gravel": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "D18: the gravel bar at the creek's ford."
+      "surface": "material_loose_gravel",
+      "note": "D18: the full-width gravel bar at the creek's ford; its authored ground surface wears the loose-gravel material."
     },
     "cw_jetty_pad_1": {
       "model": "piece_bp_timber_pad",
