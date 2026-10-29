@@ -219,3 +219,15 @@ ode.carcass.grey_wolf node appears. The world already carries authored carcasses
 Next diagnostic (do not guess): make LeaveCarcass return the reason it refused - Setup.Nodes.ContainsKey(carcass)
 false (the harness's crafting table may not hold the kind), a duplicate key, or the dispatch never reaching the handler -
 and log it once in the test world. That one line decides whether the fix is in content or in the harness.
+
+### Round 11 - carcass and skinning closed at the gate
+FINISHED - CARCASS AND SKINNING posted. In oldscar, content hooks places **CARCASS, TANNING, ORE.T2,
+PROSPECT.SIGN, SKILL_BOUND, RESIN** - six hooks that were unmodelled when the lane began. Commits 45a1cac5 (hide art
+for the carcasses, station.foldscar_tanning, ecipe.tanning.wolf_hide, item.material.leather), canon 966ca82
+(dossier rows + the SYSTEMS_NEEDED row closed).
+Frames: ds_sys2_shots\audit_carcass\raw\sys2_carcass_deer.png, sys2_carcass_wolf.png, sys2_tanning_rack.png.
+Still owed for this system: a carcass **body** model (hides stand in), a frame of a kill actually leaving the body, and
+the farm check.
+
+**NEXT SYSTEMS, in the order the brief lists them:** ambience binding, grapple, scramble, grave, ritual circle. Each
+needs: the content kind, the hook's evidence, a catalog animation where a body moves, the gate, and a clip.
