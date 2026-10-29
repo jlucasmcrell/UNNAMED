@@ -150294,8 +150294,8 @@ structures:
   height_m: 1.1
 - id: grave_marker_berrin
   circle_m:
-  - 455.5
-  - 745.5
+  - 456.5
+  - 747.6
   - 0.6
   height_m: 1.1
 doors:
@@ -151454,7 +151454,7 @@ readables:
     page: 1
     name: The road's marker
     verb: Read
-    circle_m: [455.5, 745.5, 0.6]
+    circle_m: [456.5, 747.6, 0.6]
     height_m: 1.1
 portals:
   # A - R01 Threshold, the hill above Blackvein. Its spoil-bank art reaches 26 m behind the mouth: at the old anchor (438, 663) it

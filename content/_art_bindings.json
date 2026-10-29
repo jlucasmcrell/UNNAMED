@@ -206,6 +206,13 @@
    "material": "wood",
    "wind": 1.0,
    "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Replaces the procedural oak/pine/dead set; all >= 11.9 m, trunk within 0.53 m of box centre."
+  },
+  "grave_marker_": {
+   "models": [
+    "landmark_ph_waystone_a"
+   ],
+   "material": "stone",
+   "note": "D18 SYSTEMS (needed-2): a grave marker is a standing stone until a dressed marker exists"
   }
  },
  "building_walls": {
@@ -2833,14 +2840,6 @@
    "material": "wood",
    "wind": 3.0,
    "note": "Grand scale 2026-10-24 (GS-10): the BlenderKit ceiba that stood for Old Late, moved into the hollow as its great tree; its trunk, offset and root support carried with it."
-  },
-  "grave_marker_halda": {
-   "model": "landmark_ph_waystone_a",
-   "note": "D18 SYSTEMS (needed-2): a grave marker drawn as a standing stone until a dressed grave marker exists"
-  },
-  "grave_marker_berrin": {
-   "model": "landmark_ph_waystone_a",
-   "note": "D18 SYSTEMS (needed-2): a grave marker drawn as a standing stone until a dressed grave marker exists"
   }
  },
  "doors": {
