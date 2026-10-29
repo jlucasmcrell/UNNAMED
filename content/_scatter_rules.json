@@ -195,6 +195,71 @@
             660
           ]
         ]
+      },
+      {
+        "note": "D18: the millpond's water, kept clear of ground scatter - four lines across it",
+        "points": [
+          [
+            946.0,
+            690.0
+          ],
+          [
+            972.0,
+            690.0
+          ]
+        ]
+      },
+      {
+        "note": "D18: millpond clearing",
+        "points": [
+          [
+            946.0,
+            695.0
+          ],
+          [
+            972.0,
+            695.0
+          ]
+        ]
+      },
+      {
+        "note": "D18: millpond clearing",
+        "points": [
+          [
+            946.0,
+            700.0
+          ],
+          [
+            972.0,
+            700.0
+          ]
+        ]
+      },
+      {
+        "note": "D18: millpond clearing",
+        "points": [
+          [
+            946.0,
+            705.0
+          ],
+          [
+            972.0,
+            705.0
+          ]
+        ]
+      },
+      {
+        "note": "D18: millpond clearing",
+        "points": [
+          [
+            946.0,
+            710.0
+          ],
+          [
+            972.0,
+            710.0
+          ]
+        ]
       }
     ]
   },
@@ -1462,7 +1527,10 @@
     },
     "saplings": {
       "mesh": "model:flora_ph_sapling_stand",
-      "lods_m": [0, 35],
+      "lods_m": [
+        0,
+        35
+      ],
       "max_per_m2": 0.02,
       "chunk_m": 14,
       "size": [
