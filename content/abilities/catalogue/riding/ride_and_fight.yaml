@@ -1,0 +1,11 @@
+id: ability.catalogue.riding.ride_and_fight
+kind: ability
+schema: 1
+display_key: ability.catalogue.riding.ride_and_fight.name
+tags: [ability]
+name: "Ride and Fight"
+notes: "Use a weapon from the saddle without losing the animal or the fight Taught through the D13 catalogue."
+class: technique
+discipline: skill.riding
+band: 45
+needs: "riding 45, a weapon 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.rolling_fall
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.rolling_fall.name
+tags: [ability]
+name: "Rolling Fall"
+notes: "Turn a knockdown into a roll that ends on your feet Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 30
+needs: "evasion 30, athletics 30, armour ≤ medium"

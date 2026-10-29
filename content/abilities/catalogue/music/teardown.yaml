@@ -1,0 +1,11 @@
+id: ability.catalogue.music.teardown
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.teardown.name
+tags: [ability]
+name: "Teardown"
+notes: "Take a thing apart without breaking the part you wanted: order, tools, patience, and a cloth for the small bits Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 15
+needs: "salvage 15"

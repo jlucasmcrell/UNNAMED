@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.slip
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.slip.name
+tags: [ability]
+name: "Slip"
+notes: "Time the dodge into the committed blow and end up on its flank Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 30
+needs: "evasion 30, agility 20, after Sidestep"

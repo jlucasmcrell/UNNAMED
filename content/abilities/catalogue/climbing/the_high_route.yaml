@@ -1,0 +1,11 @@
+id: ability.catalogue.climbing.the_high_route
+kind: ability
+schema: 1
+display_key: ability.catalogue.climbing.the_high_route.name
+tags: [ability]
+name: "The High Route"
+notes: "Find and take a line nobody else has done Taught through the D13 catalogue."
+class: technique
+discipline: skill.climbing
+band: 60
+needs: "climbing 60, navigation 30"

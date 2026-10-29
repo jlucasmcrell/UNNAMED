@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.the_long_recovery
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.the_long_recovery.name
+tags: [ability]
+name: "The Long Recovery"
+notes: "Manage a patient for weeks: food, movement, infection, patience Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 60
+needs: "medicine 60, endurance 30"

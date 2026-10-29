@@ -1,0 +1,11 @@
+id: ability.catalogue.research.the_experiment
+kind: ability
+schema: 1
+display_key: ability.catalogue.research.the_experiment.name
+tags: [ability]
+name: "The Experiment"
+notes: "Try a recipe variant at a station and learn something from the failure Taught through the D13 catalogue."
+class: technique
+discipline: skill.research
+band: 30
+needs: "research 30, a craft 30"

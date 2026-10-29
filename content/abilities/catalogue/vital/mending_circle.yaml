@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.mending_circle
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.mending_circle.name
+tags: [ability]
+name: "Mending Circle"
+notes: "Several healers close an injury no one of them could: a rite, not a spell Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 45
+needs: "vital 45, ritualcraft 30"

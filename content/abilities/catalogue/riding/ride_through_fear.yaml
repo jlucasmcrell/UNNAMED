@@ -1,0 +1,11 @@
+id: ability.catalogue.riding.ride_through_fear
+kind: ability
+schema: 1
+display_key: ability.catalogue.riding.ride_through_fear.name
+tags: [ability]
+name: "Ride Through Fear"
+notes: "Keep the mount working while something is trying to eat it Taught through the D13 catalogue."
+class: technique
+discipline: skill.riding
+band: 30
+needs: "riding 30, endurance 15"

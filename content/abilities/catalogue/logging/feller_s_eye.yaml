@@ -1,0 +1,11 @@
+id: ability.catalogue.logging.feller_s_eye
+kind: ability
+schema: 1
+display_key: ability.catalogue.logging.feller_s_eye.name
+tags: [ability]
+name: "Feller's Eye"
+notes: "Read a standing tree's lean, faults and fall line Taught through the D13 catalogue."
+class: technique
+discipline: skill.logging
+band: 30
+needs: "logging 30"

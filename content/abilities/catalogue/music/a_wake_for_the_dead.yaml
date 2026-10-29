@@ -1,0 +1,11 @@
+id: ability.catalogue.music.a_wake_for_the_dead
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.a_wake_for_the_dead.name
+tags: [ability]
+name: "A Wake for the Dead"
+notes: "The rite in song; the Mor find it courteous Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 45
+needs: "music 45, lore 30"

@@ -1,0 +1,9 @@
+id: skill.cartography
+kind: skill
+schema: 1
+display_key: skill.cartography.name
+tags: [skill]
+name: "Cartography"
+family: world
+notes: "D13 catalogue skill: Cartography (3.7 Survival and travel). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "mapping ground you walked, accurately, from what you could see"

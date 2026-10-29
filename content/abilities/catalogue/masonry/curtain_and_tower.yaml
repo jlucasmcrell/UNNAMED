@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.curtain_and_tower
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.curtain_and_tower.name
+tags: [ability]
+name: "Curtain and Tower"
+notes: "A wall segment and a tower that are actually defensible Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 45
+needs: "masonry 45, engineering 30"

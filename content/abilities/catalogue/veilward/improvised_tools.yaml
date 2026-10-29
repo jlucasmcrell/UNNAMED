@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.improvised_tools
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.improvised_tools.name
+tags: [ability]
+name: "Improvised Tools"
+notes: "Work without the right tool, badly but successfully, and know the cost in quality Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 15
+needs: "any craft 15"

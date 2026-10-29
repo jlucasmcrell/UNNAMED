@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwayfaring.read_a_route
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwayfaring.read_a_route.name
+tags: [ability]
+name: "Read a Route"
+notes: "Tell a usable way from a fold you should not enter, at the entrance Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwayfaring
+band: 15
+needs: "otherwayfaring 15, otherlore 15"

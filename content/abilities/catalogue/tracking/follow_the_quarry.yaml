@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.follow_the_quarry
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.follow_the_quarry.name
+tags: [ability]
+name: "Follow the Quarry"
+notes: "Keep a cold trail across bad ground Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 30
+needs: "tracking 30, survival 30"

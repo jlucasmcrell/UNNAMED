@@ -1,0 +1,11 @@
+id: ability.catalogue.herbal_medicine.poultice
+kind: ability
+schema: 1
+display_key: ability.catalogue.herbal_medicine.poultice.name
+tags: [ability]
+name: "Poultice"
+notes: "Bruising, swelling, a wound that will not close Taught through the D13 catalogue."
+class: technique
+discipline: skill.herbal_medicine
+band: 15
+needs: "herb_medicine 15, herbalism 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.marksmanship.second_shot
+kind: ability
+schema: 1
+display_key: ability.catalogue.marksmanship.second_shot.name
+tags: [ability]
+name: "Second Shot"
+notes: "The follow-up that is already aimed before the first lands Taught through the D13 catalogue."
+class: technique
+discipline: skill.marksmanship
+band: 45
+needs: "marksmanship 45"

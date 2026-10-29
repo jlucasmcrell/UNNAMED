@@ -1,0 +1,11 @@
+id: ability.catalogue.cartography.grade_your_confidence
+kind: ability
+schema: 1
+display_key: ability.catalogue.cartography.grade_your_confidence.name
+tags: [ability]
+name: "Grade your Confidence"
+notes: "Mark what is exact, approximate, reported or outdated — the single most honest technique in the game Taught through the D13 catalogue."
+class: technique
+discipline: skill.cartography
+band: 15
+needs: "cartography 15, lore 15"

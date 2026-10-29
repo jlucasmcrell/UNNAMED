@@ -1,0 +1,11 @@
+id: ability.catalogue.barter.haggle
+kind: ability
+schema: 1
+display_key: ability.catalogue.barter.haggle.name
+tags: [ability]
+name: "Haggle"
+notes: "Move a price without insulting anybody Taught through the D13 catalogue."
+class: technique
+discipline: skill.barter
+band: 15
+needs: "barter 15, presence 12"

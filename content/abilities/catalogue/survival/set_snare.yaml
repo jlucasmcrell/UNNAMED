@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.set_snare
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.set_snare.name
+tags: [ability]
+name: "Set Snare"
+notes: "A snare that catches food instead of a leg you have to explain Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 15
+needs: "survival 15"

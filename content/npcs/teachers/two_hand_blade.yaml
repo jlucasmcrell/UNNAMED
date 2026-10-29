@@ -1,0 +1,63 @@
+id: npc.teacher.two_hand_blade
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.two_hand_blade.name
+tags: [npc]
+name: "Master of Greatsword"
+notes: "The greatsword teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.two_hand_blade
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.wide_cut
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.displace
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.half_sword
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.return_stroke
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.cross_shove
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.murder_stroke
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.harness_wrestling
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.mail_breaker
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.unbroken_wheel
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.two_hand_blade.master_of_the_bind
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.two_hand_blade, band: master } }

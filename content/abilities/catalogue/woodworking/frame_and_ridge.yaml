@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.frame_and_ridge
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.frame_and_ridge.name
+tags: [ability]
+name: "Frame and Ridge"
+notes: "A roof that carries snow, wind and repair Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 45
+needs: "woodworking 45, carpentry 30"

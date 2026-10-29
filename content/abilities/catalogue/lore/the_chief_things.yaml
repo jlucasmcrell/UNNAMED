@@ -1,0 +1,11 @@
+id: ability.catalogue.lore.the_chief_things
+kind: ability
+schema: 1
+display_key: ability.catalogue.lore.the_chief_things.name
+tags: [ability]
+name: "The Chief Things"
+notes: "Name the peoples, the Pacha question, the Other, and the Otherfall — and know what is undecided Taught through the D13 catalogue."
+class: technique
+discipline: skill.lore
+band: 15
+needs: "lore 15, insight 12"

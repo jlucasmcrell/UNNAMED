@@ -1,0 +1,11 @@
+id: ability.catalogue.force.ember_line
+kind: ability
+schema: 1
+display_key: ability.catalogue.force.ember_line.name
+tags: [ability]
+name: "Ember Line"
+notes: "A burning 6 m line on the ground for up to ten minutes: a place, not a blow Taught through the D13 catalogue."
+class: technique
+discipline: skill.force
+band: 45
+needs: "force 45"

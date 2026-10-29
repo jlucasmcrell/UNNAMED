@@ -1,0 +1,11 @@
+id: ability.catalogue.otherlore.read_the_wake
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherlore.read_the_wake.name
+tags: [ability]
+name: "Read the Wake"
+notes: "Follow an Otherwake: something crossed here, that way, that long ago Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherlore
+band: 30
+needs: "otherlore 30, tracking 30"

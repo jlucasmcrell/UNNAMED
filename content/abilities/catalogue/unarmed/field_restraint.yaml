@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.field_restraint
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.field_restraint.name
+tags: [ability]
+name: "Field Restraint"
+notes: "Bind a yielded, unconscious or pinned person for law, bounty or questions Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 15
+needs: "unarmed 15, cord"

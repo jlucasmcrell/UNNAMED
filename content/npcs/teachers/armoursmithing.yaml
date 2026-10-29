@@ -1,0 +1,53 @@
+id: npc.teacher.armoursmithing
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.armoursmithing.name
+tags: [npc]
+name: "Master of Armoursmithing"
+notes: "The armoursmithing teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.armoursmithing
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.fit_to_a_body
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.armoursmithing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.lame_and_lace
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.armoursmithing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.close_the_gaps
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.armoursmithing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.harness_a_wing
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.armoursmithing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.layer_for_the_weather
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.armoursmithing, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.phase_laminate
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.armoursmithing, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.harness_for_a_heavy_frame
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.armoursmithing, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.armoursmithing.a_suit_that_is_worn
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.armoursmithing, band: master } }

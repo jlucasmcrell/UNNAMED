@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.measure_and_cut
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.measure_and_cut.name
+tags: [ability]
+name: "Measure and Cut"
+notes: "A garment that fits an actual body, including a body nobody has kitted before Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 15
+needs: "tailoring 15"

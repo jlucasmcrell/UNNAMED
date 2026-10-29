@@ -1,0 +1,11 @@
+id: ability.catalogue.music.field_surgery
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.field_surgery.name
+tags: [ability]
+name: "Field surgery"
+notes: "Cut, clamp, close and keep someone alive on a table that is not a table Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 60
+needs: "medicine 45, first_aid 45"

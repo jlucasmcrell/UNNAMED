@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.a_sheath_that_waits
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.a_sheath_that_waits.name
+tags: [ability]
+name: "A Sheath That Waits"
+notes: "Concealment that reads as ordinary kit to a watchful person Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 60
+needs: "leatherworking 60, stealth 30"

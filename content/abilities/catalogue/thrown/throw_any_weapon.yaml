@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.throw_any_weapon
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.throw_any_weapon.name
+tags: [ability]
+name: "Throw Any Weapon"
+notes: "Throw the thing in your hand at its own effect, and pick it up after Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 60
+needs: "thrown 60"

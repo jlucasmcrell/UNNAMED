@@ -1,0 +1,31 @@
+id: dialogue.teacher.tactics
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.tactics.name
+tags: [dialogue]
+notes: "The tactics teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.tactics]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the tactics? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.tactics.read_the_field, ability.catalogue.tactics.hand_signals, ability.catalogue.tactics.formation_drill, ability.catalogue.tactics.hold_the_door, ability.catalogue.tactics.guard_the_fallen, ability.catalogue.tactics.combined_strike, ability.catalogue.tactics.withdraw_in_order, ability.catalogue.tactics.battle_plan, ability.catalogue.tactics.hold_together] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.tactics.read_the_field, ability.catalogue.tactics.hand_signals, ability.catalogue.tactics.formation_drill, ability.catalogue.tactics.hold_the_door, ability.catalogue.tactics.guard_the_fallen, ability.catalogue.tactics.combined_strike, ability.catalogue.tactics.withdraw_in_order, ability.catalogue.tactics.battle_plan, ability.catalogue.tactics.hold_together] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

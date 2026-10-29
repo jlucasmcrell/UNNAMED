@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.displace
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.displace.name
+tags: [ability]
+name: "Displace"
+notes: "Knock an incoming blow aside with the flat; it works on anything you can see Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 15
+needs: "greatsword 15"

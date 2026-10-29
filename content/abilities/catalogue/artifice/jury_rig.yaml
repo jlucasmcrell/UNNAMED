@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.jury_rig
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.jury_rig.name
+tags: [ability]
+name: "Jury-Rig"
+notes: "Make it work now, badly, and know how long it will last Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 15
+needs: "artifice 15, salvage 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.pivot_on_the_staff
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.pivot_on_the_staff.name
+tags: [ability]
+name: "Pivot on the Staff"
+notes: "Use the planted staff as a hinge to turn, rise or strike from a fall Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 60
+needs: "staff 60, athletics 45"

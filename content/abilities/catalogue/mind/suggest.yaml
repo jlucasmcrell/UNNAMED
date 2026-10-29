@@ -1,0 +1,11 @@
+id: ability.catalogue.mind.suggest
+kind: ability
+schema: 1
+display_key: ability.catalogue.mind.suggest.name
+tags: [ability]
+name: "Suggest"
+notes: "A one-line instruction the target believes was its own idea, for an hour Taught through the D13 catalogue."
+class: technique
+discipline: skill.mind
+band: 45
+needs: "mind 45"

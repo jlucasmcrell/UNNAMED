@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.tillering_by_ear
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.tillering_by_ear.name
+tags: [ability]
+name: "Tillering by Ear"
+notes: "Read a limb's bend under load and correct it before it fails Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 60
+needs: "bowyery 60"

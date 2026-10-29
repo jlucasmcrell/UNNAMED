@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.walk_their_road
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.walk_their_road.name
+tags: [ability]
+name: "Walk Their Road"
+notes: "Follow a route a cautious person took, without becoming the one followed Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 45
+needs: "tracking 45, stealth 45"

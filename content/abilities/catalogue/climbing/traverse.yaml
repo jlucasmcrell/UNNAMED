@@ -1,0 +1,11 @@
+id: ability.catalogue.climbing.traverse
+kind: ability
+schema: 1
+display_key: ability.catalogue.climbing.traverse.name
+tags: [ability]
+name: "Traverse"
+notes: "Move sideways across a face without a rest Taught through the D13 catalogue."
+class: technique
+discipline: skill.climbing
+band: 30
+needs: "climbing 30, endurance 15"

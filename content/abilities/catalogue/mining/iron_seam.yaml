@@ -1,0 +1,11 @@
+id: ability.catalogue.mining.iron_seam
+kind: ability
+schema: 1
+display_key: ability.catalogue.mining.iron_seam.name
+tags: [ability]
+name: "Iron Seam"
+notes: "Cut ore from a finite seam — three strikes and it is worked out for good Taught through the D13 catalogue."
+class: technique
+discipline: skill.mining
+band: 15
+needs: "mining 15, might 12"

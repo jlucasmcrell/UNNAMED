@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.return_stroke
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.return_stroke.name
+tags: [ability]
+name: "Return Stroke"
+notes: "Recover from a full swing straight into the next blow without resetting Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 30
+needs: "greatsword 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.conductor_blade
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.conductor_blade.name
+tags: [ability]
+name: "Conductor Blade"
+notes: "A blade that carries a working along its length Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 60
+needs: "weaponsmithing 60, enchanting 45"

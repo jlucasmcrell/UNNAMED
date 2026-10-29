@@ -1,0 +1,11 @@
+id: ability.catalogue.illusion.false_step
+kind: ability
+schema: 1
+display_key: ability.catalogue.illusion.false_step.name
+tags: [ability]
+name: "False Step"
+notes: "A footfall and a shadow at a point up to 15 m away: they investigate it Taught through the D13 catalogue."
+class: technique
+discipline: skill.illusion
+band: 30
+needs: "illusion 30"

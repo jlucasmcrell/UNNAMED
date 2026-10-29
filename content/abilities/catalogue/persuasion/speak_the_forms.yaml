@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.speak_the_forms
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.speak_the_forms.name
+tags: [ability]
+name: "Speak the Forms"
+notes: "The right words for the right room: oath, courtesy, court, road Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 30
+needs: "persuasion 30, lore 15"

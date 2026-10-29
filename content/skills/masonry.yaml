@@ -1,0 +1,9 @@
+id: skill.masonry
+kind: skill
+schema: 1
+display_key: skill.masonry.name
+tags: [skill]
+name: "Masonry"
+family: world
+notes: "D13 catalogue skill: Masonry (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "stone that stays where you put it for a season"

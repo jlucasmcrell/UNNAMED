@@ -1,0 +1,11 @@
+id: ability.catalogue.research.reverse_a_method
+kind: ability
+schema: 1
+display_key: ability.catalogue.research.reverse_a_method.name
+tags: [ability]
+name: "Reverse a Method"
+notes: "Take a working object apart into 'how it was made' Taught through the D13 catalogue."
+class: technique
+discipline: skill.research
+band: 45
+needs: "research 45, salvage 45"

@@ -1,0 +1,11 @@
+id: ability.catalogue.cooking.woundmoss_tea
+kind: ability
+schema: 1
+display_key: ability.catalogue.cooking.woundmoss_tea.name
+tags: [ability]
+name: "Woundmoss Tea"
+notes: "A drink that steadies the hands and takes the edge off a wound Taught through the D13 catalogue."
+class: technique
+discipline: skill.cooking
+band: 30
+needs: "cooking 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.predator_s_bearing
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.predator_s_bearing.name
+tags: [ability]
+name: "Predator's Bearing"
+notes: "Work out what is hunting *you*, from its own approach Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 30
+needs: "tracking 30, insight 20"

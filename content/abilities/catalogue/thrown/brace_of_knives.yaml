@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.brace_of_knives
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.brace_of_knives.name
+tags: [ability]
+name: "Brace of Knives"
+notes: "Three throws, up to three targets, inside a second Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 45
+needs: "thrown 45"

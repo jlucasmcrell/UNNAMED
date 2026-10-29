@@ -1,0 +1,11 @@
+id: ability.catalogue.hunting.read_the_sign
+kind: ability
+schema: 1
+display_key: ability.catalogue.hunting.read_the_sign.name
+tags: [ability]
+name: "Read the Sign"
+notes: "Which way, how long ago, how big, how hurt Taught through the D13 catalogue."
+class: technique
+discipline: skill.hunting
+band: 15
+needs: "hunting 15, tracking 15"

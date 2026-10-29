@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.bind_and_wind
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.bind_and_wind.name
+tags: [ability]
+name: "Bind and Wind"
+notes: "In blade contact, wind over the opponent's hilt and take the strong line Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 30
+needs: "sword 30, after Parry"

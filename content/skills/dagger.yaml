@@ -1,0 +1,9 @@
+id: skill.dagger
+kind: skill
+schema: 1
+display_key: skill.dagger.name
+tags: [skill]
+name: "Dagger"
+family: world
+notes: "D13 catalogue skill: Dagger (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "strikes in close, against gaps, and against targets who never saw it"

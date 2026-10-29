@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.block_reflect
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.block_reflect.name
+tags: [ability]
+name: "Block-reflect"
+notes: "Catch a blow and give it back: the impact returns to the attacker Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 75
+needs: "shield 75 + mastery"

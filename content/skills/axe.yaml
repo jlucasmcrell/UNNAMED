@@ -1,0 +1,9 @@
+id: skill.axe
+kind: skill
+schema: 1
+display_key: skill.axe.name
+tags: [skill]
+name: "Axe"
+family: world
+notes: "D13 catalogue skill: Axe (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "splitting blows, and hooking a shield or limb with the beard and pulling"

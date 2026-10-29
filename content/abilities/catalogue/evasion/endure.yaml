@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.endure
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.endure.name
+tags: [ability]
+name: "Endure"
+notes: "For a few seconds you cannot be staggered or knocked down Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 45
+needs: "evasion 45, endurance 30"

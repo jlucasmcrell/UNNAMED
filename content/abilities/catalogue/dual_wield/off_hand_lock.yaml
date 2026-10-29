@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.off_hand_lock
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.off_hand_lock.name
+tags: [ability]
+name: "Off-hand Lock"
+notes: "Trap a weapon with the off-hand blade and strike with the strong side Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 30
+needs: "dual_wield 30, unarmed 15"

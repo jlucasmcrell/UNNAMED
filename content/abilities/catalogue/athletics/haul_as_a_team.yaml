@@ -1,0 +1,11 @@
+id: ability.catalogue.athletics.haul_as_a_team
+kind: ability
+schema: 1
+display_key: ability.catalogue.athletics.haul_as_a_team.name
+tags: [ability]
+name: "Haul as a Team"
+notes: "Move something no person could move alone Taught through the D13 catalogue."
+class: technique
+discipline: skill.athletics
+band: 45
+needs: "athletics 45, leadership 15"

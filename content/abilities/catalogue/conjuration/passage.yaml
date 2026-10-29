@@ -1,0 +1,11 @@
+id: ability.catalogue.conjuration.passage
+kind: ability
+schema: 1
+display_key: ability.catalogue.conjuration.passage.name
+tags: [ability]
+name: "Passage"
+notes: "Open a way that is already there: a door that is not a door Taught through the D13 catalogue."
+class: technique
+discipline: skill.conjuration
+band: 15
+needs: "conjuration 15"

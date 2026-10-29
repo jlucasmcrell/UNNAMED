@@ -1,0 +1,68 @@
+id: npc.teacher.one_hand_blade
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.one_hand_blade.name
+tags: [npc]
+name: "Master of Sword"
+notes: "The sword teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.one_hand_blade
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.parry
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.beat_the_guard
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.close_thrust
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.riposte
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.feint
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.bind_and_wind
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.cut_from_cover
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.draw_cut
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.disarming_wind
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.stop_thrust
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.one_hand_blade.turn_the_shaft
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: master } }

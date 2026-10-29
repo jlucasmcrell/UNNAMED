@@ -1,0 +1,11 @@
+id: ability.catalogue.othercraft.the_closing
+kind: ability
+schema: 1
+display_key: ability.catalogue.othercraft.the_closing.name
+tags: [ability]
+name: "The Closing"
+notes: "Fold a fold shut and hold it shut: the road through it becomes ordinary road Taught through the D13 catalogue."
+class: technique
+discipline: skill.othercraft
+band: 60
+needs: "othercraft 60, warding 60, ritualcraft 45"

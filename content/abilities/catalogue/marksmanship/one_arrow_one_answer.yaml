@@ -1,0 +1,11 @@
+id: ability.catalogue.marksmanship.one_arrow_one_answer
+kind: ability
+schema: 1
+display_key: ability.catalogue.marksmanship.one_arrow_one_answer.name
+tags: [ability]
+name: "One Arrow, One Answer"
+notes: "A single shot chosen to end the encounter rather than to wound Taught through the D13 catalogue."
+class: technique
+discipline: skill.marksmanship
+band: 60
+needs: "marksmanship 60, insight 20"

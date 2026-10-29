@@ -1,0 +1,11 @@
+id: ability.catalogue.warding.door_ward
+kind: ability
+schema: 1
+display_key: ability.catalogue.warding.door_ward.name
+tags: [ability]
+name: "Door-ward"
+notes: "A door that answers only the keyed, until it is broken or its anchor wears out Taught through the D13 catalogue."
+class: technique
+discipline: skill.warding
+band: 30
+needs: "warding 30"

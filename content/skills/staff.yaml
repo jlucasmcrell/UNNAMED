@@ -1,0 +1,9 @@
+id: skill.staff
+kind: skill
+schema: 1
+display_key: skill.staff.name
+tags: [skill]
+name: "Staff"
+family: world
+notes: "D13 catalogue skill: Staff (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "keeping a staff useful as *both* weapon and implement in the same fight"

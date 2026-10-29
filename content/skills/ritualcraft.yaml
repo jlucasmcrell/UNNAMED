@@ -1,0 +1,9 @@
+id: skill.ritualcraft
+kind: skill
+schema: 1
+display_key: skill.ritualcraft.name
+tags: [skill]
+name: "Rite and circle"
+family: world
+notes: "D13 catalogue skill: Rite and circle (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a prepared rite that completed, at cost, on time, with other people in it"

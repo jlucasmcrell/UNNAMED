@@ -1,0 +1,9 @@
+id: skill.climbing
+kind: skill
+schema: 1
+display_key: skill.climbing.name
+tags: [skill]
+name: "Climbing"
+family: world
+notes: "D13 catalogue skill: Climbing (3.7 Survival and travel). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a climb at the edge of your grip, and a traverse you did not fall off"

@@ -1,0 +1,11 @@
+id: ability.catalogue.conjuration.calling_under_contract
+kind: ability
+schema: 1
+display_key: ability.catalogue.conjuration.calling_under_contract.name
+tags: [ability]
+name: "Calling under Contract"
+notes: "A being already bound by contract answers the circle and serves on its terms for ten minutes Taught through the D13 catalogue."
+class: technique
+discipline: skill.conjuration
+band: 30
+needs: "conjuration 30, ritualcraft 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.swimming.cross_with_a_load
+kind: ability
+schema: 1
+display_key: ability.catalogue.swimming.cross_with_a_load.name
+tags: [ability]
+name: "Cross with a Load"
+notes: "Move a pack, a rope or a person across water Taught through the D13 catalogue."
+class: technique
+discipline: skill.swimming
+band: 30
+needs: "swimming 30, endurance 30"

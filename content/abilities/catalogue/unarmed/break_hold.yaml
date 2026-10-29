@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.break_hold
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.break_hold.name
+tags: [ability]
+name: "Break Hold"
+notes: "Escape a clinch, a pin, a mancatcher or a garrote at half price Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 30
+needs: "unarmed 30"

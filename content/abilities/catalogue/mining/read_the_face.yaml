@@ -1,0 +1,11 @@
+id: ability.catalogue.mining.read_the_face
+kind: ability
+schema: 1
+display_key: ability.catalogue.mining.read_the_face.name
+tags: [ability]
+name: "Read the Face"
+notes: "Which part of the face comes down safely, and which part by surprise Taught through the D13 catalogue."
+class: technique
+discipline: skill.mining
+band: 15
+needs: "mining 15, insight 12"

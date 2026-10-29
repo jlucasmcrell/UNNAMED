@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.sidestep
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.sidestep.name
+tags: [ability]
+name: "Sidestep"
+notes: "A short lateral step that leaves the blow's arc *without* a dodge Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 15
+needs: "evasion 15, agility 12"

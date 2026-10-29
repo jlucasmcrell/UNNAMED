@@ -1,0 +1,11 @@
+id: ability.catalogue.riding.loose_reins
+kind: ability
+schema: 1
+display_key: ability.catalogue.riding.loose_reins.name
+tags: [ability]
+name: "Loose Reins"
+notes: "The mount works with you without being told Taught through the D13 catalogue."
+class: technique
+discipline: skill.riding
+band: 45
+needs: "riding 45, handling 30"

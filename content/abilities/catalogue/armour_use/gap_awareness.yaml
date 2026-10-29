@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.gap_awareness
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.gap_awareness.name
+tags: [ability]
+name: "Gap Awareness"
+notes: "Know your own gaps and cover them without thinking about it Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 45
+needs: "armour 45, armour knowledge"

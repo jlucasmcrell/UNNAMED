@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.breaker_of_walls
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.breaker_of_walls.name
+tags: [ability]
+name: "Breaker of Walls"
+notes: "Make a hole in a structure with a hand axe and no tools, as a deliberate act Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 75
+needs: "axe 75 + mastery"

@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.close_thrust
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.close_thrust.name
+tags: [ability]
+name: "Close Thrust"
+notes: "A thrust from inside a clinch or a doorway, where a swing cannot exist Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 15
+needs: "sword 15"

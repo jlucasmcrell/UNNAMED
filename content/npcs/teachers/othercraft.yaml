@@ -1,0 +1,43 @@
+id: npc.teacher.othercraft
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.othercraft.name
+tags: [npc]
+name: "Master of Othercraft"
+notes: "The othercraft teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.othercraft
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.othercraft.fold_step
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.othercraft, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.othercraft.fold_lance
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.othercraft, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.othercraft.fold_lance_guarded
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.othercraft, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.othercraft.fold_seal_pylon
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.othercraft, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.othercraft.rift_tap
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.othercraft, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.othercraft.the_closing
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.othercraft, band: expert } }

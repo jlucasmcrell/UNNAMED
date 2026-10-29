@@ -1,0 +1,11 @@
+id: ability.catalogue.nature.weather_turn
+kind: ability
+schema: 1
+display_key: ability.catalogue.nature.weather_turn.name
+tags: [ability]
+name: "Weather-turn"
+notes: "Turn local weather inside a valley-sized dome until dawn: rain for a crop, fog for a retreat Taught through the D13 catalogue."
+class: technique
+discipline: skill.nature
+band: 45
+needs: "nature 45, ritualcraft 30"

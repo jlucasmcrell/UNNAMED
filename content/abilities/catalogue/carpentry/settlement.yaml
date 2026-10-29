@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.settlement
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.settlement.name
+tags: [ability]
+name: "Settlement"
+notes: "Plan the pieces as a place: water, waste, road, store, roof Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 75
+needs: "carpentry 75 + mastery, leadership 45"

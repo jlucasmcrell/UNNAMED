@@ -1,0 +1,11 @@
+id: ability.catalogue.armoursmithing.harness_for_a_heavy_frame
+kind: ability
+schema: 1
+display_key: ability.catalogue.armoursmithing.harness_for_a_heavy_frame.name
+tags: [ability]
+name: "Harness for a Heavy Frame"
+notes: "Fit armour around power, heat and interface rather than a human body Taught through the D13 catalogue."
+class: technique
+discipline: skill.armoursmithing
+band: 60
+needs: "armoursmithing 60, mechanisms 45"

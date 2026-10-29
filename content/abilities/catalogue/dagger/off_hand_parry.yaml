@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.off_hand_parry
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.off_hand_parry.name
+tags: [ability]
+name: "Off-hand Parry"
+notes: "The dagger as a defence: it is small, fast and it is enough Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 30
+needs: "dagger 30"

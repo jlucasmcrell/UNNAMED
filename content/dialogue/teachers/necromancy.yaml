@@ -1,0 +1,31 @@
+id: dialogue.teacher.necromancy
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.necromancy.name
+tags: [dialogue]
+notes: "The necromancy / soulcraft teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.necromancy]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the necromancy / soulcraft? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant, ability.catalogue.necromancy.rite_of_quiet_earth] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.necromancy.grave_sense, ability.catalogue.necromancy.sever, ability.catalogue.necromancy.speak_the_echo, ability.catalogue.necromancy.grave_seal, ability.catalogue.necromancy.raise_bearer, ability.catalogue.necromancy.bind_lesser_servant, ability.catalogue.necromancy.rite_of_quiet_earth] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

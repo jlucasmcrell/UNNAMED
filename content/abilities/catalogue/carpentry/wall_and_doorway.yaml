@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.wall_and_doorway
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.wall_and_doorway.name
+tags: [ability]
+name: "Wall and Doorway"
+notes: "A wall and an opening a doorway actually fits Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 15
+needs: "carpentry 15"

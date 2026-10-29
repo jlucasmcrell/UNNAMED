@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.silence_the_sentry
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.silence_the_sentry.name
+tags: [ability]
+name: "Silence the Sentry"
+notes: "A strike that also denies the alarm Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 60
+needs: "stealth 60, dagger 30"

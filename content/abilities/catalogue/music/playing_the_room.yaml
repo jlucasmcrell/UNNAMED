@@ -1,0 +1,11 @@
+id: ability.catalogue.music.playing_the_room
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.playing_the_room.name
+tags: [ability]
+name: "Playing the Room"
+notes: "Choose what a room needs, and be right Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 30
+needs: "music 30, presence 15"

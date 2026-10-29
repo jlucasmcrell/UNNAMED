@@ -1,0 +1,31 @@
+id: dialogue.teacher.lore
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.lore.name
+tags: [dialogue]
+notes: "The lore teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.lore]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the lore? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script, ability.catalogue.lore.where_a_fact_is_buried, ability.catalogue.lore.the_undecided] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.lore.the_chief_things, ability.catalogue.lore.cross_reference, ability.catalogue.lore.read_the_wrong_script, ability.catalogue.lore.where_a_fact_is_buried, ability.catalogue.lore.the_undecided] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

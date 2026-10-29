@@ -1,0 +1,9 @@
+id: skill.riding
+kind: skill
+schema: 1
+display_key: skill.riding.name
+tags: [skill]
+name: "Riding"
+family: world
+notes: "D13 catalogue skill: Riding (3.7 Survival and travel). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a mount's trust and a hard ride that did not end in a fall"

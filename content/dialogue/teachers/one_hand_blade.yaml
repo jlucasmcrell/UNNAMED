@@ -1,0 +1,31 @@
+id: dialogue.teacher.one_hand_blade
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.one_hand_blade.name
+tags: [dialogue]
+notes: "The sword teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.one_hand_blade]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the sword? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.one_hand_blade.parry, ability.catalogue.one_hand_blade.beat_the_guard, ability.catalogue.one_hand_blade.close_thrust, ability.catalogue.one_hand_blade.riposte, ability.catalogue.one_hand_blade.feint, ability.catalogue.one_hand_blade.bind_and_wind, ability.catalogue.one_hand_blade.cut_from_cover, ability.catalogue.one_hand_blade.draw_cut, ability.catalogue.one_hand_blade.disarming_wind, ability.catalogue.one_hand_blade.stop_thrust, ability.catalogue.one_hand_blade.turn_the_shaft] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.one_hand_blade.parry, ability.catalogue.one_hand_blade.beat_the_guard, ability.catalogue.one_hand_blade.close_thrust, ability.catalogue.one_hand_blade.riposte, ability.catalogue.one_hand_blade.feint, ability.catalogue.one_hand_blade.bind_and_wind, ability.catalogue.one_hand_blade.cut_from_cover, ability.catalogue.one_hand_blade.draw_cut, ability.catalogue.one_hand_blade.disarming_wind, ability.catalogue.one_hand_blade.stop_thrust, ability.catalogue.one_hand_blade.turn_the_shaft] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

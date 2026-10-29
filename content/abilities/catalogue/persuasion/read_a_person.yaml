@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.read_a_person
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.read_a_person.name
+tags: [ability]
+name: "Read a Person"
+notes: "What they want, what they fear, what they will not say Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 15
+needs: "persuasion 15, insight 12"

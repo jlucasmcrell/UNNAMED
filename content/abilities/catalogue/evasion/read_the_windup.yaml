@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.read_the_windup
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.read_the_windup.name
+tags: [ability]
+name: "Read the Windup"
+notes: "A known kind's tell says which attack is coming in time to choose Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 15
+needs: "evasion 15, creature knowledge"

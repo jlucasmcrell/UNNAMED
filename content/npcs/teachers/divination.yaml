@@ -1,0 +1,43 @@
+id: npc.teacher.divination
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.divination.name
+tags: [npc]
+name: "Master of Divination"
+notes: "The divination teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.divination
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.divination.read_the_trace
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.divination, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.divination.detect_working
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.divination, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.divination.circle_of_recall
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.divination, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.divination.sense_the_seam
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.divination, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.divination.the_confident_wrong
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.divination, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.divination.a_thing_that_has_not_happened
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.divination, band: expert } }

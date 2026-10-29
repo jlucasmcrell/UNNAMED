@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.lure_stone
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.lure_stone.name
+tags: [ability]
+name: "Lure Stone"
+notes: "A stone thrown to a place makes a sound that is not you Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 15
+needs: "thrown 15, stealth 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.arch_and_lintel
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.arch_and_lintel.name
+tags: [ability]
+name: "Arch and Lintel"
+notes: "Span an opening without it falling on you Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 30
+needs: "masonry 30, carpentry 15"

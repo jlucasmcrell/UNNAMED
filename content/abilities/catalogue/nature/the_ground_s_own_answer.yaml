@@ -1,0 +1,11 @@
+id: ability.catalogue.nature.the_ground_s_own_answer
+kind: ability
+schema: 1
+display_key: ability.catalogue.nature.the_ground_s_own_answer.name
+tags: [ability]
+name: "The Ground's Own Answer"
+notes: "Ask a place what will grow, what is wrong with it, and what it wants Taught through the D13 catalogue."
+class: technique
+discipline: skill.nature
+band: 60
+needs: "nature 60, lore 30"

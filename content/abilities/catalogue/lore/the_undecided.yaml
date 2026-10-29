@@ -1,0 +1,11 @@
+id: ability.catalogue.lore.the_undecided
+kind: ability
+schema: 1
+display_key: ability.catalogue.lore.the_undecided.name
+tags: [ability]
+name: "The Undecided"
+notes: "Recognise where canon itself is silent, and say so — the technique this whole document depends on Taught through the D13 catalogue."
+class: technique
+discipline: skill.lore
+band: 45
+needs: "lore 45, insight 30"

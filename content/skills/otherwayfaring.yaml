@@ -1,0 +1,9 @@
+id: skill.otherwayfaring
+kind: skill
+schema: 1
+display_key: skill.otherwayfaring.name
+tags: [skill]
+name: "Otherwayfaring"
+family: world
+notes: "D13 catalogue skill: Otherwayfaring (3.4 The cosmic, and the Other). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "surviving, reading and navigating a route that is not entirely here"

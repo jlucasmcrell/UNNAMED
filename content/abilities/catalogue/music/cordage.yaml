@@ -1,0 +1,11 @@
+id: ability.catalogue.music.cordage
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.cordage.name
+tags: [ability]
+name: "Cordage"
+notes: "Twist nettle, lime bast, sinew or hide into cord that holds a load. Every trap, handle and strap in the world begins here Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 15
+needs: "—"

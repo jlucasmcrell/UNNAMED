@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.counterweight_recovery
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.counterweight_recovery.name
+tags: [ability]
+name: "Counterweight Recovery"
+notes: "Use the head's mass to *help* the recovery instead of fighting it Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 30
+needs: "hammer 30"

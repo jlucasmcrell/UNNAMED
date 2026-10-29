@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.inside_step
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.inside_step.name
+tags: [ability]
+name: "Inside Step"
+notes: "Step *into* a swing to make the enemy's reach useless Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 15
+needs: "dagger 15, agility"

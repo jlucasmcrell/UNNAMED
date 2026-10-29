@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.dent_the_harness
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.dent_the_harness.name
+tags: [ability]
+name: "Dent the Harness"
+notes: "Dent, don't cut: armour that no longer opens is armour you have already won Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 45
+needs: "hammer 45"

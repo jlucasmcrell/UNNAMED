@@ -1,0 +1,31 @@
+id: dialogue.teacher.hunting
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.hunting.name
+tags: [dialogue]
+notes: "The hunting teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.hunting]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the hunting? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.hunting.read_the_sign, ability.catalogue.hunting.dress_the_kill, ability.catalogue.hunting.bait_and_lure, ability.catalogue.hunting.the_hunt_that_ends_cleanly] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.hunting.read_the_sign, ability.catalogue.hunting.dress_the_kill, ability.catalogue.hunting.bait_and_lure, ability.catalogue.hunting.the_hunt_that_ends_cleanly] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

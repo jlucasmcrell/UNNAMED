@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.clinch
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.clinch.name
+tags: [ability]
+name: "Clinch"
+notes: "Close inside a weapon's reach where long weapons cannot strike Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 15
+needs: "unarmed 15"

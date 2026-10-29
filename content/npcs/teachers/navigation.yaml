@@ -1,0 +1,33 @@
+id: npc.teacher.navigation
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.navigation.name
+tags: [npc]
+name: "Master of Navigation"
+notes: "The navigation teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.navigation
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.roads_water_and_stars
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.navigation, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.by_rumour
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.navigation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.bearings_by_stars
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.navigation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.navigation.get_the_party_home
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.navigation, band: adept } }

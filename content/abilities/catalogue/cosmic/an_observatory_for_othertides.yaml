@@ -1,0 +1,11 @@
+id: ability.catalogue.cosmic.an_observatory_for_othertides
+kind: ability
+schema: 1
+display_key: ability.catalogue.cosmic.an_observatory_for_othertides.name
+tags: [ability]
+name: "An Observatory for Othertides"
+notes: "Build the instrument that makes tides readable across a region Taught through the D13 catalogue."
+class: technique
+discipline: skill.cosmic
+band: 60
+needs: "cosmic 60, engineering 45, masonry 45"

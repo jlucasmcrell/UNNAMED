@@ -1,0 +1,11 @@
+id: ability.catalogue.music.pack_a_gland
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.pack_a_gland.name
+tags: [ability]
+name: "Pack a gland"
+notes: "Stop a leak under pressure with what is in front of you: packing, a clamp, a wedge, and the right order Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 30
+needs: "fabrication 30"

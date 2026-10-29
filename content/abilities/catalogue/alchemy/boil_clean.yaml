@@ -1,0 +1,11 @@
+id: ability.catalogue.alchemy.boil_clean
+kind: ability
+schema: 1
+display_key: ability.catalogue.alchemy.boil_clean.name
+tags: [ability]
+name: "Boil Clean"
+notes: "Water that is safe, and the reason tea exists Taught through the D13 catalogue."
+class: technique
+discipline: skill.alchemy
+band: 15
+needs: "alchemy 15"

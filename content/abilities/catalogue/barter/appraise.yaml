@@ -1,0 +1,11 @@
+id: ability.catalogue.barter.appraise
+kind: ability
+schema: 1
+display_key: ability.catalogue.barter.appraise.name
+tags: [ability]
+name: "Appraise"
+notes: "Know what a thing is worth, and not be cheated Taught through the D13 catalogue."
+class: technique
+discipline: skill.barter
+band: 15
+needs: "barter 15, insight 12"

@@ -1,0 +1,28 @@
+id: npc.teacher.foraging
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.foraging.name
+tags: [npc]
+name: "Master of Foraging"
+notes: "The foraging teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.foraging
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.foraging.water_fibre_tinder
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.foraging, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.foraging.forage_shot
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.foraging, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.foraging.the_fallow_year
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.foraging, band: adept } }

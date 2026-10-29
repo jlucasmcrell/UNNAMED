@@ -1,0 +1,31 @@
+id: dialogue.teacher.music
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.music.name
+tags: [dialogue]
+notes: "The music teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.music]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the music? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.music.the_working_song, ability.catalogue.music.playing_the_room, ability.catalogue.music.the_old_songs, ability.catalogue.music.a_wake_for_the_dead, ability.catalogue.music.knap_a_cutting_edge, ability.catalogue.music.fire_without_a_fire, ability.catalogue.music.cordage, ability.catalogue.music.cold_work_native_metal, ability.catalogue.music.bloomery_smelt, ability.catalogue.music.charcoal_steel_charge, ability.catalogue.music.read_an_old_hinge, ability.catalogue.music.reproduce_a_firstfold_form, ability.catalogue.music.water_and_weight, ability.catalogue.music.temper_and_draw, ability.catalogue.music.lock_and_key, ability.catalogue.music.frame_and_brace, ability.catalogue.music.serve_a_siege_engine, ability.catalogue.music.escapement, ability.catalogue.music.gauge_and_calibrate, ability.catalogue.music.powder_charge, ability.catalogue.music.lay_a_charge, ability.catalogue.music.the_engine_that_holds_itself, ability.catalogue.music.read_a_pipe_run, ability.catalogue.music.pack_a_gland, ability.catalogue.music.pressure_discipline, ability.catalogue.music.turn_a_true_shaft, ability.catalogue.music.steam_cycle, ability.catalogue.music.repair_what_you_did_not_build, ability.catalogue.music.keep_it_in_specification, ability.catalogue.music.schedule, ability.catalogue.music.cell_and_coil, ability.catalogue.music.close_a_circuit, ability.catalogue.music.optics, ability.catalogue.music.signal, ability.catalogue.music.internal_combustion_in_principle, ability.catalogue.music.field_surgery, ability.catalogue.music.demolish_a_building, ability.catalogue.music.sustain_a_machine_without_parts, ability.catalogue.music.reverse_the_whole_device, ability.catalogue.music.charge_discipline, ability.catalogue.music.damper_field, ability.catalogue.music.long_sight, ability.catalogue.music.hold_a_harness, ability.catalogue.music.drone_discipline, ability.catalogue.music.component_fitting, ability.catalogue.music.gate_frame, ability.catalogue.music.rift_tap, ability.catalogue.music.build_a_cell_from_nothing_local, ability.catalogue.music.teardown, ability.catalogue.music.read_the_maker, ability.catalogue.music.keep_the_intel, ability.catalogue.music.work_blind, ability.catalogue.music.bottle_a_hazard, ability.catalogue.music.partial_understanding, ability.catalogue.music.total_teardown, ability.catalogue.music.one_true_idea, ability.catalogue.music.anchor_a_working_in_a_mechanism, ability.catalogue.music.conductor_blades, ability.catalogue.music.recoil_that_pays, ability.catalogue.music.gate_tuner, ability.catalogue.music.field_repair_a_working, ability.catalogue.music.bind_a_phenomenon, ability.catalogue.music.the_concord_object] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.music.the_working_song, ability.catalogue.music.playing_the_room, ability.catalogue.music.the_old_songs, ability.catalogue.music.a_wake_for_the_dead, ability.catalogue.music.knap_a_cutting_edge, ability.catalogue.music.fire_without_a_fire, ability.catalogue.music.cordage, ability.catalogue.music.cold_work_native_metal, ability.catalogue.music.bloomery_smelt, ability.catalogue.music.charcoal_steel_charge, ability.catalogue.music.read_an_old_hinge, ability.catalogue.music.reproduce_a_firstfold_form, ability.catalogue.music.water_and_weight, ability.catalogue.music.temper_and_draw, ability.catalogue.music.lock_and_key, ability.catalogue.music.frame_and_brace, ability.catalogue.music.serve_a_siege_engine, ability.catalogue.music.escapement, ability.catalogue.music.gauge_and_calibrate, ability.catalogue.music.powder_charge, ability.catalogue.music.lay_a_charge, ability.catalogue.music.the_engine_that_holds_itself, ability.catalogue.music.read_a_pipe_run, ability.catalogue.music.pack_a_gland, ability.catalogue.music.pressure_discipline, ability.catalogue.music.turn_a_true_shaft, ability.catalogue.music.steam_cycle, ability.catalogue.music.repair_what_you_did_not_build, ability.catalogue.music.keep_it_in_specification, ability.catalogue.music.schedule, ability.catalogue.music.cell_and_coil, ability.catalogue.music.close_a_circuit, ability.catalogue.music.optics, ability.catalogue.music.signal, ability.catalogue.music.internal_combustion_in_principle, ability.catalogue.music.field_surgery, ability.catalogue.music.demolish_a_building, ability.catalogue.music.sustain_a_machine_without_parts, ability.catalogue.music.reverse_the_whole_device, ability.catalogue.music.charge_discipline, ability.catalogue.music.damper_field, ability.catalogue.music.long_sight, ability.catalogue.music.hold_a_harness, ability.catalogue.music.drone_discipline, ability.catalogue.music.component_fitting, ability.catalogue.music.gate_frame, ability.catalogue.music.rift_tap, ability.catalogue.music.build_a_cell_from_nothing_local, ability.catalogue.music.teardown, ability.catalogue.music.read_the_maker, ability.catalogue.music.keep_the_intel, ability.catalogue.music.work_blind, ability.catalogue.music.bottle_a_hazard, ability.catalogue.music.partial_understanding, ability.catalogue.music.total_teardown, ability.catalogue.music.one_true_idea, ability.catalogue.music.anchor_a_working_in_a_mechanism, ability.catalogue.music.conductor_blades, ability.catalogue.music.recoil_that_pays, ability.catalogue.music.gate_tuner, ability.catalogue.music.field_repair_a_working, ability.catalogue.music.bind_a_phenomenon, ability.catalogue.music.the_concord_object] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

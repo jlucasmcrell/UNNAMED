@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.the_setting_nobody_can_copy
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.the_setting_nobody_can_copy.name
+tags: [ability]
+name: "The Setting Nobody Can Copy"
+notes: "A cut and a setting that together do what neither can Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 75
+needs: "jewelcraft 75 + mastery"

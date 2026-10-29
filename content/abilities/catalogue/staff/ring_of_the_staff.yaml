@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.ring_of_the_staff
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.ring_of_the_staff.name
+tags: [ability]
+name: "Ring of the Staff"
+notes: "A continuous defence that covers a whole circle and never stops being a threat Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 75
+needs: "staff 75 + mastery"

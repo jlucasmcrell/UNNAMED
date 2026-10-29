@@ -1,0 +1,11 @@
+id: ability.catalogue.armoursmithing.a_suit_that_is_worn
+kind: ability
+schema: 1
+display_key: ability.catalogue.armoursmithing.a_suit_that_is_worn.name
+tags: [ability]
+name: "A Suit That Is Worn"
+notes: "Armour so fitted the wearer forgets it, and the world does not Taught through the D13 catalogue."
+class: technique
+discipline: skill.armoursmithing
+band: 75
+needs: "armoursmithing 75 + mastery"

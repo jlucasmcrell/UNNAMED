@@ -1,0 +1,11 @@
+id: ability.catalogue.first_aid.field_triage
+kind: ability
+schema: 1
+display_key: ability.catalogue.first_aid.field_triage.name
+tags: [ability]
+name: "Field Triage"
+notes: "Decide who you can save, in order, out loud Taught through the D13 catalogue."
+class: technique
+discipline: skill.first_aid
+band: 45
+needs: "first_aid 45, insight 20"

@@ -1,0 +1,88 @@
+id: npc.teacher.veilward
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.veilward.name
+tags: [npc]
+name: "Master of Veilward"
+notes: "The veilward teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.veilward
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.the_old_ward
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.veilward, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.shed_the_overload
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.veilward, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.null_discipline
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.veilward, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.interpose
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.veilward, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.veil_collar
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.veilward, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.hold_the_firm_ground
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.veilward, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.improvised_tools
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.veilward, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.quick_work
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.veilward, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.material_sense
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.veilward, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.recover_whole
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.veilward, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.field_workshop
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.veilward, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.maker_s_mark
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.veilward, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.know_the_hand
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.veilward, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.master_s_correction
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.veilward, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.veilward.living_workshop
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.veilward, band: master } }

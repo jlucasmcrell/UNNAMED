@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.roll_out
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.roll_out.name
+tags: [ability]
+name: "Roll Out"
+notes: "Rise from prone in a third of a second, in the direction of your choosing Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 30
+needs: "unarmed 30, athletics 15"

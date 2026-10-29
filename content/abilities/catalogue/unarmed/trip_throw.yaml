@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.trip_throw
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.trip_throw.name
+tags: [ability]
+name: "Trip Throw"
+notes: "From the clinch, put a heavier body on the ground Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 30
+needs: "unarmed 30, after Clinch"

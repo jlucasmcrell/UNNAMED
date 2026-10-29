@@ -1,0 +1,11 @@
+id: ability.catalogue.music.the_engine_that_holds_itself
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.the_engine_that_holds_itself.name
+tags: [ability]
+name: "The engine that holds itself"
+notes: "Design a self-regulating mechanism (governor, escapement, relief valve) that will not run away when it is left alone Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 75
+needs: "mechanisms 75, engineering 60"

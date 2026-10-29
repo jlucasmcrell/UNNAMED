@@ -1,0 +1,9 @@
+id: skill.enchanting
+kind: skill
+schema: 1
+display_key: skill.enchanting.name
+tags: [skill]
+name: "Enchanting"
+family: world
+notes: "D13 catalogue skill: Enchanting (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a working that stayed stable after you stopped holding it"

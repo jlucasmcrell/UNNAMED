@@ -1,0 +1,11 @@
+id: ability.catalogue.athletics.carry_the_load
+kind: ability
+schema: 1
+display_key: ability.catalogue.athletics.carry_the_load.name
+tags: [ability]
+name: "Carry the Load"
+notes: "Move a weight that is genuinely heavy, safely Taught through the D13 catalogue."
+class: technique
+discipline: skill.athletics
+band: 15
+needs: "athletics 15, endurance 12"

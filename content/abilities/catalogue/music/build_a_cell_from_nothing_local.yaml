@@ -1,0 +1,11 @@
+id: ability.catalogue.music.build_a_cell_from_nothing_local
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.build_a_cell_from_nothing_local.name
+tags: [ability]
+name: "Build a cell from nothing local"
+notes: "Charge a cell from an Otherwake, a storm or a resonance-quartz vein: unreliable, unstable and free Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 75
+needs: "artifice 75, electronics 60, otherlore 45"

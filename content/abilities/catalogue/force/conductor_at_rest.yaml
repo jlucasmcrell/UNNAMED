@@ -1,0 +1,11 @@
+id: ability.catalogue.force.conductor_at_rest
+kind: ability
+schema: 1
+display_key: ability.catalogue.force.conductor_at_rest.name
+tags: [ability]
+name: "Conductor at rest"
+notes: "Your workings leave almost no trace to read Taught through the D13 catalogue."
+class: technique
+discipline: skill.force
+band: 60
+needs: "force 60, stealth 30"

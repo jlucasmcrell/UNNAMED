@@ -1,0 +1,11 @@
+id: ability.catalogue.nature.ask_the_green
+kind: ability
+schema: 1
+display_key: ability.catalogue.nature.ask_the_green.name
+tags: [ability]
+name: "Ask the Green"
+notes: "Know what a plant is for without harvesting it: what it heals, poisons or marks Taught through the D13 catalogue."
+class: technique
+discipline: skill.nature
+band: 30
+needs: "nature 30, herbalism 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.cut_and_thrust_geometry
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.cut_and_thrust_geometry.name
+tags: [ability]
+name: "Cut and Thrust Geometry"
+notes: "Grind a blade that cuts and thrusts without doing neither well Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 15
+needs: "weaponsmithing 15, smithing 15"

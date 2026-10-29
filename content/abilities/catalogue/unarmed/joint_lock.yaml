@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.joint_lock
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.joint_lock.name
+tags: [ability]
+name: "Joint Lock"
+notes: "A lock that ends a fight by making the next move expensive Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 45
+needs: "unarmed 45, anatomy knowledge"

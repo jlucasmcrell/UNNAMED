@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.read_the_land
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.read_the_land.name
+tags: [ability]
+name: "Read the Land"
+notes: "Know what a landscape is going to do: water, shelter, ground, weather Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 45
+needs: "survival 45, cartography 30"

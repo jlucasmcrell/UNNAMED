@@ -1,0 +1,31 @@
+id: dialogue.teacher.jewelcraft
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.jewelcraft.name
+tags: [dialogue]
+notes: "The jewelcraft and lapidary teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.jewelcraft]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the jewelcraft and lapidary? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding, ability.catalogue.jewelcraft.stone_for_a_working, ability.catalogue.jewelcraft.resonance_quartz, ability.catalogue.jewelcraft.otherglass, ability.catalogue.jewelcraft.a_stone_that_remembers, ability.catalogue.jewelcraft.the_setting_nobody_can_copy] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.jewelcraft.cut_and_polish, ability.catalogue.jewelcraft.setting, ability.catalogue.jewelcraft.lens_grinding, ability.catalogue.jewelcraft.stone_for_a_working, ability.catalogue.jewelcraft.resonance_quartz, ability.catalogue.jewelcraft.otherglass, ability.catalogue.jewelcraft.a_stone_that_remembers, ability.catalogue.jewelcraft.the_setting_nobody_can_copy] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

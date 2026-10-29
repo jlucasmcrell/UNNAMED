@@ -1,0 +1,11 @@
+id: ability.catalogue.logging.the_standing_crop
+kind: ability
+schema: 1
+display_key: ability.catalogue.logging.the_standing_crop.name
+tags: [ability]
+name: "The Standing Crop"
+notes: "Take from a wood so it is still a wood in ten years Taught through the D13 catalogue."
+class: technique
+discipline: skill.logging
+band: 45
+needs: "logging 45, nature 30"

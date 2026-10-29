@@ -1,0 +1,31 @@
+id: dialogue.teacher.armoursmithing
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.armoursmithing.name
+tags: [dialogue]
+notes: "The armoursmithing teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.armoursmithing]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the armoursmithing? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.armoursmithing.fit_to_a_body, ability.catalogue.armoursmithing.lame_and_lace, ability.catalogue.armoursmithing.close_the_gaps, ability.catalogue.armoursmithing.harness_a_wing, ability.catalogue.armoursmithing.layer_for_the_weather, ability.catalogue.armoursmithing.phase_laminate, ability.catalogue.armoursmithing.harness_for_a_heavy_frame, ability.catalogue.armoursmithing.a_suit_that_is_worn] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.armoursmithing.fit_to_a_body, ability.catalogue.armoursmithing.lame_and_lace, ability.catalogue.armoursmithing.close_the_gaps, ability.catalogue.armoursmithing.harness_a_wing, ability.catalogue.armoursmithing.layer_for_the_weather, ability.catalogue.armoursmithing.phase_laminate, ability.catalogue.armoursmithing.harness_for_a_heavy_frame, ability.catalogue.armoursmithing.a_suit_that_is_worn] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

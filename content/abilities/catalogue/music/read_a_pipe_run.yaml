@@ -1,0 +1,11 @@
+id: ability.catalogue.music.read_a_pipe_run
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.read_a_pipe_run.name
+tags: [ability]
+name: "Read a pipe run"
+notes: "Follow ceramic, bronze and glass by pressure and fall rather than by sight, and find the valve that matters Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 30
+needs: "engineering 30, salvage 15"

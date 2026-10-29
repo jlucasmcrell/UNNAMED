@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.cut_from_cover
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.cut_from_cover.name
+tags: [ability]
+name: "Cut from Cover"
+notes: "Strike from behind a shield, a doorframe or a fallen body without losing the cover Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 30
+needs: "sword 30, shield 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.fault_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.fault_strike.name
+tags: [ability]
+name: "Fault Strike"
+notes: "The blow that a specific material cannot take: cast iron's ring, bronze's fatigue, bone's third hit Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 60
+needs: "hammer 60, material knowledge"

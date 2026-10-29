@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.pad_and_footing
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.pad_and_footing.name
+tags: [ability]
+name: "Pad and Footing"
+notes: "A firm base for a timber structure Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 15
+needs: "carpentry 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.cosmic.star_iron
+kind: ability
+schema: 1
+display_key: ability.catalogue.cosmic.star_iron.name
+tags: [ability]
+name: "Star-iron"
+notes: "Work metal that fell rather than was dug: it takes a working and holds it Taught through the D13 catalogue."
+class: technique
+discipline: skill.cosmic
+band: 30
+needs: "cosmic 30, smithing 30"

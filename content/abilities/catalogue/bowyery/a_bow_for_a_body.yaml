@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.a_bow_for_a_body
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.a_bow_for_a_body.name
+tags: [ability]
+name: "A Bow for a Body"
+notes: "A bow drawn by a hand that is not human: Kal, Vaskaal, Mor Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 75
+needs: "bowyery 75 + mastery"

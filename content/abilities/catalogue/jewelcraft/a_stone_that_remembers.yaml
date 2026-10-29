@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.a_stone_that_remembers
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.a_stone_that_remembers.name
+tags: [ability]
+name: "A Stone That Remembers"
+notes: "Read and preserve what a stone has held Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 60
+needs: "jewelcraft 60, lore 45"

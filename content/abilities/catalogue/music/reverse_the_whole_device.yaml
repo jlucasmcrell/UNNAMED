@@ -1,0 +1,11 @@
+id: ability.catalogue.music.reverse_the_whole_device
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.reverse_the_whole_device.name
+tags: [ability]
+name: "Reverse the whole device"
+notes: "Understand an arrival's machine completely enough to build another one from local materials Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 75
+needs: "salvage 75, fabrication 60, vaskaal_science 60, engineering 60"

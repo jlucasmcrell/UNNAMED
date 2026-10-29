@@ -1,0 +1,11 @@
+id: ability.catalogue.intimidation.break_a_formation_s_nerve
+kind: ability
+schema: 1
+display_key: ability.catalogue.intimidation.break_a_formation_s_nerve.name
+tags: [ability]
+name: "Break a Formation's Nerve"
+notes: "Make a group decide this is not worth it Taught through the D13 catalogue."
+class: technique
+discipline: skill.intimidation
+band: 45
+needs: "intimidation 45, tactics 30"

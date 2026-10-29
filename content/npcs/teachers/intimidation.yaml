@@ -1,0 +1,38 @@
+id: npc.teacher.intimidation
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.intimidation.name
+tags: [npc]
+name: "Master of Intimidation"
+notes: "The intimidation teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.intimidation
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.intimidation.stand_like_you_mean_it
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.intimidation, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.intimidation.name_the_consequence
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.intimidation, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.intimidation.pressure
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.intimidation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.intimidation.the_wrong_kind_of_calm
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.intimidation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.intimidation.break_a_formation_s_nerve
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.intimidation, band: adept } }

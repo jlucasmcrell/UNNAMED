@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.a_weapon_with_a_name
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.a_weapon_with_a_name.name
+tags: [ability]
+name: "A Weapon With a Name"
+notes: "An authored weapon with one property nobody can replicate Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 75
+needs: "weaponsmithing 75 + mastery"

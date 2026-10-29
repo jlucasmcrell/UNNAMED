@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.the_body_s_own_account
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.the_body_s_own_account.name
+tags: [ability]
+name: "The Body's Own Account"
+notes: "Heal without an obvious cast: slow, cheap, uncounterable by an interruption Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 60
+needs: "vital 60"

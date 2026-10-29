@@ -1,0 +1,11 @@
+id: ability.catalogue.persuasion.broker_a_deal
+kind: ability
+schema: 1
+display_key: ability.catalogue.persuasion.broker_a_deal.name
+tags: [ability]
+name: "Broker a Deal"
+notes: "An agreement both sides will keep Taught through the D13 catalogue."
+class: technique
+discipline: skill.persuasion
+band: 45
+needs: "persuasion 45, trade 30"

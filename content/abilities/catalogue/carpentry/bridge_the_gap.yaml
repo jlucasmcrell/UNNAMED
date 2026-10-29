@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.bridge_the_gap
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.bridge_the_gap.name
+tags: [ability]
+name: "Bridge the Gap"
+notes: "A crossing that takes a cart, not just a person Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 60
+needs: "carpentry 60, engineering 45"

@@ -1,0 +1,9 @@
+id: skill.barter
+kind: skill
+schema: 1
+display_key: skill.barter.name
+tags: [skill]
+name: "Barter"
+family: world
+notes: "D13 catalogue skill: Barter (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a price moved in your favour across a real negotiation"

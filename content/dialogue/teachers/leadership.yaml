@@ -1,0 +1,31 @@
+id: dialogue.teacher.leadership
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.leadership.name
+tags: [dialogue]
+notes: "The leadership teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.leadership]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the leadership? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.speak_for_the_party, ability.catalogue.leadership.hire_and_keep, ability.catalogue.leadership.hold_together] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.leadership.cover_me, ability.catalogue.leadership.standing_orders, ability.catalogue.leadership.rally, ability.catalogue.leadership.instruct, ability.catalogue.leadership.speak_for_the_party, ability.catalogue.leadership.hire_and_keep, ability.catalogue.leadership.hold_together] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

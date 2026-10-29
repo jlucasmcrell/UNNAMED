@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.tan_and_cure
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.tan_and_cure.name
+tags: [ability]
+name: "Tan and Cure"
+notes: "Hide to leather that does not rot: brain, bark, smoke, urine Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 15
+needs: "leatherworking 15"

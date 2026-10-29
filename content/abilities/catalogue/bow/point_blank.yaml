@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.point_blank
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.point_blank.name
+tags: [ability]
+name: "Point Blank"
+notes: "Shoot at contact range without losing the arrow or the arm Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 30
+needs: "bow 30, dagger 15"

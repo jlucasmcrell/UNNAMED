@@ -1,0 +1,11 @@
+id: ability.catalogue.climbing.anchor_and_haul
+kind: ability
+schema: 1
+display_key: ability.catalogue.climbing.anchor_and_haul.name
+tags: [ability]
+name: "Anchor and Haul"
+notes: "Bring a whole party up a face Taught through the D13 catalogue."
+class: technique
+discipline: skill.climbing
+band: 45
+needs: "climbing 45, athletics 30"

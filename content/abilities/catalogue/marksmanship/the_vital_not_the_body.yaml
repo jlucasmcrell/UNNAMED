@@ -1,0 +1,11 @@
+id: ability.catalogue.marksmanship.the_vital_not_the_body
+kind: ability
+schema: 1
+display_key: ability.catalogue.marksmanship.the_vital_not_the_body.name
+tags: [ability]
+name: "The Vital, Not the Body"
+notes: "Aim at the organ, using anatomy knowledge rather than luck Taught through the D13 catalogue."
+class: technique
+discipline: skill.marksmanship
+band: 30
+needs: "marksmanship 30, anatomy knowledge"

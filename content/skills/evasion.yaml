@@ -1,0 +1,9 @@
+id: skill.evasion
+kind: skill
+schema: 1
+display_key: skill.evasion.name
+tags: [skill]
+name: "Evasion"
+family: world
+notes: "D13 catalogue skill: Evasion (3.2 Battle arts). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "not being hit by something that was aimed at you"

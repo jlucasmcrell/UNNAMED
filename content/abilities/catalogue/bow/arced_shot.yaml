@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.arced_shot
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.arced_shot.name
+tags: [ability]
+name: "Arced Shot"
+notes: "Put an arrow *over* cover onto a position you can hear or reason about Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 30
+needs: "bow 30"

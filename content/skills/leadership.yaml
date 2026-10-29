@@ -1,0 +1,9 @@
+id: skill.leadership
+kind: skill
+schema: 1
+display_key: skill.leadership.name
+tags: [skill]
+name: "Leadership"
+family: world
+notes: "D13 catalogue skill: Leadership (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "people who followed you into something they would not have done alone"

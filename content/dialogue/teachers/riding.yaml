@@ -1,0 +1,31 @@
+id: dialogue.teacher.riding
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.riding.name
+tags: [dialogue]
+notes: "The riding teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.riding]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the riding? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.riding.mount_and_settle, ability.catalogue.riding.post_and_chair, ability.catalogue.riding.fords_and_bad_ground, ability.catalogue.riding.ride_through_fear, ability.catalogue.riding.ride_and_fight, ability.catalogue.riding.loose_reins] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.riding.mount_and_settle, ability.catalogue.riding.post_and_chair, ability.catalogue.riding.fords_and_bad_ground, ability.catalogue.riding.ride_through_fear, ability.catalogue.riding.ride_and_fight, ability.catalogue.riding.loose_reins] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

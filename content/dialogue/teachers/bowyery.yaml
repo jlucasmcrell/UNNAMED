@@ -1,0 +1,31 @@
+id: dialogue.teacher.bowyery
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.bowyery.name
+tags: [dialogue]
+notes: "The bowyery and fletching teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.bowyery]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the bowyery and fletching? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.bowyery.rough_arrows, ability.catalogue.bowyery.field_fletching, ability.catalogue.bowyery.hunting_bow, ability.catalogue.bowyery.silk_string, ability.catalogue.bowyery.composite_and_horn, ability.catalogue.bowyery.tillering_by_ear, ability.catalogue.bowyery.a_bow_for_a_body] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.bowyery.rough_arrows, ability.catalogue.bowyery.field_fletching, ability.catalogue.bowyery.hunting_bow, ability.catalogue.bowyery.silk_string, ability.catalogue.bowyery.composite_and_horn, ability.catalogue.bowyery.tillering_by_ear, ability.catalogue.bowyery.a_bow_for_a_body] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

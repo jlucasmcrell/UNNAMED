@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.silk_string
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.silk_string.name
+tags: [ability]
+name: "Silk String"
+notes: "String from spider silk: stronger, quieter, dearer Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 30
+needs: "bowyery 30, hunting 15"

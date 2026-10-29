@@ -1,0 +1,9 @@
+id: skill.cosmic
+kind: skill
+schema: 1
+display_key: skill.cosmic.name
+tags: [skill]
+name: "Cosmic"
+family: world
+notes: "D13 catalogue skill: Cosmic (3.4 The cosmic, and the Other). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "touching a celestial-scale effect and living: pull, gravity, star-iron, Othertide surge"

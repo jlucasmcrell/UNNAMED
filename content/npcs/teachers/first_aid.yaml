@@ -1,0 +1,38 @@
+id: npc.teacher.first_aid
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.first_aid.name
+tags: [npc]
+name: "Master of First aid"
+notes: "The first aid teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.first_aid
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.stop_the_bleed
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.first_aid, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.splint
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.first_aid, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.stabilise
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.first_aid, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.clean_it_properly
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.first_aid, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.first_aid.field_triage
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.first_aid, band: adept } }

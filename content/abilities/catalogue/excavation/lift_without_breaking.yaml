@@ -1,0 +1,11 @@
+id: ability.catalogue.excavation.lift_without_breaking
+kind: ability
+schema: 1
+display_key: ability.catalogue.excavation.lift_without_breaking.name
+tags: [ability]
+name: "Lift Without Breaking"
+notes: "Get a thing out with its story still attached Taught through the D13 catalogue."
+class: technique
+discipline: skill.excavation
+band: 30
+needs: "excavation 30, precision 20"

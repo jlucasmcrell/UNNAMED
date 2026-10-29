@@ -27,6 +27,19 @@ public sealed record TechniqueDefinition(string Id, string SkillId, double Damag
         : null;
 }
 
+/// <summary>
+/// A catalogue technique (D13): a named capability one skill owns - crafting, gathering, survival, social, spellcasting, the cosmic, the
+/// Other, technology - with the band it sits at and what it needs. It never changes a blow (weapon techniques stay
+/// <see cref="TechniqueDefinition"/>); it is learned through the same nine sources, and the Skills page and the Learn column read it.
+/// </summary>
+public sealed record CatalogueTechnique(string Id, string SkillId, int Band, string Needs)
+{
+    public string? Problem() =>
+        Band is < 15 or > 75 ? "band is one of 15, 30, 45, 60, 75"
+        : Needs.Length == 0 ? "needs says what the technique requires"
+        : null;
+}
+
 public static class TechniqueRules
 {
     /// <summary>

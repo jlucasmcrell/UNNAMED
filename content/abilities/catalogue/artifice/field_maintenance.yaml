@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.field_maintenance
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.field_maintenance.name
+tags: [ability]
+name: "Field Maintenance"
+notes: "Keep a device honest: clean, cool, seated, checked Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 15
+needs: "artifice 15"

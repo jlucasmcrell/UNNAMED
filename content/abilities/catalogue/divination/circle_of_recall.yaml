@@ -1,0 +1,11 @@
+id: ability.catalogue.divination.circle_of_recall
+kind: ability
+schema: 1
+display_key: ability.catalogue.divination.circle_of_recall.name
+tags: [ability]
+name: "Circle of Recall"
+notes: "A place's history replays as impressions for a minute; each impression is a knowledge record Taught through the D13 catalogue."
+class: technique
+discipline: skill.divination
+band: 30
+needs: "divination 30"

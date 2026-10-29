@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.wear_it_all_day
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.wear_it_all_day.name
+tags: [ability]
+name: "Wear It All Day"
+notes: "Fight a whole engagement in medium or heavy harness without your stamina policy collapsing Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 15
+needs: "armour 15, endurance 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.field_maintenance
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.field_maintenance.name
+tags: [ability]
+name: "Field Maintenance"
+notes: "Keep the mechanism honest: string, nut, lubrication, and knowing when it will fail Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 15
+needs: "crossbow 15, mechanisms 15"

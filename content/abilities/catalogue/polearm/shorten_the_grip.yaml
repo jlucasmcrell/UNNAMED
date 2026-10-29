@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.shorten_the_grip
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.shorten_the_grip.name
+tags: [ability]
+name: "Shorten the Grip"
+notes: "Choke down for a close fight without losing the shaft Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 30
+needs: "polearm 30"

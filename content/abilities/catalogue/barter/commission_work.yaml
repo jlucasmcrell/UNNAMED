@@ -1,0 +1,11 @@
+id: ability.catalogue.barter.commission_work
+kind: ability
+schema: 1
+display_key: ability.catalogue.barter.commission_work.name
+tags: [ability]
+name: "Commission Work"
+notes: "Order something made and not be robbed in the making Taught through the D13 catalogue."
+class: technique
+discipline: skill.barter
+band: 30
+needs: "barter 30, a craft 15"

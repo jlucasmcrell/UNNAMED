@@ -1,0 +1,11 @@
+id: ability.catalogue.climbing.tie_in
+kind: ability
+schema: 1
+display_key: ability.catalogue.climbing.tie_in.name
+tags: [ability]
+name: "Tie In"
+notes: "A knot and a belay that would actually hold you Taught through the D13 catalogue."
+class: technique
+discipline: skill.climbing
+band: 15
+needs: "climbing 15, survival 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.mining.loose_iron
+kind: ability
+schema: 1
+display_key: ability.catalogue.mining.loose_iron.name
+tags: [ability]
+name: "Loose Iron"
+notes: "Work spoil and deadfall for what the old workings left Taught through the D13 catalogue."
+class: technique
+discipline: skill.mining
+band: 30
+needs: "mining 30"

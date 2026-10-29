@@ -1,0 +1,11 @@
+id: ability.catalogue.first_aid.clean_it_properly
+kind: ability
+schema: 1
+display_key: ability.catalogue.first_aid.clean_it_properly.name
+tags: [ability]
+name: "Clean it Properly"
+notes: "The boring act that prevents the interesting death Taught through the D13 catalogue."
+class: technique
+discipline: skill.first_aid
+band: 30
+needs: "first_aid 30, herbalism 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.athletics.hard_going
+kind: ability
+schema: 1
+display_key: ability.catalogue.athletics.hard_going.name
+tags: [ability]
+name: "Hard Going"
+notes: "Cover ground over bad terrain without wasting yourself Taught through the D13 catalogue."
+class: technique
+discipline: skill.athletics
+band: 15
+needs: "athletics 15"

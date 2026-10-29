@@ -1,0 +1,11 @@
+id: ability.catalogue.divination.read_the_trace
+kind: ability
+schema: 1
+display_key: ability.catalogue.divination.read_the_trace.name
+tags: [ability]
+name: "Read the Trace"
+notes: "Casting signatures and residue within 2 m: what was worked, roughly when, by whom if known Taught through the D13 catalogue."
+class: technique
+discipline: skill.divination
+band: 15
+needs: "divination 15"

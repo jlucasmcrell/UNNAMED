@@ -1,0 +1,11 @@
+id: ability.catalogue.herbal_medicine.the_long_illness
+kind: ability
+schema: 1
+display_key: ability.catalogue.herbal_medicine.the_long_illness.name
+tags: [ability]
+name: "The Long Illness"
+notes: "Treat something that will not be cured today Taught through the D13 catalogue."
+class: technique
+discipline: skill.herbal_medicine
+band: 45
+needs: "herb_medicine 45, medicine 30"

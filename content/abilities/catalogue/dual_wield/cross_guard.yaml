@@ -1,0 +1,11 @@
+id: ability.catalogue.dual_wield.cross_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.dual_wield.cross_guard.name
+tags: [ability]
+name: "Cross Guard"
+notes: "Cross both weapons into a single guard for one heavy blow, then split again Taught through the D13 catalogue."
+class: technique
+discipline: skill.dual_wield
+band: 45
+needs: "dual_wield 45"

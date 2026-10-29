@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.stock_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.stock_strike.name
+tags: [ability]
+name: "Stock Strike"
+notes: "The crossbow as a club, once, at the right moment Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 30
+needs: "crossbow 30"

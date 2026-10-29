@@ -1,0 +1,11 @@
+id: ability.catalogue.animal_handling.read_temperament
+kind: ability
+schema: 1
+display_key: ability.catalogue.animal_handling.read_temperament.name
+tags: [ability]
+name: "Read Temperament"
+notes: "Know what an animal will do before it does it Taught through the D13 catalogue."
+class: technique
+discipline: skill.animal_handling
+band: 15
+needs: "handling 15, insight 12"

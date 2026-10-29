@@ -1,0 +1,31 @@
+id: dialogue.teacher.axe
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.axe.name
+tags: [dialogue]
+notes: "The axe teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.axe]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the axe? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.axe.splitting_chop, ability.catalogue.axe.shield_hook, ability.catalogue.axe.axe_throw, ability.catalogue.axe.beard_trip, ability.catalogue.axe.haft_punch, ability.catalogue.axe.retreating_chop, ability.catalogue.axe.hamstring, ability.catalogue.axe.sunder, ability.catalogue.axe.breaker_of_walls] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.axe.splitting_chop, ability.catalogue.axe.shield_hook, ability.catalogue.axe.axe_throw, ability.catalogue.axe.beard_trip, ability.catalogue.axe.haft_punch, ability.catalogue.axe.retreating_chop, ability.catalogue.axe.hamstring, ability.catalogue.axe.sunder, ability.catalogue.axe.breaker_of_walls] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

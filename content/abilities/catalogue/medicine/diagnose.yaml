@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.diagnose
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.diagnose.name
+tags: [ability]
+name: "Diagnose"
+notes: "Say what is wrong with a body, and be usefully right Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 15
+needs: "medicine 15, insight 15"

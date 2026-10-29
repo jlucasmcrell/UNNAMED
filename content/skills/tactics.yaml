@@ -1,0 +1,9 @@
+id: skill.tactics
+kind: skill
+schema: 1
+display_key: skill.tactics.name
+tags: [skill]
+name: "Tactics"
+family: world
+notes: "D13 catalogue skill: Tactics (3.2 Battle arts). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "winning an engagement you would have lost: ground, order, timing, withdrawal"

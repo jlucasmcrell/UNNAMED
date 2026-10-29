@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.trap_and_twist
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.trap_and_twist.name
+tags: [ability]
+name: "Trap and Twist"
+notes: "Trap a wrist or a blade between staff and body and torque Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 30
+needs: "staff 30"

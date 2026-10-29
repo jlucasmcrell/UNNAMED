@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.grave_seal
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.grave_seal.name
+tags: [ability]
+name: "Grave-seal"
+notes: "A grave that cannot be raised or robbed of essence while the seal holds Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 30
+needs: "necromancy 30"

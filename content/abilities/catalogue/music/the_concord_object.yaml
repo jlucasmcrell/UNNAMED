@@ -1,0 +1,11 @@
+id: ability.catalogue.music.the_concord_object
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.the_concord_object.name
+tags: [ability]
+name: "The Concord object"
+notes: "One device, five traditions, and it works: a signature Great Work of the setting Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 75
+needs: "all five crafts at 75"

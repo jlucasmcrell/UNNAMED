@@ -1,0 +1,11 @@
+id: ability.catalogue.lockpicking.the_safe_option
+kind: ability
+schema: 1
+display_key: ability.catalogue.lockpicking.the_safe_option.name
+tags: [ability]
+name: "The Safe Option"
+notes: "Open it so nobody can tell it was opened Taught through the D13 catalogue."
+class: technique
+discipline: skill.lockpicking
+band: 45
+needs: "lockpicking 45, stealth 30"

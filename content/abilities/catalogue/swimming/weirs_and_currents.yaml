@@ -1,0 +1,11 @@
+id: ability.catalogue.swimming.weirs_and_currents
+kind: ability
+schema: 1
+display_key: ability.catalogue.swimming.weirs_and_currents.name
+tags: [ability]
+name: "Weirs and Currents"
+notes: "Read moving water and use it instead of fighting it Taught through the D13 catalogue."
+class: technique
+discipline: skill.swimming
+band: 30
+needs: "swimming 30, insight 15"

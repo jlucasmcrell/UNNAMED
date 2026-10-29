@@ -1,0 +1,11 @@
+id: ability.catalogue.barter.cross_market_trade
+kind: ability
+schema: 1
+display_key: ability.catalogue.barter.cross_market_trade.name
+tags: [ability]
+name: "Cross-market Trade"
+notes: "Buy where it is cheap and sell where it is not, honestly or not Taught through the D13 catalogue."
+class: technique
+discipline: skill.barter
+band: 45
+needs: "barter 45, navigation 15"

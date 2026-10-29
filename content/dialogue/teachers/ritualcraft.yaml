@@ -1,0 +1,31 @@
+id: dialogue.teacher.ritualcraft
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.ritualcraft.name
+tags: [dialogue]
+notes: "The rite and circle teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.ritualcraft]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the rite and circle? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.ritualcraft.draw_the_circle, ability.catalogue.ritualcraft.lead_a_chorus, ability.catalogue.ritualcraft.keep, ability.catalogue.ritualcraft.inlay_and_anchor, ability.catalogue.ritualcraft.find_the_circle, ability.catalogue.ritualcraft.the_working] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.ritualcraft.draw_the_circle, ability.catalogue.ritualcraft.lead_a_chorus, ability.catalogue.ritualcraft.keep, ability.catalogue.ritualcraft.inlay_and_anchor, ability.catalogue.ritualcraft.find_the_circle, ability.catalogue.ritualcraft.the_working] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

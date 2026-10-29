@@ -1,0 +1,48 @@
+id: npc.teacher.vital
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.vital.name
+tags: [npc]
+name: "Master of Vital"
+notes: "The vital teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.vital
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.vital.mending_thread
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.vital, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.staunch
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.vital, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.purge_the_blood
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.vital, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.lend_focus
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.vital, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.mending_circle
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.vital, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.wound_matching
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.vital, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.vital.the_body_s_own_account
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.vital, band: expert } }

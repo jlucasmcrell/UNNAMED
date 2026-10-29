@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.silent_harness
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.silent_harness.name
+tags: [ability]
+name: "Silent Harness"
+notes: "Move quietly in armour for a short time by paying attention to what clatters Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 30
+needs: "armour 30, stealth 15"

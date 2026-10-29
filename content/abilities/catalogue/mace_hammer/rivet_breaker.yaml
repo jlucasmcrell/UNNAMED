@@ -1,0 +1,11 @@
+id: ability.catalogue.mace_hammer.rivet_breaker
+kind: ability
+schema: 1
+display_key: ability.catalogue.mace_hammer.rivet_breaker.name
+tags: [ability]
+name: "Rivet Breaker"
+notes: "Find the rivet that holds the plate and hit *that* Taught through the D13 catalogue."
+class: technique
+discipline: skill.mace_hammer
+band: 45
+needs: "hammer 45, armour knowledge"

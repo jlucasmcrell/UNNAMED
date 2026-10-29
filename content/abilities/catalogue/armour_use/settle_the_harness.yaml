@@ -1,0 +1,11 @@
+id: ability.catalogue.armour_use.settle_the_harness
+kind: ability
+schema: 1
+display_key: ability.catalogue.armour_use.settle_the_harness.name
+tags: [ability]
+name: "Settle the Harness"
+notes: "A few seconds of strapping: the armour stops making noise and stops chafing Taught through the D13 catalogue."
+class: technique
+discipline: skill.armour_use
+band: 15
+needs: "armour 15"

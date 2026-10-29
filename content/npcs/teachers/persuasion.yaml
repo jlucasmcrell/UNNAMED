@@ -1,0 +1,48 @@
+id: npc.teacher.persuasion
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.persuasion.name
+tags: [npc]
+name: "Master of Persuasion"
+notes: "The persuasion teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.persuasion
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.read_a_person
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.persuasion, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.appeal_to_interest
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.persuasion, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.speak_the_forms
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.persuasion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.win_the_room
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.persuasion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.broker_a_deal
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.persuasion, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.oath_bound
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.persuasion, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.persuasion.trusted_voice
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.persuasion, band: expert } }

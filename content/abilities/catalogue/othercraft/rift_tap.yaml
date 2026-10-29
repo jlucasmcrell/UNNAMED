@@ -1,0 +1,11 @@
+id: ability.catalogue.othercraft.rift_tap
+kind: ability
+schema: 1
+display_key: ability.catalogue.othercraft.rift_tap.name
+tags: [ability]
+name: "Rift-tap"
+notes: "Draw power from a fold that already exists instead of making one Taught through the D13 catalogue."
+class: technique
+discipline: skill.othercraft
+band: 45
+needs: "othercraft 45, electronics 45"

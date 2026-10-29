@@ -1,0 +1,11 @@
+id: ability.catalogue.lockpicking.pick_a_lock
+kind: ability
+schema: 1
+display_key: ability.catalogue.lockpicking.pick_a_lock.name
+tags: [ability]
+name: "Pick a Lock"
+notes: "Open a mechanical lock with picks; complexity sets time and noise, and a failure can jam it Taught through the D13 catalogue."
+class: technique
+discipline: skill.lockpicking
+band: 15
+needs: "lockpicking 15, a pick set"

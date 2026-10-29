@@ -1,0 +1,11 @@
+id: ability.catalogue.animal_handling.teach_commands
+kind: ability
+schema: 1
+display_key: ability.catalogue.animal_handling.teach_commands.name
+tags: [ability]
+name: "Teach Commands"
+notes: "An animal that knows four things reliably Taught through the D13 catalogue."
+class: technique
+discipline: skill.animal_handling
+band: 30
+needs: "handling 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.leadership.hire_and_keep
+kind: ability
+schema: 1
+display_key: ability.catalogue.leadership.hire_and_keep.name
+tags: [ability]
+name: "Hire and Keep"
+notes: "Find, judge and retain someone competent Taught through the D13 catalogue."
+class: technique
+discipline: skill.leadership
+band: 45
+needs: "leadership 45, barter 30"

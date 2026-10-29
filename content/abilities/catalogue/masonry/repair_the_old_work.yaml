@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.repair_the_old_work
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.repair_the_old_work.name
+tags: [ability]
+name: "Repair the Old Work"
+notes: "Repair stonework whose method you do not fully know, and be honest about it Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 45
+needs: "masonry 45, lore 30"

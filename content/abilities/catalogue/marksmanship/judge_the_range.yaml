@@ -1,0 +1,11 @@
+id: ability.catalogue.marksmanship.judge_the_range
+kind: ability
+schema: 1
+display_key: ability.catalogue.marksmanship.judge_the_range.name
+tags: [ability]
+name: "Judge the Range"
+notes: "Say the distance within a few paces, and be right Taught through the D13 catalogue."
+class: technique
+discipline: skill.marksmanship
+band: 15
+needs: "marksmanship 15, precision 12"

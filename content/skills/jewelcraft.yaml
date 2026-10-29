@@ -1,0 +1,9 @@
+id: skill.jewelcraft
+kind: skill
+schema: 1
+display_key: skill.jewelcraft.name
+tags: [skill]
+name: "Jewelcraft and lapidary"
+family: world
+notes: "D13 catalogue skill: Jewelcraft and lapidary (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a setting that holds a stone and its properties steady"

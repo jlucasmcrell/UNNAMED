@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.shed_the_overload
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.shed_the_overload.name
+tags: [ability]
+name: "Shed the Overload"
+notes: "Pay Strain off in health, cold or blood instead of carrying it Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 30
+needs: "veilward 30, endurance 15"

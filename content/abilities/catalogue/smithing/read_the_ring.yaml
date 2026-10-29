@@ -1,0 +1,11 @@
+id: ability.catalogue.smithing.read_the_ring
+kind: ability
+schema: 1
+display_key: ability.catalogue.smithing.read_the_ring.name
+tags: [ability]
+name: "Read the Ring"
+notes: "Judgment by sound, colour and grain instead of a thermometer Taught through the D13 catalogue."
+class: technique
+discipline: skill.smithing
+band: 45
+needs: "smithing 45"

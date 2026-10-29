@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.wound_matching
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.wound_matching.name
+tags: [ability]
+name: "Wound Matching"
+notes: "Know which injury the working will answer *before* you spend the Strain Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 45
+needs: "vital 45, medicine 30"

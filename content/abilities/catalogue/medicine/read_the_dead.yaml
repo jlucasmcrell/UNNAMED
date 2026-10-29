@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.read_the_dead
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.read_the_dead.name
+tags: [ability]
+name: "Read the Dead"
+notes: "What killed this person, how long ago, and what else they had Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 45
+needs: "medicine 45, lore 30"

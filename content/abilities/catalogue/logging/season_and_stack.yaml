@@ -1,0 +1,11 @@
+id: ability.catalogue.logging.season_and_stack
+kind: ability
+schema: 1
+display_key: ability.catalogue.logging.season_and_stack.name
+tags: [ability]
+name: "Season and Stack"
+notes: "Timber that is still usable in a year Taught through the D13 catalogue."
+class: technique
+discipline: skill.logging
+band: 15
+needs: "logging 15, woodworking 15"

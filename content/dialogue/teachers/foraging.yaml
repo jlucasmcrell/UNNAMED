@@ -1,0 +1,31 @@
+id: dialogue.teacher.foraging
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.foraging.name
+tags: [dialogue]
+notes: "The foraging teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.foraging]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the foraging? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.foraging.water_fibre_tinder, ability.catalogue.foraging.forage_shot, ability.catalogue.foraging.the_fallow_year] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.foraging.water_fibre_tinder, ability.catalogue.foraging.forage_shot, ability.catalogue.foraging.the_fallow_year] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

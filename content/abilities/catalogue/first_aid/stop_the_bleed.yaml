@@ -1,0 +1,11 @@
+id: ability.catalogue.first_aid.stop_the_bleed
+kind: ability
+schema: 1
+display_key: ability.catalogue.first_aid.stop_the_bleed.name
+tags: [ability]
+name: "Stop the Bleed"
+notes: "The one skill everyone should have, and the reason the world is survivable Taught through the D13 catalogue."
+class: technique
+discipline: skill.first_aid
+band: 15
+needs: "first_aid 15"

@@ -1,0 +1,11 @@
+id: ability.catalogue.dagger.mercy_stroke
+kind: ability
+schema: 1
+display_key: ability.catalogue.dagger.mercy_stroke.name
+tags: [ability]
+name: "Mercy Stroke"
+notes: "End a downed person's suffering: fast, clean, and it requires the surrender system to mean anything Taught through the D13 catalogue."
+class: technique
+discipline: skill.dagger
+band: 60
+needs: "dagger 60, unarmed 30"

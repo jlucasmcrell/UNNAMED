@@ -1,0 +1,11 @@
+id: ability.catalogue.othercraft.fold_lance_guarded
+kind: ability
+schema: 1
+display_key: ability.catalogue.othercraft.fold_lance_guarded.name
+tags: [ability]
+name: "Fold Lance, guarded"
+notes: "The same lance with every safeguard in place: slower, dearer, and every slip lapses Taught through the D13 catalogue."
+class: technique
+discipline: skill.othercraft
+band: 30
+needs: "othercraft 30, force 30, warding 30"

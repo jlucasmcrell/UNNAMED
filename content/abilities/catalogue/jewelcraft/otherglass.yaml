@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.otherglass
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.otherglass.name
+tags: [ability]
+name: "Otherglass"
+notes: "Cut a lens that shows somewhere else. It is never entirely honest Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 45
+needs: "jewelcraft 45, otherlore 45"

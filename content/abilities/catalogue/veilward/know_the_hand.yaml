@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.know_the_hand
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.know_the_hand.name
+tags: [ability]
+name: "Know the Hand"
+notes: "Identify the maker and the era of an object by its method Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 45
+needs: "any craft 45, lore 30"

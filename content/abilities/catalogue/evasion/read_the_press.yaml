@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.read_the_press
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.read_the_press.name
+tags: [ability]
+name: "Read the Press"
+notes: "A cue warns of the attack from outside your view Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 45
+needs: "evasion 45, insight 15"

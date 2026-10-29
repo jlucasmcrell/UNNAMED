@@ -1,0 +1,9 @@
+id: skill.music
+kind: skill
+schema: 1
+display_key: skill.music.name
+tags: [skill]
+name: "Music"
+family: world
+notes: "D13 catalogue skill: Music (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "playing for people who were listening, in a room that mattered"

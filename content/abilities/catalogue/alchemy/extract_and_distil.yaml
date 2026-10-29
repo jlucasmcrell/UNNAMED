@@ -1,0 +1,11 @@
+id: ability.catalogue.alchemy.extract_and_distil
+kind: ability
+schema: 1
+display_key: ability.catalogue.alchemy.extract_and_distil.name
+tags: [ability]
+name: "Extract and Distil"
+notes: "Get the active part out of a plant without destroying it Taught through the D13 catalogue."
+class: technique
+discipline: skill.alchemy
+band: 30
+needs: "alchemy 30, herbalism 30"

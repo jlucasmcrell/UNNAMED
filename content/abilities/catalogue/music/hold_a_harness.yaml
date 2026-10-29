@@ -1,0 +1,11 @@
+id: ability.catalogue.music.hold_a_harness
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.hold_a_harness.name
+tags: [ability]
+name: "Hold a harness"
+notes: "Fight in powered or composite armour: it carries the weight, so your skill is in the balance, the heat and the interface Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 45
+needs: "heavy_harness 45, armour_use 30"

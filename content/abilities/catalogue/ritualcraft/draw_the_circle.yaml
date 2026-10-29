@@ -1,0 +1,11 @@
+id: ability.catalogue.ritualcraft.draw_the_circle
+kind: ability
+schema: 1
+display_key: ability.catalogue.ritualcraft.draw_the_circle.name
+tags: [ability]
+name: "Draw the Circle"
+notes: "Lay a circle that holds: chalk first, then inlay. +5 control, two minutes per metre of radius Taught through the D13 catalogue."
+class: technique
+discipline: skill.ritualcraft
+band: 30
+needs: "ritualcraft 30"

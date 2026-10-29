@@ -1,0 +1,11 @@
+id: ability.catalogue.cooking.field_torch_by_fire
+kind: ability
+schema: 1
+display_key: ability.catalogue.cooking.field_torch_by_fire.name
+tags: [ability]
+name: "Field Torch by Fire"
+notes: "Timber and lint, no forge needed Taught through the D13 catalogue."
+class: technique
+discipline: skill.cooking
+band: 15
+needs: "cooking 15"

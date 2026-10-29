@@ -1,0 +1,31 @@
+id: dialogue.teacher.excavation
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.excavation.name
+tags: [dialogue]
+notes: "The excavation and archaeology teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.excavation]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the excavation and archaeology? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer, ability.catalogue.excavation.lift_without_breaking, ability.catalogue.excavation.conserve_and_record, ability.catalogue.excavation.the_barrow_question] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.excavation.read_the_layer, ability.catalogue.excavation.lift_without_breaking, ability.catalogue.excavation.conserve_and_record, ability.catalogue.excavation.the_barrow_question] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

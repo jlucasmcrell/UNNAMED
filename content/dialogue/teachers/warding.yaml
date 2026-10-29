@@ -1,0 +1,31 @@
+id: dialogue.teacher.warding
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.warding.name
+tags: [dialogue]
+notes: "The warding teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.warding]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the warding? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.warding.brace_ward, ability.catalogue.warding.threshold_seal, ability.catalogue.warding.tripwire_ward, ability.catalogue.warding.warded_guard, ability.catalogue.warding.door_ward, ability.catalogue.warding.stabilise_the_veil, ability.catalogue.warding.alarm_lattice] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.warding.brace_ward, ability.catalogue.warding.threshold_seal, ability.catalogue.warding.tripwire_ward, ability.catalogue.warding.warded_guard, ability.catalogue.warding.door_ward, ability.catalogue.warding.stabilise_the_veil, ability.catalogue.warding.alarm_lattice] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

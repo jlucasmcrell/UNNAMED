@@ -1,0 +1,11 @@
+id: ability.catalogue.ritualcraft.the_working
+kind: ability
+schema: 1
+display_key: ability.catalogue.ritualcraft.the_working.name
+tags: [ability]
+name: "The Working"
+notes: "Conduct a persistent ward, anchor or structure into place: the scale above ritual Taught through the D13 catalogue."
+class: technique
+discipline: skill.ritualcraft
+band: 60
+needs: "ritualcraft 60, a domain 60"

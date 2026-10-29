@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.cover_an_ally
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.cover_an_ally.name
+tags: [ability]
+name: "Cover an Ally"
+notes: "Move the guard to cover the person beside you Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 15
+needs: "shield 15, leadership 15"

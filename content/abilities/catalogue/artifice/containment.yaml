@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.containment
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.containment.name
+tags: [ability]
+name: "Containment"
+notes: "Hold something that must not get out Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 45
+needs: "artifice 45, veilward 30"

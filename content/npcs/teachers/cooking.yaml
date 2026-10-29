@@ -1,0 +1,43 @@
+id: npc.teacher.cooking
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.cooking.name
+tags: [npc]
+name: "Master of Cooking"
+notes: "The cooking teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.cooking
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.roast_meat
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.cooking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.field_torch_by_fire
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.cooking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.woundmoss_tea
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.cooking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.provision_for_a_road
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.cooking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.a_meal_that_matters
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.cooking, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.cooking.feed_a_village
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.cooking, band: expert } }

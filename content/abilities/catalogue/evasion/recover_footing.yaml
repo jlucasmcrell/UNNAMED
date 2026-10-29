@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.recover_footing
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.recover_footing.name
+tags: [ability]
+name: "Recover Footing"
+notes: "Cut a stagger or a knockdown short Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 30
+needs: "evasion 30, athletics 30"

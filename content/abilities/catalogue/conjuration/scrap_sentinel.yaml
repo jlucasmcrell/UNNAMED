@@ -1,0 +1,11 @@
+id: ability.catalogue.conjuration.scrap_sentinel
+kind: ability
+schema: 1
+display_key: ability.catalogue.conjuration.scrap_sentinel.name
+tags: [ability]
+name: "Scrap Sentinel"
+notes: "A short-lived construct from a consumed metal component fights for a minute Taught through the D13 catalogue."
+class: technique
+discipline: skill.conjuration
+band: 30
+needs: "conjuration 30, artifice 15"

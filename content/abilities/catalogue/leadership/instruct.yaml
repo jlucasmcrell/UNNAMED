@@ -1,0 +1,11 @@
+id: ability.catalogue.leadership.instruct
+kind: ability
+schema: 1
+display_key: ability.catalogue.leadership.instruct.name
+tags: [ability]
+name: "Instruct"
+notes: "Teach a companion a technique mid-journey (this is the 1.0 form of `teaching`) Taught through the D13 catalogue."
+class: technique
+discipline: skill.leadership
+band: 30
+needs: "leadership 30, a craft or weapon 30"

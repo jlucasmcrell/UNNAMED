@@ -1,0 +1,11 @@
+id: ability.catalogue.athletics.vault_and_roll
+kind: ability
+schema: 1
+display_key: ability.catalogue.athletics.vault_and_roll.name
+tags: [ability]
+name: "Vault and Roll"
+notes: "Get over and through things at speed (the D6 traversal work in code) Taught through the D13 catalogue."
+class: technique
+discipline: skill.athletics
+band: 30
+needs: "athletics 30, agility 20"

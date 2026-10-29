@@ -1,0 +1,11 @@
+id: ability.catalogue.smithing.named_work
+kind: ability
+schema: 1
+display_key: ability.catalogue.smithing.named_work.name
+tags: [ability]
+name: "Named Work"
+notes: "A piece that carries your mark and outlives you Taught through the D13 catalogue."
+class: technique
+discipline: skill.smithing
+band: 75
+needs: "smithing 75 + mastery"

@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.cross_shove
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.cross_shove.name
+tags: [ability]
+name: "Cross Shove"
+notes: "Shove with the crossguard: make space without giving up the guard Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 30
+needs: "greatsword 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.beak_at_reach
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.beak_at_reach.name
+tags: [ability]
+name: "Beak at Reach"
+notes: "A war-hammer's beak on a long shaft: armour, at 2 m, from a man who is not close Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 45
+needs: "polearm 45"

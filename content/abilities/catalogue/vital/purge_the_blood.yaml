@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.purge_the_blood
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.purge_the_blood.name
+tags: [ability]
+name: "Purge the Blood"
+notes: "Draw out one poison or disease; the patient is Weakened for a minute Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 30
+needs: "vital 30"

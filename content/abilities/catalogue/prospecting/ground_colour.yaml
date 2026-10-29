@@ -1,0 +1,11 @@
+id: ability.catalogue.prospecting.ground_colour
+kind: ability
+schema: 1
+display_key: ability.catalogue.prospecting.ground_colour.name
+tags: [ability]
+name: "Ground Colour"
+notes: "Read the ground: what is under it, from what has come up Taught through the D13 catalogue."
+class: technique
+discipline: skill.prospecting
+band: 15
+needs: "prospecting 15, insight 12"

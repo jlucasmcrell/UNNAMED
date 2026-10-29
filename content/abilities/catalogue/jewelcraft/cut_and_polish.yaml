@@ -1,0 +1,11 @@
+id: ability.catalogue.jewelcraft.cut_and_polish
+kind: ability
+schema: 1
+display_key: ability.catalogue.jewelcraft.cut_and_polish.name
+tags: [ability]
+name: "Cut and Polish"
+notes: "A stone that shows what it is Taught through the D13 catalogue."
+class: technique
+discipline: skill.jewelcraft
+band: 15
+needs: "jewelcraft 15"

@@ -1,0 +1,38 @@
+id: npc.teacher.research
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.research.name
+tags: [npc]
+name: "Master of Research"
+notes: "The research teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.research
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.research.read_the_shelf
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.research, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.research.reproduce_a_result
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.research, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.research.the_experiment
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.research, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.research.reverse_a_method
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.research, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.research.a_formula_of_your_own
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.research, band: expert } }

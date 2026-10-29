@@ -1,0 +1,11 @@
+id: ability.catalogue.alchemy.ember_salve
+kind: ability
+schema: 1
+display_key: ability.catalogue.alchemy.ember_salve.name
+tags: [ability]
+name: "Ember Salve"
+notes: "Burn treatment from boneleaf and emberthorn Taught through the D13 catalogue."
+class: technique
+discipline: skill.alchemy
+band: 30
+needs: "alchemy 30"

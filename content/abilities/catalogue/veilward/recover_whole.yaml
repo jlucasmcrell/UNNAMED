@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.recover_whole
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.recover_whole.name
+tags: [ability]
+name: "Recover Whole"
+notes: "Take a component out intact, with its provenance — the only way to reuse Vaskaal alloy Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 30
+needs: "any craft 30, salvage 15"

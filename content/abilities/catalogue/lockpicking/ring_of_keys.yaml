@@ -1,0 +1,11 @@
+id: ability.catalogue.lockpicking.ring_of_keys
+kind: ability
+schema: 1
+display_key: ability.catalogue.lockpicking.ring_of_keys.name
+tags: [ability]
+name: "Ring of Keys"
+notes: "Recognise and use the right key, which is faster and quieter than picking Taught through the D13 catalogue."
+class: technique
+discipline: skill.lockpicking
+band: 15
+needs: "lockpicking 15"

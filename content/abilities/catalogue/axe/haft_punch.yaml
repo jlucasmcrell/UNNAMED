@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.haft_punch
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.haft_punch.name
+tags: [ability]
+name: "Haft Punch"
+notes: "The haft is a weapon: a short punch to a face, a throat, a winded chest Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 30
+needs: "axe 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.giving_ground
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.giving_ground.name
+tags: [ability]
+name: "Giving Ground"
+notes: "Retreat while keeping the point live; the enemy advances into a decision Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 15
+needs: "polearm 15"

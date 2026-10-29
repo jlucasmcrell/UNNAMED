@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.split_second
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.split_second.name
+tags: [ability]
+name: "Split Second"
+notes: "The shot taken in the instant an opening exists, at full effect Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 60
+needs: "bow 60"

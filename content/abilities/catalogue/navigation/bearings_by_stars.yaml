@@ -1,0 +1,11 @@
+id: ability.catalogue.navigation.bearings_by_stars
+kind: ability
+schema: 1
+display_key: ability.catalogue.navigation.bearings_by_stars.name
+tags: [ability]
+name: "Bearings by Stars"
+notes: "Fix a line at night Taught through the D13 catalogue."
+class: technique
+discipline: skill.navigation
+band: 30
+needs: "navigation 30, star_reading 15"

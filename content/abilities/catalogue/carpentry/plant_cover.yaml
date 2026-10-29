@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.plant_cover
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.plant_cover.name
+tags: [ability]
+name: "Plant Cover"
+notes: "Cover that stops a blow and can be left behind Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 45
+needs: "carpentry 45, tactics 15"

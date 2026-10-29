@@ -1,0 +1,11 @@
+id: ability.catalogue.survival.weatherproof
+kind: ability
+schema: 1
+display_key: ability.catalogue.survival.weatherproof.name
+tags: [ability]
+name: "Weatherproof"
+notes: "Keep yourself functional in weather that is trying to stop you Taught through the D13 catalogue."
+class: technique
+discipline: skill.survival
+band: 30
+needs: "survival 30, endurance 15"

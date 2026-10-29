@@ -1,0 +1,11 @@
+id: ability.catalogue.prospecting.stonesense_reading
+kind: ability
+schema: 1
+display_key: ability.catalogue.prospecting.stonesense_reading.name
+tags: [ability]
+name: "Stonesense Reading"
+notes: "Feel ore, hollow walls and hidden stone doors within 25 m Taught through the D13 catalogue."
+class: technique
+discipline: skill.prospecting
+band: 30
+needs: "prospecting 30, stonesense 30"

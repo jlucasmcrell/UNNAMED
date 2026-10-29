@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.battle_plan
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.battle_plan.name
+tags: [ability]
+name: "Battle Plan"
+notes: "Give a plan before the fight that changes how companions act in it Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 60
+needs: "tactics 60, leadership 45"

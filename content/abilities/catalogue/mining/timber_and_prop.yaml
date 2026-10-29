@@ -1,0 +1,11 @@
+id: ability.catalogue.mining.timber_and_prop
+kind: ability
+schema: 1
+display_key: ability.catalogue.mining.timber_and_prop.name
+tags: [ability]
+name: "Timber and Prop"
+notes: "Do not die in the hole: shoring, drainage, air Taught through the D13 catalogue."
+class: technique
+discipline: skill.mining
+band: 30
+needs: "mining 30, carpentry 15"

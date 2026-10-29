@@ -1,0 +1,11 @@
+id: ability.catalogue.otherlore.mark_and_meaning
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherlore.mark_and_meaning.name
+tags: [ability]
+name: "Mark and Meaning"
+notes: "Read an Othermark on a body or a place: what happened, how long ago, and whether it is still happening Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherlore
+band: 45
+needs: "otherlore 45, medicine 15"

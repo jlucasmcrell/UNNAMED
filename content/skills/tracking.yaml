@@ -1,0 +1,9 @@
+id: skill.tracking
+kind: skill
+schema: 1
+display_key: skill.tracking.name
+tags: [skill]
+name: "Tracking"
+family: world
+notes: "D13 catalogue skill: Tracking (3.7 Survival and travel). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a trail recovered that someone did not want found"

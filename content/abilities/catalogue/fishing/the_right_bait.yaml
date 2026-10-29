@@ -1,0 +1,11 @@
+id: ability.catalogue.fishing.the_right_bait
+kind: ability
+schema: 1
+display_key: ability.catalogue.fishing.the_right_bait.name
+tags: [ability]
+name: "The Right Bait"
+notes: "Match what is in the water, not what you have Taught through the D13 catalogue."
+class: technique
+discipline: skill.fishing
+band: 15
+needs: "fishing 15, insight 12"

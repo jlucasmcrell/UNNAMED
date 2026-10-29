@@ -1,0 +1,11 @@
+id: ability.catalogue.skinning.a_beast_s_own_armour
+kind: ability
+schema: 1
+display_key: ability.catalogue.skinning.a_beast_s_own_armour.name
+tags: [ability]
+name: "A Beast's Own Armour"
+notes: "Take the plate, chitin or scale that made the creature hard to kill Taught through the D13 catalogue."
+class: technique
+discipline: skill.skinning
+band: 45
+needs: "skinning 45, hunting 30"

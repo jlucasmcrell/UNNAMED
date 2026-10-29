@@ -1,0 +1,11 @@
+id: ability.catalogue.music.steam_cycle
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.steam_cycle.name
+tags: [ability]
+name: "Steam cycle"
+notes: "Get work out of heat and water and put the water back: the whole idea in one working plant Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 45
+needs: "engineering 45, fabrication 30"

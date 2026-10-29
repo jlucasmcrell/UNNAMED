@@ -1,0 +1,11 @@
+id: ability.catalogue.music.component_fitting
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.component_fitting.name
+tags: [ability]
+name: "Component fitting"
+notes: "Fit a component to a body and make it belong: nerve, blood, power, rejection, and the maintenance that never ends Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 45
+needs: "medicine 45, artifice 45, electronics 30"

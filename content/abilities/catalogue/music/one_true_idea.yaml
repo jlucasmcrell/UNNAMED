@@ -1,0 +1,11 @@
+id: ability.catalogue.music.one_true_idea
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.one_true_idea.name
+tags: [ability]
+name: "One true idea"
+notes: "Take a working nobody in the world can replicate and add exactly one of its principles to your own craft Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 75
+needs: "salvage 75 + the receiving craft at 60"

@@ -1,0 +1,11 @@
+id: ability.catalogue.conjuration.the_door_that_stays
+kind: ability
+schema: 1
+display_key: ability.catalogue.conjuration.the_door_that_stays.name
+tags: [ability]
+name: "The Door That Stays"
+notes: "Leave a passage open behind you, deliberately, and answer for it Taught through the D13 catalogue."
+class: technique
+discipline: skill.conjuration
+band: 60
+needs: "conjuration 60"

@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwayfaring.rope_and_anchor
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwayfaring.rope_and_anchor.name
+tags: [ability]
+name: "Rope and Anchor"
+notes: "Fix a party to a place so nobody is lost to a wandering edge Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwayfaring
+band: 30
+needs: "otherwayfaring 30, survival 15"

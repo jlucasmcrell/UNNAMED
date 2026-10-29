@@ -1,0 +1,9 @@
+id: skill.nature
+kind: skill
+schema: 1
+display_key: skill.nature.name
+tags: [skill]
+name: "Nature"
+family: world
+notes: "D13 catalogue skill: Nature (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "asking the living world for something and getting it"

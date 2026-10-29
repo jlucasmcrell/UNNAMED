@@ -1,0 +1,11 @@
+id: ability.catalogue.masonry.foot_and_course
+kind: ability
+schema: 1
+display_key: ability.catalogue.masonry.foot_and_course.name
+tags: [ability]
+name: "Foot and Course"
+notes: "Get the footing right so nothing above it has to be brave Taught through the D13 catalogue."
+class: technique
+discipline: skill.masonry
+band: 15
+needs: "masonry 15"

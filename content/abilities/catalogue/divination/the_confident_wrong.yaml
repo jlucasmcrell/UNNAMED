@@ -1,0 +1,11 @@
+id: ability.catalogue.divination.the_confident_wrong
+kind: ability
+schema: 1
+display_key: ability.catalogue.divination.the_confident_wrong.name
+tags: [ability]
+name: "The Confident Wrong"
+notes: "Know when your own reading is the kind that is confidently wrong — the only divination technique that saves lives Taught through the D13 catalogue."
+class: technique
+discipline: skill.divination
+band: 45
+needs: "divination 45, insight 20"

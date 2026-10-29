@@ -1,0 +1,31 @@
+id: dialogue.teacher.intimidation
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.intimidation.name
+tags: [dialogue]
+notes: "The intimidation teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.intimidation]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the intimidation? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.intimidation.stand_like_you_mean_it, ability.catalogue.intimidation.name_the_consequence, ability.catalogue.intimidation.pressure, ability.catalogue.intimidation.the_wrong_kind_of_calm, ability.catalogue.intimidation.break_a_formation_s_nerve] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.intimidation.stand_like_you_mean_it, ability.catalogue.intimidation.name_the_consequence, ability.catalogue.intimidation.pressure, ability.catalogue.intimidation.the_wrong_kind_of_calm, ability.catalogue.intimidation.break_a_formation_s_nerve] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.atlatl_cast
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.atlatl_cast.name
+tags: [ability]
+name: "Atlatl Cast"
+notes: "A lever that turns an arm into a ballista, at the cost of loading time Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 30
+needs: "thrown 30, feature: atlatl"

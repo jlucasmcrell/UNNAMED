@@ -1,0 +1,9 @@
+id: skill.weaponsmithing
+kind: skill
+schema: 1
+display_key: skill.weaponsmithing.name
+tags: [skill]
+name: "Weaponsmithing"
+family: world
+notes: "D13 catalogue skill: Weaponsmithing (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a weapon that is *right*: balance, edge, grip, mode"

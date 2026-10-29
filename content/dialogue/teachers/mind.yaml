@@ -1,0 +1,31 @@
+id: dialogue.teacher.mind
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.mind.name
+tags: [dialogue]
+notes: "The mind and influence teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.mind]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the mind and influence? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.mind.steady_voice, ability.catalogue.mind.flinch, ability.catalogue.mind.loose_thread, ability.catalogue.mind.suggest, ability.catalogue.mind.the_quiet_room] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.mind.steady_voice, ability.catalogue.mind.flinch, ability.catalogue.mind.loose_thread, ability.catalogue.mind.suggest, ability.catalogue.mind.the_quiet_room] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

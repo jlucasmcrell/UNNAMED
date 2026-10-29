@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.null_discipline
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.null_discipline.name
+tags: [ability]
+name: "Null Discipline"
+notes: "Handle nullstone and lead-lined containment without making a mistake Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 30
+needs: "veilward 30, salvage 30"

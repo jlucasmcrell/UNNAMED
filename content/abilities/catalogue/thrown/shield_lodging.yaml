@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.shield_lodging
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.shield_lodging.name
+tags: [ability]
+name: "Shield Lodging"
+notes: "A javelin in a shield makes the shield a liability Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 15
+needs: "thrown 15, feature: heavy"

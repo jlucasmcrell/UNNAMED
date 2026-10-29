@@ -1,0 +1,68 @@
+id: npc.teacher.shield
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.shield.name
+tags: [npc]
+name: "Master of Shield"
+notes: "The shield teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.shield
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.shield.shield_bash
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.shield, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.cover_an_ally
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.shield, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.deflect
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.shield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.bind_the_blade
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.shield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.shield_wall
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.shield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.shield_charge
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.shield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.focus_shield_ward
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.shield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.shield_step
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.shield, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.plant_the_pavise
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.shield, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.advancing_guard
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.shield, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.shield.block_reflect
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.shield, band: master } }

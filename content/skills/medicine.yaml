@@ -1,0 +1,9 @@
+id: skill.medicine
+kind: skill
+schema: 1
+display_key: skill.medicine.name
+tags: [skill]
+name: "Medicine"
+family: world
+notes: "D13 catalogue skill: Medicine (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a body you made better on purpose, and a diagnosis you were right about"

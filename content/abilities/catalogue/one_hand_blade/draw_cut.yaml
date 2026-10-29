@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.draw_cut
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.draw_cut.name
+tags: [ability]
+name: "Draw Cut"
+notes: "A long drawing cut that opens a seam rather than breaking a plate — punishes gaps and cloth Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 45
+needs: "sword 45"

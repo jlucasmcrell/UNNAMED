@@ -1,0 +1,11 @@
+id: ability.catalogue.artifice.anchor_a_mechanism
+kind: ability
+schema: 1
+display_key: ability.catalogue.artifice.anchor_a_mechanism.name
+tags: [ability]
+name: "Anchor a Mechanism"
+notes: "Make a mechanism a lawful home for a working Taught through the D13 catalogue."
+class: technique
+discipline: skill.artifice
+band: 30
+needs: "artifice 30, enchanting 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.intimidation.the_wrong_kind_of_calm
+kind: ability
+schema: 1
+display_key: ability.catalogue.intimidation.the_wrong_kind_of_calm.name
+tags: [ability]
+name: "The Wrong Kind of Calm"
+notes: "Terrify by being reasonable Taught through the D13 catalogue."
+class: technique
+discipline: skill.intimidation
+band: 30
+needs: "intimidation 30, insight 15"

@@ -1,0 +1,38 @@
+id: npc.teacher.teaching
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.teaching.name
+tags: [npc]
+name: "Master of Teaching"
+notes: "The teaching teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.teaching
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.show_then_watch
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.teaching, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.find_the_misunderstanding
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.teaching, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.correct_without_breaking
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.teaching, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.a_curriculum
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.teaching, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.teaching.teach_what_cannot_be_said
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.teaching, band: adept } }

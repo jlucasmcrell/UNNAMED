@@ -1,0 +1,43 @@
+id: npc.teacher.otherlore
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.otherlore.name
+tags: [npc]
+name: "Master of Otherlore"
+notes: "The otherlore teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.otherlore
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.name_the_thing
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.otherlore, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.read_the_ground
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.otherlore, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.read_the_wake
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.otherlore, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.the_words_are_not_the_thing
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.otherlore, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.mark_and_meaning
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.otherlore, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.otherlore.what_the_quiet_stones_hold
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.otherlore, band: expert } }

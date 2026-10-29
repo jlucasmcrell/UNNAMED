@@ -1,0 +1,11 @@
+id: ability.catalogue.veilward.maker_s_mark
+kind: ability
+schema: 1
+display_key: ability.catalogue.veilward.maker_s_mark.name
+tags: [ability]
+name: "Maker's Mark"
+notes: "Sign your work, and have it recognised — the start of a name in this world Taught through the D13 catalogue."
+class: technique
+discipline: skill.veilward
+band: 45
+needs: "any craft 45, presence 15"

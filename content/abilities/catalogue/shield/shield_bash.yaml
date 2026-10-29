@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.shield_bash
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.shield_bash.name
+tags: [ability]
+name: "Shield Bash"
+notes: "The shield is a weapon: a bash breaks a wind-up and makes space Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 15
+needs: "shield 15"

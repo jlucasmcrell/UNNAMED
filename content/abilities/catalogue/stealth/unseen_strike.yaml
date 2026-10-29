@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.unseen_strike
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.unseen_strike.name
+tags: [ability]
+name: "Unseen Strike"
+notes: "Any blow on an unaware target is placed on a chosen region Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 30
+needs: "stealth 30, precision 20"

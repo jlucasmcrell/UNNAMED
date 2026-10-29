@@ -1,0 +1,11 @@
+id: ability.catalogue.swimming.cold_water
+kind: ability
+schema: 1
+display_key: ability.catalogue.swimming.cold_water.name
+tags: [ability]
+name: "Cold Water"
+notes: "Control the breathing, and survive the first minute Taught through the D13 catalogue."
+class: technique
+discipline: skill.swimming
+band: 15
+needs: "swimming 15, endurance 15"

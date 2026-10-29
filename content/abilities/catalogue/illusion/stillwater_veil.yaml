@@ -1,0 +1,11 @@
+id: ability.catalogue.illusion.stillwater_veil
+kind: ability
+schema: 1
+display_key: ability.catalogue.illusion.stillwater_veil.name
+tags: [ability]
+name: "Stillwater Veil"
+notes: "You cannot be seen or heard for a minute. Hounds still track you Taught through the D13 catalogue."
+class: technique
+discipline: skill.illusion
+band: 15
+needs: "illusion 15"

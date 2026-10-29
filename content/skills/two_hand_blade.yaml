@@ -1,0 +1,9 @@
+id: skill.two_hand_blade
+kind: skill
+schema: 1
+display_key: skill.two_hand_blade.name
+tags: [skill]
+name: "Greatsword"
+family: world
+notes: "D13 catalogue skill: Greatsword (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "committed strikes that land while you are exposed; recovering from a whiffed swing"

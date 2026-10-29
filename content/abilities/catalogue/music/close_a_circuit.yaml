@@ -1,0 +1,11 @@
+id: ability.catalogue.music.close_a_circuit
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.close_a_circuit.name
+tags: [ability]
+name: "Close a circuit"
+notes: "Trace a dead device to the break, and join it — the single most useful modern skill in a world with no spares Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 30
+needs: "electronics 30, salvage 15"

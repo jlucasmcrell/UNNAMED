@@ -1,0 +1,48 @@
+id: npc.teacher.tracking
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.tracking.name
+tags: [npc]
+name: "Master of Tracking"
+notes: "The tracking teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.tracking
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.read_the_ground
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.tracking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.trail_sign
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.tracking, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.follow_the_quarry
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.tracking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.predator_s_bearing
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.tracking, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.walk_their_road
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.tracking, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.read_the_wake
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.tracking, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.tracking.what_the_trail_refuses_to_say
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.tracking, band: expert } }

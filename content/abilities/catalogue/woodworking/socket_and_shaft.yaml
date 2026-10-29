@@ -1,0 +1,11 @@
+id: ability.catalogue.woodworking.socket_and_shaft
+kind: ability
+schema: 1
+display_key: ability.catalogue.woodworking.socket_and_shaft.name
+tags: [ability]
+name: "Socket and Shaft"
+notes: "A tool handle or weapon shaft that survives real use Taught through the D13 catalogue."
+class: technique
+discipline: skill.woodworking
+band: 30
+needs: "woodworking 30"

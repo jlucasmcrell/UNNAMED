@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.haft_and_socket
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.haft_and_socket.name
+tags: [ability]
+name: "Haft and Socket"
+notes: "A shaft that will not split at the socket under a real blow Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 30
+needs: "weaponsmithing 30, woodworking 15"

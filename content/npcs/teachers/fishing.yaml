@@ -1,0 +1,33 @@
+id: npc.teacher.fishing
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.fishing.name
+tags: [npc]
+name: "Master of Fishing"
+notes: "The fishing teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.fishing
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.the_right_bait
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.fishing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.line_net_spear
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.fishing, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.wait
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.fishing, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.fishing.the_river_snake
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.fishing, band: adept } }

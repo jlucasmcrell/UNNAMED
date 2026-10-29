@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.weak_point_shot
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.weak_point_shot.name
+tags: [ability]
+name: "Weak-point Shot"
+notes: "Aim at the vital, not the body, using anatomy knowledge Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 45
+needs: "bow 45, marksmanship 30"

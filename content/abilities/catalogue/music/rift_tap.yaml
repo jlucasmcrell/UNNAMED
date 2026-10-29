@@ -1,0 +1,11 @@
+id: ability.catalogue.music.rift_tap
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.rift_tap.name
+tags: [ability]
+name: "Rift-tap"
+notes: "Draw power from a fold that already exists instead of making one: cheap, dirty, and it changes the fold Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 60
+needs: "electronics 60, othercraft 45, veilward 30"

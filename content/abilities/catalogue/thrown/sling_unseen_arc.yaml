@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.sling_unseen_arc
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.sling_unseen_arc.name
+tags: [ability]
+name: "Sling: Unseen Arc"
+notes: "Lob onto a position known only by sound, and your whirl makes no sound Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 75
+needs: "thrown 75 + mastery"

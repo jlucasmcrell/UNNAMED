@@ -1,0 +1,11 @@
+id: ability.catalogue.music.internal_combustion_in_principle
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.internal_combustion_in_principle.name
+tags: [ability]
+name: "Internal combustion, in principle"
+notes: "Understand a fuel engine well enough to start one that still has fuel, and to know why it will not Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 45
+needs: "engineering 45, fabrication 30"

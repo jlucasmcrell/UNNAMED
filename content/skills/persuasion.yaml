@@ -1,0 +1,9 @@
+id: skill.persuasion
+kind: skill
+schema: 1
+display_key: skill.persuasion.name
+tags: [skill]
+name: "Persuasion"
+family: world
+notes: "D13 catalogue skill: Persuasion (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a person who changed their mind because you spoke, not because you paid"

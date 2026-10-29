@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.grip_for_a_hand
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.grip_for_a_hand.name
+tags: [ability]
+name: "Grip for a Hand"
+notes: "Fit a handle to a *person*: reach, thumb, wrist, weight Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 30
+needs: "weaponsmithing 30, tailoring 15"

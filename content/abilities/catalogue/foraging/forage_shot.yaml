@@ -1,0 +1,11 @@
+id: ability.catalogue.foraging.forage_shot
+kind: ability
+schema: 1
+display_key: ability.catalogue.foraging.forage_shot.name
+tags: [ability]
+name: "Forage Shot"
+notes: "Find usable sling shot, cordage and fuel anywhere Taught through the D13 catalogue."
+class: technique
+discipline: skill.foraging
+band: 30
+needs: "foraging 30, thrown 15"

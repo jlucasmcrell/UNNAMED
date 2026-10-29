@@ -1,0 +1,31 @@
+id: dialogue.teacher.medicine
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.medicine.name
+tags: [dialogue]
+notes: "The medicine teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.medicine]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the medicine? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery, ability.catalogue.medicine.a_body_that_came_back] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.medicine.diagnose, ability.catalogue.medicine.clean_and_close, ability.catalogue.medicine.set_the_bone, ability.catalogue.medicine.poison_and_disease, ability.catalogue.medicine.cut_for_a_reason, ability.catalogue.medicine.read_the_dead, ability.catalogue.medicine.the_long_recovery, ability.catalogue.medicine.a_body_that_came_back] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

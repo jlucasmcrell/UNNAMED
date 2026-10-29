@@ -1,0 +1,11 @@
+id: ability.catalogue.two_hand_blade.mail_breaker
+kind: ability
+schema: 1
+display_key: ability.catalogue.two_hand_blade.mail_breaker.name
+tags: [ability]
+name: "Mail-breaker"
+notes: "A blow that transmits impact *through* mail instead of trying to cut it Taught through the D13 catalogue."
+class: technique
+discipline: skill.two_hand_blade
+band: 60
+needs: "greatsword 60"

@@ -1,0 +1,11 @@
+id: ability.catalogue.transmutation.reinforce_the_seam
+kind: ability
+schema: 1
+display_key: ability.catalogue.transmutation.reinforce_the_seam.name
+tags: [ability]
+name: "Reinforce the Seam"
+notes: "Make a joint hold for one fight: a repair that is not a repair Taught through the D13 catalogue."
+class: technique
+discipline: skill.transmutation
+band: 30
+needs: "transmutation 30, a craft 15"

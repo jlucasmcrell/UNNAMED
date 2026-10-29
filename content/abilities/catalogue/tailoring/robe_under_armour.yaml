@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.robe_under_armour
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.robe_under_armour.name
+tags: [ability]
+name: "Robe Under Armour"
+notes: "Cloth that works *inside* a harness without chafing or bunching Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 45
+needs: "tailoring 45, armoursmithing 30"

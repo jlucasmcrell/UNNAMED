@@ -1,0 +1,11 @@
+id: ability.catalogue.hunting.the_hunt_that_ends_cleanly
+kind: ability
+schema: 1
+display_key: ability.catalogue.hunting.the_hunt_that_ends_cleanly.name
+tags: [ability]
+name: "The Hunt That Ends Cleanly"
+notes: "Kill a dangerous animal without a fight: the achievement is the absence of a fight Taught through the D13 catalogue."
+class: technique
+discipline: skill.hunting
+band: 45
+needs: "hunting 45, marksmanship 30"

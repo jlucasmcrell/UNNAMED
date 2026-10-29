@@ -1,0 +1,11 @@
+id: ability.catalogue.ritualcraft.inlay_and_anchor
+kind: ability
+schema: 1
+display_key: ability.catalogue.ritualcraft.inlay_and_anchor.name
+tags: [ability]
+name: "Inlay and Anchor"
+notes: "An inlaid circle (+10 control) with an anchor that survives the rite Taught through the D13 catalogue."
+class: technique
+discipline: skill.ritualcraft
+band: 45
+needs: "ritualcraft 45, enchanting 30"

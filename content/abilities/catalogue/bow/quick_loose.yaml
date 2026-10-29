@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.quick_loose
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.quick_loose.name
+tags: [ability]
+name: "Quick Loose"
+notes: "A fast shot at less power, for a target that is about to stop being available Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 15
+needs: "bow 15"

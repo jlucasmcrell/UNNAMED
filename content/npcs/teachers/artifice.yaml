@@ -1,0 +1,53 @@
+id: npc.teacher.artifice
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.artifice.name
+tags: [npc]
+name: "Master of Artifice"
+notes: "The artifice teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.artifice
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.jury_rig
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.artifice, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.field_maintenance
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.artifice, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.anchor_a_mechanism
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.artifice, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.gears_springs_pumps
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.artifice, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.reinstall_a_recovered_mechanism
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.artifice, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.containment
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.artifice, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.body_interfaces
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.artifice, band: expert } }
+  - kind: technique
+    ability_ref: ability.catalogue.artifice.a_device_that_serves
+    by_dialogue: true
+    fee: 150
+    requires: { skill: { skill_ref: skill.artifice, band: master } }

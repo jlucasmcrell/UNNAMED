@@ -1,0 +1,11 @@
+id: ability.catalogue.carpentry.blueprint
+kind: ability
+schema: 1
+display_key: ability.catalogue.carpentry.blueprint.name
+tags: [ability]
+name: "Blueprint"
+notes: "Specify a structure so somebody else can build it right Taught through the D13 catalogue."
+class: technique
+discipline: skill.carpentry
+band: 30
+needs: "carpentry 30, lore 15"

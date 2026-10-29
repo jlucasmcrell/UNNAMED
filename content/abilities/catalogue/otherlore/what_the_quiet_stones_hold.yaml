@@ -1,0 +1,11 @@
+id: ability.catalogue.otherlore.what_the_quiet_stones_hold
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherlore.what_the_quiet_stones_hold.name
+tags: [ability]
+name: "What the Quiet Stones Hold"
+notes: "Understand a stabilising frame well enough to know when it is failing Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherlore
+band: 60
+needs: "otherlore 60, engineering 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.set_the_bone
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.set_the_bone.name
+tags: [ability]
+name: "Set the Bone"
+notes: "Splint and set so the limb works afterwards Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 30
+needs: "medicine 30"

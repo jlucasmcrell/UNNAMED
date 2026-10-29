@@ -1,0 +1,11 @@
+id: ability.catalogue.leatherworking.hide_of_a_beast_that_bit_you
+kind: ability
+schema: 1
+display_key: ability.catalogue.leatherworking.hide_of_a_beast_that_bit_you.name
+tags: [ability]
+name: "Hide of a Beast That Bit You"
+notes: "Work a creature's hide into armour with its own protection still in it Taught through the D13 catalogue."
+class: technique
+discipline: skill.leatherworking
+band: 75
+needs: "leatherworking 75 + mastery, hunting 60"

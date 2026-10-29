@@ -1,0 +1,11 @@
+id: ability.catalogue.otherlore.name_the_thing
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherlore.name_the_thing.name
+tags: [ability]
+name: "Name the Thing"
+notes: "Tell a fold from a gate from an Otherwake from a thin place — in the world's words and the scholar's Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherlore
+band: 15
+needs: "otherlore 15, lore 15"

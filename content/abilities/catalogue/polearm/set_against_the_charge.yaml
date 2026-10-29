@@ -1,0 +1,11 @@
+id: ability.catalogue.polearm.set_against_the_charge
+kind: ability
+schema: 1
+display_key: ability.catalogue.polearm.set_against_the_charge.name
+tags: [ability]
+name: "Set Against the Charge"
+notes: "Brace the butt and take a charge on the point: the charger's own mass does the work Taught through the D13 catalogue."
+class: technique
+discipline: skill.polearm
+band: 30
+needs: "polearm 30"

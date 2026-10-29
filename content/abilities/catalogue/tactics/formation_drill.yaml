@@ -1,0 +1,11 @@
+id: ability.catalogue.tactics.formation_drill
+kind: ability
+schema: 1
+display_key: ability.catalogue.tactics.formation_drill.name
+tags: [ability]
+name: "Formation Drill"
+notes: "Stand, move and fight as a unit without tripping over each other Taught through the D13 catalogue."
+class: technique
+discipline: skill.tactics
+band: 30
+needs: "tactics 30, shield 15 or polearm 15"

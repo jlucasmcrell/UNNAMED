@@ -1,0 +1,11 @@
+id: ability.catalogue.tracking.read_the_wake
+kind: ability
+schema: 1
+display_key: ability.catalogue.tracking.read_the_wake.name
+tags: [ability]
+name: "Read the Wake"
+notes: "Follow an Otherwake after the ground has forgotten the tracks Taught through the D13 catalogue."
+class: technique
+discipline: skill.tracking
+band: 45
+needs: "tracking 45, otherlore 30"

@@ -1,0 +1,11 @@
+id: ability.catalogue.stealth.light_hands
+kind: ability
+schema: 1
+display_key: ability.catalogue.stealth.light_hands.name
+tags: [ability]
+name: "Light Hands"
+notes: "Lift or plant something on a person who is not watching Taught through the D13 catalogue."
+class: technique
+discipline: skill.stealth
+band: 30
+needs: "stealth 30, precision 20"

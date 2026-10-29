@@ -1,0 +1,9 @@
+id: skill.lore
+kind: skill
+schema: 1
+display_key: skill.lore.name
+tags: [skill]
+name: "Lore"
+family: world
+notes: "D13 catalogue skill: Lore (3.8 Care, social, trade and knowledge). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "being right about the world's history and getting a door opened by it"

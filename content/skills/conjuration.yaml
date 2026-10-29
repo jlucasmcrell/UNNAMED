@@ -1,0 +1,9 @@
+id: skill.conjuration
+kind: skill
+schema: 1
+display_key: skill.conjuration.name
+tags: [skill]
+name: "Conjuration"
+family: world
+notes: "D13 catalogue skill: Conjuration (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a calling or a binding that held to its term, and a passage that opened"

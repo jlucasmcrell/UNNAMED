@@ -1,0 +1,11 @@
+id: ability.catalogue.weaponsmithing.balanced_for_one_mode
+kind: ability
+schema: 1
+display_key: ability.catalogue.weaponsmithing.balanced_for_one_mode.name
+tags: [ability]
+name: "Balanced for One Mode"
+notes: "Build for one purpose and make the other modes lawful but worse — the hybrid trade Taught through the D13 catalogue."
+class: technique
+discipline: skill.weaponsmithing
+band: 45
+needs: "weaponsmithing 45"

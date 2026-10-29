@@ -1,0 +1,11 @@
+id: ability.catalogue.otherwhen.hold_the_hour
+kind: ability
+schema: 1
+display_key: ability.catalogue.otherwhen.hold_the_hour.name
+tags: [ability]
+name: "Hold the Hour"
+notes: "Keep a person's condition from worsening for one hour — no more, ever Taught through the D13 catalogue."
+class: technique
+discipline: skill.otherwhen
+band: 45
+needs: "otherwhen 45, vital 30"

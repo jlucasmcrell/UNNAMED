@@ -150758,6 +150758,406 @@ containers:
   stack_slots: 8
   lock_tier: 1
 npcs:
+- npc_ref: npc.teacher.animal_handling
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Animal handling teacher
+- npc_ref: npc.teacher.barter
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Barter teacher
+- npc_ref: npc.teacher.first_aid
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: First aid teacher
+- npc_ref: npc.teacher.herbal_medicine
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Herbcraft and physick teacher
+- npc_ref: npc.teacher.intimidation
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Intimidation teacher
+- npc_ref: npc.teacher.leadership
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Leadership teacher
+- npc_ref: npc.teacher.lore
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Lore teacher
+- npc_ref: npc.teacher.music
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Music teacher
+- npc_ref: npc.teacher.persuasion
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Persuasion teacher
+- npc_ref: npc.teacher.research
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Research teacher
+- npc_ref: npc.teacher.teaching
+  position_m:
+  - 454.5
+  - 742.2
+  facing_deg: 180   # D13: Teaching teacher
+- npc_ref: npc.teacher.athletics
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Athletics teacher
+- npc_ref: npc.teacher.cartography
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Cartography teacher
+- npc_ref: npc.teacher.climbing
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Climbing teacher
+- npc_ref: npc.teacher.lockpicking
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Locks and mechanisms teacher
+- npc_ref: npc.teacher.navigation
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Navigation teacher
+- npc_ref: npc.teacher.riding
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Riding teacher
+- npc_ref: npc.teacher.stealth
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Stealth teacher
+- npc_ref: npc.teacher.survival
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Survival teacher
+- npc_ref: npc.teacher.swimming
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Swimming teacher
+- npc_ref: npc.teacher.tracking
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Tracking teacher
+- npc_ref: npc.teacher.excavation
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Excavation and archaeology teacher
+- npc_ref: npc.teacher.farming
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Farming and husbandry teacher
+- npc_ref: npc.teacher.fishing
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Fishing teacher
+- npc_ref: npc.teacher.foraging
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Foraging teacher
+- npc_ref: npc.teacher.herbalism
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Herbalism teacher
+- npc_ref: npc.teacher.hunting
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Hunting teacher
+- npc_ref: npc.teacher.logging
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Woodcutting teacher
+- npc_ref: npc.teacher.mining
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Mining teacher
+- npc_ref: npc.teacher.prospecting
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Prospecting teacher
+- npc_ref: npc.teacher.skinning
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Skinning teacher
+- npc_ref: npc.teacher.alchemy
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Alchemy teacher
+- npc_ref: npc.teacher.armoursmithing
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Armoursmithing teacher
+- npc_ref: npc.teacher.artifice
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Artifice teacher
+- npc_ref: npc.teacher.bowyery
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Bowyery and fletching teacher
+- npc_ref: npc.teacher.carpentry
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Carpentry and construction teacher
+- npc_ref: npc.teacher.cooking
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Cooking teacher
+- npc_ref: npc.teacher.jewelcraft
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Jewelcraft and lapidary teacher
+- npc_ref: npc.teacher.leatherworking
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Leatherwork teacher
+- npc_ref: npc.teacher.masonry
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Masonry teacher
+- npc_ref: npc.teacher.medicine
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Medicine teacher
+- npc_ref: npc.teacher.smithing
+  position_m:
+  - 454.5
+  - 742.2
+  facing_deg: 180   # D13: Smithing teacher
+- npc_ref: npc.teacher.tailoring
+  position_m:
+  - 457.5
+  - 742.2
+  facing_deg: 180   # D13: Tailoring teacher
+- npc_ref: npc.teacher.weaponsmithing
+  position_m:
+  - 460.5
+  - 742.2
+  facing_deg: 180   # D13: Weaponsmithing teacher
+- npc_ref: npc.teacher.woodworking
+  position_m:
+  - 463.5
+  - 742.2
+  facing_deg: 180   # D13: Woodworking teacher
+- npc_ref: npc.teacher.cosmic
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Cosmic teacher
+- npc_ref: npc.teacher.othercraft
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Othercraft teacher
+- npc_ref: npc.teacher.otherlore
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Otherlore teacher
+- npc_ref: npc.teacher.otherwayfaring
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Otherwayfaring teacher
+- npc_ref: npc.teacher.otherwhen
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Otherwhen teacher
+- npc_ref: npc.teacher.veilward
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Veilward teacher
+- npc_ref: npc.teacher.conjuration
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Conjuration teacher
+- npc_ref: npc.teacher.divination
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Divination teacher
+- npc_ref: npc.teacher.enchanting
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Enchanting teacher
+- npc_ref: npc.teacher.force
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Force teacher
+- npc_ref: npc.teacher.illusion
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Illusion teacher
+- npc_ref: npc.teacher.mind
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Mind and influence teacher
+- npc_ref: npc.teacher.nature
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Nature teacher
+- npc_ref: npc.teacher.necromancy
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Necromancy / soulcraft teacher
+- npc_ref: npc.teacher.ritualcraft
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Rite and circle teacher
+- npc_ref: npc.teacher.transmutation
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Transmutation teacher
+- npc_ref: npc.teacher.vital
+  position_m:
+  - 454.5
+  - 742.2
+  facing_deg: 180   # D13: Vital teacher
+- npc_ref: npc.teacher.warding
+  position_m:
+  - 457.5
+  - 742.2
+  facing_deg: 180   # D13: Warding teacher
+- npc_ref: npc.teacher.armour_use
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Armour teacher
+- npc_ref: npc.teacher.evasion
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Evasion teacher
+- npc_ref: npc.teacher.marksmanship
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Marksmanship teacher
+- npc_ref: npc.teacher.tactics
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Tactics teacher
+- npc_ref: npc.teacher.axe
+  position_m:
+  - 454.5
+  - 736.2
+  facing_deg: 180   # D13: Axe teacher
+- npc_ref: npc.teacher.bow
+  position_m:
+  - 457.5
+  - 736.2
+  facing_deg: 180   # D13: Bow teacher
+- npc_ref: npc.teacher.crossbow
+  position_m:
+  - 460.5
+  - 736.2
+  facing_deg: 180   # D13: Crossbow teacher
+- npc_ref: npc.teacher.dagger
+  position_m:
+  - 463.5
+  - 736.2
+  facing_deg: 180   # D13: Dagger teacher
+- npc_ref: npc.teacher.dual_wield
+  position_m:
+  - 466.5
+  - 736.2
+  facing_deg: 180   # D13: Paired weapons teacher
+- npc_ref: npc.teacher.mace_hammer
+  position_m:
+  - 454.5
+  - 739.2
+  facing_deg: 180   # D13: Hammer teacher
+- npc_ref: npc.teacher.one_hand_blade
+  position_m:
+  - 457.5
+  - 739.2
+  facing_deg: 180   # D13: Sword teacher
+- npc_ref: npc.teacher.polearm
+  position_m:
+  - 460.5
+  - 739.2
+  facing_deg: 180   # D13: Spear and polearm teacher
+- npc_ref: npc.teacher.shield
+  position_m:
+  - 463.5
+  - 739.2
+  facing_deg: 180   # D13: Shield teacher
+- npc_ref: npc.teacher.staff
+  position_m:
+  - 466.5
+  - 739.2
+  facing_deg: 180   # D13: Staff teacher
+- npc_ref: npc.teacher.thrown
+  position_m:
+  - 454.5
+  - 742.2
+  facing_deg: 180   # D13: Thrown and sling teacher
+- npc_ref: npc.teacher.two_hand_blade
+  position_m:
+  - 457.5
+  - 742.2
+  facing_deg: 180   # D13: Greatsword teacher
+- npc_ref: npc.teacher.unarmed
+  position_m:
+  - 460.5
+  - 742.2
+  facing_deg: 180   # D13: Unarmed teacher
 - npc_ref: npc.ashen_hollow.renn_vale
   position_m:
   - 446.5

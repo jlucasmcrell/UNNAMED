@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.sever
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.sever.name
+tags: [ability]
+name: "Sever"
+notes: "Cut the bond animating a dead thing: heavy damage to undead, nothing to the living Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 15
+needs: "necromancy 15"

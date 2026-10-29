@@ -1,0 +1,11 @@
+id: ability.catalogue.vital.staunch
+kind: ability
+schema: 1
+display_key: ability.catalogue.vital.staunch.name
+tags: [ability]
+name: "Staunch"
+notes: "Mending Thread worked on another, by touch Taught through the D13 catalogue."
+class: technique
+discipline: skill.vital
+band: 15
+needs: "vital 15"

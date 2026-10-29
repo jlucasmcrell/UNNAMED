@@ -1,0 +1,11 @@
+id: ability.catalogue.enchanting.a_working_in_the_world
+kind: ability
+schema: 1
+display_key: ability.catalogue.enchanting.a_working_in_the_world.name
+tags: [ability]
+name: "A Working in the World"
+notes: "Enchant a *place* rather than an object, and accept that it now has an owner and a maintenance problem Taught through the D13 catalogue."
+class: technique
+discipline: skill.enchanting
+band: 60
+needs: "enchanting 60, ritualcraft 30"

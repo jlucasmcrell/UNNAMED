@@ -1,0 +1,9 @@
+id: skill.leatherworking
+kind: skill
+schema: 1
+display_key: skill.leatherworking.name
+tags: [skill]
+name: "Leatherwork"
+family: world
+notes: "D13 catalogue skill: Leatherwork (3.5 Crafting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "a strap, a sheath, a gambeson, a harness that does not fail at the wrong time"

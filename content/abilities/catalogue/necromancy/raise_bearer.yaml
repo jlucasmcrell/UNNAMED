@@ -1,0 +1,11 @@
+id: ability.catalogue.necromancy.raise_bearer
+kind: ability
+schema: 1
+display_key: ability.catalogue.necromancy.raise_bearer.name
+tags: [ability]
+name: "Raise Bearer"
+notes: "A corpse as a servant for ten minutes; its body decides what it can do Taught through the D13 catalogue."
+class: technique
+discipline: skill.necromancy
+band: 45
+needs: "necromancy 45"

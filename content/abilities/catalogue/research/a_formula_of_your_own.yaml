@@ -1,0 +1,11 @@
+id: ability.catalogue.research.a_formula_of_your_own
+kind: ability
+schema: 1
+display_key: ability.catalogue.research.a_formula_of_your_own.name
+tags: [ability]
+name: "A Formula of Your Own"
+notes: "Author a formula nobody taught you, and survive the first casting Taught through the D13 catalogue."
+class: technique
+discipline: skill.research
+band: 60
+needs: "research 60, a domain 45"

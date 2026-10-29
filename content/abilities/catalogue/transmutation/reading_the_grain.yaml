@@ -1,0 +1,11 @@
+id: ability.catalogue.transmutation.reading_the_grain
+kind: ability
+schema: 1
+display_key: ability.catalogue.transmutation.reading_the_grain.name
+tags: [ability]
+name: "Reading the Grain"
+notes: "Read a material's history and weakness: where it was worked, and where it will fail Taught through the D13 catalogue."
+class: technique
+discipline: skill.transmutation
+band: 45
+needs: "transmutation 45, lore 30"

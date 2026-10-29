@@ -1,0 +1,11 @@
+id: ability.catalogue.bow.step_and_loose
+kind: ability
+schema: 1
+display_key: ability.catalogue.bow.step_and_loose.name
+tags: [ability]
+name: "Step and Loose"
+notes: "Move and shoot as one act, so a walking archer is still a threat Taught through the D13 catalogue."
+class: technique
+discipline: skill.bow
+band: 30
+needs: "bow 30"

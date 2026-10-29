@@ -1,0 +1,11 @@
+id: ability.catalogue.unarmed.turn_their_weapon
+kind: ability
+schema: 1
+display_key: ability.catalogue.unarmed.turn_their_weapon.name
+tags: [ability]
+name: "Turn Their Weapon"
+notes: "Use their own momentum and weapon against them in the clinch Taught through the D13 catalogue."
+class: technique
+discipline: skill.unarmed
+band: 60
+needs: "unarmed 60"

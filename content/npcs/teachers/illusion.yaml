@@ -1,0 +1,38 @@
+id: npc.teacher.illusion
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.illusion.name
+tags: [npc]
+name: "Master of Illusion"
+notes: "The illusion teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.illusion
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.illusion.stillwater_veil
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.illusion, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.illusion.false_step
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.illusion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.illusion.the_wrong_shape
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.illusion, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.illusion.disbelieve
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.illusion, band: adept } }
+  - kind: technique
+    ability_ref: ability.catalogue.illusion.a_room_that_was_not
+    by_dialogue: true
+    fee: 90
+    requires: { skill: { skill_ref: skill.illusion, band: expert } }

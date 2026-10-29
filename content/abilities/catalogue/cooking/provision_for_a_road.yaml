@@ -1,0 +1,11 @@
+id: ability.catalogue.cooking.provision_for_a_road
+kind: ability
+schema: 1
+display_key: ability.catalogue.cooking.provision_for_a_road.name
+tags: [ability]
+name: "Provision for a Road"
+notes: "Food that survives a week in a pack Taught through the D13 catalogue."
+class: technique
+discipline: skill.cooking
+band: 30
+needs: "cooking 30, survival 15"

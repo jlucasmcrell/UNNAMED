@@ -1,0 +1,11 @@
+id: ability.catalogue.medicine.cut_for_a_reason
+kind: ability
+schema: 1
+display_key: ability.catalogue.medicine.cut_for_a_reason.name
+tags: [ability]
+name: "Cut for a Reason"
+notes: "Surgery the world can survive: clean field, clean tools, honest odds Taught through the D13 catalogue."
+class: technique
+discipline: skill.medicine
+band: 45
+needs: "medicine 45, first_aid 45"

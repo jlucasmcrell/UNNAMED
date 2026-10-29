@@ -1,0 +1,31 @@
+id: dialogue.teacher.first_aid
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.first_aid.name
+tags: [dialogue]
+notes: "The first aid teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.first_aid]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the first aid? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.first_aid.stop_the_bleed, ability.catalogue.first_aid.splint, ability.catalogue.first_aid.stabilise, ability.catalogue.first_aid.clean_it_properly, ability.catalogue.first_aid.field_triage] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.first_aid.stop_the_bleed, ability.catalogue.first_aid.splint, ability.catalogue.first_aid.stabilise, ability.catalogue.first_aid.clean_it_properly, ability.catalogue.first_aid.field_triage] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

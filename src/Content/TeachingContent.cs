@@ -20,7 +20,7 @@ namespace UNNAMED.Content;
 public static class TeachingContent
 {
     /// <summary>The ability classes built: a creature's attack (M3c) and the player's active technique (WP9). The rest of §4.7's arrive with their systems.</summary>
-    private static readonly string[] AbilityClasses = { "creature", "active", "people" };
+    private static readonly string[] AbilityClasses = { "creature", "active", "people", "technique" };
 
     private static readonly string[] EntryFields = { "kind", "recipe_ref", "ability_ref", "spell_ref", "piece_ref", "fee", "by_dialogue", "requires" };
 
@@ -32,6 +32,7 @@ public static class TeachingContent
         if (!loader.Definitions.ContainsKey("config.time"))
             return errors;
         Try(() => BuildTechniques(loader), "abilities", errors);
+        Try(() => BuildCatalogue(loader), "catalogue", errors);
         Try(() => BuildSkillBands(loader), "config.teaching", errors);
         // The sources are read through the other kinds' builders: while any of them is refused, its own lint says why, and this one waits.
         if (errors.Count == 0 && !loader.Errors.Any(e => e.SeverityLevel == ValidationError.Severity.Error))
@@ -59,7 +60,18 @@ public static class TeachingContent
     /// the weapon family that makes it), <c>cost.stamina</c>, <c>cooldown_s</c>, optionally <c>windup_multiplier</c> and <c>reach_bonus_m</c>,
     /// and a <c>payload</c> of one <c>damage</c> entry's <c>multiplier_of_weapon</c> and optionally an <c>apply_effect</c> with a <c>chance</c>.
     /// </summary>
-    public static ImmutableSortedDictionary<string, TechniqueDefinition> BuildTechniques(ContentLoader loader)
+    public static ImmutableSortedDictionary<string, TechniqueDefinition> BuildTechniques(ContentLoader loader) =>
+        Build(loader, null).Techniques;
+
+    /// <summary>
+    /// The catalogue techniques (<c>ability</c> of <c>class: technique</c>, D13's 608): each names the skill that owns it, the band it sits
+    /// at and what it needs. They are built from the same walk as the weapon techniques, so one pass validates both.
+    /// </summary>
+    public static ImmutableSortedDictionary<string, CatalogueTechnique> BuildCatalogue(ContentLoader loader) =>
+        Build(loader, ImmutableSortedDictionary.CreateBuilder<string, CatalogueTechnique>(StringComparer.Ordinal)).Catalogue
+        ?? ImmutableSortedDictionary.Create<string, CatalogueTechnique>(StringComparer.Ordinal);
+
+    private static TechniqueBuild Build(ContentLoader loader, ImmutableSortedDictionary<string, CatalogueTechnique>.Builder? catalogue)
     {
         int tickMs = WorldContent.TickMilliseconds(loader);
         var techniques = ImmutableSortedDictionary.CreateBuilder<string, TechniqueDefinition>(StringComparer.Ordinal);
@@ -70,6 +82,22 @@ public static class TeachingContent
             string kind = Text(map, "class");
             if (!AbilityClasses.Contains(kind))
                 throw new FormatException($"{id}: class '{kind}' is not built ({string.Join(", ", AbilityClasses)})");
+            if (kind == "technique")
+            {
+                if (catalogue is not null)
+                {
+                    var owned = Text(map, "discipline");
+                    if (!loader.Definitions.TryGetValue(owned, out var ownedSkill) || ownedSkill.Kind != "skill")
+                        throw new FormatException($"{id}: discipline {owned} is not a skill");
+                    var entry = new CatalogueTechnique(id, owned,
+                        map.ContainsKey("band") ? Int(map, "band") : 15,
+                        map.ContainsKey("needs") ? Text(map, "needs") : "");
+                    if (entry.Problem() is { } fault)
+                        throw new FormatException($"{id}: {fault}");
+                    catalogue.Add(id, entry);
+                }
+                continue;
+            }
             if (kind != "active")
                 continue;
             string skill = Text(map, "discipline");
@@ -100,8 +128,13 @@ public static class TeachingContent
                 throw new FormatException($"{id}: {problem}");
             techniques.Add(id, technique);
         }
-        return techniques.ToImmutable();
+        return new TechniqueBuild(techniques.ToImmutable(), catalogue?.ToImmutable());
     }
+
+    /// <summary>What one walk of the ability kind produces: the weapon techniques, and the catalogue when it was asked for.</summary>
+    private readonly record struct TechniqueBuild(
+        ImmutableSortedDictionary<string, TechniqueDefinition> Techniques,
+        ImmutableSortedDictionary<string, CatalogueTechnique>? Catalogue);
 
     /// <summary>
     /// An NPC's <c>teaches</c> block (C10): entries of <c>kind</c> (recipe, technique, spell, building_piece) naming their definition by
@@ -135,8 +168,10 @@ public static class TeachingContent
         string id = Text(row, field);
         if (!loader.Definitions.TryGetValue(id, out var definition) || definition.Kind != contentKind)
             throw new FormatException($"{at}: {id} is not a defined {contentKind}");
-        if (kind == TeachingKind.Technique && Read(definition.YamlSource).GetValueOrDefault("class") as string != "active")
-            throw new FormatException($"{at}: {id} is not an active technique (class: active) - a creature's attack is never taught");
+        // A taught technique is either a weapon technique (class: active, it changes a blow) or a catalogue technique (class: technique,
+        // D13's crafting/gathering/survival/social/cosmic/technology capabilities). A creature's own attack is still never taught.
+        if (kind == TeachingKind.Technique && Read(definition.YamlSource).GetValueOrDefault("class") as string is not ("active" or "technique"))
+            throw new FormatException($"{at}: {id} is not a technique (class: active or technique) - a creature's attack is never taught");
         long fee = row.TryGetValue("fee", out var feeValue)
             ? long.TryParse(feeValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed) && parsed >= 0
                 ? parsed
@@ -223,7 +258,7 @@ public static class TeachingContent
         var learnable = loader.GetByKind("recipe").Keys
             .Concat(loader.GetByKind("spell").Keys)
             .Concat(loader.GetByKind("piece").Keys)
-            .Concat(loader.GetByKind("ability").Values.Where(a => Read(a.YamlSource).GetValueOrDefault("class") as string == "active").Select(a => a.Id))
+            .Concat(loader.GetByKind("ability").Values.Where(a => Read(a.YamlSource).GetValueOrDefault("class") as string is "active" or "technique").Select(a => a.Id))
             .OrderBy(id => id, StringComparer.Ordinal);
         var orphans = learnable.Where(id => !sources.Contains(id)).ToList();
         if (orphans.Count > 0)

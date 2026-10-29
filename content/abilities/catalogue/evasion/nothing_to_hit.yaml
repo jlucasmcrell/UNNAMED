@@ -1,0 +1,11 @@
+id: ability.catalogue.evasion.nothing_to_hit
+kind: ability
+schema: 1
+display_key: ability.catalogue.evasion.nothing_to_hit.name
+tags: [ability]
+name: "Nothing to Hit"
+notes: "Against a single aware attacker you are simply not where the blow is Taught through the D13 catalogue."
+class: technique
+discipline: skill.evasion
+band: 75
+needs: "evasion 75 + mastery"

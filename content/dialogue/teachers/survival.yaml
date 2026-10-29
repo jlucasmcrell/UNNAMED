@@ -1,0 +1,31 @@
+id: dialogue.teacher.survival
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.survival.name
+tags: [dialogue]
+notes: "The survival teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.survival]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the survival? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.survival.fire_in_the_wet, ability.catalogue.survival.set_snare, ability.catalogue.survival.improvised_shelter, ability.catalogue.survival.cold_camp, ability.catalogue.survival.weatherproof, ability.catalogue.survival.read_the_land, ability.catalogue.survival.live_off_the_land, ability.catalogue.survival.keeper_of_the_camp] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.survival.fire_in_the_wet, ability.catalogue.survival.set_snare, ability.catalogue.survival.improvised_shelter, ability.catalogue.survival.cold_camp, ability.catalogue.survival.weatherproof, ability.catalogue.survival.read_the_land, ability.catalogue.survival.live_off_the_land, ability.catalogue.survival.keeper_of_the_camp] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

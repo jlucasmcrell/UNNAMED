@@ -1,0 +1,33 @@
+id: npc.teacher.excavation
+kind: npc
+sex: f
+schema: 1
+display_key: npc.teacher.excavation.name
+tags: [npc]
+name: "Master of Excavation and archaeology"
+notes: "The excavation and archaeology teacher of the D13 catalogue (canon marks most teachers as proposed; this pass gives every skill one a body). Stands in starting frontier and takes a fee by band."
+role: trainer
+unique: true
+people_ref: people.veth
+dialogue_ref: dialogue.teacher.excavation
+teaches:
+  - kind: technique
+    ability_ref: ability.catalogue.excavation.read_the_layer
+    by_dialogue: true
+    fee: 15
+    requires: { skill: { skill_ref: skill.excavation, band: familiar } }
+  - kind: technique
+    ability_ref: ability.catalogue.excavation.lift_without_breaking
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.excavation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.excavation.conserve_and_record
+    by_dialogue: true
+    fee: 35
+    requires: { skill: { skill_ref: skill.excavation, band: proficient } }
+  - kind: technique
+    ability_ref: ability.catalogue.excavation.the_barrow_question
+    by_dialogue: true
+    fee: 60
+    requires: { skill: { skill_ref: skill.excavation, band: adept } }

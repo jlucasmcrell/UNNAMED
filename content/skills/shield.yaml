@@ -1,0 +1,9 @@
+id: skill.shield
+kind: skill
+schema: 1
+display_key: skill.shield.name
+tags: [skill]
+name: "Shield"
+family: world
+notes: "D13 catalogue skill: Shield (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "blocking and bashing what is actually trying to kill you; keeping a wall with friends behind it"

@@ -1,0 +1,11 @@
+id: ability.catalogue.music.lay_a_charge
+kind: ability
+schema: 1
+display_key: ability.catalogue.music.lay_a_charge.name
+tags: [ability]
+name: "Lay a charge"
+notes: "Put a demolition charge where the structure actually fails, and know the fall before it comes Taught through the D13 catalogue."
+class: technique
+discipline: skill.music
+band: 60
+needs: "demolition 45, engineering 30"

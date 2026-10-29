@@ -1,0 +1,11 @@
+id: ability.catalogue.crossbow.braced_aim
+kind: ability
+schema: 1
+display_key: ability.catalogue.crossbow.braced_aim.name
+tags: [ability]
+name: "Braced Aim"
+notes: "A rested, waiting aim: the first shot is the one you get Taught through the D13 catalogue."
+class: technique
+discipline: skill.crossbow
+band: 15
+needs: "crossbow 15"

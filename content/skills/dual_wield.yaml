@@ -1,0 +1,9 @@
+id: skill.dual_wield
+kind: skill
+schema: 1
+display_key: skill.dual_wield.name
+tags: [skill]
+name: "Paired weapons"
+family: world
+notes: "D13 catalogue skill: Paired weapons (3.1 Battle). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "off-hand work under pressure: covering, deflecting, and the second strike"

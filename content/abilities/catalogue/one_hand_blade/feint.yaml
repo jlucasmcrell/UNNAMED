@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.feint
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.feint.name
+tags: [ability]
+name: "Feint"
+notes: "Commit the body to a blow you do not throw; the defence that answers it opens the line Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 30
+needs: "sword 30"

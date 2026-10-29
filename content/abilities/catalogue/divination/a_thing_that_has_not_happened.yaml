@@ -1,0 +1,11 @@
+id: ability.catalogue.divination.a_thing_that_has_not_happened
+kind: ability
+schema: 1
+display_key: ability.catalogue.divination.a_thing_that_has_not_happened.name
+tags: [ability]
+name: "A Thing That Has Not Happened"
+notes: "One possible future, with its assumptions said aloud Taught through the D13 catalogue."
+class: technique
+discipline: skill.divination
+band: 60
+needs: "divination 60, ritualcraft 30"

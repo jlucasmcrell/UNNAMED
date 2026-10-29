@@ -1,0 +1,11 @@
+id: ability.catalogue.tailoring.dye_and_mark
+kind: ability
+schema: 1
+display_key: ability.catalogue.tailoring.dye_and_mark.name
+tags: [ability]
+name: "Dye and Mark"
+notes: "Colour and badges that say what you want said Taught through the D13 catalogue."
+class: technique
+discipline: skill.tailoring
+band: 30
+needs: "tailoring 30, lore 15"

@@ -1,0 +1,31 @@
+id: dialogue.teacher.teaching
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.teaching.name
+tags: [dialogue]
+notes: "The teaching teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.teaching]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the teaching? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding, ability.catalogue.teaching.correct_without_breaking, ability.catalogue.teaching.a_curriculum, ability.catalogue.teaching.teach_what_cannot_be_said] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.teaching.show_then_watch, ability.catalogue.teaching.find_the_misunderstanding, ability.catalogue.teaching.correct_without_breaking, ability.catalogue.teaching.a_curriculum, ability.catalogue.teaching.teach_what_cannot_be_said] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

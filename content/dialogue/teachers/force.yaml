@@ -1,0 +1,31 @@
+id: dialogue.teacher.force
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.force.name
+tags: [dialogue]
+notes: "The force teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.force]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the force? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.force.impulse_bolt, ability.catalogue.force.bare_bolt, ability.catalogue.force.scatter_impulse, ability.catalogue.force.weighted_strike, ability.catalogue.force.thunder_clap, ability.catalogue.force.sorting_impulse, ability.catalogue.force.ember_line, ability.catalogue.force.conductor_at_rest] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.force.impulse_bolt, ability.catalogue.force.bare_bolt, ability.catalogue.force.scatter_impulse, ability.catalogue.force.weighted_strike, ability.catalogue.force.thunder_clap, ability.catalogue.force.sorting_impulse, ability.catalogue.force.ember_line, ability.catalogue.force.conductor_at_rest] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

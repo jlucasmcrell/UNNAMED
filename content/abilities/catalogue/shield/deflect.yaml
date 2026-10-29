@@ -1,0 +1,11 @@
+id: ability.catalogue.shield.deflect
+kind: ability
+schema: 1
+display_key: ability.catalogue.shield.deflect.name
+tags: [ability]
+name: "Deflect"
+notes: "Turn a blow off the rim's angle instead of absorbing it flat Taught through the D13 catalogue."
+class: technique
+discipline: skill.shield
+band: 30
+needs: "shield 30"

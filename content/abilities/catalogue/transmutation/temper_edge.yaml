@@ -1,0 +1,11 @@
+id: ability.catalogue.transmutation.temper_edge
+kind: ability
+schema: 1
+display_key: ability.catalogue.transmutation.temper_edge.name
+tags: [ability]
+name: "Temper Edge"
+notes: "A blade keeps its edge for ten minutes: better penetration, half the durability loss. The material must be known Taught through the D13 catalogue."
+class: technique
+discipline: skill.transmutation
+band: 15
+needs: "transmutation 15, material knowledge"

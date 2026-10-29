@@ -1,0 +1,11 @@
+id: ability.catalogue.axe.sunder
+kind: ability
+schema: 1
+display_key: ability.catalogue.axe.sunder.name
+tags: [ability]
+name: "Sunder"
+notes: "Break the *thing* rather than the person: shields, hafts, doors, straps Taught through the D13 catalogue."
+class: technique
+discipline: skill.axe
+band: 60
+needs: "axe 60"

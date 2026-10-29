@@ -1,0 +1,11 @@
+id: ability.catalogue.farming.the_bad_year
+kind: ability
+schema: 1
+display_key: ability.catalogue.farming.the_bad_year.name
+tags: [ability]
+name: "The Bad Year"
+notes: "Know what to do when the weather breaks, and still have a harvest Taught through the D13 catalogue."
+class: technique
+discipline: skill.farming
+band: 45
+needs: "farming 45, survival 30"

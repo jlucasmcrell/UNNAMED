@@ -1,0 +1,11 @@
+id: ability.catalogue.swimming.shed_the_weight
+kind: ability
+schema: 1
+display_key: ability.catalogue.swimming.shed_the_weight.name
+tags: [ability]
+name: "Shed the Weight"
+notes: "Get out of armour before it becomes a decision you do not get to revise Taught through the D13 catalogue."
+class: technique
+discipline: skill.swimming
+band: 45
+needs: "swimming 45, armour_use 30"

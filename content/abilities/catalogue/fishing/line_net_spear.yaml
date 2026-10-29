@@ -1,0 +1,11 @@
+id: ability.catalogue.fishing.line_net_spear
+kind: ability
+schema: 1
+display_key: ability.catalogue.fishing.line_net_spear.name
+tags: [ability]
+name: "Line, Net, Spear"
+notes: "Three ways, and the water decides which Taught through the D13 catalogue."
+class: technique
+discipline: skill.fishing
+band: 15
+needs: "fishing 15"

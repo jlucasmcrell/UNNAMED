@@ -1,0 +1,11 @@
+id: ability.catalogue.staff.two_ended_guard
+kind: ability
+schema: 1
+display_key: ability.catalogue.staff.two_ended_guard.name
+tags: [ability]
+name: "Two-ended Guard"
+notes: "Both ends are live: the staff covers two directions from one grip Taught through the D13 catalogue."
+class: technique
+discipline: skill.staff
+band: 15
+needs: "staff 15"

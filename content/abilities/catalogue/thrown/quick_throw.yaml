@@ -1,0 +1,11 @@
+id: ability.catalogue.thrown.quick_throw
+kind: ability
+schema: 1
+display_key: ability.catalogue.thrown.quick_throw.name
+tags: [ability]
+name: "Quick Throw"
+notes: "From the belt with no wind-up worth noticing Taught through the D13 catalogue."
+class: technique
+discipline: skill.thrown
+band: 15
+needs: "thrown 15"

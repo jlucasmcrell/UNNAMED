@@ -1,0 +1,9 @@
+id: skill.necromancy
+kind: skill
+schema: 1
+display_key: skill.necromancy.name
+tags: [skill]
+name: "Necromancy / soulcraft"
+family: world
+notes: "D13 catalogue skill: Necromancy / soulcraft (3.3 Spellcasting). Carried from canon/SKILLS_AND_TECHNIQUES.md at the owner's instruction that the whole catalogue becomes content."
+teaches: "speaking with, holding, or binding the dead and the nearly-dead (see §5.4 on consent)"

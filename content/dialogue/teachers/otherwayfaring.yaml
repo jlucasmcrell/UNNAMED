@@ -1,0 +1,31 @@
+id: dialogue.teacher.otherwayfaring
+kind: dialogue
+schema: 1
+display_key: dialogue.teacher.otherwayfaring.name
+tags: [dialogue]
+notes: "The otherwayfaring teacher: one lesson list, everything they know at its band. D13 catalogue pass."
+participants: [npc.teacher.otherwayfaring]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You want the otherwayfaring? Then you pay for it and you bring the hands for it.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: teach
+        text: "Teach me what you know of it."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.otherwayfaring.read_a_route, ability.catalogue.otherwayfaring.walk_it_steady, ability.catalogue.otherwayfaring.rope_and_anchor, ability.catalogue.otherwayfaring.chart_it, ability.catalogue.otherwayfaring.arrive] }
+        next: lesson
+      - id: leave
+        text: "Another time."
+  again:
+    text: "\"Back for more, then.\""
+    choices:
+      - id: teach
+        text: "Teach me."
+        consequences:
+          - { command: teach, refs: [ability.catalogue.otherwayfaring.read_a_route, ability.catalogue.otherwayfaring.walk_it_steady, ability.catalogue.otherwayfaring.rope_and_anchor, ability.catalogue.otherwayfaring.chart_it, ability.catalogue.otherwayfaring.arrive] }
+        next: lesson
+  lesson:
+    text: "The lesson goes as far as your hands carry it. Come back when the band moves."

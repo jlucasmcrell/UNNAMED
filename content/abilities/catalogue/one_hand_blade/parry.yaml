@@ -1,0 +1,11 @@
+id: ability.catalogue.one_hand_blade.parry
+kind: ability
+schema: 1
+display_key: ability.catalogue.one_hand_blade.parry.name
+tags: [ability]
+name: "Parry"
+notes: "Catch a blow on the flat inside the parry window and it is *gone*, plus the attacker is open for half a second Taught through the D13 catalogue."
+class: technique
+discipline: skill.one_hand_blade
+band: 15
+needs: "sword 15"

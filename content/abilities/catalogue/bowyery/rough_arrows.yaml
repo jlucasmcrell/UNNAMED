@@ -1,0 +1,11 @@
+id: ability.catalogue.bowyery.rough_arrows
+kind: ability
+schema: 1
+display_key: ability.catalogue.bowyery.rough_arrows.name
+tags: [ability]
+name: "Rough Arrows"
+notes: "Arrows that fly predictably, made in a morning Taught through the D13 catalogue."
+class: technique
+discipline: skill.bowyery
+band: 15
+needs: "bowyery 15"
