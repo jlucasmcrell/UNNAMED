@@ -1,0 +1,26 @@
+﻿id: spawn.foldscar.pack
+kind: spawn
+schema: 1
+display_key: spawn.foldscar.pack.name
+tags:
+- spawn
+notes: "D18 THE FOLDSCAR: a pair of grey wolves working the scar's grass, level 2 - the third level 1-3 fight the hook asks of a wilderness area, and the first thing a new character can practise a weapon on beside the fold. They keep to the open ground south of the Quiet Stones."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 2
+  - 2
+  role: pack_hunter
+at:
+  position_m:
+  - 556
+  - 664
+  radius_m: 0
+level_band:
+- 2
+- 2
+respawn:
+  kind: timer
+  window_ticks: 36000
+tier_hint: A

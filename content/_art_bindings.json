@@ -2923,6 +2923,16 @@
       "model": "landmark_ph_waystone_a",
       "material": "stone",
       "note": "D18 the Den gorge: the gorge's own stone, the Ashen and Rim waystones' scanned stone on the lip above the river."
+    },
+    "cw_crag_old_late_1": {
+      "model": "gs_foldscar_heart",
+      "material": "stone",
+      "note": "D18 Old Late: a crag with handholds, the climbable face HOOK.TRAV.CLIMB_FACE asks for."
+    },
+    "cw_crag_old_late_2": {
+      "model": "gs_foldscar_heart",
+      "material": "stone",
+      "note": "D18 Old Late: a crag with handholds, the climbable face HOOK.TRAV.CLIMB_FACE asks for."
     }
   },
   "doors": {
