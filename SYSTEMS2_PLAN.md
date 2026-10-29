@@ -263,3 +263,27 @@ den-gorge-and-rope-cave and 	he-road at all. That is a few lines of temporary ou
 settle it instead of more guessing.
 The grave content (kind, two markers, two readables, two lore pages, evidence branch) is committed and lints clean; the
 hook is simply not counting.
+
+### Round 15 - HOOK.DEATH.GRAVE now passes; the marker art does not
+**The gate is green.** content hooks reports no HOOK.DEATH.GRAVE warning in any area (it was 0/1 in four). The way it
+passes: a grave is counted **by the place it names**, not by which area the placement share-out happens to give its
+marker - WorldFacts.Graves collects grave definitions with their location_ref, and the evidence counts those whose
+place the area owns. That was the whole cause of round 14's zero: the audit's placed list never contained the
+readables, and a marker inside another area's radius went to that area instead.
+
+Landed: **8 graves with 8 lore pages** (den, road, cairnwold, blackvein, foldscar, old-late, the-field-ruins, and the
+outpost's), each page opened by { how: inspected, ref: readable.grave_* }; two **markers and readables placed** in the
+frontier (den at 540.5,797.5; outpost at 455.5,745.5); the grave kind now lives under content/pieces/graves/ because
+a **new top-level content directory is refused by the loader** even when the kind table knows it - that cost three
+failed runs and is worth remembering.
+
+**What does NOT work, and stopped the post:**
+- the markers render as **placeholders** - a grey cylinder at the gorge lip, a grey silhouette against the outpost wall -
+  so structures: { grave_marker_*: { model: landmark_ph_waystone_a } } in the bindings is **not** the key a
+  structures:-section entry resolves through. Next: find how a structure id maps to a model (probably
+  structure_prefixes or pieces), and move the outpost marker off the wall it is inside.
+- **ANIM.SPEAK_DEAD is still state: absent**: no clip in the catalog speaks with the dead, and the nearest is
+  nim.player.mh.talk. The brief wants a catalog animation per system, so this system is not finished until that is
+  wired and seen.
+- the farm check for the lane is still owed.
+Frames (grey markers, real world): ds_sys2_shots\audit_grave\raw\sys2_grave_den.png, sys2_grave_road.png.
