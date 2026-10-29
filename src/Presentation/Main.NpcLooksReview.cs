@@ -95,7 +95,9 @@ public partial class Main
                 {
                     foreach(var other in reviewFigures)other.Figure.Visible=other.Figure==figure;
                     figure.Visible=true;
-                    Vector2 stage=settlement=="ashen_hollow"?new Vector2(426,754):new Vector2(949,695);
+                    Vector2 stage=root.TryGetProperty("stage",out var stageAt)
+                        ?new Vector2(stageAt[0].GetSingle(),stageAt[1].GetSingle())
+                        :settlement=="ashen_hollow"?new Vector2(426,754):new Vector2(949,695);
                     float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
                     figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
                     if(fullBody && FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>().FirstOrDefault(light=>light.Name.ToString().Contains("Sun",StringComparison.OrdinalIgnoreCase)) is {} stageSun)

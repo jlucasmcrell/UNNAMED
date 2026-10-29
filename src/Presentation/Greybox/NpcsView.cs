@@ -116,8 +116,13 @@ public partial class NpcsView : Node3D
             _restOffsets.Clear();
         }
         var occupiedFurniture = new HashSet<string>(StringComparer.Ordinal);
+        bool outfitFixture=OS.GetEnvironment("OTHERREACH_NPC_OUTFIT_REVIEW")=="1";
         foreach (var npc in people)
         {
+            if(outfitFixture && !(npc.Id.StartsWith("npc.ashen_hollow.",StringComparison.Ordinal)
+                || npc.Id.StartsWith("routine.ashen_hollow.",StringComparison.Ordinal)
+                || npc.Id.StartsWith("npc.cairnwold.",StringComparison.Ordinal)
+                || npc.Id.StartsWith("routine.cairnwold.",StringComparison.Ordinal)))continue;
             string instance = npc.InstanceId.ToString();
             if (_instances.TryGetValue(npc.Id, out var previous) && previous != instance)
                 Forget(npc.Id);
