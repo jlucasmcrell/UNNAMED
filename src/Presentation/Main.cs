@@ -1156,10 +1156,12 @@ public partial class Main : Node3D
         },InspectPet=i=> {
             if(_session.Simulation is { } sim && i<sim.Pets.Length){CloseScreens();_companionsPanel.OpenPet(sim.Pets[i].Id);}
         } };
-        if (!VisualOptions.NoHud)
-            AddChild(_hud);
-        else
+        AddChild(_hud);
+        if (VisualOptions.NoHud)
+        {
+            _hud.Visible = false;
             GD.Print("UNNAMED hud: none - the run draws no HUD (proof frame)");
+        }
         _loading?.Stage("Placing items and creatures", 0.72);
         _items = new ItemsView { Name = "Items" };
         _items.Bind(_art, _bindings);
