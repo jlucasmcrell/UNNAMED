@@ -316,6 +316,9 @@ public static class WorldContent
                 Check((latch is null && !door.ContainsKey("requirement") && !door.ContainsKey("fitted")) || !string.IsNullOrWhiteSpace(locked), "WLD004", $"{key}: a locked door needs locked_text");
                 bool staysOpen = door.ContainsKey("stays_open") && bool.Parse(door["stays_open"].ToString()!);
                 Check(!door.ContainsKey("fitted") || staysOpen, "WLD004", $"{key}: a door that holds a fitted item must stay open");
+            if (door.TryGetValue("lock_tier", out object? tierText))
+                Check(int.TryParse(tierText.ToString(), out int tierValue) && tierValue >= 1 && tierValue <= 5, "WLD014",
+                    $"{key}: a door's lock_tier is 1 to 5");
                 doors.Add(new DoorSite(key, flag, footprint)
                 {
                     Requirement = door.ContainsKey("requirement") ? Requirement(Map(door, "requirement")) : null,
@@ -323,6 +326,7 @@ public static class WorldContent
                     LockedText = locked,
                     StaysOpen = staysOpen,
                     Fitted = door.ContainsKey("fitted") ? SiteItem(Map(door, "fitted")) : null,
+                    LockTier = door.ContainsKey("lock_tier") && int.TryParse(door["lock_tier"].ToString(), out int tier) ? tier : null,
                 });
             }
             Check(doors.Select(d => d.Key).Distinct(StringComparer.Ordinal).Count() == doors.Count, "WLD004", "two doors share a key");
@@ -362,6 +366,7 @@ public static class WorldContent
                 {
                     EmptyFlag = site.GetValueOrDefault("flag_ref") as string,
                     Stash = site.ContainsKey("stash") && bool.Parse(site["stash"].ToString()!),
+                    LockTier = site.ContainsKey("lock_tier") && Int(site, "lock_tier") > 0 ? Int(site, "lock_tier") : null,
                 };
                 Check(container.EmptyFlag is null || flags.ContainsKey(container.EmptyFlag), "WLD009", $"{container.Key}: flag_ref must name a world flag");
                 Check(container.Key.StartsWith("container.", StringComparison.Ordinal), "WLD009", $"container key '{container.Key}' must start with 'container.'");

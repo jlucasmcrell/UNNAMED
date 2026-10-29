@@ -11,6 +11,9 @@ namespace UNNAMED.Domain.Spatial;
 /// </summary>
 public sealed record DoorSite(string Key, string FlagId, BoxBlocker ClosedFootprint)
 {
+    /// <summary>A pickable lock's tier, 1-5, on a door that opens to a pick rather than to a flag or a fitted wedge.</summary>
+    public int? LockTier { get; init; }
+
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool StaysOpen { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -93,6 +96,12 @@ public sealed record RoadSite(string Id, string Name, ImmutableArray<(long XMm, 
 /// </summary>
 public sealed record ContainerSite(string Key, string LootTableId, long XMm, long ZMm, int StackSlots)
 {
+    /// <summary>
+    /// A pickable lock's tier, 1-5, or null for a container with a lid and nothing more. The tier is what a lockpicking tool and skill meet;
+    /// the interaction that picks it is a needed system (ROADMAP/SYSTEMS_NEEDED.md), not faked here.
+    /// </summary>
+    public int? LockTier { get; init; }
+
     /// <summary>An optional durable pickup fact, written when the authored contents have all been taken.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? EmptyFlag { get; init; }

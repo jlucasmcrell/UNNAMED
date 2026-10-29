@@ -1,0 +1,10 @@
+id: loot.blackvein_tool_cache
+kind: loot
+schema: 1
+display_key: loot.blackvein_tool_cache.name
+tags: [loot]
+notes: "A gang's tool cache in the Cut (D18 HOOK.LOCK.CONTAINER.T1): wedges, a spade shoe and a wedge and a spade shoe, behind a plate lock. Static contents."
+rolls: 0
+guaranteed:
+  - { item_ref: item.tool.fitting_wedge, count_range: [1, 1] }
+  - { item_ref: item.material.timber, count_range: [1, 1] }

@@ -375,10 +375,15 @@ for gate, (x0, z0, x1, z1) in doors:
     # The key is what the prompt reads ("the headworks door"); the flag, which saves hold, keeps the gate's number.
     w(f"  - {{ key: door.barrowworks.{GATE_NAMES[gate]}, flag_ref: world.barrowworks.gate_{gate}_open, "
       f"box_m: [{x0:.1f}, {z0:.1f}, {x1:.1f}, {z1:.1f}], height_m: 2.4, stays_open: true{lock} }}")
+w("  - { key: door.barrowworks.coffer_store, flag_ref: world.barrowworks.coffer_store_open, box_m: [91.2, 62.4, 92.8, 63.2], height_m: 2.2, stays_open: true, lock_tier: 2, locked_text: 'A plate lock, set in fresh wood. The works kept its stores behind a pick, not behind a word.' }")
 w("containers:")
 w("  - { key: container.barrowworks.archive_crate, loot_ref: loot.barrowworks.archive_crate, position_m: [74.5, 62.5], stack_slots: 4 }")
 w("  - { key: container.barrowworks.codex_fragment, loot_ref: loot.barrowworks.codex_fragment, position_m: [69.0, 63.0], stack_slots: 1, flag_ref: world.barrowworks.codex_fragment_taken }")
 w("  - { key: container.barrowworks.lantern_foot, loot_ref: loot.barrowworks.lantern_foot, position_m: [92.0, 62.0], stack_slots: 1, flag_ref: world.barrowworks.lantern_foot_taken }")
+# D18 HOOK.LOCK.CONTAINER.T1 and .T3: three coffers behind a pick, on the sorting floor, in the still bay and in the blind store.
+w("  - { key: container.barrowworks.coffer_sorting, loot_ref: loot.barrowworks.coffer, position_m: [74.5, 64.8], stack_slots: 3, lock_tier: 2 }")
+w("  - { key: container.barrowworks.coffer_still_bay, loot_ref: loot.barrowworks.coffer, position_m: [69.5, 64.4], stack_slots: 3, lock_tier: 2 }")
+w("  - { key: container.barrowworks.coffer_master, loot_ref: loot.barrowworks.coffer_master, position_m: [92.0, 63.4], stack_slots: 2, lock_tier: 3 }")
 w("npcs: []")
 w("nodes:")
 w("  - { name: barrowworks_ash_stand, node_ref: node.wood.ash_stand, position_m: [74, 64] }")

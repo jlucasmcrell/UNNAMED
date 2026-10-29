@@ -150477,7 +150477,24 @@ doors:
   - 957.08
   - 678.0
   height_m: 2.1
+- key: door.blackvein.seam_gate
+  flag_ref: world.blackvein.seam_gate_open
+  box_m: [427.4, 645.6, 428.6, 646.0]
+  height_m: 2.2
+  stays_open: true
+  lock_tier: 2
+  locked_text: 'A cutting-gang lock, rusted into its staple. It opens to a pick, not to a word.'
+- key: door.blackvein.tool_shed
+  flag_ref: world.blackvein.tool_shed_open
+  box_m: [433.6, 651.6, 434.4, 652.4]
+  height_m: 2.1
+  stays_open: true
+  lock_tier: 1
+  locked_text: 'A plate lock on a shed door, the screws long since replaced with nails.'
+
 containers:
+- { key: container.blackvein.tool_cache, loot_ref: loot.blackvein_tool_cache, position_m: [432.5, 650.0], stack_slots: 2, lock_tier: 1 }
+- { key: container.blackvein.strongbox, loot_ref: loot.blackvein_strongbox, position_m: [428.0, 647.2], stack_slots: 2, lock_tier: 3 }
 - key: container.den_cache
   loot_ref: loot.den_cache
   position_m:
@@ -150863,6 +150880,13 @@ nodes:
   - 518.0
   - 774.0
 waters:
+- key: water.blackvein_sump
+  kind: pool
+  path_m: [[430.6, 644.4], [431.8, 644.0]]
+  level_m: 4.62
+  width_m: 2.4
+  # D18 BLACKVEIN: the sump at the foot of the seam, where the cutting gang drew water and the pump still holds it. Banks at 4.7-5.0, so a flask fills here.
+
 - key: water.den_river
   kind: stream
   path_m: [[534.0, 798.0], [540.0, 794.0], [547.0, 791.0], [553.0, 787.0]]
@@ -150895,6 +150919,11 @@ waters:
   level_m: 4.30
   width_m: 2.6
 stations:
+- key: station.blackvein_forge
+  kind: forge
+  position_m: [431.0, 643.2]
+  # D18 BLACKVEIN: the fitting hearth at the Cut's floor, where the gang's edges were dressed. Serves HOOK.STATION.FORGE for the area.
+
 - key: station.forge_hearth
   kind: forge
   position_m:

@@ -1,0 +1,9 @@
+id: world.barrowworks.coffer_store_open
+kind: world_flag
+schema: 1
+display_key: world.barrowworks.coffer_store_open.name
+tags: [world_flag]
+notes: Whether the blind store's coffer door stands open. It opens to a pick, not to a quest flag (D18 HOOK.LOCK.DOOR.T1).
+type: bool
+default: 0
+owning_system: S-22
