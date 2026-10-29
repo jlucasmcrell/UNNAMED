@@ -190,6 +190,12 @@ sections:
       - binds: [humgen_]
         text: "Characters, fitted clothing and hair created with Human Generator (HumGen3D), using licensed content packs."
         url: "https://www.humgen3d.com/"
+      - text: "Period role garments, adapted and fitted to HumGen characters:"
+        lines:
+          - "Monk's Robe by Donitz; Viking Tunic and Pants by Rehman Polanski; Wool Pants by MRT, MakeHuman Community, CC0."
+          - "Winter Coat by punkduck, CC BY 3.0 (https://creativecommons.org/licenses/by/3.0/); Medieval Dress by punkduck, CC BY 4.0; Men's Apron by Elvaerwyn, CC BY (version unspecified in the held source notice). Native custom-content fitting, lining, coverage masks and material adaptations for Otherreach."
+          - "Medieval Hooded Cloak by Paradoox, licensed Fab content; Modular Fantasy knight character, licensed Unity Asset Store content. Original source textures retained through native material baking."
+          - "Leather014 photographed PBR surface by ambientCG, CC0, used for the smith's apron and hunter's tunic."
       - ledger: [P01, C33]
         text: "Character bodies: MPFB2 and the MakeHuman community base assets, CC0."
       - ledger: [P12]

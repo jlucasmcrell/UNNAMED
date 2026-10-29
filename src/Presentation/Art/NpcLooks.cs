@@ -31,12 +31,18 @@ public static class NpcLooks
     /// trade: the rugged outdoor set for the people who work outside, the work smock for the cook and the smith, the long coat for a
     /// steward and the scholar's robe for the scholar. The role is the slot id's last segment (`routine.<town>.<role>`).
     /// </summary>
-    public static string RoleOutfit(string role) => role switch
+    public static string RoleOutfit(string role,string? sex=null) => role switch
     {
-        // A frontier waystation wears period garb: the period set from the wardrobe for every trade, and the robe for a scholar.
+        // A frontier waystation wears period garb selected for each trade.
         // Modern clothing belongs to Otherborn arrivals, which these towns do not have.
-        "scholar" => "outfit.extra_outfits_pack.kimono",
-        _ => "outfit.extra_outfits_pack.pirate",
+        "guard" => "outfit.period.guard",
+        "scholar" => "outfit.period.robe",
+        "steward" or "quartermaster" or "guide" => "outfit.period.coat",
+        "cook" => "outfit.period.apron",
+        "smith" or "craftsperson" => "outfit.period.smith_apron",
+        "hunter" or "trapper" => "outfit.period.leathers",
+        "villager" when sex=="f" => "outfit.period.dress",
+        _ => "outfit.period.tunic",
     };
 
     /// <summary>The role a slot id names, which is what its wardrobe is chosen from.</summary>
@@ -57,10 +63,10 @@ public static class NpcLooks
             throw new InvalidOperationException($"the catalogue offers no face to a '{sex}' resident");
         var channel = RngChannel.Open(0, default, Channel, $"{settlement}/{slotId}#{generation}");
         var race = catalogue.Race(people);
-        // A role's wardrobe is only worn where the catalogue offers it to that sex (the scholar's robe is female only).
-        string outfit = RoleOutfit(RoleOf(slotId));
+        // Use only garments offered for this sex by the installed catalogue.
+        string outfit = RoleOutfit(RoleOf(slotId),sex);
         if (catalogue.Options(CreatorChoice.Outfit, sex).All(option => option.Id != outfit))
-            outfit = "outfit.casual.stylish_casual";
+            outfit = "outfit.period.tunic";
         var look = data.Randomize(new CharacterAppearance(race?.MidStatureMm ?? 1750, null, null, null, outfit, ResidentFootwear),
             catalogue, people, sex, channel.UInt64(0));
         // The face is assigned: a town's slots take consecutive presets, and adding a constant to a position is a bijection, so a town of

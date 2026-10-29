@@ -15,7 +15,7 @@ appearance:
   stature_cm: 165
   face: face.f.caucasian_presets.caucasian_3
   hair: hair.long.ponytail
-  outfit: outfit.extra_outfits_pack.pirate
+  outfit: outfit.period.dress
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 39

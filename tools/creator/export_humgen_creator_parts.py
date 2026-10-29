@@ -5,6 +5,7 @@ contains only the requested parts and their exact base rig, never another body.
 Usage in Blender: -- <creator-work> <catalogue> [<option-id> ...]
 """
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -24,6 +25,11 @@ args = sys.argv[sys.argv.index('--') + 1:]
 work = Path(args[0])
 catalogue = json.loads(Path(args[1]).read_text(encoding='utf-8'))
 only = set(args[2:])
+role_manifest=os.environ.get('OTHERREACH_ROLE_GARMENTS',str(Path(__file__).with_name('role_garments.json')))
+roles=json.loads(Path(role_manifest).read_text(encoding='utf-8')) if role_manifest else {}
+for option_id,entry in roles.items():
+    if not any(option['id']==option_id for option in catalogue['outfits']):
+        catalogue['outfits'].append(dict(id=option_id,paths={sex:'' for sex in entry.get('sexes',['f','m'])}))
 tools = Path(__file__).resolve().parents[1] / 'animation'
 sys.path.insert(0, str(tools))
 from audit_humgen_transport import Glb
@@ -215,16 +221,20 @@ def covered_body(body, meshes):
     """
     from mathutils.bvhtree import BVHTree
     points, polygons = [], []
+    deps=bpy.context.evaluated_depsgraph_get()
     for obj in meshes:
+        evaluated=obj.evaluated_get(deps);geometry=evaluated.to_mesh()
         offset = len(points)
-        points += [obj.matrix_world @ vertex.co for vertex in obj.data.vertices]
-        for polygon in obj.data.polygons:
+        points += [obj.matrix_world @ vertex.co for vertex in geometry.vertices]
+        for polygon in geometry.polygons:
             polygons.append([offset + index for index in polygon.vertices])
+        evaluated.to_mesh_clear()
     if not polygons:
         return None
     tree = BVHTree.FromPolygons(points, polygons)
     covered = set()
-    for vertex in body.data.vertices:
+    evaluated_body=body.evaluated_get(deps);body_geometry=evaluated_body.to_mesh()
+    for vertex in body_geometry.vertices:
         probe = body.matrix_world @ vertex.co
         hit = tree.find_nearest(probe)
         if hit[0] is None:
@@ -236,6 +246,17 @@ def covered_body(body, meshes):
         # patches where the shirt's own triangles are missing.
         if distance <= .020 and ((probe - point).dot(normal) < .001 or distance <= .008):
             covered.add(vertex.index)
+        # Loose sleeves and skirts can stand further off the skin. A native
+        # outward ray covers the skin under those panels without closing necks,
+        # faces or hands that the garment does not cover.
+        weights=body.data.vertices[vertex.index].groups
+        dominant=max(weights,key=lambda group:group.weight,default=None)
+        bone=body.vertex_groups[dominant.group].name.lower() if dominant else ''
+        if not any(part in bone for part in ('head','neck','hand','finger','thumb')):
+            outward=(body.matrix_world.to_3x3()@vertex.normal).normalized()
+            ray=tree.ray_cast(probe,outward,.35)
+            if ray[0] is not None and ray[1].dot(outward)>0:covered.add(vertex.index)
+    evaluated_body.to_mesh_clear()
     if not covered:
         return None
     uv_layer = body.data.uv_layers.active
@@ -265,24 +286,22 @@ def add_lining(meshes):
         copy.data = obj.data.copy()
         copy.name = obj.name + '_lining'
         bpy.context.collection.objects.link(copy)
-        mesh = bmesh.new()
-        mesh.from_mesh(copy.data)
-        bmesh.ops.reverse_faces(mesh, faces=list(mesh.faces))
-        mesh.normal_update()
-        for vertex in mesh.verts:
-            vertex.co -= vertex.normal * .003
-        mesh.to_mesh(copy.data)
-        mesh.free()
-        # A lining needs no shape keys: their absolute positions describe the unflipped surface, so any that stayed would pull the
-        # lining apart the moment a corrective was active. Keep the basis only.
-        copy.shape_key_clear()
+        offsets=np.array([tuple(vertex.normal) for vertex in obj.data.vertices])*.003
+        if copy.data.shape_keys:
+            for key in copy.data.shape_keys.key_blocks:
+                values=np.empty(len(key.data)*3)
+                key.data.foreach_get('co',values)
+                key.data.foreach_set('co',(values.reshape((-1,3))-offsets).ravel())
+        else:
+            for vertex,offset in zip(copy.data.vertices,offsets):vertex.co-=Vector(offset)
+        for polygon in copy.data.polygons:polygon.flip()
+        copy.data.update()
+        # The copy retains exactly one native armature modifier and all matching
+        # correctives/body keys; an extra modifier would deform its joints twice.
         copy.parent = obj.parent
         copy.parent_type = obj.parent_type
         if obj.parent_type == 'BONE': copy.parent_bone = obj.parent_bone
         copy.matrix_world = obj.matrix_world
-        for modifier in obj.modifiers:
-            if modifier.type == 'ARMATURE':
-                copy.modifiers.new(modifier.name, 'ARMATURE').object = modifier.object
         lining.append(copy)
     return lining
 
@@ -295,6 +314,7 @@ for collection, kind, tag in parts:
     for option in catalogue[collection]:
         if only and option['id'] not in only: continue
         for sex, path in option['paths'].items():
+            if os.environ.get('OTHERREACH_ROLE_SEX') and sex!=os.environ['OTHERREACH_ROLE_SEX']:continue
             identifier = 'humgen_creator_' + sex + '_' + kind + '_' + slug(option['id'])
             folder = work / 'game/primary/rigged' / identifier
             source_scene = work / 'parts_sources' / identifier / 'native.blend'
@@ -304,13 +324,29 @@ for collection, kind, tag in parts:
             bpy.ops.wm.read_homefile(use_empty=True)
             bpy.context.scene.render.threads_mode = 'FIXED'
             bpy.context.scene.render.threads = 8
+            bpy.context.scene.cycles.device = 'CPU'
             native_sex = 'female' if sex == 'f' else 'male'
             base = 'humgen_creator_' + native_sex
             preset = 'models/' + native_sex + ('/Caucasian presets/' if sex == 'f' else '/Caucasian Presets/') + 'Caucasian 2.json'
             human = Human.from_preset(str(Path(preset)))
             human.name = identifier
+            prepared=roles.get(option['id'],{}).get('prepared_sources',{}).get(sex)
+            if prepared and not Path(prepared).is_file():prepared=None
+            if prepared:
+                bpy.ops.wm.open_mainfile(filepath=prepared)
+                human=Human.from_existing(bpy.data.objects.get(identifier),strict_check=False)
+                assert human is not None,'Prepared native role human missing'
             setting = human.hair.regular_hair if kind == 'hair' else human.hair.face_hair if kind == 'beard' else human.clothing.outfit if kind == 'outfit' else human.clothing.footwear
-            setting.set(path)
+            if option['id'] in roles:
+                sys.path.insert(0,str(Path(__file__).resolve().parent))
+                from fit_role_garments import fit
+                receipt=fit(human,roles[option['id']],sex) if not prepared else [dict(prepared_native_source=prepared)]
+                native_source=work/'fit_sources'/identifier
+                native_source.mkdir(parents=True,exist_ok=True)
+                bpy.ops.wm.save_as_mainfile(filepath=str(native_source/'native.blend'),compress=True)
+                (native_source/'fit.json').write_text(json.dumps(receipt,indent=2))
+            else:
+                setting.set(path)
             complete_correctives(human, tag)
             settings = ExportSettings.from_recipe('godot')
             settings.output.format = 'in_file'
@@ -332,6 +368,8 @@ for collection, kind, tag in parts:
                              QualitySettings(body='quarter', eyes='low', teeth='low', haircards='haircap_only')]
             settings.scripts.enabled = True
             settings.scripts.items = [ScriptSettings(path=str(tools / 'keep_humgen_creator_groom_keys.py'), stage='before_meshes')]
+            if option['id'] in roles:
+                settings.scripts.items.append(ScriptSettings(path=str(tools / 'keep_humgen_role_keys.py'),stage='before_meshes'))
             print('NATIVE_PART_START', identifier, flush=True)
             result = human.process.run(settings)
             copies = result.humans
@@ -355,7 +393,7 @@ for collection, kind, tag in parts:
                     copy.process.share_textures(copies[0])
                     continue
                 # Wardrobe textures end up embedded in the glb; their doubled-up names would pass Windows' path limit in the part's own folder.
-                baked = run(textures.bake_steps(copy, settings.textures, namer, str(folder if tag else Path(work.anchor) / 'hg_tex'), bpy.context, only_sets=selected, per_level=level > 0))
+                baked = run(textures.bake_steps(copy, settings.textures, namer, str(folder if tag else work / 'tex'), bpy.context, only_sets=selected, per_level=level > 0))
                 for image in baked:
                     if '_Flow' in image.name:
                         flow['hair_flow' + ('_lod' + str(level) if level else '')] = Path(bpy.path.abspath(image.filepath)).name
@@ -368,6 +406,9 @@ for collection, kind, tag in parts:
             # comes through the cloth the moment a clip moves a joint (owner's fix 8).
             if not tag:
                 print('NATIVE_PART_CORRECTIVES', identifier, share_correctives(copy.objects.body, meshes), flush=True)
+            if option['id'] in roles:
+                for mesh in meshes:
+                    assert mesh.data.shape_keys and any(k.name.startswith('b_') for k in mesh.data.shape_keys.key_blocks), 'Role garment lost native creator body controls: '+mesh.name
             # A medium or long style gets the chains that let the hair move; a short one stays welded to the skull.
             chains = add_hair_chains(copy.objects.rig, meshes, hair_class(option['id']), option['id']) if tag else {}
             # A worn garment ships with its own lining, so an opening reveals cloth rather than the body (owner's route b).
@@ -391,7 +432,7 @@ for collection, kind, tag in parts:
             (folder / 'native_materials.json').write_text(json.dumps(flow, indent=2))
             identity = json.loads((work / 'game/primary/rigged' / base / 'identity_weights.json').read_text())
             if not tag:
-                mask = covered_body(copy.objects.body, meshes)
+                mask = covered_body(copy.objects.body, [mesh for mesh in meshes if not mesh.name.endswith('_lining')])
                 if mask:
                     (folder / 'body_coverage.json').write_text(json.dumps(
                         dict(target_body_sha256=identity['target_body_sha256'], **mask)))

@@ -22457,6 +22457,77 @@
    "paths": {
     "m": "outfits\\male\\Summer\\BBQ_Barry.blend"
    }
+  },
+  {
+   "id": "outfit.period.robe",
+   "label": "Scholar's wool robe",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.robe",
+    "m": "period/outfit.period.robe"
+   }
+  },
+  {
+   "id": "outfit.period.tunic",
+   "label": "Linen tunic and wool trousers",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.tunic",
+    "m": "period/outfit.period.tunic"
+   }
+  },
+  {
+   "id": "outfit.period.dress",
+   "label": "Frontier wool dress",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.dress"
+   }
+  },
+  {
+   "id": "outfit.period.coat",
+   "label": "Steward's long coat",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.coat",
+    "m": "period/outfit.period.coat"
+   }
+  },
+  {
+   "id": "outfit.period.apron",
+   "label": "Cook's apron and tunic",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.apron",
+    "m": "period/outfit.period.apron"
+   }
+  },
+  {
+   "id": "outfit.period.smith_apron",
+   "label": "Smith's leather apron",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.smith_apron",
+    "m": "period/outfit.period.smith_apron"
+   }
+  },
+  {
+   "id": "outfit.period.leathers",
+   "label": "Hunter's leather and cloak",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.leathers",
+    "m": "period/outfit.period.leathers"
+   }
+  },
+  {
+   "id": "outfit.period.guard",
+   "label": "Frontier knight armour",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.guard",
+    "m": "period/outfit.period.guard"
+   }
   }
  ],
  "footwear": [

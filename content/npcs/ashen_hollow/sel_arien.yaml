@@ -16,7 +16,7 @@ appearance:
   stature_cm: 147
   face: face.f.caucasian_presets.caucasian_1
   hair: hair.long.bob_long
-  outfit: outfit.extra_outfits_pack.kimono
+  outfit: outfit.period.robe
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 18

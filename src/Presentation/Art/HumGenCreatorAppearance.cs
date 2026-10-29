@@ -241,7 +241,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                 if (cloth.HasMeta("creator_standoff")) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
-                grown.GrowAmount = GarmentStandoff;
+                grown.GrowAmount = _worn?.Contains("_outfit_period_",StringComparison.Ordinal)==true ? .0035f : GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
@@ -463,6 +463,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             // Outfit (the review, 2026-10-28). The frontier outfit is still in the list, and still the player's to choose.
             if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "outfit.office.new_intern")?.Id;
             if (choice == CreatorChoice.Footwear && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Label.Contains("Pirate", StringComparison.OrdinalIgnoreCase))?.Id;
+            if (choice==CreatorChoice.Footwear && look.Outfit=="outfit.period.guard")selected=null;
             string? asset = selected is null ? (choice is CreatorChoice.Hair ? growth : choice is CreatorChoice.FacialHair ? growth : null)
                 : HumGenCreatorData.Part(choice, sex, selected);
             if (_parts.TryGetValue(choice, out var previous) && previous == asset) continue;
@@ -575,6 +576,9 @@ public sealed partial class HumGenCreatorAppearance : Node
     private static bool IsHeadwear(string name)
     {
         string lower = name.ToLowerInvariant();
+        // A hooded cloak is one garment mesh; hiding it would remove the whole
+        // hunter's cloak rather than just a separate hat piece.
+        if(lower.Contains("cloak",StringComparison.Ordinal))return false;
         // "Masked" is a HumGen garment piece cut for the body, not a hat; the hat, hood and helmet pieces are the headwear.
         return !lower.Contains("masked") && new[] { "hat", "cap", "hood", "helmet", "beret" }.Any(lower.Contains);
     }

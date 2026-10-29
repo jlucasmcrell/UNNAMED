@@ -17,7 +17,7 @@ people_ref: people.kal   # content bible §9
 appearance:
   stature_cm: 160
   face: face.f.caucasian_presets.caucasian_4
-  outfit: outfit.extra_outfits_pack.pirate
+  outfit: outfit.period.smith_apron
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 44

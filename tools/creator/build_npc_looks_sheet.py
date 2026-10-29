@@ -27,10 +27,14 @@ def build(folder):
     for index, row in enumerate(rows):
         tile = Image.open(folder / (row["id"] + ".png")).convert("RGB")
         # The review frames a head and shoulders; the square crop keeps every face the same size on the sheet.
-        side = min(tile.size)
-        left = (tile.width - side) // 2
-        top = max(0, int((tile.height - side) * .35))
-        tile = tile.crop((left, top, left + side, top + side)).resize((TILE, TILE), Image.LANCZOS)
+        if manifest.get('full_body'):
+            from PIL import ImageOps
+            tile=ImageOps.pad(tile,(TILE,TILE),method=Image.Resampling.LANCZOS,color=(18,18,20))
+        else:
+            side = min(tile.size)
+            left = (tile.width - side) // 2
+            top = max(0, int((tile.height - side) * .35))
+            tile = tile.crop((left, top, left + side, top + side)).resize((TILE, TILE), Image.LANCZOS)
         column, line = index % COLUMNS, index // COLUMNS
         x, y = column * TILE, line * (TILE + LABEL)
         sheet.paste(tile, (x, y))

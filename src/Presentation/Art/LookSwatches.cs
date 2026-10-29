@@ -127,7 +127,7 @@ public static class LookSwatches
         string name = material.ToLowerInvariant();
         if (name.Contains("_pirate_"))
             return null;
-        if (new[] { "tshirt", "shirt", "sweater", "top", "tunic", "blouse", "hoodie" }.Any(name.Contains))
+            if (new[] { "tshirt", "shirt", "sweater", "top", "tunic", "blouse", "hoodie", "robe", "apron", "smock", "dress", "coat", "cloak" }.Any(name.Contains))
             return "shirt";
         if (name.Contains("boots"))
             return "boots";

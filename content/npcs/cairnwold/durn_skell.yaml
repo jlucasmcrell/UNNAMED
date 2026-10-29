@@ -18,7 +18,7 @@ appearance:
   stature_cm: 178
   face: face.m.caucasian_presets.caucasian_3
   facial_hair: facehair.other.stubble_short
-  outfit: outfit.extra_outfits_pack.pirate
+  outfit: outfit.period.smith_apron
   footwear: footwear.outdoor.garden_boot
   sliders:
     face.age: 52

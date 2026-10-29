@@ -25,7 +25,13 @@ public partial class Main
         var root = plan.RootElement;
         float dist = Num(root, "dist", 2f), height = Num(root, "height", 1.62f), fov = Num(root, "fov", 32f);
         int wides = Math.Max(0, (int)Num(root, "wides", 3f));
+        bool fullBody = root.TryGetProperty("full_body", out var full) && full.GetBoolean();
         DisplayServer.WindowSetTitle("Otherreach - " + Path.GetFileName(directory));
+        if(root.TryGetProperty("capture_pixels",out var pixels))
+        {
+            GetWindow().Mode=Window.ModeEnum.Windowed;
+            GetWindow().Size=new Vector2I(pixels[0].GetInt32(),pixels[1].GetInt32());
+        }
         _hud.Visible = false;
         // The player's own body stands in these frames otherwise, and a face sheet is about the town's people.
         _avatar.Visible = false;
@@ -53,10 +59,12 @@ public partial class Main
             Directory.CreateDirectory(folder);
             var (roster, residents) = TownRoster(simulation.Setup, settlement, catalogue, data);
             var rows = new List<object>();
+            var poseSamples=new List<object>();
             var missing = new List<string>();
             var feet = new List<Vector3>();
             foreach (var person in roster)
             {
+                if (root.TryGetProperty("only",out var only) && !only.EnumerateArray().Any(item=>item.GetString()==person.Id))continue;
                 framed.Add(person.Id);
                 // The look exactly as the game draws it: the cast's own authored record, or the generated one their slot's place in the
                 // roster assigns. Reporting it beside the frame is the point - a caption cannot drift from the face.
@@ -77,15 +85,25 @@ public partial class Main
                     GD.PushError($"NPC_LOOKS {settlement}: {person.Id} is not drawn, so it has no frame");
                     continue;
                 }
+                var originalTransform=figure.GlobalTransform;
+                if(root.TryGetProperty("clear_stage",out var clearStage) && clearStage.GetBoolean())
+                {
+                    Vector2 stage=settlement=="ashen_hollow"?new Vector2(447.4f,726.2f):new Vector2(951,684);
+                    float floor=_npcs.Ground?.Invoke(stage.X,stage.Y)??figure.GlobalPosition.Y;
+                    figure.GlobalPosition=new Vector3(stage.X,floor,stage.Y);
+                }
                 feet.Add(figure.GlobalPosition);
                 // Two metres from the eyes, level with them: along the line to the player where the game has them looking at the player
                 // (the head turns within six metres), and along the way they face where it does not.
                 Vector3 aim = figure.Head ?? figure.GlobalPosition + Vector3.Up * height;
+                if (fullBody) aim=figure.GlobalPosition+Vector3.Up*((aim.Y-figure.GlobalPosition.Y)*.52f);
                 void Face()
                 {
                     Vector3 towards = _npcs.PlayerHead.GlobalPosition.DistanceTo(aim) < 6f
                         ? _npcs.PlayerHead.GlobalPosition - aim
                         : figure.GlobalBasis.Z;
+                    if(fullBody && FindChildren("*",nameof(DirectionalLight3D),true,false).OfType<DirectionalLight3D>().FirstOrDefault(light=>light.Name.ToString().Contains("Sun",StringComparison.OrdinalIgnoreCase)) is {} sun)
+                        towards=sun.GlobalBasis.Z;
                     towards.Y = 0;
                     if (towards.LengthSquared() <= .0001f)
                         towards = Vector3.Back;
@@ -97,6 +115,7 @@ public partial class Main
                         float yaw = Mathf.Pi / 4f * turn;
                         var direction = new Basis(Vector3.Up, yaw) * towards.Normalized();
                         var at = aim + direction * dist;
+                        if(fullBody)at.Y+=.65f;
                         var hit = space.IntersectRay(PhysicsRayQueryParameters3D.Create(aim, at, 1));
                         if (hit.Count == 0)
                         {
@@ -113,6 +132,36 @@ public partial class Main
                 Face();
                 await Frames(.2, Face);   // the camera's own frame, and the visibility and LOD that follow it
                 await Rcd3Shot(folder, person.Id);
+                if (fullBody && people==PeopleLooks.Kal)
+                {
+                    Vector3 torso=figure.GlobalPosition+Vector3.Up*1.25f;
+                    foreach (var side in new[]{("chest",1f),("back",-1f)})
+                    {
+                        camera.Fov=40;
+                        camera.GlobalPosition=torso+figure.GlobalBasis.Z*side.Item2*.9f;
+                        camera.LookAt(torso);
+                        await Frames(.2);
+                        await Rcd3Shot(folder,person.Id+"_"+side.Item1);
+                    }
+                }
+                if (root.TryGetProperty("motion_clips",out var clips))
+                    foreach(var clip in clips.EnumerateArray())
+                    {
+                        var model=ArtLibrary.Find<SkinnedModel>(figure)??throw new InvalidDataException("Review body is not skinned");
+                        string state=clip.GetString()!;
+                        if(!model.Has(state))throw new InvalidDataException("NPC review motion unavailable: "+state);
+                        await ToSignal(RenderingServer.Singleton,RenderingServer.SignalName.FramePreDraw);
+                        model.Hold(state,.45f,0);model.Skeleton.Advance(0);
+                        Face();
+                        await Rcd3Shot(folder,person.Id+"_motion_"+clip.GetString());
+                        poseSamples.Add(new {id=person.Id,requested=state,actual=model.Current,phase=.45f,
+                            bone_origins=Enumerable.Range(0,model.Skeleton.GetBoneCount()).Select(index=>{
+                                var point=model.Skeleton.GetBoneGlobalPose(index).Origin;
+                                return new[]{point.X,point.Y,point.Z};}).ToArray()});
+                    }
+                figure.SetRestPose(null);
+                if(ArtLibrary.Find<SkinnedModel>(figure) is {} restored)
+                { restored.Hold("idle",.3f,0);restored.Skeleton.Advance(0); }
                 rows.Add(new
                 {
                     id = person.Id,
@@ -127,13 +176,16 @@ public partial class Main
                     model = figure is SkinnedFigure skinned ? skinned.ModelId
                         : figure is MHCharacters.MetaHumanFigure native ? "mh:" + native.CharacterId : figure.GetType().Name,
                     stature_scale = figure is SkinnedFigure scaled ? scaled.StatureScale : 1f,
+                    original_position=originalTransform.Origin.ToString(),review_position=figure.GlobalPosition.ToString(),
                 });
+                figure.GlobalTransform=originalTransform;
                 GD.Print($"NPC_LOOKS {settlement} face {person.Id}: {people} {sex}, {worn?.Face ?? "(no record)"}");
             }
             var reached = await WideShots(camera, folder, settlement, feet, wides, Frames);
+            File.WriteAllText(Path.Combine(folder,"pose_samples.json"),JsonSerializer.Serialize(poseSamples));
             File.WriteAllText(Path.Combine(folder, "npc_looks.json"), JsonSerializer.Serialize(new
             {
-                town = settlement, dist, height, fov, hour = VisualOptions.Hour,
+                town = settlement, dist, height, fov, full_body=fullBody, hour = VisualOptions.Hour,
                 npcs = rows, wide = reached, missing,
             }, new JsonSerializerOptions { WriteIndented = true }));
             // A town's marker is written only once its frames and its manifest are on disk, so a reader never sees half a town.
