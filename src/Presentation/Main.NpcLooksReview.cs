@@ -87,8 +87,27 @@ public partial class Main
                         ? _npcs.PlayerHead.GlobalPosition - aim
                         : figure.GlobalBasis.Z;
                     towards.Y = 0;
+                    if (towards.LengthSquared() <= .0001f)
+                        towards = Vector3.Back;
+                    // An NPC who works indoors: the first direction can put the camera inside timber, so turn around the head until
+                    // the line from the head to the camera is clear. A frame with no wall in it is the only evidence worth keeping.
+                    var space = GetWorld3D().DirectSpaceState;
+                    for (int turn = 0; turn < 8; turn++)
+                    {
+                        float yaw = Mathf.Pi / 4f * turn;
+                        var direction = new Basis(Vector3.Up, yaw) * towards.Normalized();
+                        var at = aim + direction * dist;
+                        var hit = space.IntersectRay(PhysicsRayQueryParameters3D.Create(aim, at, 1));
+                        if (hit.Count == 0)
+                        {
+                            camera.Fov = fov;
+                            camera.GlobalPosition = at;
+                            camera.LookAt(aim);
+                            return;
+                        }
+                    }
                     camera.Fov = fov;
-                    camera.GlobalPosition = aim + (towards.LengthSquared() > .0001f ? towards.Normalized() : Vector3.Back) * dist;
+                    camera.GlobalPosition = aim + towards.Normalized() * dist;
                     camera.LookAt(aim);
                 }
                 Face();
