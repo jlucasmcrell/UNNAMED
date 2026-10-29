@@ -459,6 +459,13 @@ public sealed partial class HumGenCreatorAppearance : Node
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
                 CharacterMaterials.Upgrade(source, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
                 HumGenMaterials.Apply(source, art, asset);
+                foreach (var drawn in source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                {
+                    // The lining is a fix for garment openings, and on these outfits its copies ship as ribbons: hidden until the
+                    // export is corrected, while the body-coverage mask (baked per part) hides the covered body instead.
+                    if (drawn.Name.ToString().EndsWith("_lining", StringComparison.Ordinal))
+                        drawn.Visible = false;
+                }
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
                 Outfit.NameSkinBinds(added, rig);
                 // A long style brings its own bone chains: join them to the body skeleton and let them swing (brief D12).
