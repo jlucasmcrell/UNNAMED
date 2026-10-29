@@ -26,6 +26,11 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// <summary>Show or hide the outfit's headwear on a figure this controller drew; false when the model has no native creator body.</summary>
     public static bool WearHeadwear(Node model, bool worn)
     {
+        // A garb can bring its own hat; the same switch keeps it off the face, and this has to run before the controller check
+        // below, which an NPC body does not satisfy.
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            if (mesh.HasMeta("creator_part_kind") && mesh.Name.ToString().Contains("Hat", StringComparison.OrdinalIgnoreCase))
+                mesh.Visible = worn;
         var controller = model.FindChildren("*", "", true, false).OfType<HumGenCreatorAppearance>().FirstOrDefault();
         if (controller is null) return false;
         if (controller.Headwear != worn)
@@ -33,10 +38,6 @@ public sealed partial class HumGenCreatorAppearance : Node
             controller.Headwear = worn;
             controller.DressHead();
         }
-        // A garb can bring its own hat; the same switch keeps it off the face.
-        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
-            if (mesh.HasMeta("creator_part_kind") && mesh.Name.ToString().Contains("Hat", StringComparison.OrdinalIgnoreCase))
-                mesh.Visible = worn;
         return true;
     }
 
