@@ -130,6 +130,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
     public WeatherRules Weather { get; init; } = WeatherRules.Default;
 
+    /// <summary>How a cast is equipped and what each water's table is by the hour (config.fishing; the D20 follow-on).</summary>
+    public FishingRules Fishing { get; init; } = FishingRules.Default;
+
     /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
     public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 
@@ -324,7 +327,7 @@ public sealed class Simulation
         // claiming the slice again - only one of them can run at once, so there is never a second writer to disagree with.
         var activity = _state.Claim(nameof(FishingSystem),StateSlice.Activity);
         _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
-        _fishing = new FishingSystem(_context,activity,player.Id);
+        _fishing = new FishingSystem(_context,activity,player.Id,_inventory.Pack);
         _lockpicking = new LockpickSystem(_context,activity,player.Id);
         _washing = new WashingSystem(_context,activity,player.Id);
         _firstHour=new FirstHourSystem(_context,player.Id);

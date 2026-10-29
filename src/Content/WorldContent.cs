@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;

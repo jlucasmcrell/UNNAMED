@@ -65,14 +65,40 @@ internal sealed class FishingSystem
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
 
-    public FishingSystem(SystemContext context,SliceOwner owner,EntityId player)
+    private readonly Func<PackView> _pack;
+
+    public FishingSystem(SystemContext context,SliceOwner owner,EntityId player,Func<PackView> pack)
     {
         _context=context;
         _owner=owner;
         _player=player;
+        _pack=pack;
     }
 
     private RuntimeState State => _context.State;
+    private FishingRules Rules => _context.Setup.Fishing;
+    private WorldClock Clock => _context.Setup.Clock;
+
+    /// <summary>The bait scale of the cast in the water now.</summary>
+    private double? _baitScale;
+
+    /// <summary>True when the pack holds <paramref name="definitionId"/> in any stack, placed or not.</summary>
+    private bool Carries(string definitionId) =>
+        _pack().Containers.Any(c => c.Stacks.Any(s => s.DefId == definitionId))
+        || _pack().Unplaced.Any(s => s.DefId == definitionId);
+
+    /// <summary>Spend one bait and return what its kind is worth to the wait; null when none is carried.</summary>
+    private double? TakeBait()
+    {
+        foreach (var container in _pack().Containers)
+            foreach (var stack in container.Stacks)
+                if (Rules.Baits.TryGetValue(stack.DefId, out var bait))
+                {
+                    _context.Dispatch(new ExchangeItems(ImmutableArray.Create(new StackTake(stack.ItemId, 1)), null, 0, Quality.Standard));
+                    return bait.BiteScale;
+                }
+        return null;
+    }
     private WalkSpace Space => _context.Setup.Layout.Space;
 
     /// <summary>The difficulty a water's practice is worth: a stream teaches least, a river or a lake most.</summary>
@@ -92,8 +118,10 @@ internal sealed class FishingSystem
         if(!State.Space.IsExterior) return "Stand at the water's edge";
         if(State.Activity is not null || Busy(tick)) return "You are already doing something";
         if(Space.Waters.FirstOrDefault(w=>w.Key==command.WaterKey) is not { CatchTableId: not null } water) return "There is nothing to fish for here";
+        if(Rules.RodItemId is { } rod && !Carries(rod)) return "You need a rod";
         var body=State.Body;
         if(Space.WaterAt(body.XMm,body.ZMm) is not { } at || at.Key!=water.Key) return "Stand at the water's edge";
+        _baitScale=TakeBait();
         State.SetActivity(_owner,new PlayerActivity(ActivityKind.FishCast,water.Key,tick,tick+CastTicks,0));
         _context.Events.Publish(new FishCastStarted(water.Key,tick));
         return null;
@@ -144,8 +172,9 @@ internal sealed class FishingSystem
                 // The cast lands, and the bite is set now - three to nine seconds out - from the cast's own channel, so the same cast
                 // of the same water in the same world is always the same fish.
                 var channel=RngChannel.Open(State.World.WorldSeed,_context.CellOf(State.Body),"fishing",$"{activity.TargetKey}@cast@{activity.StartedTick}");
-                State.SetActivity(_owner,new PlayerActivity(ActivityKind.FishWaiting,activity.TargetKey,tick,0,
-                    tick+channel.Int(0,BiteMinTicks,BiteMaxTicks+1)));
+                int wait=channel.Int(0,BiteMinTicks,BiteMaxTicks+1);
+                if(_baitScale is { } scale) wait=Math.Max(BiteMinTicks/2,(int)Math.Round(wait*scale));
+                State.SetActivity(_owner,new PlayerActivity(ActivityKind.FishWaiting,activity.TargetKey,tick,0,tick+wait));
                 _context.Events.Publish(new FishingLineOut(activity.TargetKey,tick));
                 break;
             }
@@ -162,8 +191,11 @@ internal sealed class FishingSystem
     private void Catch(PlayerActivity activity,long tick)
     {
         State.SetActivity(_owner,new PlayerActivity(ActivityKind.FishReel,activity.TargetKey,tick,tick+ReelTicks,0));
-        if(Space.Waters.FirstOrDefault(w=>w.Key==activity.TargetKey) is not { } water
-            || water.CatchTableId is not { } tableId || !_context.Setup.Items.LootTables.TryGetValue(tableId,out var table))
+        if(Space.Waters.FirstOrDefault(w=>w.Key==activity.TargetKey) is not { } water)
+            return;
+        double hour=Clock.Hour(activity.StartedTick)%Clock.HoursPerDay;
+        string tableId=Rules.TableFor(water.Kind,hour) ?? water.CatchTableId ?? string.Empty;
+        if(!_context.Setup.Items.LootTables.TryGetValue(tableId,out var table))
             return;
         var channel=RngChannel.Open(State.World.WorldSeed,_context.CellOf(State.Body),"fishing",$"{water.Key}@{activity.StartedTick}");
         var tables=_context.Setup.Items.LootTables;
@@ -194,6 +226,7 @@ internal sealed class FishingSystem
     private void End(string waterKey,string reason,long tick)
     {
         State.SetActivity(_owner,null);
+        _baitScale=null;
         _context.Events.Publish(new FishLost(waterKey,reason,tick));
     }
 

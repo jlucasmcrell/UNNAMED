@@ -1,11 +1,11 @@
-// UNNAMED Content - how fishing is equipped and scheduled (config.fishing; the D20 fishing follow-on)
-// No Godot references - content only
+// UNNAMED Domain - how fishing is equipped and scheduled: the rod, the baits, the day's bands and the water's table (D20 follow-on)
+// No Godot references - this is pure C# domain logic
 
 using System;
 using System.Collections.Immutable;
-using UNNAMED.Domain;
 
-namespace UNNAMED.Content;
+namespace UNNAMED.Domain;
+
 
 /// <summary>When a band of the day starts and ends, in world-clock hours.</summary>
 public sealed record FishingBand(string Id, double FromHour, double ToHour)

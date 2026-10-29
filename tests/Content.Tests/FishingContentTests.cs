@@ -2,6 +2,7 @@
 
 using System.IO;
 using UNNAMED.Content;
+using UNNAMED.Domain;
 using Xunit;
 
 namespace UNNAMED.Content.Tests;
