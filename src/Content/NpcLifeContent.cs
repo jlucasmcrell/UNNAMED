@@ -186,6 +186,10 @@ public static class NpcLifeContent
             string? people = map.GetValueOrDefault("people_ref") as string;
             if (npcId is null && people is null)
                 throw new FormatException($"{id} is a role slot, so names the people its residents come from (people_ref)");
+            // F1 Gate C: a resident has no NPC file, so the slot says what sex they are drawn as (both sexes should be said somewhere).
+            string? sex = map.GetValueOrDefault("sex") as string;
+            if (sex is not (null or "f" or "m"))
+                throw new FormatException($"{id} draws its residents as f or m, not '{sex}'");
             var anchors = Map(map, "anchors").ToImmutableSortedDictionary(kv => kv.Key as string ?? throw new FormatException($"{id} anchors are named"),
                 kv => Anchor(kv.Value as Dictionary<object, object> ?? throw new FormatException($"{id} anchor {kv.Key} must be a map"), $"{id} anchor {kv.Key}"),
                 StringComparer.Ordinal);
@@ -225,6 +229,7 @@ public static class NpcLifeContent
             {
                 Schedule = schedule,
                 PeopleId = people,
+                Sex = sex,
                 Job = job,
                 Roles = roles,
                 Trip = map.TryGetValue("trip", out var t) ? Trip(loader, id, t as Dictionary<object, object> ?? throw new FormatException($"{id} trip must be a map")) : null,

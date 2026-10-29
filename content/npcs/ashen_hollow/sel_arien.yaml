@@ -10,6 +10,25 @@ role: scholar
 dialogue_ref: dialogue.ashen_hollow.sel_arien
 unique: true
 people_ref: people.siann   # content bible §9
+# Her look (F1 Gate C): ageless at about 18 (NPC_PERSONALITY_BIBLE.md:18), on the Siann frame her people's own table draws (jaw, chin,
+# brow, cheekbone, eye tilt, nose), and the long hair her canon asks for. Her white is the shader's, never a slider.
+appearance:
+  stature_cm: 147
+  face: face.f.caucasian_presets.caucasian_1
+  hair: hair.long.bob_long
+  outfit: outfit.extra_outfits_pack.kimono
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 18
+    face.jaw_width: -780
+    face.chin_width: -790
+    face.chin_size: -430
+    face.browridge_center_size: -70
+    face.cheek_zygomatic_bone: 750
+    face.eye_tilt: 350
+    face.nose_bridge_width: -740
+    face.nose_tip_width: -580
+    look.shirt_colour: 4            # Slate: an archivist's grey
 faction_ref: faction.ashen_hollow.long_survey
 # What she teaches (WP9, C10): the salves, by her own lines, free, as she always has.
 teaches:

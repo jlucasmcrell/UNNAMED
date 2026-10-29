@@ -9,3 +9,17 @@ notes: Keeps the village well - the region's 0.68 m circle at (68.0, 60.0) - and
 role: villager
 dialogue_ref: dialogue.cairnwold.mara_ling
 unique: true
+people_ref: people.veth   # Veth, by the bible's Cairnwold cast list (NPC_PERSONALITY_BIBLE.md:88-91)
+# Her look (F1 Gate C): late thirties (NPC_PERSONALITY_BIBLE.md:356), lean, with the frown her notes give her.
+appearance:
+  stature_cm: 165
+  face: face.f.caucasian_presets.caucasian_3
+  hair: hair.long.ponytail
+  outfit: outfit.extra_outfits_pack.pirate
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 39
+    body.skinny: 320
+    face.lip_width: -410
+    face.browridge_loc_vertical: 180
+    look.shirt_colour: 2            # Moss

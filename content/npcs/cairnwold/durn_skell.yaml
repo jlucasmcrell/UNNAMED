@@ -11,6 +11,23 @@ services: [trade, repair]
 merchant_ref: merchant.cairnwold.durn_skell
 dialogue_ref: dialogue.cairnwold.durn_skell
 unique: true
+people_ref: people.veth   # Veth, by the bible's Cairnwold cast list (NPC_PERSONALITY_BIBLE.md:88-91)
+# His look (F1 Gate C): in his fifties (NPC_PERSONALITY_BIBLE.md:327), thick through the arms and shoulders. The bald head is the art
+# team's, not canon, and `look.native_bald` is what keeps the preset's own groom off it.
+appearance:
+  stature_cm: 178
+  face: face.m.caucasian_presets.caucasian_3
+  facial_hair: facehair.other.stubble_short
+  outfit: outfit.extra_outfits_pack.pirate
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 52
+    body.muscular: 620
+    body.shoulder_muscles: 400      # broad across the shoulders, which is as far as the offered dials reach
+    face.browridge_center_size: 320
+    look.native_bald: 1
+    look.shirt_colour: 3            # Ochre
+    look.trouser_colour: 1          # Charcoal
 # What he teaches (WP9, C10): the forge and hides by his own lines, free, as he always has; the polearm's technique to anyone familiar
 # with a spear, for a fee into his purse. Fees are provisional.
 teaches:

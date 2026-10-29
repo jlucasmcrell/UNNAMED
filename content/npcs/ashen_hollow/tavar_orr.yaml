@@ -10,6 +10,21 @@ role: villager
 dialogue_ref: dialogue.ashen_hollow.tavar_orr
 unique: true
 people_ref: people.orenth   # content bible §9
+# His look (F1 Gate C): a walker in his thirties (NPC_PERSONALITY_BIBLE.md:257), gaunt, stubbled, in the leather jerkin his own notes
+# give him. An Orenth's phase scars are the old's (RACES.md:298-305), so nothing of them here.
+appearance:
+  stature_cm: 180
+  face: face.m.caucasian_presets.caucasian_1
+  hair: hair.short.short_combed
+  facial_hair: facehair.other.stubble_long
+  outfit: outfit.extra_outfits_pack.pirate
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 34
+    body.skinny: 300
+    face.cheek_zygomatic_proc: 220     # the gaunt walker
+    face.eye_depth: -180
+    look.trouser_colour: 0             # Brown: the leather he wears
 # He can join the character (M6): a guide's spear, a traveller's health, a leather jerkin.
 companion:
   health: 100

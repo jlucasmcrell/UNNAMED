@@ -82,6 +82,12 @@ public static class LookSwatches
     /// <summary>The one face each body is baked with (HumGen names its presets by real-world ethnicity).</summary>
     public const string BakedFace = "Their own face";
 
+    /// <summary>
+    /// The hairstyle a Siann wears when a record names none: long and white whatever head the preset face was authored with (canon, and the
+    /// style the drawing falls back to in <c>HumGenCreatorAppearance.Parts</c>). A bald Siann is not a Siann, so the rule holds the style.
+    /// </summary>
+    public const string SiannHairStyle = "hair.long.bob_bangs";
+
     public const string FrontierOutfit = "Frontier: linen shirt, baldric and sash";
 
     /// <summary>
@@ -210,6 +216,8 @@ public static class LookSwatches
         // kept only where they belong (owner's rulings of 2026-10-28).
         if (people == PeopleLooks.Kal) look = look with { Hair = null, FacialHair = null };
         else values = values.Remove("look.kal_growth").Remove("look.kal_jaw");
+        // A Siann's hair is long and platinum-white, so a record that names no style wears the default one rather than going bald.
+        if (people == PeopleLooks.Siann && look.Hair is null) look = look with { Hair = SiannHairStyle };
         string? beard = FacialHair(people) ? look.FacialHair : null;
         return look with { FacialHair = beard, Sliders = values };
     }

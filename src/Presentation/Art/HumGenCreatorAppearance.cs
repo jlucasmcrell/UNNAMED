@@ -26,6 +26,11 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// <summary>Show or hide the outfit's headwear on a figure this controller drew; false when the model has no native creator body.</summary>
     public static bool WearHeadwear(Node model, bool worn)
     {
+        // A garb can bring its own hat; the same switch keeps it off the face, and this has to run before the controller check
+        // below, which an NPC body does not satisfy.
+        foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            if (mesh.HasMeta("creator_part_kind") && mesh.Name.ToString().Contains("Hat", StringComparison.OrdinalIgnoreCase))
+                mesh.Visible = worn;
         var controller = model.FindChildren("*", "", true, false).OfType<HumGenCreatorAppearance>().FirstOrDefault();
         if (controller is null) return false;
         if (controller.Headwear != worn)
@@ -86,6 +91,10 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        if (OS.GetEnvironment("OTHERREACH_HIDE_BODY") == "1")
+            foreach (var hidden in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                if (!hidden.HasMeta("creator_part_kind"))
+                    hidden.Visible = false;   // Review probe only: whose triangles are showing through the cloth?
         // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
         // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
         Stencil(art, model, controller._worn);
@@ -167,6 +176,14 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// Drop the body fragments the worn part covers, using the coverage mask that part's export carries in the body's UV space. A
     /// part without a mask clears the stencil, so no outfit inherits another's holes.
     /// </summary>
+    /// <summary>A mesh of the creator's first level of detail; the export ships four of every piece.</summary>
+    private static bool IsDetailZero(StringName name)
+    {
+        string text = name.ToString();
+        return text.Contains("_LOD0", StringComparison.Ordinal)
+            || (!text.Contains("_LOD", StringComparison.Ordinal) && !text.Contains("_lining", StringComparison.Ordinal));
+    }
+
     private static void Stencil(ArtLibrary art, Node model, string? part)
     {
         Texture2D? mask = null;
@@ -176,6 +193,8 @@ public sealed partial class HumGenCreatorAppearance : Node
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
             if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null) continue;
+            // The same four-LOD rule for the body itself: the extra LODs are coincident copies that z-fight through the cloth.
+            if (!IsDetailZero(mesh.Name)) mesh.Visible = false;
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.GetSurfaceOverrideMaterial(surface) is not ShaderMaterial skin) continue;
@@ -190,15 +209,25 @@ public sealed partial class HumGenCreatorAppearance : Node
                 stencilled++;
             }
         }
-        if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1")
+        if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1" || OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
+        {
             GD.Print($"creator stencil: {part}, {stencilled} surface(s) stencilled, mask {(mask is null ? "none" : "set")}");
+            foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+            {
+                if (mesh.HasMeta("creator_part_kind") || mesh.Mesh is null) continue;
+                var kinds = new List<string>();
+                for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+                    kinds.Add($"{Exported(mesh, surface)}:{(mesh.GetSurfaceOverrideMaterial(surface)?.GetType().Name ?? "none")}");
+                GD.Print($"creator body mesh {mesh.Name}: {kinds.Count} surface(s) [{string.Join(", ", kinds)}]");
+            }
+        }
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>
-    private const float GarmentStandoff = .0045f;
+    private const float GarmentStandoff = .02f;
 
     /// <summary>How far the body is drawn inside itself while it is clothed, closing the rest of the gap from its own side.</summary>
-    private const float BodyRecess = -.006f;
+    private const float BodyRecess = 0f;
 
     /// <summary>
     /// Draw the worn parts 3.5 mm off the body. The body's preset can be larger than the one a part was exported on, so a shirt
@@ -234,7 +263,8 @@ public sealed partial class HumGenCreatorAppearance : Node
                 var recessed = (BaseMaterial3D)surface_cloth.Duplicate();
                 recessed.SetMeta("creator_recess", true);
                 recessed.GrowAmount = BodyRecess;
-                skin.SetSurfaceOverrideMaterial(surface, recessed);
+                if (BodyRecess != 0f)
+                    skin.SetSurfaceOverrideMaterial(surface, recessed);
             }
         }
     }
@@ -400,7 +430,8 @@ public sealed partial class HumGenCreatorAppearance : Node
             : LookSwatches.Cloth(kind == "trousers" ? LookSwatches.Trousers : LookSwatches.Shirts, look.Sliders.TryGetValue(
                 kind == "trousers" ? LookSwatches.TrouserSlider : LookSwatches.ShirtSlider, out int index) ? index : null);
         var dyed = (BaseMaterial3D)garment.Duplicate();
-        dyed.AlbedoTexture = null;
+        // Tint the garment's own weave: the albedo colour multiplies the albedo texture, so dropping the texture turned every
+        // outfit into a flat slab whose colour read as skin at face-sheet distance (the owner's "crayon" bar).
         dyed.AlbedoColor = new Color(swatch.R, swatch.G, swatch.B, dyed.AlbedoColor.A);
         mesh.SetSurfaceOverrideMaterial(surface, dyed);
     }
@@ -451,11 +482,35 @@ public sealed partial class HumGenCreatorAppearance : Node
                 using var identity = JsonDocument.Parse(File.ReadAllText(art.RiggedFile(id, "identity_weights.json")!));
                 if (part.RootElement.GetProperty("target_base").GetString() != id || part.RootElement.GetProperty("target_body_sha256").GetString()
                     != identity.RootElement.GetProperty("target_body_sha256").GetString()) throw new InvalidDataException("Native part targets another body: " + asset);
+                if (OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
+                    GD.Print($"CREATOR_PART {sex} {choice} -> {asset ?? "none"}");
                 var source = art.Rigged(asset) ?? throw new InvalidDataException("Native part could not load: " + asset);
                 if (choice == CreatorChoice.Outfit) _worn = asset;
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
                 CharacterMaterials.Upgrade(source, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
                 HumGenMaterials.Apply(source, art, asset);
+                // Cloth is opaque and two-sided: an alpha cutout on a garment texture drops triangles and shows the body through them.
+                foreach (var garmentMesh in source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                {
+                    if (garmentMesh.Mesh is null) continue;
+                    for (int surfaceIndex = 0; surfaceIndex < garmentMesh.Mesh.GetSurfaceCount(); surfaceIndex++)
+                    {
+                        if (garmentMesh.GetSurfaceOverrideMaterial(surfaceIndex) is not BaseMaterial3D importedCloth) continue;
+                        var cloth = (BaseMaterial3D)importedCloth.Duplicate();
+                        cloth.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
+                        cloth.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+                        garmentMesh.SetSurfaceOverrideMaterial(surfaceIndex, cloth);
+                    }
+                }
+                foreach (var drawn in source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
+                {
+                    // The lining is a fix for garment openings, and on these outfits its copies ship as ribbons: hidden until the
+                    // export is corrected, while the body-coverage mask (baked per part) hides the covered body instead.
+                    // A part ships four LODs of every piece and they are near-coincident surfaces that z-fight into pale slivers,
+                    // so only LOD0 is ever drawn.
+                    if (!IsDetailZero(drawn.Name))
+                        drawn.Visible = false;
+                }
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());
                 Outfit.NameSkinBinds(added, rig);
                 // A long style brings its own bone chains: join them to the body skeleton and let them swing (brief D12).

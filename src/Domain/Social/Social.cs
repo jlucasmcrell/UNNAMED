@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Quests;
 
@@ -30,6 +31,12 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
 
     /// <summary>A party member's values (WP15b): the deeds that move what they think of the character, and what they say of them.</summary>
     public ImmutableArray<ValueReaction> Values { get; init; } = ImmutableArray<ValueReaction>.Empty;
+
+    /// <summary>
+    /// The look the NPC is drawn with (F1 Gate C), or none for a person not yet dressed: a named cast member's authored
+    /// <c>appearance</c>, held to its people's own ranges when it is drawn.
+    /// </summary>
+    public CharacterAppearance? Appearance { get; init; }
 
     public bool Offers(string service) => Services.Contains(service);
 }

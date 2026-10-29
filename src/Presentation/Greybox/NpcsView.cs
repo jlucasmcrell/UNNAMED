@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Presentation.Player;
 using UNNAMED.World.Runtime;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
@@ -59,6 +60,9 @@ public partial class NpcsView : Node3D
     /// <summary>The figure drawn for a person, by their ID; null when none is (for the outline).</summary>
     public Node3D? FigureOf(string id) => _figures.GetValueOrDefault(id);
 
+    /// <summary>The IDs of every NPC drawn this frame: what a review framed, against what the world draws (F1 Gate C's face sheets).</summary>
+    public IReadOnlyList<string> DrawnIds => _figures.Keys.ToArray();
+
     public void Draw(Simulation simulation, double delta, double tickSeconds)
     {
         _activeSimulation = simulation;
@@ -88,13 +92,26 @@ public partial class NpcsView : Node3D
                 continue;
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
-                string? sex = simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id)?.Sex;
+                var definition = simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id);
+                string? sex = definition?.Sex ?? simulation.Setup.NpcLife.Routines.GetValueOrDefault(npc.Id)?.Sex;
                 var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance, sex);
-                var native = MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id, sex: sex);
+                string? peopleId = definition?.PeopleId ?? npc.PeopleId
+                    ?? simulation.Setup.NpcLife.Routines.GetValueOrDefault(npc.Id)?.PeopleId ?? appearance?.PeopleId;
+                var worn = LookOf(simulation, npc, definition, peopleId, sex);
+                // F1 Gate C: a person with a look is drawn on their people's creator body - the one base mesh a sex has, shaped by the
+                // record's blend shapes, face textures, groom, garment and stature - even where the MetaHuman bundle is installed, where
+                // MetaHumanFigure.Available would otherwise win and leave every NPC the same native. The player keeps the native body, and
+                // so does anyone without a look to draw. The frontier garments are baked for MetaHuman bodies, so the creator's own outfit
+                // part dresses this one instead (the same reason the bindings' cast entries now wear none).
+                var body = worn is null || appearance is null ? null
+                    : Art.SkinnedFigure.Create(_art, _bindings, npc.Id, body: CreatorBody(sex), people: peopleId,
+                        appearance: appearance with { Outfit = Array.Empty<string>(), OutfitBody = null });
+                var native = body is null ? MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id, sex: sex) : null;
                 native?.ConfigureNpcPerformance(_performanceStage);
-                var body = native is null ? Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance) : null;
+                if (body is null && native is null)
+                    body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance);
                 if (body is not null) Art.PeopleAppearance.EnsureSex(body, sex);
-                string? model = native is not null ? "mh:" + native.CharacterId : appearance?.Model;
+                string? model = native is not null ? "mh:" + native.CharacterId : body?.ModelId ?? appearance?.Model;
                 if (native is not null || body is not null)
                     _art.Coverage.Resolved("person", npc.Id, model!);
                 else
@@ -102,7 +119,14 @@ public partial class NpcsView : Node3D
                 figure = (Figure?)native ?? body ?? (Figure)new Avatar { Clothing = Clothes(npc.Id) };
                 figure.Name = npc.Id;
                 AddChild(figure);
-                if (body is not null && body.ModelId.StartsWith("humgen_", StringComparison.Ordinal) && !_bindings.NamedCharacters.ContainsKey(npc.Id))
+                if (body is not null && worn is not null && body.ModelId.StartsWith("humgen_creator_", StringComparison.Ordinal))
+                {
+                    Art.PeopleAppearance.ApplyLook(body, peopleId, worn, _art, body.ModelId);
+                    // A face sheet is about the face, and the outfit's own headwear covers the crown: the creator hides it for the steps
+                    // that are about the head too (the owner's fix, 2026-10-28).
+                    Art.HumGenCreatorAppearance.WearHeadwear(body, false);
+                }
+                else if (body is not null && body.ModelId.StartsWith("humgen_", StringComparison.Ordinal) && !_bindings.NamedCharacters.ContainsKey(npc.Id))
                     Art.PeopleAppearance.ApplyResidentLook(body, npc.PeopleId, instance);
                 _figures[npc.Id] = figure;
                 string speakerId = npc.Id;
@@ -204,6 +228,51 @@ public partial class NpcsView : Node3D
             if (!figure.SetDowned(npc.Downed) && npc.Downed)
                 figure.Rotation = new Vector3(-Mathf.Pi / 2, figure.Rotation.Y, 0);
         }
+    }
+
+    /// <summary>
+    /// F1 Gate C: the look a person is drawn with - the named cast's own authored record, or a role slot's generated one, each held to
+    /// its people's ranges by <see cref="Art.NpcLooks"/>, which is Godot-free so the tests read the same generator the game draws with.
+    /// Null for a person with no record and no people (or sex) to generate one from: the MetaHuman body keeps them.
+    /// </summary>
+    private CharacterAppearance? LookOf(Simulation simulation, NpcView npc, NpcDefinition? definition, string? people, string? sex)
+    {
+        if (people is null || sex is null)
+            return null;
+        var lives = simulation.Setup.NpcLife;
+        var slot = lives.Routines.GetValueOrDefault(npc.Id);
+        // A resident's face is assigned from their place in their town's roster, in ordinal order (NpcLooks.Residents).
+        int position = slot is { IsSlot: true }
+            ? lives.Routines.Values.Where(r => r.IsSlot && r.Settlement == slot.Settlement).OrderBy(r => r.Id, StringComparer.Ordinal)
+                .ToList().FindIndex(r => r.Id == slot.Id)
+            : 0;
+        // A resident's arrival count (NpcLooks' generation) is the one fact presentation cannot recompute, and the world does not hand it
+        // over yet: NpcView carries no Generation, so every resident is drawn as their slot's first holder - which is what a day-one
+        // roster is, and what the face sheets are taken on. One argument changes here when NpcView.Generation exists.
+        var (catalogue, data) = Creator();
+        // A role resident has no content file of its own: their look is generated for the slot they hold.
+        var look = definition is null
+            ? slot is { IsSlot: true }
+                ? Art.NpcLooks.Resident(slot.Id, slot.Settlement, 0, people, sex, catalogue, data, Math.Max(0, position))
+                : null
+            : Art.NpcLooks.Of(definition, slot?.Settlement ?? string.Empty, 0, people, sex, catalogue, data, Math.Max(0, position));
+        if (OS.GetEnvironment("OTHERREACH_NPC_LOOKS_PLAN") is { Length: > 0 })
+            GD.Print($"NPC_LOOK {npc.Id}: {(look is null ? "no look" : $"face {look.Face} hair {look.Hair} outfit {look.Outfit}")}");
+        return look;
+    }
+
+    /// <summary>The one body a sex is drawn on (the creator's two bases): every NPC is that mesh, shaped by their own record.</summary>
+    private static string CreatorBody(string? sex) => sex == "f" ? "humgen_creator_female" : "humgen_creator_male";
+
+    private (Ui.Models.CreatorCatalogue Catalogue, Ui.Models.HumGenCreatorData Data)? _creator;
+
+    /// <summary>The creator's own catalogue and slider data: what a record may name, and which people may name what (read once).</summary>
+    private (Ui.Models.CreatorCatalogue Catalogue, Ui.Models.HumGenCreatorData Data) Creator()
+    {
+        if (_creator is { } read)
+            return read;
+        string json = Godot.FileAccess.GetFileAsString("res://Art/humgen_creator.json");
+        return (_creator = (Ui.Models.CreatorCatalogue.Read(json), new Ui.Models.HumGenCreatorData(json))).Value;
     }
 
     private void Forget(string id)

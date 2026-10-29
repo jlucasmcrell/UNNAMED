@@ -6,6 +6,7 @@ tags: [routine]
 notes: "An Ashen Hollow role resident (DN3): the hunter. Each resident takes a name from their people's Suggest list (WP2); when one leaves, someone new arrives 3-7 days later (DN4)."
 region_ref: region.starting_frontier
 people_ref: people.orenth
+sex: m
 settlement: ashen_hollow
 role: hunter
 roles: [hunter]           # WP12b: town roles (config.npc_life); hireability is derived from them

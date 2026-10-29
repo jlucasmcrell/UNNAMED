@@ -198,6 +198,9 @@ public sealed record RoutineDefinition(
     /// <summary>The people a slot's residents are drawn from, whose Suggest names they take (WP2's name source).</summary>
     public string? PeopleId { get; init; }
 
+    /// <summary>The sex a slot's residents are drawn as (<c>f</c> or <c>m</c>), so a town's roster reads as a village; null for a slot no content sexed.</summary>
+    public string? Sex { get; init; }
+
     public NpcJob? Job { get; init; }
 
     /// <summary>

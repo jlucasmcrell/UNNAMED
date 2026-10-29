@@ -9,6 +9,19 @@ notes: A woman who holds the staddle granary at the quiet west end of the villag
 role: villager
 dialogue_ref: dialogue.cairnwold.tam_crowden
 unique: true
+people_ref: people.veth   # Veth, by the bible's Cairnwold cast list (NPC_PERSONALITY_BIBLE.md:88-91)
+# Her look (F1 Gate C): late twenties (NPC_PERSONALITY_BIBLE.md:389), lean, with a younger, rounder face.
+appearance:
+  stature_cm: 163
+  face: face.f.caucasian_presets.caucasian_2
+  hair: hair.short.short_side_part
+  outfit: outfit.extra_outfits_pack.pirate
+  footwear: footwear.outdoor.garden_boot
+  sliders:
+    face.age: 28
+    body.skinny: 500
+    face.eye_width: 180
+    face.forehead_size: 120
 # What Tam teaches (WP9, C10): the cooking fire, by Tam's own line, free, as always.
 teaches:
   - { kind: recipe, recipe_ref: recipe.cooking.roast_meat, by_dialogue: true }
