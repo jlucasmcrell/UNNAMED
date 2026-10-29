@@ -301,3 +301,18 @@ grave_marker_halda: whether _bindings.Structure returns a placement and whether 
 Also moved the outpost marker from (455.5,745.5), which sat **inside a wall** (clearance 0.0 m), to (456.5,747.6),
 clearance 1.6 m - committed.
 The gate itself is unaffected and stays green: HOOK.DEATH.GRAVE passes in every area.
+
+### Round 17 - the place that decides the marker's look, and the probe that did not run
+HollowView.ArtStructure is the whole answer to the grey cylinder, and it is now read line by line:
+- it asks _bindings.Structure(blocker.Id); a structure with no binding is a **grey box or cylinder** by design, and the
+  coverage list records 
+o binding: a cylinder;
+- with a binding, it either draws a hidden collider, a plain surface, or Art.Fitting.Structure(...) - and every failure
+  goes to Coverage.Fallback("structure", id, reason, model), which is exactly the reason wanted;
+- ArtBindings.Structure(id) checks the exact-id map first, then _prefixes with id.StartsWith(prefix), so both of my
+  routes should have matched, which means the failure is in Art.Fitting.Structure or in the model name.
+The intended probe - run with --coverage-out and read the fallback reason for grave_marker_halda - **did not run**:
+the process threw in Terrain3DView.Build (HollowView.cs:255 -> Terrain3DView.cs:176) and wrote no coverage file, most
+likely because it overlapped the previous capture still holding the terrain cache. Retry it alone, once, as the first
+action next round; the file will name the reason in one line.
+No post: the marker is still a placeholder.
