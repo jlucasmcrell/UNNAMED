@@ -374,3 +374,19 @@ sys2_grave_road.png.
 Honest gaps carried in the post: **ANIM.SPEAK_DEAD has no clip in the catalog** so this system ships without the
 animation the brief asks for; no dressed grave-marker model; six of the eight graves have no stone in the world yet; the
 lane's farm check is still owed.
+
+### Round 22 - ritual circle closed
+Posted **FINISHED - RITUAL CIRCLE**: the itual content kind with **eight circles** (one per area), each with a
+switch on a structure that sets world.ritual.<place>_drawn and prints its line, a page per circle, and the two placed
+circles dressed with four **quiet stones** each. content hooks reports **no HOOK.RITUAL.CIRCLE warning in any area**;
+the audit moved **67 -> 71 placed** (110 missing, 74 unmodelled). content lint 0. Canon row closed (9 rows closed).
+Frame, real art, looked at: ds_sys2_shots\audit_ritual\raw\sys2_ritual_foldscar.png - stones standing round a cleared
+middle with the fold's violet ring behind.
+Gaps carried in the post and here:
+- **ANIM.DRAW_CIRCLE is declared, not played**: the content names nim.player.mh.cast, the switch sets its flag, but
+  nothing performs the motion yet. The wiring is known: the player figure's AnimationPlayer is named Clips
+  (Main.GripReview.cs:43), so setting a switch.ritual.* should call Play(\"cast\") on it.
+- the drawn middle is a **flat disc** (surface: cw_gravel_stones did not take); six of eight circles have no stones.
+- the lane's farm check is still owed.
+Learned again, and worth not repeating: **the game refuses a new content kind until src/Presentation is rebuilt** -
+dotnet build src/Content alone leaves the running game on a stale assembly and every ritual file fails KIND001.
