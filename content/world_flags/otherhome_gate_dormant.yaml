@@ -1,0 +1,10 @@
+id: world.otherhome.gate_dormant
+kind: world_flag
+schema: 1
+display_key: world.otherhome.gate_dormant.name
+tags: [world_flag]
+notes: "The Drowned Gate is dormant and the Gate Assize keeps it so. Set the first time the player stands inside the
+  ring: the law's own answer, kept as a flag so the barrier speaks from it."
+type: bool
+default: false
+true_text: The ring is shut, and the Assize means it.

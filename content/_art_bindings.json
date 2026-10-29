@@ -3049,6 +3049,362 @@
       "model": "landmark_ph_waystone_a",
       "material": "stone",
       "note": "D18 Sedge: the Tollpiles toll stone, the same scanned standing stone Cairnwold's waystone uses."
+    },
+    "oh_waystone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "The Steps stone: the landmark the other districts' stones use."
+    },
+    "oh_assize_notice": {
+      "model": "bw_codex_notice",
+      "material": "wood",
+      "scale": 0.65,
+      "offset": [
+        0,
+        1.1,
+        0
+      ],
+      "note": "The Assize's notice on its post, at the ring's edge."
+    },
+    "oh_gate_stone_0": {
+      "model": "rock_ph_moss_boulder_l",
+      "material": "stone",
+      "note": "The Drowned Gate's ring: the largest stones the catalog owns, standing in the mouth."
+    },
+    "oh_gate_stone_1": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_gate_stone_2": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_gate_stone_3": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_gate_stone_4": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_gate_stone_5": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_gate_stone_6": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_gate_stone_7": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "A gate stone of the ring."
+    },
+    "oh_cistern_lip_0": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_1": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_2": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_3": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_4": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_5": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_6": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_7": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_8": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_9": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_10": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_cistern_lip_11": {
+      "model": "rock_ph_moss_rock_small_a",
+      "material": "stone",
+      "note": "The cistern court's worn lip."
+    },
+    "oh_seawall_000": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_001": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_002": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_003": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_004": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_005": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_006": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_007": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_008": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_009": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_010": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_011": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_012": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_013": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_014": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_015": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_016": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_017": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_018": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_019": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_020": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_021": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_022": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_023": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_024": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_025": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_026": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_027": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_028": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_029": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_030": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_031": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_032": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_033": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_034": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_035": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_036": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_037": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_038": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
+    },
+    "oh_seawall_039": {
+      "model": "piece_bp_timber_pad",
+      "material": "wood",
+      "scale": 1.0,
+      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
     }
   },
   "doors": {

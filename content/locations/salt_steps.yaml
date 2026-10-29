@@ -1,0 +1,21 @@
+anchor:
+  world: [8330.0, 6.0, 630.0]
+discovery:
+  methods: [visited]
+  radius_m: 120
+  xp: 60
+display_key: location.salt_steps.name
+fast_travel:
+  node: true
+id: location.salt_steps
+kind: location
+kind_of_place: town
+map:
+  marker: town
+  reveals_radius_m: 150
+name: Salt Steps
+notes: "Otherhome's harbour district: houses stacked so that one roof is the next street, and stairs instead of roads.
+  Canon: world map 238/248/263, atlas 2.4."
+region_ref: region.otherhome
+schema: 1
+tags: [location]
