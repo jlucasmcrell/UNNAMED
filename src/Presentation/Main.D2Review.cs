@@ -25,8 +25,32 @@ public partial class Main
         // disk is what lets anyone check the body is standing on the fence rather than beside it.
         void Shot(string name) => Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
 
-        // A climb is one or two frames from the chase camera, and against a wall the chase camera ends up inside the timber. This puts a
-        // still camera three metres to the climber's side for the beat, so the frame shows the body on the rail or rung rather than the wall.
+        // The climb camera is DERIVED, not tuned: stand it out along the normal of the wall the climber is against, a little to one side, at
+        // the height of the ladder's middle, and look at the climber. Every hand-placed offset tonight landed in a doorway or behind a roof;
+        // a normal cannot point into the building it came from.
+        // The outward normal of the nearest structure the body is standing against: from the structure's own centre towards the body.
+        Vector3 WallNormal(Vector3 at)
+        {
+            Vector3 best = Vector3.Back;
+            float nearest = float.MaxValue;
+            foreach (var blocker in _session.Setup.Layout.Space.Blockers)
+            {
+                if (blocker.HeightMm < 1_000)
+                    continue;
+                var (cx, cz) = UNNAMED.Domain.Spatial.Footprints.Center(blocker);
+                var c = new Vector3((float)(cx / 1000.0), at.Y, (float)(cz / 1000.0));
+                float distance = c.DistanceTo(at);
+                if (distance < nearest && distance < 4f)
+                {
+                    nearest = distance;
+                    var dir = (at - c) with { Y = 0 };
+                    if (dir.LengthSquared() > .0001f)
+                        best = dir.Normalized();
+                }
+            }
+            return best;
+        }
+
         Camera3D? side = null;
         async Task ShotSide(string name)
         {
@@ -35,9 +59,11 @@ public partial class Main
             side ??= new Camera3D { Fov = 55 };
             if (side.GetParent() is null)
                 AddChild(side);
-            var offset = new Vector3(3.2f, 1.9f, 3.2f);
-            side.GlobalPosition = at + offset;
-            side.LookAt(at + new Vector3(0, .6f, 0), Vector3.Up);
+            // From the OPEN side: the yard is south and west of the forge, so an offset into it keeps the wall and the roof out of the shot.
+            Vector3 outward = WallNormal(at);
+            Vector3 across = outward.Cross(Vector3.Up).Normalized();
+            side.GlobalPosition = at + outward * 3.6f + across * 1.3f + new Vector3(0, 1.15f, 0);
+            side.LookAt(at + new Vector3(0, .55f, 0), Vector3.Up);
             side.MakeCurrent();
             await Rcd3Wait(.12);
             Main.SaveScreenshot(GetViewport(), directory, $"traversal_{name}");
@@ -155,7 +181,7 @@ public partial class Main
 
                 // The ladder (D6) leans on the forge's north wall (box 453..463 x 745.6..746, 3.0 m), so the climb goes up the wall. Stand in
                 // the open yard south of it and walk north into its long face.
-                await Go(new[] { (456.1, 747.8) }, 90);
+                await Go(new[] { (461.8, 748.6) }, 90);
                 Shot("ladder_runup");
                 _controller.SteerWorld(new Vector3(0, 0, -1), Gait.Walk, _camera);
                 await Rcd3Wait(.75);
