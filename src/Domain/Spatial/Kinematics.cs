@@ -81,6 +81,14 @@ public sealed record MovementRules(long BaseSpeedMmPerSecond, int WalkPercent, i
     public int JumpRiseMs { get; init; } = 420;
 
     /// <summary>
+    /// Prone: the stealth lane's posture (STEALTH.md). How high the body lies when prone, and how much of its walking speed it keeps - the
+    /// steadiest and slowest way to be somewhere, and what a marksman's rest asks for.
+    /// </summary>
+    public long ProneHeightMm { get; init; } = 500;
+
+    public int PronePercent { get; init; } = 22;
+
+    /// <summary>
     /// In the air, what could meet a structure lower than the jump's top is the tucked legs, narrower than the shoulders: the radius the
     /// body clears such a structure by. Walls, doors, and creatures and people meet the whole body.
     /// </summary>

@@ -63,7 +63,7 @@ public sealed record MaterialMultipliers(double Damage, double Armor, double Wei
 /// </summary>
 public sealed record MakerDefinition(
     string Id,
-    string PeopleId,
+    string? PeopleId,
     string Era,
     string FitFamily,
     ImmutableSortedDictionary<string, ImmutableSortedDictionary<string, ImmutableArray<WeightedPart>>> PartSets,

@@ -1,0 +1,15 @@
+id: part.dart_launcher.emitter.quiet_muzzle
+kind: part
+schema: 1
+display_key: part.dart_launcher.emitter.quiet_muzzle.name
+tags: [emitter, dart, quiet]
+name: Quiet Muzzle
+notes: "A shrouded muzzle: one report between a walk and a swing."
+noun: "quiet dart launcher"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: dart_launcher
+slot: emitter
+mesh: mesh.part.dart_launcher.emitter.quiet_muzzle
+material_slots: [emitter_main]
+tier_min: 3
+stat_contrib: { damage_mult: 1.0, reach_add: 0.1, weight_add: 0.3, speed_mult: 1.0, durability_add: 0 }

@@ -1,0 +1,14 @@
+id: part.stunner.frame.frame
+kind: part
+schema: 1
+display_key: part.stunner.frame.frame.name
+tags: [frame, tech]
+name: Stunner Frame
+notes: "A palm frame for a device that is pointed, not swung."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/props-scifi"
+family: stunner
+slot: frame
+mesh: mesh.part.stunner.frame.frame
+material_slots: [frame]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.18, speed_mult: 1.0, durability_add: 5 }

@@ -1,0 +1,15 @@
+id: part.projector.reality.emitter.reality_lance
+kind: part
+schema: 1
+display_key: part.projector.reality.emitter.reality_lance.name
+tags: [emitter, reality, tech, long]
+name: Fold Projector Lance
+notes: "Fold emitter on an anchor cell: a steady piece of fold, pointed at this world. The long emitter: more reach, more heat, more to maintain."
+noun: "long reality projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.reality
+slot: emitter
+mesh: mesh.part.projector.reality.emitter.reality_lance
+material_slots: [emitter_main, lens]
+tier_min: 3
+stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.55, speed_mult: 0.95, durability_add: 5 }

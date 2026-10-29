@@ -1,0 +1,15 @@
+id: part.projector.water.emitter.water_nozzle
+kind: part
+schema: 1
+display_key: part.projector.water.emitter.water_nozzle.name
+tags: [emitter, water, tech]
+name: Jet Projector Nozzle
+notes: "Pump and flood nozzles; water is the ammunition and can be refilled at any source. The common emitter: what a maintenance shop can replace."
+noun: "water projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.water
+slot: emitter
+mesh: mesh.part.projector.water.emitter.water_nozzle
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.06, reach_add: 0.0, weight_add: 0.35, speed_mult: 0.98, durability_add: 5 }

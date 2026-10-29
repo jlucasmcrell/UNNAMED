@@ -1,0 +1,15 @@
+id: part.marksman.emitter.collimator
+kind: part
+schema: 1
+display_key: part.marksman.emitter.collimator.name
+tags: [emitter, cosmic, long]
+name: Collimator Shaft
+notes: "A star-metal collimator: the cosmic line's precision version, and never in a loot table."
+noun: "focused cosmic projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: marksman
+slot: emitter
+mesh: mesh.part.marksman.emitter.collimator
+material_slots: [emitter_main, lens]
+tier_min: 4
+stat_contrib: { damage_mult: 1.14, reach_add: 0.7, weight_add: 0.8, speed_mult: 0.94, durability_add: 5 }

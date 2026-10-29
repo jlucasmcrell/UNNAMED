@@ -1,0 +1,15 @@
+id: part.marksman.emitter.lens_stack
+kind: part
+schema: 1
+display_key: part.marksman.emitter.lens_stack.name
+tags: [emitter, laser, long]
+name: Long Lens Stack
+notes: "The marksman line's long emitter: a lens stack that trades heat for reach."
+noun: "marksman laser"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons/AWM-F-sniper-rifle_4842e4aa"
+family: marksman
+slot: emitter
+mesh: mesh.part.marksman.emitter.lens_stack
+material_slots: [emitter_main, lens]
+tier_min: 3
+stat_contrib: { damage_mult: 1.08, reach_add: 0.6, weight_add: 0.6, speed_mult: 0.96, durability_add: 5 }

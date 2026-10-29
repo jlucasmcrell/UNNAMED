@@ -1,0 +1,12 @@
+id: mat.obsidian
+kind: material
+schema: 1
+display_key: mat.obsidian.name
+tags: [material]
+name: Obsidian Edge
+notes: "Knapped obsidian: keen, brittle, and the Caldera's own answer to an edge."
+word: "Obsidian"
+class: stone
+material_ref_item: item.material.iron_ore
+mult: { damage: 1.1, armor: 0.95, weight: 1.0, durability: 0.9, value: 1.6 }
+tier_min: 2

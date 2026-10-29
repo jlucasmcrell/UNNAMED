@@ -1,10 +1,10 @@
-id: maker.orenth.road_armoury
+id: maker.orenth.route_kit
 kind: maker
 schema: 1
-display_key: maker.orenth.road_armoury.name
+display_key: maker.orenth.route_kit.name
 tags: [maker]
-name: The Road Armoury
-notes: "A D21 maker: who builds this gear, out of which parts, in which materials, and the one tendency the work is known by."
+name: Orenth Route Kit
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
 people_ref: people.orenth
 era: medieval
 fit_family: compact_broad
@@ -21,11 +21,12 @@ part_sets:
     shaft: [{ part_ref: part.staff.shaft.ash, weight: 5 }]
     cap: [{ part_ref: part.staff.cap.iron, weight: 4 }]
     binding: [{ part_ref: part.staff.binding.band, weight: 5 }]
-material_palette: [{ material_ref: mat.iron.plain, weight: 4 }, { material_ref: mat.wood.ash, weight: 5 }, { material_ref: mat.hide.wolf, weight: 3 }, { material_ref: mat.hide.deer, weight: 3 }]
-signature: { tendency: reach, stat_bias: { weight_mult: 0.97, speed_mult: 1.03 } }
+material_palette: [{ material_ref: mat.wood.ash, weight: 5 }, { material_ref: mat.hide.wolf, weight: 4 }, { material_ref: mat.hide.deer, weight: 3 }, { material_ref: mat.iron.plain, weight: 3 }]
+signature: { tendency: reach, stat_bias: { weight_mult: 0.96, speed_mult: 1.03, reach_add: 1.05 } }
 tier_range: [1, 4]
-name_grammar: name.maker.orenth_road_armoury
-maker_words: ["Road", "Drover's", "Route"]
-tooltip_line_key: maker.orenth.road_armoury.line
+name_grammar: name.maker.orenth_route_kit
+maker_words: ["Route", "Drover's", "Steppe"]
+tooltip_line_key: maker.orenth.route_kit.line
 source_notes:
-  - "WORLD_ATLAS Orenth row: the road, the route and the step are the people's own materials."
+  - "GEAR_GENERATION section 11: horn, bone, felt, lashed; light and quick, reach."
+  - "Drops from Walked Steppe caravans and the Tarrow Ring; sold at Hesk Fair and the Orr camp."

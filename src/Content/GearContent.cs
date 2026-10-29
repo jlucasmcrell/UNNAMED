@@ -27,6 +27,21 @@ public static class GearContent
         ["shield"] = ImmutableArray.Create("face", "rim", "boss"),
         ["armour.chest"] = ImmutableArray.Create("shell", "straps", "lining"),
         ["armour.head"] = ImmutableArray.Create("shell", "lining", "visor"),
+        // High tech (GEAR_GENERATION 4.1.1): one slot shape for a projector, eight families of emitter in it.
+        ["projector.fire"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.ice"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.air"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.water"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.laser"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.tractor"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.cosmic"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        ["projector.reality"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
+        // Precision (4.2): the four slots plus the stabiliser, and the optic is mandatory.
+        ["marksman"] = ImmutableArray.Create("emitter", "cell", "frame", "optic", "stabiliser"),
+        // Non-lethal stealth devices (4.3.1).
+        ["dart_launcher"] = ImmutableArray.Create("emitter", "cell", "frame"),
+        ["stunner"] = ImmutableArray.Create("emitter", "cell", "frame"),
+        ["blowpipe"] = ImmutableArray.Create("tube", "mouthpiece"),
     }.ToImmutableSortedDictionary(StringComparer.Ordinal);
 
     /// <summary>The eras canon allows a maker to belong to (GEAR_GENERATION §2.3, WORLD_ATLAS §4 flavours).</summary>
@@ -152,7 +167,7 @@ public static class GearContent
             throw new FormatException($"{id}: tier_range is [low, high] with 1 <= low <= high");
 
         return new MakerDefinition(
-            id, Defined(loader, Text(map, "people_ref"), "people", id), era, Text(map, "fit_family"), sets, palette,
+            id, map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null, era, Text(map, "fit_family"), sets, palette,
             new MakerSignature(tendency, new MakerStats(
                 bias.ContainsKey("weight_mult") ? Number(bias, "weight_mult") : 1.0,
                 bias.ContainsKey("durability_mult") ? Number(bias, "durability_mult") : 1.0,

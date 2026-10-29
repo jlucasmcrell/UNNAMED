@@ -1,0 +1,12 @@
+id: mat.fold_anchor
+kind: material
+schema: 1
+display_key: mat.fold_anchor.name
+tags: [material]
+name: Fold-Anchor
+notes: "A stabilised piece of fold, carried in a cell: it is what keeps a reality-bending device pointed at this world."
+word: "Fold-anchored"
+class: exotic
+material_ref_item: item.material.iron_ore
+mult: { damage: 1.06, armor: 1.04, weight: 1.1, durability: 1.15, value: 2.00 }
+tier_min: 4

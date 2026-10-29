@@ -1,0 +1,14 @@
+id: part.blowpipe.mouthpiece.reed
+kind: part
+schema: 1
+display_key: part.blowpipe.mouthpiece.reed.name
+tags: [mouthpiece]
+name: Reed Mouthpiece
+notes: "A fitted mouthpiece: the part that makes one breath enough."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/nature"
+family: blowpipe
+slot: mouthpiece
+mesh: mesh.part.blowpipe.mouthpiece.reed
+material_slots: [tube]
+tier_min: 1
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.02, speed_mult: 1.0, durability_add: 0 }

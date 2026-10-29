@@ -123,17 +123,22 @@ public class GearMakerTests
     }
 
     [Fact]
-    public void TheSevenMakers_ComeFromSevenOfCanonsPeoples_AndEachHasOneTendency()
+    public void TheTwelveMakers_AreCanonsOwn_AndThePeoplelessOnesAreTheOldWorksAndTheOtherTouched()
     {
         var loader = Game();
         var makers = GearContent.BuildMakers(loader).Values.ToArray();
 
-        Assert.True(makers.Length >= 7, $"only {makers.Length} makers are authored");
-        Assert.Equal(makers.Length, makers.Select(m => m.PeopleId).Distinct(StringComparer.Ordinal).Count());
+        // GEAR_GENERATION section 11: eleven people's makers and the Vaskaal charge kit, and the peopleless Old works and Other-touched among them.
+        Assert.Equal(12, makers.Length);
+        var peopleless = makers.Where(m => m.PeopleId is null).Select(m => m.Id).OrderBy(m => m, StringComparer.Ordinal).ToArray();
+        Assert.Equal(new[] { "maker.oldworks.old_works", "maker.other.other_touched" }, peopleless);
+        var peoples = makers.Where(m => m.PeopleId is not null).Select(m => m.PeopleId!).Distinct(StringComparer.Ordinal).ToArray();
+        Assert.True(peoples.Length >= 7, $"only {peoples.Length} peoples are represented");
         foreach (var maker in makers)
         {
             Assert.Contains(maker.Signature.Tendency, MakerSignature.Tendencies);
             Assert.NotEmpty(maker.TooltipLineKey);
+            Assert.Equal(3, maker.Words.Length);
             Assert.True(maker.TierRange[0] >= 1);
         }
     }

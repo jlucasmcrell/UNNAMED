@@ -89,7 +89,9 @@ public static class GearNaming
         if (maker is not null)
         {
             string workshop = maker.Words.Length > 0 ? maker.Words[0] : maker.Id[(maker.Id.IndexOf('.') + 1)..].Replace('_', ' ');
-            lines.Add($"Made by {workshop} of {maker.PeopleId[(maker.PeopleId.IndexOf('.') + 1)..]}");
+            lines.Add(maker.PeopleId is { } people
+                ? $"Made by {workshop} of {people[(people.IndexOf('.') + 1)..]}"
+                : $"Made by {workshop}");
             lines.Add(maker.Signature.Tendency.Replace('_', ' '));
         }
         return lines.ToImmutable();

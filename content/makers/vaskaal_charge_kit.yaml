@@ -1,0 +1,49 @@
+id: maker.vaskaal.charge_kit
+kind: maker
+schema: 1
+display_key: maker.vaskaal.charge_kit.name
+tags: [maker]
+name: Vaskaal Charge Kit
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
+people_ref: people.vaskaal
+era: advanced
+fit_family: compact_broad
+part_sets:
+  projector.ice:
+    emitter: [{ part_ref: part.projector.ice.emitter.ice_nozzle, weight: 5 }, { part_ref: part.projector.ice.emitter.ice_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.ice.cell.ice_cell, weight: 5 }, { part_ref: part.projector.ice.cell.ice_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.ice.frame.frame_salvage, weight: 5 }, { part_ref: part.projector.ice.frame.frame_ceramic, weight: 3 }]
+    optic: [{ part_ref: part.projector.ice.optic.optic_iron, weight: 5 }, { part_ref: part.projector.ice.optic.optic_lens, weight: 3 }]
+  projector.laser:
+    emitter: [{ part_ref: part.projector.laser.emitter.laser_nozzle, weight: 5 }, { part_ref: part.projector.laser.emitter.laser_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.laser.cell.laser_cell, weight: 5 }, { part_ref: part.projector.laser.cell.laser_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.laser.frame.frame_salvage, weight: 5 }, { part_ref: part.projector.laser.frame.frame_ceramic, weight: 3 }]
+    optic: [{ part_ref: part.projector.laser.optic.optic_lens, weight: 5 }, { part_ref: part.projector.laser.optic.optic_iron, weight: 3 }]
+  projector.tractor:
+    emitter: [{ part_ref: part.projector.tractor.emitter.tractor_nozzle, weight: 5 }, { part_ref: part.projector.tractor.emitter.tractor_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.tractor.cell.tractor_cell, weight: 5 }, { part_ref: part.projector.tractor.cell.tractor_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.tractor.frame.frame_salvage, weight: 5 }, { part_ref: part.projector.tractor.frame.frame_ceramic, weight: 3 }]
+    optic: [{ part_ref: part.projector.tractor.optic.optic_iron, weight: 5 }, { part_ref: part.projector.tractor.optic.optic_lens, weight: 3 }]
+  marksman:
+    emitter: [{ part_ref: part.marksman.emitter.lens_stack, weight: 5 }, { part_ref: part.marksman.emitter.accelerator_rail, weight: 3 }]
+    cell: [{ part_ref: part.marksman.cell.power_cell, weight: 5 }, { part_ref: part.marksman.cell.slug_magazine, weight: 3 }]
+    frame: [{ part_ref: part.marksman.frame.frame, weight: 5 }]
+    optic: [{ part_ref: part.marksman.optic.optic_scope, weight: 5 }, { part_ref: part.marksman.optic.optic_lens, weight: 3 }]
+    stabiliser: [{ part_ref: part.marksman.stabiliser.bipod, weight: 5 }, { part_ref: part.marksman.stabiliser.gyro, weight: 3 }]
+  dart_launcher:
+    emitter: [{ part_ref: part.dart_launcher.emitter.dart_barrel, weight: 5 }, { part_ref: part.dart_launcher.emitter.quiet_muzzle, weight: 3 }]
+    cell: [{ part_ref: part.dart_launcher.cell.pressure_cell, weight: 5 }]
+    frame: [{ part_ref: part.dart_launcher.frame.frame, weight: 5 }]
+  stunner:
+    emitter: [{ part_ref: part.stunner.emitter.contact_prong, weight: 5 }, { part_ref: part.stunner.emitter.discharge_fork, weight: 3 }]
+    cell: [{ part_ref: part.stunner.cell.charge_cell, weight: 5 }]
+    frame: [{ part_ref: part.stunner.frame.frame, weight: 5 }]
+material_palette: [{ material_ref: mat.salvage.alloy, weight: 4 }, { material_ref: mat.chrome, weight: 3 }, { material_ref: mat.glass.lens, weight: 2 }, { material_ref: mat.ceramic.white, weight: 3 }]
+signature: { tendency: quiet, stat_bias: { weight_mult: 0.95, speed_mult: 1.02 } }
+tier_range: [1, 5]
+name_grammar: name.maker.vaskaal_charge_kit
+maker_words: ["Keel", "Charge", "Relic"]
+tooltip_line_key: maker.vaskaal.charge_kit.line
+source_notes:
+  - "GEAR_GENERATION section 4.1.2: Vaskaal charge kit builds ice, laser, tractor, cosmic and the marksman line; Keelward tables."
+  - "Section 4.3.1: the dart launcher and stunner are its stealth devices, and their payloads are effects the stealth lane owns."

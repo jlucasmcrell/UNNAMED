@@ -1,0 +1,14 @@
+id: part.projector.air.frame.frame_ceramic
+kind: part
+schema: 1
+display_key: part.projector.air.frame.frame_ceramic.name
+tags: [frame, ceramic, tech]
+name: Pressure Projector Ceramic Frame
+notes: "The Constructed's white ceramic frame: light, hard, and it cracks before it bends."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/props-scifi"
+family: projector.air
+slot: frame
+mesh: mesh.part.projector.air.frame.frame_ceramic
+material_slots: [frame]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.2, speed_mult: 1.0, durability_add: 8 }

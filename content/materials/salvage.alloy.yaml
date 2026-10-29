@@ -1,0 +1,12 @@
+id: mat.salvage.alloy
+kind: material
+schema: 1
+display_key: mat.salvage.alloy.name
+tags: [material]
+name: Salvage Alloy
+notes: "Grey-blue Keel hull alloy, cut and refitted: never smelted by a player, only salvaged (Recover Whole)."
+word: "Salvage Alloy"
+class: metal
+material_ref_item: item.material.iron_ingot
+mult: { damage: 1.08, armor: 1.08, weight: 1.0, durability: 1.2, value: 2.0 }
+tier_min: 3

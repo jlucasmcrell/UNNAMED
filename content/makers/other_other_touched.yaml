@@ -1,0 +1,24 @@
+id: maker.other.other_touched
+kind: maker
+schema: 1
+display_key: maker.other.other_touched.name
+tags: [maker]
+name: Other-touched
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
+era: other
+fit_family: compact_broad
+part_sets:
+  projector.reality:
+    emitter: [{ part_ref: part.projector.reality.emitter.reality_nozzle, weight: 5 }, { part_ref: part.projector.reality.emitter.reality_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.reality.cell.reality_cell, weight: 5 }, { part_ref: part.projector.reality.cell.reality_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.reality.frame.frame_salvage, weight: 5 }, { part_ref: part.projector.reality.frame.frame_ceramic, weight: 3 }]
+    optic: [{ part_ref: part.projector.reality.optic.optic_lens, weight: 5 }, { part_ref: part.projector.reality.optic.optic_iron, weight: 3 }]
+material_palette: [{ material_ref: mat.fold_anchor, weight: 5 }, { material_ref: mat.obsidian, weight: 2 }, { material_ref: mat.salvage.alloy, weight: 2 }]
+signature: { tendency: warm_to_hand, stat_bias: { damage_mult: 1.04, weight_mult: 1.06 } }
+tier_range: [1, 5]
+name_grammar: name.maker.other_other_touched
+maker_words: ["Other", "Violet", "Anchored"]
+tooltip_line_key: maker.other.other_touched.line
+source_notes:
+  - "GEAR_GENERATION section 11: Other, violet; single authored sites at Foldscar, Shear, Manyside and the Empty Shore."
+  - "Section 4.1.2: reality-bending is hand-placed only, never rolled."

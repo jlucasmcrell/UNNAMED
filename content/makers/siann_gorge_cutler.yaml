@@ -1,0 +1,33 @@
+id: maker.siann.gorge_cutler
+kind: maker
+schema: 1
+display_key: maker.siann.gorge_cutler.name
+tags: [maker]
+name: Gorge Cutler
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
+people_ref: people.siann
+era: medieval
+fit_family: compact_broad
+part_sets:
+  sword:
+    blade: [{ part_ref: part.sword.blade.leaf_long, weight: 5 }, { part_ref: part.sword.blade.arming_straight, weight: 3 }]
+    guard: [{ part_ref: part.sword.guard.swept, weight: 4 }, { part_ref: part.sword.guard.cross, weight: 4 }]
+    grip: [{ part_ref: part.sword.grip.waisted, weight: 5 }, { part_ref: part.sword.grip.wrapped, weight: 3 }]
+    pommel: [{ part_ref: part.sword.pommel.faceted, weight: 4 }, { part_ref: part.sword.pommel.disc, weight: 3 }]
+  bow:
+    limbs: [{ part_ref: part.bow.limbs.recurve, weight: 5 }, { part_ref: part.bow.limbs.self, weight: 3 }]
+    grip: [{ part_ref: part.bow.grip.wrapped, weight: 5 }]
+    string: [{ part_ref: part.bow.string.sinew, weight: 4 }, { part_ref: part.bow.string.linen, weight: 4 }]
+  staff:
+    shaft: [{ part_ref: part.staff.shaft.ash, weight: 5 }]
+    cap: [{ part_ref: part.staff.cap.iron, weight: 3 }]
+    binding: [{ part_ref: part.staff.binding.band, weight: 5 }]
+material_palette: [{ material_ref: mat.wood.ash, weight: 5 }, { material_ref: mat.hide.wolf, weight: 3 }, { material_ref: mat.iron.charcoal_steel, weight: 2 }, { material_ref: mat.bone.boneleaf, weight: 2 }]
+signature: { tendency: quiet, stat_bias: { weight_mult: 0.93, speed_mult: 1.04 } }
+tier_range: [1, 4]
+name_grammar: name.maker.siann_gorge_cutler
+maker_words: ["Gorge", "Wardhouse", "Quiet"]
+tooltip_line_key: maker.siann.gorge_cutler.line
+source_notes:
+  - "GEAR_GENERATION section 11: marble and lavender; ward and perception affix bias; quiet."
+  - "Drops from Lettered Gorge vaults and the Low Docket; sold at Iessarin and the Otherhome archive annexe."
