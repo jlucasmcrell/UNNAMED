@@ -2919,21 +2919,6 @@
       "material": "wood",
       "note": "D18: a jetty deck board - the waystation's own timber pad."
     },
-    "cw_jetty_post_1": {
-      "model": "piece_bp_timber_wall",
-      "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
-    },
-    "cw_jetty_post_2": {
-      "model": "piece_bp_timber_wall",
-      "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
-    },
-    "cw_jetty_post_3": {
-      "model": "piece_bp_timber_wall",
-      "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
-    },
     "cw_pond_reeds_1": {
       "model": "flora_cattail_clump",
       "material": "reed",
@@ -2978,6 +2963,11 @@
       "model": "rock_ph_moss_rock_small_a",
       "material": "stone",
       "note": "D18: a small mossy rock at the water's edge."
+    },
+    "rock_cairnwold_stone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "D18: Cairnwolds own gate stone - the shipped waystone landmark standing at the south gate."
     }
   },
   "doors": {
