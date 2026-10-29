@@ -331,7 +331,7 @@ public sealed class Simulation
         // claiming the slice again - only one of them can run at once, so there is never a second writer to disagree with.
         var activity = _state.Claim(nameof(FishingSystem),StateSlice.Activity);
         _camp = new CampSystem(_context,_state.Claim(nameof(CampSystem),StateSlice.CampSession),player.Id);
-        _fishing = new FishingSystem(_context,activity,player.Id,_inventory.Pack);
+        _fishing = new FishingSystem(_context,activity,player.Id);
         _lockpicking = new LockpickSystem(_context,activity,player.Id);
         _washing = new WashingSystem(_context,activity,player.Id);
         _firstHour=new FirstHourSystem(_context,player.Id);

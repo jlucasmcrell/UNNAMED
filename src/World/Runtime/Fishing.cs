@@ -65,14 +65,11 @@ internal sealed class FishingSystem
     private readonly SliceOwner _owner;
     private readonly EntityId _player;
 
-    private readonly Func<PackView> _pack;
-
-    public FishingSystem(SystemContext context,SliceOwner owner,EntityId player,Func<PackView> pack)
+    public FishingSystem(SystemContext context,SliceOwner owner,EntityId player)
     {
         _context=context;
         _owner=owner;
         _player=player;
-        _pack=pack;
     }
 
     private RuntimeState State => _context.State;
@@ -84,17 +81,15 @@ internal sealed class FishingSystem
 
     /// <summary>True when the pack holds <paramref name="definitionId"/> in any stack, placed or not.</summary>
     private bool Carries(string definitionId) =>
-        _pack().Containers.Any(c => c.Stacks.Any(s => s.DefId == definitionId))
-        || _pack().Unplaced.Any(s => s.DefId == definitionId);
+        State.Inventory.Any(entry => entry.DefId == definitionId && entry.Count > 0);
 
     /// <summary>Spend one bait and return what its kind is worth to the wait; null when none is carried.</summary>
     private double? TakeBait()
     {
-        foreach (var container in _pack().Containers)
-            foreach (var stack in container.Stacks)
-                if (Rules.Baits.TryGetValue(stack.DefId, out var bait))
+        foreach (var entry in State.Inventory)
+            if (entry.Count > 0 && Rules.Baits.TryGetValue(entry.DefId, out var bait))
                 {
-                    _context.Dispatch(new ExchangeItems(ImmutableArray.Create(new StackTake(stack.ItemId, 1)), null, 0, Quality.Standard));
+                    _context.Dispatch(new ExchangeItems(ImmutableArray.Create(new StackTake(entry.ItemId, 1)), null, 0, Quality.Standard));
                     return bait.BiteScale;
                 }
         return null;
