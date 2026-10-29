@@ -1,0 +1,26 @@
+id: config.fishing
+kind: config
+schema: 1
+display_key: config.fishing.name
+tags: [config]
+notes: What a cast needs and what the water gives by the hour (D20 follow-on). The rod is carried, not equipped; a bait is spent on the cast that takes it, and shortens the wait it causes. The bands are the world clock's hours, and each kind of water rolls its own table in each band - eels at night, trout at dawn.
+rod: item.tool.fishing_rod
+baits:
+  - { item: item.material.bait_worm, bite_scale: 0.8, weight_bonus: 1 }
+  - { item: item.material.bait_fly, bite_scale: 0.6, weight_bonus: 2 }
+bands:
+  - { id: dawn, from_h: 5, to_h: 9 }
+  - { id: day, from_h: 9, to_h: 17 }
+  - { id: dusk, from_h: 17, to_h: 21 }
+  - { id: night, from_h: 21, to_h: 5 }
+tables:
+  creek:
+    dawn: loot.fishing.ah_creek
+    day: loot.fishing.ah_creek
+    dusk: loot.fishing.ah_creek
+    night: loot.fishing.cw_millpond
+  pond:
+    dawn: loot.fishing.cw_millpond
+    day: loot.fishing.cw_millpond
+    dusk: loot.fishing.cw_millpond
+    night: loot.fishing.cw_millpond

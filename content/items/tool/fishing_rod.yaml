@@ -1,0 +1,13 @@
+id: item.tool.fishing_rod
+kind: item
+schema: 1
+display_key: item.tool.fishing_rod.name
+tags: [item]
+name: Fishing Rod
+notes: A hazel rod, a line of braided horsehair and a hook bent from a needle. Carried to the water to fish at all (config.fishing names it); it sits in the hand while the line is out.
+category: tool
+item_class: ordinary
+stack_max: 1
+weight: 0.8
+value_base: 6
+equip_slot: off_hand

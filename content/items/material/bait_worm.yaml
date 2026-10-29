@@ -1,0 +1,12 @@
+id: item.material.bait_worm
+kind: item
+schema: 1
+display_key: item.material.bait_worm.name
+tags: [item]
+name: Worm Bait
+notes: Turned out of the bank with a spade or a stick. A bait is spent on the cast that takes it and shortens the wait it causes (config.fishing).
+category: material
+stack_max: 20
+weight: 0.02
+value_base: 1
+rarity: common

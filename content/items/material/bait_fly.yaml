@@ -1,0 +1,12 @@
+id: item.material.bait_fly
+kind: item
+schema: 1
+display_key: item.material.bait_fly.name
+tags: [item]
+name: Tied Fly
+notes: Feather and thread wound on a hook, for the evening rise. A bait is spent on the cast that takes it, shortens the wait and sweetens the table (config.fishing).
+category: material
+stack_max: 20
+weight: 0.02
+value_base: 4
+rarity: common
