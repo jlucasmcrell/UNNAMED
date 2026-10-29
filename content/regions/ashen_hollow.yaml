@@ -383,7 +383,6 @@ gear_makers:
   - maker.kal.vossgar_forge
   - maker.ondrek.tenantless_repair
 # D23 S6: the standalone region's own way past the smithy and a perch over it.
-
 npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
   - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [72, 122], facing_deg: 135 }    # her survey area, looking towards the Foldscar

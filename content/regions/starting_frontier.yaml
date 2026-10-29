@@ -150629,6 +150629,37 @@ doors:
 
 routes:
 # D23 S6 (STEALTH.md 8.1): the frontier's own ways that are not a fight. Every one of them is a place the lights and covers above already made darkish
+- { key: route.area.den-gorge.perch, kind: ledge, position_m: [528, 786], to_m: [536, 795], cover_percent: 80, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.the-field-ruins.shadow, kind: shadow, position_m: [852, 752], to_m: [864, 760], cover_percent: 85 }
+- { key: route.area.the-field-ruins.grass, kind: grass, position_m: [854, 748], to_m: [872, 750], cover_percent: 67 }
+- { key: route.area.the-field-ruins.ledge, kind: ledge, position_m: [848, 755], to_m: [860, 764], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.the-field-ruins.perch, kind: roof, position_m: [846, 746], to_m: [862, 756], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.den-gorge-and-rope-cave.shadow, kind: shadow, position_m: [528, 786], to_m: [540, 794], cover_percent: 85 }
+- { key: route.area.den-gorge-and-rope-cave.grass, kind: grass, position_m: [530, 782], to_m: [548, 784], cover_percent: 67 }
+- { key: route.area.den-gorge-and-rope-cave.ledge, kind: ledge, position_m: [524, 789], to_m: [536, 795], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.den-gorge-and-rope-cave.perch, kind: roof, position_m: [522, 780], to_m: [538, 790], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.old-late.shadow, kind: shadow, position_m: [650, 765], to_m: [662, 773], cover_percent: 85 }
+- { key: route.area.old-late.grass, kind: grass, position_m: [652, 761], to_m: [670, 763], cover_percent: 67 }
+- { key: route.area.old-late.ledge, kind: ledge, position_m: [646, 768], to_m: [658, 777], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.old-late.perch, kind: roof, position_m: [644, 759], to_m: [660, 769], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.foldscar.shadow, kind: shadow, position_m: [553, 648], to_m: [565, 656], cover_percent: 85 }
+- { key: route.area.foldscar.grass, kind: grass, position_m: [555, 644], to_m: [573, 646], cover_percent: 67 }
+- { key: route.area.foldscar.ledge, kind: ledge, position_m: [549, 651], to_m: [561, 660], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.foldscar.perch, kind: roof, position_m: [547, 642], to_m: [563, 652], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.cairnwold.shadow, kind: shadow, position_m: [1001, 672], to_m: [1013, 680], cover_percent: 85 }
+- { key: route.area.cairnwold.grass, kind: grass, position_m: [1003, 668], to_m: [1021, 670], cover_percent: 67 }
+- { key: route.area.cairnwold.ledge, kind: ledge, position_m: [997, 675], to_m: [1009, 684], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.cairnwold.perch, kind: roof, position_m: [995, 666], to_m: [1011, 676], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.cairnwold.disguise, kind: disguise, position_m: [1007, 674], to_m: [1015, 684], cover_percent: 50 }
+- { key: route.area.the-road.shadow, kind: shadow, position_m: [712, 691], to_m: [724, 699], cover_percent: 85 }
+- { key: route.area.the-road.grass, kind: grass, position_m: [714, 687], to_m: [732, 689], cover_percent: 67 }
+- { key: route.area.the-road.ledge, kind: ledge, position_m: [708, 694], to_m: [720, 703], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.the-road.perch, kind: roof, position_m: [706, 685], to_m: [722, 695], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.ashen-hollow.shadow, kind: shadow, position_m: [455, 745], to_m: [467, 753], cover_percent: 85 }
+- { key: route.area.ashen-hollow.grass, kind: grass, position_m: [457, 741], to_m: [475, 743], cover_percent: 67 }
+- { key: route.area.ashen-hollow.ledge, kind: ledge, position_m: [451, 748], to_m: [463, 757], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.ashen-hollow.perch, kind: roof, position_m: [449, 739], to_m: [465, 749], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.area.ashen-hollow.disguise, kind: disguise, position_m: [461, 747], to_m: [469, 757], cover_percent: 50 }
 # or leafy; none of them is free.
 - { key: route.starting_frontier.shadow.waystation_line, kind: shadow, position_m: [447, 730], to_m: [452, 728], cover_percent: 85 }
 - { key: route.starting_frontier.grass.road_verge, kind: grass, position_m: [705, 663], to_m: [690, 640], cover_percent: 67 }
@@ -150774,91 +150805,10 @@ gear_makers:
   - maker.siann.gorge_cutler
   - maker.mor.sounding_custodians
   - maker.oldworks.old_works
-# D23 S6: the ashen-hollow area's own stealth content, anchored on its location anchors (455, 745) so the hooks audit credits it here.
-routes:
-- { key: route.area.ashen-hollow.shadow, kind: shadow, position_m: [455, 745], to_m: [467, 753], cover_percent: 85 }
-- { key: route.area.ashen-hollow.grass, kind: grass, position_m: [457, 741], to_m: [475, 743], cover_percent: 67 }
-- { key: route.area.ashen-hollow.ledge, kind: ledge, position_m: [451, 748], to_m: [463, 761], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.ashen-hollow.perch, kind: roof, position_m: [449, 739], to_m: [465, 749], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.ashen-hollow.disguise, kind: disguise, position_m: [461, 747], to_m: [469, 757], cover_percent: 50 }
-covers:
-- { key: cover.area.ashen-hollow.crates, kind: crate, position_m: [458, 750], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.ashen-hollow.hedge, kind: hedge, position_m: [450, 747], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.ashen-hollow, position_m: [459, 742], radius_m: 5, intensity: 600, dousable: true }
 switches:
 - { key: switch.area.ashen-hollow.bell, structure: none, flag_ref: world.ward.frontier_alarm, name: the ashen-hollow bell, verb: Ring }
-# D23 S6: the the-road area's own stealth content, anchored on its location anchors (712, 691) so the hooks audit credits it here.
-routes:
-- { key: route.area.the-road.shadow, kind: shadow, position_m: [712, 691], to_m: [724, 699], cover_percent: 85 }
-- { key: route.area.the-road.grass, kind: grass, position_m: [714, 687], to_m: [732, 689], cover_percent: 67 }
-- { key: route.area.the-road.ledge, kind: ledge, position_m: [708, 694], to_m: [720, 707], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.the-road.perch, kind: roof, position_m: [706, 685], to_m: [722, 695], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-covers:
-- { key: cover.area.the-road.crates, kind: crate, position_m: [715, 696], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.the-road.hedge, kind: hedge, position_m: [707, 693], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.the-road, position_m: [716, 688], radius_m: 5, intensity: 600, dousable: true }
-# D23 S6: the cairnwold area's own stealth content, anchored on its location anchors (1001, 672) so the hooks audit credits it here.
-routes:
-- { key: route.area.cairnwold.shadow, kind: shadow, position_m: [1001, 672], to_m: [1013, 680], cover_percent: 85 }
-- { key: route.area.cairnwold.grass, kind: grass, position_m: [1003, 668], to_m: [1021, 670], cover_percent: 67 }
-- { key: route.area.cairnwold.ledge, kind: ledge, position_m: [997, 675], to_m: [1009, 688], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.cairnwold.perch, kind: roof, position_m: [995, 666], to_m: [1011, 676], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.cairnwold.disguise, kind: disguise, position_m: [1007, 674], to_m: [1015, 684], cover_percent: 50 }
-covers:
-- { key: cover.area.cairnwold.crates, kind: crate, position_m: [1004, 677], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.cairnwold.hedge, kind: hedge, position_m: [996, 674], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.cairnwold, position_m: [1005, 669], radius_m: 5, intensity: 600, dousable: true }
 switches:
 - { key: switch.area.cairnwold.bell, structure: none, flag_ref: world.ward.frontier_alarm, name: the cairnwold bell, verb: Ring }
-# D23 S6: the foldscar area's own stealth content, anchored on its location anchors (553, 648) so the hooks audit credits it here.
-routes:
-- { key: route.area.foldscar.shadow, kind: shadow, position_m: [553, 648], to_m: [565, 656], cover_percent: 85 }
-- { key: route.area.foldscar.grass, kind: grass, position_m: [555, 644], to_m: [573, 646], cover_percent: 67 }
-- { key: route.area.foldscar.ledge, kind: ledge, position_m: [549, 651], to_m: [561, 664], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.foldscar.perch, kind: roof, position_m: [547, 642], to_m: [563, 652], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-covers:
-- { key: cover.area.foldscar.crates, kind: crate, position_m: [556, 653], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.foldscar.hedge, kind: hedge, position_m: [548, 650], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.foldscar, position_m: [557, 645], radius_m: 5, intensity: 600, dousable: true }
-# D23 S6: the old-late area's own stealth content, anchored on its location anchors (650, 765) so the hooks audit credits it here.
-routes:
-- { key: route.area.old-late.shadow, kind: shadow, position_m: [650, 765], to_m: [662, 773], cover_percent: 85 }
-- { key: route.area.old-late.grass, kind: grass, position_m: [652, 761], to_m: [670, 763], cover_percent: 67 }
-- { key: route.area.old-late.ledge, kind: ledge, position_m: [646, 768], to_m: [658, 781], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.old-late.perch, kind: roof, position_m: [644, 759], to_m: [660, 769], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-covers:
-- { key: cover.area.old-late.crates, kind: crate, position_m: [653, 770], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.old-late.hedge, kind: hedge, position_m: [645, 767], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.old-late, position_m: [654, 762], radius_m: 5, intensity: 600, dousable: true }
-# D23 S6: the den-gorge-and-rope-cave area's own stealth content, anchored on its location anchors (528, 786) so the hooks audit credits it here.
-routes:
-- { key: route.area.den-gorge-and-rope-cave.shadow, kind: shadow, position_m: [528, 786], to_m: [540, 794], cover_percent: 85 }
-- { key: route.area.den-gorge-and-rope-cave.grass, kind: grass, position_m: [530, 782], to_m: [548, 784], cover_percent: 67 }
-- { key: route.area.den-gorge-and-rope-cave.ledge, kind: ledge, position_m: [524, 789], to_m: [536, 802], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.den-gorge-and-rope-cave.perch, kind: roof, position_m: [522, 780], to_m: [538, 790], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-covers:
-- { key: cover.area.den-gorge-and-rope-cave.crates, kind: crate, position_m: [531, 791], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.den-gorge-and-rope-cave.hedge, kind: hedge, position_m: [523, 788], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.den-gorge-and-rope-cave, position_m: [532, 783], radius_m: 5, intensity: 600, dousable: true }
-# D23 S6: the the-field-ruins area's own stealth content, anchored on its location anchors (852, 752) so the hooks audit credits it here.
-routes:
-- { key: route.area.the-field-ruins.shadow, kind: shadow, position_m: [852, 752], to_m: [864, 760], cover_percent: 85 }
-- { key: route.area.the-field-ruins.grass, kind: grass, position_m: [854, 748], to_m: [872, 750], cover_percent: 67 }
-- { key: route.area.the-field-ruins.ledge, kind: ledge, position_m: [848, 755], to_m: [860, 768], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-- { key: route.area.the-field-ruins.perch, kind: roof, position_m: [846, 746], to_m: [862, 756], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
-covers:
-- { key: cover.area.the-field-ruins.crates, kind: crate, position_m: [855, 757], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
-- { key: cover.area.the-field-ruins.hedge, kind: hedge, position_m: [847, 754], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
-lights:
-- { key: light.area.the-field-ruins, position_m: [856, 749], radius_m: 5, intensity: 600, dousable: true }
-routes:
-- { key: route.area.den-gorge.perch, kind: ledge, position_m: [528, 786], to_m: [540, 800], cover_percent: 80, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
 
 npcs:
 - npc_ref: npc.ashen_hollow.renn_vale
@@ -152809,6 +152759,13 @@ lights:
 - { key: light.cairn_lantern, position_m: [975, 663], radius_m: 6, intensity: 620 }         # Cairnwold's street
 - { key: light.cut_brazier, position_m: [430, 648], radius_m: 7, intensity: 700 }           # Blackvein Cut's working face
 - { key: light.foldscar_ember, position_m: [545, 642], radius_m: 9, intensity: 750, dousable: false }   # the Foldscar's own light
+- { key: light.area.ashen-hollow, position_m: [459, 742], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.area.the-road, position_m: [716, 688], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.area.cairnwold, position_m: [1005, 669], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.area.foldscar, position_m: [557, 645], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.area.old-late, position_m: [654, 762], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.area.den-gorge-and-rope-cave, position_m: [532, 783], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.area.the-field-ruins, position_m: [856, 749], radius_m: 5, intensity: 600, dousable: true }
 covers:
 - { key: cover.lodge_hedge, kind: hedge, position_m: [444, 733], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
 - { key: cover.yard_crates, kind: crate, position_m: [452, 728], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
@@ -152816,3 +152773,17 @@ covers:
 - { key: cover.road_grass, kind: tall_grass, position_m: [705, 663], radius_m: 6.0, height_m: 1.2, blocks_sight_percent: 67 }
 - { key: cover.cut_tailings, kind: pillar, position_m: [433, 652], radius_m: 2.0, height_m: 2.0, blocks_sight_percent: 100 }
 - { key: cover.foldscar_curtain, kind: curtain, position_m: [547, 644], radius_m: 3.0, height_m: 1.8, blocks_sight_percent: 100 }
+- { key: cover.area.ashen-hollow.crates, kind: crate, position_m: [458, 750], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.ashen-hollow.hedge, kind: hedge, position_m: [450, 747], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.the-road.crates, kind: crate, position_m: [715, 696], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.the-road.hedge, kind: hedge, position_m: [707, 693], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.cairnwold.crates, kind: crate, position_m: [1004, 677], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.cairnwold.hedge, kind: hedge, position_m: [996, 674], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.foldscar.crates, kind: crate, position_m: [556, 653], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.foldscar.hedge, kind: hedge, position_m: [548, 650], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.old-late.crates, kind: crate, position_m: [653, 770], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.old-late.hedge, kind: hedge, position_m: [645, 767], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.den-gorge-and-rope-cave.crates, kind: crate, position_m: [531, 791], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.den-gorge-and-rope-cave.hedge, kind: hedge, position_m: [523, 788], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.the-field-ruins.crates, kind: crate, position_m: [855, 757], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.area.the-field-ruins.hedge, kind: hedge, position_m: [847, 754], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
