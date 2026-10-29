@@ -133,9 +133,17 @@ public static class WaterView
         material.SetShaderParameter("deep_colour", new Vector3(0.05f, 0.12f, 0.16f).Lerp(new Vector3(0.05f, 0.08f, 0.20f), strange));
         material.SetShaderParameter("depth_fade_m", shore.Depth);
         material.SetShaderParameter("authored_depth", 1f);
-        material.SetShaderParameter("foam_m", 0.14f);
+        // Close enough to the bank to be judged: fine chop rather than one ripple across the body, a soft sheen rather than a mirror,
+        // and only a thread of foam at the waterline.
+        material.SetShaderParameter("ripple_scale", 1.9f);
+        material.SetShaderParameter("ripple_strength", 0.16f);
+        material.SetShaderParameter("refraction", 0.008f);
+        material.SetShaderParameter("roughness_floor", 0.22f);
+        material.SetShaderParameter("specular_floor", 0.32f);
+        material.SetShaderParameter("foam_m", 0.08f);
+        material.SetShaderParameter("foam_amount", 0.35f);
         material.SetShaderParameter("edge_fade", 1f);
-        material.SetShaderParameter("rapids", runs ? 0.28f : 0f);
+        material.SetShaderParameter("rapids", runs ? 0.22f : 0f);
         return material;
     }
 
@@ -382,6 +390,13 @@ uniform float edge_fade = 0.0;   // fades the surface to its sides by the vertex
 // The authored bodies (a creek's depth_m, a millpond's) cut their own beds, and their surfaces meet a bank at a grazing angle where
 // the screen's depth is no help, so the depth comes from the mesh instead.
 uniform float authored_depth = 0.0;
+// How mirror-smooth still water is. A body seen from the bank at 1.7 m is close enough that a 0.06-roughness mirror splits into
+// glints off every ripple crest and reads as broken glass; the gorge, seen from higher up and further off, is drawn with the mirror.
+uniform float roughness_floor = 0.06;
+uniform float specular_floor = 0.55;
+// How much foam a body keeps. The gorge's foam is read from far off, where its noise cells are a texture; the same amount seen from a
+// bank at 1.7 m is a patchwork of pale blocks, so an authored body keeps only a thread of it.
+uniform float foam_amount = 1.0;
 
 varying vec3 world_pos;
 
@@ -441,13 +456,14 @@ void fragment() {
     float foam = (1.0 - smoothstep(0.0, foam_m, depth)) * smoothstep(0.55, 0.85, breakup) * 0.7;
     foam += smoothstep(0.8, 0.95, fbm(streak * 0.6)) * 0.2;
     foam += rapids * COLOR.r * 0.8 * smoothstep(0.35, 0.75, vnoise(streak * vec2(2.6, 2.6) + vec2(11.0, 3.0)) * 0.5 + breakup * 0.5);
+    foam *= foam_amount;
     colour = mix(colour, vec3(0.62, 0.66, 0.65), clamp(foam, 0.0, 1.0));
 
     ALBEDO = colour;
     ALPHA = clamp(mix(0.55, 0.96, deep) * smoothstep(0.0, 0.06, depth) + foam * 0.3, 0.0, 1.0);
     ALPHA *= mix(1.0, smoothstep(0.0, 1.0, COLOR.g), edge_fade);
-    ROUGHNESS = mix(0.06, 0.5, clamp(foam, 0.0, 1.0));
-    SPECULAR = 0.55;
+    ROUGHNESS = mix(roughness_floor, 0.5, clamp(foam, 0.0, 1.0));
+    SPECULAR = specular_floor;
 }
 ",
         },
