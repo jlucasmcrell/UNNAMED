@@ -1,0 +1,15 @@
+id: part.marksman.muzzle.silencer
+kind: part
+schema: 1
+display_key: part.marksman.muzzle.silencer.name
+tags: [muzzle, tech, stealth, marksman]
+name: Silencer
+notes: "D23 S7 (STEALTH.md 10): a marksman's silencer - a shot's report at four tenths, with heat, range loss and bulk as the price, and a spent casing or a broken bolt left behind. The rail's crack is not damped; that is the Cold Core's job."
+noun: "silenced marksman device"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons/AWM-F-sniper-rifle_4842e4aa"
+family: marksman
+slot: muzzle
+mesh: mesh.part.marksman.muzzle.silencer
+material_slots: [muzzle]
+tier_min: 2
+stat_contrib: { damage_mult: 0.94, reach_add: 0.00, weight_add: 0.35, speed_mult: 0.98, durability_add: 4 }

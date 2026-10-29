@@ -30,6 +30,7 @@ part_sets:
     frame: [{ part_ref: part.marksman.frame.frame, weight: 5 }]
     optic: [{ part_ref: part.marksman.optic.optic_scope, weight: 5 }, { part_ref: part.marksman.optic.optic_lens, weight: 3 }]
     stabiliser: [{ part_ref: part.marksman.stabiliser.bipod, weight: 5 }, { part_ref: part.marksman.stabiliser.gyro, weight: 3 }]
+    muzzle: [{ part_ref: part.marksman.muzzle.silencer, weight: 5 }, { part_ref: part.marksman.muzzle.cold_core, weight: 3 }]
   dart_launcher:
     emitter: [{ part_ref: part.dart_launcher.emitter.dart_barrel, weight: 5 }, { part_ref: part.dart_launcher.emitter.quiet_muzzle, weight: 3 }]
     cell: [{ part_ref: part.dart_launcher.cell.pressure_cell, weight: 5 }]

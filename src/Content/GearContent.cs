@@ -37,7 +37,8 @@ public static class GearContent
         ["projector.cosmic"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
         ["projector.reality"] = ImmutableArray.Create("emitter", "cell", "frame", "optic"),
         // Precision (4.2): the four slots plus the stabiliser, and the optic is mandatory.
-        ["marksman"] = ImmutableArray.Create("emitter", "cell", "frame", "optic", "stabiliser"),
+        // The muzzle is D23 S7's: a silencer or a Cold Core is a part the marksman line ships, not a free-floating item.
+        ["marksman"] = ImmutableArray.Create("emitter", "cell", "frame", "optic", "stabiliser", "muzzle"),
         // Non-lethal stealth devices (4.3.1).
         ["dart_launcher"] = ImmutableArray.Create("emitter", "cell", "frame"),
         ["stunner"] = ImmutableArray.Create("emitter", "cell", "frame"),

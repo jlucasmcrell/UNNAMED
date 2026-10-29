@@ -1,0 +1,15 @@
+id: part.marksman.muzzle.cold_core
+kind: part
+schema: 1
+display_key: part.marksman.muzzle.cold_core.name
+tags: [muzzle, tech, stealth, marksman]
+name: Cold Core
+notes: "D23 S7 (STEALTH.md 10): the Cold Core damps the rail's crack and reduces a laser's scatter - the one muzzle that quiets a slug line, at the cost of heat and weight. Keelward work."
+noun: "cold-core marksman device"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: marksman
+slot: muzzle
+mesh: mesh.part.marksman.muzzle.cold_core
+material_slots: [muzzle]
+tier_min: 3
+stat_contrib: { damage_mult: 0.97, reach_add: 0.10, weight_add: 0.45, speed_mult: 0.97, durability_add: 6 }

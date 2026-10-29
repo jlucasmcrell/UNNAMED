@@ -30,6 +30,7 @@ part_sets:
     frame: [{ part_ref: part.marksman.frame.frame, weight: 5 }]
     optic: [{ part_ref: part.marksman.optic.optic_scope, weight: 5 }, { part_ref: part.marksman.optic.optic_lens, weight: 3 }]
     stabiliser: [{ part_ref: part.marksman.stabiliser.bipod, weight: 5 }, { part_ref: part.marksman.stabiliser.gyro, weight: 3 }]
+    muzzle: [{ part_ref: part.marksman.muzzle.silencer, weight: 4 }, { part_ref: part.marksman.muzzle.cold_core, weight: 3 }]
 material_palette: [{ material_ref: mat.ceramic.white, weight: 4 }, { material_ref: mat.obsidian, weight: 3 }, { material_ref: mat.chrome, weight: 3 }, { material_ref: mat.iron.charcoal_steel, weight: 2 }]
 signature: { tendency: loud, stat_bias: { damage_mult: 1.06, durability_mult: 0.96 } }
 tier_range: [1, 5]
