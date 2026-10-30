@@ -21,7 +21,10 @@ public sealed class TextureCache
     /// <summary>Packages must never silently expand a missing/stale large cache entry into an RGBA upload.</summary>
     public static void RequireCompressed(Texture2D texture, string source)
     {
-        if ((!OS.HasFeature("template") && OS.GetEnvironment("OTHERREACH_TEXTURE_AUDIT") != "1")
+        // Opt-out, and called only on a texture the CACHE returned (see ArtLibrary.Filter). Reading a freshly imported upload's
+        // image back is the call that faults natively on a packaged build, and it is not the thing this audit is about: the audit
+        // is that a cache entry served for a 2K+ texture must be BC-compressed, so B-012/B-013 still fail in packaged builds.
+        if (OS.GetEnvironment("OTHERREACH_TEXTURE_AUDIT") == "0"
             || Math.Max(texture.GetWidth(), texture.GetHeight()) < 2048) return;
         using var image = texture.GetImage();
         if (image is not null && !image.IsCompressed())

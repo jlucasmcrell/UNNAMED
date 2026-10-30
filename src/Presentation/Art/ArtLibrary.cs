@@ -1142,13 +1142,13 @@ public sealed class ArtLibrary
                                 ?? (assetId.StartsWith("bw_codex_", StringComparison.Ordinal)
                                     ? _interiorBuildCache?.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param)) : null)) is { } cached)
                         {
+                            TextureCache.RequireCompressed(cached, path);   // the cache's copy is what the audit is about
                             swapped[texture.GetInstanceId()] = cached;
                             material.SetTexture(param, cached);
                             texture.Dispose();  // the uncompressed upload, now unreferenced
                             continue;
                         }
                         var image = texture.GetImage();
-                        TextureCache.RequireCompressed(texture, path);
                         if (image is null || image.IsEmpty() || image.IsCompressed())
                             continue;
                         long pixels = (long)image.GetWidth() * image.GetHeight();
