@@ -83,7 +83,7 @@ def main(body_file,part_file,refit):
         if any(word in bone for word in ('head','neck','hand','finger','thumb')):
             protected.add(i);continue
         probe=Vector(p);hit=cloth.find_nearest(probe)
-        if hit[0] is not None and hit[3]<=.02 and (probe-hit[0]).dot(hit[1])<.001:covered.add(i)
+        if hit[0] is not None and hit[3]<=.02 and ((probe-hit[0]).dot(hit[1])<.001 or hit[3]<=.008):covered.add(i)
         outward=Vector(normals[i]).normalized();ray=cloth.ray_cast(probe,outward,.6)
         if ray[0] is not None and ray[1].dot(outward)>0:covered.add(i)
     painted=[];exposed=[]
