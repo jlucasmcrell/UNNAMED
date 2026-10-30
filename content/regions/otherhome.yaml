@@ -50741,6 +50741,60 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_well_plaza
+  box_m: [1599.05, 785.05, 1600.95, 786.95]
+  height_m: 3.42
+- id: oh_lane_lamp_000
+  box_m: [1451.84, 659.84, 1452.16, 660.16]
+  height_m: 3.2
+- id: oh_lane_lamp_001
+  box_m: [1451.84, 759.84, 1452.16, 760.16]
+  height_m: 3.2
+- id: oh_lane_lamp_002
+  box_m: [1491.84, 559.84, 1492.16, 560.16]
+  height_m: 3.2
+- id: oh_lane_lamp_003
+  box_m: [1491.84, 759.84, 1492.16, 760.16]
+  height_m: 3.2
+- id: oh_lane_lamp_004
+  box_m: [1531.84, 689.84, 1532.16, 690.16]
+  height_m: 3.2
+- id: oh_lane_lamp_005
+  box_m: [1531.84, 749.84, 1532.16, 750.16]
+  height_m: 3.2
+- id: oh_lane_lamp_006
+  box_m: [1566.84, 699.84, 1567.16, 700.16]
+  height_m: 3.2
+- id: oh_lane_lamp_007
+  box_m: [1566.84, 759.84, 1567.16, 760.16]
+  height_m: 3.2
+- id: oh_lane_lamp_008
+  box_m: [1301.84, 519.84, 1302.16, 520.16]
+  height_m: 3.2
+- id: oh_lane_lamp_009
+  box_m: [1301.84, 599.84, 1302.16, 600.16]
+  height_m: 3.2
+- id: oh_lane_lamp_010
+  box_m: [1301.84, 749.84, 1302.16, 750.16]
+  height_m: 3.2
+- id: oh_lane_lamp_011
+  box_m: [1349.84, 469.84, 1350.16, 470.16]
+  height_m: 3.2
+- id: oh_lane_lamp_012
+  box_m: [1549.84, 781.84, 1550.16, 782.16]
+  height_m: 3.2
+- id: oh_lane_lamp_013
+  box_m: [1639.84, 781.84, 1640.16, 782.16]
+  height_m: 3.2
+- id: oh_lane_lamp_014
+  box_m: [1699.84, 787.84, 1700.16, 788.16]
+  height_m: 3.2
+- id: oh_lane_lamp_015
+  box_m: [1711.84, 764.84, 1712.16, 765.16]
+  height_m: 3.2
+- id: oh_lane_lamp_016
+  box_m: [1579.84, 761.84, 1580.16, 762.16]
+  height_m: 3.2
 - id: oh_door_woodpile_000
   box_m: [1306.03, 563.9, 1307.98, 564.81]
   height_m: 1.2
