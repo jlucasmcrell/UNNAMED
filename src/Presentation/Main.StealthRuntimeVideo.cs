@@ -61,6 +61,8 @@ public partial class Main
         var simulation = _session.Simulation ?? throw new System.IO.InvalidDataException("No world for the runtime video");
         _rcd3Driving = true;
         _npcs.SuppressPresentationForBenchmark = false;
+        bool hudWasVisible = _hud.Visible;
+        _hud.Visible = false;
         var rejected = new List<string>();
         _session.Subscribe<CommandRejected>(e => rejected.Add(e.Reason));
         int frame = 0;
@@ -154,5 +156,6 @@ public partial class Main
 
         Mark("end", $"{label}: done, {rejected.Count} refused commands");
         await SavedFrame(directory, frame, "final");
+        _hud.Visible = hudWasVisible;
     }
 }
