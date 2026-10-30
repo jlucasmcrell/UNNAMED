@@ -215,9 +215,15 @@ public sealed partial class HumGenCreatorAppearance : Node
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
             {
                 if ((mesh.GetSurfaceOverrideMaterial(surface) ?? Origin(mesh, surface)) is not BaseMaterial3D cloth) continue;
-                if (cloth.HasMeta("creator_standoff")) continue;
+                if (cloth.HasMeta("creator_standoff")
+                    && cloth.Transparency == BaseMaterial3D.TransparencyEnum.Disabled
+                    && cloth.CullMode == BaseMaterial3D.CullModeEnum.Disabled) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
+                // Native garments are solid cloth. Imported alpha/culling settings can
+                // discard their back panels even though the fitted mesh is intact.
+                grown.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
+                grown.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
                 grown.Grow = true;
                 // The lining normals face inward: move both shells outward together.
                 grown.GrowAmount = mesh.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) ? -GarmentStandoff : GarmentStandoff;
