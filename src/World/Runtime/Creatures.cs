@@ -614,8 +614,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // The ground decides how far a STEP carries (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8) - and only a step: a bowstring twangs the same
         // on gravel as on grass. A swing is heard at the weapon's own swing radius and a shot at its own shot radius, which is the loudest thing a
         // stealth player does and has to show on the HUD's ring while it is in the air (STEALTH §2.7).
+        // A heavy kit is heard before it is seen (STEALTH §3.2): it is the STEP that carries what is strapped to the body, up to half again for a full
+        // load, and it is the counterweight to plate. A bowstring is not quieter on a light character; only the feet are.
         if (radius > 0)
-            radius = Math.Max(1, (long)Math.Round(radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface), MidpointRounding.AwayFromZero));
+            radius = Math.Max(1, (long)Math.Round(
+                radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface) * (1 + Math.Min(0.5, WornKilograms() / 40)),
+                MidpointRounding.AwayFromZero));
         if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, Ranged(combat.Action) ? ShotNoiseMm() : SwingNoise());
         // A sound is heard for a moment after it is made: a ring that forgot a shot the same tick it was loosed would be telling the player nothing.
@@ -637,6 +641,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
             : Setup.Noise.SwingMm;
 
     private static bool Ranged(ActionState action) => action.Attack is { Ranged: true };
+
+    /// <summary>What the character is wearing and holding, in kilograms: the weight every step has to carry (STEALTH §3.2).</summary>
+    private double WornKilograms()
+    {
+        double grams = 0;
+        foreach (var (_, itemId) in State.Equipment)
+            if (State.Inventory.FirstOrDefault(e => e.ItemId == itemId) is { } entry
+                && _context.Setup.Items.Catalog.Find(entry.DefId) is { } definition)
+                grams += definition.WeightGrams;
+        return grams / 1000.0;
+    }
 
     /// <summary>How far the weapon in hand is heard loosing (STEALTH §7.8): a bow's twang, a crossbow's thunk, a thrown knife's hush.</summary>
     private long ShotNoiseMm() =>
