@@ -351,8 +351,10 @@ public partial class Main
             // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
             if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
             {
+                // A sleeping animal is deaf to a stone (its hearing is the role's own share), so the beat picks something awake to be distracted, and says
+                // so when the nearest awake body is too far to hear the landing.
                 var watched = sim.Creatures
-                    .Where(c => c.Alive)
+                    .Where(c => c.Alive && !c.Asleep)
                     .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
                 int before = watched?.Awareness ?? 0;
@@ -361,7 +363,7 @@ public partial class Main
                 await Rcd3Wait(1.6);
                 var after = watched is null ? null : sim.Creatures.FirstOrDefault(c => c.Id == watched.Id);
                 var words = watched is null
-                    ? "The stone lands\nNothing here to be distracted"
+                    ? "The stone lands\nNothing awake here to be distracted - the birds are roosting"
                     : $"The Lure Stone, thrown off the lane\n{after?.Mind}: {before} -> {after?.Awareness ?? 0} - it looks where the noise is, not at the body";
                 await Beat("thrown_lure", words, 2.2);
             }
