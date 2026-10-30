@@ -143045,54 +143045,61 @@ structures:
   - 974.0
   - 689.0
   height_m: 1.09
+# The north wall keeps to the millpond's bank top, off the water, and opens where the jetty meets it: a lantern post
+# stands at each end of the opening, as at the village gates.
 - id: cw_wall_051
   box_m:
-  - 967.7
-  - 689.4
-  - 970.3
-  - 690.6
+  - 967.8
+  - 685.3
+  - 970.6
+  - 686.5
   height_m: 1.09
 - id: cw_wall_053
   box_m:
-  - 963.6
-  - 689.4
-  - 966.3
-  - 690.6
+  - 963.8
+  - 684.2
+  - 966.6
+  - 685.4
   height_m: 1.09
 - id: cw_wall_055
   box_m:
-  - 959.6
-  - 689.4
-  - 962.4
-  - 690.6
-  height_m: 1.09
-- id: cw_wall_057
-  box_m:
-  - 955.6
-  - 689.4
-  - 958.4
-  - 690.6
+  - 959.8
+  - 683.2
+  - 962.6
+  - 684.4
   height_m: 1.09
 - id: cw_wall_059
   box_m:
-  - 951.6
-  - 689.4
-  - 954.4
-  - 690.6
+  - 951.4
+  - 684.0
+  - 954.2
+  - 685.2
   height_m: 1.09
+- id: cw_lantern_jetty_w
+  circle_m:
+  - 954.6
+  - 684.2
+  - 0.1
+  height_m: 2.8
+- id: cw_lantern_jetty_e
+  circle_m:
+  - 959.4
+  - 683.4
+  - 0.1
+  height_m: 2.8
 - id: cw_wall_061
   box_m:
-  - 947.6
-  - 689.4
-  - 950.4
-  - 690.6
+  - 947.2
+  - 685.6
+  - 950.0
+  - 686.8
   height_m: 1.09
 - id: cw_wall_063
   box_m:
   - 943.6
-  - 689.4
+  - 687.4
   - 946.4
-  - 690.6
+  - 688.6
   height_m: 1.09
 - id: cw_wall_065
   box_m:
@@ -151282,8 +151289,8 @@ stations:
 - key: station.cairnwold.cookfire
   kind: cookfire
   position_m:
-  - 950.0
-  - 682.0
+  - 949.0
+  - 681.0
 - key: station.road.rim_cookfire
   kind: cookfire
   position_m:
