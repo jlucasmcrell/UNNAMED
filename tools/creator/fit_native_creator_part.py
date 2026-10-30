@@ -19,20 +19,41 @@ def triangles(g,p):
 def tree(points,faces):
     return BVHTree.FromPolygons([Vector(p) for p in points],faces,all_triangles=True)
 
-def fit(points,body):
+def fit(points,body,faces,samples,sample_normals):
     offsets=np.zeros_like(points)
     for i,p in enumerate(points):
         q,n,_,distance=body.find_nearest(Vector(p))
         if q is None or distance>.06:continue
         signed=(Vector(p)-q).dot(n)
         if signed<.003:offsets[i]=np.array(n)*(.003-signed)
-    return offsets
+    # A coarse cloth triangle can still cut across a rounded calf even when
+    # its three vertices are outside. Separate those facets using the unchanged
+    # body's surface samples; no subdivision or skin/morph remapping is needed.
+    current=points+offsets
+    keep=samples[:,1]>points[:,1].min()+.04  # leave the authored open hem alone
+    for _ in range(6):
+        cloth=tree(current,faces);pushes=np.zeros_like(points);counts=np.zeros(len(points))
+        for probe,normal in zip(samples[keep],sample_normals[keep]):
+            at,_,face,distance=cloth.find_nearest(Vector(probe))
+            if at is None or distance>.06:continue
+            depth=float(np.dot(probe-np.array(at),normal))
+            if depth<.0005:continue
+            push=normal*min(.015,depth+.003)
+            for corner in faces[face]:pushes[corner]+=push;counts[corner]+=1
+        if not counts.any():break
+        current+=pushes/np.maximum(counts[:,None],1)
+    return current-points
 
 def main(body_file,part_file,refit):
     body,part=Glb(body_file),Glb(part_file)
     bm=next(m for m in body.doc['meshes'] if m['name'].endswith('_Body_LOD0'))
     bp=next(p for p in bm['primitives'] if body.doc['materials'][p['material']]['name'].endswith('_Skin'))
     bpos=body.accessor(bp['attributes']['POSITION']);bt=tree(bpos,triangles(body,bp))
+    normals=body.accessor(bp['attributes']['NORMAL'])
+    joints=body.accessor(bp['attributes']['JOINTS_0']).astype(int);weights=body.accessor(bp['attributes']['WEIGHTS_0'])
+    joint_names=[body.doc['nodes'][i]['name'].lower() for i in body.doc['skins'][0]['joints']]
+    fitting=np.array([not any(word in joint_names[joints[i,int(weights[i].argmax())]]
+        for word in ('head','neck','hand','finger','thumb','foot','toe')) for i in range(len(bpos))])
     binary=bytearray(part.binary);changes=[];written=set()
     by_name={n['name']:part.doc['meshes'][n['mesh']] for n in part.doc['nodes'] if 'mesh' in n}
     for name,mesh in by_name.items():
@@ -40,7 +61,7 @@ def main(body_file,part_file,refit):
         lining=by_name.get(name+'_lining')
         for surface,p in enumerate(mesh['primitives']):
             index=p['attributes']['POSITION'];pos=part.accessor(index)
-            delta=fit(pos,bt) if refit else np.zeros_like(pos)
+            delta=fit(pos,bt,triangles(part,p),bpos[fitting],normals[fitting]) if refit else np.zeros_like(pos)
             pairs=[(index,pos+delta)]
             if lining:
                 li=lining['primitives'][surface]['attributes']['POSITION'];lp=part.accessor(li)
@@ -74,9 +95,7 @@ def main(body_file,part_file,refit):
         for p in mesh['primitives']:
             base=len(points);points.extend(updated.accessor(p['attributes']['POSITION']).tolist())
             faces.extend([[base+i for i in tri] for tri in triangles(updated,p)])
-    cloth=tree(points,faces);normals=body.accessor(bp['attributes']['NORMAL']);uv=body.accessor(bp['attributes']['TEXCOORD_0'])
-    joints=body.accessor(bp['attributes']['JOINTS_0']).astype(int);weights=body.accessor(bp['attributes']['WEIGHTS_0'])
-    joint_names=[body.doc['nodes'][i]['name'].lower() for i in body.doc['skins'][0]['joints']]
+    cloth=tree(points,faces);uv=body.accessor(bp['attributes']['TEXCOORD_0'])
     covered=set();protected=set()
     for i,p in enumerate(bpos):
         bone=joint_names[joints[i,int(weights[i].argmax())]]
