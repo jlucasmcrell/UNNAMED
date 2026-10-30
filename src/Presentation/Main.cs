@@ -981,7 +981,9 @@ public partial class Main : Node3D
             if (_interiors.TryGetValue(_session.Simulation!.ActiveLayout.SpaceId, out var bootedRoom))
                 bootedRoom.Creatures = _creatures;
             _creatures.Bind(_art, bindings);
-            _interior!.AddChild(_creatures);
+            // A region that IS its own interior space has no interior view (LoadInterior returns early), so the
+            // figures hang off the scene root instead of a ring view that does not exist.
+            (_interior ?? (Node3D)this).AddChild(_creatures);
             // The ring's figures exist from the moment the interior does: a frozen capture (and the audit's target
             // finder) must not have to wait for a frame to pass before a creature of this space is a node.
             _creatures.Draw(_session.Simulation!, 0, 0);
