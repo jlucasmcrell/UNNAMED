@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -79,6 +79,12 @@ public partial class Main
         bool wanted(string beat) => beats is "all" || beats.Split(',').Contains(beat, StringComparer.OrdinalIgnoreCase);
         var rejected = new List<string>();
         _session.Subscribe<CommandRejected>(e => rejected.Add(e.Reason));
+
+        // The shot, recorded from the simulation's own event rather than sampled at a beat: four captures reported a silent "loose" because the
+        // beat happened to fall outside the two ticks the shot was in the air, and the fix is to hear the event, not to look harder.
+        var shots = new List<UNNAMED.World.Runtime.ShotLoosed>();
+        _session.Subscribe<UNNAMED.World.Runtime.ShotLoosed>(e => shots.Add(e));
+        long ShotPeakNoise() => _session.Simulation!.PlayerNoiseMm;
         var captions = new List<object>();
         int frame = 0;
 
@@ -285,8 +291,29 @@ public partial class Main
                     await Wait(0.25);
                     _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
                     rejected.Clear();
+                    rejected.Clear();
+                    shots.Clear();
                     _session.Submit(new AttackCommand(sim.PlayerId));
-                    await Beat("loose", "The shot\nNo swing, no shout: the bow's own sound", 1.6, still: false);
+                    // Wait for the string, and keep the loudest ring reading across the flight: the shot is heard at the bow own radius and it has to
+                    // be caught while it is there, not sampled once and reported as silence (STEALTH 2.7, 7.8).
+                    long peak = 0;
+                    for (int i = 0; i < 90 && shots.Count == 0; i++)
+                    {
+                        await Rcd3Wait(0.033);
+                        peak = Math.Max(peak, ShotPeakNoise());
+                    }
+                    peak = Math.Max(peak, ShotPeakNoise());
+                    File.WriteAllText(Path.Combine(directory, "shot.json"), System.Text.Json.JsonSerializer.Serialize(new
+                    {
+                        loosed = shots.Count > 0,
+                        shots = shots.Select(s => new { s.Source, from_x = s.FromXMm / 1000.0, from_z = s.FromZMm / 1000.0, to_x = s.ToXMm / 1000.0, to_z = s.ToZMm / 1000.0 }),
+                        peak_noise_m = peak / 1000.0,
+                        refused = rejected,
+                    }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+                    string shotWords = shots.Count == 0
+                        ? "The loose\nNo shot: " + (rejected.Count > 0 ? string.Join("; ", rejected.Take(2)) : "nothing loosed")
+                        : $"The loose\n{peak / 1000.0:0.0} m of bow - heard at the bow, and again where it lands";
+                    await Beat("loose", shotWords, 1.6, still: false);
                     await Beat("after_the_shot", $"The bolt of it\n{rejected.Count} refused: {string.Join("; ", rejected.Take(2))}", 1.6);
                 }
             }
