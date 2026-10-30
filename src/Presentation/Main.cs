@@ -689,6 +689,16 @@ public partial class Main : Node3D
             Started();
         }
 
+        // A session that starts inside a space (a cave region, a ring region) never crosses a threshold, so the space
+        // switch below would never run: its creature view would stay the exterior one and the space's own creatures would
+        // have no figures. Show the space the session booted into, once.
+        if (_session.Simulation is { } booted)
+        {
+            bool bootOutside = booted.ActiveLayout.SpaceId == UNNAMED.Domain.Spatial.SpaceId.Exterior;
+            _wasOutside = bootOutside;
+            ShowSpace(bootOutside);
+        }
+
         if (_flags.Contains("--smoke"))
         {
             _smoke = new Smoke(_session, _controller, _camera, profile, region);
