@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -104,7 +104,7 @@ public partial class Main
         // The route's own camera caption strip: what a reviewer reads in the video without a title card beside it, low on the left where the HUD
         // does not sit (the sheet's own top-left corner is the character's name and the light gem).
         var layer = new CanvasLayer { Layer = 100 };
-        var caption = new Label { Position = new Vector2(26, 470) };
+        var caption = new Label { Position = new Vector2(26, 700) };
         caption.AddThemeFontSizeOverride("font_size", 22);
         caption.AddThemeConstantOverride("outline_size", 8);
         layer.AddChild(caption);
