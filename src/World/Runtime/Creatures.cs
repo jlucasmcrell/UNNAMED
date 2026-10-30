@@ -679,6 +679,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private int _stealthLevel;
 
     /// <summary>The last loud thing the character did and when it stops showing (STEALTH §2.7). Volatile - a save does not need it.</summary>
+    /// <summary>Which authored lights the character has put out, by key. Runtime only, like a lure's hold.</summary>
+    private readonly HashSet<string> _doused = new(StringComparer.Ordinal);
+
     private long _echoMm;
     private long _echoUntilTick;
 
@@ -766,7 +769,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
         get
         {
             foreach (var light in _context.Setup.LayoutFor(State.Space).Lights)
-                yield return light;
+                // A light the character has put out is out (STEALTH §2.2): the same list feeds the sight check and the HUD, so dousing a lamp really does
+                // darken the lane and the gem falls with it. This is the stealth player's own lever on the world.
+                if (!_doused.Contains(light.Key))
+                    yield return light;
             long carried = _context.PlayerLightRadiusMm();
             if (carried > 0)
                 yield return new LightSource("light.carried", State.Body.XMm, State.Body.ZMm, carried, 900);
@@ -919,6 +925,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// and exposed way to move a body and hiding it is the quick one. Every step is its own command, which is what lets the player stop halfway.
     /// </summary>
     public string? Handle(DragBodyCommand command, long tick)
+
     {
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
@@ -968,6 +975,34 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return null;
     }
 
+    /// <summary>
+    /// Put an authored light out, or light it again (STEALTH §2.2): a lamp within arm's reach. It is the stealth player's own lever - the lantern by the
+    /// gate, the brazier on the walk - and it darkens the same number the sight check reads, so the gem falls as the lane does.
+    /// </summary>
+    public string? Handle(DouseLightCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        if (command.LightKey is not { Length: > 0 } key)
+            return "no light named";
+        var light = _context.Setup.LayoutFor(State.Space).Lights.FirstOrDefault(l => l.Key == key);
+        if (light is null)
+            return $"no {key} in this place";
+        if (Distance(light.XMm, light.ZMm, State.Body.XMm, State.Body.ZMm) > DouseReachMm)
+            return "too far to reach it";
+        if (command.Lit)
+            _doused.Remove(key);
+        else
+            _doused.Add(key);
+        _context.Events.Publish(new LightDoused(_player, key, command.Lit, tick));
+        return null;
+    }
+
+    /// <summary>How far a hand reaches to a lamp: an arm and a step.</summary>
+    private const long DouseReachMm = 2_500;
+
+    /// <summary>Whether an authored light is out, so presentation can dim what the simulation has stopped counting.</summary>
+    internal bool IsDoused(string key) => _doused.Contains(key);
     /// <summary>How close a body must be to be picked up, and how far it is carried to the cover that hides it.</summary>
     private const long HideReachMm = 2_000;
     private const long HideCarryMm = 8_000;

@@ -697,6 +697,9 @@ public sealed class Simulation
     /// </summary>
     public long WindBearing() => _creatures.WindBearingOf;
 
+    /// <summary>Whether an authored light is out, so the world view can dim the lamp the simulation has stopped counting (STEALTH §2.2).</summary>
+    public bool IsLightDoused(string key) => _creatures.IsDoused(key);
+
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;
 
@@ -1011,7 +1014,9 @@ public sealed class Simulation
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
             ThrowCommand throwCommand => _combat.Handle(throwCommand, WorldTick),
                 TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
-            HideBodyCommand hide => _creatures.Handle(hide, WorldTick),
+                HideBodyCommand hide => _creatures.Handle(hide, WorldTick),
+                DouseLightCommand douse => _creatures.Handle(douse, WorldTick),
+                DragBodyCommand drag => _creatures.Handle(drag, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
