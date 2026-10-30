@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
@@ -68,7 +68,9 @@ public class StealthTests
         Assert.Null(arena.Submit(new MoveCommand(arena.Player, Harness.Toward(dx, dz, Gait.Sprint))));
         arena.Tick(12);
         Assert.Null(arena.Submit(new MoveCommand(arena.Player, MoveIntent.Idle(arena.Simulation.Player.Body.FacingMdeg))));
-        return Only(arena).Awareness > 0 || Only(arena).Mind != CreatureMind.Unaware || noticed.Count > 0;
+        // The question is whether it was HEARD, not whether anything found the character: a nose on the wind or an eye in the daylight raises awareness too,
+        // and since the senses learned to report which one it was, the answer can be read rather than inferred from the numbers.
+        return Only(arena).LastNotice == UNNAMED.Domain.Creatures.NoticeKind.Sound;
     }
 
     // ── the skill is quieter, never invisible ───────────────────────────────
