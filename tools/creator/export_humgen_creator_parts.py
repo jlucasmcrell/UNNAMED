@@ -5,11 +5,11 @@ contains only the requested parts and their exact base rig, never another body.
 Usage in Blender: -- <creator-work> <catalogue> [<option-id> ...]
 """
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
-import bmesh
 import bpy
 import numpy as np
 from mathutils import Vector
@@ -266,24 +266,26 @@ def add_lining(meshes):
         copy.data = obj.data.copy()
         copy.name = obj.name + '_lining'
         bpy.context.collection.objects.link(copy)
-        mesh = bmesh.new()
-        mesh.from_mesh(copy.data)
-        bmesh.ops.reverse_faces(mesh, faces=list(mesh.faces))
-        mesh.normal_update()
-        for vertex in mesh.verts:
-            vertex.co -= vertex.normal * .003
-        mesh.to_mesh(copy.data)
-        mesh.free()
-        # A lining needs no shape keys: their absolute positions describe the unflipped surface, so any that stayed would pull the
-        # lining apart the moment a corrective was active. Keep the basis only.
-        copy.shape_key_clear()
+        # Offset every absolute key by the same normal displacement, preserving
+        # its morph delta. The lining must follow broad bodies and joint poses.
+        offsets = np.array([tuple(vertex.normal) for vertex in obj.data.vertices]) * .003
+        if copy.data.shape_keys:
+            for key in copy.data.shape_keys.key_blocks:
+                values = np.empty(len(key.data) * 3)
+                key.data.foreach_get('co', values)
+                key.data.foreach_set('co', (values.reshape((-1, 3)) - offsets).ravel())
+        else:
+            for vertex, offset in zip(copy.data.vertices, offsets):
+                vertex.co -= Vector(offset)
+        for polygon in copy.data.polygons:
+            polygon.flip()
+        copy.data.update()
         copy.parent = obj.parent
         copy.parent_type = obj.parent_type
         if obj.parent_type == 'BONE': copy.parent_bone = obj.parent_bone
         copy.matrix_world = obj.matrix_world
-        for modifier in obj.modifiers:
-            if modifier.type == 'ARMATURE':
-                copy.modifiers.new(modifier.name, 'ARMATURE').object = modifier.object
+        # Object.copy already retains the armature modifier; adding another
+        # would deform the lining twice.
         lining.append(copy)
     return lining
 
@@ -296,6 +298,8 @@ for collection, kind, tag in parts:
     for option in catalogue[collection]:
         if only and option['id'] not in only: continue
         for sex, path in option['paths'].items():
+            if os.environ.get('OTHERREACH_PART_SEX') and sex != os.environ['OTHERREACH_PART_SEX']:
+                continue
             identifier = 'humgen_creator_' + sex + '_' + kind + '_' + slug(option['id'])
             folder = work / 'game/primary/rigged' / identifier
             source_scene = work / 'parts_sources' / identifier / 'native.blend'
@@ -305,6 +309,7 @@ for collection, kind, tag in parts:
             bpy.ops.wm.read_homefile(use_empty=True)
             bpy.context.scene.render.threads_mode = 'FIXED'
             bpy.context.scene.render.threads = 8
+            bpy.context.scene.cycles.device = 'CPU'
             native_sex = 'female' if sex == 'f' else 'male'
             base = 'humgen_creator_' + native_sex
             preset = 'models/' + native_sex + ('/Caucasian presets/' if sex == 'f' else '/Caucasian Presets/') + 'Caucasian 2.json'
@@ -333,6 +338,8 @@ for collection, kind, tag in parts:
                              QualitySettings(body='quarter', eyes='low', teeth='low', haircards='haircap_only')]
             settings.scripts.enabled = True
             settings.scripts.items = [ScriptSettings(path=str(tools / 'keep_humgen_creator_groom_keys.py'), stage='before_meshes')]
+            if not tag:
+                settings.scripts.items.append(ScriptSettings(path=str(tools / 'keep_humgen_clothing_keys.py'), stage='before_meshes'))
             print('NATIVE_PART_START', identifier, flush=True)
             result = human.process.run(settings)
             copies = result.humans
