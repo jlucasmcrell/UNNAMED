@@ -67,6 +67,29 @@ public class QuitPathTests
         Assert.True(save >= 0 && save < body.IndexOf("CaptureQuit.Finished", StringComparison.Ordinal), "the save must be committed before the process leaves");
     }
 
+    [Fact]
+    public void AModalAlert_IsNeverShownToAnUnattendedRun()
+    {
+        // OS.Alert blocks until someone clicks it, so a harness or headless run that met one waited for ever (a B-008 capture
+        // batch sat 37 min on "cannot start"). The loading screen's own alert exists only when the loading screen does, which
+        // an unattended run never builds; every other alert must be behind the unattended check.
+        string presentation = Path.Combine(RepositoryRoot(), "src", "Presentation");
+        string sep = Path.DirectorySeparatorChar.ToString();
+        var offenders = new List<string>();
+        foreach (string file in Directory.EnumerateFiles(presentation, "*.cs", SearchOption.AllDirectories)
+                     .Where(f => !f.Contains($"{sep}.godot{sep}", StringComparison.Ordinal) && !f.Contains($"{sep}addons{sep}", StringComparison.Ordinal)))
+        {
+            string relative = Path.GetRelativePath(presentation, file);
+            if (relative == Path.Combine("Ui", "LoadingScreen.cs"))
+                continue;
+            string[] lines = File.ReadAllLines(file);
+            for (int i = 0; i < lines.Length; i++)
+                if (Regex.IsMatch(lines[i].Split("//")[0], @"\bOS\.Alert\s*\(") && (i == 0 || lines[i - 1].Trim() != "if (!_unattended)"))
+                    offenders.Add($"{relative}:{i + 1}: {lines[i].Trim()}");
+        }
+        Assert.True(offenders.Count == 0, "A modal alert an unattended run can reach:\n" + string.Join("\n", offenders));
+    }
+
     private static string RepositoryRoot()
     {
         for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir is not null; dir = dir.Parent)

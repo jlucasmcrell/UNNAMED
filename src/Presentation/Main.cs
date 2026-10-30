@@ -84,6 +84,8 @@ public partial class Main : Node3D
     private SystemMenuPanel _menu = null!;
     private CanvasLayer? _openedFromMenu;
     private bool _escapeToMenu;
+    /// <summary>No one is at the window: a harness run, a headless one, or one the engine quits itself (<c>--quit-after</c>).</summary>
+    private bool _unattended;
     private SaveOutcome? _lastSave;
     private string? _loadedFrom;
     private EffectsPanel _effectsPanel = null!;
@@ -285,7 +287,9 @@ public partial class Main : Node3D
     {
         _loading?.End();
         GD.PushError($"UNNAMED cannot start: {e}");
-        if (DisplayServer.GetName() != "headless")
+        // The dialog is modal: with no one at the window it waited for ever (the B-008 batch sat 37 min on a scatter path its
+        // launcher split at a space). An unattended run has the reason in the log and stderr, and leaves with 2.
+        if (!_unattended)
             OS.Alert($"Otherreach cannot start.\n\n{why}\n\nThe log, with the details: {LogPath}", "Otherreach");
         CaptureQuit.At(this, 2);
     }
@@ -308,6 +312,7 @@ public partial class Main : Node3D
         _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
         if (!harness && DisplayServer.GetName() != "headless")
             _loading = new Ui.LoadingScreen(GetViewport());
+        _unattended = _loading is null || OS.GetCmdlineArgs().Contains("--quit-after");
         Settings.SettingsStore.Load(persist: !harness);
         if (harness)
         {
