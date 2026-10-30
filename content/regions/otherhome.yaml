@@ -54130,125 +54130,65 @@ structures:
   - 1134.0
   height_m: 1.4
 - id: oh_gate_stone_0
-  circle_m:
+  circle_m: [594.00, 3.20, 1.14]
   height_m: 1.71
-  - 594.0
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_1
-  circle_m:
+  circle_m: [612.38, 3.20, 1.14]
   height_m: 1.71
-  - 612.38
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_2
-  circle_m:
+  circle_m: [620.00, 3.20, 1.14]
   height_m: 1.71
-  - 620.0
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_3
-  circle_m:
+  circle_m: [612.38, 3.20, 1.14]
   height_m: 1.71
-  - 612.38
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_4
-  circle_m:
+  circle_m: [594.00, 3.20, 1.14]
   height_m: 1.71
-  - 594.0
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_5
-  circle_m:
+  circle_m: [575.62, 3.20, 1.14]
   height_m: 1.71
-  - 575.62
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_6
-  circle_m:
+  circle_m: [568.00, 3.20, 1.14]
   height_m: 1.71
-  - 568.0
-  - 3.2
-  height_m: 9.0
 - id: oh_gate_stone_7
-  circle_m:
+  circle_m: [575.62, 3.20, 1.14]
   height_m: 1.71
-  - 575.62
-  - 3.2
-  height_m: 9.0
 - id: oh_cistern_lip_0
-  circle_m:
+  circle_m: [684.00, 1.20, 0.3]
   height_m: 0.41
-  - 684.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_1
-  circle_m:
+  circle_m: [690.00, 1.20, 0.3]
   height_m: 0.41
-  - 690.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_2
-  circle_m:
+  circle_m: [694.39, 1.20, 0.3]
   height_m: 0.41
-  - 694.39
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_3
-  circle_m:
+  circle_m: [696.00, 1.20, 0.3]
   height_m: 0.41
-  - 696.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_4
-  circle_m:
+  circle_m: [694.39, 1.20, 0.3]
   height_m: 0.41
-  - 694.39
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_5
-  circle_m:
+  circle_m: [690.00, 1.20, 0.3]
   height_m: 0.41
-  - 690.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_6
-  circle_m:
+  circle_m: [684.00, 1.20, 0.3]
   height_m: 0.41
-  - 684.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_7
-  circle_m:
+  circle_m: [678.00, 1.20, 0.3]
   height_m: 0.41
-  - 678.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_8
-  circle_m:
+  circle_m: [673.61, 1.20, 0.3]
   height_m: 0.41
-  - 673.61
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_9
-  circle_m:
+  circle_m: [672.00, 1.20, 0.3]
   height_m: 0.41
-  - 672.0
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_10
-  circle_m:
+  circle_m: [673.61, 1.20, 0.3]
   height_m: 0.41
-  - 673.61
-  - 1.2
-  height_m: 1.0
 - id: oh_cistern_lip_11
-  circle_m:
+  circle_m: [678.00, 1.20, 0.3]
   height_m: 0.41
-  - 678.0
-  - 1.2
-  height_m: 1.0
 - id: oh_stair_t0_f0_l0
   box_m:
   - 1453.8
