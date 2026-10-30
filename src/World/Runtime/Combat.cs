@@ -1,4 +1,4 @@
-﻿// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
 // (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
@@ -828,11 +828,13 @@ internal sealed partial class CombatSystem
         if (!StealthRules.IsDagger(attack))
             return "a takedown needs a dagger";
         var body = State.Body;
-        // Inside reach: the blade's length, a step, and the target's own body.
+        // Inside reach: the blade's length, a step and the target's own body on the level - and from a ledge, as far as the drop is deep, because
+        // a body that comes down on someone reaches them from further up (STEALTH §5.3).
         var nearest = State.Creatures.Values
             .Where(c => c.Alive && c.Site.Space == State.Space)
             .Select(c => (Creature: c, Distance: Math.Sqrt(Math.Pow(c.Body.XMm - body.XMm, 2) + Math.Pow(c.Body.ZMm - body.ZMm, 2))))
-            .Where(t => t.Distance <= attack.ReachMm + 1_500 + t.Creature.Definition.RadiusMm)
+            .Where(t => TakedownRules.InReach(attack.ReachMm + 1_500 + t.Creature.Definition.RadiusMm, body.YMm, t.Creature.Body.YMm,
+                (long)t.Distance))
             .OrderBy(t => t.Distance)
             .Select(t => (CreatureState?)t.Creature)
             .FirstOrDefault();
