@@ -1,0 +1,13 @@
+id: node.carcass.elk
+kind: node
+schema: 1
+display_key: node.carcass.elk.name
+tags: [node]
+name: Elk Carcass
+notes: "A bull elk down on the moor - heavy hide, a deal of meat, and antlers worth the carrying."
+resource_ref: resource.carcass.elk
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 7
+tier: 1

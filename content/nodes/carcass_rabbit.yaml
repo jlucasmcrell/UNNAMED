@@ -1,0 +1,13 @@
+id: node.carcass.rabbit
+kind: node
+schema: 1
+display_key: node.carcass.rabbit.name
+tags: [node]
+name: Rabbit Carcass
+notes: "A rabbit in the grass: small hide, a small meal, and quick work."
+resource_ref: resource.carcass.rabbit
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 3
+tier: 1

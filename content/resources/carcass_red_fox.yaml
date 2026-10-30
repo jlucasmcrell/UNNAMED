@@ -1,0 +1,9 @@
+id: resource.carcass.red_fox
+kind: resource
+schema: 1
+display_key: resource.carcass.red_fox.name
+tags: [resource]
+name: Fox Carcass
+notes: "The body a red_fox leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.alpha_pelt, count_range: [1, 1] }

@@ -1,0 +1,9 @@
+id: resource.carcass.elk
+kind: resource
+schema: 1
+display_key: resource.carcass.elk.name
+tags: [resource]
+name: Elk Carcass
+notes: "The body a elk leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.deer_hide, count_range: [1, 4] }

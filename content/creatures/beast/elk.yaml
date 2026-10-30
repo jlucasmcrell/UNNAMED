@@ -15,6 +15,7 @@ move_speed_m_s: 5.6
 turn_deg_s: 220
 body_radius_m: 0.7
 xp_value: 20
+carcass_ref: node.carcass.elk
 loot_table: loot.elk
 perception: { sight_m: 34, hearing_m: 32, fov_deg: 300 }
 tier_hint: A

@@ -15,6 +15,7 @@ move_speed_m_s: 5.0
 turn_deg_s: 420
 body_radius_m: 0.3
 xp_value: 0
+carcass_ref: node.carcass.red_fox
 loot_table: loot.fox
 perception: { sight_m: 22, hearing_m: 26, fov_deg: 280 }
 tier_hint: A

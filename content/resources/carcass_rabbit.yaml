@@ -1,0 +1,9 @@
+id: resource.carcass.rabbit
+kind: resource
+schema: 1
+display_key: resource.carcass.rabbit.name
+tags: [resource]
+name: Rabbit Carcass
+notes: "The body a rabbit leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.small_hide, count_range: [1, 1] }

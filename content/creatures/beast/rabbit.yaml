@@ -15,6 +15,7 @@ move_speed_m_s: 2.4        # its hop is drawn at 0.76 m/s and its run at 3.3
 turn_deg_s: 540
 body_radius_m: 0.15
 xp_value: 0
+carcass_ref: node.carcass.rabbit
 loot_table: loot.rabbit
 perception: { sight_m: 18, hearing_m: 24, fov_deg: 320 }
 tier_hint: A

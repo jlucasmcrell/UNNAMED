@@ -1,0 +1,13 @@
+id: node.carcass.red_fox
+kind: node
+schema: 1
+display_key: node.carcass.red_fox.name
+tags: [node]
+name: Fox Carcass
+notes: "A dog fox where it fell - a pelt worth more than the meat, in the old trade."
+resource_ref: resource.carcass.red_fox
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 6
+tier: 1
