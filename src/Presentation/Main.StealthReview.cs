@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -362,7 +362,7 @@ public partial class Main
                     double hunterGap = Math.Sqrt(Math.Pow(hunter.Body.XMm - sim.Player.Body.XMm, 2)
                         + Math.Pow(hunter.Body.ZMm - sim.Player.Body.ZMm, 2));
                     if (hunterGap > 25_000)
-                        await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 20_000, seconds: 25);
+                        await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 8_000, seconds: 90);
                 }
                 var watched = sim.Creatures
                     .Where(c => c.Alive && !c.Asleep)
