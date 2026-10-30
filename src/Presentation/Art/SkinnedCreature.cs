@@ -31,6 +31,7 @@ public sealed partial class SkinnedCreature : CreatureBody
     private string? _attackSource;
     private string _chosenAttack = "attack";
     private readonly HashSet<string> _charges = new(StringComparer.Ordinal);    private readonly int _variantPick = System.Environment.TickCount & 0x7fffffff;
+    private long _attackTick = -1;
     private HashSet<string> _clips = new(StringComparer.Ordinal);
     private readonly List<(BaseMaterial3D Material, float Energy)> _otherfire = new();
 
@@ -39,6 +40,7 @@ public sealed partial class SkinnedCreature : CreatureBody
     {
         if (!bindings.Creatures.TryGetValue(definition.Id, out var look) || SkinnedModel.Create(art, look.Model, look.Clips, definition.Id, look.NativeStates) is not { } model)
             return null;
+        foreach (var (state, native) in look.NativeStates) model.Alias(state, native);
         // A clip that records the pace it is drawn at is played against that; the rest were retimed to the measured paces below.
         float Pace(string state, float measured)
         {
@@ -246,16 +248,24 @@ public sealed partial class SkinnedCreature : CreatureBody
             _model.Hold(VariantClip("idle", _variantPick), .25f, 0);
             return;
         }
-        if (creature.Phase != _phase || creature.AttackSource != _attackSource)
+        if (creature.Guarding)
         {
-            if (creature.Phase == CombatPhase.Windup)
+            _model.Play("block", .08f);
+            return;
+        }
+        if (creature.Phase != _phase || creature.AttackSource != _attackSource || creature.AttackTick != _attackTick)
+        {
+            if (creature.Phase == CombatPhase.Windup || creature.AttackTick != _attackTick)
             {
                 var variants = creature.AttackSource is { } move
-                    ? _clips.Where(c => c == move || c.StartsWith(move+"_",StringComparison.Ordinal)).Order(StringComparer.Ordinal).ToArray()
+                    ? _clips.Where(c => c == move || c.StartsWith(move + "_", StringComparison.Ordinal)).Order(StringComparer.Ordinal).ToArray()
                     : [];
-                _chosenAttack = variants.Length > 0 ? variants[(int)((creature.AttackTick/7)%variants.Length)] : "attack";
+                // A humanoid's take is chosen by the simulation (Sedge D18); other creatures cycle on the attack's tick.
+                long pick = creature.AttackVariant != 0 ? creature.AttackVariant : creature.AttackTick / 7;
+                _chosenAttack = variants.Length > 0 ? variants[(int)(pick % variants.Length)] : "attack";
             }
             _phase = creature.Phase;
+            _attackTick = creature.AttackTick;
             _attackSource = creature.AttackSource;
             _phaseTicks = creature.PhaseDurationTicks > 0 ? creature.PhaseDurationTicks : Math.Max(1, creature.PhaseTicksLeft + 1);
         }
@@ -275,6 +285,9 @@ public sealed partial class SkinnedCreature : CreatureBody
                 return;
             case CombatPhase.Staggered:
                 _model.Play(VariantClip("hit", _variantPick), 0.1f);
+                return;
+            case CombatPhase.Dodge:
+                _model.Play("dodge", .08f);
                 return;
         }
         if (creature.Asleep)

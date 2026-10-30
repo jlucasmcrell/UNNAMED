@@ -206,6 +206,22 @@
       "material": "wood",
       "wind": 1.0,
       "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Replaces the procedural oak/pine/dead set; all >= 11.9 m, trunk within 0.53 m of box centre."
+    },
+    "grave_marker_": {
+      "models": [
+        "landmark_ph_waystone_a"
+      ],
+      "material": "stone",
+      "note": "D18 SYSTEMS (needed-2): a grave marker is a standing stone until a dressed marker exists"
+    },
+    "ritual_stone_": {
+      "models": [
+        "landmark_ph_quiet_stone_a",
+        "landmark_ph_quiet_stone_b",
+        "landmark_ph_quiet_stone_c"
+      ],
+      "material": "stone",
+      "note": "D18 SYSTEMS (needed-2): the stones that ring a prepared circle"
     }
   },
   "building_walls": {
@@ -3048,6 +3064,14 @@
       "model": "landmark_ph_waystone_a",
       "material": "stone",
       "note": "D18 Sedge: the Tollpiles toll stone, the same scanned standing stone Cairnwold's waystone uses."
+    },
+    "ritual_circle_foldscar_watch": {
+      "surface": "cw_gravel_stones",
+      "note": "D18 SYSTEMS (needed-2): the swept middle of a prepared circle, worn gravel over packed earth"
+    },
+    "ritual_circle_den_listening": {
+      "surface": "cw_gravel_stones",
+      "note": "D18 SYSTEMS (needed-2): the swept middle of a prepared circle, worn gravel over packed earth"
     }
   },
   "doors": {
@@ -4959,6 +4983,84 @@
       "spent": "pelt_snare_sprung",
       "sound": "wood",
       "note": "Codex's snare, ready and sprung (being revised)."
+    },
+    "node.ore.grey_iron": {
+      "model": "node_bp_iron_ore",
+      "spent": "node_bp_iron_ore_spent",
+      "sound": "mining",
+      "note": "D18 SYSTEMS (needed-2): grey iron is the iron seam's own ore model in a better rock; the grade is the node's tier, not a new mesh."
+    },
+    "node.ore.bog_iron": {
+      "model": "node_bp_iron_ore",
+      "spent": "node_bp_iron_ore_spent",
+      "sound": "mining",
+      "note": "D18 SYSTEMS (needed-2): bog iron uses the iron seam's ore model; a distinct bog nodule mesh is an asset ask, named in the post."
+    },
+    "node.ore.hidden_grey_iron": {
+      "model": "node_bp_iron_ore",
+      "spent": "node_bp_iron_ore_spent",
+      "sound": "mining",
+      "note": "D18 SYSTEMS (needed-2): a hidden deposit; the mesh is the seam's, and whether it is drawn at all is the node's hidden flag."
+    },
+    "node.ore.hidden_bog_iron": {
+      "model": "node_bp_iron_ore",
+      "spent": "node_bp_iron_ore_spent",
+      "sound": "mining",
+      "note": "D18 SYSTEMS (needed-2): a hidden deposit, as above."
+    },
+    "node.wood.pine_resin": {
+      "model": "flora_ph_sapling_stand",
+      "spent": "flora_ph_tree_stump_a",
+      "note": "D18 SYSTEMS (needed-2): a standing trunk with old cuts; resin has no mesh of its own yet, so it borrows the timber node's.",
+      "sound": "wood"
+    },
+    "node.carcass.grey_wolf": {
+      "model": "wolf_hide_folded",
+      "spent": "wolf_hide_folded",
+      "tint": [
+        0.82,
+        0.78,
+        0.72
+      ],
+      "spent_tint": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "sound": "hide",
+      "note": "D18 SYSTEMS (needed-2): a wolf's body: the hide it will give, folded where the animal fell. The art library has no carcass bodies, so the body is drawn as its folded hide; a distinct carcass model is an asset ask, named in the post."
+    },
+    "node.carcass.deer": {
+      "model": "deer_hide_folded",
+      "spent": "deer_hide_folded",
+      "tint": [
+        0.82,
+        0.78,
+        0.72
+      ],
+      "spent_tint": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "sound": "hide",
+      "note": "D18 SYSTEMS (needed-2): a deer's body: the hide it will give, folded where the animal fell. The art library has no carcass bodies, so the body is drawn as its folded hide; a distinct carcass model is an asset ask, named in the post."
+    },
+    "node.carcass.boar": {
+      "model": "barrowback_hide_folded",
+      "spent": "barrowback_hide_folded",
+      "tint": [
+        0.82,
+        0.78,
+        0.72
+      ],
+      "spent_tint": [
+        0.45,
+        0.42,
+        0.38
+      ],
+      "sound": "hide",
+      "note": "D18 SYSTEMS (needed-2): a boar's body: the hide it will give, folded where the animal fell. The art library has no carcass bodies, so the body is drawn as its folded hide; a distinct carcass model is an asset ask, named in the post."
     }
   },
   "pieces": {
@@ -6052,6 +6154,56 @@
         "location.cairnwold.village": {
           "theme": "mus.settlement",
           "radius_m": 110
+        }
+      }
+    },
+    "ambience": {
+      "places": {
+        "location.foldscar": {
+          "bed": "amb.foldscar_ruin.01",
+          "details": [
+            "sfx.amb.foldscar.stone_resonance.01",
+            "sfx.amb.foldscar.tone_displacement.01",
+            "sfx.amb.charwood.branch_movement.01"
+          ],
+          "surface": "puddle",
+          "at_m": [
+            553.0,
+            648.0
+          ],
+          "radius_m": 26.0,
+          "gain": 0.9,
+          "note": "generated from content/ambience/foldscar.yaml - edit that file, not this one"
+        },
+        "location.den_gorge": {
+          "bed": "amb.blackvein_cut.01",
+          "details": [
+            "sfx.amb.blackvein.pebble_fall.01",
+            "sfx.amb.blackvein.rock_shift.01"
+          ],
+          "surface": "stone",
+          "at_m": [
+            540.0,
+            797.0
+          ],
+          "radius_m": 30.0,
+          "gain": 0.85,
+          "note": "generated from content/ambience/den_gorge.yaml - edit that file, not this one"
+        },
+        "location.outpost": {
+          "bed": "amb.ashen_hollow.waystation.01",
+          "details": [
+            "sfx.amb.ashen_hollow.timber_creak.01",
+            "sfx.amb.ashen_hollow.settlement_activity.01"
+          ],
+          "surface": "dirt",
+          "at_m": [
+            700.0,
+            658.0
+          ],
+          "radius_m": 34.0,
+          "gain": 0.7,
+          "note": "generated from content/ambience/rim_road.yaml - edit that file, not this one"
         }
       }
     }

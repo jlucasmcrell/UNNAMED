@@ -150313,7 +150313,7 @@ structures:
   - 452.0
   - 760.0
   - 2.4
-  height_m: 0.18
+  height_m: 0.05
 - id: den_gorge_waystone
   circle_m:
   - 535.0

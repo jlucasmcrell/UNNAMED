@@ -19,6 +19,7 @@ public class SessionTests
         Assert.Equal(Enumerable.Range(4, 7).SelectMany(x => new[] { $"r_0_0:c_{x:00}_06", $"r_0_0:c_{x:00}_07" }), layout.CellKeys);
         Assert.Equal(new[]
             {
+                "door.blackvein.seam_gate", "door.blackvein.tool_shed",
                 "door.cw_house_01", "door.cw_house_02", "door.cw_house_03", "door.cw_house_04", "door.cw_house_05", "door.cw_house_06", "door.cw_house_07",
                 "door.cw_longhouse", "door.forge_shed", "door.granary", "door.longhouse", "door.smithy",
             }, layout.Doors.Select(d => d.Key).OrderBy(k => k, StringComparer.Ordinal));
