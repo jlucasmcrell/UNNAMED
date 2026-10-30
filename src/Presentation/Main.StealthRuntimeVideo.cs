@@ -73,7 +73,7 @@ public partial class Main
                 // The threshold can be a couple of hundred metres from where the run put the character, and a wall is not a reason to film
                 // the wrong place: follow the game's own path there, the way the other capture harnesses arrive somewhere.
                 var target = new Body(px, simulation.Player.Body.YMm, pz, simulation.Player.Body.FacingMdeg);
-                foreach (var point in Playthrough.WayTo(simulation, simulation.Player.Body, target))
+                foreach (var point in Playthrough.WayTo(simulation, simulation.Player.Body, target, standOff: 0.4))
                 {
                     for (int give = 0; give < 9000; give++)
                     {
@@ -102,7 +102,13 @@ public partial class Main
             for (int i = 0; i < 900 && simulation.ActiveLayout.SpaceId == before; i++)
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             if (simulation.ActiveLayout.SpaceId == before)
-                GD.PushError($"STEALTH_RUNTIME_VIDEO: {entryPortal} did not take; filming the space the character is in");
+            {
+                var here = simulation.Player.Body;
+                string where = portal is null
+                    ? "the layout holds no such portal"
+                    : $"{Math.Round(Math.Sqrt(Math.Pow(here.XMm - portal.ExteriorXMm, 2) + Math.Pow(here.ZMm - portal.ExteriorZMm, 2))) / 1000.0:0.0} m from its foot";
+                GD.PushError($"STEALTH_RUNTIME_VIDEO: {entryPortal} did not take ({where}); filming the space the character is in");
+            }
         }
         _rcd3Driving = true;
         _npcs.SuppressPresentationForBenchmark = false;

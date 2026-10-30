@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -352,23 +352,33 @@ public partial class Main
             // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
             if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
             {
-                // A watchman on a post is the better subject than a wandering animal: it stays where it stands, it answers a noise, and a person hunting a
-                // sound is what these two phases are about. A wolf is the second choice because it will walk away from an approach.
+                // What the world calls a hunter is not one role string: the roads spawn wolves as roamer, stray and hunter, and only some roles answer a noise.
+                // So the subject is chosen by the RULE - a role that answers a call, or a watchman on a post - rather than by a name I guessed at.
+                bool AnswersNoise(CreatureView c) =>
+                    c.RoleId == "sentinel" || (sim.Setup.Combat.Roles.TryGetValue(c.RoleId, out var role) && role.AnswersCalls);
+                // A stone carries twenty metres and a nose hears forty, so the subject has to be near enough for the landing to matter: within forty-five
+                // metres of where the character stands. Straight-line steering cannot path around a wall, so chasing a subject across the region never worked.
+                const long ThrowReachMm = 45_000;
+                double FromHere(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2)
+                    + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2));
                 var hunter = sim.Creatures
-                    .Where(c => c.Alive && !c.Asleep && (c.RoleId == "sentinel" || c.RoleId == "pack_hunter"))
+                    .Where(c => c.Alive && !c.Asleep && AnswersNoise(c) && FromHere(c) <= ThrowReachMm)
                     .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
-                    .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .ThenBy(FromHere)
                     .FirstOrDefault();
-                if (hunter is not null)
+                // One short approach, in case the subject is just outside a comfortable throw; the caption then says what the gap actually was.
+                if (hunter is not null && FromHere(hunter) > 15_000)
                 {
-                    double hunterGap = Math.Sqrt(Math.Pow(hunter.Body.XMm - sim.Player.Body.XMm, 2)
-                        + Math.Pow(hunter.Body.ZMm - sim.Player.Body.ZMm, 2));
-                    if (hunterGap > 25_000)
-                        await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 8_000, seconds: 90);
+                    await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 12_000, seconds: 20);
+                    hunter = sim.Creatures
+                        .Where(c => c.Alive && !c.Asleep && AnswersNoise(c) && FromHere(c) <= ThrowReachMm)
+                        .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
+                        .ThenBy(FromHere)
+                        .FirstOrDefault();
                 }
                 var watched = sim.Creatures
                     .Where(c => c.Alive && !c.Asleep)
-                    .OrderBy(c => c.RoleId == "pack_hunter" ? 0 : 1)
+                    .OrderBy(c => AnswersNoise(c) ? 0 : 1)
                     .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
                 int before = watched?.Awareness ?? 0;
