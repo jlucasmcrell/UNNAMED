@@ -1,4 +1,4 @@
-﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -855,12 +855,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
             && ScentRules.Carries(WindBearing, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
             && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm))
         {
+            // A nose is not a sighting and it is not instant: it builds as the scent does, at half the rate a pair of eyes builds it. Until the animal
+            // is suspicious enough to act there is nothing for it to act on, so it learns the place only once the smell has told it something (§4.6).
+            int smelled = Math.Min(Perception.Full, next.Awareness + Math.Max(1, rules.SightPerSecondAtRange / 2));
             next = next with
             {
-                Awareness = Math.Max(next.Awareness, rules.HeardNoise),
-                Knows = true,
-                KnownXMm = player.XMm,
-                KnownZMm = player.ZMm,
+                Awareness = smelled,
+                Knows = next.Knows || smelled >= rules.Suspicious,
+                KnownXMm = smelled >= rules.Suspicious ? player.XMm : next.KnownXMm,
+                KnownZMm = smelled >= rules.Suspicious ? player.ZMm : next.KnownZMm,
             };
         }
         if (pounce && target)
