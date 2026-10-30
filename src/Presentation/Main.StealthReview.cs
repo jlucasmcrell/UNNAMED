@@ -351,15 +351,24 @@ public partial class Main
             // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
             if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
             {
-                // A sleeping animal is deaf to a stone (its hearing is the role's own share), so the beat picks something awake to be distracted, and says
-                // so when the nearest awake body is too far to hear the landing.
+                // The subject is chosen BY THE MECHANIC, not by proximity: a sleeping animal is deaf to a stone and a chicken does not answer one, so the beat
+                // wants something awake whose role answers a noise - a hunter - and throws the stone toward it so the landing is inside its hearing.
                 var watched = sim.Creatures
                     .Where(c => c.Alive && !c.Asleep)
-                    .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .OrderBy(c => c.RoleId == "pack_hunter" ? 0 : 1)
+                    .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
                 int before = watched?.Awareness ?? 0;
                 rejected.Clear();
-                _session.Submit(new ThrowCommand(sim.PlayerId, stone.ItemId, -700, 700));
+                long towardX = 0, towardZ = 0;
+                if (watched is not null)
+                {
+                    double dx = watched.Body.XMm - sim.Player.Body.XMm, dz = watched.Body.ZMm - sim.Player.Body.ZMm;
+                    double len = Math.Max(1, Math.Sqrt(dx * dx + dz * dz));
+                    towardX = (long)Math.Round(dx / len * 1_000);
+                    towardZ = (long)Math.Round(dz / len * 1_000);
+                }
+                _session.Submit(new ThrowCommand(sim.PlayerId, stone.ItemId, towardX, towardZ));
                 await Rcd3Wait(1.6);
                 var after = watched is null ? null : sim.Creatures.FirstOrDefault(c => c.Id == watched.Id);
                 var words = watched is null
