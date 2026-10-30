@@ -387,6 +387,8 @@ public partial class Main
             // comparison is the point - a viewer should see the number change when the boots do.
             if (wanted("surface"))
             {
+                // The ring is only worth something while the boots are moving, so the "before" reading is taken mid-step rather than from a standing body.
+                await Walk(Vector3.Forward, Gait.Walk, 0.5);
                 string before = sim.PlayerSurface;
                 long ringBefore = sim.PlayerNoiseMm;
                 var here = sim.Player.Body;
