@@ -50741,6 +50741,156 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_door_woodpile_000
+  box_m: [1306.03, 563.9, 1307.98, 564.81]
+  height_m: 1.2
+- id: oh_door_trough_001
+  box_m: [1390.1, 563.9, 1391.9, 564.63]
+  height_m: 0.56
+- id: oh_door_bucket_002
+  box_m: [1474.84, 563.9, 1475.16, 564.22]
+  height_m: 0.34
+- id: oh_door_woodpile_003
+  box_m: [1558.03, 563.9, 1559.98, 564.81]
+  height_m: 1.2
+- id: oh_door_trough_004
+  box_m: [1642.1, 563.9, 1643.9, 564.63]
+  height_m: 0.56
+- id: oh_door_bucket_005
+  box_m: [1726.84, 563.9, 1727.16, 564.22]
+  height_m: 0.34
+- id: oh_door_woodpile_006
+  box_m: [1810.03, 563.9, 1811.98, 564.81]
+  height_m: 1.2
+- id: oh_door_trough_007
+  box_m: [1369.1, 562.9, 1370.9, 563.63]
+  height_m: 0.56
+- id: oh_door_bucket_008
+  box_m: [1453.84, 562.9, 1454.16, 563.22]
+  height_m: 0.34
+- id: oh_door_woodpile_009
+  box_m: [1537.03, 562.9, 1538.98, 563.81]
+  height_m: 1.2
+- id: oh_door_trough_010
+  box_m: [1621.1, 562.9, 1622.9, 563.63]
+  height_m: 0.56
+- id: oh_door_bucket_011
+  box_m: [1705.84, 562.9, 1706.16, 563.22]
+  height_m: 0.34
+- id: oh_door_woodpile_012
+  box_m: [1789.03, 562.9, 1790.98, 563.81]
+  height_m: 1.2
+- id: oh_door_trough_013
+  box_m: [1319.1, 590.9, 1320.9, 591.63]
+  height_m: 0.56
+- id: oh_door_bucket_014
+  box_m: [1427.84, 590.9, 1428.16, 591.22]
+  height_m: 0.34
+- id: oh_door_woodpile_015
+  box_m: [1643.03, 590.9, 1644.98, 591.81]
+  height_m: 1.2
+- id: oh_door_trough_016
+  box_m: [1715.1, 590.9, 1716.9, 591.63]
+  height_m: 0.56
+- id: oh_door_bucket_017
+  box_m: [1787.84, 590.9, 1788.16, 591.22]
+  height_m: 0.34
+- id: oh_door_woodpile_018
+  box_m: [1311.03, 600.4, 1312.98, 601.31]
+  height_m: 1.2
+- id: oh_door_trough_019
+  box_m: [1443.1, 600.4, 1444.9, 601.13]
+  height_m: 0.56
+- id: oh_door_bucket_020
+  box_m: [1641.84, 600.4, 1642.16, 600.72]
+  height_m: 0.34
+- id: oh_door_woodpile_021
+  box_m: [1773.03, 600.4, 1774.98, 601.31]
+  height_m: 1.2
+- id: oh_door_trough_022
+  box_m: [1301.1, 620.9, 1302.9, 621.63]
+  height_m: 0.56
+- id: oh_door_bucket_023
+  box_m: [1409.84, 620.9, 1410.16, 621.22]
+  height_m: 0.34
+- id: oh_door_woodpile_024
+  box_m: [1589.03, 620.9, 1590.98, 621.81]
+  height_m: 1.2
+- id: oh_door_trough_025
+  box_m: [1661.1, 620.9, 1662.9, 621.63]
+  height_m: 0.56
+- id: oh_door_bucket_026
+  box_m: [1733.84, 620.9, 1734.16, 621.22]
+  height_m: 0.34
+- id: oh_door_woodpile_027
+  box_m: [1805.03, 620.9, 1806.98, 621.81]
+  height_m: 1.2
+- id: oh_door_trough_028
+  box_m: [1421.1, 630.4, 1422.9, 631.13]
+  height_m: 0.56
+- id: oh_door_bucket_029
+  box_m: [1685.84, 630.4, 1686.16, 630.72]
+  height_m: 0.34
+- id: oh_door_woodpile_030
+  box_m: [1817.03, 630.4, 1818.98, 631.31]
+  height_m: 1.2
+- id: oh_door_trough_031
+  box_m: [1355.1, 650.9, 1356.9, 651.63]
+  height_m: 0.56
+- id: oh_door_bucket_032
+  box_m: [1427.84, 650.9, 1428.16, 651.22]
+  height_m: 0.34
+- id: oh_door_woodpile_033
+  box_m: [1643.03, 650.9, 1644.98, 651.81]
+  height_m: 1.2
+- id: oh_door_trough_034
+  box_m: [1715.1, 650.9, 1716.9, 651.63]
+  height_m: 0.56
+- id: oh_door_bucket_035
+  box_m: [1787.84, 650.9, 1788.16, 651.22]
+  height_m: 0.34
+- id: oh_door_woodpile_036
+  box_m: [1333.03, 660.4, 1334.98, 661.31]
+  height_m: 1.2
+- id: oh_door_trough_037
+  box_m: [1597.1, 660.4, 1598.9, 661.13]
+  height_m: 0.56
+- id: oh_door_bucket_038
+  box_m: [1729.84, 660.4, 1730.16, 660.72]
+  height_m: 0.34
+- id: oh_door_woodpile_039
+  box_m: [1301.03, 680.9, 1302.98, 681.81]
+  height_m: 1.2
+- id: oh_door_trough_040
+  box_m: [1373.1, 680.9, 1374.9, 681.63]
+  height_m: 0.56
+- id: oh_door_bucket_041
+  box_m: [1445.84, 680.9, 1446.16, 681.22]
+  height_m: 0.34
+- id: oh_door_woodpile_042
+  box_m: [1625.03, 680.9, 1626.98, 681.81]
+  height_m: 1.2
+- id: oh_door_trough_043
+  box_m: [1697.1, 680.9, 1698.9, 681.63]
+  height_m: 0.56
+- id: oh_door_bucket_044
+  box_m: [1769.84, 680.9, 1770.16, 681.22]
+  height_m: 0.34
+- id: oh_door_woodpile_045
+  box_m: [1311.03, 690.4, 1312.98, 691.31]
+  height_m: 1.2
+- id: oh_door_trough_046
+  box_m: [1443.1, 690.4, 1444.9, 691.13]
+  height_m: 0.56
+- id: oh_door_bucket_047
+  box_m: [1641.84, 690.4, 1642.16, 690.72]
+  height_m: 0.34
+- id: oh_door_woodpile_048
+  box_m: [1773.03, 690.4, 1774.98, 691.31]
+  height_m: 1.2
+- id: oh_door_trough_049
+  box_m: [1319.1, 710.9, 1320.9, 711.63]
+  height_m: 0.56
 - id: oh_front_a_000
   box_m: [1303.0, 557.0, 1311.0, 563.0]
   height_m: 6.5

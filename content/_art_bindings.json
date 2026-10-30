@@ -14199,6 +14199,256 @@
       "model": "prop_cos_barrel_met_01",
       "material": "wood",
       "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_door_woodpile_000": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_001": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_002": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_003": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_004": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_005": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_006": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_007": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_008": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_009": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_010": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_011": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_012": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_013": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_014": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_015": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_016": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_017": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_018": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_019": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_020": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_021": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_022": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_023": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_024": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_025": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_026": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_027": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_028": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_029": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_030": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_031": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_032": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_033": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_034": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_035": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_036": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_037": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_038": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_039": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_040": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_041": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_042": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_043": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_044": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_045": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_046": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
+    },
+    "oh_door_bucket_047": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: bucket by a house's door, on the lane."
+    },
+    "oh_door_woodpile_048": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 3: woodpile by a house's door, on the lane."
+    },
+    "oh_door_trough_049": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 3: trough by a house's door, on the lane."
     }
   },
   "doors": {
