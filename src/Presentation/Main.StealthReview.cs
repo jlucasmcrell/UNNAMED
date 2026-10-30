@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -385,7 +385,7 @@ public partial class Main
                 var after = watched is null ? null : sim.Creatures.FirstOrDefault(c => c.Id == watched.Id);
                 var words = watched is null
                     ? "The stone lands\nNothing awake here to be distracted - the birds are roosting"
-                    : $"The Lure Stone, thrown off the lane\n{after?.Mind}: {before} -> {after?.Awareness ?? 0} - it looks where the noise is, not at the body";
+                    : $"The Lure Stone, thrown off the lane\n{after?.Mind}: {before} -> {after?.Awareness ?? 0} - it looks where the noise is, not at the body (subject role: {watched?.RoleId}, {Math.Sqrt(Math.Pow(watched!.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(watched.Body.ZMm - sim.Player.Body.ZMm, 2)) / 1000.0:0.0} m)";
                 await Beat("thrown_lure", words, 2.2);
 
                 // S3's own half of the same event: a noise gives a place to look, and the animal goes to look at it. The beat names the animal's mind and how
