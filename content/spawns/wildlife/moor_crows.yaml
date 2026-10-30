@@ -3,12 +3,12 @@ kind: spawn
 schema: 1
 display_key: spawn.cairnwold.moor_crows.name
 tags: [spawn]
-notes: Crows over the open moor, working the sheep ground and the wall tops in a loose mob
+notes: Crows over the open moor east of the village, working the sheep ground and the wall tops in a loose mob
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.crow, count: [5, 5], role: wildlife }
 at:
-  position_m: [960, 660]
+  position_m: [1000, 690]
   radius_m: 16
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }
