@@ -1687,6 +1687,7 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED audio: {_sounds.Played.Count} of {_sounds.Count} sounds played this run; asked for and missing: " +
                      (_sounds.Unknown.Count == 0 ? "none" : string.Join(", ", _sounds.Unknown)) +
                      (OS.GetEnvironment("UNNAMED_AUDIO_LOG") is { Length: > 0 } log ? WriteAudioLog(log) : ""));
+        CaptureQuit.Finished();
     }
 
     private string WriteAudioLog(string path)

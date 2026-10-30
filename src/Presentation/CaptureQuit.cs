@@ -32,4 +32,21 @@ internal static class CaptureQuit
         GD.Print("CAPTURE failed run: leaving the process without an engine teardown");
         System.Environment.Exit(code);
     }
+
+    /// <summary>
+    /// The end of every orderly quit of a packaged build, called last from <c>Main._ExitTree</c> once the save is committed and the
+    /// logs are written. Once a full world is built, a zero-code quit hits the same double free in Godot's own teardown as B-001
+    /// (B-017: 0xC0000374 at ntdll+0x118095 from Otherreach+0x3fa8a33, no managed frame; a clean frontier boot on the full art root
+    /// crashed this way every time), so the process leaves here with 0 instead. Every non-zero quit has already left through
+    /// <see cref="At"/>, so 0 is the code the run asked for. What the engine teardown would still have done is free memory the
+    /// OS takes back anyway; an editor run keeps it, with its leaks report.
+    /// </summary>
+    public static void Finished()
+    {
+        if (!OS.HasFeature("template"))
+            return;
+        GD.Print("CAPTURE finished: leaving the process without an engine teardown");
+        Console.Out.Flush();
+        System.Environment.Exit(0);
+    }
 }

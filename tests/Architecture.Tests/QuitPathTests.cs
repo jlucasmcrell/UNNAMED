@@ -8,8 +8,8 @@ namespace UNNAMED.Architecture.Tests;
 /// Godot's own teardown frees one block twice on that path (Windows reports 0xC0000374 at <c>Otherreach+0x3fa8a33</c>,
 /// "BlockNotBusy_DOUBLE_FREE", with no managed frame in the chain). The packaged abort path once called <c>GetTree().Quit(1)</c>
 /// directly and was the one failure the fix could not reach, so the rule is asserted here: a non-zero quit may not ask the scene
-/// tree to stop, and only <c>CaptureQuit</c> leaves the process. A zero-code quit still goes to the engine, which is the right
-/// end for a run that finished - an orderly run keeps its exit tree, its leaks report and its final save flush.
+/// tree to stop, and only <c>CaptureQuit</c> leaves the process. A zero-code quit still stops the tree, so an orderly run keeps its
+/// exit tree and its final save flush; a packaged one then leaves at the end of <c>Main._ExitTree</c> (B-017).
 /// </summary>
 public class QuitPathTests
 {
@@ -51,6 +51,20 @@ public class QuitPathTests
         Assert.Contains("Environment.Exit", source, StringComparison.Ordinal);
         Assert.Contains("code == 0", source, StringComparison.Ordinal);
         Assert.Contains("from.GetTree().Quit(code)", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void AnOrderlyQuit_LeavesTheProcessOnceTheGameHasExitedItsTree()
+    {
+        // B-017: after a fully built world the engine's teardown double-frees on a clean quit too, so a packaged run leaves the
+        // process as the last thing Main._ExitTree does, after the save is committed.
+        string main = File.ReadAllText(Path.Combine(RepositoryRoot(), "src", "Presentation", "Main.cs"));
+        var exitTree = Regex.Match(main, @"public override void _ExitTree\(\)\s*\{(?<body>.*?)\n    \}", RegexOptions.Singleline);
+        Assert.True(exitTree.Success, "Main._ExitTree not found");
+        string body = exitTree.Groups["body"].Value.TrimEnd();
+        Assert.EndsWith("CaptureQuit.Finished();", body, StringComparison.Ordinal);
+        int save = body.IndexOf("WaitForSaves", StringComparison.Ordinal);
+        Assert.True(save >= 0 && save < body.IndexOf("CaptureQuit.Finished", StringComparison.Ordinal), "the save must be committed before the process leaves");
     }
 
     private static string RepositoryRoot()
