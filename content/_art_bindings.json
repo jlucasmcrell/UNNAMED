@@ -5918,28 +5918,28 @@
    }
   },
   "creature.beast.hunting_spider_matriarch": {
-   "model": "creature_d5_tarantula_matriarch",
+   "model": "creature_cave_hunting_spider",
    "clips": {
-    "idle": "creature.creature_d5_tarantula_matriarch.idle",
-    "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
-    "walk": "creature.creature_d5_tarantula_matriarch.walk",
-    "run": "creature.creature_d5_tarantula_matriarch.walk",
-    "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
-    "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
-    "death": "creature.creature_d5_tarantula_matriarch.dead",
-    "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
-    "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
-    "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
-    "hit": "creature.creature_playtest_cave_spider.hit"
+    "idle": "creature.creature_cave_hunting_spider.idle",
+    "walk": "creature.creature_cave_hunting_spider.walk",
+    "run": "creature.creature_cave_hunting_spider.run",
+    "attack": "creature.creature_cave_hunting_spider.attack",
+    "hit": "creature.creature_cave_hunting_spider.hit",
+    "death": "creature.creature_cave_hunting_spider.death",
+    "idle_b": "creature.creature_cave_hunting_spider.idle_b",
+    "ability.creature.spider_bite_b": "creature.creature_cave_hunting_spider.attack_b",
+    "ability.creature.spider_bite_c": "creature.creature_cave_hunting_spider.attack_c",
+    "ability.creature.spider_bite": "creature.creature_cave_hunting_spider.attack"
    },
    "voice": "cave_hunting_spider",
    "flesh": "chitin",
    "blow": "sting",
-   "note": "Distinct Mixall native brown/orange tarantula, 3m body length, original six takes/rig and full native 2K diffuse. Source has no dedicated hit take; not falsely borrowed from Nephila. Gait pace remains subject to native conversion review.",
+   "note": "D19 asset pass: the Matriarch draws the staged, rigged cave hunting spider at boss scale (2.3x) instead of creature_d5_tarantula_matriarch, which neither art root holds - she was drawing greybox in every cave frame because of it. Same body family, so her taken moves (bite, lunge, heavy) keep their reads.",
    "steps": {
     "walk": "scuttle",
     "run": "scuttle_fast"
-   }
+   },
+   "uniform_scale": 2.3
   },
   "creature.beast.sedge_eel_serpent": {
    "model": "sedge_eel_serpent",
@@ -6346,28 +6346,28 @@
    "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
   },
   "creature.boss.den_gorge.matriarch": {
-   "model": "creature_d5_tarantula_matriarch",
+   "model": "creature_cave_hunting_spider",
    "clips": {
-    "idle": "creature.creature_d5_tarantula_matriarch.idle",
-    "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
-    "walk": "creature.creature_d5_tarantula_matriarch.walk",
-    "run": "creature.creature_d5_tarantula_matriarch.walk",
-    "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
-    "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
-    "death": "creature.creature_d5_tarantula_matriarch.dead",
-    "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
-    "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
-    "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
-    "hit": "creature.creature_playtest_cave_spider.hit"
+    "idle": "creature.creature_cave_hunting_spider.idle",
+    "walk": "creature.creature_cave_hunting_spider.walk",
+    "run": "creature.creature_cave_hunting_spider.run",
+    "attack": "creature.creature_cave_hunting_spider.attack",
+    "hit": "creature.creature_cave_hunting_spider.hit",
+    "death": "creature.creature_cave_hunting_spider.death",
+    "idle_b": "creature.creature_cave_hunting_spider.idle_b",
+    "ability.creature.spider_bite_b": "creature.creature_cave_hunting_spider.attack_b",
+    "ability.creature.spider_bite_c": "creature.creature_cave_hunting_spider.attack_c",
+    "ability.creature.spider_bite": "creature.creature_cave_hunting_spider.attack"
    },
    "voice": "cave_hunting_spider",
    "flesh": "chitin",
    "blow": "sting",
-   "note": "Distinct Mixall native brown/orange tarantula, 3m body length, original six takes/rig and full native 2K diffuse. Source has no dedicated hit take; not falsely borrowed from Nephila. Gait pace remains subject to native conversion review.",
+   "note": "D19 asset pass: the Matriarch draws the staged, rigged cave hunting spider at boss scale (2.3x) instead of creature_d5_tarantula_matriarch, which neither art root holds - she was drawing greybox in every cave frame because of it. Same body family, so her taken moves (bite, lunge, heavy) keep their reads.",
    "steps": {
     "walk": "scuttle",
     "run": "scuttle_fast"
-   }
+   },
+   "uniform_scale": 2.3
   },
   "creature.boss.sedge.old_channel": {
    "model": "sedge_eel_serpent",
