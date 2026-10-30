@@ -936,7 +936,9 @@ public partial class Main : Node3D
         }
         foreach (var held in _interiors.Values)
             held.View?.SetSpaceActive(false);
-        if (!outside) LoadInterior();
+        // A region that IS an interior space (the rope cave) has no entry in _interiors - that table is built for the
+        // portals a region declares - so there is no interior view to load and the region's own view already stands.
+        if (!outside && _interiors.ContainsKey(_session.Simulation!.ActiveLayout.SpaceId)) LoadInterior();
         Step("interior load");
         // Under the open sky (the gorge's ledge and hollow) the frontier stays drawn round the interior; UpdateOpenAir picks whose air.
         bool openAir = !outside && OpenAir(_session.Simulation!.ActiveLayout.SpaceId);
