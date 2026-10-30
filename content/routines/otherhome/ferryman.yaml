@@ -1,0 +1,19 @@
+id: routine.otherhome.ferryman
+kind: routine
+schema: 1
+display_key: routine.otherhome.ferryman.name
+tags: [routine]
+notes: "Gate 3: the ferryman's day in the harbour district - home, post, and the third place the post actually takes them."
+region_ref: region.otherhome
+people_ref: people.mor
+settlement: otherhome
+role: guide
+roles: [guide]
+work_hours: [5, 19]
+anchors:
+  home: {position_m: [1452.0, 498.0], facing_deg: 180}
+  work: {position_m: [1452.0, 504.0], facing_deg: 180}
+  pier: {position_m: [1252.0, 444.0], facing_deg: 270}
+schedule:
+  - {hours: [19, 21], at: home}
+  - {hours: [9, 15], at: pier}

@@ -1,0 +1,18 @@
+id: routine.otherhome.harbour_smith
+kind: routine
+schema: 1
+display_key: routine.otherhome.harbour_smith.name
+tags: [routine]
+notes: "Gate 3: the harbour smith's day in the harbour district - home, post, and the third place the post actually takes them."
+region_ref: region.otherhome
+people_ref: people.kal
+settlement: otherhome
+role: smith
+roles: [smith]
+work_hours: [6, 18]
+anchors:
+  home: {position_m: [1532.0, 772.0], facing_deg: 180}
+  work: {position_m: [1529.0, 764.0], facing_deg: 180}
+  quay: {position_m: [1320.0, 520.0], facing_deg: 270}
+schedule:
+  - {hours: [18, 20], at: quay}

@@ -1,0 +1,18 @@
+id: routine.otherhome.survey_archivist
+kind: routine
+schema: 1
+display_key: routine.otherhome.survey_archivist.name
+tags: [routine]
+notes: "Gate 3: the Long Survey's archivist's day in the harbour district - home, post, and the third place the post actually takes them."
+region_ref: region.otherhome
+people_ref: people.siann
+settlement: otherhome
+role: scholar
+roles: [scholar]
+work_hours: [8, 17]
+anchors:
+  home: {position_m: [1572.0, 776.0], facing_deg: 180}
+  work: {position_m: [1572.0, 773.0], facing_deg: 180}
+  terraces: {position_m: [1440.0, 640.0], facing_deg: 0}
+schedule:
+  - {hours: [17, 19], at: terraces}
