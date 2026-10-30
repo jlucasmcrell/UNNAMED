@@ -5881,6 +5881,29 @@
         "run": "scuttle_fast"
       }
     },
+    "creature.boss.den_gorge.matriarch": {
+      "model": "creature_d5_tarantula_matriarch",
+      "clips": {
+        "idle": "creature.creature_d5_tarantula_matriarch.idle",
+        "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
+        "walk": "creature.creature_d5_tarantula_matriarch.walk",
+        "run": "creature.creature_d5_tarantula_matriarch.walk",
+        "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "death": "creature.creature_d5_tarantula_matriarch.dead",
+        "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
+      },
+      "voice": "cave_hunting_spider",
+      "flesh": "chitin",
+      "blow": "sting",
+      "note": "D19 alias of the accepted 7a47ff2f native Mixall tarantula and all six matching 70-joint takes. Restore the private art delivery with this binding. No Nephila hit take: that skeleton is incompatible. No change to boss stats or canonical size.",
+      "steps": {
+        "walk": "scuttle",
+        "run": "scuttle_fast"
+      }
+    },
     "creature.beast.hunting_spider_matriarch": {
       "model": "creature_d5_tarantula_matriarch",
       "clips": {
@@ -5893,8 +5916,7 @@
         "death": "creature.creature_d5_tarantula_matriarch.dead",
         "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
         "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "hit": "creature.creature_playtest_cave_spider.hit"
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
       },
       "voice": "cave_hunting_spider",
       "flesh": "chitin",
