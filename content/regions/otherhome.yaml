@@ -50741,6 +50741,780 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_houseb_000
+  box_m: [1299.5, 585.0, 1304.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_000
+  box_m: [1316.0, 584.0, 1324.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_001
+  box_m: [1335.5, 585.0, 1340.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_001
+  box_m: [1352.0, 584.0, 1360.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_002
+  box_m: [1371.5, 585.0, 1376.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_002
+  box_m: [1388.0, 584.0, 1396.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_003
+  box_m: [1407.5, 585.0, 1412.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_003
+  box_m: [1424.0, 584.0, 1432.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_004
+  box_m: [1443.5, 585.0, 1448.5, 589.0]
+  height_m: 4.4
+- id: oh_houseb_005
+  box_m: [1587.5, 585.0, 1592.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_004
+  box_m: [1604.0, 584.0, 1612.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_006
+  box_m: [1623.5, 585.0, 1628.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_005
+  box_m: [1640.0, 584.0, 1648.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_007
+  box_m: [1659.5, 585.0, 1664.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_006
+  box_m: [1676.0, 584.0, 1684.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_008
+  box_m: [1695.5, 585.0, 1700.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_007
+  box_m: [1712.0, 584.0, 1720.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_009
+  box_m: [1731.5, 585.0, 1736.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_008
+  box_m: [1748.0, 584.0, 1756.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_010
+  box_m: [1767.5, 585.0, 1772.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_009
+  box_m: [1784.0, 584.0, 1792.0, 590.0]
+  height_m: 6.5
+- id: oh_houseb_011
+  box_m: [1803.5, 585.0, 1808.5, 589.0]
+  height_m: 4.4
+- id: oh_housea_010
+  box_m: [1820.0, 584.0, 1828.0, 590.0]
+  height_m: 6.5
+- id: oh_housea_011
+  box_m: [1308.0, 593.5, 1316.0, 599.5]
+  height_m: 6.5
+- id: oh_houseb_012
+  box_m: [1331.5, 594.5, 1336.5, 598.5]
+  height_m: 4.4
+- id: oh_houseb_013
+  box_m: [1353.5, 594.5, 1358.5, 598.5]
+  height_m: 4.4
+- id: oh_housea_012
+  box_m: [1374.0, 593.5, 1382.0, 599.5]
+  height_m: 6.5
+- id: oh_houseb_014
+  box_m: [1397.5, 594.5, 1402.5, 598.5]
+  height_m: 4.4
+- id: oh_houseb_015
+  box_m: [1419.5, 594.5, 1424.5, 598.5]
+  height_m: 4.4
+- id: oh_housea_013
+  box_m: [1440.0, 593.5, 1448.0, 599.5]
+  height_m: 6.5
+- id: oh_housea_014
+  box_m: [1572.0, 593.5, 1580.0, 599.5]
+  height_m: 6.5
+- id: oh_houseb_016
+  box_m: [1595.5, 594.5, 1600.5, 598.5]
+  height_m: 4.4
+- id: oh_houseb_017
+  box_m: [1617.5, 594.5, 1622.5, 598.5]
+  height_m: 4.4
+- id: oh_housea_015
+  box_m: [1638.0, 593.5, 1646.0, 599.5]
+  height_m: 6.5
+- id: oh_houseb_018
+  box_m: [1661.5, 594.5, 1666.5, 598.5]
+  height_m: 4.4
+- id: oh_houseb_019
+  box_m: [1683.5, 594.5, 1688.5, 598.5]
+  height_m: 4.4
+- id: oh_housea_016
+  box_m: [1704.0, 593.5, 1712.0, 599.5]
+  height_m: 6.5
+- id: oh_houseb_020
+  box_m: [1727.5, 594.5, 1732.5, 598.5]
+  height_m: 4.4
+- id: oh_houseb_021
+  box_m: [1749.5, 594.5, 1754.5, 598.5]
+  height_m: 4.4
+- id: oh_housea_017
+  box_m: [1770.0, 593.5, 1778.0, 599.5]
+  height_m: 6.5
+- id: oh_houseb_022
+  box_m: [1793.5, 594.5, 1798.5, 598.5]
+  height_m: 4.4
+- id: oh_houseb_023
+  box_m: [1815.5, 594.5, 1820.5, 598.5]
+  height_m: 4.4
+- id: oh_housea_018
+  box_m: [1836.0, 593.5, 1844.0, 599.5]
+  height_m: 6.5
+- id: oh_housea_019
+  box_m: [1298.0, 614.0, 1306.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_024
+  box_m: [1317.5, 615.0, 1322.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_020
+  box_m: [1334.0, 614.0, 1342.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_025
+  box_m: [1353.5, 615.0, 1358.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_021
+  box_m: [1370.0, 614.0, 1378.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_026
+  box_m: [1389.5, 615.0, 1394.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_022
+  box_m: [1406.0, 614.0, 1414.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_027
+  box_m: [1425.5, 615.0, 1430.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_023
+  box_m: [1442.0, 614.0, 1450.0, 620.0]
+  height_m: 6.5
+- id: oh_housea_024
+  box_m: [1586.0, 614.0, 1594.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_028
+  box_m: [1605.5, 615.0, 1610.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_025
+  box_m: [1622.0, 614.0, 1630.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_029
+  box_m: [1641.5, 615.0, 1646.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_026
+  box_m: [1658.0, 614.0, 1666.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_030
+  box_m: [1677.5, 615.0, 1682.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_027
+  box_m: [1694.0, 614.0, 1702.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_031
+  box_m: [1713.5, 615.0, 1718.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_028
+  box_m: [1730.0, 614.0, 1738.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_032
+  box_m: [1749.5, 615.0, 1754.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_029
+  box_m: [1766.0, 614.0, 1774.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_033
+  box_m: [1785.5, 615.0, 1790.5, 619.0]
+  height_m: 4.4
+- id: oh_housea_030
+  box_m: [1802.0, 614.0, 1810.0, 620.0]
+  height_m: 6.5
+- id: oh_houseb_034
+  box_m: [1821.5, 615.0, 1826.5, 619.0]
+  height_m: 4.4
+- id: oh_houseb_035
+  box_m: [1309.5, 624.5, 1314.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_036
+  box_m: [1331.5, 624.5, 1336.5, 628.5]
+  height_m: 4.4
+- id: oh_housea_031
+  box_m: [1352.0, 623.5, 1360.0, 629.5]
+  height_m: 6.5
+- id: oh_houseb_037
+  box_m: [1375.5, 624.5, 1380.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_038
+  box_m: [1397.5, 624.5, 1402.5, 628.5]
+  height_m: 4.4
+- id: oh_housea_032
+  box_m: [1418.0, 623.5, 1426.0, 629.5]
+  height_m: 6.5
+- id: oh_houseb_039
+  box_m: [1441.5, 624.5, 1446.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_040
+  box_m: [1573.5, 624.5, 1578.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_041
+  box_m: [1595.5, 624.5, 1600.5, 628.5]
+  height_m: 4.4
+- id: oh_housea_033
+  box_m: [1616.0, 623.5, 1624.0, 629.5]
+  height_m: 6.5
+- id: oh_houseb_042
+  box_m: [1639.5, 624.5, 1644.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_043
+  box_m: [1661.5, 624.5, 1666.5, 628.5]
+  height_m: 4.4
+- id: oh_housea_034
+  box_m: [1682.0, 623.5, 1690.0, 629.5]
+  height_m: 6.5
+- id: oh_houseb_044
+  box_m: [1705.5, 624.5, 1710.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_045
+  box_m: [1727.5, 624.5, 1732.5, 628.5]
+  height_m: 4.4
+- id: oh_housea_035
+  box_m: [1748.0, 623.5, 1756.0, 629.5]
+  height_m: 6.5
+- id: oh_houseb_046
+  box_m: [1771.5, 624.5, 1776.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_047
+  box_m: [1793.5, 624.5, 1798.5, 628.5]
+  height_m: 4.4
+- id: oh_housea_036
+  box_m: [1814.0, 623.5, 1822.0, 629.5]
+  height_m: 6.5
+- id: oh_houseb_048
+  box_m: [1837.5, 624.5, 1842.5, 628.5]
+  height_m: 4.4
+- id: oh_houseb_049
+  box_m: [1299.5, 645.0, 1304.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_037
+  box_m: [1316.0, 644.0, 1324.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_050
+  box_m: [1335.5, 645.0, 1340.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_038
+  box_m: [1352.0, 644.0, 1360.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_051
+  box_m: [1371.5, 645.0, 1376.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_039
+  box_m: [1388.0, 644.0, 1396.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_052
+  box_m: [1407.5, 645.0, 1412.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_040
+  box_m: [1424.0, 644.0, 1432.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_053
+  box_m: [1443.5, 645.0, 1448.5, 649.0]
+  height_m: 4.4
+- id: oh_houseb_054
+  box_m: [1587.5, 645.0, 1592.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_041
+  box_m: [1604.0, 644.0, 1612.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_055
+  box_m: [1623.5, 645.0, 1628.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_042
+  box_m: [1640.0, 644.0, 1648.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_056
+  box_m: [1659.5, 645.0, 1664.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_043
+  box_m: [1676.0, 644.0, 1684.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_057
+  box_m: [1695.5, 645.0, 1700.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_044
+  box_m: [1712.0, 644.0, 1720.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_058
+  box_m: [1731.5, 645.0, 1736.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_045
+  box_m: [1748.0, 644.0, 1756.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_059
+  box_m: [1767.5, 645.0, 1772.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_046
+  box_m: [1784.0, 644.0, 1792.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_060
+  box_m: [1803.5, 645.0, 1808.5, 649.0]
+  height_m: 4.4
+- id: oh_housea_047
+  box_m: [1820.0, 644.0, 1828.0, 650.0]
+  height_m: 6.5
+- id: oh_houseb_061
+  box_m: [1309.5, 654.5, 1314.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_048
+  box_m: [1330.0, 653.5, 1338.0, 659.5]
+  height_m: 6.5
+- id: oh_houseb_062
+  box_m: [1353.5, 654.5, 1358.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_063
+  box_m: [1375.5, 654.5, 1380.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_049
+  box_m: [1396.0, 653.5, 1404.0, 659.5]
+  height_m: 6.5
+- id: oh_houseb_064
+  box_m: [1419.5, 654.5, 1424.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_065
+  box_m: [1441.5, 654.5, 1446.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_066
+  box_m: [1573.5, 654.5, 1578.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_050
+  box_m: [1594.0, 653.5, 1602.0, 659.5]
+  height_m: 6.5
+- id: oh_houseb_067
+  box_m: [1617.5, 654.5, 1622.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_068
+  box_m: [1639.5, 654.5, 1644.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_051
+  box_m: [1660.0, 653.5, 1668.0, 659.5]
+  height_m: 6.5
+- id: oh_houseb_069
+  box_m: [1683.5, 654.5, 1688.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_070
+  box_m: [1705.5, 654.5, 1710.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_052
+  box_m: [1726.0, 653.5, 1734.0, 659.5]
+  height_m: 6.5
+- id: oh_houseb_071
+  box_m: [1749.5, 654.5, 1754.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_072
+  box_m: [1771.5, 654.5, 1776.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_053
+  box_m: [1792.0, 653.5, 1800.0, 659.5]
+  height_m: 6.5
+- id: oh_houseb_073
+  box_m: [1815.5, 654.5, 1820.5, 658.5]
+  height_m: 4.4
+- id: oh_houseb_074
+  box_m: [1837.5, 654.5, 1842.5, 658.5]
+  height_m: 4.4
+- id: oh_housea_054
+  box_m: [1298.0, 674.0, 1306.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_075
+  box_m: [1317.5, 675.0, 1322.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_055
+  box_m: [1334.0, 674.0, 1342.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_076
+  box_m: [1353.5, 675.0, 1358.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_056
+  box_m: [1370.0, 674.0, 1378.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_077
+  box_m: [1389.5, 675.0, 1394.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_057
+  box_m: [1406.0, 674.0, 1414.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_078
+  box_m: [1425.5, 675.0, 1430.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_058
+  box_m: [1442.0, 674.0, 1450.0, 680.0]
+  height_m: 6.5
+- id: oh_housea_059
+  box_m: [1586.0, 674.0, 1594.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_079
+  box_m: [1605.5, 675.0, 1610.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_060
+  box_m: [1622.0, 674.0, 1630.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_080
+  box_m: [1641.5, 675.0, 1646.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_061
+  box_m: [1658.0, 674.0, 1666.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_081
+  box_m: [1677.5, 675.0, 1682.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_062
+  box_m: [1694.0, 674.0, 1702.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_082
+  box_m: [1713.5, 675.0, 1718.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_063
+  box_m: [1730.0, 674.0, 1738.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_083
+  box_m: [1749.5, 675.0, 1754.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_064
+  box_m: [1766.0, 674.0, 1774.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_084
+  box_m: [1785.5, 675.0, 1790.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_065
+  box_m: [1802.0, 674.0, 1810.0, 680.0]
+  height_m: 6.5
+- id: oh_houseb_085
+  box_m: [1821.5, 675.0, 1826.5, 679.0]
+  height_m: 4.4
+- id: oh_housea_066
+  box_m: [1308.0, 683.5, 1316.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_086
+  box_m: [1331.5, 684.5, 1336.5, 688.5]
+  height_m: 4.4
+- id: oh_houseb_087
+  box_m: [1353.5, 684.5, 1358.5, 688.5]
+  height_m: 4.4
+- id: oh_housea_067
+  box_m: [1374.0, 683.5, 1382.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_088
+  box_m: [1397.5, 684.5, 1402.5, 688.5]
+  height_m: 4.4
+- id: oh_houseb_089
+  box_m: [1419.5, 684.5, 1424.5, 688.5]
+  height_m: 4.4
+- id: oh_housea_068
+  box_m: [1440.0, 683.5, 1448.0, 689.5]
+  height_m: 6.5
+- id: oh_housea_069
+  box_m: [1572.0, 683.5, 1580.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_090
+  box_m: [1595.5, 684.5, 1600.5, 688.5]
+  height_m: 4.4
+- id: oh_houseb_091
+  box_m: [1617.5, 684.5, 1622.5, 688.5]
+  height_m: 4.4
+- id: oh_housea_070
+  box_m: [1638.0, 683.5, 1646.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_092
+  box_m: [1661.5, 684.5, 1666.5, 688.5]
+  height_m: 4.4
+- id: oh_houseb_093
+  box_m: [1683.5, 684.5, 1688.5, 688.5]
+  height_m: 4.4
+- id: oh_housea_071
+  box_m: [1704.0, 683.5, 1712.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_094
+  box_m: [1727.5, 684.5, 1732.5, 688.5]
+  height_m: 4.4
+- id: oh_houseb_095
+  box_m: [1749.5, 684.5, 1754.5, 688.5]
+  height_m: 4.4
+- id: oh_housea_072
+  box_m: [1770.0, 683.5, 1778.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_096
+  box_m: [1793.5, 684.5, 1798.5, 688.5]
+  height_m: 4.4
+- id: oh_houseb_097
+  box_m: [1815.5, 684.5, 1820.5, 688.5]
+  height_m: 4.4
+- id: oh_housea_073
+  box_m: [1836.0, 683.5, 1844.0, 689.5]
+  height_m: 6.5
+- id: oh_houseb_098
+  box_m: [1299.5, 705.0, 1304.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_074
+  box_m: [1316.0, 704.0, 1324.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_099
+  box_m: [1335.5, 705.0, 1340.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_075
+  box_m: [1352.0, 704.0, 1360.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_100
+  box_m: [1371.5, 705.0, 1376.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_076
+  box_m: [1388.0, 704.0, 1396.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_101
+  box_m: [1407.5, 705.0, 1412.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_077
+  box_m: [1424.0, 704.0, 1432.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_102
+  box_m: [1443.5, 705.0, 1448.5, 709.0]
+  height_m: 4.4
+- id: oh_houseb_103
+  box_m: [1587.5, 705.0, 1592.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_078
+  box_m: [1604.0, 704.0, 1612.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_104
+  box_m: [1623.5, 705.0, 1628.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_079
+  box_m: [1640.0, 704.0, 1648.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_105
+  box_m: [1659.5, 705.0, 1664.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_080
+  box_m: [1676.0, 704.0, 1684.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_106
+  box_m: [1695.5, 705.0, 1700.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_081
+  box_m: [1712.0, 704.0, 1720.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_107
+  box_m: [1731.5, 705.0, 1736.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_082
+  box_m: [1748.0, 704.0, 1756.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_108
+  box_m: [1767.5, 705.0, 1772.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_083
+  box_m: [1784.0, 704.0, 1792.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_109
+  box_m: [1803.5, 705.0, 1808.5, 709.0]
+  height_m: 4.4
+- id: oh_housea_084
+  box_m: [1820.0, 704.0, 1828.0, 710.0]
+  height_m: 6.5
+- id: oh_houseb_110
+  box_m: [1309.5, 714.5, 1314.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_111
+  box_m: [1331.5, 714.5, 1336.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_085
+  box_m: [1352.0, 713.5, 1360.0, 719.5]
+  height_m: 6.5
+- id: oh_houseb_112
+  box_m: [1375.5, 714.5, 1380.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_113
+  box_m: [1397.5, 714.5, 1402.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_086
+  box_m: [1418.0, 713.5, 1426.0, 719.5]
+  height_m: 6.5
+- id: oh_houseb_114
+  box_m: [1441.5, 714.5, 1446.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_115
+  box_m: [1573.5, 714.5, 1578.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_116
+  box_m: [1595.5, 714.5, 1600.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_087
+  box_m: [1616.0, 713.5, 1624.0, 719.5]
+  height_m: 6.5
+- id: oh_houseb_117
+  box_m: [1639.5, 714.5, 1644.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_118
+  box_m: [1661.5, 714.5, 1666.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_088
+  box_m: [1682.0, 713.5, 1690.0, 719.5]
+  height_m: 6.5
+- id: oh_houseb_119
+  box_m: [1705.5, 714.5, 1710.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_120
+  box_m: [1727.5, 714.5, 1732.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_089
+  box_m: [1748.0, 713.5, 1756.0, 719.5]
+  height_m: 6.5
+- id: oh_houseb_121
+  box_m: [1771.5, 714.5, 1776.5, 718.5]
+  height_m: 4.4
+- id: oh_houseb_122
+  box_m: [1793.5, 714.5, 1798.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_090
+  box_m: [1814.0, 713.5, 1822.0, 719.5]
+  height_m: 6.5
+- id: oh_houseb_123
+  box_m: [1837.5, 714.5, 1842.5, 718.5]
+  height_m: 4.4
+- id: oh_housea_091
+  box_m: [1298.0, 734.0, 1306.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_124
+  box_m: [1317.5, 735.0, 1322.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_092
+  box_m: [1334.0, 734.0, 1342.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_125
+  box_m: [1353.5, 735.0, 1358.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_093
+  box_m: [1370.0, 734.0, 1378.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_126
+  box_m: [1389.5, 735.0, 1394.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_094
+  box_m: [1406.0, 734.0, 1414.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_127
+  box_m: [1425.5, 735.0, 1430.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_095
+  box_m: [1442.0, 734.0, 1450.0, 740.0]
+  height_m: 6.5
+- id: oh_housea_096
+  box_m: [1586.0, 734.0, 1594.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_128
+  box_m: [1605.5, 735.0, 1610.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_097
+  box_m: [1622.0, 734.0, 1630.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_129
+  box_m: [1641.5, 735.0, 1646.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_098
+  box_m: [1658.0, 734.0, 1666.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_130
+  box_m: [1677.5, 735.0, 1682.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_099
+  box_m: [1694.0, 734.0, 1702.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_131
+  box_m: [1713.5, 735.0, 1718.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_100
+  box_m: [1730.0, 734.0, 1738.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_132
+  box_m: [1749.5, 735.0, 1754.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_101
+  box_m: [1766.0, 734.0, 1774.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_133
+  box_m: [1785.5, 735.0, 1790.5, 739.0]
+  height_m: 4.4
+- id: oh_housea_102
+  box_m: [1802.0, 734.0, 1810.0, 740.0]
+  height_m: 6.5
+- id: oh_houseb_134
+  box_m: [1821.5, 735.0, 1826.5, 739.0]
+  height_m: 4.4
+- id: oh_houseb_135
+  box_m: [1309.5, 744.5, 1314.5, 748.5]
+  height_m: 4.4
+- id: oh_housea_103
+  box_m: [1330.0, 743.5, 1338.0, 749.5]
+  height_m: 6.5
+- id: oh_houseb_136
+  box_m: [1353.5, 744.5, 1358.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_137
+  box_m: [1375.5, 744.5, 1380.5, 748.5]
+  height_m: 4.4
+- id: oh_housea_104
+  box_m: [1396.0, 743.5, 1404.0, 749.5]
+  height_m: 6.5
+- id: oh_houseb_138
+  box_m: [1419.5, 744.5, 1424.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_139
+  box_m: [1441.5, 744.5, 1446.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_140
+  box_m: [1573.5, 744.5, 1578.5, 748.5]
+  height_m: 4.4
+- id: oh_housea_105
+  box_m: [1594.0, 743.5, 1602.0, 749.5]
+  height_m: 6.5
+- id: oh_houseb_141
+  box_m: [1617.5, 744.5, 1622.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_142
+  box_m: [1639.5, 744.5, 1644.5, 748.5]
+  height_m: 4.4
+- id: oh_housea_106
+  box_m: [1660.0, 743.5, 1668.0, 749.5]
+  height_m: 6.5
+- id: oh_houseb_143
+  box_m: [1683.5, 744.5, 1688.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_144
+  box_m: [1705.5, 744.5, 1710.5, 748.5]
+  height_m: 4.4
+- id: oh_housea_107
+  box_m: [1726.0, 743.5, 1734.0, 749.5]
+  height_m: 6.5
+- id: oh_houseb_145
+  box_m: [1749.5, 744.5, 1754.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_146
+  box_m: [1771.5, 744.5, 1776.5, 748.5]
+  height_m: 4.4
+- id: oh_housea_108
+  box_m: [1792.0, 743.5, 1800.0, 749.5]
+  height_m: 6.5
+- id: oh_houseb_147
+  box_m: [1815.5, 744.5, 1820.5, 748.5]
+  height_m: 4.4
+- id: oh_houseb_148
+  box_m: [1837.5, 744.5, 1842.5, 748.5]
+  height_m: 4.4
 - id: oh_stall_2_thatch
   box_m: [1677.7, 763.6, 1686.3, 770.4]
   height_m: 2.9
@@ -50804,78 +51578,6 @@ structures:
 - id: oh_stall_0_hurdle_0
   box_m: [1619.5, 765.8, 1620.9, 765.9]
   height_m: 1.2
-- id: oh_houseb_000
-  box_m: [1319.5, 593.0, 1324.5, 597.0]
-  height_m: 4.4
-- id: oh_housea_000
-  box_m: [1788.0, 592.0, 1796.0, 598.0]
-  height_m: 6.5
-- id: oh_houseb_001
-  box_m: [1449.5, 593.0, 1454.5, 597.0]
-  height_m: 4.4
-- id: oh_housea_001
-  box_m: [1528.0, 592.0, 1536.0, 598.0]
-  height_m: 6.5
-- id: oh_housea_002
-  box_m: [1318.0, 622.0, 1326.0, 628.0]
-  height_m: 6.5
-- id: oh_houseb_002
-  box_m: [1789.5, 623.0, 1794.5, 627.0]
-  height_m: 4.4
-- id: oh_housea_003
-  box_m: [1448.0, 622.0, 1456.0, 628.0]
-  height_m: 6.5
-- id: oh_houseb_003
-  box_m: [1529.5, 623.0, 1534.5, 627.0]
-  height_m: 4.4
-- id: oh_houseb_004
-  box_m: [1319.5, 653.0, 1324.5, 657.0]
-  height_m: 4.4
-- id: oh_housea_004
-  box_m: [1788.0, 652.0, 1796.0, 658.0]
-  height_m: 6.5
-- id: oh_houseb_005
-  box_m: [1449.5, 653.0, 1454.5, 657.0]
-  height_m: 4.4
-- id: oh_housea_005
-  box_m: [1528.0, 652.0, 1536.0, 658.0]
-  height_m: 6.5
-- id: oh_housea_006
-  box_m: [1318.0, 682.0, 1326.0, 688.0]
-  height_m: 6.5
-- id: oh_houseb_006
-  box_m: [1789.5, 683.0, 1794.5, 687.0]
-  height_m: 4.4
-- id: oh_housea_007
-  box_m: [1448.0, 682.0, 1456.0, 688.0]
-  height_m: 6.5
-- id: oh_houseb_007
-  box_m: [1529.5, 683.0, 1534.5, 687.0]
-  height_m: 4.4
-- id: oh_houseb_008
-  box_m: [1319.5, 713.0, 1324.5, 717.0]
-  height_m: 4.4
-- id: oh_housea_008
-  box_m: [1788.0, 712.0, 1796.0, 718.0]
-  height_m: 6.5
-- id: oh_houseb_009
-  box_m: [1449.5, 713.0, 1454.5, 717.0]
-  height_m: 4.4
-- id: oh_housea_009
-  box_m: [1528.0, 712.0, 1536.0, 718.0]
-  height_m: 6.5
-- id: oh_housea_010
-  box_m: [1318.0, 742.0, 1326.0, 748.0]
-  height_m: 6.5
-- id: oh_houseb_010
-  box_m: [1789.5, 743.0, 1794.5, 747.0]
-  height_m: 4.4
-- id: oh_housea_011
-  box_m: [1448.0, 742.0, 1456.0, 748.0]
-  height_m: 6.5
-- id: oh_houseb_011
-  box_m: [1529.5, 743.0, 1534.5, 747.0]
-  height_m: 4.4
 - id: oh_quaywall_000
   box_m: [1245.52, 400.00, 1246.72, 404.00]
   height_m: 1.4
@@ -53360,132 +54062,6 @@ structures:
 
 
 
-- id: oh_housea_012
-  box_m: [1353.0, 593.5, 1361.0, 599.5]
-  height_m: 6.5
-- id: oh_houseb_012
-  box_m: [1392.5, 594.5, 1397.5, 598.5]
-  height_m: 4.4
-- id: oh_houseb_013
-  box_m: [1430.5, 594.5, 1435.5, 598.5]
-  height_m: 4.4
-- id: oh_housea_013
-  box_m: [1613.0, 593.5, 1621.0, 599.5]
-  height_m: 6.5
-- id: oh_houseb_014
-  box_m: [1652.5, 594.5, 1657.5, 598.5]
-  height_m: 4.4
-- id: oh_houseb_015
-  box_m: [1690.5, 594.5, 1695.5, 598.5]
-  height_m: 4.4
-- id: oh_housea_014
-  box_m: [1727.0, 593.5, 1735.0, 599.5]
-  height_m: 6.5
-- id: oh_houseb_016
-  box_m: [1354.5, 624.5, 1359.5, 628.5]
-  height_m: 4.4
-- id: oh_houseb_017
-  box_m: [1392.5, 624.5, 1397.5, 628.5]
-  height_m: 4.4
-- id: oh_housea_015
-  box_m: [1429.0, 623.5, 1437.0, 629.5]
-  height_m: 6.5
-- id: oh_houseb_018
-  box_m: [1614.5, 624.5, 1619.5, 628.5]
-  height_m: 4.4
-- id: oh_houseb_019
-  box_m: [1652.5, 624.5, 1657.5, 628.5]
-  height_m: 4.4
-- id: oh_housea_016
-  box_m: [1689.0, 623.5, 1697.0, 629.5]
-  height_m: 6.5
-- id: oh_houseb_020
-  box_m: [1728.5, 624.5, 1733.5, 628.5]
-  height_m: 4.4
-- id: oh_houseb_021
-  box_m: [1354.5, 654.5, 1359.5, 658.5]
-  height_m: 4.4
-- id: oh_housea_017
-  box_m: [1391.0, 653.5, 1399.0, 659.5]
-  height_m: 6.5
-- id: oh_houseb_022
-  box_m: [1430.5, 654.5, 1435.5, 658.5]
-  height_m: 4.4
-- id: oh_houseb_023
-  box_m: [1614.5, 654.5, 1619.5, 658.5]
-  height_m: 4.4
-- id: oh_housea_018
-  box_m: [1651.0, 653.5, 1659.0, 659.5]
-  height_m: 6.5
-- id: oh_houseb_024
-  box_m: [1690.5, 654.5, 1695.5, 658.5]
-  height_m: 4.4
-- id: oh_houseb_025
-  box_m: [1728.5, 654.5, 1733.5, 658.5]
-  height_m: 4.4
-- id: oh_housea_019
-  box_m: [1353.0, 683.5, 1361.0, 689.5]
-  height_m: 6.5
-- id: oh_houseb_026
-  box_m: [1392.5, 684.5, 1397.5, 688.5]
-  height_m: 4.4
-- id: oh_houseb_027
-  box_m: [1430.5, 684.5, 1435.5, 688.5]
-  height_m: 4.4
-- id: oh_housea_020
-  box_m: [1613.0, 683.5, 1621.0, 689.5]
-  height_m: 6.5
-- id: oh_houseb_028
-  box_m: [1652.5, 684.5, 1657.5, 688.5]
-  height_m: 4.4
-- id: oh_houseb_029
-  box_m: [1690.5, 684.5, 1695.5, 688.5]
-  height_m: 4.4
-- id: oh_housea_021
-  box_m: [1727.0, 683.5, 1735.0, 689.5]
-  height_m: 6.5
-- id: oh_houseb_030
-  box_m: [1354.5, 714.5, 1359.5, 718.5]
-  height_m: 4.4
-- id: oh_houseb_031
-  box_m: [1392.5, 714.5, 1397.5, 718.5]
-  height_m: 4.4
-- id: oh_housea_022
-  box_m: [1429.0, 713.5, 1437.0, 719.5]
-  height_m: 6.5
-- id: oh_houseb_032
-  box_m: [1614.5, 714.5, 1619.5, 718.5]
-  height_m: 4.4
-- id: oh_houseb_033
-  box_m: [1652.5, 714.5, 1657.5, 718.5]
-  height_m: 4.4
-- id: oh_housea_023
-  box_m: [1689.0, 713.5, 1697.0, 719.5]
-  height_m: 6.5
-- id: oh_houseb_034
-  box_m: [1728.5, 714.5, 1733.5, 718.5]
-  height_m: 4.4
-- id: oh_houseb_035
-  box_m: [1354.5, 744.5, 1359.5, 748.5]
-  height_m: 4.4
-- id: oh_housea_024
-  box_m: [1391.0, 743.5, 1399.0, 749.5]
-  height_m: 6.5
-- id: oh_houseb_036
-  box_m: [1430.5, 744.5, 1435.5, 748.5]
-  height_m: 4.4
-- id: oh_houseb_037
-  box_m: [1614.5, 744.5, 1619.5, 748.5]
-  height_m: 4.4
-- id: oh_housea_025
-  box_m: [1651.0, 743.5, 1659.0, 749.5]
-  height_m: 6.5
-- id: oh_houseb_038
-  box_m: [1690.5, 744.5, 1695.5, 748.5]
-  height_m: 4.4
-- id: oh_houseb_039
-  box_m: [1728.5, 744.5, 1733.5, 748.5]
-  height_m: 4.4
 - id: oh_quay_cart
   circle_m: [1328.0, 428.0, 0.9]
   height_m: 1.6
@@ -53504,150 +54080,6 @@ structures:
 - id: oh_quay_hurdle_b
   circle_m: [1306.0, 516.0, 0.9]
   height_m: 1.4
-- id: oh_housea_026
-  box_m: [1334.0, 584.0, 1342.0, 590.0]
-  height_m: 6.5
-- id: oh_houseb_040
-  box_m: [1373.5, 585.0, 1378.5, 589.0]
-  height_m: 4.4
-- id: oh_housea_027
-  box_m: [1410.0, 584.0, 1418.0, 590.0]
-  height_m: 6.5
-- id: oh_houseb_041
-  box_m: [1595.5, 585.0, 1600.5, 589.0]
-  height_m: 4.4
-- id: oh_housea_028
-  box_m: [1632.0, 584.0, 1640.0, 590.0]
-  height_m: 6.5
-- id: oh_houseb_042
-  box_m: [1671.5, 585.0, 1676.5, 589.0]
-  height_m: 4.4
-- id: oh_housea_029
-  box_m: [1708.0, 584.0, 1716.0, 590.0]
-  height_m: 6.5
-- id: oh_houseb_043
-  box_m: [1747.5, 585.0, 1752.5, 589.0]
-  height_m: 4.4
-- id: oh_housea_030
-  box_m: [1335.5, 615.0, 1340.5, 619.0]
-  height_m: 4.4
-- id: oh_houseb_044
-  box_m: [1372.0, 614.0, 1380.0, 620.0]
-  height_m: 6.5
-- id: oh_housea_031
-  box_m: [1411.5, 615.0, 1416.5, 619.0]
-  height_m: 4.4
-- id: oh_houseb_045
-  box_m: [1594.0, 614.0, 1602.0, 620.0]
-  height_m: 6.5
-- id: oh_housea_032
-  box_m: [1633.5, 615.0, 1638.5, 619.0]
-  height_m: 4.4
-- id: oh_houseb_046
-  box_m: [1670.0, 614.0, 1678.0, 620.0]
-  height_m: 6.5
-- id: oh_housea_033
-  box_m: [1709.5, 615.0, 1714.5, 619.0]
-  height_m: 4.4
-- id: oh_houseb_047
-  box_m: [1746.0, 614.0, 1754.0, 620.0]
-  height_m: 6.5
-- id: oh_housea_034
-  box_m: [1334.0, 644.0, 1342.0, 650.0]
-  height_m: 6.5
-- id: oh_houseb_048
-  box_m: [1373.5, 645.0, 1378.5, 649.0]
-  height_m: 4.4
-- id: oh_housea_035
-  box_m: [1410.0, 644.0, 1418.0, 650.0]
-  height_m: 6.5
-- id: oh_houseb_049
-  box_m: [1595.5, 645.0, 1600.5, 649.0]
-  height_m: 4.4
-- id: oh_housea_036
-  box_m: [1632.0, 644.0, 1640.0, 650.0]
-  height_m: 6.5
-- id: oh_houseb_050
-  box_m: [1671.5, 645.0, 1676.5, 649.0]
-  height_m: 4.4
-- id: oh_housea_037
-  box_m: [1708.0, 644.0, 1716.0, 650.0]
-  height_m: 6.5
-- id: oh_houseb_051
-  box_m: [1747.5, 645.0, 1752.5, 649.0]
-  height_m: 4.4
-- id: oh_housea_038
-  box_m: [1335.5, 675.0, 1340.5, 679.0]
-  height_m: 4.4
-- id: oh_houseb_052
-  box_m: [1372.0, 674.0, 1380.0, 680.0]
-  height_m: 6.5
-- id: oh_housea_039
-  box_m: [1411.5, 675.0, 1416.5, 679.0]
-  height_m: 4.4
-- id: oh_houseb_053
-  box_m: [1594.0, 674.0, 1602.0, 680.0]
-  height_m: 6.5
-- id: oh_housea_040
-  box_m: [1633.5, 675.0, 1638.5, 679.0]
-  height_m: 4.4
-- id: oh_houseb_054
-  box_m: [1670.0, 674.0, 1678.0, 680.0]
-  height_m: 6.5
-- id: oh_housea_041
-  box_m: [1709.5, 675.0, 1714.5, 679.0]
-  height_m: 4.4
-- id: oh_houseb_055
-  box_m: [1746.0, 674.0, 1754.0, 680.0]
-  height_m: 6.5
-- id: oh_housea_042
-  box_m: [1334.0, 704.0, 1342.0, 710.0]
-  height_m: 6.5
-- id: oh_houseb_056
-  box_m: [1373.5, 705.0, 1378.5, 709.0]
-  height_m: 4.4
-- id: oh_housea_043
-  box_m: [1410.0, 704.0, 1418.0, 710.0]
-  height_m: 6.5
-- id: oh_houseb_057
-  box_m: [1595.5, 705.0, 1600.5, 709.0]
-  height_m: 4.4
-- id: oh_housea_044
-  box_m: [1632.0, 704.0, 1640.0, 710.0]
-  height_m: 6.5
-- id: oh_houseb_058
-  box_m: [1671.5, 705.0, 1676.5, 709.0]
-  height_m: 4.4
-- id: oh_housea_045
-  box_m: [1708.0, 704.0, 1716.0, 710.0]
-  height_m: 6.5
-- id: oh_houseb_059
-  box_m: [1747.5, 705.0, 1752.5, 709.0]
-  height_m: 4.4
-- id: oh_housea_046
-  box_m: [1335.5, 735.0, 1340.5, 739.0]
-  height_m: 4.4
-- id: oh_houseb_060
-  box_m: [1372.0, 734.0, 1380.0, 740.0]
-  height_m: 6.5
-- id: oh_housea_047
-  box_m: [1411.5, 735.0, 1416.5, 739.0]
-  height_m: 4.4
-- id: oh_houseb_061
-  box_m: [1594.0, 734.0, 1602.0, 740.0]
-  height_m: 6.5
-- id: oh_housea_048
-  box_m: [1633.5, 735.0, 1638.5, 739.0]
-  height_m: 4.4
-- id: oh_houseb_062
-  box_m: [1670.0, 734.0, 1678.0, 740.0]
-  height_m: 6.5
-- id: oh_housea_049
-  box_m: [1709.5, 735.0, 1714.5, 739.0]
-  height_m: 4.4
-- id: oh_houseb_063
-  box_m: [1746.0, 734.0, 1754.0, 740.0]
-  height_m: 6.5
 - id: oh_long_survey_hq
   box_m: [1568.0, 764.0, 1576.0, 770.0]
   height_m: 6.5
