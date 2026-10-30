@@ -734,29 +734,6 @@
       "note": "fab_build.py over the region's own wall runs (0.4 m blockers), door gaps from the runs (door.longhouse +x); Fab kit pieces, see ready/bld_fab_ah_waystation/bld_fab_ah_waystation_meta.json kit_pieces. No 'surface' (own 2K maps).",
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
     },
-    "oh_long_survey_": {
-      "model": "bld_fab_cw_long_lodge",
-      "material": "wood",
-      "interior_light": {
-        "at": [
-          3.2,
-          1.6,
-          1.62
-        ],
-        "colour": [
-          1.0,
-          0.66,
-          0.38
-        ],
-        "energy": 1.5,
-        "range": 13,
-        "shadows": true,
-        "size": 0.3,
-        "fog_energy": 0.45,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: the Long Survey's headquarters, in the waystation's lodge kit."
-    },
     "oh_exchange_": {
       "model": "bld_fab_cw_granary",
       "material": "wood",
@@ -6944,6 +6921,53 @@
         "attenuation": 1.2
       },
       "note": "Gate 2: a hall of the lower terrace - 18.9 m of longhouse facing the harbour."
+    },
+    "oh_long_survey_hq": {
+      "model": "bld_fab_cw_long_lodge",
+      "material": "wood",
+      "interior_light": {
+        "at": [
+          3.2,
+          1.6,
+          1.62
+        ],
+        "colour": [
+          1.0,
+          0.66,
+          0.38
+        ],
+        "energy": 1.5,
+        "range": 13,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.45,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: the Long Survey's headquarters, in the waystation's lodge kit."
+    },
+    "oh_exchange_granary": {
+      "model": "bld_fab_cw_granary",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: the Exchange's granary on the plaza - staddled, as a store is."
     }
   },
   "roof_groups": [
