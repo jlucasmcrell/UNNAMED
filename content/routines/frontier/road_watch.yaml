@@ -8,7 +8,7 @@ region_ref: region.starting_frontier
 npc_ref: npc.frontier.road_watch
 settlement: ashen_hollow
 role: guard
-roles: [guard]
+roles: [steward]
 work_hours: [5, 23]
 anchors:
   home: {position_m: [706, 690], facing_deg: 90}

@@ -264,8 +264,11 @@ public static class WorldContent
         try
         {
             var map = Read(region.YamlSource);
-            // Seconds in the content become ticks through the game's own tick length, never a hard-coded rate.
-            int ticksPerSecond = Math.Max(1, (int)Math.Round(1000.0 / Math.Max(1, TickMilliseconds(loader))));
+            // Seconds in the content become ticks through the game's own tick length, never a hard-coded rate. A region with no clock in the
+            // content (a test fixture) keeps the 20 Hz the rest of the game assumes rather than failing to build.
+            int ticksPerSecond = loader.Definitions.ContainsKey("config.time")
+                ? Math.Max(1, (int)Math.Round(1000.0 / Math.Max(1, TickMilliseconds(loader))))
+                : 20;
             var regionKey = RegionKey.Parse(Text(map, "region_key"));
             // `space:` is the space this region's coordinates belong to (M8 D10). Absent means the exterior,
             // which is every region that existed before M8 and every one that is part of the world; an

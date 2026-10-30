@@ -24,6 +24,7 @@ public partial class Main
 
     private void InstallStealthReview()
     {
+        InstallStealthRuntimeVideo();
         // --stealth-probe: boot, prove the scene builds, and quit. It exists because a run of the whole route costs a GPU lease, and the last
         // two attempts died in BuildScene before the route began; this answers "does this worktree boot at all" in a few seconds of one.
         if (_options.GetValueOrDefault("--stealth-probe") is { Length: > 0 } probe)

@@ -802,6 +802,10 @@ public class ContentLoaderTests
                 "skill.projector", "world.ward.ashen_hollow_bell", "world.ward.barrowworks_alarm",
                 "world.ward.cairnwold_bell", "world.ward.frontier_alarm",
                 "dialogue.barrowworks.watchkeeper",
+                "dialogue.frontier.cairn_watch", "dialogue.frontier.road_watch", "dialogue.frontier.waystation_watch",
+                "npc.frontier.cairn_watch", "npc.frontier.road_watch", "npc.frontier.waystation_watch",
+                "routine.frontier.cairn_watch", "routine.frontier.road_watch", "routine.frontier.waystation_watch",
+                "world.ward.hollow_bell",
             }).OrderBy(k => k, StringComparer.Ordinal),
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }

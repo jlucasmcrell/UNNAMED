@@ -96,7 +96,7 @@ public class WorldContentTests
     {
         var layout = WorldContent.BuildLayout(Load(Path.Combine(RepoPaths.Root(), "content")), "region.ashen_hollow");
 
-        Assert.Equal(new[] { "switch.stone_north", "switch.stone_southwest", "switch.stone_southeast", "switch.foldscar_heart" },
+        Assert.Equal(new[] { "switch.stone_north", "switch.stone_southwest", "switch.stone_southeast", "switch.foldscar_heart", "switch.bell.hollow_yard" },
             layout.Switches.Select(s => s.Key));
         var heart = layout.FindSwitch("switch.foldscar_heart")!;
         Assert.Equal(("world.foldscar.steadied", "Steady", "heart of the Foldscar"), (heart.FlagId, heart.Verb, heart.Name));
