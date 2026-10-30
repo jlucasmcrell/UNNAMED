@@ -371,8 +371,10 @@ public sealed class VisualAudit
             if (_pumped == false && _session.Simulation is { } live)
             {
                 _pumped = true;
-                foreach (var view in _root.FindChildren("*", nameof(Greybox.CreaturesView), true, false).OfType<Greybox.CreaturesView>())
-                    view.Draw(live, 0, 0);
+                // By node, not by type: Godot's FindChildren matches the NODE'S NATIVE CLASS, which for a C#-drawn view is
+                // the plain Node3D it derives from - so a type filter finds nothing and the pump silently does nothing.
+                foreach (var name in new[] { "Creatures", "InteriorCreatures" })
+                    _root.GetNodeOrNull<Greybox.CreaturesView>(name)?.Draw(live, 0, 0);
             }
             // A capture that must stand inside a space (the Barrowworks ring) asks for the portal once, and then waits
             // longer than the settle so the interior has been built and lit before the picture is taken.
