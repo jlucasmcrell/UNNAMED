@@ -8,7 +8,7 @@ region_ref: region.barrowworks
 creatures:
   - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
 at:
-  position_m: [1160, 600]
+  position_m: [60, 92]
   radius_m: 10
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }

@@ -8,7 +8,7 @@ region_ref: region.barrowworks
 creatures:
   - { creature_ref: creature.beast.crow, count: [4, 4], role: wildlife }
 at:
-  position_m: [1180, 560]
+  position_m: [66, 80]
   radius_m: 16
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }

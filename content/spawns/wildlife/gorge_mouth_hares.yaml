@@ -8,7 +8,7 @@ region_ref: region.den_gorge_cave
 creatures:
   - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
 at:
-  position_m: [640, 470]
+  position_m: [522, 776]
   radius_m: 12
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }
