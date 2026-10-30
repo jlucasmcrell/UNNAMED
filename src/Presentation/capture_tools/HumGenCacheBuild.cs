@@ -36,6 +36,6 @@ public partial class HumGenCacheBuild : Node
             }
             art.Cache.Save();GetTree().Quit();
         }
-        catch(Exception error){GD.PrintErr(error);GetTree().Quit(1);}
+        catch(Exception error){GD.PrintErr(error);CaptureQuit.At(this, 1);}
     }
 }

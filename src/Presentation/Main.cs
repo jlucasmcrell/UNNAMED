@@ -537,7 +537,9 @@ public partial class Main : Node3D
             if (e is InvalidDataException && e.Message.StartsWith("Packaged texture >=2K is uncompressed:", StringComparison.Ordinal))
             {
                 GD.PushError(e.ToString());
-                GetTree().Quit(1);
+                // Through CaptureQuit like every other quit, so a failed run leaves the process instead of unwinding a
+                // half-built world the engine then frees twice (B-001).
+                CaptureQuit.At(this, 1);
                 return;
             }
             // The asset library is generated elsewhere: a record it cannot read must cost its art, never the game (the Phase-1 technical

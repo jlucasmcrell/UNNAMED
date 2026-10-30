@@ -18,6 +18,18 @@ internal static class CaptureQuit
     {
         GD.Print($"CAPTURE quit {code} at frame {Engine.GetFramesDrawn()} ({DateTimeOffset.Now:O}) from " +
             $"{Path.GetFileName(file)}:{line}\n{System.Environment.StackTrace}");
-        from.GetTree().Quit(code);
+        if (code == 0)
+        {
+            from.GetTree().Quit(code);
+            return;
+        }
+        // A run that ends because it failed leaves the process here instead of unwinding it. Godot's own teardown frees a
+        // block twice when the run ended after a failed start or a failed route (B-001: ntdll 0xC0000374 at
+        // Otherreach+0x3fa8a33, "BlockNotBusy_DOUBLE_FREE", no managed frame in the chain), so the process died of a crash
+        // report instead of the failure the log and the exit code already name. Nothing is lost: the log is written, the
+        // alert has been shown, and a save's commit is atomic even if it is cut off (P-01). A zero-code quit still shuts
+        // down through the engine, so an orderly run keeps its exit tree and its leaks report.
+        GD.Print("CAPTURE failed run: leaving the process without an engine teardown");
+        System.Environment.Exit(code);
     }
 }

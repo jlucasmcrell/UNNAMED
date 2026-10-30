@@ -49,6 +49,6 @@ public partial class PackageTextureCacheGate : Node
             GD.Print("PACKAGE_TEXTURE_CACHE_PASS " + count);
             GetTree().Quit();
         }
-        catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+        catch (Exception error) { GD.PushError(error.ToString()); CaptureQuit.At(this, 1); }
     }
 }
