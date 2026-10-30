@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -351,11 +351,12 @@ public partial class Main
             // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
             if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
             {
-                // A hunter is the subject - something with a nose that answers a noise - but the world only streams what is near, so when none is loaded the
-                // beat walks toward the nearest one it can see before throwing. A stone nobody is near proves nothing.
+                // A watchman on a post is the better subject than a wandering animal: it stays where it stands, it answers a noise, and a person hunting a
+                // sound is what these two phases are about. A wolf is the second choice because it will walk away from an approach.
                 var hunter = sim.Creatures
-                    .Where(c => c.Alive && !c.Asleep && c.RoleId == "pack_hunter")
-                    .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .Where(c => c.Alive && !c.Asleep && (c.RoleId == "sentinel" || c.RoleId == "pack_hunter"))
+                    .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
+                    .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
                 if (hunter is not null)
                 {
