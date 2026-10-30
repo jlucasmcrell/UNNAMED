@@ -16,6 +16,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     private string? _worn;
     private HumGenEyeFitData? _eyeFit;
     private readonly Dictionary<CreatorChoice, string?> _parts = new();
+    private SkinnedModel? _body;
 
     /// <summary>
     /// Whether the outfit's own headwear is drawn. The creator hides it on the steps that are about the face and the hair,
@@ -409,6 +410,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     {
         var body = model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault();
         if (body is null) return;
+        _body = body;
         string face = look.Face ?? _data.FirstFace(sex);
         foreach (var choice in new[] { CreatorChoice.Hair, CreatorChoice.FacialHair, CreatorChoice.Outfit, CreatorChoice.Footwear })
         {
@@ -518,7 +520,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (!mesh.HasMeta("creator_part_kind")
                 || mesh.GetMeta("creator_part_kind").AsString() != CreatorChoice.Outfit.ToString()) continue;
             bool worn = IsHeadwear(mesh.Mesh?.SurfaceGetMaterial(0)?.ResourceName ?? "") || IsHeadwear(mesh.Name.ToString());
-            if (worn) mesh.Visible = Headwear;
+            if (worn) _body?.OutfitVisible(mesh, Headwear);
         }
     }
 

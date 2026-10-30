@@ -6,6 +6,7 @@ Usage in Blender: -- <creator-work> <catalogue> [<option-id> ...]
 """
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 import bmesh
@@ -359,6 +360,10 @@ for collection, kind, tag in parts:
                 for image in baked:
                     if '_Flow' in image.name:
                         flow['hair_flow' + ('_lod' + str(level) if level else '')] = Path(bpy.path.abspath(image.filepath)).name
+            # merge_levels reads child matrix_world before reparenting. Flush the
+            # zeroed rig locations, or the in-file 4/6/8m preview spacing is baked
+            # into the distant garments even though their skeleton is at zero.
+            bpy.context.view_layer.update()
             copies[0].process.merge_levels(copies[1:])
             copy = copies[0]
             meshes = list(copy.objects.haircards) if tag else list(copy.clothing.outfit.objects if kind == 'outfit' else copy.clothing.footwear.objects)
@@ -380,6 +385,8 @@ for collection, kind, tag in parts:
             destination = folder / (identifier + '_rigged.glb')
             bpy.ops.export_scene.gltf(filepath=str(destination), export_format='GLB', use_selection=True,
                                       export_animations=False, export_morph=True, export_skins=True, export_yup=True)
+            if not tag:
+                subprocess.run(['python', str(tools / 'fix_humgen_lod_materials.py'), str(destination), str(destination)], check=True)
             target = Glb(work / 'game/primary/rigged' / base / (base + '_rigged.glb'))
             exported = Glb(destination)
             assert not any('_Body_LOD' in node.get('name', '') and 'mesh' in node for node in exported.nodes), 'Part export contains another body'
