@@ -1,0 +1,15 @@
+id: spawn.field.hares
+kind: spawn
+schema: 1
+display_key: spawn.field.hares.name
+tags: [spawn]
+notes: Hares in the field grass, sitting tight between the tenders ground and the breach
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
+at:
+  position_m: [828, 740]
+  radius_m: 10
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

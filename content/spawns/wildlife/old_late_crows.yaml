@@ -1,0 +1,15 @@
+id: spawn.old_late.crows
+kind: spawn
+schema: 1
+display_key: spawn.old_late.crows.name
+tags: [spawn]
+notes: Crows over the old late road, a mob that keeps to the high stones and follows the traffic up from the barrows
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.crow, count: [4, 4], role: wildlife }
+at:
+  position_m: [656, 742]
+  radius_m: 12
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

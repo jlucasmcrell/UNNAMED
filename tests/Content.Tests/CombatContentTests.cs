@@ -85,7 +85,7 @@ public class CombatContentTests
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
         // 29, not 30: the Ring Custodian's spawn is region.barrowworks' and this run is the start area's, so
         // CombatContent correctly does not carry it. A run of the ring has it and not these.
-        Assert.Equal(63, spawns.Count);   // includes the accepted Foldscar and Old Late packs in addition to the existing regional spawns
+        Assert.Equal(67, spawns.Count);   // includes the accepted Foldscar and Old Late packs in addition to the existing regional spawns
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
