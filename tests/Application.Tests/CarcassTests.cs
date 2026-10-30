@@ -105,4 +105,24 @@ public sealed class CarcassTests
             Assert.Equal(2, session.Setup.Crafting.Nodes[carcass].Charges);
         }
     }
+
+    [Fact]
+    public void AKilledMallard_LeavesADuckCarcass_ThatYieldsFeathers()
+    {
+        using var profile = new TempProfile();
+        const string Duck = "creature.beast.duck";
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Open, 0, new[] { (Duck, Open.X, Open.Z + 1.5, "wildlife") });
+        var killed = arena.Record<CreatureKilled>();
+        var before = CarcassKeys(arena.Simulation);
+
+        arena.Fight(arena.Creature(), 400);
+
+        var kill = Assert.Single(killed);
+        Assert.Equal(Duck, kill.DefId);
+        var fresh = arena.Simulation.Nodes
+            .Where(n => n.NodeDefId == "node.carcass.duck" && !before.Contains(n.Key))
+            .ToList();
+        Assert.True(fresh.Count == 1, $"new duck carcasses: {fresh.Count}; all carcass keys: {string.Join(",", CarcassKeys(arena.Simulation))}");
+    }
 }
