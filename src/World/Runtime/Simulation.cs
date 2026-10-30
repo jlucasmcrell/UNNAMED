@@ -691,6 +691,12 @@ public sealed class Simulation
     /// <summary>How far the character is heard right now, in millimetres: the HUD's noise ring is drawn at exactly this radius (§2.7).</summary>
     public long PlayerNoiseMm => _creatures.PlayerNoiseRadiusMm();
 
+    /// <summary>
+    /// Which way the air moves today, in millidegrees (STEALTH §4.6): the same for every body in the world, derived from the seed and the day, so a
+    /// scent test can stand a creature upwind of the character and be sure that is where it is.
+    /// </summary>
+    public long WindBearing() => _creatures.WindBearingOf;
+
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;
 

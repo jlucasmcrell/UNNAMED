@@ -633,6 +633,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>Which way the air moves today (STEALTH 4.6): derived from the world seed and the day, so no state is saved for it.</summary>
     private long WindBearing => WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 57_600));
 
+    internal long WindBearingOf => WindBearing;
+
 
 
     private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel);

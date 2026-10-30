@@ -523,7 +523,7 @@ public static class CombatContent
             Mm(perception, "hearing_m"))
         {
             NightSight = perception.GetValueOrDefault("night_sight") as string == "true",
-            ScentMm = map.ContainsKey("scent_m") ? Mm(map, "scent_m") : 0,
+            ScentMm = perception.ContainsKey("scent_m") ? Mm(perception, "scent_m") : 0,
         };
         if (senses.SightMm < 0 || senses.HearingMm < 0 || senses.FieldOfViewMdeg is <= 0 or > 360_000)
             throw new FormatException($"{id}: perception needs non-negative ranges and a field of view in (0, 360]");
