@@ -897,54 +897,6 @@
       },
       "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
     },
-    "oh_housea_002": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "yaw": 180,
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
-    },
-    "oh_houseb_003": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "yaw": 180,
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
-    },
     "oh_housea_003": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
@@ -1019,30 +971,6 @@
     },
     "oh_housea_004": {
       "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "yaw": 180,
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
-    },
-    "oh_houseb_006": {
-      "model": "bld_fab_cw_house_02",
       "material": "stone",
       "yaw": 180,
       "interior_light": {
@@ -1857,30 +1785,6 @@
       },
       "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
     },
-    "oh_housea_020": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "yaw": 180,
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
-    },
     "oh_houseb_025": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
@@ -2171,30 +2075,6 @@
     },
     "oh_housea_027": {
       "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "yaw": 180,
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
-    },
-    "oh_houseb_031": {
-      "model": "bld_fab_cw_house_02",
       "material": "stone",
       "yaw": 180,
       "interior_light": {
@@ -6968,6 +6848,102 @@
         "attenuation": 1.2
       },
       "note": "Gate 2: a district house in its terrace row - door on +Z, to the lane."
+    },
+    "oh_hall_000": {
+      "model": "cw_longhouse",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          1.6,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 2.4,
+        "range": 12,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.5,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a hall of the lower terrace - 18.9 m of longhouse facing the harbour."
+    },
+    "oh_hall_001": {
+      "model": "cw_longhouse",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          1.6,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 2.4,
+        "range": 12,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.5,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a hall of the lower terrace - 18.9 m of longhouse facing the harbour."
+    },
+    "oh_hall_002": {
+      "model": "cw_longhouse",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          1.6,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 2.4,
+        "range": 12,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.5,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a hall of the lower terrace - 18.9 m of longhouse facing the harbour."
+    },
+    "oh_hall_003": {
+      "model": "cw_longhouse",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          1.6,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 2.4,
+        "range": 12,
+        "shadows": true,
+        "size": 0.3,
+        "fog_energy": 0.5,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a hall of the lower terrace - 18.9 m of longhouse facing the harbour."
     }
   },
   "roof_groups": [
@@ -12969,6 +12945,402 @@
       "model": "cw_roof_thatch",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
+    },
+    "oh_lane_post_000": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_001": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_002": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_003": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_004": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_005": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_006": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_007": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_008": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_009": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_010": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_011": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_012": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_013": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_014": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_015": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_016": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_017": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_018": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_019": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_020": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_021": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_022": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_023": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_024": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_025": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_026": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_027": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_028": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_029": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_030": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_031": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_032": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_033": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_034": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_035": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_036": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_037": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_038": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_039": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_040": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_041": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_042": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_043": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_044": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_045": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_046": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_047": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_048": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_049": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_050": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_051": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_052": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_053": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_054": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_055": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_056": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_057": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_058": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_059": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_060": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_lane_wood_061": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a woodpile at a door."
+    },
+    "oh_lane_trough_062": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a stone trough on the lane."
+    },
+    "oh_lane_cart_063": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a two-wheel cart standing in the lane."
+    },
+    "oh_lane_fence_064": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a hurdle against the lane's edge."
+    },
+    "oh_lane_post_065": {
+      "model": "cw_lantern_post",
+      "material": "wood",
+      "yaw": 180,
+      "note": "Gate 2: a lantern post on the lane."
     }
   },
   "doors": {
