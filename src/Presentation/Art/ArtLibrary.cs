@@ -1435,7 +1435,6 @@ public sealed class ArtLibrary
             _vramWithMips += pixels * 4 * 4 / 3;
             image.GenerateMipmaps();
             texture = ImageTexture.CreateFromImage(image);
-            TextureCache.RequireCompressed(texture, path);
             _mapCount++;
         }
         _mapMs += (Time.GetTicksUsec() - started) / 1000.0;
