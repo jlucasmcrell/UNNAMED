@@ -267,6 +267,7 @@ public static class Terrain3DView
         int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
         GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
         SceneryProbe.Report(parent, (x, z) => SceneryHeight(ground, x, z), "ravine");
+        SceneryProbe.ReportInstances(parent, (x, z) => SceneryHeight(ground, x, z), "scatter");
         if (DenGorge.On(ground.Region))
         {
             int gorge = DenGorge.Dress(parent, art, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
