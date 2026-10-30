@@ -140,6 +140,9 @@ public static class Terrain3DView
     /// <summary>The ground slots' layers, in <see cref="GroundField.Cells"/> order: (W,S) quarry, (W,N) waystation, (E,S) Foldscar, (E,N) Charwood.</summary>
     private static readonly int[] SlotLayer = { 3, 0, 2, 1 };
 
+    /// <summary>The grid the imported mesh is built from, so anything standing on the ground can read the drawn surface.</summary>
+    private static TerrainGrid? _drawn;
+
     /// <summary>Terrain3D under <paramref name="parent"/>, or null (and why) when the extension or a layer is unavailable.</summary>
     public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, ArtLibrary art, out string? why, Detail? detail = null)
     {
@@ -260,8 +263,10 @@ public static class Terrain3DView
         data.Call("import_images", new Godot.Collections.Array { height, control, colour }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {regions}x{regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
+        _drawn = grid;
         int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
         GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        SceneryProbe.Report(parent, (x, z) => SceneryHeight(ground, x, z), "ravine");
         if (DenGorge.On(ground.Region))
         {
             int gorge = DenGorge.Dress(parent, art, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
@@ -582,11 +587,23 @@ public static class Terrain3DView
         FractalType = FastNoiseLite.FractalTypeEnum.Fbm, FractalOctaves = 5 };
 
     /// <summary>The scenery surface at a point beyond the edge (the same function the height image is built from); inside, the domain's.</summary>
-    public static float SceneryHeight(GroundField ground, float x, float z)
+    public static float SceneryHeight(GroundField ground, float x, float z) =>
+        DrawnHeight(ground, _drawn, x, z);
+
+    /// <summary>The surface the imported mesh draws: the domain's height at the grid's own millimetre sample, carved by the water shores.</summary>
+    public static float DrawnHeight(GroundField ground, TerrainGrid? grid, float x, float z)
     {
         var r = ground.Region;
         bool inside = x >= r.Position.X && x <= r.End.X && z >= r.Position.Y && z <= r.End.Y;
-        return inside ? ground.Height(x, z) : Outside(ground, x, z, Noise);
+        if (!inside)
+            return Outside(ground, x, z, Noise);
+        // THE SAME SURFACE THE MESH IS BUILT FROM. Images() bakes ground.Carved(domain height), so anything placed on the plain domain
+        // height stands by the cut wherever a water shore lowered the bed - metres over a creek, more over a lake. That is what a rock
+        // floating above the ground looks like from inside the world.
+        float drawn = grid is { } drawnGrid
+            ? drawnGrid.HeightAtMm((long)MathF.Round(x * 1000), (long)MathF.Round(z * 1000)) / 1000f
+            : ground.Height(x, z);
+        return ground.Carved(x, z, drawn);
     }
 
     /// <summary>Inside the region: the dominant ground slot as the base, the next as the overlay, then the worn path, then a steep face.</summary>

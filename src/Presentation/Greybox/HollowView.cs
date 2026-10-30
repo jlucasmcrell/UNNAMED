@@ -188,6 +188,7 @@ public partial class HollowView : Node3D
             var (placed, skipped) = Dressing.Place(this, _art, DrawnGround(terrain),
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
+            SceneryProbe.Report(this, DrawnGround(terrain), "dressing");
         }
         var ravine = BuildRavine(layout.Space, terrain);
         AddChild(ravine);
@@ -893,8 +894,14 @@ public partial class HollowView : Node3D
     /// The ground as the camera draws it - with the authored water bodies cut into it - or the domain's own where no ground field has
     /// been bound.
     /// </summary>
+    /// <summary>
+    /// What the ground is at a spot, for anything that stands on it: the surface the renderer draws. With a domain field that is the field's
+    /// height carved by its water shores, sampled where the imported mesh samples it - NOT <c>field.Height</c>, which is the uncarved field and
+    /// stands a prop in the air wherever a shore cut the bed under it.
+    /// </summary>
     private Func<float, float, float> DrawnGround(TerrainGrid terrain) =>
-        _ground is { } field ? field.Height : (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
+        _ground is { } field ? (x, z) => Terrain3DView.DrawnHeight(field, terrain, x, z)
+                             : (x, z) => terrain.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f;
 
     /// <summary>
     /// The authored water bodies (D18/D20), each drawn where content puts it: its surface at its own level in the bed its own shore cuts
