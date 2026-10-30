@@ -1,0 +1,27 @@
+﻿id: spawn.boss.sedge.keeping_house
+kind: spawn
+schema: 1
+display_key: spawn.boss.sedge.keeping_house.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.2): the second Sedge boss - a drowned house whose family is gone and the custodian construct that still keeps it. Not a drowned person: Sedge's drowned villages belong to the Mor. FIELD, band 16. Its phases are the construct's own sweep, fall and grasp, each one a reading of the room it has been keeping."
+region_ref: region.sedge_levels
+creatures:
+- creature_ref: creature.construct.ring_custodian
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 5500.0
+  - 1400.0
+  radius_m: 3
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: A
+encounter_recovery: { min_x_m: 5485, min_z_m: 1385, max_x_m: 5515, max_z_m: 1415, safe_x_m: 5500, safe_z_m: 1378 }

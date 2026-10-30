@@ -114,6 +114,17 @@ public class BossArenaTests
     }
 
     [Fact]
+    public void TheKeepingHouse_HoldsItsCustodianInSedge()
+    {
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, "region.sedge_levels");
+        var boss = Find(session, "spawn.boss.sedge.keeping_house");
+        AssertInsideItsArena(boss);
+        // A drowned house whose family is gone: once the construct is down it stays down.
+        Assert.Equal(0L, session.Setup.Combat.Spawns.Single(s => s.Key == boss.Key).RespawnTicks);
+    }
+
+    [Fact]
     public void TheEelChannel_HoldsOldChannel()
     {
         using var profile = new TempProfile();

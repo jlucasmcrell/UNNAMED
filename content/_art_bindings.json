@@ -5267,7 +5267,7 @@
     "walk": "walk",
     "run": "run"
    },
-   "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat.",
+   "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat. | D19 asset pass: kept this WildMesh grey wolf (rigged, authored idle/walk/run/attack/hit/death takes, full textures, 1.30x alpha scale). The BlenderKit candidates on F: were rejected for a boss body: Wolf_760c65b5_lod0.glb carries no skin, no animation and no images, and the Stylized-Wolf-Warrior is a humanoid warrior rather than a wolf.",
    "otherfauna": {
     "scale": [
      1.534,
@@ -5838,7 +5838,7 @@
     "walk": "walk",
     "run": "run"
    },
-   "note": "WildMesh Mammoth scaled to 4.1 m overall (~3.6 m withers); recorded voice set barrowback (Sonniss GDC 2026, staged 2026-10-14)."
+   "note": "D19 asset pass: body is the WildMesh realistic WildBoar (SK_WildBoar, rigged, its own textures), converted FBX->GLB and staged at barrowback scale (1.55x). The BlenderKit Boar_a7343c16 on F: was the candidate and was rejected: its harvest GLB carries no skin, no animation and no textures."
   },
   "creature.grazer.fellhorn": {
    "model": "creature_wm_fellhorn",
