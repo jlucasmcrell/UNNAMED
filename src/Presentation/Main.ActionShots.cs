@@ -33,6 +33,9 @@ public partial class Main
     /// because where to look is part of the beat: along the water, at the lock, at the seam.
     /// </para>
     /// </summary>
+    /// <summary>What a read says when sign is there and the character has not the technique to read it yet.</summary>
+    private const string SignNotUnderstood = "Sign, but not what it means";
+
     private sealed class ActionShots
     {
         /// <summary>The shipped frontier's three sites (<c>content/regions/starting_frontier.yaml</c>).</summary>
@@ -233,7 +236,9 @@ public partial class Main
                         _moments.Add($"- tick {simulation.WorldTick}: walking to {quarry.DefId} {Math.Sqrt(dx * dx + dz * dz) / 1000.0:0.0} m off");
                 }
                 Press("move_forward");
-                if (_read is { Readable: true, Count: > 0 } read)
+                bool signFound = _read is { Readable: true, Count: > 0 }
+                    || _read is { Readable: false, Reason: SignNotUnderstood };
+                if (signFound && _read is { } read)
                 {
                     _moments.Add($"- tick {read.Tick}: read **{read.Count} went {read.BearingMdeg} mdeg, {read.AgeTicks} ticks old**");
                     Shot("01_read");
