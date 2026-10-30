@@ -5556,8 +5556,9 @@
       "material": "wood"
     },
     "beam_woundmoss": {
-      "model": "prop_bp_beam_mossy",
-      "material": "wood"
+      "model": "cw_dead_trunk_a",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "rock_blocked_shaft": {
       "model": "prop_bp_blocked_shaft",
@@ -5699,19 +5700,19 @@
       "note": "D18: a jetty deck board - the waystation's own timber pad."
     },
     "cw_jetty_post_1": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "cw_jetty_post_2": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "cw_jetty_post_3": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "cw_pond_reeds_1": {
       "model": "flora_cattail_clump",
@@ -9409,319 +9410,319 @@
       "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
     },
     "oh_pile_000": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_001": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_002": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_003": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_004": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_005": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_006": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_007": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_008": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_009": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_010": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_011": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_012": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_013": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_014": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_015": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_016": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_017": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_018": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_019": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_020": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_021": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_022": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_023": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_024": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_025": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_026": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_027": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_028": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_029": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_030": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_031": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_032": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_033": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_034": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_035": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_036": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_037": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_038": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_039": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_040": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_041": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_042": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_043": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_044": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_045": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_046": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_pile_047": {
-      "model": "prop_bp_beam_mossy",
+      "model": "cw_dead_trunk_a",
       "material": "wood",
-      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+      "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
     "oh_stall_0_wall_0": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_0_wall_1": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_0_wall_2": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_0_roof": {
-      "model": "piece_bp_timber_roof",
+      "model": "cw_roof_thatch",
       "material": "wood",
-      "note": "Gate 2: the stall's roof over its counter."
+      "note": "Gate 2: the stall's thatch over its counter."
     },
     "oh_stall_0_cart": {
-      "model": "prop_bp_merchant_cart",
+      "model": "cw_cart_two_wheel",
       "material": "wood",
-      "note": "Gate 2: the stall's own cart, loaded."
+      "note": "Gate 2: the stall's own cart."
     },
     "oh_stall_1_wall_0": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_1_wall_1": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_1_wall_2": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_1_roof": {
-      "model": "piece_bp_timber_roof",
+      "model": "cw_roof_thatch",
       "material": "wood",
-      "note": "Gate 2: the stall's roof over its counter."
+      "note": "Gate 2: the stall's thatch over its counter."
     },
     "oh_stall_1_cart": {
-      "model": "prop_bp_merchant_cart",
+      "model": "cw_cart_two_wheel",
       "material": "wood",
-      "note": "Gate 2: the stall's own cart, loaded."
+      "note": "Gate 2: the stall's own cart."
     },
     "oh_stall_2_wall_0": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_2_wall_1": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_2_wall_2": {
-      "model": "piece_bp_timber_wall",
+      "model": "cw_hurdle_fence",
       "material": "wood",
-      "note": "Gate 2: a market stall's back and sides."
+      "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_2_roof": {
-      "model": "piece_bp_timber_roof",
+      "model": "cw_roof_thatch",
       "material": "wood",
-      "note": "Gate 2: the stall's roof over its counter."
+      "note": "Gate 2: the stall's thatch over its counter."
     },
     "oh_stall_2_cart": {
-      "model": "prop_bp_merchant_cart",
+      "model": "cw_cart_two_wheel",
       "material": "wood",
-      "note": "Gate 2: the stall's own cart, loaded."
+      "note": "Gate 2: the stall's own cart."
     }
   },
   "doors": {
