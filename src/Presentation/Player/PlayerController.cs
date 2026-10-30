@@ -1,4 +1,4 @@
-// UNNAMED Presentation - input to commands, and prediction for feel (D-11, CAMERA_PERSPECTIVE_AND_PRESENTATION.md §6)
+﻿// UNNAMED Presentation - input to commands, and prediction for feel (D-11, CAMERA_PERSPECTIVE_AND_PRESENTATION.md §6)
 // Godot presentation only: no gameplay state lives here
 
 using Godot;
@@ -115,6 +115,12 @@ public sealed class PlayerController
 
     /// <summary>Crouch, or stand where there is room to; gliding, flare the wings, or spread them again.</summary>
     public void Crouch(bool crouched) => _session.Submit(new CrouchCommand(_session.Simulation!.PlayerId, crouched));
+
+    /// <summary>
+    /// On the belly (STEALTH §2.6): the lowest and slowest way a body moves, and the quietest. Its own verb because it is its own stance - the
+    /// simulation owns the numbers, and standing up from it is the crouch command with both flags off.
+    /// </summary>
+    public void Crawl(bool prone) => _session.Submit(new CrouchCommand(_session.Simulation!.PlayerId, Crouched: true, Prone: prone));
 
     /// <summary>Spread the wings in the air, or fold them (Kal): the simulation decides whether there are wings, and stamina to hold them.</summary>
     public void Glide(bool spread) => _session.Submit(new GlideCommand(_session.Simulation!.PlayerId, spread));

@@ -23,7 +23,7 @@ public sealed record JumpCommand(EntityId Actor) : GameCommand(Actor);
 /// Crouch, or stand up where there is room to (the owner's M6 playtest). Gliding, a crouch flares the wings to brake and coming out of it
 /// spreads them again (Kal).
 /// </summary>
-public sealed record CrouchCommand(EntityId Actor, bool Crouched) : GameCommand(Actor);
+public sealed record CrouchCommand(EntityId Actor, bool Crouched, bool Prone = false) : GameCommand(Actor);
 
 /// <summary>
 /// Spread the wings in the air, or fold them (Kal: Wing Glide, RACE_ABILITIES_PROPOSAL.md §3.2): presentation sends it when jump is held past

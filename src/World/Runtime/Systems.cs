@@ -464,7 +464,8 @@ internal sealed class MovementSystem
         var posture = _context.State.Posture;
         if (posture.Aloft)
             return command.Crouched ? Flare(posture, tick) : posture.Wing == WingState.Flare ? Wings(posture with { Wing = WingState.Glide }, tick) : null;
-        var stance = command.Crouched ? Stance.Crouched : Stance.Standing;
+        // On the belly is its own stance, not a deeper crouch (STEALTH §2.6): the lowest and slowest way a body moves.
+        var stance = command.Prone ? Stance.Prone : command.Crouched ? Stance.Crouched : Stance.Standing;
         if (posture.Stance == stance)
             return null;
         if (posture.Airborne)

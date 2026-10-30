@@ -352,9 +352,20 @@ public partial class Main
         // Crouch presses on and off by default (the owner's M6 playtest); held, the body stays down only while the key is. Gliding, the
         // crouch is the wings' flare (Kal).
         var posture = _session.Simulation!.Posture;
-        bool crouched = posture.Aloft ? posture.Wing == UNNAMED.Domain.Spatial.WingState.Flare : posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched;
+        // On the belly and crouched are different things (STEALTH §2.6): with the key set to toggle, one press steps standing -> crouched -> belly ->
+        // standing, so a crawl is one more press rather than a chord nobody would find. Held, the key keeps the body down as it always did.
+        bool crouched = posture.Aloft
+            ? posture.Wing == UNNAMED.Domain.Spatial.WingState.Flare
+            : posture.Stance is UNNAMED.Domain.Spatial.Stance.Crouched or UNNAMED.Domain.Spatial.Stance.Prone;
         if (SettingsStore.Current.Profile.Controls.IsToggle("crouch") ? Input.IsActionJustPressed("crouch") : Input.IsActionPressed("crouch") != crouched)
-            _controller.Crouch(!crouched);
+        {
+            if (!SettingsStore.Current.Profile.Controls.IsToggle("crouch"))
+                _controller.Crouch(!crouched);
+            else if (posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched)
+                _controller.Crawl(true);
+            else
+                _controller.Crouch(posture.Stance == UNNAMED.Domain.Spatial.Stance.Standing);
+        }
         if (Input.IsActionJustPressed("first_person"))
             _camera.ToggleFirstPerson();
         if (Input.IsActionJustPressed("shoulder_swap"))
