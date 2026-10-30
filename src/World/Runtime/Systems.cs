@@ -29,6 +29,9 @@ internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : I
 /// </summary>
 internal sealed record RaiseNoise(Domain.Creatures.Noise Noise) : InternalCommand;
 
+/// <summary>Put an authored light out as the world's own act - an arrow through the lantern - rather than a hand on it (STEALTH §2.2).</summary>
+internal sealed record ExtinguishLight(string Key) : InternalCommand;
+
 /// <summary>To <see cref="ProgressionSystem"/>: award level XP.</summary>
 internal sealed record AwardExperience(XpAward Award) : InternalCommand;
 

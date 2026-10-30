@@ -620,6 +620,17 @@ internal sealed partial class CombatSystem
         }
     }
 
+    /// <summary>How far a point lies off the line a shot travels, in millimetres - what decides whether the arrow goes through the lantern.</summary>
+    private static long GapToLine(long px, long pz, long ax, long az, long bx, long bz)
+    {
+        double dx = bx - ax, dz = bz - az;
+        double lengthSq = dx * dx + dz * dz;
+        if (lengthSq <= 0)
+            return (long)Math.Sqrt(Math.Pow(px - ax, 2) + Math.Pow(pz - az, 2));
+        double t = Math.Clamp(((px - ax) * dx + (pz - az) * dz) / lengthSq, 0, 1);
+        double nx = ax + dx * t, nz = az + dz * t;
+        return (long)Math.Sqrt(Math.Pow(px - nx, 2) + Math.Pow(pz - nz, 2));
+    }
     /// <summary>The profile a weapon's projectile flies with (STEALTH §7.3): a thrown thing lumbers; everything else is an arrow or a bolt.</summary>
     private static ProjectileProfile FlightProfile(AttackProfile attack) =>
         attack.SkillId is "skill.thrown" ? ProjectileProfile.Thrown : ProjectileProfile.Arrow;
@@ -719,6 +730,11 @@ internal sealed partial class CombatSystem
         var body = State.Body;
         var (x, z, target) = Trace(body, rangeMm);
         _context.Events.Publish(new ShotLoosed(_player, source, body.XMm, body.ZMm, x, z, target?.Id, tick));
+        // A shot that stops against a lamp puts it out (STEALTH §2.2): the arrow is worth more than the light it kills, and the lane beyond goes dark.
+        var lamp = _context.Setup.LayoutFor(State.Space).Lights.FirstOrDefault(l =>
+            GapToLine(l.XMm, l.ZMm, body.XMm, body.ZMm, x, z) <= 1_000);
+        if (lamp is not null)
+            _context.Dispatch(new ExtinguishLight(lamp.Key));
         // The string is heard now, at the bow's own radius; the impact is heard where the arrow arrives, not where it was loosed.
         _context.Dispatch(new RaiseNoise(new Noise(body.XMm, body.ZMm, ShotNoiseMm()) { Source = SoundSource.Shot }));
         return (x, z, target);

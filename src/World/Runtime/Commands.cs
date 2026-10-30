@@ -53,7 +53,7 @@ public sealed record DragBodyCommand(EntityId Actor, EntityId Target) : GameComm
 /// Put an authored light out, or light it again (STEALTH §2.2): a lamp the character is standing beside. The stealth player's own lever on the world,
 /// and it darkens the same number the sight check reads.
 /// </summary>
-public sealed record DouseLightCommand(EntityId Actor, string? LightKey, bool Lit) : GameCommand(Actor);
+public sealed record DouseLightCommand(EntityId Actor, string? LightKey, bool Lit, bool ByShot = false) : GameCommand(Actor);
 
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);

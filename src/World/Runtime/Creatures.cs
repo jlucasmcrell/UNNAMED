@@ -1,4 +1,4 @@
-// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -998,6 +998,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// Put an authored light out, or light it again (STEALTH §2.2): a lamp within arm's reach. It is the stealth player's own lever - the lantern by the
     /// gate, the brazier on the walk - and it darkens the same number the sight check reads, so the gem falls as the lane does.
     /// </summary>
+    /// <summary>A light put out by something other than a hand - an arrow through the lantern (STEALTH §2.2).</summary>
+    public string? Handle(ExtinguishLight command, long tick)
+    {
+        if (_context.Setup.LayoutFor(State.Space).Lights.All(l => l.Key != command.Key))
+            return $"no {command.Key} in this place";
+        _doused.Add(command.Key);
+        _context.Events.Publish(new LightDoused(_player, command.Key, Lit: false, tick));
+        return null;
+    }
     public string? Handle(DouseLightCommand command, long tick)
     {
         if (command.Actor != _player)
@@ -1007,7 +1016,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         var light = _context.Setup.LayoutFor(State.Space).Lights.FirstOrDefault(l => l.Key == key);
         if (light is null)
             return $"no {key} in this place";
-        if (Distance(light.XMm, light.ZMm, State.Body.XMm, State.Body.ZMm) > DouseReachMm)
+        // An arrow reaches further than a hand (STEALTH §2.2): a shot that puts a lamp out needs no reach.
+        if (!command.ByShot && Distance(light.XMm, light.ZMm, State.Body.XMm, State.Body.ZMm) > DouseReachMm)
             return "too far to reach it";
         if (command.Lit)
             _doused.Remove(key);
