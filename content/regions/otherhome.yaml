@@ -50750,9 +50750,6 @@ structures:
 - id: oh_paving_0002
   box_m: [1551.17, 761.84, 1551.63, 762.16]
   height_m: 0.24
-- id: oh_paving_0003
-  box_m: [1552.87, 761.84, 1553.33, 762.16]
-  height_m: 0.24
 - id: oh_paving_0004
   box_m: [1554.57, 761.84, 1555.03, 762.16]
   height_m: 0.24
@@ -50761,9 +50758,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0006
   box_m: [1557.97, 761.84, 1558.43, 762.16]
-  height_m: 0.24
-- id: oh_paving_0007
-  box_m: [1559.67, 761.84, 1560.13, 762.16]
   height_m: 0.24
 - id: oh_paving_0008
   box_m: [1561.37, 761.84, 1561.83, 762.16]
@@ -50774,9 +50768,6 @@ structures:
 - id: oh_paving_0010
   box_m: [1564.77, 761.84, 1565.23, 762.16]
   height_m: 0.24
-- id: oh_paving_0011
-  box_m: [1566.47, 761.84, 1566.93, 762.16]
-  height_m: 0.24
 - id: oh_paving_0012
   box_m: [1568.17, 761.84, 1568.63, 762.16]
   height_m: 0.24
@@ -50785,9 +50776,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0014
   box_m: [1571.57, 761.84, 1572.03, 762.16]
-  height_m: 0.24
-- id: oh_paving_0015
-  box_m: [1573.27, 761.84, 1573.73, 762.16]
   height_m: 0.24
 - id: oh_paving_0016
   box_m: [1574.97, 761.84, 1575.43, 762.16]
@@ -50798,9 +50786,6 @@ structures:
 - id: oh_paving_0018
   box_m: [1578.37, 761.84, 1578.83, 762.16]
   height_m: 0.24
-- id: oh_paving_0019
-  box_m: [1581.77, 761.84, 1582.23, 762.16]
-  height_m: 0.24
 - id: oh_paving_0020
   box_m: [1583.47, 761.84, 1583.93, 762.16]
   height_m: 0.24
@@ -50809,9 +50794,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0022
   box_m: [1586.87, 761.84, 1587.33, 762.16]
-  height_m: 0.24
-- id: oh_paving_0023
-  box_m: [1588.57, 761.84, 1589.03, 762.16]
   height_m: 0.24
 - id: oh_paving_0024
   box_m: [1590.27, 761.84, 1590.73, 762.16]
@@ -50822,9 +50804,6 @@ structures:
 - id: oh_paving_0026
   box_m: [1593.67, 761.84, 1594.13, 762.16]
   height_m: 0.24
-- id: oh_paving_0027
-  box_m: [1595.37, 761.84, 1595.83, 762.16]
-  height_m: 0.24
 - id: oh_paving_0028
   box_m: [1597.07, 761.84, 1597.53, 762.16]
   height_m: 0.24
@@ -50833,9 +50812,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0030
   box_m: [1600.47, 761.84, 1600.93, 762.16]
-  height_m: 0.24
-- id: oh_paving_0031
-  box_m: [1602.17, 761.84, 1602.63, 762.16]
   height_m: 0.24
 - id: oh_paving_0032
   box_m: [1603.87, 761.84, 1604.33, 762.16]
@@ -50846,9 +50822,6 @@ structures:
 - id: oh_paving_0034
   box_m: [1607.27, 761.84, 1607.73, 762.16]
   height_m: 0.24
-- id: oh_paving_0035
-  box_m: [1608.97, 761.84, 1609.43, 762.16]
-  height_m: 0.24
 - id: oh_paving_0036
   box_m: [1610.67, 761.84, 1611.13, 762.16]
   height_m: 0.24
@@ -50857,9 +50830,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0038
   box_m: [1614.07, 761.84, 1614.53, 762.16]
-  height_m: 0.24
-- id: oh_paving_0039
-  box_m: [1615.77, 761.84, 1616.23, 762.16]
   height_m: 0.24
 - id: oh_paving_0040
   box_m: [1617.47, 761.84, 1617.93, 762.16]
@@ -50870,9 +50840,6 @@ structures:
 - id: oh_paving_0042
   box_m: [1620.87, 761.84, 1621.33, 762.16]
   height_m: 0.24
-- id: oh_paving_0043
-  box_m: [1622.57, 761.84, 1623.03, 762.16]
-  height_m: 0.24
 - id: oh_paving_0044
   box_m: [1624.27, 761.84, 1624.73, 762.16]
   height_m: 0.24
@@ -50881,9 +50848,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0046
   box_m: [1627.67, 761.84, 1628.13, 762.16]
-  height_m: 0.24
-- id: oh_paving_0047
-  box_m: [1629.37, 761.84, 1629.83, 762.16]
   height_m: 0.24
 - id: oh_paving_0048
   box_m: [1631.07, 761.84, 1631.53, 762.16]
@@ -50894,9 +50858,6 @@ structures:
 - id: oh_paving_0050
   box_m: [1634.47, 761.84, 1634.93, 762.16]
   height_m: 0.24
-- id: oh_paving_0051
-  box_m: [1636.17, 761.84, 1636.63, 762.16]
-  height_m: 0.24
 - id: oh_paving_0052
   box_m: [1637.87, 761.84, 1638.33, 762.16]
   height_m: 0.24
@@ -50905,9 +50866,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0054
   box_m: [1641.27, 761.84, 1641.73, 762.16]
-  height_m: 0.24
-- id: oh_paving_0055
-  box_m: [1642.97, 761.84, 1643.43, 762.16]
   height_m: 0.24
 - id: oh_paving_0056
   box_m: [1644.67, 761.84, 1645.13, 762.16]
@@ -50918,9 +50876,6 @@ structures:
 - id: oh_paving_0058
   box_m: [1648.07, 761.84, 1648.53, 762.16]
   height_m: 0.24
-- id: oh_paving_0059
-  box_m: [1649.77, 761.84, 1650.23, 762.16]
-  height_m: 0.24
 - id: oh_paving_0060
   box_m: [1651.47, 761.84, 1651.93, 762.16]
   height_m: 0.24
@@ -50929,9 +50884,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0062
   box_m: [1654.87, 761.84, 1655.33, 762.16]
-  height_m: 0.24
-- id: oh_paving_0063
-  box_m: [1656.57, 761.84, 1657.03, 762.16]
   height_m: 0.24
 - id: oh_paving_0064
   box_m: [1658.27, 761.84, 1658.73, 762.16]
@@ -50942,9 +50894,6 @@ structures:
 - id: oh_paving_0066
   box_m: [1661.67, 761.84, 1662.13, 762.16]
   height_m: 0.24
-- id: oh_paving_0067
-  box_m: [1663.37, 761.84, 1663.83, 762.16]
-  height_m: 0.24
 - id: oh_paving_0068
   box_m: [1665.07, 761.84, 1665.53, 762.16]
   height_m: 0.24
@@ -50953,9 +50902,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0070
   box_m: [1668.47, 761.84, 1668.93, 762.16]
-  height_m: 0.24
-- id: oh_paving_0071
-  box_m: [1670.17, 761.84, 1670.63, 762.16]
   height_m: 0.24
 - id: oh_paving_0072
   box_m: [1671.87, 761.84, 1672.33, 762.16]
@@ -50966,9 +50912,6 @@ structures:
 - id: oh_paving_0074
   box_m: [1675.27, 761.84, 1675.73, 762.16]
   height_m: 0.24
-- id: oh_paving_0075
-  box_m: [1676.97, 761.84, 1677.43, 762.16]
-  height_m: 0.24
 - id: oh_paving_0076
   box_m: [1678.67, 761.84, 1679.13, 762.16]
   height_m: 0.24
@@ -50977,9 +50920,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0078
   box_m: [1682.07, 761.84, 1682.53, 762.16]
-  height_m: 0.24
-- id: oh_paving_0079
-  box_m: [1683.77, 761.84, 1684.23, 762.16]
   height_m: 0.24
 - id: oh_paving_0080
   box_m: [1685.47, 761.84, 1685.93, 762.16]
@@ -50990,9 +50930,6 @@ structures:
 - id: oh_paving_0082
   box_m: [1688.87, 761.84, 1689.33, 762.16]
   height_m: 0.24
-- id: oh_paving_0083
-  box_m: [1690.57, 761.84, 1691.03, 762.16]
-  height_m: 0.24
 - id: oh_paving_0084
   box_m: [1692.27, 761.84, 1692.73, 762.16]
   height_m: 0.24
@@ -51001,9 +50938,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0086
   box_m: [1695.67, 761.84, 1696.13, 762.16]
-  height_m: 0.24
-- id: oh_paving_0087
-  box_m: [1697.37, 761.84, 1697.83, 762.16]
   height_m: 0.24
 - id: oh_paving_0088
   box_m: [1699.07, 761.84, 1699.53, 762.16]
@@ -51014,9 +50948,6 @@ structures:
 - id: oh_paving_0090
   box_m: [1549.73, 763.09, 1550.19, 763.41]
   height_m: 0.24
-- id: oh_paving_0091
-  box_m: [1551.43, 763.09, 1551.89, 763.41]
-  height_m: 0.24
 - id: oh_paving_0092
   box_m: [1553.13, 763.09, 1553.59, 763.41]
   height_m: 0.24
@@ -51025,9 +50956,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0094
   box_m: [1556.53, 763.09, 1556.99, 763.41]
-  height_m: 0.24
-- id: oh_paving_0095
-  box_m: [1558.23, 763.09, 1558.69, 763.41]
   height_m: 0.24
 - id: oh_paving_0096
   box_m: [1559.93, 763.09, 1560.39, 763.41]
@@ -51038,9 +50966,6 @@ structures:
 - id: oh_paving_0098
   box_m: [1563.33, 763.09, 1563.79, 763.41]
   height_m: 0.24
-- id: oh_paving_0099
-  box_m: [1565.03, 763.09, 1565.49, 763.41]
-  height_m: 0.24
 - id: oh_paving_0100
   box_m: [1566.73, 763.09, 1567.19, 763.41]
   height_m: 0.24
@@ -51049,9 +50974,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0102
   box_m: [1570.13, 763.09, 1570.59, 763.41]
-  height_m: 0.24
-- id: oh_paving_0103
-  box_m: [1571.83, 763.09, 1572.29, 763.41]
   height_m: 0.24
 - id: oh_paving_0104
   box_m: [1573.53, 763.09, 1573.99, 763.41]
@@ -51062,9 +50984,6 @@ structures:
 - id: oh_paving_0106
   box_m: [1576.93, 763.09, 1577.39, 763.41]
   height_m: 0.24
-- id: oh_paving_0107
-  box_m: [1578.63, 763.09, 1579.09, 763.41]
-  height_m: 0.24
 - id: oh_paving_0108
   box_m: [1580.33, 763.09, 1580.79, 763.41]
   height_m: 0.24
@@ -51073,9 +50992,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0110
   box_m: [1583.73, 763.09, 1584.19, 763.41]
-  height_m: 0.24
-- id: oh_paving_0111
-  box_m: [1585.43, 763.09, 1585.89, 763.41]
   height_m: 0.24
 - id: oh_paving_0112
   box_m: [1587.13, 763.09, 1587.59, 763.41]
@@ -51086,9 +51002,6 @@ structures:
 - id: oh_paving_0114
   box_m: [1590.53, 763.09, 1590.99, 763.41]
   height_m: 0.24
-- id: oh_paving_0115
-  box_m: [1592.23, 763.09, 1592.69, 763.41]
-  height_m: 0.24
 - id: oh_paving_0116
   box_m: [1593.93, 763.09, 1594.39, 763.41]
   height_m: 0.24
@@ -51097,9 +51010,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0118
   box_m: [1597.33, 763.09, 1597.79, 763.41]
-  height_m: 0.24
-- id: oh_paving_0119
-  box_m: [1599.03, 763.09, 1599.49, 763.41]
   height_m: 0.24
 - id: oh_paving_0120
   box_m: [1600.73, 763.09, 1601.19, 763.41]
@@ -51110,9 +51020,6 @@ structures:
 - id: oh_paving_0122
   box_m: [1604.13, 763.09, 1604.59, 763.41]
   height_m: 0.24
-- id: oh_paving_0123
-  box_m: [1605.83, 763.09, 1606.29, 763.41]
-  height_m: 0.24
 - id: oh_paving_0124
   box_m: [1607.53, 763.09, 1607.99, 763.41]
   height_m: 0.24
@@ -51121,9 +51028,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0126
   box_m: [1610.93, 763.09, 1611.39, 763.41]
-  height_m: 0.24
-- id: oh_paving_0127
-  box_m: [1612.63, 763.09, 1613.09, 763.41]
   height_m: 0.24
 - id: oh_paving_0128
   box_m: [1614.33, 763.09, 1614.79, 763.41]
@@ -51134,9 +51038,6 @@ structures:
 - id: oh_paving_0130
   box_m: [1617.73, 763.09, 1618.19, 763.41]
   height_m: 0.24
-- id: oh_paving_0131
-  box_m: [1619.43, 763.09, 1619.89, 763.41]
-  height_m: 0.24
 - id: oh_paving_0132
   box_m: [1621.13, 763.09, 1621.59, 763.41]
   height_m: 0.24
@@ -51145,9 +51046,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0134
   box_m: [1624.53, 763.09, 1624.99, 763.41]
-  height_m: 0.24
-- id: oh_paving_0135
-  box_m: [1626.23, 763.09, 1626.69, 763.41]
   height_m: 0.24
 - id: oh_paving_0136
   box_m: [1627.93, 763.09, 1628.39, 763.41]
@@ -51158,9 +51056,6 @@ structures:
 - id: oh_paving_0138
   box_m: [1631.33, 763.09, 1631.79, 763.41]
   height_m: 0.24
-- id: oh_paving_0139
-  box_m: [1633.03, 763.09, 1633.49, 763.41]
-  height_m: 0.24
 - id: oh_paving_0140
   box_m: [1634.73, 763.09, 1635.19, 763.41]
   height_m: 0.24
@@ -51169,9 +51064,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0142
   box_m: [1638.13, 763.09, 1638.59, 763.41]
-  height_m: 0.24
-- id: oh_paving_0143
-  box_m: [1639.83, 763.09, 1640.29, 763.41]
   height_m: 0.24
 - id: oh_paving_0144
   box_m: [1641.53, 763.09, 1641.99, 763.41]
@@ -51182,9 +51074,6 @@ structures:
 - id: oh_paving_0146
   box_m: [1644.93, 763.09, 1645.39, 763.41]
   height_m: 0.24
-- id: oh_paving_0147
-  box_m: [1646.63, 763.09, 1647.09, 763.41]
-  height_m: 0.24
 - id: oh_paving_0148
   box_m: [1648.33, 763.09, 1648.79, 763.41]
   height_m: 0.24
@@ -51193,9 +51082,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0150
   box_m: [1651.73, 763.09, 1652.19, 763.41]
-  height_m: 0.24
-- id: oh_paving_0151
-  box_m: [1653.43, 763.09, 1653.89, 763.41]
   height_m: 0.24
 - id: oh_paving_0152
   box_m: [1655.13, 763.09, 1655.59, 763.41]
@@ -51206,9 +51092,6 @@ structures:
 - id: oh_paving_0154
   box_m: [1658.53, 763.09, 1658.99, 763.41]
   height_m: 0.24
-- id: oh_paving_0155
-  box_m: [1660.23, 763.09, 1660.69, 763.41]
-  height_m: 0.24
 - id: oh_paving_0156
   box_m: [1661.93, 763.09, 1662.39, 763.41]
   height_m: 0.24
@@ -51217,9 +51100,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0158
   box_m: [1665.33, 763.09, 1665.79, 763.41]
-  height_m: 0.24
-- id: oh_paving_0159
-  box_m: [1667.03, 763.09, 1667.49, 763.41]
   height_m: 0.24
 - id: oh_paving_0160
   box_m: [1668.73, 763.09, 1669.19, 763.41]
@@ -51230,9 +51110,6 @@ structures:
 - id: oh_paving_0162
   box_m: [1672.13, 763.09, 1672.59, 763.41]
   height_m: 0.24
-- id: oh_paving_0163
-  box_m: [1673.83, 763.09, 1674.29, 763.41]
-  height_m: 0.24
 - id: oh_paving_0164
   box_m: [1675.53, 763.09, 1675.99, 763.41]
   height_m: 0.24
@@ -51241,9 +51118,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0166
   box_m: [1678.93, 763.09, 1679.39, 763.41]
-  height_m: 0.24
-- id: oh_paving_0167
-  box_m: [1680.63, 763.09, 1681.09, 763.41]
   height_m: 0.24
 - id: oh_paving_0168
   box_m: [1682.33, 763.09, 1682.79, 763.41]
@@ -51254,9 +51128,6 @@ structures:
 - id: oh_paving_0170
   box_m: [1685.73, 763.09, 1686.19, 763.41]
   height_m: 0.24
-- id: oh_paving_0171
-  box_m: [1687.43, 763.09, 1687.89, 763.41]
-  height_m: 0.24
 - id: oh_paving_0172
   box_m: [1689.13, 763.09, 1689.59, 763.41]
   height_m: 0.24
@@ -51265,9 +51136,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0174
   box_m: [1692.53, 763.09, 1692.99, 763.41]
-  height_m: 0.24
-- id: oh_paving_0175
-  box_m: [1694.23, 763.09, 1694.69, 763.41]
   height_m: 0.24
 - id: oh_paving_0176
   box_m: [1695.93, 763.09, 1696.39, 763.41]
@@ -51278,9 +51146,6 @@ structures:
 - id: oh_paving_0178
   box_m: [1699.33, 763.09, 1699.79, 763.41]
   height_m: 0.24
-- id: oh_paving_0179
-  box_m: [1547.77, 764.34, 1548.23, 764.66]
-  height_m: 0.24
 - id: oh_paving_0180
   box_m: [1549.47, 764.34, 1549.93, 764.66]
   height_m: 0.24
@@ -51289,9 +51154,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0182
   box_m: [1552.87, 764.34, 1553.33, 764.66]
-  height_m: 0.24
-- id: oh_paving_0183
-  box_m: [1554.57, 764.34, 1555.03, 764.66]
   height_m: 0.24
 - id: oh_paving_0184
   box_m: [1556.27, 764.34, 1556.73, 764.66]
@@ -51302,9 +51164,6 @@ structures:
 - id: oh_paving_0186
   box_m: [1559.67, 764.34, 1560.13, 764.66]
   height_m: 0.24
-- id: oh_paving_0187
-  box_m: [1561.37, 764.34, 1561.83, 764.66]
-  height_m: 0.24
 - id: oh_paving_0188
   box_m: [1563.07, 764.34, 1563.53, 764.66]
   height_m: 0.24
@@ -51313,9 +51172,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0190
   box_m: [1566.47, 764.34, 1566.93, 764.66]
-  height_m: 0.24
-- id: oh_paving_0191
-  box_m: [1576.67, 764.34, 1577.13, 764.66]
   height_m: 0.24
 - id: oh_paving_0192
   box_m: [1578.37, 764.34, 1578.83, 764.66]
@@ -51326,9 +51182,6 @@ structures:
 - id: oh_paving_0194
   box_m: [1581.77, 764.34, 1582.23, 764.66]
   height_m: 0.24
-- id: oh_paving_0195
-  box_m: [1583.47, 764.34, 1583.93, 764.66]
-  height_m: 0.24
 - id: oh_paving_0196
   box_m: [1585.17, 764.34, 1585.63, 764.66]
   height_m: 0.24
@@ -51337,9 +51190,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0198
   box_m: [1588.57, 764.34, 1589.03, 764.66]
-  height_m: 0.24
-- id: oh_paving_0199
-  box_m: [1590.27, 764.34, 1590.73, 764.66]
   height_m: 0.24
 - id: oh_paving_0200
   box_m: [1591.97, 764.34, 1592.43, 764.66]
@@ -51350,9 +51200,6 @@ structures:
 - id: oh_paving_0202
   box_m: [1595.37, 764.34, 1595.83, 764.66]
   height_m: 0.24
-- id: oh_paving_0203
-  box_m: [1597.07, 764.34, 1597.53, 764.66]
-  height_m: 0.24
 - id: oh_paving_0204
   box_m: [1598.77, 764.34, 1599.23, 764.66]
   height_m: 0.24
@@ -51361,9 +51208,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0206
   box_m: [1602.17, 764.34, 1602.63, 764.66]
-  height_m: 0.24
-- id: oh_paving_0207
-  box_m: [1603.87, 764.34, 1604.33, 764.66]
   height_m: 0.24
 - id: oh_paving_0208
   box_m: [1605.57, 764.34, 1606.03, 764.66]
@@ -51374,9 +51218,6 @@ structures:
 - id: oh_paving_0210
   box_m: [1608.97, 764.34, 1609.43, 764.66]
   height_m: 0.24
-- id: oh_paving_0211
-  box_m: [1610.67, 764.34, 1611.13, 764.66]
-  height_m: 0.24
 - id: oh_paving_0212
   box_m: [1612.37, 764.34, 1612.83, 764.66]
   height_m: 0.24
@@ -51385,9 +51226,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0214
   box_m: [1615.77, 764.34, 1616.23, 764.66]
-  height_m: 0.24
-- id: oh_paving_0215
-  box_m: [1617.47, 764.34, 1617.93, 764.66]
   height_m: 0.24
 - id: oh_paving_0216
   box_m: [1619.17, 764.34, 1619.63, 764.66]
@@ -51398,9 +51236,6 @@ structures:
 - id: oh_paving_0218
   box_m: [1622.57, 764.34, 1623.03, 764.66]
   height_m: 0.24
-- id: oh_paving_0219
-  box_m: [1624.27, 764.34, 1624.73, 764.66]
-  height_m: 0.24
 - id: oh_paving_0220
   box_m: [1625.97, 764.34, 1626.43, 764.66]
   height_m: 0.24
@@ -51409,9 +51244,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0222
   box_m: [1629.37, 764.34, 1629.83, 764.66]
-  height_m: 0.24
-- id: oh_paving_0223
-  box_m: [1631.07, 764.34, 1631.53, 764.66]
   height_m: 0.24
 - id: oh_paving_0224
   box_m: [1632.77, 764.34, 1633.23, 764.66]
@@ -51422,9 +51254,6 @@ structures:
 - id: oh_paving_0226
   box_m: [1636.17, 764.34, 1636.63, 764.66]
   height_m: 0.24
-- id: oh_paving_0227
-  box_m: [1637.87, 764.34, 1638.33, 764.66]
-  height_m: 0.24
 - id: oh_paving_0228
   box_m: [1639.57, 764.34, 1640.03, 764.66]
   height_m: 0.24
@@ -51433,9 +51262,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0230
   box_m: [1642.97, 764.34, 1643.43, 764.66]
-  height_m: 0.24
-- id: oh_paving_0231
-  box_m: [1644.67, 764.34, 1645.13, 764.66]
   height_m: 0.24
 - id: oh_paving_0232
   box_m: [1646.37, 764.34, 1646.83, 764.66]
@@ -51446,9 +51272,6 @@ structures:
 - id: oh_paving_0234
   box_m: [1649.77, 764.34, 1650.23, 764.66]
   height_m: 0.24
-- id: oh_paving_0235
-  box_m: [1651.47, 764.34, 1651.93, 764.66]
-  height_m: 0.24
 - id: oh_paving_0236
   box_m: [1653.17, 764.34, 1653.63, 764.66]
   height_m: 0.24
@@ -51457,9 +51280,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0238
   box_m: [1656.57, 764.34, 1657.03, 764.66]
-  height_m: 0.24
-- id: oh_paving_0239
-  box_m: [1658.27, 764.34, 1658.73, 764.66]
   height_m: 0.24
 - id: oh_paving_0240
   box_m: [1659.97, 764.34, 1660.43, 764.66]
@@ -51470,9 +51290,6 @@ structures:
 - id: oh_paving_0242
   box_m: [1663.37, 764.34, 1663.83, 764.66]
   height_m: 0.24
-- id: oh_paving_0243
-  box_m: [1665.07, 764.34, 1665.53, 764.66]
-  height_m: 0.24
 - id: oh_paving_0244
   box_m: [1666.77, 764.34, 1667.23, 764.66]
   height_m: 0.24
@@ -51481,9 +51298,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0246
   box_m: [1670.17, 764.34, 1670.63, 764.66]
-  height_m: 0.24
-- id: oh_paving_0247
-  box_m: [1671.87, 764.34, 1672.33, 764.66]
   height_m: 0.24
 - id: oh_paving_0248
   box_m: [1673.57, 764.34, 1674.03, 764.66]
@@ -51494,9 +51308,6 @@ structures:
 - id: oh_paving_0250
   box_m: [1676.97, 764.34, 1677.43, 764.66]
   height_m: 0.24
-- id: oh_paving_0251
-  box_m: [1678.67, 764.34, 1679.13, 764.66]
-  height_m: 0.24
 - id: oh_paving_0252
   box_m: [1680.37, 764.34, 1680.83, 764.66]
   height_m: 0.24
@@ -51505,9 +51316,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0254
   box_m: [1683.77, 764.34, 1684.23, 764.66]
-  height_m: 0.24
-- id: oh_paving_0255
-  box_m: [1685.47, 764.34, 1685.93, 764.66]
   height_m: 0.24
 - id: oh_paving_0256
   box_m: [1687.17, 764.34, 1687.63, 764.66]
@@ -51518,9 +51326,6 @@ structures:
 - id: oh_paving_0258
   box_m: [1690.57, 764.34, 1691.03, 764.66]
   height_m: 0.24
-- id: oh_paving_0259
-  box_m: [1692.27, 764.34, 1692.73, 764.66]
-  height_m: 0.24
 - id: oh_paving_0260
   box_m: [1693.97, 764.34, 1694.43, 764.66]
   height_m: 0.24
@@ -51529,9 +51334,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0262
   box_m: [1697.37, 764.34, 1697.83, 764.66]
-  height_m: 0.24
-- id: oh_paving_0263
-  box_m: [1699.07, 764.34, 1699.53, 764.66]
   height_m: 0.24
 - id: oh_paving_0264
   box_m: [1548.03, 765.59, 1548.49, 765.91]
@@ -51542,9 +51344,6 @@ structures:
 - id: oh_paving_0266
   box_m: [1551.43, 765.59, 1551.89, 765.91]
   height_m: 0.24
-- id: oh_paving_0267
-  box_m: [1553.13, 765.59, 1553.59, 765.91]
-  height_m: 0.24
 - id: oh_paving_0268
   box_m: [1554.83, 765.59, 1555.29, 765.91]
   height_m: 0.24
@@ -51553,9 +51352,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0270
   box_m: [1558.23, 765.59, 1558.69, 765.91]
-  height_m: 0.24
-- id: oh_paving_0271
-  box_m: [1559.93, 765.59, 1560.39, 765.91]
   height_m: 0.24
 - id: oh_paving_0272
   box_m: [1561.63, 765.59, 1562.09, 765.91]
@@ -51566,9 +51362,6 @@ structures:
 - id: oh_paving_0274
   box_m: [1565.03, 765.59, 1565.49, 765.91]
   height_m: 0.24
-- id: oh_paving_0275
-  box_m: [1566.73, 765.59, 1567.19, 765.91]
-  height_m: 0.24
 - id: oh_paving_0276
   box_m: [1576.93, 765.59, 1577.39, 765.91]
   height_m: 0.24
@@ -51577,9 +51370,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0278
   box_m: [1580.33, 765.59, 1580.79, 765.91]
-  height_m: 0.24
-- id: oh_paving_0279
-  box_m: [1582.03, 765.59, 1582.49, 765.91]
   height_m: 0.24
 - id: oh_paving_0280
   box_m: [1583.73, 765.59, 1584.19, 765.91]
@@ -51590,9 +51380,6 @@ structures:
 - id: oh_paving_0282
   box_m: [1587.13, 765.59, 1587.59, 765.91]
   height_m: 0.24
-- id: oh_paving_0283
-  box_m: [1588.83, 765.59, 1589.29, 765.91]
-  height_m: 0.24
 - id: oh_paving_0284
   box_m: [1590.53, 765.59, 1590.99, 765.91]
   height_m: 0.24
@@ -51601,9 +51388,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0286
   box_m: [1593.93, 765.59, 1594.39, 765.91]
-  height_m: 0.24
-- id: oh_paving_0287
-  box_m: [1595.63, 765.59, 1596.09, 765.91]
   height_m: 0.24
 - id: oh_paving_0288
   box_m: [1597.33, 765.59, 1597.79, 765.91]
@@ -51614,9 +51398,6 @@ structures:
 - id: oh_paving_0290
   box_m: [1600.73, 765.59, 1601.19, 765.91]
   height_m: 0.24
-- id: oh_paving_0291
-  box_m: [1602.43, 765.59, 1602.89, 765.91]
-  height_m: 0.24
 - id: oh_paving_0292
   box_m: [1604.13, 765.59, 1604.59, 765.91]
   height_m: 0.24
@@ -51625,9 +51406,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0294
   box_m: [1607.53, 765.59, 1607.99, 765.91]
-  height_m: 0.24
-- id: oh_paving_0295
-  box_m: [1609.23, 765.59, 1609.69, 765.91]
   height_m: 0.24
 - id: oh_paving_0296
   box_m: [1610.93, 765.59, 1611.39, 765.91]
@@ -51638,9 +51416,6 @@ structures:
 - id: oh_paving_0298
   box_m: [1614.33, 765.59, 1614.79, 765.91]
   height_m: 0.24
-- id: oh_paving_0299
-  box_m: [1616.03, 765.59, 1616.49, 765.91]
-  height_m: 0.24
 - id: oh_paving_0300
   box_m: [1617.73, 765.59, 1618.19, 765.91]
   height_m: 0.24
@@ -51649,9 +51424,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0302
   box_m: [1626.23, 765.59, 1626.69, 765.91]
-  height_m: 0.24
-- id: oh_paving_0303
-  box_m: [1627.93, 765.59, 1628.39, 765.91]
   height_m: 0.24
 - id: oh_paving_0304
   box_m: [1629.63, 765.59, 1630.09, 765.91]
@@ -51662,9 +51434,6 @@ structures:
 - id: oh_paving_0306
   box_m: [1633.03, 765.59, 1633.49, 765.91]
   height_m: 0.24
-- id: oh_paving_0307
-  box_m: [1634.73, 765.59, 1635.19, 765.91]
-  height_m: 0.24
 - id: oh_paving_0308
   box_m: [1636.43, 765.59, 1636.89, 765.91]
   height_m: 0.24
@@ -51673,9 +51442,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0310
   box_m: [1639.83, 765.59, 1640.29, 765.91]
-  height_m: 0.24
-- id: oh_paving_0311
-  box_m: [1641.53, 765.59, 1641.99, 765.91]
   height_m: 0.24
 - id: oh_paving_0312
   box_m: [1643.23, 765.59, 1643.69, 765.91]
@@ -51686,9 +51452,6 @@ structures:
 - id: oh_paving_0314
   box_m: [1646.63, 765.59, 1647.09, 765.91]
   height_m: 0.24
-- id: oh_paving_0315
-  box_m: [1648.33, 765.59, 1648.79, 765.91]
-  height_m: 0.24
 - id: oh_paving_0316
   box_m: [1655.13, 765.59, 1655.59, 765.91]
   height_m: 0.24
@@ -51697,9 +51460,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0318
   box_m: [1658.53, 765.59, 1658.99, 765.91]
-  height_m: 0.24
-- id: oh_paving_0319
-  box_m: [1660.23, 765.59, 1660.69, 765.91]
   height_m: 0.24
 - id: oh_paving_0320
   box_m: [1661.93, 765.59, 1662.39, 765.91]
@@ -51710,9 +51470,6 @@ structures:
 - id: oh_paving_0322
   box_m: [1665.33, 765.59, 1665.79, 765.91]
   height_m: 0.24
-- id: oh_paving_0323
-  box_m: [1667.03, 765.59, 1667.49, 765.91]
-  height_m: 0.24
 - id: oh_paving_0324
   box_m: [1668.73, 765.59, 1669.19, 765.91]
   height_m: 0.24
@@ -51721,9 +51478,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0326
   box_m: [1672.13, 765.59, 1672.59, 765.91]
-  height_m: 0.24
-- id: oh_paving_0327
-  box_m: [1673.83, 765.59, 1674.29, 765.91]
   height_m: 0.24
 - id: oh_paving_0328
   box_m: [1675.53, 765.59, 1675.99, 765.91]
@@ -51734,9 +51488,6 @@ structures:
 - id: oh_paving_0330
   box_m: [1678.93, 765.59, 1679.39, 765.91]
   height_m: 0.24
-- id: oh_paving_0331
-  box_m: [1685.73, 765.59, 1686.19, 765.91]
-  height_m: 0.24
 - id: oh_paving_0332
   box_m: [1687.43, 765.59, 1687.89, 765.91]
   height_m: 0.24
@@ -51745,9 +51496,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0334
   box_m: [1690.83, 765.59, 1691.29, 765.91]
-  height_m: 0.24
-- id: oh_paving_0335
-  box_m: [1692.53, 765.59, 1692.99, 765.91]
   height_m: 0.24
 - id: oh_paving_0336
   box_m: [1694.23, 765.59, 1694.69, 765.91]
@@ -51758,9 +51506,6 @@ structures:
 - id: oh_paving_0338
   box_m: [1697.63, 765.59, 1698.09, 765.91]
   height_m: 0.24
-- id: oh_paving_0339
-  box_m: [1699.33, 765.59, 1699.79, 765.91]
-  height_m: 0.24
 - id: oh_paving_0340
   box_m: [1547.77, 766.84, 1548.23, 767.16]
   height_m: 0.24
@@ -51769,9 +51514,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0342
   box_m: [1551.17, 766.84, 1551.63, 767.16]
-  height_m: 0.24
-- id: oh_paving_0343
-  box_m: [1552.87, 766.84, 1553.33, 767.16]
   height_m: 0.24
 - id: oh_paving_0344
   box_m: [1554.57, 766.84, 1555.03, 767.16]
@@ -51782,9 +51524,6 @@ structures:
 - id: oh_paving_0346
   box_m: [1557.97, 766.84, 1558.43, 767.16]
   height_m: 0.24
-- id: oh_paving_0347
-  box_m: [1559.67, 766.84, 1560.13, 767.16]
-  height_m: 0.24
 - id: oh_paving_0348
   box_m: [1561.37, 766.84, 1561.83, 767.16]
   height_m: 0.24
@@ -51793,9 +51532,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0350
   box_m: [1564.77, 766.84, 1565.23, 767.16]
-  height_m: 0.24
-- id: oh_paving_0351
-  box_m: [1566.47, 766.84, 1566.93, 767.16]
   height_m: 0.24
 - id: oh_paving_0352
   box_m: [1576.67, 766.84, 1577.13, 767.16]
@@ -51806,9 +51542,6 @@ structures:
 - id: oh_paving_0354
   box_m: [1580.07, 766.84, 1580.53, 767.16]
   height_m: 0.24
-- id: oh_paving_0355
-  box_m: [1581.77, 766.84, 1582.23, 767.16]
-  height_m: 0.24
 - id: oh_paving_0356
   box_m: [1583.47, 766.84, 1583.93, 767.16]
   height_m: 0.24
@@ -51817,9 +51550,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0358
   box_m: [1586.87, 766.84, 1587.33, 767.16]
-  height_m: 0.24
-- id: oh_paving_0359
-  box_m: [1588.57, 766.84, 1589.03, 767.16]
   height_m: 0.24
 - id: oh_paving_0360
   box_m: [1590.27, 766.84, 1590.73, 767.16]
@@ -51830,9 +51560,6 @@ structures:
 - id: oh_paving_0362
   box_m: [1593.67, 766.84, 1594.13, 767.16]
   height_m: 0.24
-- id: oh_paving_0363
-  box_m: [1595.37, 766.84, 1595.83, 767.16]
-  height_m: 0.24
 - id: oh_paving_0364
   box_m: [1597.07, 766.84, 1597.53, 767.16]
   height_m: 0.24
@@ -51841,9 +51568,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0366
   box_m: [1600.47, 766.84, 1600.93, 767.16]
-  height_m: 0.24
-- id: oh_paving_0367
-  box_m: [1602.17, 766.84, 1602.63, 767.16]
   height_m: 0.24
 - id: oh_paving_0368
   box_m: [1603.87, 766.84, 1604.33, 767.16]
@@ -51854,9 +51578,6 @@ structures:
 - id: oh_paving_0370
   box_m: [1607.27, 766.84, 1607.73, 767.16]
   height_m: 0.24
-- id: oh_paving_0371
-  box_m: [1608.97, 766.84, 1609.43, 767.16]
-  height_m: 0.24
 - id: oh_paving_0372
   box_m: [1610.67, 766.84, 1611.13, 767.16]
   height_m: 0.24
@@ -51865,9 +51586,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0374
   box_m: [1614.07, 766.84, 1614.53, 767.16]
-  height_m: 0.24
-- id: oh_paving_0375
-  box_m: [1615.77, 766.84, 1616.23, 767.16]
   height_m: 0.24
 - id: oh_paving_0376
   box_m: [1617.47, 766.84, 1617.93, 767.16]
@@ -51878,9 +51596,6 @@ structures:
 - id: oh_paving_0378
   box_m: [1624.27, 766.84, 1624.73, 767.16]
   height_m: 0.24
-- id: oh_paving_0379
-  box_m: [1625.97, 766.84, 1626.43, 767.16]
-  height_m: 0.24
 - id: oh_paving_0380
   box_m: [1627.67, 766.84, 1628.13, 767.16]
   height_m: 0.24
@@ -51889,9 +51604,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0382
   box_m: [1631.07, 766.84, 1631.53, 767.16]
-  height_m: 0.24
-- id: oh_paving_0383
-  box_m: [1632.77, 766.84, 1633.23, 767.16]
   height_m: 0.24
 - id: oh_paving_0384
   box_m: [1634.47, 766.84, 1634.93, 767.16]
@@ -51902,9 +51614,6 @@ structures:
 - id: oh_paving_0386
   box_m: [1637.87, 766.84, 1638.33, 767.16]
   height_m: 0.24
-- id: oh_paving_0387
-  box_m: [1639.57, 766.84, 1640.03, 767.16]
-  height_m: 0.24
 - id: oh_paving_0388
   box_m: [1641.27, 766.84, 1641.73, 767.16]
   height_m: 0.24
@@ -51913,9 +51622,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0390
   box_m: [1644.67, 766.84, 1645.13, 767.16]
-  height_m: 0.24
-- id: oh_paving_0391
-  box_m: [1646.37, 766.84, 1646.83, 767.16]
   height_m: 0.24
 - id: oh_paving_0392
   box_m: [1648.07, 766.84, 1648.53, 767.16]
@@ -51926,9 +51632,6 @@ structures:
 - id: oh_paving_0394
   box_m: [1654.87, 766.84, 1655.33, 767.16]
   height_m: 0.24
-- id: oh_paving_0395
-  box_m: [1656.57, 766.84, 1657.03, 767.16]
-  height_m: 0.24
 - id: oh_paving_0396
   box_m: [1658.27, 766.84, 1658.73, 767.16]
   height_m: 0.24
@@ -51937,9 +51640,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0398
   box_m: [1661.67, 766.84, 1662.13, 767.16]
-  height_m: 0.24
-- id: oh_paving_0399
-  box_m: [1663.37, 766.84, 1663.83, 767.16]
   height_m: 0.24
 - id: oh_paving_0400
   box_m: [1665.07, 766.84, 1665.53, 767.16]
@@ -51950,9 +51650,6 @@ structures:
 - id: oh_paving_0402
   box_m: [1668.47, 766.84, 1668.93, 767.16]
   height_m: 0.24
-- id: oh_paving_0403
-  box_m: [1670.17, 766.84, 1670.63, 767.16]
-  height_m: 0.24
 - id: oh_paving_0404
   box_m: [1671.87, 766.84, 1672.33, 767.16]
   height_m: 0.24
@@ -51961,9 +51658,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0406
   box_m: [1675.27, 766.84, 1675.73, 767.16]
-  height_m: 0.24
-- id: oh_paving_0407
-  box_m: [1676.97, 766.84, 1677.43, 767.16]
   height_m: 0.24
 - id: oh_paving_0408
   box_m: [1678.67, 766.84, 1679.13, 767.16]
@@ -51974,9 +51668,6 @@ structures:
 - id: oh_paving_0410
   box_m: [1685.47, 766.84, 1685.93, 767.16]
   height_m: 0.24
-- id: oh_paving_0411
-  box_m: [1687.17, 766.84, 1687.63, 767.16]
-  height_m: 0.24
 - id: oh_paving_0412
   box_m: [1688.87, 766.84, 1689.33, 767.16]
   height_m: 0.24
@@ -51985,9 +51676,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0414
   box_m: [1692.27, 766.84, 1692.73, 767.16]
-  height_m: 0.24
-- id: oh_paving_0415
-  box_m: [1693.97, 766.84, 1694.43, 767.16]
   height_m: 0.24
 - id: oh_paving_0416
   box_m: [1695.67, 766.84, 1696.13, 767.16]
@@ -51998,9 +51686,6 @@ structures:
 - id: oh_paving_0418
   box_m: [1699.07, 766.84, 1699.53, 767.16]
   height_m: 0.24
-- id: oh_paving_0419
-  box_m: [1548.03, 768.09, 1548.49, 768.41]
-  height_m: 0.24
 - id: oh_paving_0420
   box_m: [1549.73, 768.09, 1550.19, 768.41]
   height_m: 0.24
@@ -52009,9 +51694,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0422
   box_m: [1553.13, 768.09, 1553.59, 768.41]
-  height_m: 0.24
-- id: oh_paving_0423
-  box_m: [1554.83, 768.09, 1555.29, 768.41]
   height_m: 0.24
 - id: oh_paving_0424
   box_m: [1556.53, 768.09, 1556.99, 768.41]
@@ -52022,9 +51704,6 @@ structures:
 - id: oh_paving_0426
   box_m: [1559.93, 768.09, 1560.39, 768.41]
   height_m: 0.24
-- id: oh_paving_0427
-  box_m: [1561.63, 768.09, 1562.09, 768.41]
-  height_m: 0.24
 - id: oh_paving_0428
   box_m: [1563.33, 768.09, 1563.79, 768.41]
   height_m: 0.24
@@ -52033,9 +51712,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0430
   box_m: [1566.73, 768.09, 1567.19, 768.41]
-  height_m: 0.24
-- id: oh_paving_0431
-  box_m: [1576.93, 768.09, 1577.39, 768.41]
   height_m: 0.24
 - id: oh_paving_0432
   box_m: [1578.63, 768.09, 1579.09, 768.41]
@@ -52046,9 +51722,6 @@ structures:
 - id: oh_paving_0434
   box_m: [1582.03, 768.09, 1582.49, 768.41]
   height_m: 0.24
-- id: oh_paving_0435
-  box_m: [1583.73, 768.09, 1584.19, 768.41]
-  height_m: 0.24
 - id: oh_paving_0436
   box_m: [1585.43, 768.09, 1585.89, 768.41]
   height_m: 0.24
@@ -52057,9 +51730,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0438
   box_m: [1588.83, 768.09, 1589.29, 768.41]
-  height_m: 0.24
-- id: oh_paving_0439
-  box_m: [1590.53, 768.09, 1590.99, 768.41]
   height_m: 0.24
 - id: oh_paving_0440
   box_m: [1592.23, 768.09, 1592.69, 768.41]
@@ -52070,9 +51740,6 @@ structures:
 - id: oh_paving_0442
   box_m: [1595.63, 768.09, 1596.09, 768.41]
   height_m: 0.24
-- id: oh_paving_0443
-  box_m: [1597.33, 768.09, 1597.79, 768.41]
-  height_m: 0.24
 - id: oh_paving_0444
   box_m: [1599.03, 768.09, 1599.49, 768.41]
   height_m: 0.24
@@ -52081,9 +51748,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0446
   box_m: [1602.43, 768.09, 1602.89, 768.41]
-  height_m: 0.24
-- id: oh_paving_0447
-  box_m: [1604.13, 768.09, 1604.59, 768.41]
   height_m: 0.24
 - id: oh_paving_0448
   box_m: [1605.83, 768.09, 1606.29, 768.41]
@@ -52094,9 +51758,6 @@ structures:
 - id: oh_paving_0450
   box_m: [1609.23, 768.09, 1609.69, 768.41]
   height_m: 0.24
-- id: oh_paving_0451
-  box_m: [1610.93, 768.09, 1611.39, 768.41]
-  height_m: 0.24
 - id: oh_paving_0452
   box_m: [1612.63, 768.09, 1613.09, 768.41]
   height_m: 0.24
@@ -52105,9 +51766,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0454
   box_m: [1616.03, 768.09, 1616.49, 768.41]
-  height_m: 0.24
-- id: oh_paving_0455
-  box_m: [1617.73, 768.09, 1618.19, 768.41]
   height_m: 0.24
 - id: oh_paving_0456
   box_m: [1624.53, 768.09, 1624.99, 768.41]
@@ -52118,9 +51776,6 @@ structures:
 - id: oh_paving_0458
   box_m: [1627.93, 768.09, 1628.39, 768.41]
   height_m: 0.24
-- id: oh_paving_0459
-  box_m: [1629.63, 768.09, 1630.09, 768.41]
-  height_m: 0.24
 - id: oh_paving_0460
   box_m: [1631.33, 768.09, 1631.79, 768.41]
   height_m: 0.24
@@ -52129,9 +51784,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0462
   box_m: [1634.73, 768.09, 1635.19, 768.41]
-  height_m: 0.24
-- id: oh_paving_0463
-  box_m: [1636.43, 768.09, 1636.89, 768.41]
   height_m: 0.24
 - id: oh_paving_0464
   box_m: [1638.13, 768.09, 1638.59, 768.41]
@@ -52142,9 +51794,6 @@ structures:
 - id: oh_paving_0466
   box_m: [1641.53, 768.09, 1641.99, 768.41]
   height_m: 0.24
-- id: oh_paving_0467
-  box_m: [1643.23, 768.09, 1643.69, 768.41]
-  height_m: 0.24
 - id: oh_paving_0468
   box_m: [1644.93, 768.09, 1645.39, 768.41]
   height_m: 0.24
@@ -52153,9 +51802,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0470
   box_m: [1648.33, 768.09, 1648.79, 768.41]
-  height_m: 0.24
-- id: oh_paving_0471
-  box_m: [1655.13, 768.09, 1655.59, 768.41]
   height_m: 0.24
 - id: oh_paving_0472
   box_m: [1656.83, 768.09, 1657.29, 768.41]
@@ -52166,9 +51812,6 @@ structures:
 - id: oh_paving_0474
   box_m: [1660.23, 768.09, 1660.69, 768.41]
   height_m: 0.24
-- id: oh_paving_0475
-  box_m: [1661.93, 768.09, 1662.39, 768.41]
-  height_m: 0.24
 - id: oh_paving_0476
   box_m: [1663.63, 768.09, 1664.09, 768.41]
   height_m: 0.24
@@ -52177,9 +51820,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0478
   box_m: [1667.03, 768.09, 1667.49, 768.41]
-  height_m: 0.24
-- id: oh_paving_0479
-  box_m: [1668.73, 768.09, 1669.19, 768.41]
   height_m: 0.24
 - id: oh_paving_0480
   box_m: [1670.43, 768.09, 1670.89, 768.41]
@@ -52190,9 +51830,6 @@ structures:
 - id: oh_paving_0482
   box_m: [1673.83, 768.09, 1674.29, 768.41]
   height_m: 0.24
-- id: oh_paving_0483
-  box_m: [1675.53, 768.09, 1675.99, 768.41]
-  height_m: 0.24
 - id: oh_paving_0484
   box_m: [1677.23, 768.09, 1677.69, 768.41]
   height_m: 0.24
@@ -52201,9 +51838,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0486
   box_m: [1685.73, 768.09, 1686.19, 768.41]
-  height_m: 0.24
-- id: oh_paving_0487
-  box_m: [1687.43, 768.09, 1687.89, 768.41]
   height_m: 0.24
 - id: oh_paving_0488
   box_m: [1689.13, 768.09, 1689.59, 768.41]
@@ -52214,9 +51848,6 @@ structures:
 - id: oh_paving_0490
   box_m: [1692.53, 768.09, 1692.99, 768.41]
   height_m: 0.24
-- id: oh_paving_0491
-  box_m: [1694.23, 768.09, 1694.69, 768.41]
-  height_m: 0.24
 - id: oh_paving_0492
   box_m: [1695.93, 768.09, 1696.39, 768.41]
   height_m: 0.24
@@ -52225,9 +51856,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0494
   box_m: [1699.33, 768.09, 1699.79, 768.41]
-  height_m: 0.24
-- id: oh_paving_0495
-  box_m: [1547.77, 769.34, 1548.23, 769.66]
   height_m: 0.24
 - id: oh_paving_0496
   box_m: [1549.47, 769.34, 1549.93, 769.66]
@@ -52238,9 +51866,6 @@ structures:
 - id: oh_paving_0498
   box_m: [1552.87, 769.34, 1553.33, 769.66]
   height_m: 0.24
-- id: oh_paving_0499
-  box_m: [1554.57, 769.34, 1555.03, 769.66]
-  height_m: 0.24
 - id: oh_paving_0500
   box_m: [1556.27, 769.34, 1556.73, 769.66]
   height_m: 0.24
@@ -52249,9 +51874,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0502
   box_m: [1559.67, 769.34, 1560.13, 769.66]
-  height_m: 0.24
-- id: oh_paving_0503
-  box_m: [1561.37, 769.34, 1561.83, 769.66]
   height_m: 0.24
 - id: oh_paving_0504
   box_m: [1563.07, 769.34, 1563.53, 769.66]
@@ -52262,9 +51884,6 @@ structures:
 - id: oh_paving_0506
   box_m: [1566.47, 769.34, 1566.93, 769.66]
   height_m: 0.24
-- id: oh_paving_0507
-  box_m: [1576.67, 769.34, 1577.13, 769.66]
-  height_m: 0.24
 - id: oh_paving_0508
   box_m: [1578.37, 769.34, 1578.83, 769.66]
   height_m: 0.24
@@ -52273,9 +51892,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0510
   box_m: [1581.77, 769.34, 1582.23, 769.66]
-  height_m: 0.24
-- id: oh_paving_0511
-  box_m: [1583.47, 769.34, 1583.93, 769.66]
   height_m: 0.24
 - id: oh_paving_0512
   box_m: [1585.17, 769.34, 1585.63, 769.66]
@@ -52286,9 +51902,6 @@ structures:
 - id: oh_paving_0514
   box_m: [1588.57, 769.34, 1589.03, 769.66]
   height_m: 0.24
-- id: oh_paving_0515
-  box_m: [1590.27, 769.34, 1590.73, 769.66]
-  height_m: 0.24
 - id: oh_paving_0516
   box_m: [1591.97, 769.34, 1592.43, 769.66]
   height_m: 0.24
@@ -52297,9 +51910,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0518
   box_m: [1595.37, 769.34, 1595.83, 769.66]
-  height_m: 0.24
-- id: oh_paving_0519
-  box_m: [1597.07, 769.34, 1597.53, 769.66]
   height_m: 0.24
 - id: oh_paving_0520
   box_m: [1598.77, 769.34, 1599.23, 769.66]
@@ -52310,9 +51920,6 @@ structures:
 - id: oh_paving_0522
   box_m: [1602.17, 769.34, 1602.63, 769.66]
   height_m: 0.24
-- id: oh_paving_0523
-  box_m: [1603.87, 769.34, 1604.33, 769.66]
-  height_m: 0.24
 - id: oh_paving_0524
   box_m: [1605.57, 769.34, 1606.03, 769.66]
   height_m: 0.24
@@ -52321,9 +51928,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0526
   box_m: [1608.97, 769.34, 1609.43, 769.66]
-  height_m: 0.24
-- id: oh_paving_0527
-  box_m: [1610.67, 769.34, 1611.13, 769.66]
   height_m: 0.24
 - id: oh_paving_0528
   box_m: [1612.37, 769.34, 1612.83, 769.66]
@@ -52334,9 +51938,6 @@ structures:
 - id: oh_paving_0530
   box_m: [1615.77, 769.34, 1616.23, 769.66]
   height_m: 0.24
-- id: oh_paving_0531
-  box_m: [1617.47, 769.34, 1617.93, 769.66]
-  height_m: 0.24
 - id: oh_paving_0532
   box_m: [1619.17, 769.34, 1619.63, 769.66]
   height_m: 0.24
@@ -52345,9 +51946,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0534
   box_m: [1622.57, 769.34, 1623.03, 769.66]
-  height_m: 0.24
-- id: oh_paving_0535
-  box_m: [1624.27, 769.34, 1624.73, 769.66]
   height_m: 0.24
 - id: oh_paving_0536
   box_m: [1625.97, 769.34, 1626.43, 769.66]
@@ -52358,9 +51956,6 @@ structures:
 - id: oh_paving_0538
   box_m: [1629.37, 769.34, 1629.83, 769.66]
   height_m: 0.24
-- id: oh_paving_0539
-  box_m: [1631.07, 769.34, 1631.53, 769.66]
-  height_m: 0.24
 - id: oh_paving_0540
   box_m: [1632.77, 769.34, 1633.23, 769.66]
   height_m: 0.24
@@ -52369,9 +51964,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0542
   box_m: [1636.17, 769.34, 1636.63, 769.66]
-  height_m: 0.24
-- id: oh_paving_0543
-  box_m: [1637.87, 769.34, 1638.33, 769.66]
   height_m: 0.24
 - id: oh_paving_0544
   box_m: [1639.57, 769.34, 1640.03, 769.66]
@@ -52382,9 +51974,6 @@ structures:
 - id: oh_paving_0546
   box_m: [1642.97, 769.34, 1643.43, 769.66]
   height_m: 0.24
-- id: oh_paving_0547
-  box_m: [1644.67, 769.34, 1645.13, 769.66]
-  height_m: 0.24
 - id: oh_paving_0548
   box_m: [1646.37, 769.34, 1646.83, 769.66]
   height_m: 0.24
@@ -52393,9 +51982,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0550
   box_m: [1649.77, 769.34, 1650.23, 769.66]
-  height_m: 0.24
-- id: oh_paving_0551
-  box_m: [1651.47, 769.34, 1651.93, 769.66]
   height_m: 0.24
 - id: oh_paving_0552
   box_m: [1653.17, 769.34, 1653.63, 769.66]
@@ -52406,9 +51992,6 @@ structures:
 - id: oh_paving_0554
   box_m: [1656.57, 769.34, 1657.03, 769.66]
   height_m: 0.24
-- id: oh_paving_0555
-  box_m: [1658.27, 769.34, 1658.73, 769.66]
-  height_m: 0.24
 - id: oh_paving_0556
   box_m: [1659.97, 769.34, 1660.43, 769.66]
   height_m: 0.24
@@ -52417,9 +52000,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0558
   box_m: [1663.37, 769.34, 1663.83, 769.66]
-  height_m: 0.24
-- id: oh_paving_0559
-  box_m: [1665.07, 769.34, 1665.53, 769.66]
   height_m: 0.24
 - id: oh_paving_0560
   box_m: [1666.77, 769.34, 1667.23, 769.66]
@@ -52430,9 +52010,6 @@ structures:
 - id: oh_paving_0562
   box_m: [1670.17, 769.34, 1670.63, 769.66]
   height_m: 0.24
-- id: oh_paving_0563
-  box_m: [1671.87, 769.34, 1672.33, 769.66]
-  height_m: 0.24
 - id: oh_paving_0564
   box_m: [1673.57, 769.34, 1674.03, 769.66]
   height_m: 0.24
@@ -52441,9 +52018,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0566
   box_m: [1676.97, 769.34, 1677.43, 769.66]
-  height_m: 0.24
-- id: oh_paving_0567
-  box_m: [1678.67, 769.34, 1679.13, 769.66]
   height_m: 0.24
 - id: oh_paving_0568
   box_m: [1680.37, 769.34, 1680.83, 769.66]
@@ -52454,9 +52028,6 @@ structures:
 - id: oh_paving_0570
   box_m: [1683.77, 769.34, 1684.23, 769.66]
   height_m: 0.24
-- id: oh_paving_0571
-  box_m: [1685.47, 769.34, 1685.93, 769.66]
-  height_m: 0.24
 - id: oh_paving_0572
   box_m: [1687.17, 769.34, 1687.63, 769.66]
   height_m: 0.24
@@ -52465,9 +52036,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0574
   box_m: [1690.57, 769.34, 1691.03, 769.66]
-  height_m: 0.24
-- id: oh_paving_0575
-  box_m: [1692.27, 769.34, 1692.73, 769.66]
   height_m: 0.24
 - id: oh_paving_0576
   box_m: [1693.97, 769.34, 1694.43, 769.66]
@@ -52478,9 +52046,6 @@ structures:
 - id: oh_paving_0578
   box_m: [1697.37, 769.34, 1697.83, 769.66]
   height_m: 0.24
-- id: oh_paving_0579
-  box_m: [1699.07, 769.34, 1699.53, 769.66]
-  height_m: 0.24
 - id: oh_paving_0580
   box_m: [1548.03, 770.59, 1548.49, 770.91]
   height_m: 0.24
@@ -52489,9 +52054,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0582
   box_m: [1551.43, 770.59, 1551.89, 770.91]
-  height_m: 0.24
-- id: oh_paving_0583
-  box_m: [1553.13, 770.59, 1553.59, 770.91]
   height_m: 0.24
 - id: oh_paving_0584
   box_m: [1554.83, 770.59, 1555.29, 770.91]
@@ -52502,9 +52064,6 @@ structures:
 - id: oh_paving_0586
   box_m: [1558.23, 770.59, 1558.69, 770.91]
   height_m: 0.24
-- id: oh_paving_0587
-  box_m: [1559.93, 770.59, 1560.39, 770.91]
-  height_m: 0.24
 - id: oh_paving_0588
   box_m: [1561.63, 770.59, 1562.09, 770.91]
   height_m: 0.24
@@ -52513,9 +52072,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0590
   box_m: [1565.03, 770.59, 1565.49, 770.91]
-  height_m: 0.24
-- id: oh_paving_0591
-  box_m: [1566.73, 770.59, 1567.19, 770.91]
   height_m: 0.24
 - id: oh_paving_0592
   box_m: [1568.43, 770.59, 1568.89, 770.91]
@@ -52526,9 +52082,6 @@ structures:
 - id: oh_paving_0597
   box_m: [1576.93, 770.59, 1577.39, 770.91]
   height_m: 0.24
-- id: oh_paving_0598
-  box_m: [1578.63, 770.59, 1579.09, 770.91]
-  height_m: 0.24
 - id: oh_paving_0599
   box_m: [1580.33, 770.59, 1580.79, 770.91]
   height_m: 0.24
@@ -52537,9 +52090,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0601
   box_m: [1583.73, 770.59, 1584.19, 770.91]
-  height_m: 0.24
-- id: oh_paving_0602
-  box_m: [1585.43, 770.59, 1585.89, 770.91]
   height_m: 0.24
 - id: oh_paving_0603
   box_m: [1587.13, 770.59, 1587.59, 770.91]
@@ -52550,9 +52100,6 @@ structures:
 - id: oh_paving_0605
   box_m: [1590.53, 770.59, 1590.99, 770.91]
   height_m: 0.24
-- id: oh_paving_0606
-  box_m: [1592.23, 770.59, 1592.69, 770.91]
-  height_m: 0.24
 - id: oh_paving_0607
   box_m: [1593.93, 770.59, 1594.39, 770.91]
   height_m: 0.24
@@ -52561,9 +52108,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0609
   box_m: [1597.33, 770.59, 1597.79, 770.91]
-  height_m: 0.24
-- id: oh_paving_0610
-  box_m: [1599.03, 770.59, 1599.49, 770.91]
   height_m: 0.24
 - id: oh_paving_0611
   box_m: [1600.73, 770.59, 1601.19, 770.91]
@@ -52574,9 +52118,6 @@ structures:
 - id: oh_paving_0613
   box_m: [1604.13, 770.59, 1604.59, 770.91]
   height_m: 0.24
-- id: oh_paving_0614
-  box_m: [1605.83, 770.59, 1606.29, 770.91]
-  height_m: 0.24
 - id: oh_paving_0615
   box_m: [1607.53, 770.59, 1607.99, 770.91]
   height_m: 0.24
@@ -52585,9 +52126,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0617
   box_m: [1610.93, 770.59, 1611.39, 770.91]
-  height_m: 0.24
-- id: oh_paving_0618
-  box_m: [1612.63, 770.59, 1613.09, 770.91]
   height_m: 0.24
 - id: oh_paving_0619
   box_m: [1614.33, 770.59, 1614.79, 770.91]
@@ -52598,9 +52136,6 @@ structures:
 - id: oh_paving_0621
   box_m: [1617.73, 770.59, 1618.19, 770.91]
   height_m: 0.24
-- id: oh_paving_0622
-  box_m: [1619.43, 770.59, 1619.89, 770.91]
-  height_m: 0.24
 - id: oh_paving_0623
   box_m: [1621.13, 770.59, 1621.59, 770.91]
   height_m: 0.24
@@ -52609,9 +52144,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0625
   box_m: [1624.53, 770.59, 1624.99, 770.91]
-  height_m: 0.24
-- id: oh_paving_0626
-  box_m: [1626.23, 770.59, 1626.69, 770.91]
   height_m: 0.24
 - id: oh_paving_0627
   box_m: [1627.93, 770.59, 1628.39, 770.91]
@@ -52622,9 +52154,6 @@ structures:
 - id: oh_paving_0629
   box_m: [1631.33, 770.59, 1631.79, 770.91]
   height_m: 0.24
-- id: oh_paving_0630
-  box_m: [1633.03, 770.59, 1633.49, 770.91]
-  height_m: 0.24
 - id: oh_paving_0631
   box_m: [1634.73, 770.59, 1635.19, 770.91]
   height_m: 0.24
@@ -52633,9 +52162,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0633
   box_m: [1638.13, 770.59, 1638.59, 770.91]
-  height_m: 0.24
-- id: oh_paving_0634
-  box_m: [1639.83, 770.59, 1640.29, 770.91]
   height_m: 0.24
 - id: oh_paving_0635
   box_m: [1641.53, 770.59, 1641.99, 770.91]
@@ -52646,9 +52172,6 @@ structures:
 - id: oh_paving_0637
   box_m: [1644.93, 770.59, 1645.39, 770.91]
   height_m: 0.24
-- id: oh_paving_0638
-  box_m: [1646.63, 770.59, 1647.09, 770.91]
-  height_m: 0.24
 - id: oh_paving_0639
   box_m: [1648.33, 770.59, 1648.79, 770.91]
   height_m: 0.24
@@ -52657,9 +52180,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0641
   box_m: [1651.73, 770.59, 1652.19, 770.91]
-  height_m: 0.24
-- id: oh_paving_0642
-  box_m: [1653.43, 770.59, 1653.89, 770.91]
   height_m: 0.24
 - id: oh_paving_0643
   box_m: [1655.13, 770.59, 1655.59, 770.91]
@@ -52670,9 +52190,6 @@ structures:
 - id: oh_paving_0645
   box_m: [1658.53, 770.59, 1658.99, 770.91]
   height_m: 0.24
-- id: oh_paving_0646
-  box_m: [1660.23, 770.59, 1660.69, 770.91]
-  height_m: 0.24
 - id: oh_paving_0647
   box_m: [1661.93, 770.59, 1662.39, 770.91]
   height_m: 0.24
@@ -52681,9 +52198,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0649
   box_m: [1665.33, 770.59, 1665.79, 770.91]
-  height_m: 0.24
-- id: oh_paving_0650
-  box_m: [1667.03, 770.59, 1667.49, 770.91]
   height_m: 0.24
 - id: oh_paving_0651
   box_m: [1668.73, 770.59, 1669.19, 770.91]
@@ -52694,9 +52208,6 @@ structures:
 - id: oh_paving_0653
   box_m: [1672.13, 770.59, 1672.59, 770.91]
   height_m: 0.24
-- id: oh_paving_0654
-  box_m: [1673.83, 770.59, 1674.29, 770.91]
-  height_m: 0.24
 - id: oh_paving_0655
   box_m: [1675.53, 770.59, 1675.99, 770.91]
   height_m: 0.24
@@ -52705,9 +52216,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0657
   box_m: [1678.93, 770.59, 1679.39, 770.91]
-  height_m: 0.24
-- id: oh_paving_0658
-  box_m: [1680.63, 770.59, 1681.09, 770.91]
   height_m: 0.24
 - id: oh_paving_0659
   box_m: [1682.33, 770.59, 1682.79, 770.91]
@@ -52718,9 +52226,6 @@ structures:
 - id: oh_paving_0661
   box_m: [1685.73, 770.59, 1686.19, 770.91]
   height_m: 0.24
-- id: oh_paving_0662
-  box_m: [1687.43, 770.59, 1687.89, 770.91]
-  height_m: 0.24
 - id: oh_paving_0663
   box_m: [1689.13, 770.59, 1689.59, 770.91]
   height_m: 0.24
@@ -52729,9 +52234,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0665
   box_m: [1692.53, 770.59, 1692.99, 770.91]
-  height_m: 0.24
-- id: oh_paving_0666
-  box_m: [1694.23, 770.59, 1694.69, 770.91]
   height_m: 0.24
 - id: oh_paving_0667
   box_m: [1695.93, 770.59, 1696.39, 770.91]
@@ -52742,9 +52244,6 @@ structures:
 - id: oh_paving_0669
   box_m: [1699.33, 770.59, 1699.79, 770.91]
   height_m: 0.24
-- id: oh_paving_0670
-  box_m: [1549.47, 771.84, 1549.93, 772.16]
-  height_m: 0.24
 - id: oh_paving_0671
   box_m: [1551.17, 771.84, 1551.63, 772.16]
   height_m: 0.24
@@ -52753,9 +52252,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0673
   box_m: [1554.57, 771.84, 1555.03, 772.16]
-  height_m: 0.24
-- id: oh_paving_0674
-  box_m: [1556.27, 771.84, 1556.73, 772.16]
   height_m: 0.24
 - id: oh_paving_0675
   box_m: [1557.97, 771.84, 1558.43, 772.16]
@@ -52766,9 +52262,6 @@ structures:
 - id: oh_paving_0677
   box_m: [1561.37, 771.84, 1561.83, 772.16]
   height_m: 0.24
-- id: oh_paving_0678
-  box_m: [1563.07, 771.84, 1563.53, 772.16]
-  height_m: 0.24
 - id: oh_paving_0679
   box_m: [1564.77, 771.84, 1565.23, 772.16]
   height_m: 0.24
@@ -52777,9 +52270,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0681
   box_m: [1568.17, 771.84, 1568.63, 772.16]
-  height_m: 0.24
-- id: oh_paving_0684
-  box_m: [1574.97, 771.84, 1575.43, 772.16]
   height_m: 0.24
 - id: oh_paving_0685
   box_m: [1576.67, 771.84, 1577.13, 772.16]
@@ -52790,9 +52280,6 @@ structures:
 - id: oh_paving_0687
   box_m: [1580.07, 771.84, 1580.53, 772.16]
   height_m: 0.24
-- id: oh_paving_0688
-  box_m: [1581.77, 771.84, 1582.23, 772.16]
-  height_m: 0.24
 - id: oh_paving_0689
   box_m: [1583.47, 771.84, 1583.93, 772.16]
   height_m: 0.24
@@ -52801,9 +52288,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0691
   box_m: [1586.87, 771.84, 1587.33, 772.16]
-  height_m: 0.24
-- id: oh_paving_0692
-  box_m: [1588.57, 771.84, 1589.03, 772.16]
   height_m: 0.24
 - id: oh_paving_0693
   box_m: [1590.27, 771.84, 1590.73, 772.16]
@@ -52814,9 +52298,6 @@ structures:
 - id: oh_paving_0695
   box_m: [1593.67, 771.84, 1594.13, 772.16]
   height_m: 0.24
-- id: oh_paving_0696
-  box_m: [1595.37, 771.84, 1595.83, 772.16]
-  height_m: 0.24
 - id: oh_paving_0697
   box_m: [1597.07, 771.84, 1597.53, 772.16]
   height_m: 0.24
@@ -52825,9 +52306,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0699
   box_m: [1600.47, 771.84, 1600.93, 772.16]
-  height_m: 0.24
-- id: oh_paving_0700
-  box_m: [1602.17, 771.84, 1602.63, 772.16]
   height_m: 0.24
 - id: oh_paving_0701
   box_m: [1603.87, 771.84, 1604.33, 772.16]
@@ -52838,9 +52316,6 @@ structures:
 - id: oh_paving_0703
   box_m: [1607.27, 771.84, 1607.73, 772.16]
   height_m: 0.24
-- id: oh_paving_0704
-  box_m: [1608.97, 771.84, 1609.43, 772.16]
-  height_m: 0.24
 - id: oh_paving_0705
   box_m: [1610.67, 771.84, 1611.13, 772.16]
   height_m: 0.24
@@ -52849,9 +52324,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0707
   box_m: [1614.07, 771.84, 1614.53, 772.16]
-  height_m: 0.24
-- id: oh_paving_0708
-  box_m: [1615.77, 771.84, 1616.23, 772.16]
   height_m: 0.24
 - id: oh_paving_0709
   box_m: [1617.47, 771.84, 1617.93, 772.16]
@@ -52862,9 +52334,6 @@ structures:
 - id: oh_paving_0711
   box_m: [1620.87, 771.84, 1621.33, 772.16]
   height_m: 0.24
-- id: oh_paving_0712
-  box_m: [1622.57, 771.84, 1623.03, 772.16]
-  height_m: 0.24
 - id: oh_paving_0713
   box_m: [1624.27, 771.84, 1624.73, 772.16]
   height_m: 0.24
@@ -52873,9 +52342,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0715
   box_m: [1629.37, 771.84, 1629.83, 772.16]
-  height_m: 0.24
-- id: oh_paving_0716
-  box_m: [1631.07, 771.84, 1631.53, 772.16]
   height_m: 0.24
 - id: oh_paving_0717
   box_m: [1632.77, 771.84, 1633.23, 772.16]
@@ -52886,9 +52352,6 @@ structures:
 - id: oh_paving_0719
   box_m: [1636.17, 771.84, 1636.63, 772.16]
   height_m: 0.24
-- id: oh_paving_0720
-  box_m: [1637.87, 771.84, 1638.33, 772.16]
-  height_m: 0.24
 - id: oh_paving_0721
   box_m: [1639.57, 771.84, 1640.03, 772.16]
   height_m: 0.24
@@ -52897,9 +52360,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0723
   box_m: [1642.97, 771.84, 1643.43, 772.16]
-  height_m: 0.24
-- id: oh_paving_0724
-  box_m: [1644.67, 771.84, 1645.13, 772.16]
   height_m: 0.24
 - id: oh_paving_0725
   box_m: [1646.37, 771.84, 1646.83, 772.16]
@@ -52910,9 +52370,6 @@ structures:
 - id: oh_paving_0727
   box_m: [1649.77, 771.84, 1650.23, 772.16]
   height_m: 0.24
-- id: oh_paving_0728
-  box_m: [1653.17, 771.84, 1653.63, 772.16]
-  height_m: 0.24
 - id: oh_paving_0729
   box_m: [1654.87, 771.84, 1655.33, 772.16]
   height_m: 0.24
@@ -52921,9 +52378,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0731
   box_m: [1658.27, 771.84, 1658.73, 772.16]
-  height_m: 0.24
-- id: oh_paving_0732
-  box_m: [1659.97, 771.84, 1660.43, 772.16]
   height_m: 0.24
 - id: oh_paving_0733
   box_m: [1661.67, 771.84, 1662.13, 772.16]
@@ -52934,9 +52388,6 @@ structures:
 - id: oh_paving_0735
   box_m: [1665.07, 771.84, 1665.53, 772.16]
   height_m: 0.24
-- id: oh_paving_0736
-  box_m: [1666.77, 771.84, 1667.23, 772.16]
-  height_m: 0.24
 - id: oh_paving_0737
   box_m: [1668.47, 771.84, 1668.93, 772.16]
   height_m: 0.24
@@ -52945,9 +52396,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0739
   box_m: [1671.87, 771.84, 1672.33, 772.16]
-  height_m: 0.24
-- id: oh_paving_0740
-  box_m: [1673.57, 771.84, 1674.03, 772.16]
   height_m: 0.24
 - id: oh_paving_0741
   box_m: [1675.27, 771.84, 1675.73, 772.16]
@@ -52958,9 +52406,6 @@ structures:
 - id: oh_paving_0743
   box_m: [1678.67, 771.84, 1679.13, 772.16]
   height_m: 0.24
-- id: oh_paving_0744
-  box_m: [1680.37, 771.84, 1680.83, 772.16]
-  height_m: 0.24
 - id: oh_paving_0745
   box_m: [1682.07, 771.84, 1682.53, 772.16]
   height_m: 0.24
@@ -52969,9 +52414,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0747
   box_m: [1685.47, 771.84, 1685.93, 772.16]
-  height_m: 0.24
-- id: oh_paving_0748
-  box_m: [1687.17, 771.84, 1687.63, 772.16]
   height_m: 0.24
 - id: oh_paving_0749
   box_m: [1688.87, 771.84, 1689.33, 772.16]
@@ -52982,9 +52424,6 @@ structures:
 - id: oh_paving_0751
   box_m: [1692.27, 771.84, 1692.73, 772.16]
   height_m: 0.24
-- id: oh_paving_0752
-  box_m: [1693.97, 771.84, 1694.43, 772.16]
-  height_m: 0.24
 - id: oh_paving_0753
   box_m: [1695.67, 771.84, 1696.13, 772.16]
   height_m: 0.24
@@ -52993,9 +52432,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0755
   box_m: [1699.07, 771.84, 1699.53, 772.16]
-  height_m: 0.24
-- id: oh_paving_0756
-  box_m: [1548.03, 773.09, 1548.49, 773.41]
   height_m: 0.24
 - id: oh_paving_0757
   box_m: [1549.73, 773.09, 1550.19, 773.41]
@@ -53006,9 +52442,6 @@ structures:
 - id: oh_paving_0759
   box_m: [1553.13, 773.09, 1553.59, 773.41]
   height_m: 0.24
-- id: oh_paving_0760
-  box_m: [1554.83, 773.09, 1555.29, 773.41]
-  height_m: 0.24
 - id: oh_paving_0761
   box_m: [1556.53, 773.09, 1556.99, 773.41]
   height_m: 0.24
@@ -53017,9 +52450,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0763
   box_m: [1559.93, 773.09, 1560.39, 773.41]
-  height_m: 0.24
-- id: oh_paving_0764
-  box_m: [1561.63, 773.09, 1562.09, 773.41]
   height_m: 0.24
 - id: oh_paving_0765
   box_m: [1563.33, 773.09, 1563.79, 773.41]
@@ -53030,9 +52460,6 @@ structures:
 - id: oh_paving_0767
   box_m: [1566.73, 773.09, 1567.19, 773.41]
   height_m: 0.24
-- id: oh_paving_0768
-  box_m: [1568.43, 773.09, 1568.89, 773.41]
-  height_m: 0.24
 - id: oh_paving_0772
   box_m: [1575.23, 773.09, 1575.69, 773.41]
   height_m: 0.24
@@ -53041,9 +52468,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0774
   box_m: [1578.63, 773.09, 1579.09, 773.41]
-  height_m: 0.24
-- id: oh_paving_0775
-  box_m: [1580.33, 773.09, 1580.79, 773.41]
   height_m: 0.24
 - id: oh_paving_0776
   box_m: [1582.03, 773.09, 1582.49, 773.41]
@@ -53054,9 +52478,6 @@ structures:
 - id: oh_paving_0778
   box_m: [1585.43, 773.09, 1585.89, 773.41]
   height_m: 0.24
-- id: oh_paving_0779
-  box_m: [1587.13, 773.09, 1587.59, 773.41]
-  height_m: 0.24
 - id: oh_paving_0780
   box_m: [1588.83, 773.09, 1589.29, 773.41]
   height_m: 0.24
@@ -53065,9 +52486,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0782
   box_m: [1592.23, 773.09, 1592.69, 773.41]
-  height_m: 0.24
-- id: oh_paving_0783
-  box_m: [1593.93, 773.09, 1594.39, 773.41]
   height_m: 0.24
 - id: oh_paving_0784
   box_m: [1595.63, 773.09, 1596.09, 773.41]
@@ -53078,9 +52496,6 @@ structures:
 - id: oh_paving_0786
   box_m: [1599.03, 773.09, 1599.49, 773.41]
   height_m: 0.24
-- id: oh_paving_0787
-  box_m: [1600.73, 773.09, 1601.19, 773.41]
-  height_m: 0.24
 - id: oh_paving_0788
   box_m: [1602.43, 773.09, 1602.89, 773.41]
   height_m: 0.24
@@ -53089,9 +52504,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0790
   box_m: [1605.83, 773.09, 1606.29, 773.41]
-  height_m: 0.24
-- id: oh_paving_0791
-  box_m: [1607.53, 773.09, 1607.99, 773.41]
   height_m: 0.24
 - id: oh_paving_0792
   box_m: [1609.23, 773.09, 1609.69, 773.41]
@@ -53102,9 +52514,6 @@ structures:
 - id: oh_paving_0794
   box_m: [1612.63, 773.09, 1613.09, 773.41]
   height_m: 0.24
-- id: oh_paving_0795
-  box_m: [1614.33, 773.09, 1614.79, 773.41]
-  height_m: 0.24
 - id: oh_paving_0796
   box_m: [1616.03, 773.09, 1616.49, 773.41]
   height_m: 0.24
@@ -53113,9 +52522,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0798
   box_m: [1619.43, 773.09, 1619.89, 773.41]
-  height_m: 0.24
-- id: oh_paving_0799
-  box_m: [1621.13, 773.09, 1621.59, 773.41]
   height_m: 0.24
 - id: oh_paving_0800
   box_m: [1622.83, 773.09, 1623.29, 773.41]
@@ -53126,9 +52532,6 @@ structures:
 - id: oh_paving_0802
   box_m: [1626.23, 773.09, 1626.69, 773.41]
   height_m: 0.24
-- id: oh_paving_0803
-  box_m: [1627.93, 773.09, 1628.39, 773.41]
-  height_m: 0.24
 - id: oh_paving_0804
   box_m: [1629.63, 773.09, 1630.09, 773.41]
   height_m: 0.24
@@ -53137,9 +52540,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0806
   box_m: [1633.03, 773.09, 1633.49, 773.41]
-  height_m: 0.24
-- id: oh_paving_0807
-  box_m: [1634.73, 773.09, 1635.19, 773.41]
   height_m: 0.24
 - id: oh_paving_0808
   box_m: [1636.43, 773.09, 1636.89, 773.41]
@@ -53150,9 +52550,6 @@ structures:
 - id: oh_paving_0810
   box_m: [1639.83, 773.09, 1640.29, 773.41]
   height_m: 0.24
-- id: oh_paving_0811
-  box_m: [1641.53, 773.09, 1641.99, 773.41]
-  height_m: 0.24
 - id: oh_paving_0812
   box_m: [1643.23, 773.09, 1643.69, 773.41]
   height_m: 0.24
@@ -53161,9 +52558,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0814
   box_m: [1646.63, 773.09, 1647.09, 773.41]
-  height_m: 0.24
-- id: oh_paving_0815
-  box_m: [1648.33, 773.09, 1648.79, 773.41]
   height_m: 0.24
 - id: oh_paving_0816
   box_m: [1650.03, 773.09, 1650.49, 773.41]
@@ -53174,9 +52568,6 @@ structures:
 - id: oh_paving_0818
   box_m: [1653.43, 773.09, 1653.89, 773.41]
   height_m: 0.24
-- id: oh_paving_0819
-  box_m: [1655.13, 773.09, 1655.59, 773.41]
-  height_m: 0.24
 - id: oh_paving_0820
   box_m: [1656.83, 773.09, 1657.29, 773.41]
   height_m: 0.24
@@ -53185,9 +52576,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0822
   box_m: [1660.23, 773.09, 1660.69, 773.41]
-  height_m: 0.24
-- id: oh_paving_0823
-  box_m: [1661.93, 773.09, 1662.39, 773.41]
   height_m: 0.24
 - id: oh_paving_0824
   box_m: [1663.63, 773.09, 1664.09, 773.41]
@@ -53198,9 +52586,6 @@ structures:
 - id: oh_paving_0826
   box_m: [1667.03, 773.09, 1667.49, 773.41]
   height_m: 0.24
-- id: oh_paving_0827
-  box_m: [1668.73, 773.09, 1669.19, 773.41]
-  height_m: 0.24
 - id: oh_paving_0828
   box_m: [1670.43, 773.09, 1670.89, 773.41]
   height_m: 0.24
@@ -53209,9 +52594,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0830
   box_m: [1673.83, 773.09, 1674.29, 773.41]
-  height_m: 0.24
-- id: oh_paving_0831
-  box_m: [1675.53, 773.09, 1675.99, 773.41]
   height_m: 0.24
 - id: oh_paving_0832
   box_m: [1677.23, 773.09, 1677.69, 773.41]
@@ -53222,9 +52604,6 @@ structures:
 - id: oh_paving_0834
   box_m: [1680.63, 773.09, 1681.09, 773.41]
   height_m: 0.24
-- id: oh_paving_0835
-  box_m: [1682.33, 773.09, 1682.79, 773.41]
-  height_m: 0.24
 - id: oh_paving_0836
   box_m: [1684.03, 773.09, 1684.49, 773.41]
   height_m: 0.24
@@ -53233,9 +52612,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0838
   box_m: [1687.43, 773.09, 1687.89, 773.41]
-  height_m: 0.24
-- id: oh_paving_0839
-  box_m: [1689.13, 773.09, 1689.59, 773.41]
   height_m: 0.24
 - id: oh_paving_0840
   box_m: [1690.83, 773.09, 1691.29, 773.41]
@@ -53246,9 +52622,6 @@ structures:
 - id: oh_paving_0842
   box_m: [1694.23, 773.09, 1694.69, 773.41]
   height_m: 0.24
-- id: oh_paving_0843
-  box_m: [1695.93, 773.09, 1696.39, 773.41]
-  height_m: 0.24
 - id: oh_paving_0844
   box_m: [1697.63, 773.09, 1698.09, 773.41]
   height_m: 0.24
@@ -53257,9 +52630,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0846
   box_m: [1547.77, 774.34, 1548.23, 774.66]
-  height_m: 0.24
-- id: oh_paving_0847
-  box_m: [1549.47, 774.34, 1549.93, 774.66]
   height_m: 0.24
 - id: oh_paving_0848
   box_m: [1551.17, 774.34, 1551.63, 774.66]
@@ -53270,9 +52640,6 @@ structures:
 - id: oh_paving_0850
   box_m: [1554.57, 774.34, 1555.03, 774.66]
   height_m: 0.24
-- id: oh_paving_0851
-  box_m: [1556.27, 774.34, 1556.73, 774.66]
-  height_m: 0.24
 - id: oh_paving_0852
   box_m: [1557.97, 774.34, 1558.43, 774.66]
   height_m: 0.24
@@ -53281,9 +52648,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0854
   box_m: [1561.37, 774.34, 1561.83, 774.66]
-  height_m: 0.24
-- id: oh_paving_0855
-  box_m: [1563.07, 774.34, 1563.53, 774.66]
   height_m: 0.24
 - id: oh_paving_0856
   box_m: [1564.77, 774.34, 1565.23, 774.66]
@@ -53294,9 +52658,6 @@ structures:
 - id: oh_paving_0858
   box_m: [1568.17, 774.34, 1568.63, 774.66]
   height_m: 0.24
-- id: oh_paving_0862
-  box_m: [1574.97, 774.34, 1575.43, 774.66]
-  height_m: 0.24
 - id: oh_paving_0863
   box_m: [1576.67, 774.34, 1577.13, 774.66]
   height_m: 0.24
@@ -53305,9 +52666,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0865
   box_m: [1580.07, 774.34, 1580.53, 774.66]
-  height_m: 0.24
-- id: oh_paving_0866
-  box_m: [1581.77, 774.34, 1582.23, 774.66]
   height_m: 0.24
 - id: oh_paving_0867
   box_m: [1583.47, 774.34, 1583.93, 774.66]
@@ -53318,9 +52676,6 @@ structures:
 - id: oh_paving_0869
   box_m: [1586.87, 774.34, 1587.33, 774.66]
   height_m: 0.24
-- id: oh_paving_0870
-  box_m: [1588.57, 774.34, 1589.03, 774.66]
-  height_m: 0.24
 - id: oh_paving_0871
   box_m: [1590.27, 774.34, 1590.73, 774.66]
   height_m: 0.24
@@ -53329,9 +52684,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0873
   box_m: [1593.67, 774.34, 1594.13, 774.66]
-  height_m: 0.24
-- id: oh_paving_0874
-  box_m: [1595.37, 774.34, 1595.83, 774.66]
   height_m: 0.24
 - id: oh_paving_0875
   box_m: [1597.07, 774.34, 1597.53, 774.66]
@@ -53342,9 +52694,6 @@ structures:
 - id: oh_paving_0877
   box_m: [1600.47, 774.34, 1600.93, 774.66]
   height_m: 0.24
-- id: oh_paving_0878
-  box_m: [1602.17, 774.34, 1602.63, 774.66]
-  height_m: 0.24
 - id: oh_paving_0879
   box_m: [1603.87, 774.34, 1604.33, 774.66]
   height_m: 0.24
@@ -53353,9 +52702,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0881
   box_m: [1607.27, 774.34, 1607.73, 774.66]
-  height_m: 0.24
-- id: oh_paving_0882
-  box_m: [1608.97, 774.34, 1609.43, 774.66]
   height_m: 0.24
 - id: oh_paving_0883
   box_m: [1610.67, 774.34, 1611.13, 774.66]
@@ -53366,9 +52712,6 @@ structures:
 - id: oh_paving_0885
   box_m: [1614.07, 774.34, 1614.53, 774.66]
   height_m: 0.24
-- id: oh_paving_0886
-  box_m: [1615.77, 774.34, 1616.23, 774.66]
-  height_m: 0.24
 - id: oh_paving_0887
   box_m: [1617.47, 774.34, 1617.93, 774.66]
   height_m: 0.24
@@ -53377,9 +52720,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0889
   box_m: [1620.87, 774.34, 1621.33, 774.66]
-  height_m: 0.24
-- id: oh_paving_0890
-  box_m: [1622.57, 774.34, 1623.03, 774.66]
   height_m: 0.24
 - id: oh_paving_0891
   box_m: [1624.27, 774.34, 1624.73, 774.66]
@@ -53390,9 +52730,6 @@ structures:
 - id: oh_paving_0893
   box_m: [1627.67, 774.34, 1628.13, 774.66]
   height_m: 0.24
-- id: oh_paving_0894
-  box_m: [1629.37, 774.34, 1629.83, 774.66]
-  height_m: 0.24
 - id: oh_paving_0895
   box_m: [1631.07, 774.34, 1631.53, 774.66]
   height_m: 0.24
@@ -53401,9 +52738,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0897
   box_m: [1634.47, 774.34, 1634.93, 774.66]
-  height_m: 0.24
-- id: oh_paving_0898
-  box_m: [1636.17, 774.34, 1636.63, 774.66]
   height_m: 0.24
 - id: oh_paving_0899
   box_m: [1637.87, 774.34, 1638.33, 774.66]
@@ -53414,9 +52748,6 @@ structures:
 - id: oh_paving_0901
   box_m: [1641.27, 774.34, 1641.73, 774.66]
   height_m: 0.24
-- id: oh_paving_0902
-  box_m: [1642.97, 774.34, 1643.43, 774.66]
-  height_m: 0.24
 - id: oh_paving_0903
   box_m: [1644.67, 774.34, 1645.13, 774.66]
   height_m: 0.24
@@ -53425,9 +52756,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0905
   box_m: [1648.07, 774.34, 1648.53, 774.66]
-  height_m: 0.24
-- id: oh_paving_0906
-  box_m: [1649.77, 774.34, 1650.23, 774.66]
   height_m: 0.24
 - id: oh_paving_0907
   box_m: [1651.47, 774.34, 1651.93, 774.66]
@@ -53438,9 +52766,6 @@ structures:
 - id: oh_paving_0909
   box_m: [1654.87, 774.34, 1655.33, 774.66]
   height_m: 0.24
-- id: oh_paving_0910
-  box_m: [1656.57, 774.34, 1657.03, 774.66]
-  height_m: 0.24
 - id: oh_paving_0911
   box_m: [1658.27, 774.34, 1658.73, 774.66]
   height_m: 0.24
@@ -53449,9 +52774,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0913
   box_m: [1661.67, 774.34, 1662.13, 774.66]
-  height_m: 0.24
-- id: oh_paving_0914
-  box_m: [1663.37, 774.34, 1663.83, 774.66]
   height_m: 0.24
 - id: oh_paving_0915
   box_m: [1665.07, 774.34, 1665.53, 774.66]
@@ -53462,9 +52784,6 @@ structures:
 - id: oh_paving_0917
   box_m: [1668.47, 774.34, 1668.93, 774.66]
   height_m: 0.24
-- id: oh_paving_0918
-  box_m: [1670.17, 774.34, 1670.63, 774.66]
-  height_m: 0.24
 - id: oh_paving_0919
   box_m: [1671.87, 774.34, 1672.33, 774.66]
   height_m: 0.24
@@ -53473,9 +52792,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0921
   box_m: [1675.27, 774.34, 1675.73, 774.66]
-  height_m: 0.24
-- id: oh_paving_0922
-  box_m: [1676.97, 774.34, 1677.43, 774.66]
   height_m: 0.24
 - id: oh_paving_0923
   box_m: [1678.67, 774.34, 1679.13, 774.66]
@@ -53486,9 +52802,6 @@ structures:
 - id: oh_paving_0925
   box_m: [1682.07, 774.34, 1682.53, 774.66]
   height_m: 0.24
-- id: oh_paving_0926
-  box_m: [1683.77, 774.34, 1684.23, 774.66]
-  height_m: 0.24
 - id: oh_paving_0927
   box_m: [1685.47, 774.34, 1685.93, 774.66]
   height_m: 0.24
@@ -53497,9 +52810,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0929
   box_m: [1688.87, 774.34, 1689.33, 774.66]
-  height_m: 0.24
-- id: oh_paving_0932
-  box_m: [1693.97, 774.34, 1694.43, 774.66]
   height_m: 0.24
 - id: oh_paving_0933
   box_m: [1695.67, 774.34, 1696.13, 774.66]
@@ -53510,9 +52820,6 @@ structures:
 - id: oh_paving_0935
   box_m: [1699.07, 774.34, 1699.53, 774.66]
   height_m: 0.24
-- id: oh_paving_0936
-  box_m: [1548.03, 775.59, 1548.49, 775.91]
-  height_m: 0.24
 - id: oh_paving_0937
   box_m: [1549.73, 775.59, 1550.19, 775.91]
   height_m: 0.24
@@ -53521,9 +52828,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0939
   box_m: [1553.13, 775.59, 1553.59, 775.91]
-  height_m: 0.24
-- id: oh_paving_0940
-  box_m: [1554.83, 775.59, 1555.29, 775.91]
   height_m: 0.24
 - id: oh_paving_0941
   box_m: [1556.53, 775.59, 1556.99, 775.91]
@@ -53534,9 +52838,6 @@ structures:
 - id: oh_paving_0943
   box_m: [1559.93, 775.59, 1560.39, 775.91]
   height_m: 0.24
-- id: oh_paving_0944
-  box_m: [1561.63, 775.59, 1562.09, 775.91]
-  height_m: 0.24
 - id: oh_paving_0945
   box_m: [1563.33, 775.59, 1563.79, 775.91]
   height_m: 0.24
@@ -53545,9 +52846,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0947
   box_m: [1566.73, 775.59, 1567.19, 775.91]
-  height_m: 0.24
-- id: oh_paving_0948
-  box_m: [1568.43, 775.59, 1568.89, 775.91]
   height_m: 0.24
 - id: oh_paving_0952
   box_m: [1575.23, 775.59, 1575.69, 775.91]
@@ -53558,9 +52856,6 @@ structures:
 - id: oh_paving_0954
   box_m: [1578.63, 775.59, 1579.09, 775.91]
   height_m: 0.24
-- id: oh_paving_0955
-  box_m: [1580.33, 775.59, 1580.79, 775.91]
-  height_m: 0.24
 - id: oh_paving_0956
   box_m: [1582.03, 775.59, 1582.49, 775.91]
   height_m: 0.24
@@ -53569,9 +52864,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0958
   box_m: [1585.43, 775.59, 1585.89, 775.91]
-  height_m: 0.24
-- id: oh_paving_0959
-  box_m: [1587.13, 775.59, 1587.59, 775.91]
   height_m: 0.24
 - id: oh_paving_0960
   box_m: [1588.83, 775.59, 1589.29, 775.91]
@@ -53582,9 +52874,6 @@ structures:
 - id: oh_paving_0962
   box_m: [1592.23, 775.59, 1592.69, 775.91]
   height_m: 0.24
-- id: oh_paving_0963
-  box_m: [1593.93, 775.59, 1594.39, 775.91]
-  height_m: 0.24
 - id: oh_paving_0964
   box_m: [1595.63, 775.59, 1596.09, 775.91]
   height_m: 0.24
@@ -53593,9 +52882,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0966
   box_m: [1599.03, 775.59, 1599.49, 775.91]
-  height_m: 0.24
-- id: oh_paving_0967
-  box_m: [1600.73, 775.59, 1601.19, 775.91]
   height_m: 0.24
 - id: oh_paving_0968
   box_m: [1602.43, 775.59, 1602.89, 775.91]
@@ -53606,9 +52892,6 @@ structures:
 - id: oh_paving_0970
   box_m: [1605.83, 775.59, 1606.29, 775.91]
   height_m: 0.24
-- id: oh_paving_0971
-  box_m: [1607.53, 775.59, 1607.99, 775.91]
-  height_m: 0.24
 - id: oh_paving_0972
   box_m: [1609.23, 775.59, 1609.69, 775.91]
   height_m: 0.24
@@ -53617,9 +52900,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0974
   box_m: [1612.63, 775.59, 1613.09, 775.91]
-  height_m: 0.24
-- id: oh_paving_0975
-  box_m: [1614.33, 775.59, 1614.79, 775.91]
   height_m: 0.24
 - id: oh_paving_0976
   box_m: [1616.03, 775.59, 1616.49, 775.91]
@@ -53630,9 +52910,6 @@ structures:
 - id: oh_paving_0978
   box_m: [1619.43, 775.59, 1619.89, 775.91]
   height_m: 0.24
-- id: oh_paving_0979
-  box_m: [1621.13, 775.59, 1621.59, 775.91]
-  height_m: 0.24
 - id: oh_paving_0980
   box_m: [1622.83, 775.59, 1623.29, 775.91]
   height_m: 0.24
@@ -53641,9 +52918,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0982
   box_m: [1626.23, 775.59, 1626.69, 775.91]
-  height_m: 0.24
-- id: oh_paving_0983
-  box_m: [1627.93, 775.59, 1628.39, 775.91]
   height_m: 0.24
 - id: oh_paving_0984
   box_m: [1629.63, 775.59, 1630.09, 775.91]
@@ -53654,9 +52928,6 @@ structures:
 - id: oh_paving_0986
   box_m: [1633.03, 775.59, 1633.49, 775.91]
   height_m: 0.24
-- id: oh_paving_0987
-  box_m: [1634.73, 775.59, 1635.19, 775.91]
-  height_m: 0.24
 - id: oh_paving_0988
   box_m: [1636.43, 775.59, 1636.89, 775.91]
   height_m: 0.24
@@ -53665,9 +52936,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0990
   box_m: [1639.83, 775.59, 1640.29, 775.91]
-  height_m: 0.24
-- id: oh_paving_0991
-  box_m: [1641.53, 775.59, 1641.99, 775.91]
   height_m: 0.24
 - id: oh_paving_0992
   box_m: [1643.23, 775.59, 1643.69, 775.91]
@@ -53678,9 +52946,6 @@ structures:
 - id: oh_paving_0994
   box_m: [1646.63, 775.59, 1647.09, 775.91]
   height_m: 0.24
-- id: oh_paving_0995
-  box_m: [1648.33, 775.59, 1648.79, 775.91]
-  height_m: 0.24
 - id: oh_paving_0996
   box_m: [1650.03, 775.59, 1650.49, 775.91]
   height_m: 0.24
@@ -53689,9 +52954,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_0998
   box_m: [1653.43, 775.59, 1653.89, 775.91]
-  height_m: 0.24
-- id: oh_paving_0999
-  box_m: [1655.13, 775.59, 1655.59, 775.91]
   height_m: 0.24
 - id: oh_paving_1000
   box_m: [1656.83, 775.59, 1657.29, 775.91]
@@ -53702,9 +52964,6 @@ structures:
 - id: oh_paving_1002
   box_m: [1660.23, 775.59, 1660.69, 775.91]
   height_m: 0.24
-- id: oh_paving_1003
-  box_m: [1661.93, 775.59, 1662.39, 775.91]
-  height_m: 0.24
 - id: oh_paving_1004
   box_m: [1663.63, 775.59, 1664.09, 775.91]
   height_m: 0.24
@@ -53713,9 +52972,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1006
   box_m: [1667.03, 775.59, 1667.49, 775.91]
-  height_m: 0.24
-- id: oh_paving_1007
-  box_m: [1668.73, 775.59, 1669.19, 775.91]
   height_m: 0.24
 - id: oh_paving_1008
   box_m: [1670.43, 775.59, 1670.89, 775.91]
@@ -53726,9 +52982,6 @@ structures:
 - id: oh_paving_1010
   box_m: [1673.83, 775.59, 1674.29, 775.91]
   height_m: 0.24
-- id: oh_paving_1011
-  box_m: [1675.53, 775.59, 1675.99, 775.91]
-  height_m: 0.24
 - id: oh_paving_1012
   box_m: [1677.23, 775.59, 1677.69, 775.91]
   height_m: 0.24
@@ -53737,9 +52990,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1014
   box_m: [1680.63, 775.59, 1681.09, 775.91]
-  height_m: 0.24
-- id: oh_paving_1015
-  box_m: [1682.33, 775.59, 1682.79, 775.91]
   height_m: 0.24
 - id: oh_paving_1016
   box_m: [1684.03, 775.59, 1684.49, 775.91]
@@ -53750,9 +53000,6 @@ structures:
 - id: oh_paving_1018
   box_m: [1687.43, 775.59, 1687.89, 775.91]
   height_m: 0.24
-- id: oh_paving_1019
-  box_m: [1689.13, 775.59, 1689.59, 775.91]
-  height_m: 0.24
 - id: oh_paving_1022
   box_m: [1694.23, 775.59, 1694.69, 775.91]
   height_m: 0.24
@@ -53761,9 +53008,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1024
   box_m: [1697.63, 775.59, 1698.09, 775.91]
-  height_m: 0.24
-- id: oh_paving_1025
-  box_m: [1699.33, 775.59, 1699.79, 775.91]
   height_m: 0.24
 - id: oh_paving_1026
   box_m: [1547.77, 776.84, 1548.23, 777.16]
@@ -53774,9 +53018,6 @@ structures:
 - id: oh_paving_1028
   box_m: [1551.17, 776.84, 1551.63, 777.16]
   height_m: 0.24
-- id: oh_paving_1029
-  box_m: [1552.87, 776.84, 1553.33, 777.16]
-  height_m: 0.24
 - id: oh_paving_1030
   box_m: [1554.57, 776.84, 1555.03, 777.16]
   height_m: 0.24
@@ -53785,9 +53026,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1032
   box_m: [1557.97, 776.84, 1558.43, 777.16]
-  height_m: 0.24
-- id: oh_paving_1033
-  box_m: [1559.67, 776.84, 1560.13, 777.16]
   height_m: 0.24
 - id: oh_paving_1034
   box_m: [1561.37, 776.84, 1561.83, 777.16]
@@ -53798,9 +53036,6 @@ structures:
 - id: oh_paving_1036
   box_m: [1564.77, 776.84, 1565.23, 777.16]
   height_m: 0.24
-- id: oh_paving_1037
-  box_m: [1566.47, 776.84, 1566.93, 777.16]
-  height_m: 0.24
 - id: oh_paving_1038
   box_m: [1568.17, 776.84, 1568.63, 777.16]
   height_m: 0.24
@@ -53809,9 +53044,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1043
   box_m: [1576.67, 776.84, 1577.13, 777.16]
-  height_m: 0.24
-- id: oh_paving_1044
-  box_m: [1578.37, 776.84, 1578.83, 777.16]
   height_m: 0.24
 - id: oh_paving_1045
   box_m: [1580.07, 776.84, 1580.53, 777.16]
@@ -53822,9 +53054,6 @@ structures:
 - id: oh_paving_1047
   box_m: [1583.47, 776.84, 1583.93, 777.16]
   height_m: 0.24
-- id: oh_paving_1048
-  box_m: [1585.17, 776.84, 1585.63, 777.16]
-  height_m: 0.24
 - id: oh_paving_1049
   box_m: [1586.87, 776.84, 1587.33, 777.16]
   height_m: 0.24
@@ -53833,9 +53062,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1051
   box_m: [1590.27, 776.84, 1590.73, 777.16]
-  height_m: 0.24
-- id: oh_paving_1052
-  box_m: [1591.97, 776.84, 1592.43, 777.16]
   height_m: 0.24
 - id: oh_paving_1053
   box_m: [1593.67, 776.84, 1594.13, 777.16]
@@ -53846,9 +53072,6 @@ structures:
 - id: oh_paving_1055
   box_m: [1597.07, 776.84, 1597.53, 777.16]
   height_m: 0.24
-- id: oh_paving_1056
-  box_m: [1598.77, 776.84, 1599.23, 777.16]
-  height_m: 0.24
 - id: oh_paving_1057
   box_m: [1600.47, 776.84, 1600.93, 777.16]
   height_m: 0.24
@@ -53857,9 +53080,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1059
   box_m: [1603.87, 776.84, 1604.33, 777.16]
-  height_m: 0.24
-- id: oh_paving_1060
-  box_m: [1605.57, 776.84, 1606.03, 777.16]
   height_m: 0.24
 - id: oh_paving_1061
   box_m: [1607.27, 776.84, 1607.73, 777.16]
@@ -53870,9 +53090,6 @@ structures:
 - id: oh_paving_1063
   box_m: [1610.67, 776.84, 1611.13, 777.16]
   height_m: 0.24
-- id: oh_paving_1064
-  box_m: [1612.37, 776.84, 1612.83, 777.16]
-  height_m: 0.24
 - id: oh_paving_1065
   box_m: [1614.07, 776.84, 1614.53, 777.16]
   height_m: 0.24
@@ -53881,9 +53098,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1067
   box_m: [1617.47, 776.84, 1617.93, 777.16]
-  height_m: 0.24
-- id: oh_paving_1068
-  box_m: [1619.17, 776.84, 1619.63, 777.16]
   height_m: 0.24
 - id: oh_paving_1071
   box_m: [1624.27, 776.84, 1624.73, 777.16]
@@ -53894,9 +53108,6 @@ structures:
 - id: oh_paving_1073
   box_m: [1627.67, 776.84, 1628.13, 777.16]
   height_m: 0.24
-- id: oh_paving_1074
-  box_m: [1629.37, 776.84, 1629.83, 777.16]
-  height_m: 0.24
 - id: oh_paving_1075
   box_m: [1631.07, 776.84, 1631.53, 777.16]
   height_m: 0.24
@@ -53905,9 +53116,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1077
   box_m: [1634.47, 776.84, 1634.93, 777.16]
-  height_m: 0.24
-- id: oh_paving_1078
-  box_m: [1636.17, 776.84, 1636.63, 777.16]
   height_m: 0.24
 - id: oh_paving_1079
   box_m: [1637.87, 776.84, 1638.33, 777.16]
@@ -53918,9 +53126,6 @@ structures:
 - id: oh_paving_1081
   box_m: [1641.27, 776.84, 1641.73, 777.16]
   height_m: 0.24
-- id: oh_paving_1082
-  box_m: [1642.97, 776.84, 1643.43, 777.16]
-  height_m: 0.24
 - id: oh_paving_1083
   box_m: [1644.67, 776.84, 1645.13, 777.16]
   height_m: 0.24
@@ -53929,9 +53134,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1085
   box_m: [1648.07, 776.84, 1648.53, 777.16]
-  height_m: 0.24
-- id: oh_paving_1086
-  box_m: [1649.77, 776.84, 1650.23, 777.16]
   height_m: 0.24
 - id: oh_paving_1087
   box_m: [1651.47, 776.84, 1651.93, 777.16]
@@ -53942,9 +53144,6 @@ structures:
 - id: oh_paving_1089
   box_m: [1654.87, 776.84, 1655.33, 777.16]
   height_m: 0.24
-- id: oh_paving_1090
-  box_m: [1656.57, 776.84, 1657.03, 777.16]
-  height_m: 0.24
 - id: oh_paving_1091
   box_m: [1658.27, 776.84, 1658.73, 777.16]
   height_m: 0.24
@@ -53953,9 +53152,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1093
   box_m: [1661.67, 776.84, 1662.13, 777.16]
-  height_m: 0.24
-- id: oh_paving_1094
-  box_m: [1663.37, 776.84, 1663.83, 777.16]
   height_m: 0.24
 - id: oh_paving_1095
   box_m: [1665.07, 776.84, 1665.53, 777.16]
@@ -53966,9 +53162,6 @@ structures:
 - id: oh_paving_1097
   box_m: [1668.47, 776.84, 1668.93, 777.16]
   height_m: 0.24
-- id: oh_paving_1098
-  box_m: [1670.17, 776.84, 1670.63, 777.16]
-  height_m: 0.24
 - id: oh_paving_1099
   box_m: [1671.87, 776.84, 1672.33, 777.16]
   height_m: 0.24
@@ -53977,9 +53170,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1101
   box_m: [1675.27, 776.84, 1675.73, 777.16]
-  height_m: 0.24
-- id: oh_paving_1102
-  box_m: [1676.97, 776.84, 1677.43, 777.16]
   height_m: 0.24
 - id: oh_paving_1103
   box_m: [1678.67, 776.84, 1679.13, 777.16]
@@ -53990,9 +53180,6 @@ structures:
 - id: oh_paving_1105
   box_m: [1682.07, 776.84, 1682.53, 777.16]
   height_m: 0.24
-- id: oh_paving_1106
-  box_m: [1683.77, 776.84, 1684.23, 777.16]
-  height_m: 0.24
 - id: oh_paving_1107
   box_m: [1685.47, 776.84, 1685.93, 777.16]
   height_m: 0.24
@@ -54001,9 +53188,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1109
   box_m: [1688.87, 776.84, 1689.33, 777.16]
-  height_m: 0.24
-- id: oh_paving_1112
-  box_m: [1693.97, 776.84, 1694.43, 777.16]
   height_m: 0.24
 - id: oh_paving_1113
   box_m: [1695.67, 776.84, 1696.13, 777.16]
@@ -54014,9 +53198,6 @@ structures:
 - id: oh_paving_1115
   box_m: [1699.07, 776.84, 1699.53, 777.16]
   height_m: 0.24
-- id: oh_paving_1116
-  box_m: [1548.03, 778.09, 1548.49, 778.41]
-  height_m: 0.24
 - id: oh_paving_1117
   box_m: [1549.73, 778.09, 1550.19, 778.41]
   height_m: 0.24
@@ -54025,9 +53206,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1119
   box_m: [1553.13, 778.09, 1553.59, 778.41]
-  height_m: 0.24
-- id: oh_paving_1120
-  box_m: [1554.83, 778.09, 1555.29, 778.41]
   height_m: 0.24
 - id: oh_paving_1121
   box_m: [1556.53, 778.09, 1556.99, 778.41]
@@ -54038,9 +53216,6 @@ structures:
 - id: oh_paving_1123
   box_m: [1561.63, 778.09, 1562.09, 778.41]
   height_m: 0.24
-- id: oh_paving_1124
-  box_m: [1563.33, 778.09, 1563.79, 778.41]
-  height_m: 0.24
 - id: oh_paving_1125
   box_m: [1565.03, 778.09, 1565.49, 778.41]
   height_m: 0.24
@@ -54049,9 +53224,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1127
   box_m: [1568.43, 778.09, 1568.89, 778.41]
-  height_m: 0.24
-- id: oh_paving_1131
-  box_m: [1575.23, 778.09, 1575.69, 778.41]
   height_m: 0.24
 - id: oh_paving_1132
   box_m: [1576.93, 778.09, 1577.39, 778.41]
@@ -54062,9 +53234,6 @@ structures:
 - id: oh_paving_1134
   box_m: [1580.33, 778.09, 1580.79, 778.41]
   height_m: 0.24
-- id: oh_paving_1135
-  box_m: [1582.03, 778.09, 1582.49, 778.41]
-  height_m: 0.24
 - id: oh_paving_1136
   box_m: [1583.73, 778.09, 1584.19, 778.41]
   height_m: 0.24
@@ -54073,9 +53242,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1138
   box_m: [1588.83, 778.09, 1589.29, 778.41]
-  height_m: 0.24
-- id: oh_paving_1139
-  box_m: [1590.53, 778.09, 1590.99, 778.41]
   height_m: 0.24
 - id: oh_paving_1140
   box_m: [1592.23, 778.09, 1592.69, 778.41]
@@ -54086,9 +53252,6 @@ structures:
 - id: oh_paving_1142
   box_m: [1595.63, 778.09, 1596.09, 778.41]
   height_m: 0.24
-- id: oh_paving_1143
-  box_m: [1597.33, 778.09, 1597.79, 778.41]
-  height_m: 0.24
 - id: oh_paving_1144
   box_m: [1599.03, 778.09, 1599.49, 778.41]
   height_m: 0.24
@@ -54097,9 +53260,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1146
   box_m: [1602.43, 778.09, 1602.89, 778.41]
-  height_m: 0.24
-- id: oh_paving_1147
-  box_m: [1604.13, 778.09, 1604.59, 778.41]
   height_m: 0.24
 - id: oh_paving_1148
   box_m: [1605.83, 778.09, 1606.29, 778.41]
@@ -54110,9 +53270,6 @@ structures:
 - id: oh_paving_1150
   box_m: [1609.23, 778.09, 1609.69, 778.41]
   height_m: 0.24
-- id: oh_paving_1151
-  box_m: [1610.93, 778.09, 1611.39, 778.41]
-  height_m: 0.24
 - id: oh_paving_1152
   box_m: [1612.63, 778.09, 1613.09, 778.41]
   height_m: 0.24
@@ -54121,9 +53278,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1154
   box_m: [1616.03, 778.09, 1616.49, 778.41]
-  height_m: 0.24
-- id: oh_paving_1155
-  box_m: [1617.73, 778.09, 1618.19, 778.41]
   height_m: 0.24
 - id: oh_paving_1156
   box_m: [1619.43, 778.09, 1619.89, 778.41]
@@ -54134,9 +53288,6 @@ structures:
 - id: oh_paving_1160
   box_m: [1626.23, 778.09, 1626.69, 778.41]
   height_m: 0.24
-- id: oh_paving_1161
-  box_m: [1627.93, 778.09, 1628.39, 778.41]
-  height_m: 0.24
 - id: oh_paving_1162
   box_m: [1629.63, 778.09, 1630.09, 778.41]
   height_m: 0.24
@@ -54145,9 +53296,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1164
   box_m: [1633.03, 778.09, 1633.49, 778.41]
-  height_m: 0.24
-- id: oh_paving_1165
-  box_m: [1634.73, 778.09, 1635.19, 778.41]
   height_m: 0.24
 - id: oh_paving_1166
   box_m: [1636.43, 778.09, 1636.89, 778.41]
@@ -54158,9 +53306,6 @@ structures:
 - id: oh_paving_1168
   box_m: [1641.53, 778.09, 1641.99, 778.41]
   height_m: 0.24
-- id: oh_paving_1169
-  box_m: [1643.23, 778.09, 1643.69, 778.41]
-  height_m: 0.24
 - id: oh_paving_1170
   box_m: [1644.93, 778.09, 1645.39, 778.41]
   height_m: 0.24
@@ -54169,9 +53314,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1172
   box_m: [1648.33, 778.09, 1648.79, 778.41]
-  height_m: 0.24
-- id: oh_paving_1173
-  box_m: [1650.03, 778.09, 1650.49, 778.41]
   height_m: 0.24
 - id: oh_paving_1174
   box_m: [1651.73, 778.09, 1652.19, 778.41]
@@ -54182,9 +53324,6 @@ structures:
 - id: oh_paving_1176
   box_m: [1655.13, 778.09, 1655.59, 778.41]
   height_m: 0.24
-- id: oh_paving_1177
-  box_m: [1656.83, 778.09, 1657.29, 778.41]
-  height_m: 0.24
 - id: oh_paving_1178
   box_m: [1658.53, 778.09, 1658.99, 778.41]
   height_m: 0.24
@@ -54193,9 +53332,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1180
   box_m: [1661.93, 778.09, 1662.39, 778.41]
-  height_m: 0.24
-- id: oh_paving_1181
-  box_m: [1665.33, 778.09, 1665.79, 778.41]
   height_m: 0.24
 - id: oh_paving_1182
   box_m: [1667.03, 778.09, 1667.49, 778.41]
@@ -54206,9 +53342,6 @@ structures:
 - id: oh_paving_1184
   box_m: [1670.43, 778.09, 1670.89, 778.41]
   height_m: 0.24
-- id: oh_paving_1185
-  box_m: [1672.13, 778.09, 1672.59, 778.41]
-  height_m: 0.24
 - id: oh_paving_1186
   box_m: [1673.83, 778.09, 1674.29, 778.41]
   height_m: 0.24
@@ -54217,9 +53350,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1188
   box_m: [1677.23, 778.09, 1677.69, 778.41]
-  height_m: 0.24
-- id: oh_paving_1189
-  box_m: [1678.93, 778.09, 1679.39, 778.41]
   height_m: 0.24
 - id: oh_paving_1190
   box_m: [1680.63, 778.09, 1681.09, 778.41]
@@ -54230,9 +53360,6 @@ structures:
 - id: oh_paving_1192
   box_m: [1684.03, 778.09, 1684.49, 778.41]
   height_m: 0.24
-- id: oh_paving_1193
-  box_m: [1685.73, 778.09, 1686.19, 778.41]
-  height_m: 0.24
 - id: oh_paving_1194
   box_m: [1687.43, 778.09, 1687.89, 778.41]
   height_m: 0.24
@@ -54241,9 +53368,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1196
   box_m: [1690.83, 778.09, 1691.29, 778.41]
-  height_m: 0.24
-- id: oh_paving_1197
-  box_m: [1692.53, 778.09, 1692.99, 778.41]
   height_m: 0.24
 - id: oh_paving_1198
   box_m: [1694.23, 778.09, 1694.69, 778.41]
@@ -54254,9 +53378,6 @@ structures:
 - id: oh_paving_1200
   box_m: [1697.63, 778.09, 1698.09, 778.41]
   height_m: 0.24
-- id: oh_paving_1201
-  box_m: [1699.33, 778.09, 1699.79, 778.41]
-  height_m: 0.24
 - id: oh_paving_1202
   box_m: [1547.77, 779.34, 1548.23, 779.66]
   height_m: 0.24
@@ -54265,9 +53386,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1204
   box_m: [1551.17, 779.34, 1551.63, 779.66]
-  height_m: 0.24
-- id: oh_paving_1205
-  box_m: [1552.87, 779.34, 1553.33, 779.66]
   height_m: 0.24
 - id: oh_paving_1206
   box_m: [1554.57, 779.34, 1555.03, 779.66]
@@ -54278,9 +53396,6 @@ structures:
 - id: oh_paving_1208
   box_m: [1557.97, 779.34, 1558.43, 779.66]
   height_m: 0.24
-- id: oh_paving_1209
-  box_m: [1559.67, 779.34, 1560.13, 779.66]
-  height_m: 0.24
 - id: oh_paving_1210
   box_m: [1561.37, 779.34, 1561.83, 779.66]
   height_m: 0.24
@@ -54289,9 +53404,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1212
   box_m: [1564.77, 779.34, 1565.23, 779.66]
-  height_m: 0.24
-- id: oh_paving_1213
-  box_m: [1566.47, 779.34, 1566.93, 779.66]
   height_m: 0.24
 - id: oh_paving_1214
   box_m: [1568.17, 779.34, 1568.63, 779.66]
@@ -54302,9 +53414,6 @@ structures:
 - id: oh_paving_1216
   box_m: [1571.57, 779.34, 1572.03, 779.66]
   height_m: 0.24
-- id: oh_paving_1217
-  box_m: [1573.27, 779.34, 1573.73, 779.66]
-  height_m: 0.24
 - id: oh_paving_1218
   box_m: [1574.97, 779.34, 1575.43, 779.66]
   height_m: 0.24
@@ -54313,9 +53422,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1220
   box_m: [1578.37, 779.34, 1578.83, 779.66]
-  height_m: 0.24
-- id: oh_paving_1221
-  box_m: [1580.07, 779.34, 1580.53, 779.66]
   height_m: 0.24
 - id: oh_paving_1222
   box_m: [1581.77, 779.34, 1582.23, 779.66]
@@ -54326,9 +53432,6 @@ structures:
 - id: oh_paving_1224
   box_m: [1585.17, 779.34, 1585.63, 779.66]
   height_m: 0.24
-- id: oh_paving_1225
-  box_m: [1586.87, 779.34, 1587.33, 779.66]
-  height_m: 0.24
 - id: oh_paving_1226
   box_m: [1588.57, 779.34, 1589.03, 779.66]
   height_m: 0.24
@@ -54337,9 +53440,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1228
   box_m: [1591.97, 779.34, 1592.43, 779.66]
-  height_m: 0.24
-- id: oh_paving_1229
-  box_m: [1593.67, 779.34, 1594.13, 779.66]
   height_m: 0.24
 - id: oh_paving_1230
   box_m: [1595.37, 779.34, 1595.83, 779.66]
@@ -54350,9 +53450,6 @@ structures:
 - id: oh_paving_1232
   box_m: [1598.77, 779.34, 1599.23, 779.66]
   height_m: 0.24
-- id: oh_paving_1233
-  box_m: [1600.47, 779.34, 1600.93, 779.66]
-  height_m: 0.24
 - id: oh_paving_1234
   box_m: [1602.17, 779.34, 1602.63, 779.66]
   height_m: 0.24
@@ -54361,9 +53458,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1236
   box_m: [1605.57, 779.34, 1606.03, 779.66]
-  height_m: 0.24
-- id: oh_paving_1237
-  box_m: [1607.27, 779.34, 1607.73, 779.66]
   height_m: 0.24
 - id: oh_paving_1238
   box_m: [1608.97, 779.34, 1609.43, 779.66]
@@ -54374,9 +53468,6 @@ structures:
 - id: oh_paving_1240
   box_m: [1612.37, 779.34, 1612.83, 779.66]
   height_m: 0.24
-- id: oh_paving_1241
-  box_m: [1614.07, 779.34, 1614.53, 779.66]
-  height_m: 0.24
 - id: oh_paving_1242
   box_m: [1615.77, 779.34, 1616.23, 779.66]
   height_m: 0.24
@@ -54385,9 +53476,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1244
   box_m: [1619.17, 779.34, 1619.63, 779.66]
-  height_m: 0.24
-- id: oh_paving_1247
-  box_m: [1624.27, 779.34, 1624.73, 779.66]
   height_m: 0.24
 - id: oh_paving_1248
   box_m: [1625.97, 779.34, 1626.43, 779.66]
@@ -54398,9 +53486,6 @@ structures:
 - id: oh_paving_1250
   box_m: [1629.37, 779.34, 1629.83, 779.66]
   height_m: 0.24
-- id: oh_paving_1251
-  box_m: [1631.07, 779.34, 1631.53, 779.66]
-  height_m: 0.24
 - id: oh_paving_1252
   box_m: [1632.77, 779.34, 1633.23, 779.66]
   height_m: 0.24
@@ -54409,9 +53494,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1254
   box_m: [1636.17, 779.34, 1636.63, 779.66]
-  height_m: 0.24
-- id: oh_paving_1255
-  box_m: [1637.87, 779.34, 1638.33, 779.66]
   height_m: 0.24
 - id: oh_paving_1256
   box_m: [1639.57, 779.34, 1640.03, 779.66]
@@ -54422,9 +53504,6 @@ structures:
 - id: oh_paving_1258
   box_m: [1642.97, 779.34, 1643.43, 779.66]
   height_m: 0.24
-- id: oh_paving_1259
-  box_m: [1644.67, 779.34, 1645.13, 779.66]
-  height_m: 0.24
 - id: oh_paving_1260
   box_m: [1646.37, 779.34, 1646.83, 779.66]
   height_m: 0.24
@@ -54433,9 +53512,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1262
   box_m: [1649.77, 779.34, 1650.23, 779.66]
-  height_m: 0.24
-- id: oh_paving_1263
-  box_m: [1651.47, 779.34, 1651.93, 779.66]
   height_m: 0.24
 - id: oh_paving_1264
   box_m: [1653.17, 779.34, 1653.63, 779.66]
@@ -54446,9 +53522,6 @@ structures:
 - id: oh_paving_1266
   box_m: [1656.57, 779.34, 1657.03, 779.66]
   height_m: 0.24
-- id: oh_paving_1267
-  box_m: [1658.27, 779.34, 1658.73, 779.66]
-  height_m: 0.24
 - id: oh_paving_1268
   box_m: [1659.97, 779.34, 1660.43, 779.66]
   height_m: 0.24
@@ -54457,9 +53530,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1270
   box_m: [1663.37, 779.34, 1663.83, 779.66]
-  height_m: 0.24
-- id: oh_paving_1271
-  box_m: [1665.07, 779.34, 1665.53, 779.66]
   height_m: 0.24
 - id: oh_paving_1272
   box_m: [1666.77, 779.34, 1667.23, 779.66]
@@ -54470,9 +53540,6 @@ structures:
 - id: oh_paving_1274
   box_m: [1670.17, 779.34, 1670.63, 779.66]
   height_m: 0.24
-- id: oh_paving_1275
-  box_m: [1671.87, 779.34, 1672.33, 779.66]
-  height_m: 0.24
 - id: oh_paving_1276
   box_m: [1673.57, 779.34, 1674.03, 779.66]
   height_m: 0.24
@@ -54481,9 +53548,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1278
   box_m: [1676.97, 779.34, 1677.43, 779.66]
-  height_m: 0.24
-- id: oh_paving_1279
-  box_m: [1678.67, 779.34, 1679.13, 779.66]
   height_m: 0.24
 - id: oh_paving_1280
   box_m: [1680.37, 779.34, 1680.83, 779.66]
@@ -54494,9 +53558,6 @@ structures:
 - id: oh_paving_1282
   box_m: [1683.77, 779.34, 1684.23, 779.66]
   height_m: 0.24
-- id: oh_paving_1283
-  box_m: [1685.47, 779.34, 1685.93, 779.66]
-  height_m: 0.24
 - id: oh_paving_1284
   box_m: [1687.17, 779.34, 1687.63, 779.66]
   height_m: 0.24
@@ -54505,9 +53566,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1286
   box_m: [1690.57, 779.34, 1691.03, 779.66]
-  height_m: 0.24
-- id: oh_paving_1287
-  box_m: [1692.27, 779.34, 1692.73, 779.66]
   height_m: 0.24
 - id: oh_paving_1288
   box_m: [1693.97, 779.34, 1694.43, 779.66]
@@ -54518,9 +53576,6 @@ structures:
 - id: oh_paving_1290
   box_m: [1697.37, 779.34, 1697.83, 779.66]
   height_m: 0.24
-- id: oh_paving_1291
-  box_m: [1699.07, 779.34, 1699.53, 779.66]
-  height_m: 0.24
 - id: oh_paving_1292
   box_m: [1548.03, 780.59, 1548.49, 780.91]
   height_m: 0.24
@@ -54529,9 +53584,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1294
   box_m: [1551.43, 780.59, 1551.89, 780.91]
-  height_m: 0.24
-- id: oh_paving_1295
-  box_m: [1553.13, 780.59, 1553.59, 780.91]
   height_m: 0.24
 - id: oh_paving_1296
   box_m: [1554.83, 780.59, 1555.29, 780.91]
@@ -54542,9 +53594,6 @@ structures:
 - id: oh_paving_1298
   box_m: [1558.23, 780.59, 1558.69, 780.91]
   height_m: 0.24
-- id: oh_paving_1299
-  box_m: [1559.93, 780.59, 1560.39, 780.91]
-  height_m: 0.24
 - id: oh_paving_1300
   box_m: [1561.63, 780.59, 1562.09, 780.91]
   height_m: 0.24
@@ -54553,9 +53602,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1302
   box_m: [1565.03, 780.59, 1565.49, 780.91]
-  height_m: 0.24
-- id: oh_paving_1303
-  box_m: [1566.73, 780.59, 1567.19, 780.91]
   height_m: 0.24
 - id: oh_paving_1304
   box_m: [1568.43, 780.59, 1568.89, 780.91]
@@ -54566,9 +53612,6 @@ structures:
 - id: oh_paving_1306
   box_m: [1571.83, 780.59, 1572.29, 780.91]
   height_m: 0.24
-- id: oh_paving_1307
-  box_m: [1573.53, 780.59, 1573.99, 780.91]
-  height_m: 0.24
 - id: oh_paving_1308
   box_m: [1575.23, 780.59, 1575.69, 780.91]
   height_m: 0.24
@@ -54577,9 +53620,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1310
   box_m: [1578.63, 780.59, 1579.09, 780.91]
-  height_m: 0.24
-- id: oh_paving_1311
-  box_m: [1580.33, 780.59, 1580.79, 780.91]
   height_m: 0.24
 - id: oh_paving_1312
   box_m: [1582.03, 780.59, 1582.49, 780.91]
@@ -54590,9 +53630,6 @@ structures:
 - id: oh_paving_1314
   box_m: [1585.43, 780.59, 1585.89, 780.91]
   height_m: 0.24
-- id: oh_paving_1315
-  box_m: [1587.13, 780.59, 1587.59, 780.91]
-  height_m: 0.24
 - id: oh_paving_1316
   box_m: [1588.83, 780.59, 1589.29, 780.91]
   height_m: 0.24
@@ -54601,9 +53638,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1318
   box_m: [1592.23, 780.59, 1592.69, 780.91]
-  height_m: 0.24
-- id: oh_paving_1319
-  box_m: [1593.93, 780.59, 1594.39, 780.91]
   height_m: 0.24
 - id: oh_paving_1320
   box_m: [1595.63, 780.59, 1596.09, 780.91]
@@ -54614,9 +53648,6 @@ structures:
 - id: oh_paving_1322
   box_m: [1599.03, 780.59, 1599.49, 780.91]
   height_m: 0.24
-- id: oh_paving_1323
-  box_m: [1600.73, 780.59, 1601.19, 780.91]
-  height_m: 0.24
 - id: oh_paving_1324
   box_m: [1602.43, 780.59, 1602.89, 780.91]
   height_m: 0.24
@@ -54625,9 +53656,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1326
   box_m: [1605.83, 780.59, 1606.29, 780.91]
-  height_m: 0.24
-- id: oh_paving_1327
-  box_m: [1607.53, 780.59, 1607.99, 780.91]
   height_m: 0.24
 - id: oh_paving_1328
   box_m: [1609.23, 780.59, 1609.69, 780.91]
@@ -54638,9 +53666,6 @@ structures:
 - id: oh_paving_1330
   box_m: [1612.63, 780.59, 1613.09, 780.91]
   height_m: 0.24
-- id: oh_paving_1331
-  box_m: [1614.33, 780.59, 1614.79, 780.91]
-  height_m: 0.24
 - id: oh_paving_1332
   box_m: [1616.03, 780.59, 1616.49, 780.91]
   height_m: 0.24
@@ -54649,9 +53674,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1334
   box_m: [1619.43, 780.59, 1619.89, 780.91]
-  height_m: 0.24
-- id: oh_paving_1335
-  box_m: [1621.13, 780.59, 1621.59, 780.91]
   height_m: 0.24
 - id: oh_paving_1336
   box_m: [1622.83, 780.59, 1623.29, 780.91]
@@ -54662,9 +53684,6 @@ structures:
 - id: oh_paving_1338
   box_m: [1626.23, 780.59, 1626.69, 780.91]
   height_m: 0.24
-- id: oh_paving_1339
-  box_m: [1627.93, 780.59, 1628.39, 780.91]
-  height_m: 0.24
 - id: oh_paving_1340
   box_m: [1629.63, 780.59, 1630.09, 780.91]
   height_m: 0.24
@@ -54673,9 +53692,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1342
   box_m: [1633.03, 780.59, 1633.49, 780.91]
-  height_m: 0.24
-- id: oh_paving_1343
-  box_m: [1634.73, 780.59, 1635.19, 780.91]
   height_m: 0.24
 - id: oh_paving_1344
   box_m: [1636.43, 780.59, 1636.89, 780.91]
@@ -54686,9 +53702,6 @@ structures:
 - id: oh_paving_1346
   box_m: [1639.83, 780.59, 1640.29, 780.91]
   height_m: 0.24
-- id: oh_paving_1347
-  box_m: [1641.53, 780.59, 1641.99, 780.91]
-  height_m: 0.24
 - id: oh_paving_1348
   box_m: [1643.23, 780.59, 1643.69, 780.91]
   height_m: 0.24
@@ -54697,9 +53710,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1350
   box_m: [1646.63, 780.59, 1647.09, 780.91]
-  height_m: 0.24
-- id: oh_paving_1351
-  box_m: [1648.33, 780.59, 1648.79, 780.91]
   height_m: 0.24
 - id: oh_paving_1352
   box_m: [1650.03, 780.59, 1650.49, 780.91]
@@ -54710,9 +53720,6 @@ structures:
 - id: oh_paving_1354
   box_m: [1653.43, 780.59, 1653.89, 780.91]
   height_m: 0.24
-- id: oh_paving_1355
-  box_m: [1655.13, 780.59, 1655.59, 780.91]
-  height_m: 0.24
 - id: oh_paving_1356
   box_m: [1656.83, 780.59, 1657.29, 780.91]
   height_m: 0.24
@@ -54721,9 +53728,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1358
   box_m: [1660.23, 780.59, 1660.69, 780.91]
-  height_m: 0.24
-- id: oh_paving_1359
-  box_m: [1661.93, 780.59, 1662.39, 780.91]
   height_m: 0.24
 - id: oh_paving_1360
   box_m: [1663.63, 780.59, 1664.09, 780.91]
@@ -54734,9 +53738,6 @@ structures:
 - id: oh_paving_1362
   box_m: [1667.03, 780.59, 1667.49, 780.91]
   height_m: 0.24
-- id: oh_paving_1363
-  box_m: [1668.73, 780.59, 1669.19, 780.91]
-  height_m: 0.24
 - id: oh_paving_1364
   box_m: [1670.43, 780.59, 1670.89, 780.91]
   height_m: 0.24
@@ -54745,9 +53746,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1366
   box_m: [1673.83, 780.59, 1674.29, 780.91]
-  height_m: 0.24
-- id: oh_paving_1367
-  box_m: [1675.53, 780.59, 1675.99, 780.91]
   height_m: 0.24
 - id: oh_paving_1368
   box_m: [1677.23, 780.59, 1677.69, 780.91]
@@ -54758,9 +53756,6 @@ structures:
 - id: oh_paving_1370
   box_m: [1680.63, 780.59, 1681.09, 780.91]
   height_m: 0.24
-- id: oh_paving_1371
-  box_m: [1682.33, 780.59, 1682.79, 780.91]
-  height_m: 0.24
 - id: oh_paving_1372
   box_m: [1684.03, 780.59, 1684.49, 780.91]
   height_m: 0.24
@@ -54769,9 +53764,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1374
   box_m: [1687.43, 780.59, 1687.89, 780.91]
-  height_m: 0.24
-- id: oh_paving_1375
-  box_m: [1689.13, 780.59, 1689.59, 780.91]
   height_m: 0.24
 - id: oh_paving_1376
   box_m: [1690.83, 780.59, 1691.29, 780.91]
@@ -54782,9 +53774,6 @@ structures:
 - id: oh_paving_1378
   box_m: [1694.23, 780.59, 1694.69, 780.91]
   height_m: 0.24
-- id: oh_paving_1379
-  box_m: [1695.93, 780.59, 1696.39, 780.91]
-  height_m: 0.24
 - id: oh_paving_1380
   box_m: [1697.63, 780.59, 1698.09, 780.91]
   height_m: 0.24
@@ -54793,9 +53782,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1382
   box_m: [1547.77, 781.84, 1548.23, 782.16]
-  height_m: 0.24
-- id: oh_paving_1383
-  box_m: [1551.17, 781.84, 1551.63, 782.16]
   height_m: 0.24
 - id: oh_paving_1384
   box_m: [1552.87, 781.84, 1553.33, 782.16]
@@ -54806,9 +53792,6 @@ structures:
 - id: oh_paving_1386
   box_m: [1556.27, 781.84, 1556.73, 782.16]
   height_m: 0.24
-- id: oh_paving_1387
-  box_m: [1557.97, 781.84, 1558.43, 782.16]
-  height_m: 0.24
 - id: oh_paving_1388
   box_m: [1559.67, 781.84, 1560.13, 782.16]
   height_m: 0.24
@@ -54817,9 +53800,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1390
   box_m: [1563.07, 781.84, 1563.53, 782.16]
-  height_m: 0.24
-- id: oh_paving_1391
-  box_m: [1564.77, 781.84, 1565.23, 782.16]
   height_m: 0.24
 - id: oh_paving_1392
   box_m: [1566.47, 781.84, 1566.93, 782.16]
@@ -54830,9 +53810,6 @@ structures:
 - id: oh_paving_1394
   box_m: [1569.87, 781.84, 1570.33, 782.16]
   height_m: 0.24
-- id: oh_paving_1395
-  box_m: [1571.57, 781.84, 1572.03, 782.16]
-  height_m: 0.24
 - id: oh_paving_1396
   box_m: [1573.27, 781.84, 1573.73, 782.16]
   height_m: 0.24
@@ -54841,9 +53818,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1398
   box_m: [1576.67, 781.84, 1577.13, 782.16]
-  height_m: 0.24
-- id: oh_paving_1399
-  box_m: [1578.37, 781.84, 1578.83, 782.16]
   height_m: 0.24
 - id: oh_paving_1400
   box_m: [1580.07, 781.84, 1580.53, 782.16]
@@ -54854,9 +53828,6 @@ structures:
 - id: oh_paving_1402
   box_m: [1583.47, 781.84, 1583.93, 782.16]
   height_m: 0.24
-- id: oh_paving_1403
-  box_m: [1585.17, 781.84, 1585.63, 782.16]
-  height_m: 0.24
 - id: oh_paving_1404
   box_m: [1586.87, 781.84, 1587.33, 782.16]
   height_m: 0.24
@@ -54865,9 +53836,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1406
   box_m: [1590.27, 781.84, 1590.73, 782.16]
-  height_m: 0.24
-- id: oh_paving_1407
-  box_m: [1591.97, 781.84, 1592.43, 782.16]
   height_m: 0.24
 - id: oh_paving_1408
   box_m: [1593.67, 781.84, 1594.13, 782.16]
@@ -54878,9 +53846,6 @@ structures:
 - id: oh_paving_1410
   box_m: [1597.07, 781.84, 1597.53, 782.16]
   height_m: 0.24
-- id: oh_paving_1411
-  box_m: [1598.77, 781.84, 1599.23, 782.16]
-  height_m: 0.24
 - id: oh_paving_1412
   box_m: [1600.47, 781.84, 1600.93, 782.16]
   height_m: 0.24
@@ -54889,9 +53854,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1414
   box_m: [1603.87, 781.84, 1604.33, 782.16]
-  height_m: 0.24
-- id: oh_paving_1415
-  box_m: [1605.57, 781.84, 1606.03, 782.16]
   height_m: 0.24
 - id: oh_paving_1416
   box_m: [1607.27, 781.84, 1607.73, 782.16]
@@ -54902,9 +53864,6 @@ structures:
 - id: oh_paving_1418
   box_m: [1610.67, 781.84, 1611.13, 782.16]
   height_m: 0.24
-- id: oh_paving_1419
-  box_m: [1612.37, 781.84, 1612.83, 782.16]
-  height_m: 0.24
 - id: oh_paving_1420
   box_m: [1614.07, 781.84, 1614.53, 782.16]
   height_m: 0.24
@@ -54913,9 +53872,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1422
   box_m: [1617.47, 781.84, 1617.93, 782.16]
-  height_m: 0.24
-- id: oh_paving_1423
-  box_m: [1619.17, 781.84, 1619.63, 782.16]
   height_m: 0.24
 - id: oh_paving_1424
   box_m: [1620.87, 781.84, 1621.33, 782.16]
@@ -54926,9 +53882,6 @@ structures:
 - id: oh_paving_1426
   box_m: [1624.27, 781.84, 1624.73, 782.16]
   height_m: 0.24
-- id: oh_paving_1427
-  box_m: [1625.97, 781.84, 1626.43, 782.16]
-  height_m: 0.24
 - id: oh_paving_1428
   box_m: [1627.67, 781.84, 1628.13, 782.16]
   height_m: 0.24
@@ -54937,9 +53890,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1430
   box_m: [1631.07, 781.84, 1631.53, 782.16]
-  height_m: 0.24
-- id: oh_paving_1431
-  box_m: [1632.77, 781.84, 1633.23, 782.16]
   height_m: 0.24
 - id: oh_paving_1432
   box_m: [1634.47, 781.84, 1634.93, 782.16]
@@ -54950,9 +53900,6 @@ structures:
 - id: oh_paving_1434
   box_m: [1637.87, 781.84, 1638.33, 782.16]
   height_m: 0.24
-- id: oh_paving_1435
-  box_m: [1641.27, 781.84, 1641.73, 782.16]
-  height_m: 0.24
 - id: oh_paving_1436
   box_m: [1642.97, 781.84, 1643.43, 782.16]
   height_m: 0.24
@@ -54961,9 +53908,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1438
   box_m: [1646.37, 781.84, 1646.83, 782.16]
-  height_m: 0.24
-- id: oh_paving_1439
-  box_m: [1648.07, 781.84, 1648.53, 782.16]
   height_m: 0.24
 - id: oh_paving_1440
   box_m: [1649.77, 781.84, 1650.23, 782.16]
@@ -54974,9 +53918,6 @@ structures:
 - id: oh_paving_1442
   box_m: [1653.17, 781.84, 1653.63, 782.16]
   height_m: 0.24
-- id: oh_paving_1443
-  box_m: [1654.87, 781.84, 1655.33, 782.16]
-  height_m: 0.24
 - id: oh_paving_1444
   box_m: [1656.57, 781.84, 1657.03, 782.16]
   height_m: 0.24
@@ -54985,9 +53926,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1446
   box_m: [1659.97, 781.84, 1660.43, 782.16]
-  height_m: 0.24
-- id: oh_paving_1447
-  box_m: [1661.67, 781.84, 1662.13, 782.16]
   height_m: 0.24
 - id: oh_paving_1448
   box_m: [1663.37, 781.84, 1663.83, 782.16]
@@ -54998,9 +53936,6 @@ structures:
 - id: oh_paving_1450
   box_m: [1666.77, 781.84, 1667.23, 782.16]
   height_m: 0.24
-- id: oh_paving_1451
-  box_m: [1668.47, 781.84, 1668.93, 782.16]
-  height_m: 0.24
 - id: oh_paving_1452
   box_m: [1670.17, 781.84, 1670.63, 782.16]
   height_m: 0.24
@@ -55009,9 +53944,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1454
   box_m: [1673.57, 781.84, 1674.03, 782.16]
-  height_m: 0.24
-- id: oh_paving_1455
-  box_m: [1675.27, 781.84, 1675.73, 782.16]
   height_m: 0.24
 - id: oh_paving_1456
   box_m: [1676.97, 781.84, 1677.43, 782.16]
@@ -55022,9 +53954,6 @@ structures:
 - id: oh_paving_1458
   box_m: [1680.37, 781.84, 1680.83, 782.16]
   height_m: 0.24
-- id: oh_paving_1459
-  box_m: [1682.07, 781.84, 1682.53, 782.16]
-  height_m: 0.24
 - id: oh_paving_1460
   box_m: [1683.77, 781.84, 1684.23, 782.16]
   height_m: 0.24
@@ -55033,9 +53962,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1462
   box_m: [1687.17, 781.84, 1687.63, 782.16]
-  height_m: 0.24
-- id: oh_paving_1463
-  box_m: [1688.87, 781.84, 1689.33, 782.16]
   height_m: 0.24
 - id: oh_paving_1464
   box_m: [1690.57, 781.84, 1691.03, 782.16]
@@ -55046,9 +53972,6 @@ structures:
 - id: oh_paving_1466
   box_m: [1693.97, 781.84, 1694.43, 782.16]
   height_m: 0.24
-- id: oh_paving_1467
-  box_m: [1695.67, 781.84, 1696.13, 782.16]
-  height_m: 0.24
 - id: oh_paving_1468
   box_m: [1697.37, 781.84, 1697.83, 782.16]
   height_m: 0.24
@@ -55057,9 +53980,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1470
   box_m: [1548.03, 783.09, 1548.49, 783.41]
-  height_m: 0.24
-- id: oh_paving_1471
-  box_m: [1549.73, 783.09, 1550.19, 783.41]
   height_m: 0.24
 - id: oh_paving_1472
   box_m: [1551.43, 783.09, 1551.89, 783.41]
@@ -55070,9 +53990,6 @@ structures:
 - id: oh_paving_1474
   box_m: [1554.83, 783.09, 1555.29, 783.41]
   height_m: 0.24
-- id: oh_paving_1475
-  box_m: [1556.53, 783.09, 1556.99, 783.41]
-  height_m: 0.24
 - id: oh_paving_1476
   box_m: [1558.23, 783.09, 1558.69, 783.41]
   height_m: 0.24
@@ -55081,9 +53998,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1478
   box_m: [1561.63, 783.09, 1562.09, 783.41]
-  height_m: 0.24
-- id: oh_paving_1479
-  box_m: [1563.33, 783.09, 1563.79, 783.41]
   height_m: 0.24
 - id: oh_paving_1480
   box_m: [1565.03, 783.09, 1565.49, 783.41]
@@ -55094,9 +54008,6 @@ structures:
 - id: oh_paving_1482
   box_m: [1568.43, 783.09, 1568.89, 783.41]
   height_m: 0.24
-- id: oh_paving_1483
-  box_m: [1570.13, 783.09, 1570.59, 783.41]
-  height_m: 0.24
 - id: oh_paving_1484
   box_m: [1571.83, 783.09, 1572.29, 783.41]
   height_m: 0.24
@@ -55105,9 +54016,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1486
   box_m: [1575.23, 783.09, 1575.69, 783.41]
-  height_m: 0.24
-- id: oh_paving_1487
-  box_m: [1576.93, 783.09, 1577.39, 783.41]
   height_m: 0.24
 - id: oh_paving_1488
   box_m: [1578.63, 783.09, 1579.09, 783.41]
@@ -55118,9 +54026,6 @@ structures:
 - id: oh_paving_1490
   box_m: [1582.03, 783.09, 1582.49, 783.41]
   height_m: 0.24
-- id: oh_paving_1491
-  box_m: [1583.73, 783.09, 1584.19, 783.41]
-  height_m: 0.24
 - id: oh_paving_1492
   box_m: [1585.43, 783.09, 1585.89, 783.41]
   height_m: 0.24
@@ -55129,9 +54034,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1494
   box_m: [1588.83, 783.09, 1589.29, 783.41]
-  height_m: 0.24
-- id: oh_paving_1495
-  box_m: [1590.53, 783.09, 1590.99, 783.41]
   height_m: 0.24
 - id: oh_paving_1496
   box_m: [1592.23, 783.09, 1592.69, 783.41]
@@ -55142,9 +54044,6 @@ structures:
 - id: oh_paving_1498
   box_m: [1595.63, 783.09, 1596.09, 783.41]
   height_m: 0.24
-- id: oh_paving_1499
-  box_m: [1597.33, 783.09, 1597.79, 783.41]
-  height_m: 0.24
 - id: oh_paving_1500
   box_m: [1599.03, 783.09, 1599.49, 783.41]
   height_m: 0.24
@@ -55153,9 +54052,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1502
   box_m: [1602.43, 783.09, 1602.89, 783.41]
-  height_m: 0.24
-- id: oh_paving_1503
-  box_m: [1604.13, 783.09, 1604.59, 783.41]
   height_m: 0.24
 - id: oh_paving_1504
   box_m: [1605.83, 783.09, 1606.29, 783.41]
@@ -55166,9 +54062,6 @@ structures:
 - id: oh_paving_1506
   box_m: [1609.23, 783.09, 1609.69, 783.41]
   height_m: 0.24
-- id: oh_paving_1507
-  box_m: [1610.93, 783.09, 1611.39, 783.41]
-  height_m: 0.24
 - id: oh_paving_1508
   box_m: [1612.63, 783.09, 1613.09, 783.41]
   height_m: 0.24
@@ -55177,9 +54070,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1510
   box_m: [1616.03, 783.09, 1616.49, 783.41]
-  height_m: 0.24
-- id: oh_paving_1511
-  box_m: [1617.73, 783.09, 1618.19, 783.41]
   height_m: 0.24
 - id: oh_paving_1512
   box_m: [1619.43, 783.09, 1619.89, 783.41]
@@ -55190,9 +54080,6 @@ structures:
 - id: oh_paving_1514
   box_m: [1622.83, 783.09, 1623.29, 783.41]
   height_m: 0.24
-- id: oh_paving_1515
-  box_m: [1624.53, 783.09, 1624.99, 783.41]
-  height_m: 0.24
 - id: oh_paving_1516
   box_m: [1626.23, 783.09, 1626.69, 783.41]
   height_m: 0.24
@@ -55201,9 +54088,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1518
   box_m: [1629.63, 783.09, 1630.09, 783.41]
-  height_m: 0.24
-- id: oh_paving_1519
-  box_m: [1631.33, 783.09, 1631.79, 783.41]
   height_m: 0.24
 - id: oh_paving_1520
   box_m: [1633.03, 783.09, 1633.49, 783.41]
@@ -55214,9 +54098,6 @@ structures:
 - id: oh_paving_1522
   box_m: [1636.43, 783.09, 1636.89, 783.41]
   height_m: 0.24
-- id: oh_paving_1523
-  box_m: [1638.13, 783.09, 1638.59, 783.41]
-  height_m: 0.24
 - id: oh_paving_1524
   box_m: [1639.83, 783.09, 1640.29, 783.41]
   height_m: 0.24
@@ -55225,9 +54106,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1526
   box_m: [1643.23, 783.09, 1643.69, 783.41]
-  height_m: 0.24
-- id: oh_paving_1527
-  box_m: [1644.93, 783.09, 1645.39, 783.41]
   height_m: 0.24
 - id: oh_paving_1528
   box_m: [1646.63, 783.09, 1647.09, 783.41]
@@ -55238,9 +54116,6 @@ structures:
 - id: oh_paving_1530
   box_m: [1650.03, 783.09, 1650.49, 783.41]
   height_m: 0.24
-- id: oh_paving_1531
-  box_m: [1651.73, 783.09, 1652.19, 783.41]
-  height_m: 0.24
 - id: oh_paving_1532
   box_m: [1653.43, 783.09, 1653.89, 783.41]
   height_m: 0.24
@@ -55249,9 +54124,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1534
   box_m: [1656.83, 783.09, 1657.29, 783.41]
-  height_m: 0.24
-- id: oh_paving_1535
-  box_m: [1658.53, 783.09, 1658.99, 783.41]
   height_m: 0.24
 - id: oh_paving_1536
   box_m: [1660.23, 783.09, 1660.69, 783.41]
@@ -55262,9 +54134,6 @@ structures:
 - id: oh_paving_1538
   box_m: [1663.63, 783.09, 1664.09, 783.41]
   height_m: 0.24
-- id: oh_paving_1539
-  box_m: [1665.33, 783.09, 1665.79, 783.41]
-  height_m: 0.24
 - id: oh_paving_1540
   box_m: [1667.03, 783.09, 1667.49, 783.41]
   height_m: 0.24
@@ -55273,9 +54142,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1542
   box_m: [1670.43, 783.09, 1670.89, 783.41]
-  height_m: 0.24
-- id: oh_paving_1543
-  box_m: [1672.13, 783.09, 1672.59, 783.41]
   height_m: 0.24
 - id: oh_paving_1544
   box_m: [1673.83, 783.09, 1674.29, 783.41]
@@ -55286,9 +54152,6 @@ structures:
 - id: oh_paving_1546
   box_m: [1677.23, 783.09, 1677.69, 783.41]
   height_m: 0.24
-- id: oh_paving_1547
-  box_m: [1678.93, 783.09, 1679.39, 783.41]
-  height_m: 0.24
 - id: oh_paving_1548
   box_m: [1680.63, 783.09, 1681.09, 783.41]
   height_m: 0.24
@@ -55297,9 +54160,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1550
   box_m: [1684.03, 783.09, 1684.49, 783.41]
-  height_m: 0.24
-- id: oh_paving_1551
-  box_m: [1685.73, 783.09, 1686.19, 783.41]
   height_m: 0.24
 - id: oh_paving_1552
   box_m: [1687.43, 783.09, 1687.89, 783.41]
@@ -55310,9 +54170,6 @@ structures:
 - id: oh_paving_1554
   box_m: [1690.83, 783.09, 1691.29, 783.41]
   height_m: 0.24
-- id: oh_paving_1555
-  box_m: [1692.53, 783.09, 1692.99, 783.41]
-  height_m: 0.24
 - id: oh_paving_1556
   box_m: [1694.23, 783.09, 1694.69, 783.41]
   height_m: 0.24
@@ -55321,9 +54178,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1558
   box_m: [1697.63, 783.09, 1698.09, 783.41]
-  height_m: 0.24
-- id: oh_paving_1559
-  box_m: [1699.33, 783.09, 1699.79, 783.41]
   height_m: 0.24
 - id: oh_paving_1560
   box_m: [1547.77, 784.34, 1548.23, 784.66]
@@ -55334,9 +54188,6 @@ structures:
 - id: oh_paving_1562
   box_m: [1551.17, 784.34, 1551.63, 784.66]
   height_m: 0.24
-- id: oh_paving_1563
-  box_m: [1552.87, 784.34, 1553.33, 784.66]
-  height_m: 0.24
 - id: oh_paving_1564
   box_m: [1554.57, 784.34, 1555.03, 784.66]
   height_m: 0.24
@@ -55345,9 +54196,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1566
   box_m: [1557.97, 784.34, 1558.43, 784.66]
-  height_m: 0.24
-- id: oh_paving_1567
-  box_m: [1559.67, 784.34, 1560.13, 784.66]
   height_m: 0.24
 - id: oh_paving_1568
   box_m: [1561.37, 784.34, 1561.83, 784.66]
@@ -55358,9 +54206,6 @@ structures:
 - id: oh_paving_1570
   box_m: [1564.77, 784.34, 1565.23, 784.66]
   height_m: 0.24
-- id: oh_paving_1571
-  box_m: [1566.47, 784.34, 1566.93, 784.66]
-  height_m: 0.24
 - id: oh_paving_1572
   box_m: [1568.17, 784.34, 1568.63, 784.66]
   height_m: 0.24
@@ -55369,9 +54214,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1574
   box_m: [1571.57, 784.34, 1572.03, 784.66]
-  height_m: 0.24
-- id: oh_paving_1575
-  box_m: [1573.27, 784.34, 1573.73, 784.66]
   height_m: 0.24
 - id: oh_paving_1576
   box_m: [1574.97, 784.34, 1575.43, 784.66]
@@ -55382,9 +54224,6 @@ structures:
 - id: oh_paving_1578
   box_m: [1578.37, 784.34, 1578.83, 784.66]
   height_m: 0.24
-- id: oh_paving_1579
-  box_m: [1580.07, 784.34, 1580.53, 784.66]
-  height_m: 0.24
 - id: oh_paving_1580
   box_m: [1581.77, 784.34, 1582.23, 784.66]
   height_m: 0.24
@@ -55393,9 +54232,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1582
   box_m: [1585.17, 784.34, 1585.63, 784.66]
-  height_m: 0.24
-- id: oh_paving_1583
-  box_m: [1586.87, 784.34, 1587.33, 784.66]
   height_m: 0.24
 - id: oh_paving_1584
   box_m: [1588.57, 784.34, 1589.03, 784.66]
@@ -55406,9 +54242,6 @@ structures:
 - id: oh_paving_1586
   box_m: [1591.97, 784.34, 1592.43, 784.66]
   height_m: 0.24
-- id: oh_paving_1587
-  box_m: [1593.67, 784.34, 1594.13, 784.66]
-  height_m: 0.24
 - id: oh_paving_1588
   box_m: [1595.37, 784.34, 1595.83, 784.66]
   height_m: 0.24
@@ -55417,9 +54250,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1590
   box_m: [1598.77, 784.34, 1599.23, 784.66]
-  height_m: 0.24
-- id: oh_paving_1591
-  box_m: [1600.47, 784.34, 1600.93, 784.66]
   height_m: 0.24
 - id: oh_paving_1592
   box_m: [1602.17, 784.34, 1602.63, 784.66]
@@ -55430,9 +54260,6 @@ structures:
 - id: oh_paving_1594
   box_m: [1605.57, 784.34, 1606.03, 784.66]
   height_m: 0.24
-- id: oh_paving_1595
-  box_m: [1607.27, 784.34, 1607.73, 784.66]
-  height_m: 0.24
 - id: oh_paving_1596
   box_m: [1608.97, 784.34, 1609.43, 784.66]
   height_m: 0.24
@@ -55441,9 +54268,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1598
   box_m: [1612.37, 784.34, 1612.83, 784.66]
-  height_m: 0.24
-- id: oh_paving_1599
-  box_m: [1614.07, 784.34, 1614.53, 784.66]
   height_m: 0.24
 - id: oh_paving_1600
   box_m: [1615.77, 784.34, 1616.23, 784.66]
@@ -55454,9 +54278,6 @@ structures:
 - id: oh_paving_1602
   box_m: [1619.17, 784.34, 1619.63, 784.66]
   height_m: 0.24
-- id: oh_paving_1603
-  box_m: [1620.87, 784.34, 1621.33, 784.66]
-  height_m: 0.24
 - id: oh_paving_1604
   box_m: [1622.57, 784.34, 1623.03, 784.66]
   height_m: 0.24
@@ -55465,9 +54286,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1606
   box_m: [1625.97, 784.34, 1626.43, 784.66]
-  height_m: 0.24
-- id: oh_paving_1607
-  box_m: [1627.67, 784.34, 1628.13, 784.66]
   height_m: 0.24
 - id: oh_paving_1608
   box_m: [1629.37, 784.34, 1629.83, 784.66]
@@ -55478,9 +54296,6 @@ structures:
 - id: oh_paving_1610
   box_m: [1632.77, 784.34, 1633.23, 784.66]
   height_m: 0.24
-- id: oh_paving_1611
-  box_m: [1634.47, 784.34, 1634.93, 784.66]
-  height_m: 0.24
 - id: oh_paving_1612
   box_m: [1636.17, 784.34, 1636.63, 784.66]
   height_m: 0.24
@@ -55489,9 +54304,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1614
   box_m: [1639.57, 784.34, 1640.03, 784.66]
-  height_m: 0.24
-- id: oh_paving_1615
-  box_m: [1641.27, 784.34, 1641.73, 784.66]
   height_m: 0.24
 - id: oh_paving_1616
   box_m: [1642.97, 784.34, 1643.43, 784.66]
@@ -55502,9 +54314,6 @@ structures:
 - id: oh_paving_1618
   box_m: [1646.37, 784.34, 1646.83, 784.66]
   height_m: 0.24
-- id: oh_paving_1619
-  box_m: [1648.07, 784.34, 1648.53, 784.66]
-  height_m: 0.24
 - id: oh_paving_1620
   box_m: [1649.77, 784.34, 1650.23, 784.66]
   height_m: 0.24
@@ -55513,9 +54322,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1622
   box_m: [1653.17, 784.34, 1653.63, 784.66]
-  height_m: 0.24
-- id: oh_paving_1623
-  box_m: [1654.87, 784.34, 1655.33, 784.66]
   height_m: 0.24
 - id: oh_paving_1624
   box_m: [1656.57, 784.34, 1657.03, 784.66]
@@ -55526,9 +54332,6 @@ structures:
 - id: oh_paving_1626
   box_m: [1659.97, 784.34, 1660.43, 784.66]
   height_m: 0.24
-- id: oh_paving_1627
-  box_m: [1661.67, 784.34, 1662.13, 784.66]
-  height_m: 0.24
 - id: oh_paving_1628
   box_m: [1663.37, 784.34, 1663.83, 784.66]
   height_m: 0.24
@@ -55537,9 +54340,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1630
   box_m: [1666.77, 784.34, 1667.23, 784.66]
-  height_m: 0.24
-- id: oh_paving_1631
-  box_m: [1668.47, 784.34, 1668.93, 784.66]
   height_m: 0.24
 - id: oh_paving_1632
   box_m: [1670.17, 784.34, 1670.63, 784.66]
@@ -55550,9 +54350,6 @@ structures:
 - id: oh_paving_1634
   box_m: [1673.57, 784.34, 1674.03, 784.66]
   height_m: 0.24
-- id: oh_paving_1635
-  box_m: [1675.27, 784.34, 1675.73, 784.66]
-  height_m: 0.24
 - id: oh_paving_1636
   box_m: [1676.97, 784.34, 1677.43, 784.66]
   height_m: 0.24
@@ -55561,9 +54358,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1638
   box_m: [1680.37, 784.34, 1680.83, 784.66]
-  height_m: 0.24
-- id: oh_paving_1639
-  box_m: [1682.07, 784.34, 1682.53, 784.66]
   height_m: 0.24
 - id: oh_paving_1640
   box_m: [1683.77, 784.34, 1684.23, 784.66]
@@ -55574,9 +54368,6 @@ structures:
 - id: oh_paving_1642
   box_m: [1687.17, 784.34, 1687.63, 784.66]
   height_m: 0.24
-- id: oh_paving_1643
-  box_m: [1688.87, 784.34, 1689.33, 784.66]
-  height_m: 0.24
 - id: oh_paving_1644
   box_m: [1690.57, 784.34, 1691.03, 784.66]
   height_m: 0.24
@@ -55585,9 +54376,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1646
   box_m: [1693.97, 784.34, 1694.43, 784.66]
-  height_m: 0.24
-- id: oh_paving_1647
-  box_m: [1695.67, 784.34, 1696.13, 784.66]
   height_m: 0.24
 - id: oh_paving_1648
   box_m: [1697.37, 784.34, 1697.83, 784.66]
@@ -55598,9 +54386,6 @@ structures:
 - id: oh_paving_1650
   box_m: [1548.03, 785.59, 1548.49, 785.91]
   height_m: 0.24
-- id: oh_paving_1651
-  box_m: [1549.73, 785.59, 1550.19, 785.91]
-  height_m: 0.24
 - id: oh_paving_1652
   box_m: [1551.43, 785.59, 1551.89, 785.91]
   height_m: 0.24
@@ -55609,9 +54394,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1654
   box_m: [1554.83, 785.59, 1555.29, 785.91]
-  height_m: 0.24
-- id: oh_paving_1655
-  box_m: [1556.53, 785.59, 1556.99, 785.91]
   height_m: 0.24
 - id: oh_paving_1656
   box_m: [1558.23, 785.59, 1558.69, 785.91]
@@ -55622,9 +54404,6 @@ structures:
 - id: oh_paving_1658
   box_m: [1561.63, 785.59, 1562.09, 785.91]
   height_m: 0.24
-- id: oh_paving_1659
-  box_m: [1563.33, 785.59, 1563.79, 785.91]
-  height_m: 0.24
 - id: oh_paving_1660
   box_m: [1565.03, 785.59, 1565.49, 785.91]
   height_m: 0.24
@@ -55633,9 +54412,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1662
   box_m: [1568.43, 785.59, 1568.89, 785.91]
-  height_m: 0.24
-- id: oh_paving_1663
-  box_m: [1570.13, 785.59, 1570.59, 785.91]
   height_m: 0.24
 - id: oh_paving_1664
   box_m: [1571.83, 785.59, 1572.29, 785.91]
@@ -55646,9 +54422,6 @@ structures:
 - id: oh_paving_1666
   box_m: [1575.23, 785.59, 1575.69, 785.91]
   height_m: 0.24
-- id: oh_paving_1667
-  box_m: [1576.93, 785.59, 1577.39, 785.91]
-  height_m: 0.24
 - id: oh_paving_1668
   box_m: [1578.63, 785.59, 1579.09, 785.91]
   height_m: 0.24
@@ -55657,9 +54430,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1670
   box_m: [1582.03, 785.59, 1582.49, 785.91]
-  height_m: 0.24
-- id: oh_paving_1671
-  box_m: [1583.73, 785.59, 1584.19, 785.91]
   height_m: 0.24
 - id: oh_paving_1672
   box_m: [1585.43, 785.59, 1585.89, 785.91]
@@ -55670,9 +54440,6 @@ structures:
 - id: oh_paving_1674
   box_m: [1588.83, 785.59, 1589.29, 785.91]
   height_m: 0.24
-- id: oh_paving_1675
-  box_m: [1590.53, 785.59, 1590.99, 785.91]
-  height_m: 0.24
 - id: oh_paving_1676
   box_m: [1592.23, 785.59, 1592.69, 785.91]
   height_m: 0.24
@@ -55681,9 +54448,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1678
   box_m: [1595.63, 785.59, 1596.09, 785.91]
-  height_m: 0.24
-- id: oh_paving_1679
-  box_m: [1597.33, 785.59, 1597.79, 785.91]
   height_m: 0.24
 - id: oh_paving_1680
   box_m: [1602.43, 785.59, 1602.89, 785.91]
@@ -55694,9 +54458,6 @@ structures:
 - id: oh_paving_1682
   box_m: [1605.83, 785.59, 1606.29, 785.91]
   height_m: 0.24
-- id: oh_paving_1683
-  box_m: [1607.53, 785.59, 1607.99, 785.91]
-  height_m: 0.24
 - id: oh_paving_1684
   box_m: [1609.23, 785.59, 1609.69, 785.91]
   height_m: 0.24
@@ -55705,9 +54466,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1686
   box_m: [1612.63, 785.59, 1613.09, 785.91]
-  height_m: 0.24
-- id: oh_paving_1687
-  box_m: [1614.33, 785.59, 1614.79, 785.91]
   height_m: 0.24
 - id: oh_paving_1688
   box_m: [1616.03, 785.59, 1616.49, 785.91]
@@ -55718,9 +54476,6 @@ structures:
 - id: oh_paving_1690
   box_m: [1619.43, 785.59, 1619.89, 785.91]
   height_m: 0.24
-- id: oh_paving_1691
-  box_m: [1621.13, 785.59, 1621.59, 785.91]
-  height_m: 0.24
 - id: oh_paving_1692
   box_m: [1622.83, 785.59, 1623.29, 785.91]
   height_m: 0.24
@@ -55729,9 +54484,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1694
   box_m: [1626.23, 785.59, 1626.69, 785.91]
-  height_m: 0.24
-- id: oh_paving_1695
-  box_m: [1627.93, 785.59, 1628.39, 785.91]
   height_m: 0.24
 - id: oh_paving_1696
   box_m: [1629.63, 785.59, 1630.09, 785.91]
@@ -55742,9 +54494,6 @@ structures:
 - id: oh_paving_1698
   box_m: [1633.03, 785.59, 1633.49, 785.91]
   height_m: 0.24
-- id: oh_paving_1699
-  box_m: [1634.73, 785.59, 1635.19, 785.91]
-  height_m: 0.24
 - id: oh_paving_1700
   box_m: [1636.43, 785.59, 1636.89, 785.91]
   height_m: 0.24
@@ -55753,9 +54502,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1702
   box_m: [1639.83, 785.59, 1640.29, 785.91]
-  height_m: 0.24
-- id: oh_paving_1703
-  box_m: [1641.53, 785.59, 1641.99, 785.91]
   height_m: 0.24
 - id: oh_paving_1704
   box_m: [1643.23, 785.59, 1643.69, 785.91]
@@ -55766,9 +54512,6 @@ structures:
 - id: oh_paving_1706
   box_m: [1646.63, 785.59, 1647.09, 785.91]
   height_m: 0.24
-- id: oh_paving_1707
-  box_m: [1648.33, 785.59, 1648.79, 785.91]
-  height_m: 0.24
 - id: oh_paving_1708
   box_m: [1650.03, 785.59, 1650.49, 785.91]
   height_m: 0.24
@@ -55777,9 +54520,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1710
   box_m: [1653.43, 785.59, 1653.89, 785.91]
-  height_m: 0.24
-- id: oh_paving_1711
-  box_m: [1655.13, 785.59, 1655.59, 785.91]
   height_m: 0.24
 - id: oh_paving_1712
   box_m: [1656.83, 785.59, 1657.29, 785.91]
@@ -55790,9 +54530,6 @@ structures:
 - id: oh_paving_1714
   box_m: [1660.23, 785.59, 1660.69, 785.91]
   height_m: 0.24
-- id: oh_paving_1715
-  box_m: [1661.93, 785.59, 1662.39, 785.91]
-  height_m: 0.24
 - id: oh_paving_1716
   box_m: [1663.63, 785.59, 1664.09, 785.91]
   height_m: 0.24
@@ -55801,9 +54538,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1718
   box_m: [1667.03, 785.59, 1667.49, 785.91]
-  height_m: 0.24
-- id: oh_paving_1719
-  box_m: [1668.73, 785.59, 1669.19, 785.91]
   height_m: 0.24
 - id: oh_paving_1720
   box_m: [1670.43, 785.59, 1670.89, 785.91]
@@ -55814,9 +54548,6 @@ structures:
 - id: oh_paving_1722
   box_m: [1673.83, 785.59, 1674.29, 785.91]
   height_m: 0.24
-- id: oh_paving_1723
-  box_m: [1675.53, 785.59, 1675.99, 785.91]
-  height_m: 0.24
 - id: oh_paving_1724
   box_m: [1677.23, 785.59, 1677.69, 785.91]
   height_m: 0.24
@@ -55825,9 +54556,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1726
   box_m: [1680.63, 785.59, 1681.09, 785.91]
-  height_m: 0.24
-- id: oh_paving_1727
-  box_m: [1682.33, 785.59, 1682.79, 785.91]
   height_m: 0.24
 - id: oh_paving_1728
   box_m: [1684.03, 785.59, 1684.49, 785.91]
@@ -55838,9 +54566,6 @@ structures:
 - id: oh_paving_1730
   box_m: [1687.43, 785.59, 1687.89, 785.91]
   height_m: 0.24
-- id: oh_paving_1731
-  box_m: [1689.13, 785.59, 1689.59, 785.91]
-  height_m: 0.24
 - id: oh_paving_1732
   box_m: [1690.83, 785.59, 1691.29, 785.91]
   height_m: 0.24
@@ -55849,9 +54574,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1734
   box_m: [1694.23, 785.59, 1694.69, 785.91]
-  height_m: 0.24
-- id: oh_paving_1735
-  box_m: [1695.93, 785.59, 1696.39, 785.91]
   height_m: 0.24
 - id: oh_paving_1736
   box_m: [1697.63, 785.59, 1698.09, 785.91]
@@ -55862,9 +54584,6 @@ structures:
 - id: oh_paving_1738
   box_m: [1547.77, 786.84, 1548.23, 787.16]
   height_m: 0.24
-- id: oh_paving_1739
-  box_m: [1549.47, 786.84, 1549.93, 787.16]
-  height_m: 0.24
 - id: oh_paving_1740
   box_m: [1551.17, 786.84, 1551.63, 787.16]
   height_m: 0.24
@@ -55873,9 +54592,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1742
   box_m: [1554.57, 786.84, 1555.03, 787.16]
-  height_m: 0.24
-- id: oh_paving_1743
-  box_m: [1556.27, 786.84, 1556.73, 787.16]
   height_m: 0.24
 - id: oh_paving_1744
   box_m: [1557.97, 786.84, 1558.43, 787.16]
@@ -55886,9 +54602,6 @@ structures:
 - id: oh_paving_1746
   box_m: [1561.37, 786.84, 1561.83, 787.16]
   height_m: 0.24
-- id: oh_paving_1747
-  box_m: [1563.07, 786.84, 1563.53, 787.16]
-  height_m: 0.24
 - id: oh_paving_1748
   box_m: [1564.77, 786.84, 1565.23, 787.16]
   height_m: 0.24
@@ -55897,9 +54610,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1750
   box_m: [1568.17, 786.84, 1568.63, 787.16]
-  height_m: 0.24
-- id: oh_paving_1751
-  box_m: [1569.87, 786.84, 1570.33, 787.16]
   height_m: 0.24
 - id: oh_paving_1752
   box_m: [1571.57, 786.84, 1572.03, 787.16]
@@ -55910,9 +54620,6 @@ structures:
 - id: oh_paving_1754
   box_m: [1574.97, 786.84, 1575.43, 787.16]
   height_m: 0.24
-- id: oh_paving_1755
-  box_m: [1576.67, 786.84, 1577.13, 787.16]
-  height_m: 0.24
 - id: oh_paving_1756
   box_m: [1578.37, 786.84, 1578.83, 787.16]
   height_m: 0.24
@@ -55921,9 +54628,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1758
   box_m: [1581.77, 786.84, 1582.23, 787.16]
-  height_m: 0.24
-- id: oh_paving_1759
-  box_m: [1583.47, 786.84, 1583.93, 787.16]
   height_m: 0.24
 - id: oh_paving_1760
   box_m: [1585.17, 786.84, 1585.63, 787.16]
@@ -55934,9 +54638,6 @@ structures:
 - id: oh_paving_1762
   box_m: [1588.57, 786.84, 1589.03, 787.16]
   height_m: 0.24
-- id: oh_paving_1763
-  box_m: [1590.27, 786.84, 1590.73, 787.16]
-  height_m: 0.24
 - id: oh_paving_1764
   box_m: [1591.97, 786.84, 1592.43, 787.16]
   height_m: 0.24
@@ -55945,9 +54646,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1766
   box_m: [1595.37, 786.84, 1595.83, 787.16]
-  height_m: 0.24
-- id: oh_paving_1767
-  box_m: [1597.07, 786.84, 1597.53, 787.16]
   height_m: 0.24
 - id: oh_paving_1768
   box_m: [1602.17, 786.84, 1602.63, 787.16]
@@ -55958,9 +54656,6 @@ structures:
 - id: oh_paving_1770
   box_m: [1605.57, 786.84, 1606.03, 787.16]
   height_m: 0.24
-- id: oh_paving_1771
-  box_m: [1607.27, 786.84, 1607.73, 787.16]
-  height_m: 0.24
 - id: oh_paving_1772
   box_m: [1608.97, 786.84, 1609.43, 787.16]
   height_m: 0.24
@@ -55969,9 +54664,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1774
   box_m: [1612.37, 786.84, 1612.83, 787.16]
-  height_m: 0.24
-- id: oh_paving_1775
-  box_m: [1614.07, 786.84, 1614.53, 787.16]
   height_m: 0.24
 - id: oh_paving_1776
   box_m: [1615.77, 786.84, 1616.23, 787.16]
@@ -55982,9 +54674,6 @@ structures:
 - id: oh_paving_1778
   box_m: [1619.17, 786.84, 1619.63, 787.16]
   height_m: 0.24
-- id: oh_paving_1779
-  box_m: [1620.87, 786.84, 1621.33, 787.16]
-  height_m: 0.24
 - id: oh_paving_1780
   box_m: [1622.57, 786.84, 1623.03, 787.16]
   height_m: 0.24
@@ -55993,9 +54682,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1782
   box_m: [1625.97, 786.84, 1626.43, 787.16]
-  height_m: 0.24
-- id: oh_paving_1783
-  box_m: [1627.67, 786.84, 1628.13, 787.16]
   height_m: 0.24
 - id: oh_paving_1784
   box_m: [1629.37, 786.84, 1629.83, 787.16]
@@ -56006,9 +54692,6 @@ structures:
 - id: oh_paving_1786
   box_m: [1632.77, 786.84, 1633.23, 787.16]
   height_m: 0.24
-- id: oh_paving_1787
-  box_m: [1634.47, 786.84, 1634.93, 787.16]
-  height_m: 0.24
 - id: oh_paving_1788
   box_m: [1636.17, 786.84, 1636.63, 787.16]
   height_m: 0.24
@@ -56017,9 +54700,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1790
   box_m: [1639.57, 786.84, 1640.03, 787.16]
-  height_m: 0.24
-- id: oh_paving_1791
-  box_m: [1641.27, 786.84, 1641.73, 787.16]
   height_m: 0.24
 - id: oh_paving_1792
   box_m: [1642.97, 786.84, 1643.43, 787.16]
@@ -56030,9 +54710,6 @@ structures:
 - id: oh_paving_1794
   box_m: [1646.37, 786.84, 1646.83, 787.16]
   height_m: 0.24
-- id: oh_paving_1795
-  box_m: [1648.07, 786.84, 1648.53, 787.16]
-  height_m: 0.24
 - id: oh_paving_1796
   box_m: [1649.77, 786.84, 1650.23, 787.16]
   height_m: 0.24
@@ -56041,9 +54718,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1798
   box_m: [1653.17, 786.84, 1653.63, 787.16]
-  height_m: 0.24
-- id: oh_paving_1799
-  box_m: [1654.87, 786.84, 1655.33, 787.16]
   height_m: 0.24
 - id: oh_paving_1800
   box_m: [1656.57, 786.84, 1657.03, 787.16]
@@ -56054,9 +54728,6 @@ structures:
 - id: oh_paving_1802
   box_m: [1659.97, 786.84, 1660.43, 787.16]
   height_m: 0.24
-- id: oh_paving_1803
-  box_m: [1661.67, 786.84, 1662.13, 787.16]
-  height_m: 0.24
 - id: oh_paving_1804
   box_m: [1663.37, 786.84, 1663.83, 787.16]
   height_m: 0.24
@@ -56065,9 +54736,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1806
   box_m: [1666.77, 786.84, 1667.23, 787.16]
-  height_m: 0.24
-- id: oh_paving_1807
-  box_m: [1668.47, 786.84, 1668.93, 787.16]
   height_m: 0.24
 - id: oh_paving_1808
   box_m: [1670.17, 786.84, 1670.63, 787.16]
@@ -56078,9 +54746,6 @@ structures:
 - id: oh_paving_1810
   box_m: [1673.57, 786.84, 1674.03, 787.16]
   height_m: 0.24
-- id: oh_paving_1811
-  box_m: [1675.27, 786.84, 1675.73, 787.16]
-  height_m: 0.24
 - id: oh_paving_1812
   box_m: [1676.97, 786.84, 1677.43, 787.16]
   height_m: 0.24
@@ -56089,9 +54754,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1814
   box_m: [1680.37, 786.84, 1680.83, 787.16]
-  height_m: 0.24
-- id: oh_paving_1815
-  box_m: [1682.07, 786.84, 1682.53, 787.16]
   height_m: 0.24
 - id: oh_paving_1816
   box_m: [1683.77, 786.84, 1684.23, 787.16]
@@ -56102,9 +54764,6 @@ structures:
 - id: oh_paving_1818
   box_m: [1687.17, 786.84, 1687.63, 787.16]
   height_m: 0.24
-- id: oh_paving_1819
-  box_m: [1688.87, 786.84, 1689.33, 787.16]
-  height_m: 0.24
 - id: oh_paving_1820
   box_m: [1690.57, 786.84, 1691.03, 787.16]
   height_m: 0.24
@@ -56113,9 +54772,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1822
   box_m: [1693.97, 786.84, 1694.43, 787.16]
-  height_m: 0.24
-- id: oh_paving_1823
-  box_m: [1695.67, 786.84, 1696.13, 787.16]
   height_m: 0.24
 - id: oh_paving_1824
   box_m: [1697.37, 786.84, 1697.83, 787.16]
@@ -56126,9 +54782,6 @@ structures:
 - id: oh_paving_1826
   box_m: [1548.03, 788.09, 1548.49, 788.41]
   height_m: 0.24
-- id: oh_paving_1827
-  box_m: [1549.73, 788.09, 1550.19, 788.41]
-  height_m: 0.24
 - id: oh_paving_1828
   box_m: [1551.43, 788.09, 1551.89, 788.41]
   height_m: 0.24
@@ -56137,9 +54790,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1830
   box_m: [1554.83, 788.09, 1555.29, 788.41]
-  height_m: 0.24
-- id: oh_paving_1831
-  box_m: [1556.53, 788.09, 1556.99, 788.41]
   height_m: 0.24
 - id: oh_paving_1832
   box_m: [1558.23, 788.09, 1558.69, 788.41]
@@ -56150,9 +54800,6 @@ structures:
 - id: oh_paving_1834
   box_m: [1561.63, 788.09, 1562.09, 788.41]
   height_m: 0.24
-- id: oh_paving_1835
-  box_m: [1563.33, 788.09, 1563.79, 788.41]
-  height_m: 0.24
 - id: oh_paving_1836
   box_m: [1565.03, 788.09, 1565.49, 788.41]
   height_m: 0.24
@@ -56161,9 +54808,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1838
   box_m: [1568.43, 788.09, 1568.89, 788.41]
-  height_m: 0.24
-- id: oh_paving_1839
-  box_m: [1570.13, 788.09, 1570.59, 788.41]
   height_m: 0.24
 - id: oh_paving_1840
   box_m: [1571.83, 788.09, 1572.29, 788.41]
@@ -56174,9 +54818,6 @@ structures:
 - id: oh_paving_1842
   box_m: [1575.23, 788.09, 1575.69, 788.41]
   height_m: 0.24
-- id: oh_paving_1843
-  box_m: [1576.93, 788.09, 1577.39, 788.41]
-  height_m: 0.24
 - id: oh_paving_1844
   box_m: [1578.63, 788.09, 1579.09, 788.41]
   height_m: 0.24
@@ -56185,9 +54826,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1846
   box_m: [1582.03, 788.09, 1582.49, 788.41]
-  height_m: 0.24
-- id: oh_paving_1847
-  box_m: [1583.73, 788.09, 1584.19, 788.41]
   height_m: 0.24
 - id: oh_paving_1848
   box_m: [1585.43, 788.09, 1585.89, 788.41]
@@ -56198,9 +54836,6 @@ structures:
 - id: oh_paving_1850
   box_m: [1588.83, 788.09, 1589.29, 788.41]
   height_m: 0.24
-- id: oh_paving_1851
-  box_m: [1590.53, 788.09, 1590.99, 788.41]
-  height_m: 0.24
 - id: oh_paving_1852
   box_m: [1592.23, 788.09, 1592.69, 788.41]
   height_m: 0.24
@@ -56209,9 +54844,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1854
   box_m: [1595.63, 788.09, 1596.09, 788.41]
-  height_m: 0.24
-- id: oh_paving_1855
-  box_m: [1597.33, 788.09, 1597.79, 788.41]
   height_m: 0.24
 - id: oh_paving_1856
   box_m: [1599.03, 788.09, 1599.49, 788.41]
@@ -56222,9 +54854,6 @@ structures:
 - id: oh_paving_1858
   box_m: [1602.43, 788.09, 1602.89, 788.41]
   height_m: 0.24
-- id: oh_paving_1859
-  box_m: [1604.13, 788.09, 1604.59, 788.41]
-  height_m: 0.24
 - id: oh_paving_1860
   box_m: [1605.83, 788.09, 1606.29, 788.41]
   height_m: 0.24
@@ -56233,9 +54862,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1862
   box_m: [1609.23, 788.09, 1609.69, 788.41]
-  height_m: 0.24
-- id: oh_paving_1863
-  box_m: [1610.93, 788.09, 1611.39, 788.41]
   height_m: 0.24
 - id: oh_paving_1864
   box_m: [1612.63, 788.09, 1613.09, 788.41]
@@ -56246,9 +54872,6 @@ structures:
 - id: oh_paving_1866
   box_m: [1616.03, 788.09, 1616.49, 788.41]
   height_m: 0.24
-- id: oh_paving_1867
-  box_m: [1617.73, 788.09, 1618.19, 788.41]
-  height_m: 0.24
 - id: oh_paving_1868
   box_m: [1619.43, 788.09, 1619.89, 788.41]
   height_m: 0.24
@@ -56257,9 +54880,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1870
   box_m: [1622.83, 788.09, 1623.29, 788.41]
-  height_m: 0.24
-- id: oh_paving_1871
-  box_m: [1624.53, 788.09, 1624.99, 788.41]
   height_m: 0.24
 - id: oh_paving_1872
   box_m: [1626.23, 788.09, 1626.69, 788.41]
@@ -56270,9 +54890,6 @@ structures:
 - id: oh_paving_1874
   box_m: [1629.63, 788.09, 1630.09, 788.41]
   height_m: 0.24
-- id: oh_paving_1875
-  box_m: [1631.33, 788.09, 1631.79, 788.41]
-  height_m: 0.24
 - id: oh_paving_1876
   box_m: [1633.03, 788.09, 1633.49, 788.41]
   height_m: 0.24
@@ -56281,9 +54898,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1878
   box_m: [1636.43, 788.09, 1636.89, 788.41]
-  height_m: 0.24
-- id: oh_paving_1879
-  box_m: [1638.13, 788.09, 1638.59, 788.41]
   height_m: 0.24
 - id: oh_paving_1880
   box_m: [1639.83, 788.09, 1640.29, 788.41]
@@ -56294,9 +54908,6 @@ structures:
 - id: oh_paving_1882
   box_m: [1643.23, 788.09, 1643.69, 788.41]
   height_m: 0.24
-- id: oh_paving_1883
-  box_m: [1644.93, 788.09, 1645.39, 788.41]
-  height_m: 0.24
 - id: oh_paving_1884
   box_m: [1646.63, 788.09, 1647.09, 788.41]
   height_m: 0.24
@@ -56305,9 +54916,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1886
   box_m: [1650.03, 788.09, 1650.49, 788.41]
-  height_m: 0.24
-- id: oh_paving_1887
-  box_m: [1651.73, 788.09, 1652.19, 788.41]
   height_m: 0.24
 - id: oh_paving_1888
   box_m: [1653.43, 788.09, 1653.89, 788.41]
@@ -56318,9 +54926,6 @@ structures:
 - id: oh_paving_1890
   box_m: [1656.83, 788.09, 1657.29, 788.41]
   height_m: 0.24
-- id: oh_paving_1891
-  box_m: [1658.53, 788.09, 1658.99, 788.41]
-  height_m: 0.24
 - id: oh_paving_1892
   box_m: [1660.23, 788.09, 1660.69, 788.41]
   height_m: 0.24
@@ -56329,9 +54934,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1894
   box_m: [1663.63, 788.09, 1664.09, 788.41]
-  height_m: 0.24
-- id: oh_paving_1895
-  box_m: [1665.33, 788.09, 1665.79, 788.41]
   height_m: 0.24
 - id: oh_paving_1896
   box_m: [1667.03, 788.09, 1667.49, 788.41]
@@ -56342,9 +54944,6 @@ structures:
 - id: oh_paving_1898
   box_m: [1670.43, 788.09, 1670.89, 788.41]
   height_m: 0.24
-- id: oh_paving_1899
-  box_m: [1672.13, 788.09, 1672.59, 788.41]
-  height_m: 0.24
 - id: oh_paving_1900
   box_m: [1673.83, 788.09, 1674.29, 788.41]
   height_m: 0.24
@@ -56353,9 +54952,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1902
   box_m: [1677.23, 788.09, 1677.69, 788.41]
-  height_m: 0.24
-- id: oh_paving_1903
-  box_m: [1678.93, 788.09, 1679.39, 788.41]
   height_m: 0.24
 - id: oh_paving_1904
   box_m: [1680.63, 788.09, 1681.09, 788.41]
@@ -56366,9 +54962,6 @@ structures:
 - id: oh_paving_1906
   box_m: [1684.03, 788.09, 1684.49, 788.41]
   height_m: 0.24
-- id: oh_paving_1907
-  box_m: [1685.73, 788.09, 1686.19, 788.41]
-  height_m: 0.24
 - id: oh_paving_1908
   box_m: [1687.43, 788.09, 1687.89, 788.41]
   height_m: 0.24
@@ -56377,9 +54970,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1910
   box_m: [1690.83, 788.09, 1691.29, 788.41]
-  height_m: 0.24
-- id: oh_paving_1911
-  box_m: [1692.53, 788.09, 1692.99, 788.41]
   height_m: 0.24
 - id: oh_paving_1912
   box_m: [1694.23, 788.09, 1694.69, 788.41]
@@ -56390,9 +54980,6 @@ structures:
 - id: oh_paving_1914
   box_m: [1697.63, 788.09, 1698.09, 788.41]
   height_m: 0.24
-- id: oh_paving_1915
-  box_m: [1699.33, 788.09, 1699.79, 788.41]
-  height_m: 0.24
 - id: oh_paving_1916
   box_m: [1547.77, 789.34, 1548.23, 789.66]
   height_m: 0.24
@@ -56401,9 +54988,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1918
   box_m: [1551.17, 789.34, 1551.63, 789.66]
-  height_m: 0.24
-- id: oh_paving_1919
-  box_m: [1552.87, 789.34, 1553.33, 789.66]
   height_m: 0.24
 - id: oh_paving_1920
   box_m: [1554.57, 789.34, 1555.03, 789.66]
@@ -56414,9 +54998,6 @@ structures:
 - id: oh_paving_1922
   box_m: [1557.97, 789.34, 1558.43, 789.66]
   height_m: 0.24
-- id: oh_paving_1923
-  box_m: [1559.67, 789.34, 1560.13, 789.66]
-  height_m: 0.24
 - id: oh_paving_1924
   box_m: [1561.37, 789.34, 1561.83, 789.66]
   height_m: 0.24
@@ -56425,9 +55006,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1926
   box_m: [1564.77, 789.34, 1565.23, 789.66]
-  height_m: 0.24
-- id: oh_paving_1927
-  box_m: [1566.47, 789.34, 1566.93, 789.66]
   height_m: 0.24
 - id: oh_paving_1928
   box_m: [1568.17, 789.34, 1568.63, 789.66]
@@ -56438,9 +55016,6 @@ structures:
 - id: oh_paving_1930
   box_m: [1571.57, 789.34, 1572.03, 789.66]
   height_m: 0.24
-- id: oh_paving_1931
-  box_m: [1573.27, 789.34, 1573.73, 789.66]
-  height_m: 0.24
 - id: oh_paving_1932
   box_m: [1574.97, 789.34, 1575.43, 789.66]
   height_m: 0.24
@@ -56449,9 +55024,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1934
   box_m: [1578.37, 789.34, 1578.83, 789.66]
-  height_m: 0.24
-- id: oh_paving_1935
-  box_m: [1580.07, 789.34, 1580.53, 789.66]
   height_m: 0.24
 - id: oh_paving_1936
   box_m: [1581.77, 789.34, 1582.23, 789.66]
@@ -56462,9 +55034,6 @@ structures:
 - id: oh_paving_1938
   box_m: [1585.17, 789.34, 1585.63, 789.66]
   height_m: 0.24
-- id: oh_paving_1939
-  box_m: [1586.87, 789.34, 1587.33, 789.66]
-  height_m: 0.24
 - id: oh_paving_1940
   box_m: [1588.57, 789.34, 1589.03, 789.66]
   height_m: 0.24
@@ -56473,9 +55042,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1942
   box_m: [1591.97, 789.34, 1592.43, 789.66]
-  height_m: 0.24
-- id: oh_paving_1943
-  box_m: [1593.67, 789.34, 1594.13, 789.66]
   height_m: 0.24
 - id: oh_paving_1944
   box_m: [1595.37, 789.34, 1595.83, 789.66]
@@ -56486,9 +55052,6 @@ structures:
 - id: oh_paving_1946
   box_m: [1598.77, 789.34, 1599.23, 789.66]
   height_m: 0.24
-- id: oh_paving_1947
-  box_m: [1600.47, 789.34, 1600.93, 789.66]
-  height_m: 0.24
 - id: oh_paving_1948
   box_m: [1602.17, 789.34, 1602.63, 789.66]
   height_m: 0.24
@@ -56497,9 +55060,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1950
   box_m: [1605.57, 789.34, 1606.03, 789.66]
-  height_m: 0.24
-- id: oh_paving_1951
-  box_m: [1607.27, 789.34, 1607.73, 789.66]
   height_m: 0.24
 - id: oh_paving_1952
   box_m: [1608.97, 789.34, 1609.43, 789.66]
@@ -56510,9 +55070,6 @@ structures:
 - id: oh_paving_1954
   box_m: [1612.37, 789.34, 1612.83, 789.66]
   height_m: 0.24
-- id: oh_paving_1955
-  box_m: [1614.07, 789.34, 1614.53, 789.66]
-  height_m: 0.24
 - id: oh_paving_1956
   box_m: [1615.77, 789.34, 1616.23, 789.66]
   height_m: 0.24
@@ -56521,9 +55078,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1958
   box_m: [1619.17, 789.34, 1619.63, 789.66]
-  height_m: 0.24
-- id: oh_paving_1959
-  box_m: [1620.87, 789.34, 1621.33, 789.66]
   height_m: 0.24
 - id: oh_paving_1960
   box_m: [1622.57, 789.34, 1623.03, 789.66]
@@ -56534,9 +55088,6 @@ structures:
 - id: oh_paving_1962
   box_m: [1625.97, 789.34, 1626.43, 789.66]
   height_m: 0.24
-- id: oh_paving_1963
-  box_m: [1627.67, 789.34, 1628.13, 789.66]
-  height_m: 0.24
 - id: oh_paving_1964
   box_m: [1629.37, 789.34, 1629.83, 789.66]
   height_m: 0.24
@@ -56545,9 +55096,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1966
   box_m: [1632.77, 789.34, 1633.23, 789.66]
-  height_m: 0.24
-- id: oh_paving_1967
-  box_m: [1634.47, 789.34, 1634.93, 789.66]
   height_m: 0.24
 - id: oh_paving_1968
   box_m: [1636.17, 789.34, 1636.63, 789.66]
@@ -56558,9 +55106,6 @@ structures:
 - id: oh_paving_1970
   box_m: [1639.57, 789.34, 1640.03, 789.66]
   height_m: 0.24
-- id: oh_paving_1971
-  box_m: [1641.27, 789.34, 1641.73, 789.66]
-  height_m: 0.24
 - id: oh_paving_1972
   box_m: [1642.97, 789.34, 1643.43, 789.66]
   height_m: 0.24
@@ -56569,9 +55114,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1974
   box_m: [1646.37, 789.34, 1646.83, 789.66]
-  height_m: 0.24
-- id: oh_paving_1975
-  box_m: [1648.07, 789.34, 1648.53, 789.66]
   height_m: 0.24
 - id: oh_paving_1976
   box_m: [1649.77, 789.34, 1650.23, 789.66]
@@ -56582,9 +55124,6 @@ structures:
 - id: oh_paving_1978
   box_m: [1653.17, 789.34, 1653.63, 789.66]
   height_m: 0.24
-- id: oh_paving_1979
-  box_m: [1654.87, 789.34, 1655.33, 789.66]
-  height_m: 0.24
 - id: oh_paving_1980
   box_m: [1656.57, 789.34, 1657.03, 789.66]
   height_m: 0.24
@@ -56593,9 +55132,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1982
   box_m: [1659.97, 789.34, 1660.43, 789.66]
-  height_m: 0.24
-- id: oh_paving_1983
-  box_m: [1661.67, 789.34, 1662.13, 789.66]
   height_m: 0.24
 - id: oh_paving_1984
   box_m: [1663.37, 789.34, 1663.83, 789.66]
@@ -56606,9 +55142,6 @@ structures:
 - id: oh_paving_1986
   box_m: [1666.77, 789.34, 1667.23, 789.66]
   height_m: 0.24
-- id: oh_paving_1987
-  box_m: [1668.47, 789.34, 1668.93, 789.66]
-  height_m: 0.24
 - id: oh_paving_1988
   box_m: [1670.17, 789.34, 1670.63, 789.66]
   height_m: 0.24
@@ -56617,9 +55150,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1990
   box_m: [1673.57, 789.34, 1674.03, 789.66]
-  height_m: 0.24
-- id: oh_paving_1991
-  box_m: [1675.27, 789.34, 1675.73, 789.66]
   height_m: 0.24
 - id: oh_paving_1992
   box_m: [1676.97, 789.34, 1677.43, 789.66]
@@ -56630,9 +55160,6 @@ structures:
 - id: oh_paving_1994
   box_m: [1680.37, 789.34, 1680.83, 789.66]
   height_m: 0.24
-- id: oh_paving_1995
-  box_m: [1682.07, 789.34, 1682.53, 789.66]
-  height_m: 0.24
 - id: oh_paving_1996
   box_m: [1683.77, 789.34, 1684.23, 789.66]
   height_m: 0.24
@@ -56641,9 +55168,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_1998
   box_m: [1687.17, 789.34, 1687.63, 789.66]
-  height_m: 0.24
-- id: oh_paving_1999
-  box_m: [1688.87, 789.34, 1689.33, 789.66]
   height_m: 0.24
 - id: oh_paving_2000
   box_m: [1690.57, 789.34, 1691.03, 789.66]
@@ -56654,9 +55178,6 @@ structures:
 - id: oh_paving_2002
   box_m: [1693.97, 789.34, 1694.43, 789.66]
   height_m: 0.24
-- id: oh_paving_2003
-  box_m: [1695.67, 789.34, 1696.13, 789.66]
-  height_m: 0.24
 - id: oh_paving_2004
   box_m: [1697.37, 789.34, 1697.83, 789.66]
   height_m: 0.24
@@ -56665,9 +55186,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2006
   box_m: [1548.03, 790.59, 1548.49, 790.91]
-  height_m: 0.24
-- id: oh_paving_2007
-  box_m: [1549.73, 790.59, 1550.19, 790.91]
   height_m: 0.24
 - id: oh_paving_2008
   box_m: [1551.43, 790.59, 1551.89, 790.91]
@@ -56678,9 +55196,6 @@ structures:
 - id: oh_paving_2010
   box_m: [1554.83, 790.59, 1555.29, 790.91]
   height_m: 0.24
-- id: oh_paving_2011
-  box_m: [1556.53, 790.59, 1556.99, 790.91]
-  height_m: 0.24
 - id: oh_paving_2012
   box_m: [1558.23, 790.59, 1558.69, 790.91]
   height_m: 0.24
@@ -56689,9 +55204,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2014
   box_m: [1561.63, 790.59, 1562.09, 790.91]
-  height_m: 0.24
-- id: oh_paving_2015
-  box_m: [1563.33, 790.59, 1563.79, 790.91]
   height_m: 0.24
 - id: oh_paving_2016
   box_m: [1565.03, 790.59, 1565.49, 790.91]
@@ -56702,9 +55214,6 @@ structures:
 - id: oh_paving_2018
   box_m: [1568.43, 790.59, 1568.89, 790.91]
   height_m: 0.24
-- id: oh_paving_2019
-  box_m: [1570.13, 790.59, 1570.59, 790.91]
-  height_m: 0.24
 - id: oh_paving_2020
   box_m: [1571.83, 790.59, 1572.29, 790.91]
   height_m: 0.24
@@ -56713,9 +55222,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2022
   box_m: [1575.23, 790.59, 1575.69, 790.91]
-  height_m: 0.24
-- id: oh_paving_2023
-  box_m: [1576.93, 790.59, 1577.39, 790.91]
   height_m: 0.24
 - id: oh_paving_2024
   box_m: [1578.63, 790.59, 1579.09, 790.91]
@@ -56726,9 +55232,6 @@ structures:
 - id: oh_paving_2026
   box_m: [1582.03, 790.59, 1582.49, 790.91]
   height_m: 0.24
-- id: oh_paving_2027
-  box_m: [1583.73, 790.59, 1584.19, 790.91]
-  height_m: 0.24
 - id: oh_paving_2028
   box_m: [1585.43, 790.59, 1585.89, 790.91]
   height_m: 0.24
@@ -56737,9 +55240,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2030
   box_m: [1588.83, 790.59, 1589.29, 790.91]
-  height_m: 0.24
-- id: oh_paving_2031
-  box_m: [1590.53, 790.59, 1590.99, 790.91]
   height_m: 0.24
 - id: oh_paving_2032
   box_m: [1592.23, 790.59, 1592.69, 790.91]
@@ -56750,9 +55250,6 @@ structures:
 - id: oh_paving_2034
   box_m: [1595.63, 790.59, 1596.09, 790.91]
   height_m: 0.24
-- id: oh_paving_2035
-  box_m: [1597.33, 790.59, 1597.79, 790.91]
-  height_m: 0.24
 - id: oh_paving_2036
   box_m: [1599.03, 790.59, 1599.49, 790.91]
   height_m: 0.24
@@ -56761,9 +55258,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2038
   box_m: [1602.43, 790.59, 1602.89, 790.91]
-  height_m: 0.24
-- id: oh_paving_2039
-  box_m: [1604.13, 790.59, 1604.59, 790.91]
   height_m: 0.24
 - id: oh_paving_2040
   box_m: [1605.83, 790.59, 1606.29, 790.91]
@@ -56774,9 +55268,6 @@ structures:
 - id: oh_paving_2042
   box_m: [1609.23, 790.59, 1609.69, 790.91]
   height_m: 0.24
-- id: oh_paving_2043
-  box_m: [1610.93, 790.59, 1611.39, 790.91]
-  height_m: 0.24
 - id: oh_paving_2044
   box_m: [1612.63, 790.59, 1613.09, 790.91]
   height_m: 0.24
@@ -56785,9 +55276,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2046
   box_m: [1616.03, 790.59, 1616.49, 790.91]
-  height_m: 0.24
-- id: oh_paving_2047
-  box_m: [1617.73, 790.59, 1618.19, 790.91]
   height_m: 0.24
 - id: oh_paving_2048
   box_m: [1619.43, 790.59, 1619.89, 790.91]
@@ -56798,9 +55286,6 @@ structures:
 - id: oh_paving_2050
   box_m: [1622.83, 790.59, 1623.29, 790.91]
   height_m: 0.24
-- id: oh_paving_2051
-  box_m: [1624.53, 790.59, 1624.99, 790.91]
-  height_m: 0.24
 - id: oh_paving_2052
   box_m: [1626.23, 790.59, 1626.69, 790.91]
   height_m: 0.24
@@ -56809,9 +55294,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2054
   box_m: [1629.63, 790.59, 1630.09, 790.91]
-  height_m: 0.24
-- id: oh_paving_2055
-  box_m: [1631.33, 790.59, 1631.79, 790.91]
   height_m: 0.24
 - id: oh_paving_2056
   box_m: [1633.03, 790.59, 1633.49, 790.91]
@@ -56822,9 +55304,6 @@ structures:
 - id: oh_paving_2058
   box_m: [1636.43, 790.59, 1636.89, 790.91]
   height_m: 0.24
-- id: oh_paving_2059
-  box_m: [1638.13, 790.59, 1638.59, 790.91]
-  height_m: 0.24
 - id: oh_paving_2060
   box_m: [1639.83, 790.59, 1640.29, 790.91]
   height_m: 0.24
@@ -56833,9 +55312,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2062
   box_m: [1643.23, 790.59, 1643.69, 790.91]
-  height_m: 0.24
-- id: oh_paving_2063
-  box_m: [1644.93, 790.59, 1645.39, 790.91]
   height_m: 0.24
 - id: oh_paving_2064
   box_m: [1646.63, 790.59, 1647.09, 790.91]
@@ -56846,9 +55322,6 @@ structures:
 - id: oh_paving_2066
   box_m: [1650.03, 790.59, 1650.49, 790.91]
   height_m: 0.24
-- id: oh_paving_2067
-  box_m: [1651.73, 790.59, 1652.19, 790.91]
-  height_m: 0.24
 - id: oh_paving_2068
   box_m: [1653.43, 790.59, 1653.89, 790.91]
   height_m: 0.24
@@ -56857,9 +55330,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2070
   box_m: [1656.83, 790.59, 1657.29, 790.91]
-  height_m: 0.24
-- id: oh_paving_2071
-  box_m: [1658.53, 790.59, 1658.99, 790.91]
   height_m: 0.24
 - id: oh_paving_2072
   box_m: [1660.23, 790.59, 1660.69, 790.91]
@@ -56870,9 +55340,6 @@ structures:
 - id: oh_paving_2074
   box_m: [1663.63, 790.59, 1664.09, 790.91]
   height_m: 0.24
-- id: oh_paving_2075
-  box_m: [1665.33, 790.59, 1665.79, 790.91]
-  height_m: 0.24
 - id: oh_paving_2076
   box_m: [1667.03, 790.59, 1667.49, 790.91]
   height_m: 0.24
@@ -56881,9 +55348,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2078
   box_m: [1670.43, 790.59, 1670.89, 790.91]
-  height_m: 0.24
-- id: oh_paving_2079
-  box_m: [1672.13, 790.59, 1672.59, 790.91]
   height_m: 0.24
 - id: oh_paving_2080
   box_m: [1673.83, 790.59, 1674.29, 790.91]
@@ -56894,9 +55358,6 @@ structures:
 - id: oh_paving_2082
   box_m: [1677.23, 790.59, 1677.69, 790.91]
   height_m: 0.24
-- id: oh_paving_2083
-  box_m: [1678.93, 790.59, 1679.39, 790.91]
-  height_m: 0.24
 - id: oh_paving_2084
   box_m: [1680.63, 790.59, 1681.09, 790.91]
   height_m: 0.24
@@ -56905,9 +55366,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2086
   box_m: [1684.03, 790.59, 1684.49, 790.91]
-  height_m: 0.24
-- id: oh_paving_2087
-  box_m: [1685.73, 790.59, 1686.19, 790.91]
   height_m: 0.24
 - id: oh_paving_2088
   box_m: [1687.43, 790.59, 1687.89, 790.91]
@@ -56918,9 +55376,6 @@ structures:
 - id: oh_paving_2090
   box_m: [1690.83, 790.59, 1691.29, 790.91]
   height_m: 0.24
-- id: oh_paving_2091
-  box_m: [1692.53, 790.59, 1692.99, 790.91]
-  height_m: 0.24
 - id: oh_paving_2092
   box_m: [1694.23, 790.59, 1694.69, 790.91]
   height_m: 0.24
@@ -56929,9 +55384,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2094
   box_m: [1697.63, 790.59, 1698.09, 790.91]
-  height_m: 0.24
-- id: oh_paving_2095
-  box_m: [1699.33, 790.59, 1699.79, 790.91]
   height_m: 0.24
 - id: oh_paving_2096
   box_m: [1547.77, 791.84, 1548.23, 792.16]
@@ -56942,9 +55394,6 @@ structures:
 - id: oh_paving_2098
   box_m: [1551.17, 791.84, 1551.63, 792.16]
   height_m: 0.24
-- id: oh_paving_2099
-  box_m: [1552.87, 791.84, 1553.33, 792.16]
-  height_m: 0.24
 - id: oh_paving_2100
   box_m: [1554.57, 791.84, 1555.03, 792.16]
   height_m: 0.24
@@ -56953,9 +55402,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2102
   box_m: [1557.97, 791.84, 1558.43, 792.16]
-  height_m: 0.24
-- id: oh_paving_2103
-  box_m: [1559.67, 791.84, 1560.13, 792.16]
   height_m: 0.24
 - id: oh_paving_2104
   box_m: [1561.37, 791.84, 1561.83, 792.16]
@@ -56966,9 +55412,6 @@ structures:
 - id: oh_paving_2106
   box_m: [1564.77, 791.84, 1565.23, 792.16]
   height_m: 0.24
-- id: oh_paving_2107
-  box_m: [1566.47, 791.84, 1566.93, 792.16]
-  height_m: 0.24
 - id: oh_paving_2108
   box_m: [1568.17, 791.84, 1568.63, 792.16]
   height_m: 0.24
@@ -56977,9 +55420,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2110
   box_m: [1571.57, 791.84, 1572.03, 792.16]
-  height_m: 0.24
-- id: oh_paving_2111
-  box_m: [1573.27, 791.84, 1573.73, 792.16]
   height_m: 0.24
 - id: oh_paving_2112
   box_m: [1574.97, 791.84, 1575.43, 792.16]
@@ -56990,9 +55430,6 @@ structures:
 - id: oh_paving_2114
   box_m: [1578.37, 791.84, 1578.83, 792.16]
   height_m: 0.24
-- id: oh_paving_2115
-  box_m: [1580.07, 791.84, 1580.53, 792.16]
-  height_m: 0.24
 - id: oh_paving_2116
   box_m: [1581.77, 791.84, 1582.23, 792.16]
   height_m: 0.24
@@ -57001,9 +55438,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2118
   box_m: [1585.17, 791.84, 1585.63, 792.16]
-  height_m: 0.24
-- id: oh_paving_2119
-  box_m: [1586.87, 791.84, 1587.33, 792.16]
   height_m: 0.24
 - id: oh_paving_2120
   box_m: [1588.57, 791.84, 1589.03, 792.16]
@@ -57014,9 +55448,6 @@ structures:
 - id: oh_paving_2122
   box_m: [1591.97, 791.84, 1592.43, 792.16]
   height_m: 0.24
-- id: oh_paving_2123
-  box_m: [1593.67, 791.84, 1594.13, 792.16]
-  height_m: 0.24
 - id: oh_paving_2124
   box_m: [1595.37, 791.84, 1595.83, 792.16]
   height_m: 0.24
@@ -57025,9 +55456,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2126
   box_m: [1598.77, 791.84, 1599.23, 792.16]
-  height_m: 0.24
-- id: oh_paving_2127
-  box_m: [1600.47, 791.84, 1600.93, 792.16]
   height_m: 0.24
 - id: oh_paving_2128
   box_m: [1602.17, 791.84, 1602.63, 792.16]
@@ -57038,9 +55466,6 @@ structures:
 - id: oh_paving_2130
   box_m: [1605.57, 791.84, 1606.03, 792.16]
   height_m: 0.24
-- id: oh_paving_2131
-  box_m: [1607.27, 791.84, 1607.73, 792.16]
-  height_m: 0.24
 - id: oh_paving_2132
   box_m: [1608.97, 791.84, 1609.43, 792.16]
   height_m: 0.24
@@ -57049,9 +55474,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2134
   box_m: [1612.37, 791.84, 1612.83, 792.16]
-  height_m: 0.24
-- id: oh_paving_2135
-  box_m: [1614.07, 791.84, 1614.53, 792.16]
   height_m: 0.24
 - id: oh_paving_2136
   box_m: [1615.77, 791.84, 1616.23, 792.16]
@@ -57062,9 +55484,6 @@ structures:
 - id: oh_paving_2138
   box_m: [1619.17, 791.84, 1619.63, 792.16]
   height_m: 0.24
-- id: oh_paving_2139
-  box_m: [1620.87, 791.84, 1621.33, 792.16]
-  height_m: 0.24
 - id: oh_paving_2140
   box_m: [1622.57, 791.84, 1623.03, 792.16]
   height_m: 0.24
@@ -57073,9 +55492,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2142
   box_m: [1625.97, 791.84, 1626.43, 792.16]
-  height_m: 0.24
-- id: oh_paving_2143
-  box_m: [1627.67, 791.84, 1628.13, 792.16]
   height_m: 0.24
 - id: oh_paving_2144
   box_m: [1629.37, 791.84, 1629.83, 792.16]
@@ -57086,9 +55502,6 @@ structures:
 - id: oh_paving_2146
   box_m: [1632.77, 791.84, 1633.23, 792.16]
   height_m: 0.24
-- id: oh_paving_2147
-  box_m: [1634.47, 791.84, 1634.93, 792.16]
-  height_m: 0.24
 - id: oh_paving_2148
   box_m: [1636.17, 791.84, 1636.63, 792.16]
   height_m: 0.24
@@ -57097,9 +55510,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2150
   box_m: [1639.57, 791.84, 1640.03, 792.16]
-  height_m: 0.24
-- id: oh_paving_2151
-  box_m: [1641.27, 791.84, 1641.73, 792.16]
   height_m: 0.24
 - id: oh_paving_2152
   box_m: [1642.97, 791.84, 1643.43, 792.16]
@@ -57110,9 +55520,6 @@ structures:
 - id: oh_paving_2154
   box_m: [1646.37, 791.84, 1646.83, 792.16]
   height_m: 0.24
-- id: oh_paving_2155
-  box_m: [1648.07, 791.84, 1648.53, 792.16]
-  height_m: 0.24
 - id: oh_paving_2156
   box_m: [1649.77, 791.84, 1650.23, 792.16]
   height_m: 0.24
@@ -57121,9 +55528,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2158
   box_m: [1653.17, 791.84, 1653.63, 792.16]
-  height_m: 0.24
-- id: oh_paving_2159
-  box_m: [1654.87, 791.84, 1655.33, 792.16]
   height_m: 0.24
 - id: oh_paving_2160
   box_m: [1656.57, 791.84, 1657.03, 792.16]
@@ -57134,9 +55538,6 @@ structures:
 - id: oh_paving_2162
   box_m: [1659.97, 791.84, 1660.43, 792.16]
   height_m: 0.24
-- id: oh_paving_2163
-  box_m: [1661.67, 791.84, 1662.13, 792.16]
-  height_m: 0.24
 - id: oh_paving_2164
   box_m: [1663.37, 791.84, 1663.83, 792.16]
   height_m: 0.24
@@ -57145,9 +55546,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2166
   box_m: [1666.77, 791.84, 1667.23, 792.16]
-  height_m: 0.24
-- id: oh_paving_2167
-  box_m: [1668.47, 791.84, 1668.93, 792.16]
   height_m: 0.24
 - id: oh_paving_2168
   box_m: [1670.17, 791.84, 1670.63, 792.16]
@@ -57158,9 +55556,6 @@ structures:
 - id: oh_paving_2170
   box_m: [1673.57, 791.84, 1674.03, 792.16]
   height_m: 0.24
-- id: oh_paving_2171
-  box_m: [1675.27, 791.84, 1675.73, 792.16]
-  height_m: 0.24
 - id: oh_paving_2172
   box_m: [1676.97, 791.84, 1677.43, 792.16]
   height_m: 0.24
@@ -57169,9 +55564,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2174
   box_m: [1680.37, 791.84, 1680.83, 792.16]
-  height_m: 0.24
-- id: oh_paving_2175
-  box_m: [1682.07, 791.84, 1682.53, 792.16]
   height_m: 0.24
 - id: oh_paving_2176
   box_m: [1683.77, 791.84, 1684.23, 792.16]
@@ -57182,9 +55574,6 @@ structures:
 - id: oh_paving_2178
   box_m: [1687.17, 791.84, 1687.63, 792.16]
   height_m: 0.24
-- id: oh_paving_2179
-  box_m: [1688.87, 791.84, 1689.33, 792.16]
-  height_m: 0.24
 - id: oh_paving_2180
   box_m: [1690.57, 791.84, 1691.03, 792.16]
   height_m: 0.24
@@ -57193,9 +55582,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2182
   box_m: [1693.97, 791.84, 1694.43, 792.16]
-  height_m: 0.24
-- id: oh_paving_2183
-  box_m: [1695.67, 791.84, 1696.13, 792.16]
   height_m: 0.24
 - id: oh_paving_2184
   box_m: [1697.37, 791.84, 1697.83, 792.16]
@@ -57206,9 +55592,6 @@ structures:
 - id: oh_paving_2186
   box_m: [1548.03, 793.09, 1548.49, 793.41]
   height_m: 0.24
-- id: oh_paving_2187
-  box_m: [1549.73, 793.09, 1550.19, 793.41]
-  height_m: 0.24
 - id: oh_paving_2188
   box_m: [1551.43, 793.09, 1551.89, 793.41]
   height_m: 0.24
@@ -57217,9 +55600,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2190
   box_m: [1554.83, 793.09, 1555.29, 793.41]
-  height_m: 0.24
-- id: oh_paving_2191
-  box_m: [1556.53, 793.09, 1556.99, 793.41]
   height_m: 0.24
 - id: oh_paving_2192
   box_m: [1558.23, 793.09, 1558.69, 793.41]
@@ -57230,9 +55610,6 @@ structures:
 - id: oh_paving_2194
   box_m: [1561.63, 793.09, 1562.09, 793.41]
   height_m: 0.24
-- id: oh_paving_2195
-  box_m: [1563.33, 793.09, 1563.79, 793.41]
-  height_m: 0.24
 - id: oh_paving_2196
   box_m: [1565.03, 793.09, 1565.49, 793.41]
   height_m: 0.24
@@ -57241,9 +55618,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2198
   box_m: [1568.43, 793.09, 1568.89, 793.41]
-  height_m: 0.24
-- id: oh_paving_2199
-  box_m: [1570.13, 793.09, 1570.59, 793.41]
   height_m: 0.24
 - id: oh_paving_2200
   box_m: [1571.83, 793.09, 1572.29, 793.41]
@@ -57254,9 +55628,6 @@ structures:
 - id: oh_paving_2202
   box_m: [1575.23, 793.09, 1575.69, 793.41]
   height_m: 0.24
-- id: oh_paving_2203
-  box_m: [1576.93, 793.09, 1577.39, 793.41]
-  height_m: 0.24
 - id: oh_paving_2204
   box_m: [1578.63, 793.09, 1579.09, 793.41]
   height_m: 0.24
@@ -57265,9 +55636,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2206
   box_m: [1582.03, 793.09, 1582.49, 793.41]
-  height_m: 0.24
-- id: oh_paving_2207
-  box_m: [1583.73, 793.09, 1584.19, 793.41]
   height_m: 0.24
 - id: oh_paving_2208
   box_m: [1585.43, 793.09, 1585.89, 793.41]
@@ -57278,9 +55646,6 @@ structures:
 - id: oh_paving_2210
   box_m: [1588.83, 793.09, 1589.29, 793.41]
   height_m: 0.24
-- id: oh_paving_2211
-  box_m: [1590.53, 793.09, 1590.99, 793.41]
-  height_m: 0.24
 - id: oh_paving_2212
   box_m: [1592.23, 793.09, 1592.69, 793.41]
   height_m: 0.24
@@ -57289,9 +55654,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2214
   box_m: [1595.63, 793.09, 1596.09, 793.41]
-  height_m: 0.24
-- id: oh_paving_2215
-  box_m: [1597.33, 793.09, 1597.79, 793.41]
   height_m: 0.24
 - id: oh_paving_2216
   box_m: [1599.03, 793.09, 1599.49, 793.41]
@@ -57302,9 +55664,6 @@ structures:
 - id: oh_paving_2218
   box_m: [1602.43, 793.09, 1602.89, 793.41]
   height_m: 0.24
-- id: oh_paving_2219
-  box_m: [1604.13, 793.09, 1604.59, 793.41]
-  height_m: 0.24
 - id: oh_paving_2220
   box_m: [1605.83, 793.09, 1606.29, 793.41]
   height_m: 0.24
@@ -57313,9 +55672,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2222
   box_m: [1609.23, 793.09, 1609.69, 793.41]
-  height_m: 0.24
-- id: oh_paving_2223
-  box_m: [1610.93, 793.09, 1611.39, 793.41]
   height_m: 0.24
 - id: oh_paving_2224
   box_m: [1612.63, 793.09, 1613.09, 793.41]
@@ -57326,9 +55682,6 @@ structures:
 - id: oh_paving_2226
   box_m: [1616.03, 793.09, 1616.49, 793.41]
   height_m: 0.24
-- id: oh_paving_2227
-  box_m: [1617.73, 793.09, 1618.19, 793.41]
-  height_m: 0.24
 - id: oh_paving_2228
   box_m: [1619.43, 793.09, 1619.89, 793.41]
   height_m: 0.24
@@ -57337,9 +55690,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2230
   box_m: [1622.83, 793.09, 1623.29, 793.41]
-  height_m: 0.24
-- id: oh_paving_2231
-  box_m: [1624.53, 793.09, 1624.99, 793.41]
   height_m: 0.24
 - id: oh_paving_2232
   box_m: [1626.23, 793.09, 1626.69, 793.41]
@@ -57350,9 +55700,6 @@ structures:
 - id: oh_paving_2234
   box_m: [1629.63, 793.09, 1630.09, 793.41]
   height_m: 0.24
-- id: oh_paving_2235
-  box_m: [1631.33, 793.09, 1631.79, 793.41]
-  height_m: 0.24
 - id: oh_paving_2236
   box_m: [1633.03, 793.09, 1633.49, 793.41]
   height_m: 0.24
@@ -57361,9 +55708,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2238
   box_m: [1636.43, 793.09, 1636.89, 793.41]
-  height_m: 0.24
-- id: oh_paving_2239
-  box_m: [1638.13, 793.09, 1638.59, 793.41]
   height_m: 0.24
 - id: oh_paving_2240
   box_m: [1639.83, 793.09, 1640.29, 793.41]
@@ -57374,9 +55718,6 @@ structures:
 - id: oh_paving_2242
   box_m: [1643.23, 793.09, 1643.69, 793.41]
   height_m: 0.24
-- id: oh_paving_2243
-  box_m: [1644.93, 793.09, 1645.39, 793.41]
-  height_m: 0.24
 - id: oh_paving_2244
   box_m: [1646.63, 793.09, 1647.09, 793.41]
   height_m: 0.24
@@ -57385,9 +55726,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2246
   box_m: [1650.03, 793.09, 1650.49, 793.41]
-  height_m: 0.24
-- id: oh_paving_2247
-  box_m: [1651.73, 793.09, 1652.19, 793.41]
   height_m: 0.24
 - id: oh_paving_2248
   box_m: [1653.43, 793.09, 1653.89, 793.41]
@@ -57398,9 +55736,6 @@ structures:
 - id: oh_paving_2250
   box_m: [1656.83, 793.09, 1657.29, 793.41]
   height_m: 0.24
-- id: oh_paving_2251
-  box_m: [1658.53, 793.09, 1658.99, 793.41]
-  height_m: 0.24
 - id: oh_paving_2252
   box_m: [1660.23, 793.09, 1660.69, 793.41]
   height_m: 0.24
@@ -57409,9 +55744,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2254
   box_m: [1663.63, 793.09, 1664.09, 793.41]
-  height_m: 0.24
-- id: oh_paving_2255
-  box_m: [1665.33, 793.09, 1665.79, 793.41]
   height_m: 0.24
 - id: oh_paving_2256
   box_m: [1667.03, 793.09, 1667.49, 793.41]
@@ -57422,9 +55754,6 @@ structures:
 - id: oh_paving_2258
   box_m: [1670.43, 793.09, 1670.89, 793.41]
   height_m: 0.24
-- id: oh_paving_2259
-  box_m: [1672.13, 793.09, 1672.59, 793.41]
-  height_m: 0.24
 - id: oh_paving_2260
   box_m: [1673.83, 793.09, 1674.29, 793.41]
   height_m: 0.24
@@ -57433,9 +55762,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2262
   box_m: [1677.23, 793.09, 1677.69, 793.41]
-  height_m: 0.24
-- id: oh_paving_2263
-  box_m: [1678.93, 793.09, 1679.39, 793.41]
   height_m: 0.24
 - id: oh_paving_2264
   box_m: [1680.63, 793.09, 1681.09, 793.41]
@@ -57446,9 +55772,6 @@ structures:
 - id: oh_paving_2266
   box_m: [1684.03, 793.09, 1684.49, 793.41]
   height_m: 0.24
-- id: oh_paving_2267
-  box_m: [1685.73, 793.09, 1686.19, 793.41]
-  height_m: 0.24
 - id: oh_paving_2268
   box_m: [1687.43, 793.09, 1687.89, 793.41]
   height_m: 0.24
@@ -57457,9 +55780,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2270
   box_m: [1690.83, 793.09, 1691.29, 793.41]
-  height_m: 0.24
-- id: oh_paving_2271
-  box_m: [1692.53, 793.09, 1692.99, 793.41]
   height_m: 0.24
 - id: oh_paving_2272
   box_m: [1694.23, 793.09, 1694.69, 793.41]
@@ -57470,9 +55790,6 @@ structures:
 - id: oh_paving_2274
   box_m: [1697.63, 793.09, 1698.09, 793.41]
   height_m: 0.24
-- id: oh_paving_2275
-  box_m: [1699.33, 793.09, 1699.79, 793.41]
-  height_m: 0.24
 - id: oh_paving_2276
   box_m: [1547.77, 794.34, 1548.23, 794.66]
   height_m: 0.24
@@ -57481,9 +55798,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2278
   box_m: [1551.17, 794.34, 1551.63, 794.66]
-  height_m: 0.24
-- id: oh_paving_2279
-  box_m: [1552.87, 794.34, 1553.33, 794.66]
   height_m: 0.24
 - id: oh_paving_2280
   box_m: [1554.57, 794.34, 1555.03, 794.66]
@@ -57494,9 +55808,6 @@ structures:
 - id: oh_paving_2282
   box_m: [1557.97, 794.34, 1558.43, 794.66]
   height_m: 0.24
-- id: oh_paving_2283
-  box_m: [1559.67, 794.34, 1560.13, 794.66]
-  height_m: 0.24
 - id: oh_paving_2284
   box_m: [1561.37, 794.34, 1561.83, 794.66]
   height_m: 0.24
@@ -57505,9 +55816,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2286
   box_m: [1564.77, 794.34, 1565.23, 794.66]
-  height_m: 0.24
-- id: oh_paving_2287
-  box_m: [1566.47, 794.34, 1566.93, 794.66]
   height_m: 0.24
 - id: oh_paving_2288
   box_m: [1568.17, 794.34, 1568.63, 794.66]
@@ -57518,9 +55826,6 @@ structures:
 - id: oh_paving_2290
   box_m: [1571.57, 794.34, 1572.03, 794.66]
   height_m: 0.24
-- id: oh_paving_2291
-  box_m: [1573.27, 794.34, 1573.73, 794.66]
-  height_m: 0.24
 - id: oh_paving_2292
   box_m: [1574.97, 794.34, 1575.43, 794.66]
   height_m: 0.24
@@ -57529,9 +55834,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2294
   box_m: [1578.37, 794.34, 1578.83, 794.66]
-  height_m: 0.24
-- id: oh_paving_2295
-  box_m: [1580.07, 794.34, 1580.53, 794.66]
   height_m: 0.24
 - id: oh_paving_2296
   box_m: [1581.77, 794.34, 1582.23, 794.66]
@@ -57542,9 +55844,6 @@ structures:
 - id: oh_paving_2298
   box_m: [1585.17, 794.34, 1585.63, 794.66]
   height_m: 0.24
-- id: oh_paving_2299
-  box_m: [1586.87, 794.34, 1587.33, 794.66]
-  height_m: 0.24
 - id: oh_paving_2300
   box_m: [1588.57, 794.34, 1589.03, 794.66]
   height_m: 0.24
@@ -57553,9 +55852,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2302
   box_m: [1591.97, 794.34, 1592.43, 794.66]
-  height_m: 0.24
-- id: oh_paving_2303
-  box_m: [1593.67, 794.34, 1594.13, 794.66]
   height_m: 0.24
 - id: oh_paving_2304
   box_m: [1595.37, 794.34, 1595.83, 794.66]
@@ -57566,9 +55862,6 @@ structures:
 - id: oh_paving_2306
   box_m: [1598.77, 794.34, 1599.23, 794.66]
   height_m: 0.24
-- id: oh_paving_2307
-  box_m: [1600.47, 794.34, 1600.93, 794.66]
-  height_m: 0.24
 - id: oh_paving_2308
   box_m: [1602.17, 794.34, 1602.63, 794.66]
   height_m: 0.24
@@ -57577,9 +55870,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2310
   box_m: [1605.57, 794.34, 1606.03, 794.66]
-  height_m: 0.24
-- id: oh_paving_2311
-  box_m: [1607.27, 794.34, 1607.73, 794.66]
   height_m: 0.24
 - id: oh_paving_2312
   box_m: [1608.97, 794.34, 1609.43, 794.66]
@@ -57590,9 +55880,6 @@ structures:
 - id: oh_paving_2314
   box_m: [1612.37, 794.34, 1612.83, 794.66]
   height_m: 0.24
-- id: oh_paving_2315
-  box_m: [1614.07, 794.34, 1614.53, 794.66]
-  height_m: 0.24
 - id: oh_paving_2316
   box_m: [1615.77, 794.34, 1616.23, 794.66]
   height_m: 0.24
@@ -57601,9 +55888,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2318
   box_m: [1619.17, 794.34, 1619.63, 794.66]
-  height_m: 0.24
-- id: oh_paving_2319
-  box_m: [1620.87, 794.34, 1621.33, 794.66]
   height_m: 0.24
 - id: oh_paving_2320
   box_m: [1622.57, 794.34, 1623.03, 794.66]
@@ -57614,9 +55898,6 @@ structures:
 - id: oh_paving_2322
   box_m: [1625.97, 794.34, 1626.43, 794.66]
   height_m: 0.24
-- id: oh_paving_2323
-  box_m: [1627.67, 794.34, 1628.13, 794.66]
-  height_m: 0.24
 - id: oh_paving_2324
   box_m: [1629.37, 794.34, 1629.83, 794.66]
   height_m: 0.24
@@ -57625,9 +55906,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2326
   box_m: [1632.77, 794.34, 1633.23, 794.66]
-  height_m: 0.24
-- id: oh_paving_2327
-  box_m: [1634.47, 794.34, 1634.93, 794.66]
   height_m: 0.24
 - id: oh_paving_2328
   box_m: [1636.17, 794.34, 1636.63, 794.66]
@@ -57638,9 +55916,6 @@ structures:
 - id: oh_paving_2330
   box_m: [1639.57, 794.34, 1640.03, 794.66]
   height_m: 0.24
-- id: oh_paving_2331
-  box_m: [1641.27, 794.34, 1641.73, 794.66]
-  height_m: 0.24
 - id: oh_paving_2332
   box_m: [1642.97, 794.34, 1643.43, 794.66]
   height_m: 0.24
@@ -57649,9 +55924,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2334
   box_m: [1646.37, 794.34, 1646.83, 794.66]
-  height_m: 0.24
-- id: oh_paving_2335
-  box_m: [1648.07, 794.34, 1648.53, 794.66]
   height_m: 0.24
 - id: oh_paving_2336
   box_m: [1649.77, 794.34, 1650.23, 794.66]
@@ -57662,9 +55934,6 @@ structures:
 - id: oh_paving_2338
   box_m: [1653.17, 794.34, 1653.63, 794.66]
   height_m: 0.24
-- id: oh_paving_2339
-  box_m: [1654.87, 794.34, 1655.33, 794.66]
-  height_m: 0.24
 - id: oh_paving_2340
   box_m: [1656.57, 794.34, 1657.03, 794.66]
   height_m: 0.24
@@ -57673,9 +55942,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2342
   box_m: [1659.97, 794.34, 1660.43, 794.66]
-  height_m: 0.24
-- id: oh_paving_2343
-  box_m: [1661.67, 794.34, 1662.13, 794.66]
   height_m: 0.24
 - id: oh_paving_2344
   box_m: [1663.37, 794.34, 1663.83, 794.66]
@@ -57686,9 +55952,6 @@ structures:
 - id: oh_paving_2346
   box_m: [1666.77, 794.34, 1667.23, 794.66]
   height_m: 0.24
-- id: oh_paving_2347
-  box_m: [1668.47, 794.34, 1668.93, 794.66]
-  height_m: 0.24
 - id: oh_paving_2348
   box_m: [1670.17, 794.34, 1670.63, 794.66]
   height_m: 0.24
@@ -57697,9 +55960,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2350
   box_m: [1673.57, 794.34, 1674.03, 794.66]
-  height_m: 0.24
-- id: oh_paving_2351
-  box_m: [1675.27, 794.34, 1675.73, 794.66]
   height_m: 0.24
 - id: oh_paving_2352
   box_m: [1676.97, 794.34, 1677.43, 794.66]
@@ -57710,9 +55970,6 @@ structures:
 - id: oh_paving_2354
   box_m: [1680.37, 794.34, 1680.83, 794.66]
   height_m: 0.24
-- id: oh_paving_2355
-  box_m: [1682.07, 794.34, 1682.53, 794.66]
-  height_m: 0.24
 - id: oh_paving_2356
   box_m: [1683.77, 794.34, 1684.23, 794.66]
   height_m: 0.24
@@ -57721,9 +55978,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2358
   box_m: [1687.17, 794.34, 1687.63, 794.66]
-  height_m: 0.24
-- id: oh_paving_2359
-  box_m: [1688.87, 794.34, 1689.33, 794.66]
   height_m: 0.24
 - id: oh_paving_2360
   box_m: [1690.57, 794.34, 1691.03, 794.66]
@@ -57734,9 +55988,6 @@ structures:
 - id: oh_paving_2362
   box_m: [1693.97, 794.34, 1694.43, 794.66]
   height_m: 0.24
-- id: oh_paving_2363
-  box_m: [1695.67, 794.34, 1696.13, 794.66]
-  height_m: 0.24
 - id: oh_paving_2364
   box_m: [1697.37, 794.34, 1697.83, 794.66]
   height_m: 0.24
@@ -57745,9 +55996,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2366
   box_m: [1548.03, 795.59, 1548.49, 795.91]
-  height_m: 0.24
-- id: oh_paving_2367
-  box_m: [1549.73, 795.59, 1550.19, 795.91]
   height_m: 0.24
 - id: oh_paving_2368
   box_m: [1551.43, 795.59, 1551.89, 795.91]
@@ -57758,9 +56006,6 @@ structures:
 - id: oh_paving_2370
   box_m: [1554.83, 795.59, 1555.29, 795.91]
   height_m: 0.24
-- id: oh_paving_2371
-  box_m: [1556.53, 795.59, 1556.99, 795.91]
-  height_m: 0.24
 - id: oh_paving_2372
   box_m: [1558.23, 795.59, 1558.69, 795.91]
   height_m: 0.24
@@ -57769,9 +56014,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2374
   box_m: [1561.63, 795.59, 1562.09, 795.91]
-  height_m: 0.24
-- id: oh_paving_2375
-  box_m: [1563.33, 795.59, 1563.79, 795.91]
   height_m: 0.24
 - id: oh_paving_2376
   box_m: [1565.03, 795.59, 1565.49, 795.91]
@@ -57782,9 +56024,6 @@ structures:
 - id: oh_paving_2378
   box_m: [1568.43, 795.59, 1568.89, 795.91]
   height_m: 0.24
-- id: oh_paving_2379
-  box_m: [1570.13, 795.59, 1570.59, 795.91]
-  height_m: 0.24
 - id: oh_paving_2380
   box_m: [1571.83, 795.59, 1572.29, 795.91]
   height_m: 0.24
@@ -57793,9 +56032,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2382
   box_m: [1575.23, 795.59, 1575.69, 795.91]
-  height_m: 0.24
-- id: oh_paving_2383
-  box_m: [1576.93, 795.59, 1577.39, 795.91]
   height_m: 0.24
 - id: oh_paving_2384
   box_m: [1578.63, 795.59, 1579.09, 795.91]
@@ -57806,9 +56042,6 @@ structures:
 - id: oh_paving_2386
   box_m: [1582.03, 795.59, 1582.49, 795.91]
   height_m: 0.24
-- id: oh_paving_2387
-  box_m: [1583.73, 795.59, 1584.19, 795.91]
-  height_m: 0.24
 - id: oh_paving_2388
   box_m: [1585.43, 795.59, 1585.89, 795.91]
   height_m: 0.24
@@ -57817,9 +56050,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2390
   box_m: [1588.83, 795.59, 1589.29, 795.91]
-  height_m: 0.24
-- id: oh_paving_2391
-  box_m: [1590.53, 795.59, 1590.99, 795.91]
   height_m: 0.24
 - id: oh_paving_2392
   box_m: [1592.23, 795.59, 1592.69, 795.91]
@@ -57830,9 +56060,6 @@ structures:
 - id: oh_paving_2394
   box_m: [1595.63, 795.59, 1596.09, 795.91]
   height_m: 0.24
-- id: oh_paving_2395
-  box_m: [1597.33, 795.59, 1597.79, 795.91]
-  height_m: 0.24
 - id: oh_paving_2396
   box_m: [1599.03, 795.59, 1599.49, 795.91]
   height_m: 0.24
@@ -57841,9 +56068,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2398
   box_m: [1602.43, 795.59, 1602.89, 795.91]
-  height_m: 0.24
-- id: oh_paving_2399
-  box_m: [1604.13, 795.59, 1604.59, 795.91]
   height_m: 0.24
 - id: oh_paving_2400
   box_m: [1605.83, 795.59, 1606.29, 795.91]
@@ -57854,9 +56078,6 @@ structures:
 - id: oh_paving_2402
   box_m: [1609.23, 795.59, 1609.69, 795.91]
   height_m: 0.24
-- id: oh_paving_2403
-  box_m: [1610.93, 795.59, 1611.39, 795.91]
-  height_m: 0.24
 - id: oh_paving_2404
   box_m: [1612.63, 795.59, 1613.09, 795.91]
   height_m: 0.24
@@ -57865,9 +56086,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2406
   box_m: [1616.03, 795.59, 1616.49, 795.91]
-  height_m: 0.24
-- id: oh_paving_2407
-  box_m: [1617.73, 795.59, 1618.19, 795.91]
   height_m: 0.24
 - id: oh_paving_2408
   box_m: [1619.43, 795.59, 1619.89, 795.91]
@@ -57878,9 +56096,6 @@ structures:
 - id: oh_paving_2410
   box_m: [1622.83, 795.59, 1623.29, 795.91]
   height_m: 0.24
-- id: oh_paving_2411
-  box_m: [1624.53, 795.59, 1624.99, 795.91]
-  height_m: 0.24
 - id: oh_paving_2412
   box_m: [1626.23, 795.59, 1626.69, 795.91]
   height_m: 0.24
@@ -57889,9 +56104,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2414
   box_m: [1629.63, 795.59, 1630.09, 795.91]
-  height_m: 0.24
-- id: oh_paving_2415
-  box_m: [1631.33, 795.59, 1631.79, 795.91]
   height_m: 0.24
 - id: oh_paving_2416
   box_m: [1633.03, 795.59, 1633.49, 795.91]
@@ -57902,9 +56114,6 @@ structures:
 - id: oh_paving_2418
   box_m: [1636.43, 795.59, 1636.89, 795.91]
   height_m: 0.24
-- id: oh_paving_2419
-  box_m: [1638.13, 795.59, 1638.59, 795.91]
-  height_m: 0.24
 - id: oh_paving_2420
   box_m: [1639.83, 795.59, 1640.29, 795.91]
   height_m: 0.24
@@ -57913,9 +56122,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2422
   box_m: [1643.23, 795.59, 1643.69, 795.91]
-  height_m: 0.24
-- id: oh_paving_2423
-  box_m: [1644.93, 795.59, 1645.39, 795.91]
   height_m: 0.24
 - id: oh_paving_2424
   box_m: [1646.63, 795.59, 1647.09, 795.91]
@@ -57926,9 +56132,6 @@ structures:
 - id: oh_paving_2426
   box_m: [1650.03, 795.59, 1650.49, 795.91]
   height_m: 0.24
-- id: oh_paving_2427
-  box_m: [1651.73, 795.59, 1652.19, 795.91]
-  height_m: 0.24
 - id: oh_paving_2428
   box_m: [1653.43, 795.59, 1653.89, 795.91]
   height_m: 0.24
@@ -57937,9 +56140,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2430
   box_m: [1656.83, 795.59, 1657.29, 795.91]
-  height_m: 0.24
-- id: oh_paving_2431
-  box_m: [1658.53, 795.59, 1658.99, 795.91]
   height_m: 0.24
 - id: oh_paving_2432
   box_m: [1660.23, 795.59, 1660.69, 795.91]
@@ -57950,9 +56150,6 @@ structures:
 - id: oh_paving_2434
   box_m: [1663.63, 795.59, 1664.09, 795.91]
   height_m: 0.24
-- id: oh_paving_2435
-  box_m: [1665.33, 795.59, 1665.79, 795.91]
-  height_m: 0.24
 - id: oh_paving_2436
   box_m: [1667.03, 795.59, 1667.49, 795.91]
   height_m: 0.24
@@ -57961,9 +56158,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2438
   box_m: [1670.43, 795.59, 1670.89, 795.91]
-  height_m: 0.24
-- id: oh_paving_2439
-  box_m: [1672.13, 795.59, 1672.59, 795.91]
   height_m: 0.24
 - id: oh_paving_2440
   box_m: [1673.83, 795.59, 1674.29, 795.91]
@@ -57974,9 +56168,6 @@ structures:
 - id: oh_paving_2442
   box_m: [1677.23, 795.59, 1677.69, 795.91]
   height_m: 0.24
-- id: oh_paving_2443
-  box_m: [1678.93, 795.59, 1679.39, 795.91]
-  height_m: 0.24
 - id: oh_paving_2444
   box_m: [1680.63, 795.59, 1681.09, 795.91]
   height_m: 0.24
@@ -57985,9 +56176,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2446
   box_m: [1684.03, 795.59, 1684.49, 795.91]
-  height_m: 0.24
-- id: oh_paving_2447
-  box_m: [1685.73, 795.59, 1686.19, 795.91]
   height_m: 0.24
 - id: oh_paving_2448
   box_m: [1687.43, 795.59, 1687.89, 795.91]
@@ -57998,9 +56186,6 @@ structures:
 - id: oh_paving_2450
   box_m: [1690.83, 795.59, 1691.29, 795.91]
   height_m: 0.24
-- id: oh_paving_2451
-  box_m: [1692.53, 795.59, 1692.99, 795.91]
-  height_m: 0.24
 - id: oh_paving_2452
   box_m: [1694.23, 795.59, 1694.69, 795.91]
   height_m: 0.24
@@ -58009,9 +56194,6 @@ structures:
   height_m: 0.24
 - id: oh_paving_2454
   box_m: [1697.63, 795.59, 1698.09, 795.91]
-  height_m: 0.24
-- id: oh_paving_2455
-  box_m: [1699.33, 795.59, 1699.79, 795.91]
   height_m: 0.24
 - id: oh_kerb_000
   box_m: [1352.0, 594.32, 1352.46, 594.78]
