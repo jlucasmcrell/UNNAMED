@@ -43,6 +43,12 @@ public sealed record TakedownCommand(EntityId Actor, bool NonLethal = false) : G
 /// </summary>
 public sealed record HideBodyCommand(EntityId Actor, EntityId Target) : GameCommand(Actor);
 
+/// <summary>
+/// Take hold of a body and pull it along the ground (STEALTH §6.2): it comes with the character instead of being carried away whole, a metre or
+/// two at a time, and it stays where the light can find it until the character stops to hide it properly.
+/// </summary>
+public sealed record DragBodyCommand(EntityId Actor, EntityId Target) : GameCommand(Actor);
+
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
 

@@ -912,6 +912,33 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// Carry a body into cover (STEALTH §6.3). Only a corpse within reach can be taken, and only if there is a hiding place near it: the body is
     /// laid in the nearest one, which is the whole of the mechanic - after this the ground it lies on no longer tells anyone anything.
     /// </summary>
+    /// <summary>
+    /// A body pulled along the ground (STEALTH §6.2): it moves a share of the way toward the character, staying in the open, so dragging is the slow
+    /// and exposed way to move a body and hiding it is the quick one. Every step is its own command, which is what lets the player stop halfway.
+    /// </summary>
+    public string? Handle(DragBodyCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var body = State.Body;
+        var corpse = State.Creatures.Values.FirstOrDefault(c => c.Id == command.Target && c.Alive == false
+            && c.Condition == CreatureCondition.Corpse && c.Site.Space == State.Space
+            && Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm) <= HideReachMm);
+        if (corpse is null)
+            return "nothing within reach to drag";
+        // A metre at a time, and never onto the character: a body dragged into its own feet would be a body in the way.
+        const long step = 1_000;
+        long dx = body.XMm - corpse.Body.XMm, dz = body.ZMm - corpse.Body.ZMm;
+        double gap = Math.Sqrt(dx * dx + dz * dz);
+        if (gap <= step)
+            return "it is already at your feet";
+        long moved = corpse.Body.XMm + (long)Math.Round(dx / gap * step), movedZ = corpse.Body.ZMm + (long)Math.Round(dz / gap * step);
+        var dragged = corpse with { Body = corpse.Body with { XMm = moved, ZMm = movedZ } };
+        State.SetCreature(_owner, dragged);
+        _context.Events.Publish(new BodyDragged(_player, corpse.Id, corpse.Definition.Id, moved, movedZ, tick));
+        return null;
+    }
+
     public string? Handle(HideBodyCommand command, long tick)
     {
         if (command.Actor != _player)

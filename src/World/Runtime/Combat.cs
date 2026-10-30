@@ -1,4 +1,4 @@
-// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+﻿// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
 // (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
@@ -370,6 +370,9 @@ public sealed record Subdued(EntityId Actor, EntityId Target, string DefId, long
 
 /// <summary>A body was carried into cover: presentation moves the corpse, and the ground it lies on stops telling anyone anything.</summary>
 public sealed record BodyHidden(EntityId Actor, EntityId Target, string DefId, string CoverKey, long Tick);
+
+/// <summary>A body pulled a step along the ground: where it was, where it is, and who is doing the pulling (STEALTH §6.2).</summary>
+public sealed record BodyDragged(EntityId Actor, EntityId Target, string DefId, long XMm, long ZMm, long Tick);
 
 // ── systems ─────────────────────────────────────────────────────────────────
 
