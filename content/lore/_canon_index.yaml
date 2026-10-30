@@ -480,6 +480,21 @@ concepts:
   source: docs/OTHERREACH_COSMOLOGY.md §8 Othergates
   covered_by:
   - lore.othergate
+- id: canon.steps_harbour
+  name: The Salt Steps
+  kind: place
+  status: partly
+  fact: The Salt Steps are Otherhome's terraced harbour district, and what its own walls and records say is that the Survey measures
+    the terraces and the water under them, that the Exchange posts its tariff openly and puts its fee in the week it pays, and that
+    the Assize licenses a dormant gate without owning it.
+  source: canon/areas/the-steps.md §2, §6, §7
+  covered_by:
+  - lore.otherhome_survey_plaque
+  - lore.otherhome_assize_terms
+  - lore.otherhome_exchange_tariff
+  - lore.otherhome_flight_tally
+  - lore.otherhome_cistern_ledger
+  - lore.cistern_scale
 - id: canon.otherhome
   name: Otherhome
   kind: place
