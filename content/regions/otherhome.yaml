@@ -59022,6 +59022,27 @@ readables:
   height_m: 1.3
   name: the Assize's terms at the ring's edge
   verb: Read
+- key: readable.otherhome.exchange_tariff
+  lore_ref: lore.otherhome_exchange_tariff
+  page: 1
+  circle_m: [1622.0, 769.0, 0.5]
+  height_m: 1.4
+  name: the Exchange's posted tariff, at the counting room's door
+  verb: Read
+- key: readable.otherhome.flight_tally
+  lore_ref: lore.otherhome_flight_tally
+  page: 1
+  circle_m: [1492.0, 618.0, 0.5]
+  height_m: 1.5
+  name: the tally cut into the head of the stairs
+  verb: Read
+- key: readable.otherhome.cistern_ledger
+  lore_ref: lore.otherhome_cistern_ledger
+  page: 1
+  circle_m: [1528.0, 702.0, 0.5]
+  height_m: 1.3
+  name: the ledger at the cistern court's threshold
+  verb: Read
 switches:
 - key: switch.oh_assize_notice
   structure: oh_assize_notice

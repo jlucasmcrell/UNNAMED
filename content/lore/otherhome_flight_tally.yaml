@@ -1,0 +1,18 @@
+id: lore.otherhome_flight_tally
+kind: lore
+schema: 1
+display_key: lore.otherhome.flight_tally.name
+title: The tally at the head of the stairs
+tags: [lore]
+category: places
+pages:
+- page: 1
+  sources:
+  - how: inspected
+    ref: readable.otherhome.flight_tally
+  text: >-
+    The flights' own count, cut into the stone at the head of the stairs where anyone climbing stops to breathe: four flights to a
+    band, the rise of each in handspans, and then a column that is not a count at all. The column is names. They are cut small and
+    crowded, and they run down the side of the stone rather than across it, which is how you know the list was started later than
+    the numbers and by somebody who expected to add to it. The last three are fresher than the rest. Nobody has cut the rise of the
+    fifth flight, because there is no fifth flight, and the names go on anyway.

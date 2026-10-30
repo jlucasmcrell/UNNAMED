@@ -3,16 +3,18 @@ kind: routine
 schema: 1
 display_key: routine.otherhome.assize_sergeant.name
 tags: [routine]
-notes: "Gate 3: the Assize's sergeant's day in the harbour district - home, post, and the third place the post actually takes them."
+notes: "Gate 3: the Assize's sergeant's day. The ring watch is narrowed to the two hours after dusk, because the ring is 300 m from the nearest lit post: after that he is back at the board, where a player can actually find the law."
 region_ref: region.otherhome
 people_ref: people.veth
 settlement: otherhome
 role: guard
 roles: [guard]
-work_hours: [6, 18]
+work_hours: [6, 22]
 anchors:
   home: {position_m: [1712.0, 774.0], facing_deg: 180}
   work: {position_m: [1712.0, 780.0], facing_deg: 180}
   gate: {position_m: [1304.0, 598.0], facing_deg: 270}
+  watch: {position_m: [1712.0, 782.0], facing_deg: 180}
 schedule:
-  - {hours: [18, 22], at: gate}
+  - {hours: [18, 20], at: gate}
+  - {hours: [20, 22], at: watch}

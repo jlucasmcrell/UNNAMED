@@ -1,0 +1,17 @@
+id: lore.otherhome_cistern_ledger
+kind: lore
+schema: 1
+display_key: lore.otherhome.cistern_ledger.name
+title: The ledger at the cistern's threshold
+tags: [lore]
+category: places
+pages:
+- page: 1
+  sources:
+  - how: inspected
+    ref: readable.otherhome.cistern_ledger
+  text: >-
+    The cistern's ledger, kept in the same ruled hand as the survey plates above the harbour, which is the first thing about it
+    worth knowing: the body that measures the terraces also measures the water under them. It records the depth drawn, the date,
+    and who drew it, and the names repeat in a rhythm as even as the lines. Two families and a third name that appears only in
+    winter. The last page is short. The entries stop eleven days in, all in one hand, and that hand is not the winter's.
