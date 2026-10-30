@@ -13365,6 +13365,216 @@
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
+    },
+    "oh_quay_barrel_000": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate_001": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_crate2_002": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_woodpile_003": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 2: woodpile on the working quay."
+    },
+    "oh_quay_bucket_004": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: bucket on the working quay."
+    },
+    "oh_quay_barrel_005": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_trough_006": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 2: trough on the working quay."
+    },
+    "oh_quay_crate_007": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_cart_008": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: cart on the working quay."
+    },
+    "oh_quay_lantern_009": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: lantern on the working quay."
+    },
+    "oh_quay_barrel_010": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate2_011": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_barrel_012": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate_013": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_crate2_014": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_woodpile_015": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 2: woodpile on the working quay."
+    },
+    "oh_quay_bucket_016": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: bucket on the working quay."
+    },
+    "oh_quay_barrel_017": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_trough_018": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 2: trough on the working quay."
+    },
+    "oh_quay_crate_019": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_cart_020": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: cart on the working quay."
+    },
+    "oh_quay_lantern_021": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: lantern on the working quay."
+    },
+    "oh_quay_barrel_022": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate2_023": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_barrel_024": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate_025": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_crate2_026": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_woodpile_027": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 2: woodpile on the working quay."
+    },
+    "oh_quay_bucket_028": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: bucket on the working quay."
+    },
+    "oh_quay_barrel_029": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_trough_030": {
+      "model": "cw_trough_stone",
+      "material": "wood",
+      "note": "Gate 2: trough on the working quay."
+    },
+    "oh_quay_crate_031": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_cart_032": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: cart on the working quay."
+    },
+    "oh_quay_lantern_033": {
+      "model": "prop_bp_lantern_post",
+      "material": "wood",
+      "note": "Gate 2: lantern on the working quay."
+    },
+    "oh_quay_barrel_034": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate2_035": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_barrel_036": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
+    },
+    "oh_quay_crate_037": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: crate on the working quay."
+    },
+    "oh_quay_crate2_038": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: crate2 on the working quay."
+    },
+    "oh_quay_woodpile_039": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 2: woodpile on the working quay."
+    },
+    "oh_quay_bucket_040": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: bucket on the working quay."
+    },
+    "oh_quay_barrel_041": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: barrel on the working quay."
     }
   },
   "doors": {

@@ -50741,6 +50741,132 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_quay_barrel_000
+  box_m: [1266.67, 813.69, 1267.29, 814.31]
+  height_m: 0.95
+- id: oh_quay_crate_001
+  box_m: [1264.76, 821.14, 1265.48, 821.86]
+  height_m: 0.62
+- id: oh_quay_crate2_002
+  box_m: [1264.92, 828.67, 1265.58, 829.33]
+  height_m: 0.58
+- id: oh_quay_woodpile_003
+  box_m: [1266.41, 836.04, 1268.36, 836.96]
+  height_m: 1.2
+- id: oh_quay_bucket_004
+  box_m: [1265.35, 843.84, 1265.67, 844.16]
+  height_m: 0.34
+- id: oh_quay_barrel_005
+  box_m: [1265.32, 851.19, 1265.94, 851.81]
+  height_m: 0.95
+- id: oh_quay_trough_006
+  box_m: [1266.85, 858.63, 1268.65, 859.37]
+  height_m: 0.56
+- id: oh_quay_crate_007
+  box_m: [1265.5, 866.14, 1266.22, 866.86]
+  height_m: 0.62
+- id: oh_quay_cart_008
+  box_m: [1264.22, 873.27, 1267.72, 874.73]
+  height_m: 1.38
+- id: oh_quay_lantern_009
+  box_m: [1267.61, 881.33, 1268.52, 881.67]
+  height_m: 2.8
+- id: oh_quay_barrel_010
+  box_m: [1265.86, 888.69, 1266.48, 889.31]
+  height_m: 0.95
+- id: oh_quay_crate2_011
+  box_m: [1265.93, 896.17, 1266.59, 896.83]
+  height_m: 0.58
+- id: oh_quay_barrel_012
+  box_m: [1268.03, 903.69, 1268.65, 904.31]
+  height_m: 0.95
+- id: oh_quay_crate_013
+  box_m: [1266.06, 911.14, 1266.78, 911.86]
+  height_m: 0.62
+- id: oh_quay_crate2_014
+  box_m: [1266.17, 918.67, 1266.83, 919.33]
+  height_m: 0.58
+- id: oh_quay_woodpile_015
+  box_m: [1267.6, 926.04, 1269.55, 926.96]
+  height_m: 1.2
+- id: oh_quay_bucket_016
+  box_m: [1266.48, 933.84, 1266.8, 934.16]
+  height_m: 0.34
+- id: oh_quay_barrel_017
+  box_m: [1266.39, 941.19, 1267.01, 941.81]
+  height_m: 0.95
+- id: oh_quay_trough_018
+  box_m: [1267.85, 948.63, 1269.65, 949.37]
+  height_m: 0.56
+- id: oh_quay_crate_019
+  box_m: [1266.44, 956.14, 1267.16, 956.86]
+  height_m: 0.62
+- id: oh_quay_cart_020
+  box_m: [1265.09, 963.27, 1268.59, 964.73]
+  height_m: 1.38
+- id: oh_quay_lantern_021
+  box_m: [1268.43, 971.33, 1269.34, 971.67]
+  height_m: 2.8
+- id: oh_quay_barrel_022
+  box_m: [1266.6, 978.69, 1267.22, 979.31]
+  height_m: 0.95
+- id: oh_quay_crate2_023
+  box_m: [1266.61, 986.17, 1267.27, 986.83]
+  height_m: 0.58
+- id: oh_quay_barrel_024
+  box_m: [1268.65, 993.69, 1269.27, 994.31]
+  height_m: 0.95
+- id: oh_quay_crate_025
+  box_m: [1266.62, 1001.14, 1267.34, 1001.86]
+  height_m: 0.62
+- id: oh_quay_crate2_026
+  box_m: [1266.66, 1008.67, 1267.32, 1009.33]
+  height_m: 0.58
+- id: oh_quay_woodpile_027
+  box_m: [1268.02, 1016.04, 1269.97, 1016.96]
+  height_m: 1.2
+- id: oh_quay_bucket_028
+  box_m: [1266.84, 1023.84, 1267.16, 1024.16]
+  height_m: 0.34
+- id: oh_quay_barrel_029
+  box_m: [1266.68, 1031.19, 1267.3, 1031.81]
+  height_m: 0.95
+- id: oh_quay_trough_030
+  box_m: [1268.08, 1038.63, 1269.88, 1039.37]
+  height_m: 0.56
+- id: oh_quay_crate_031
+  box_m: [1266.61, 1046.14, 1267.33, 1046.86]
+  height_m: 0.62
+- id: oh_quay_cart_032
+  box_m: [1265.2, 1053.28, 1268.7, 1054.72]
+  height_m: 1.38
+- id: oh_quay_lantern_033
+  box_m: [1268.47, 1061.33, 1269.38, 1061.67]
+  height_m: 2.8
+- id: oh_quay_barrel_034
+  box_m: [1266.58, 1068.69, 1267.2, 1069.31]
+  height_m: 0.95
+- id: oh_quay_crate2_035
+  box_m: [1266.52, 1076.17, 1267.18, 1076.83]
+  height_m: 0.58
+- id: oh_quay_barrel_036
+  box_m: [1268.5, 1083.69, 1269.12, 1084.31]
+  height_m: 0.95
+- id: oh_quay_crate_037
+  box_m: [1266.4, 1091.14, 1267.12, 1091.86]
+  height_m: 0.62
+- id: oh_quay_crate2_038
+  box_m: [1266.38, 1098.67, 1267.04, 1099.33]
+  height_m: 0.58
+- id: oh_quay_woodpile_039
+  box_m: [1267.67, 1106.05, 1269.62, 1106.95]
+  height_m: 1.2
+- id: oh_quay_bucket_040
+  box_m: [1266.42, 1113.84, 1266.74, 1114.16]
+  height_m: 0.34
+- id: oh_quay_barrel_041
+  box_m: [1266.2, 1121.19, 1266.82, 1121.81]
+  height_m: 0.95
 - id: oh_lane_post_000
   box_m: [1309.55, 578.33, 1310.46, 578.68]
   height_m: 2.8
