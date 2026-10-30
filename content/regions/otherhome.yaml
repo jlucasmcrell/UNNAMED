@@ -50741,6 +50741,180 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_sq_north_000
+  box_m: [1530.0, 800.0, 1539.6, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_001
+  box_m: [1542.0, 800.0, 1549.2, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_002
+  box_m: [1551.6, 800.0, 1561.2, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_003
+  box_m: [1563.6, 800.0, 1570.8, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_004
+  box_m: [1573.2, 800.0, 1582.8, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_005
+  box_m: [1585.2, 800.0, 1592.4, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_006
+  box_m: [1594.8, 800.0, 1604.4, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_007
+  box_m: [1606.8, 800.0, 1614.0, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_008
+  box_m: [1616.4, 800.0, 1626.0, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_009
+  box_m: [1628.4, 800.0, 1635.6, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_010
+  box_m: [1638.0, 800.0, 1647.6, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_011
+  box_m: [1650.0, 800.0, 1657.2, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_012
+  box_m: [1659.6, 800.0, 1669.2, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_013
+  box_m: [1671.6, 800.0, 1678.8, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_014
+  box_m: [1681.2, 800.0, 1690.8, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_015
+  box_m: [1693.2, 800.0, 1700.4, 805.2]
+  height_m: 5.2
+- id: oh_sq_north_016
+  box_m: [1702.8, 800.0, 1712.4, 806.0]
+  height_m: 6.5
+- id: oh_sq_north_017
+  box_m: [1714.8, 800.0, 1722.0, 805.2]
+  height_m: 5.2
+- id: oh_sq_south_018
+  box_m: [1549.2, 744.8, 1556.4, 750.0]
+  height_m: 5.2
+- id: oh_sq_south_019
+  box_m: [1582.8, 744.0, 1592.4, 750.0]
+  height_m: 6.5
+- id: oh_sq_south_020
+  box_m: [1604.4, 744.8, 1611.6, 750.0]
+  height_m: 5.2
+- id: oh_sq_south_021
+  box_m: [1690.0, 744.0, 1699.6, 750.0]
+  height_m: 6.5
+- id: oh_sq_south_022
+  box_m: [1711.6, 744.8, 1718.8, 750.0]
+  height_m: 5.2
+- id: oh_sq_wall_023
+  box_m: [1518.0, 752.0, 1519.2, 753.2]
+  height_m: 2.6
+- id: oh_sq_wall_024
+  box_m: [1518.0, 754.4, 1519.2, 755.6]
+  height_m: 2.6
+- id: oh_sq_wall_025
+  box_m: [1518.0, 756.8, 1519.2, 758.0]
+  height_m: 2.6
+- id: oh_sq_wall_026
+  box_m: [1518.0, 759.2, 1519.2, 760.4]
+  height_m: 2.6
+- id: oh_sq_wall_027
+  box_m: [1518.0, 761.6, 1519.2, 762.8]
+  height_m: 2.6
+- id: oh_sq_wall_028
+  box_m: [1518.0, 764.0, 1519.2, 765.2]
+  height_m: 2.6
+- id: oh_sq_wall_029
+  box_m: [1518.0, 766.4, 1519.2, 767.6]
+  height_m: 2.6
+- id: oh_sq_wall_030
+  box_m: [1518.0, 768.8, 1519.2, 770.0]
+  height_m: 2.6
+- id: oh_sq_wall_031
+  box_m: [1518.0, 771.2, 1519.2, 772.4]
+  height_m: 2.6
+- id: oh_sq_wall_032
+  box_m: [1518.0, 780.0, 1519.2, 781.2]
+  height_m: 2.6
+- id: oh_sq_wall_033
+  box_m: [1518.0, 782.4, 1519.2, 783.6]
+  height_m: 2.6
+- id: oh_sq_wall_034
+  box_m: [1518.0, 784.8, 1519.2, 786.0]
+  height_m: 2.6
+- id: oh_sq_wall_035
+  box_m: [1518.0, 787.2, 1519.2, 788.4]
+  height_m: 2.6
+- id: oh_sq_wall_036
+  box_m: [1518.0, 789.6, 1519.2, 790.8]
+  height_m: 2.6
+- id: oh_sq_wall_037
+  box_m: [1518.0, 792.0, 1519.2, 793.2]
+  height_m: 2.6
+- id: oh_sq_wall_038
+  box_m: [1518.0, 794.4, 1519.2, 795.6]
+  height_m: 2.6
+- id: oh_sq_wall_039
+  box_m: [1518.0, 796.8, 1519.2, 798.0]
+  height_m: 2.6
+- id: oh_sq_wall_040
+  box_m: [1518.0, 799.2, 1519.2, 800.4]
+  height_m: 2.6
+- id: oh_sq_wall_041
+  box_m: [1718.0, 752.0, 1719.2, 753.2]
+  height_m: 2.6
+- id: oh_sq_wall_042
+  box_m: [1718.0, 754.4, 1719.2, 755.6]
+  height_m: 2.6
+- id: oh_sq_wall_043
+  box_m: [1718.0, 756.8, 1719.2, 758.0]
+  height_m: 2.6
+- id: oh_sq_wall_044
+  box_m: [1718.0, 759.2, 1719.2, 760.4]
+  height_m: 2.6
+- id: oh_sq_wall_045
+  box_m: [1718.0, 761.6, 1719.2, 762.8]
+  height_m: 2.6
+- id: oh_sq_wall_046
+  box_m: [1718.0, 764.0, 1719.2, 765.2]
+  height_m: 2.6
+- id: oh_sq_wall_047
+  box_m: [1718.0, 766.4, 1719.2, 767.6]
+  height_m: 2.6
+- id: oh_sq_wall_048
+  box_m: [1718.0, 768.8, 1719.2, 770.0]
+  height_m: 2.6
+- id: oh_sq_wall_049
+  box_m: [1718.0, 771.2, 1719.2, 772.4]
+  height_m: 2.6
+- id: oh_sq_wall_050
+  box_m: [1718.0, 780.0, 1719.2, 781.2]
+  height_m: 2.6
+- id: oh_sq_wall_051
+  box_m: [1718.0, 782.4, 1719.2, 783.6]
+  height_m: 2.6
+- id: oh_sq_wall_052
+  box_m: [1718.0, 784.8, 1719.2, 786.0]
+  height_m: 2.6
+- id: oh_sq_wall_053
+  box_m: [1718.0, 787.2, 1719.2, 788.4]
+  height_m: 2.6
+- id: oh_sq_wall_054
+  box_m: [1718.0, 789.6, 1719.2, 790.8]
+  height_m: 2.6
+- id: oh_sq_wall_055
+  box_m: [1718.0, 792.0, 1719.2, 793.2]
+  height_m: 2.6
+- id: oh_sq_wall_056
+  box_m: [1718.0, 794.4, 1719.2, 795.6]
+  height_m: 2.6
+- id: oh_sq_wall_057
+  box_m: [1718.0, 796.8, 1719.2, 798.0]
+  height_m: 2.6
 - id: oh_mkt_000_side
   box_m: [1578.3, 766.7, 1581.7, 766.9]
   height_m: 1.2

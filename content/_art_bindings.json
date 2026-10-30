@@ -15809,6 +15809,331 @@
       "model": "prop_ph_wooden_bucket_02",
       "material": "wood",
       "note": "Gate 2: goods at the stalls."
+    },
+    "oh_sq_north_000": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_001": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_002": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_003": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_004": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_005": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_006": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_007": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_008": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_009": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_010": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_011": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_012": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_013": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_014": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_015": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_016": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_north_017": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's north side."
+    },
+    "oh_sq_south_018": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's south side."
+    },
+    "oh_sq_south_019": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's south side."
+    },
+    "oh_sq_south_020": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's south side."
+    },
+    "oh_sq_south_021": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "note": "Gate 2: the square's south side."
+    },
+    "oh_sq_south_022": {
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
+      "note": "Gate 2: the square's south side."
+    },
+    "oh_sq_wall_023": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_024": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_025": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_026": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_027": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_028": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_029": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_030": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_031": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_032": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_033": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_034": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_035": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_036": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_037": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_038": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_039": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_040": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_041": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_042": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_043": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_044": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_045": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_046": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_047": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_048": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_049": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_050": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_051": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_052": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_053": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_054": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_055": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_056": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
+    },
+    "oh_sq_wall_057": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the square's enclosure.",
+      "fit": "tile"
     }
   },
   "doors": {
