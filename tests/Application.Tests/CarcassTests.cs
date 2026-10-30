@@ -83,4 +83,26 @@ public sealed class CarcassTests
 
         Assert.Equal(before, CarcassKeys(arena.Simulation));
     }
+
+    [Fact]
+    public void EveryFaunaSpecies_LeavesTheBodyItsKindNames()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // The fauna this branch carries: each kind names a carcass, and each carcass is a two-charge node that trains skill.skinning -
+        // the hunting-to-skinning wire, asserted for the animals a hunter actually meets on the frontier.
+        foreach (var (kind, carcass) in new[]
+                 {
+                     ("creature.beast.doe", "node.carcass.deer"), ("creature.beast.buck", "node.carcass.deer"),
+                     ("creature.beast.elk", "node.carcass.elk"), ("creature.beast.moose", "node.carcass.moose"),
+                     ("creature.beast.rabbit", "node.carcass.rabbit"), ("creature.beast.red_fox", "node.carcass.red_fox"),
+                     ("creature.beast.duck", "node.carcass.duck"), ("creature.beast.crow", "node.carcass.crow"),
+                     ("creature.fish.trout", "node.carcass.trout"),
+                 })
+        {
+            Assert.Equal(carcass, session.Setup.Combat.Creatures[kind].CarcassRef);
+            Assert.Equal("skill.skinning", session.Setup.Crafting.Nodes[carcass].SkillId);
+            Assert.Equal(2, session.Setup.Crafting.Nodes[carcass].Charges);
+        }
+    }
 }
