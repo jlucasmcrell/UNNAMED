@@ -1,4 +1,4 @@
-﻿// UNNAMED Domain - lights and cover as places in a space (STEALTH.md §2.2, §2.3): the geometry of being seen
+// UNNAMED Domain - lights and cover as places in a space (STEALTH.md §2.2, §2.3): the geometry of being seen
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -38,4 +38,17 @@ public sealed record CoverVolume(string Key, string Kind, long XMm, long ZMm, lo
     /// <summary>The kinds the level kit offers (§2.3, §8.1); an authored cover must be one of them.</summary>
     public static ImmutableArray<string> Kinds { get; } = ImmutableArray.Create(
         "tall_grass", "hedge", "crate", "pillar", "shadow_alcove", "curtain", "rooftop_lip");
+
+    /// <summary>
+    /// A body laid in this is a body nobody finds (§6.3): cover that hides a standing figure entirely hides one lying still more. It is the same
+    /// geometry that hides the player, which is why hiding a body needs no rule of its own - only somewhere to put it.
+    /// </summary>
+    public bool HidesBody => BlocksSightPercent >= 100;
+
+    /// <summary>Whether a body at this point is inside it.</summary>
+    public bool Holds(long xMm, long zMm)
+    {
+        double dx = xMm - XMm, dz = zMm - ZMm;
+        return dx * dx + dz * dz <= (double)RadiusMm * RadiusMm;
+    }
 }

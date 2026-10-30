@@ -1004,6 +1004,7 @@ public sealed class Simulation
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
             ThrowCommand throwCommand => _combat.Handle(throwCommand, WorldTick),
                 TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
+            HideBodyCommand hide => _creatures.Handle(hide, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
                 CastCommand cast => _combat.Handle(cast, WorldTick),

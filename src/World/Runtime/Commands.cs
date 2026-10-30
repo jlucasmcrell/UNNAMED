@@ -37,6 +37,12 @@ public sealed record GlideCommand(EntityId Actor, bool Spread) : GameCommand(Act
 /// </summary>
 public sealed record TakedownCommand(EntityId Actor, bool NonLethal = false) : GameCommand(Actor);
 
+/// <summary>
+/// Carry a body into cover (STEALTH §6.3): the corpse is laid in the nearest cover that hides it whole, and from then on nobody walking past
+/// that ground finds it. No separate hidden flag is needed - a body in the shadow alcove is a body the same geometry hides.
+/// </summary>
+public sealed record HideBodyCommand(EntityId Actor, EntityId Target) : GameCommand(Actor);
+
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
 

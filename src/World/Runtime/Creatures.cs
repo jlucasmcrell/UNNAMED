@@ -824,6 +824,45 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// The nearest body of something that is not wildlife lying dead inside this watcher's sight (STEALTH §4.5). A dead deer is
     /// not a crime and is skipped; a dead person or wolf is, and the watcher will go to it - and search around it, which is where the killer was.
     /// </summary>
+    /// <summary>Whether a corpse was laid where nobody looks (STEALTH §6.3): inside cover that hides a standing body whole.</summary>
+    private bool BodyHidden(CreatureState corpse) =>
+        _context.Setup.LayoutFor(corpse.Site.Space).Covers.Any(cover => cover.HidesBody && cover.Holds(corpse.Body.XMm, corpse.Body.ZMm));
+
+    /// <summary>
+    /// Carry a body into cover (STEALTH §6.3). Only a corpse within reach can be taken, and only if there is a hiding place near it: the body is
+    /// laid in the nearest one, which is the whole of the mechanic - after this the ground it lies on no longer tells anyone anything.
+    /// </summary>
+    public string? Handle(HideBodyCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var body = State.Body;
+        var corpse = State.Creatures.Values.FirstOrDefault(c => c.Id == command.Target && c.Alive == false
+            && c.Condition == CreatureCondition.Corpse && c.Site.Space == State.Space
+            && Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm) <= HideReachMm);
+        if (corpse is null)
+            return "nothing within reach to carry";
+        if (BodyHidden(corpse))
+            return "it is already out of sight";
+        var covers = _context.Setup.LayoutFor(State.Space).Covers
+            .Where(cover => cover.HidesBody)
+            .Select(cover => (Cover: cover, Gap: Distance(cover.XMm, cover.ZMm, corpse.Body.XMm, corpse.Body.ZMm)))
+            .Where(c => c.Gap <= HideCarryMm)
+            .OrderBy(c => c.Gap)
+            .ToList();
+        if (covers.Count == 0)
+            return "nowhere to put it";
+        var into = covers[0].Cover;
+        var moved = corpse with { Body = corpse.Body with { XMm = into.XMm, ZMm = into.ZMm } };
+        State.SetCreature(_owner, moved);
+        _context.Events.Publish(new BodyHidden(_player, corpse.Id, corpse.Definition.Id, into.Key, tick));
+        return null;
+    }
+
+    /// <summary>How close a body must be to be picked up, and how far it is carried to the cover that hides it.</summary>
+    private const long HideReachMm = 2_000;
+    private const long HideCarryMm = 8_000;
+
     private CreatureState? CorpseInSight(CreatureState c)
     {
         var senses = c.Definition.Senses;
@@ -831,7 +870,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         double best = double.MaxValue;
         foreach (var other in State.Creatures.Values)
         {
-            if (other.Condition != CreatureCondition.Corpse || other.Id == c.Id || other.Role.Peaceful)
+            if (other.Condition != CreatureCondition.Corpse || other.Id == c.Id || other.Role.Peaceful || BodyHidden(other))
                 continue;
             if (other.Site.Space != c.Site.Space)
                 continue;
