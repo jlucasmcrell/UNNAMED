@@ -126,6 +126,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.SearchPointOf),   // where a searching creature looks next, for tests and reviews (D23 S3)
             nameof(UNNAMED.World.Runtime.Simulation.WindBearing),   // which way the air moves today, for tests and reviews (D23 S3)
             nameof(UNNAMED.World.Runtime.Simulation.IsLightDoused),   // is an authored light out, for the world view that dims it (D23 S1)
+            nameof(UNNAMED.World.Runtime.Simulation.StealthDetections),   // how many creatures have found the character, for the ghost ledger (D23 S6)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
             nameof(UNNAMED.World.Runtime.Simulation.DialogueVisited), // read-only history for unread dialogue topics
             nameof(UNNAMED.World.Runtime.Simulation.Barks),   // which of an NPC's barks hold now, for the lines said in passing
