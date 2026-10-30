@@ -79,7 +79,11 @@ public partial class ShadowSilhouette : Control
         // Ink 1 is a black shape on a dark tile; ink 0 is a washed-out figure. The alpha and the lightening move together, so a bright band is a body
         // the light has found rather than a body that has disappeared.
         float ink = Mathf.Clamp(_shadow.Ink, 0.08f, 1f);
-        var body = new Color(tint.Lerp(Colors.White, (1f - ink) * 0.7f), ink);
+        // Black to washed out (the owner's ruling): the figure is nearest black at full ink with only a trace of the people's hue, and fades toward that
+        // hue as the light finds it. Before this the base colour was the tint itself, so the "Shrouded" figure came out pale grey - the opposite of the
+        // reading - which the first HUD still showed and only the crop made obvious.
+        var washed = tint.Lerp(Colors.White, 0.25f);
+        var body = new Color(Colors.Black.Lerp(washed, Mathf.Clamp(1f - ink, 0f, 1f)), 0.45f + 0.55f * ink);
 
         // Head, then shoulders and torso, then the legs: a humanoid outline readable at forty-four pixels.
         DrawCircle(centre + new Vector2(0, -13), 5.4f, body);
