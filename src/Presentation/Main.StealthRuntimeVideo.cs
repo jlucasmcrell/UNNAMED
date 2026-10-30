@@ -21,9 +21,9 @@ public partial class Main
             ? list.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                 .Select(pair => pair.Split('=', 2))
                 .Where(pair => pair.Length == 2)
-                .Select(pair => pair[1].Split('@', 2))
-                .Where(parts => parts.Length >= 2)
-                .Select(parts => (Area: parts[0], Guard: parts[1], Portal: parts.Length > 2 ? parts[2] : (string?)null))
+                .Select(pair => (Area: pair[0], Parts: pair[1].Split('@', 2)))
+                .Where(entry => entry.Parts.Length >= 1 && entry.Parts[0].Length > 0)
+                .Select(entry => (entry.Area, Guard: entry.Parts[0], Portal: entry.Parts.Length > 1 ? entry.Parts[1] : (string?)null))
                 .ToArray()
             : new[]
             {
@@ -137,6 +137,27 @@ public partial class Main
 
         async Task Shot(string? still) => await SavedFrame(directory, frame++, still);
 
+        /// Walk the character to the watch, on the same steering a player uses: near enough to see her, and near enough that her cell is
+        /// simulated while the camera is on her.
+        async Task ApproachGuard(double metres)
+        {
+            for (int i = 0; i < 3600; i++)
+            {
+                var guard = simulation.Npcs.Where(n => n.Id == guardId && n.Space == simulation.ActiveLayout.SpaceId)
+                    .Select(n => n.Body).FirstOrDefault();
+                if (guard.XMm == 0 && guard.ZMm == 0)
+                    break;
+                var body = simulation.Player.Body;
+                double dx = guard.XMm - body.XMm, dz = guard.ZMm - body.ZMm;
+                double away = Math.Sqrt(dx * dx + dz * dz);
+                if (away <= metres * 1000)
+                    break;
+                _controller.SteerWorld(new Vector3((float)dx, 0, (float)dz).Normalized(), Domain.Spatial.Gait.Walk, _camera);
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            }
+            _controller.SteerWorld(Vector3.Zero, Domain.Spatial.Gait.Walk, _camera);
+        }
+
         async Task Hold(string phase, string words, double seconds)
         {
             caption.Text = words;
@@ -148,6 +169,9 @@ public partial class Main
                 await Shot(null);
             }
         }
+
+        // 0. Stand beside her first: what a character would do to watch a guard on her round.
+        await ApproachGuard(8);
 
         // 1. The round: she walks to the next stop and stands on it, and the feet agree with the round.
         await Hold("round", $"{label}: the watch walks her round", 16);
