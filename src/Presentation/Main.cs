@@ -707,6 +707,7 @@ public partial class Main : Node3D
         }        else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
             SizeForCapture();
+            HoldCaptureFocus();
             _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots, ScreenByName);
         }
         else if (playthrough is not null)
@@ -731,18 +732,21 @@ public partial class Main : Node3D
             // The D2 evidence pass (notes 16 and 18): walk to the stone and attune, or walk a lap of the yard in the rain, recorded by the
             // movie writer so the master audio is in the clip.
             SizeForCapture();
+            HoldCaptureFocus();
             RunD2Review(Path.GetFullPath(d2Review), OS.GetEnvironment("OTHERREACH_D2_ROUTE") is { Length: > 0 } route ? route : "waystone");
         }
         else if (_options.TryGetValue("--barrowworks-review", out string? review) && (VisualOptions.Barrowworks
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
         {
             SizeForCapture();
+            HoldCaptureFocus();
             _realtime = _flags.Contains("--realtime");
             _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review), _realtime);
         }
         else if (_options.TryGetValue("--frontier-perf", out string? frontierPerf))
         {
             SizeForCapture();
+            HoldCaptureFocus();
             Engine.MaxFps = 0;
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
             _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf),
@@ -1968,6 +1972,23 @@ public partial class Main : Node3D
     /// fits the window to the screen once it is shown (and the engine keeps <c>--resolution</c> to itself), so a second after the start
     /// the window is sized to it, and the screenshots read the whole viewport.
     /// </summary>
+    /// <summary>
+    /// <c>--capture-unfocused</c>: keep this window focused and on top for the run. A capture started from a background job
+    /// loses the foreground to whatever window is active next, and the render loop stops advancing while the window is
+    /// unfocused - the audit then waits for settle frames that never come (the "focus out at frame 0" line in its log).
+    /// </summary>
+    private void HoldCaptureFocus()
+    {
+        if (!_flags.Contains("--capture-unfocused"))
+            return;
+        GetTree().CreateTimer(0.5).Timeout += () =>
+        {
+            DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.AlwaysOnTop, true);
+            GetWindow().GrabFocus();
+            GD.Print($"UNNAMED capture: holding the window focused and on top ({DisplayServer.WindowGetSize().X} x {DisplayServer.WindowGetSize().Y})");
+        };
+    }
+
     private void SizeForCapture()
     {
         if (_options.GetValueOrDefault("--capture-size")?.Split('x') is not [var w, var h] || !int.TryParse(w, out int width) || !int.TryParse(h, out int height))
@@ -1998,7 +2019,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-actions" or "--shot-beat" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
+                    or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--enter" or "--settle" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
