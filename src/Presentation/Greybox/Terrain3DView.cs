@@ -275,8 +275,13 @@ public static class Terrain3DView
         data.Call("import_images", new Godot.Collections.Array { height, control, colour }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {regions}x{regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
-        int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
-        GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        // The ravine and the south cliff are the frontier's own edges. Another region's edge is sea or headland, and the
+        // cliff shells hung in the sky over the Steps' quay (B-022), so only the frontier is dressed with them.
+        if (regionId is null or "region.starting_frontier")
+        {
+            int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
+            GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        }
         if (DenGorge.On(ground.Region))
         {
             int gorge = DenGorge.Dress(parent, art, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
