@@ -1,4 +1,4 @@
-// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -541,6 +541,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
     public string? Handle(RaiseNoise command, long tick)
     {
         Sound(command.Noise);
+        // A sound the character made where the character stands is theirs, and it stays on the ring for two seconds (STEALTH §2.7): a shot at the
+        // bow's own radius, a swing at the blade's. A stone thrown down a corridor is not this, because it was not made where they stand.
+        var body = State.Body;
+        double from = Math.Sqrt(Math.Pow(command.Noise.XMm - body.XMm, 2) + Math.Pow(command.Noise.ZMm - body.ZMm, 2));
+        if (command.Noise.RadiusMm > 0 && from <= 2_000)
+        {
+            _echoMm = command.Noise.RadiusMm;
+            _echoUntilTick = tick + 40;
+        }
         return null;
     }
 
@@ -609,6 +618,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
             radius = Math.Max(1, (long)Math.Round(radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface), MidpointRounding.AwayFromZero));
         if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
             radius = Math.Max(radius, Ranged(combat.Action) ? ShotNoiseMm() : SwingNoise());
+        // A sound is heard for a moment after it is made: a ring that forgot a shot the same tick it was loosed would be telling the player nothing.
+        if (State.WorldTick <= _echoUntilTick)
+            radius = Math.Max(radius, _echoMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
@@ -639,6 +651,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// awareness factor is asked for by every body that can see the character, and offline catch-up ticks thousands of them.
     /// </summary>
     private int _stealthLevel;
+
+    /// <summary>The last loud thing the character did and when it stops showing (STEALTH §2.7). Volatile - a save does not need it.</summary>
+    private long _echoMm;
+    private long _echoUntilTick;
 
     /// <summary>Which way the air moves today (STEALTH 4.6): derived from the world seed and the day, so no state is saved for it.</summary>
     private long WindBearing => WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 57_600));
