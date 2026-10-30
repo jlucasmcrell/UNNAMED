@@ -52,6 +52,9 @@ public partial class ShadowSilhouette : Control
     {
         if (_mode == StealthHudMode.Minimal)
             return;
+        // A black figure on a black night needs something to be black against (the owner's ruling is a shadow, and a shadow needs a lit ground):
+        // a dim plate behind the figure, dark enough not to shout and light enough that the silhouette's edge reads at a glance.
+        DrawRect(new Rect2(0, 0, Tile + 2, 58), new Color(0.10f, 0.11f, 0.13f, 0.78f));
         var font = GetThemeDefaultFont();
         var centre = new Vector2(Tile / 2 + 4, 30);
         var tint = Tint(ShadowModel.Tint(_shadow.People));
@@ -111,7 +114,7 @@ public partial class ShadowSilhouette : Control
 
         // Every band keeps an edge, faint when the figure is black and stronger when it is washed out: a silhouette drawn in black on a night scene is
         // the point of the Shrouded band, but a player still has to see that it is there.
-        DrawArc(centre + new Vector2(0, -13), 5.4f, 0, Mathf.Tau, 18, new Color(tint, ink > 0.8f ? 0.35f : 0.9f), 1.2f, true);
+        DrawArc(centre + new Vector2(0, -13), 5.4f, 0, Mathf.Tau, 18, new Color(tint, ink > 0.8f ? 0.75f : 0.95f), 1.6f, true);
     }
 
     /// <summary>
