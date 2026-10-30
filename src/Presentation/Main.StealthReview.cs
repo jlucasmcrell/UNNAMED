@@ -351,10 +351,12 @@ public partial class Main
             // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
             if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
             {
-                // A watchman on a post is the better subject than a wandering animal: it stays where it stands, it answers a noise, and a person hunting a
-                // sound is what these two phases are about. A wolf is the second choice because it will walk away from an approach.
+                // What the world calls a hunter is not one role string: the roads spawn wolves as roamer, stray and hunter, and only some roles answer a noise.
+                // So the subject is chosen by the RULE - a role that answers a call, or a watchman on a post - rather than by a name I guessed at.
+                bool AnswersNoise(CreatureView c) =>
+                    c.RoleId == "sentinel" || (sim.Setup.Combat.Roles.TryGetValue(c.RoleId, out var role) && role.AnswersCalls);
                 var hunter = sim.Creatures
-                    .Where(c => c.Alive && !c.Asleep && (c.RoleId == "sentinel" || c.RoleId == "pack_hunter"))
+                    .Where(c => c.Alive && !c.Asleep && AnswersNoise(c))
                     .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
                     .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
@@ -367,7 +369,7 @@ public partial class Main
                 }
                 var watched = sim.Creatures
                     .Where(c => c.Alive && !c.Asleep)
-                    .OrderBy(c => c.RoleId == "pack_hunter" ? 0 : 1)
+                    .OrderBy(c => AnswersNoise(c) ? 0 : 1)
                     .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
                 int before = watched?.Awareness ?? 0;
