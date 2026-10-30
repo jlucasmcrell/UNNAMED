@@ -1122,6 +1122,14 @@ public partial class Main : Node3D
         _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes,
             cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades");
         AddChild(_scatter);
+        // The boulder question needs a number, not a guess: these instance transforms are the only scenery nothing else reports on.
+        if (_ground is { } scatterGround)
+        {
+            // Chunks are placed as the camera asks for them, so the probe runs two seconds in rather than at load, where it counted nothing.
+            var probe = new Godot.Timer { Name = "SceneryProbe", OneShot = true, WaitTime = 2.0, Autostart = true };
+            probe.Timeout += () => SceneryProbe.ReportInstances(_scatter, (x, z) => Terrain3DView.SceneryHeight(scatterGround, x, z), "scatter");
+            AddChild(probe);
+        }
         _loading?.Stage("Dressing the player", 0.66);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;
         GD.Print(MHCharacters.MetaHumanFigure.Available
