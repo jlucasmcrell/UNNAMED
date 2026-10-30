@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -93,15 +93,49 @@ public partial class Main
                 creatures = _session.Simulation!.Creatures.Select(c => new { c.DefId, mind = c.Mind.ToString(), c.Awareness, c.Knows }),
             }) + System.Environment.NewLine);
 
-        // The route's own camera caption strip: what a reviewer reads in the video without a title card beside it.
+        // The route's own camera caption strip: what a reviewer reads in the video without a title card beside it, low on the left where the HUD
+        // does not sit (the sheet's own top-left corner is the character's name and the light gem).
         var layer = new CanvasLayer { Layer = 100 };
-        var caption = new Label { Position = new Vector2(26, 24) };
+        var caption = new Label { Position = new Vector2(26, 470) };
         caption.AddThemeFontSizeOverride("font_size", 22);
         caption.AddThemeConstantOverride("outline_size", 8);
         layer.AddChild(caption);
         AddChild(layer);
 
+        // A camera of the route's own, behind and over the character's shoulder: the game's camera is free while a harness drives, and a route shot
+        // of the sky proves nothing about what the player can see. It takes the game camera's environment and cull mask so the scene looks the same.
+        var source = _camera.Camera;
+        var routeCamera = new Camera3D
+        {
+            Fov = 70,
+            Near = source.Near,
+            Far = source.Far,
+            CullMask = source.CullMask,
+            Environment = source.Environment,
+        };
+        AddChild(routeCamera);
+        routeCamera.MakeCurrent();
+
+        /// Put the camera behind the character, looking where they face, at eye height plus a little.
+        void Follow()
+        {
+            var body = _session.Simulation!.Player.Body;
+            double facing = body.FacingMdeg / 1000.0 * Math.PI / 180;
+            var eye = new Vector3(body.XMm / 1000f, body.YMm / 1000f + 1.7f, body.ZMm / 1000f);
+            var back = new Vector3((float)Math.Sin(facing), 0, (float)Math.Cos(facing));
+            routeCamera.GlobalPosition = eye - back * 3.6f + new Vector3(0, 0.9f, 0);
+            routeCamera.LookAt(eye + back * 6f, Vector3.Up);
+        }
+        Follow();
+
         async Task Wait(double seconds) => await Rcd3Wait(seconds);
+
+        // The camera follows the body each captured frame, so the route never films the sky.
+        async Task Shot(string? stillName)
+        {
+            Follow();
+            await SavedFrame(directory, frame++, stillName);
+        }
 
         /// One beat: hold the shot, say what it is, and keep the frame ticker running for the whole time it lasts.
         async Task Beat(string phase, string words, double seconds, bool still = true)
@@ -111,13 +145,13 @@ public partial class Main
             Captions();
             Mark(phase, words, sim.WorldTick);
             if (still)
-                await SavedFrame(directory, frame++, $"{frame:0000}_{phase}");
+                await Shot($"{frame:0000}_{phase}");
             ulong until = Time.GetTicksMsec() + (ulong)Math.Ceiling(seconds * 1000);
             while (Time.GetTicksMsec() < until)
             {
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
-                    await SavedFrame(directory, frame++, null);
+                    await Shot(null);
             }
         }
 
@@ -138,7 +172,7 @@ public partial class Main
                 _controller.SteerWorld(toward, gap > 13_000 ? Gait.Run : Gait.Walk, _camera);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
-                    await SavedFrame(directory, frame++, null);
+                    await Shot(null);
             }
             _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
         }
@@ -152,7 +186,7 @@ public partial class Main
                 _controller.SteerWorld(toward.Length() > .1f ? toward.Normalized() : Vector3.Zero, gait, _camera);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
-                    await SavedFrame(directory, frame++, null);
+                    await Shot(null);
             }
             _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
         }
