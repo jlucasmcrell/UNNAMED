@@ -38,6 +38,12 @@ public sealed record QuestDefinition(
     public bool OnNewGame { get; init; }
 
     /// <summary>
+    /// A quest that pays for the way through without a kill (<c>non_lethal</c>, STEALTH.md 9): the flag HOOK.STEALTH.NONLETHAL was
+    /// waiting on. It changes no objective - it says what the quest rewards, so a stealth run and a quest can agree.
+    /// </summary>
+    public bool NonLethal { get; init; }
+
+    /// <summary>
     /// A bounty anyone may take (<c>competitive</c>): the first actor to finish it - the character or another - claims it, and it is
     /// closed to everyone else until it is posted again.
     /// </summary>

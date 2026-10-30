@@ -154,12 +154,12 @@ hooks:
   - { id: HOOK.STEALTH.POST, class: npc, scope: area, skills: [skill.stealth, skill.social], evidence: {any_field: {section: npcs, field: npc_ref}}, min: {town: 1, dungeon: 1, road: 1} }
   - { id: HOOK.STEALTH.DISGUISE, class: placeable, scope: area, skills: [skill.stealth, skill.social], evidence: {field_equals: {section: routes, field: kind, equals: disguise}}, min: {town: 1} }
   - { id: HOOK.STEALTH.SURFACE, class: placeable, scope: area, skills: [skill.stealth], evidence: {any_field: {section: walkable_surfaces, field: id}}, min: {town: 1, dungeon: 1, road: 1} }
-  - { id: HOOK.STEALTH.PATROL, class: npc, scope: area, skills: [skill.stealth, skill.tactics], evidence: {unmodelled: {why: "a region holds NPC posts but no patrol path with a period and a blind spot window"}}, min: {town: 1, dungeon: 1} }
-  - { id: HOOK.STEALTH.WIND, class: placeable, scope: area, skills: [skill.marksmanship, skill.bow], evidence: {unmodelled: {why: "weather is a world system, not a region section with a wind vector region"}}, min: {wilderness: 1, road: 1} }
-  - { id: HOOK.STEALTH.DOG, class: enemy, scope: area, skills: [skill.stealth, skill.hunting], evidence: {unmodelled: {why: "no kennel or handler content in the regions yet"}}, min: {dungeon: 1} }
+  - { id: HOOK.STEALTH.PATROL, class: npc, scope: area, skills: [skill.stealth, skill.tactics], evidence: {any_field: {section: patrols, field: period_s}}, min: {town: 1, dungeon: 1} }
+  - { id: HOOK.STEALTH.WIND, class: placeable, scope: area, skills: [skill.marksmanship, skill.bow], evidence: {any_field: {section: winds, field: vector_deg}}, min: {wilderness: 1, road: 1} }
+  - { id: HOOK.STEALTH.DOG, class: enemy, scope: area, skills: [skill.stealth, skill.hunting], evidence: {any_field: {section: kennels, field: handler_ref}}, min: {dungeon: 1} }
   - { id: HOOK.STEALTH.THROWABLE, class: item, scope: area, skills: [skill.thrown], evidence: {any_field: {section: nodes, field: node_ref}}, min: {town: 1, dungeon: 1} }
   - { id: HOOK.STEALTH.SIGN, class: placeable, scope: area, skills: [skill.stealth, skill.survival], evidence: {unmodelled: {why: "evidence props (footprints, blood, torn cloth) are created by the tracking system at runtime"}}, min: {} }
-  - { id: HOOK.STEALTH.NONLETHAL, class: placeable, scope: area, skills: [skill.stealth], evidence: {unmodelled: {why: "the quest schema holds objectives but not a non-lethal flavour flag yet; S6 adds the ghost tags, not the flag"}}, min: {town: 1} }
+  - { id: HOOK.STEALTH.NONLETHAL, class: placeable, scope: area, skills: [skill.stealth], evidence: {any_field: {section: capture_sites, field: holding_ref}}, min: {town: 1} }
 
   # ---------------------------------------------------------------------------------------------
   # MINING, PROSPECTING, AND THE UNDERGROUND â€” skill.mining, skill.prospecting, skill.excavation

@@ -711,6 +711,7 @@ public static class WorldContent
                 Roads = roads.ToImmutable(),
                 Lights = Lights(map, minX, minZ, maxX, maxZ, Check),
                 Covers = Covers(map, minX, minZ, maxX, maxZ, Check),
+                Placements = StealthPlacements(map, minX, minZ, maxX, maxZ, Check),
                 Surfaces = GroundSurfaces(map, minX, minZ, maxX, maxZ, Check),
                 Opening = opening,
             };
@@ -843,6 +844,74 @@ public static class WorldContent
         if (routes.Select(r => r.Key).Distinct(StringComparer.Ordinal).Count() != routes.Count)
             throw new FormatException("two routes share a key");
         return routes.ToImmutable();
+    }
+
+    /// <summary>
+    /// The four region sections stealth content talks to (STEALTH.md 8.2, 10): the <c>patrols</c> a route is built around, the
+    /// <c>winds</c> a shot and a scent are read against, the <c>kennels</c> (a dog and the person who works it) and the
+    /// <c>capture_sites</c> a non-lethal run leaves a living body in. Each is a plain list of positions: read here so a mistake is a
+    /// lint error rather than a silent absence, which is what these four hooks were until they had a schema.
+    /// </summary>
+    private static ImmutableArray<StealthPlacement> StealthPlacements(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ,
+        Action<bool, string, string> check)
+    {
+        var placements = ImmutableArray.CreateBuilder<StealthPlacement>();
+
+        foreach (var (entry, i) in (map.ContainsKey("patrols") ? List(map, "patrols") : new List<object>()).Select((p, i) => (p, i)))
+        {
+            var patrol = entry as Dictionary<object, object> ?? throw new FormatException($"patrols[{i}] must be a map");
+            var (x, z) = Pair(patrol, "position_m");
+            string key = Text(patrol, "key");
+            int period = Int(patrol, "period_s"), blind = Int(patrol, "blind_spot_s");
+            int stops = List(patrol, "stops_m").Count;
+            check(key.StartsWith("patrol.", StringComparison.Ordinal), "WLD018", $"patrol key '{key}' must start with 'patrol.'");
+            check(period is >= 30 and <= 600, "WLD018", $"{key}: period_s is 30..600");
+            check(blind >= 0 && blind < period, "WLD018", $"{key}: blind_spot_s must be shorter than the period");
+            check(stops >= 2, "WLD018", $"{key} needs at least two stops");
+            check(x >= minX && x <= maxX && z >= minZ && z <= maxZ, "WLD018", $"{key} stands outside the walkable bounds");
+            placements.Add(new StealthPlacement("patrols", key, x, z));
+        }
+
+        foreach (var (entry, i) in (map.ContainsKey("winds") ? List(map, "winds") : new List<object>()).Select((w, i) => (w, i)))
+        {
+            var wind = entry as Dictionary<object, object> ?? throw new FormatException($"winds[{i}] must be a map");
+            var (x, z) = Pair(wind, "position_m");
+            string key = Text(wind, "key");
+            double vector = Number(wind, "vector_deg"), strength = Number(wind, "strength_mps");
+            check(key.StartsWith("wind.", StringComparison.Ordinal), "WLD019", $"wind key '{key}' must start with 'wind.'");
+            check(vector is >= 0 and < 360, "WLD019", $"{key}: vector_deg is 0..359, clockwise from north");
+            check(strength is > 0 and <= 30, "WLD019", $"{key}: strength_mps is over 0 and at most 30");
+            check(x >= minX && x <= maxX && z >= minZ && z <= maxZ, "WLD019", $"{key} lies outside the walkable bounds");
+            placements.Add(new StealthPlacement("winds", key, x, z));
+        }
+
+        foreach (var (entry, i) in (map.ContainsKey("kennels") ? List(map, "kennels") : new List<object>()).Select((k, i) => (k, i)))
+        {
+            var kennel = entry as Dictionary<object, object> ?? throw new FormatException($"kennels[{i}] must be a map");
+            var (x, z) = Pair(kennel, "position_m");
+            string key = Text(kennel, "key"), handler = Text(kennel, "handler_ref"), dog = Text(kennel, "dog_ref");
+            check(key.StartsWith("kennel.", StringComparison.Ordinal), "WLD020", $"kennel key '{key}' must start with 'kennel.'");
+            check(handler.Length > 0, "WLD020", $"{key} needs a handler_ref: a dog with no handler is a wolf");
+            check(dog.Length > 0, "WLD020", $"{key} needs a dog_ref");
+            check(x >= minX && x <= maxX && z >= minZ && z <= maxZ, "WLD020", $"{key} stands outside the walkable bounds");
+            placements.Add(new StealthPlacement("kennels", key, x, z));
+        }
+
+        foreach (var (entry, i) in (map.ContainsKey("capture_sites") ? List(map, "capture_sites") : new List<object>()).Select((c, i) => (c, i)))
+        {
+            var site = entry as Dictionary<object, object> ?? throw new FormatException($"capture_sites[{i}] must be a map");
+            var (x, z) = Pair(site, "position_m");
+            string key = Text(site, "key"), holding = Text(site, "holding_ref");
+            check(key.StartsWith("capture.", StringComparison.Ordinal), "WLD021", $"capture site key '{key}' must start with 'capture.'");
+            check(holding.Length > 0, "WLD021", $"{key} needs a holding_ref: the place a body is left alive");
+            check(Int(site, "holds") >= 1, "WLD021", $"{key} holds at least one body");
+            check(x >= minX && x <= maxX && z >= minZ && z <= maxZ, "WLD021", $"{key} lies outside the walkable bounds");
+            placements.Add(new StealthPlacement("capture_sites", key, x, z));
+        }
+
+        check(placements.Select(p => p.Key).Distinct(StringComparer.Ordinal).Count() == placements.Count, "WLD018",
+            "two stealth placements share a key");
+        return placements.ToImmutable();
     }
 
     private static ImmutableArray<CoverVolume> Covers(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ, Action<bool, string, string> check)

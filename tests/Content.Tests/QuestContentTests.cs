@@ -90,7 +90,7 @@ public class QuestContentTests
             quest.Order.Select(o => o.Condition.Type));
         Assert.DoesNotContain(quest.Order, o => o.Condition is KillCreature);
         // The seam is finite: what the ore is made into counts as the ore obtained, and a spear as the billet (the audit's C-01).
-        Assert.Equal(new[] { "item.material.iron_ingot", "item.weapon.march_spear" }, Assert.IsType<AcquireItem>(quest.Objectives["o_ore"].Condition).OrItems);
+        Assert.Equal(new[] { "item.armor.lame_coif", "item.armor.lame_sabatons", "item.armor.lamework_jack", "item.material.iron_ingot", "item.weapon.march_spear", "item.weapon.rusted_sword" }, Assert.IsType<AcquireItem>(quest.Objectives["o_ore"].Condition).OrItems);
         Assert.Equal(new[] { "item.weapon.march_spear" }, Assert.IsType<AcquireItem>(quest.Objectives["o_billet"].Condition).OrItems);
         Assert.Empty(Assert.IsType<AcquireItem>(quest.Objectives["o_spear"].Condition).OrItems);
         // A straight line, and the last step - showing Kera the spear - ends it.
@@ -161,7 +161,7 @@ public class QuestContentTests
 
     [Fact]
     public void AFiniteItemARecipeConsumes_MustAlsoCountWhatItIsMadeInto() =>
-        Assert.Contains(ErrorsWith(Quest1, "params: { item_ref: item.material.iron_ore, or_item_refs: [item.material.iron_ingot, item.weapon.march_spear], count: 1 }",
+        Assert.Contains(ErrorsWith(Quest1, "params: { item_ref: item.material.iron_ore, or_item_refs: [item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword], count: 1 }",
                 "params: { item_ref: item.material.iron_ore, count: 1 }", FiniteSpoil),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ore, and recipe.smithing.iron_billet makes it into item.material.iron_ingot",
                 StringComparison.Ordinal));
@@ -169,8 +169,8 @@ public class QuestContentTests
     [Fact]
     public void WhatTheItemIsMadeInto_MustBeCountedAllTheWayDown() =>
         // Count the new armour routes so this deliberately missing route is still the March Spear.
-        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
-                "or_item_refs: [item.material.iron_ingot, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]", FiniteSpoil,
+        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword]",
+                "or_item_refs: [item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.rusted_sword]", FiniteSpoil,
                 ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none"),
                 ("spawns/field/breach_west.yaml", "kind: timer", "kind: none"), ("spawns/field/breach_northeast.yaml", "kind: timer", "kind: none"),
                 ("spawns/field/breach_south.yaml", "kind: timer", "kind: none")),
@@ -189,8 +189,8 @@ public class QuestContentTests
 
     [Fact]
     public void OrItemRefs_NamesEachItemOnce_AndNotTheItemItself() =>
-        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
-                "or_item_refs: [item.material.iron_ore, item.material.iron_ingot, item.weapon.march_spear]"),
+        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword]",
+                "or_item_refs: [item.material.iron_ore, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword]"),
             e => e.Code == "QST001" && e.Message.Contains("or_item_refs names each item once, and not the item_ref itself", StringComparison.Ordinal));
 
     [Fact]
@@ -302,7 +302,8 @@ public class QuestContentTests
             q => Assert.Equal(QuestTrack.Side, q.Track));
         // The opening (WP2) is the one quest every new character starts, beside their people's heritage questline (owner, 2026-10-24). The hunting bounties are competitive (WP13): an adventurer may
         // finish one first; the gathering and smithing ones are the character's alone.
-        Assert.Equal(new[] { "quest.heritage.unfinished_joint", "quest.heritage.what_was_kept", "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
+        // The Quiet Crossing (D23 S6) joins them: it is in the journal from the first minute, not offered at a board.
+        Assert.Equal(new[] { "quest.ashen_hollow.quiet_crossing", "quest.heritage.unfinished_joint", "quest.heritage.what_was_kept", "quest.main.the_road_in" }, quests.Values.Where(q => q.OnNewGame).Select(q => q.Id));
         Assert.Equal(new[] { "quest.bounty.crag_walker", "quest.bounty.lodge_supplies", "quest.bounty.rim_road", "quest.bounty.road_wolves", "quest.bounty.winter_hides" },
             quests.Values.Where(q => q.Competitive).Select(q => q.Id).OrderBy(id => id, StringComparer.Ordinal));
     }
@@ -438,7 +439,9 @@ public class QuestContentTests
             e => e.Code == "QST001" && e.Message.Contains("has no line 'elsewhere'", StringComparison.Ordinal));
         Assert.Contains(ErrorsWith(Halda, HaldaFirst,
                 Step("defeat_creature", "{ creature_ref: creature.grazer.barrowback, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }"),
-                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn")),
+                // Both spawns that place a barrowback (the Foldscar herd and the giant's foot) are moved to another grazer.
+                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn"),
+                ("spawns/old_late/brute.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn")),
             e => e.Code == "QST001" && e.Message.Contains("no spawn places creature.grazer.barrowback", StringComparison.Ordinal));
         Assert.Contains(HaldaWith(Step("waystone_known", "{ waystone_ref: waystone.far_north }")),
             e => e.Code == "QST001" && e.Message.Contains("no region places the Waystone waystone.far_north", StringComparison.Ordinal));

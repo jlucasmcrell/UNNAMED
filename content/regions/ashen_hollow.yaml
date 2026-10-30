@@ -441,3 +441,13 @@ walkable_surfaces:
   columns: 3
   rows: 3
   heights_m: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+
+patrols:
+- key: patrol.ashen_hollow_yard
+  position_m: [60, 142]
+  npc_ref: npc.ashen_hollow.tavar_orr
+  period_s: 100
+  blind_spot_s: 26
+  stops_m: [[60, 142], [46, 126], [30, 158], [60, 142]]
+capture_sites:
+- { key: capture.ashen_hollow_lockup, position_m: [58, 140], holding_ref: location.ashen_hollow.lockup, holds: 1 }

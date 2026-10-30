@@ -1,0 +1,19 @@
+id: routine.barrowworks.watchkeeper
+kind: routine
+schema: 1
+display_key: routine.barrowworks.watchkeeper.name
+tags: [routine, barrowworks]
+notes: "D23 S6 (HOOK.STEALTH.POST/PATROL): the Barrowworks' watch. She keeps the intake board from eight to midday, walks to the archive and back through the sorting floor after that, and turns in at the back of the intake hall. The walk is the patrol the stealth routes are built around: her dark stretch is the vent and the disguise rail past her board."
+region_ref: region.barrowworks
+people_ref: people.veth
+settlement: barrowworks
+role: guard
+roles: [guard]
+work_hours: [8, 20]
+anchors:
+  home: {position_m: [52, 26], facing_deg: 90}
+  work: {position_m: [52, 30], facing_deg: 180}
+  supper: {position_m: [52, 29], facing_deg: 0}
+schedule:
+  - {hours: [6, 8], at: supper}
+  - {hours: [20, 22], at: supper}

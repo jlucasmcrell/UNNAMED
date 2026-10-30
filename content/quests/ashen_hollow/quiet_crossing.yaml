@@ -8,7 +8,8 @@ title: The Quiet Crossing
 summary: Durn wants the road walked without a body on it. Cross the frontier out of a space without killing and without being seen doing it.
 track: side
 giver_ref: npc.cairnwold.durn_skell
-on_new_game: true   # always in the journal: it is a way to travel, not an errand to be found
+on_new_game: true
+non_lethal: true   # always in the journal: it is a way to travel, not an errand to be found
 entry_objective: o_ghost
 objectives:
   - id: o_ghost

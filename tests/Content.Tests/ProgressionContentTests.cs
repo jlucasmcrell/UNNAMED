@@ -71,7 +71,7 @@ public class ProgressionContentTests : IDisposable
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
 
         Assert.Equal(
-            new[] { "skill.athletics", "skill.bow", "skill.cooking", "skill.fishing", "skill.foraging", "skill.force", "skill.handling", "skill.herbalism", "skill.hunting", "skill.lockpicking", "skill.logging", "skill.mining", "skill.one_hand_blade", "skill.polearm", "skill.prospecting", "skill.salvage", "skill.skinning", "skill.smithing", "skill.stealth", "skill.survival", "skill.thrown", "skill.vital", "skill.warding", "skill.woodworking" },
+            new[] { "skill.athletics", "skill.bow", "skill.cooking", "skill.fishing", "skill.foraging", "skill.force", "skill.handling", "skill.herbalism", "skill.hunting", "skill.lockpicking", "skill.logging", "skill.marksmanship", "skill.mining", "skill.one_hand_blade", "skill.polearm", "skill.projector", "skill.prospecting", "skill.salvage", "skill.skinning", "skill.smithing", "skill.stealth", "skill.survival", "skill.thrown", "skill.vital", "skill.warding", "skill.woodworking" },
             loader.GetByKind("skill").Keys.OrderBy(k => k, StringComparer.Ordinal));
     }
 
@@ -90,7 +90,7 @@ public class ProgressionContentTests : IDisposable
         var rules = ProgressionContent.BuildRules(Load(Path.Combine(RepoPaths.Root(), "content")));
 
         Assert.Equal(
-            new[] { "skill.bow", "skill.one_hand_blade", "skill.polearm", "skill.thrown", "skill.force", "skill.vital", "skill.warding", "skill.cooking", "skill.salvage", "skill.smithing", "skill.woodworking", "skill.fishing", "skill.foraging", "skill.herbalism", "skill.hunting", "skill.logging", "skill.mining", "skill.prospecting", "skill.skinning", "skill.athletics", "skill.handling", "skill.lockpicking", "skill.stealth", "skill.survival" },
+            new[] { "skill.bow", "skill.marksmanship", "skill.one_hand_blade", "skill.polearm", "skill.projector", "skill.thrown", "skill.force", "skill.vital", "skill.warding", "skill.cooking", "skill.salvage", "skill.smithing", "skill.woodworking", "skill.fishing", "skill.foraging", "skill.herbalism", "skill.hunting", "skill.logging", "skill.mining", "skill.prospecting", "skill.skinning", "skill.athletics", "skill.handling", "skill.lockpicking", "skill.stealth", "skill.survival" },
             rules.Roster.Select(s => s.Id));
         Assert.Equal("combat", rules.Roster[0].Family);
         Assert.Equal(new[] { (0, "Untrained"), (15, "Familiar"), (30, "Proficient"), (45, "Adept"), (60, "Expert"), (61, "Master") },

@@ -67,6 +67,11 @@ public static class ContentChecks
         ["giver_ref"] = new[] { "npc" },  // a quest's giver (§4.11): a role name, not a kind
         ["discipline"] = new[] { "skill" },   // an active technique's weapon-family skill (§4.7; WP9)
         ["companion_ref"] = new[] { "npc" },  // a personal quest's companion (WP15b): a role name, not a kind
+        // D23 S6: a kennel names the person who works it and the dog itself (HOOK.STEALTH.DOG); a capture site names the
+        // place a taken body is left alive (HOOK.STEALTH.NONLETHAL).
+        ["handler_ref"] = new[] { "npc" },
+        ["dog_ref"] = new[] { "creature" },
+        ["holding_ref"] = new[] { "location" },
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>

@@ -1,0 +1,32 @@
+id: dialogue.barrowworks.watchkeeper
+kind: dialogue
+schema: 1
+display_key: dialogue.barrowworks.watchkeeper.name
+tags: [dialogue, barrowworks]
+notes: "D23 S6: the Barrowworks' watch. She keeps the intake board, counts what goes down into the floor and what comes back up, and says plainly what the ward at the archive door does to anyone who crosses it - a warning the player can act on, not a hint."
+participants: [npc.barrowworks.watchkeeper]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Board's open, keep your hands where I can see them.\" The watchkeeper does not look up from the tally. \"Down is nine. Back up is nine. That is how I know it is a good day.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: ask_ward
+        text: "What is the thing at the archive door?"
+        next: ward
+      - id: leave
+        text: "Only looking."
+        next: goodbye
+  ward:
+    text: "\"Gauge ward. It reads a body moving, not a body standing. You want to cross it, you make a noise somewhere else first - or you carry the key and it does not care.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: leave
+        text: "Good to know."
+        next: goodbye
+  again:
+    text: "\"Still nine.\" She turns a page."
+  goodbye:
+    text: "\"Mind the floor.\""

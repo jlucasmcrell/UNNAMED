@@ -73,7 +73,8 @@ public class WorldContentTests
         Assert.Equal(14, layout.Doors.Length);   // the hollow's longhouse and forge shed, Cairnwold's ten, and Blackvein/Barrowworks
         Assert.Equal(21, layout.Locations.Length);   // Includes Old Late's owner-requested landmark, the Spill and the Stopped Gate, and the den gorge.
         Assert.Equal(45_000,layout.Locations.Single(l => l.Id == "location.old_late").DiscoveryRadiusMm);
-        Assert.Equal(3, layout.Space.WalkableSurfaces.Count()); // Den gorge, C2 upper floor and stair.
+        Assert.Equal(6, layout.Space.WalkableSurfaces.Count()); // Den gorge, C2 upper floor and stair, and the three area
+                                                    // patches D23 S6 added at the Ashen Hollow, the road and Cairnwold anchors.
         Assert.Equal(250, layout.Space.WalkableSurfaces.Single(s => s.OriginXMm == 552_250).SpacingMm);
         Assert.Contains(layout.Space.WalkableSurfaces, s => s.OriginXMm == 436_000 && s.HeightAtMm(440_000, 720_000) == 10_000);
         Assert.Contains(layout.Space.WalkableSurfaces, s => s.OriginXMm == 452_000 && s.MaxXMm == 454_000);

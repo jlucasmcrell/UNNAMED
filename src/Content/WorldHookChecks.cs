@@ -321,6 +321,8 @@ public static class WorldHookChecks
             {
                 if (TryPosition(item, out double x, out double y))
                     all.Add(new Placement(section, item, x, y));
+                else if (section == "walkable_surfaces" && TryPosition(item, "origin_m", out double surfaceX, out double surfaceZ))
+                    all.Add(new Placement(section, item, surfaceX, surfaceZ));
                 else if (section == "waters" && FirstPathPoint(item) is { } spring)
                     all.Add(new Placement(section, item, spring.X, spring.Y));
                 else if (structures.GetValueOrDefault(Scalar(item, "structure") ?? "") is { } mounted)
@@ -370,9 +372,19 @@ public static class WorldHookChecks
     private static double Distance((double X, double Y) anchor, Placement placement) =>
         Math.Sqrt(Math.Pow(anchor.X - placement.X, 2) + Math.Pow(anchor.Y - placement.Y, 2));
 
-    private static bool TryPosition(YamlMappingNode node, out double x, out double y)
+    private static bool TryPosition(YamlMappingNode node, out double x, out double y) => TryPosition(node, "position_m", out x, out y);
+
+    /// <summary>A placement's coordinates under another name: a walkable surface states its corner as <c>origin_m</c>.</summary>
+    private static bool TryPosition(YamlMappingNode node, string field, out double x, out double y)
     {
         x = y = 0;
+        if (Node(node, field) is YamlSequenceNode pair && pair.Children.Count >= 2
+            && AsNumber(pair.Children[0]) is { } first && AsNumber(pair.Children[1]) is { } second)
+        {
+            x = first;
+            y = second;
+            return true;
+        }
         if (TryCoordinates(node, out x, out y))
             return true;
         return Map(node, "at") is { } at && TryCoordinates(at, out x, out y);

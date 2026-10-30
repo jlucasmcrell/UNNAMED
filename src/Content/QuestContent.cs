@@ -28,7 +28,7 @@ public static class QuestContent
     private static readonly string[] Envelope = { "id", "kind", "schema", "display_key", "tags", "notes" };
 
     private static readonly string[] Fields =
-        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "companion_ref", "confides_at", "people_ref" };
+        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "non_lethal", "companion_ref", "confides_at", "people_ref" };
 
     /// <summary>DATA_MODEL.md §4.11's quest fields that Phase 1 does not build.</summary>
     private static readonly string[] FieldsNotBuilt =
@@ -59,6 +59,8 @@ public static class QuestContent
     /// One quest from its YAML: <c>title</c> and <c>summary</c> (inline until localization), <c>giver_ref</c>, <c>entry_objective</c>,
     /// <c>objectives</c> in authored order, <c>fail_if</c> and <c>rewards</c>. Content references resolve against the loaded content.
     /// </summary>
+    /// <summary>Quest tags that do not change what a quest asks, but what it allows (D23 S6): a non-lethal quest pays for
+    /// the way through without a kill, which is the flag HOOK.STEALTH.NONLETHAL wanted.</summary>
     public static QuestDefinition Parse(string id, string? yaml, ContentLoader loader)
     {
         var map = Read(yaml);
@@ -92,6 +94,7 @@ public static class QuestContent
             Act = map.ContainsKey("act") ? Positive(map, "act", id) : null,
             OnNewGame = Flag(map, "on_new_game", id),
             Competitive = Flag(map, "competitive", id),
+        NonLethal = Flag(map, "non_lethal", id),
             CompanionId = map.GetValueOrDefault("companion_ref") is string companion ? Companion(loader, companion, id) : null,
             ConfidesAt = map.ContainsKey("confides_at") ? (int)LongOf(map, "confides_at", id) : null,
             PeopleId = map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null,

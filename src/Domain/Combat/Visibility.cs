@@ -202,3 +202,10 @@ public sealed record StealthRouteSite(
     /// <summary>How far this route can see to a target zone: a perch is a route that looks down one (STEALTH.md 8.2).</summary>
     public long SightlineMm { get; init; }
 }
+
+/// <summary>
+/// A stealth placement a region authors that is not a route or a cover (STEALTH.md 8.2, 10): a patrol (<c>patrols</c>), a wind exposure
+/// (<c>winds</c>), a kennel with its handler (<c>kennels</c>), or a place a body can be held alive (<c>capture_sites</c>). The section
+/// it came from is kept, so the hook audit can count one kind without the others.
+/// </summary>
+public sealed record StealthPlacement(string Section, string Key, long XMm, long ZMm);

@@ -211,6 +211,13 @@ public sealed record RegionLayout(
     /// <summary>Cover volumes (STEALTH §2.3): what a body can be partly behind, and at what posture.</summary>
     public ImmutableArray<CoverVolume> Covers { get; init; } = ImmutableArray<CoverVolume>.Empty;
 
+    /// <summary>
+    /// The stealth placements a region authors besides routes and covers (STEALTH.md 8.2, 10): a patrol loop with its period and blind
+    /// spot, a wind exposure, a kennel and its handler, and the place a non-lethal run leaves a living body. They are content facts the
+    /// audit and the mission layer read; nothing in the tick drives movement from them yet.
+    /// </summary>
+    public ImmutableArray<StealthPlacement> Placements { get; init; } = ImmutableArray<StealthPlacement>.Empty;
+
     /// <summary>What the ground is made of, patch by patch (STEALTH §3.1): the one place a footfall's carry is decided by the floor.</summary>
     public ImmutableArray<SurfacePatch> Surfaces { get; init; } = ImmutableArray<SurfacePatch>.Empty;
 
