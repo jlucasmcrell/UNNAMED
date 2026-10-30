@@ -60,8 +60,10 @@ public class SessionTests
         Assert.Equal(start, simulation.Player.Body);   // queued, not applied: nothing changes outside the tick
 
         Harness.Ticks(session, 1);
-        // 3.2 m/s for one 50 ms tick is 160 mm; facing comes from the intent.
-        Assert.Equal(new Body(start.XMm, start.YMm, start.ZMm + 160, 0), simulation.Player.Body);
+        // 3.2 m/s for one 50 ms tick is 160 mm; facing comes from the intent. The start is on Ashen Hollow's creek bank, so the body
+        // keeps to the ground it moved onto rather than the height it left.
+        long z = start.ZMm + 160;
+        Assert.Equal(new Body(start.XMm, simulation.Setup.Layout.Space.HeightAtMm(start.XMm, z), z, 0), simulation.Player.Body);
     }
 
     [Theory]
