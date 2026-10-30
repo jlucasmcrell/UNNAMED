@@ -4,11 +4,11 @@ schema: 1
 display_key: spawn.ashen.ravine_fox.name
 tags: [spawn]
 notes: A dog fox on the ravine side of the hollow, working the wall for what the hares leave.
-region_ref: region.ashen_hollow
+region_ref: region.starting_frontier
 creatures:
     - { creature_ref: creature.beast.red_fox, count: [1, 1], role: wildlife }
 at:
-  position_m: [70, 30]
+  position_m: [432, 690]
   radius_m: 12
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }

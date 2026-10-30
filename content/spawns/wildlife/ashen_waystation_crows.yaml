@@ -4,11 +4,11 @@ schema: 1
 display_key: spawn.ashen.waystation_crows.name
 tags: [spawn]
 notes: Crows on the waystation - a mob that walks the roofs, the wall and the road out, and is gone the moment anyone looks up.
-region_ref: region.ashen_hollow
+region_ref: region.starting_frontier
 creatures:
     - { creature_ref: creature.beast.crow, count: [4, 4], role: wildlife }
 at:
-  position_m: [48, 150]
+  position_m: [455, 744]
   radius_m: 14
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }

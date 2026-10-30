@@ -4,12 +4,12 @@ schema: 1
 display_key: spawn.ashen.east_deer.name
 tags: [spawn]
 notes: Red deer along the eastern trees of the hollow - two hinds grazing the edge and the stag that keeps them.
-region_ref: region.ashen_hollow
+region_ref: region.starting_frontier
 creatures:
     - { creature_ref: creature.beast.doe, count: [2, 2], role: herd_shy }
     - { creature_ref: creature.beast.buck, count: [1, 1], role: skittish }
 at:
-  position_m: [160, 110]
+  position_m: [560, 664]
   radius_m: 8
 level_band: [1, 2]
 respawn: { kind: timer, window_ticks: 36000 }
