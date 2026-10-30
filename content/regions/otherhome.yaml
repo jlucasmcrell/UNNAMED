@@ -50742,7 +50742,7 @@ terrain:
     - 42.56
 structures:
 - id: oh_stall_2_thatch
-  box_m: [1679.0, 765.0, 1685.0, 769.0]
+  box_m: [1677.7, 763.6, 1686.3, 770.4]
   height_m: 2.9
 - id: oh_stall_2_hurdle_5
   box_m: [1683.1, 768.4, 1684.5, 768.5]
@@ -50763,7 +50763,7 @@ structures:
   box_m: [1679.5, 765.8, 1680.9, 765.9]
   height_m: 1.2
 - id: oh_stall_1_thatch
-  box_m: [1649.0, 765.0, 1655.0, 769.0]
+  box_m: [1647.7, 763.6, 1656.3, 770.4]
   height_m: 2.9
 - id: oh_stall_1_hurdle_5
   box_m: [1653.1, 768.4, 1654.5, 768.5]
@@ -50784,7 +50784,7 @@ structures:
   box_m: [1649.5, 765.8, 1650.9, 765.9]
   height_m: 1.2
 - id: oh_stall_0_thatch
-  box_m: [1619.0, 765.0, 1625.0, 769.0]
+  box_m: [1617.7, 763.6, 1626.3, 770.4]
   height_m: 2.9
 - id: oh_stall_0_hurdle_5
   box_m: [1623.1, 768.4, 1624.5, 768.5]
