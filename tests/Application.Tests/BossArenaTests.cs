@@ -81,6 +81,20 @@ public class BossArenaTests
     }
 
     [Fact]
+    public void TheNextThree_HaveTheirCourts_AndTheirBands()
+    {
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, "region.starting_frontier");
+        // canon/BOSSES.md 3.1: Old Grey on the Old East Road, the Unpaid in Cairnwold's moss, the Gate Warden's deeper court.
+        AssertInsideItsArena(Find(session, "spawn.boss.the_road.old_grey"));
+        AssertInsideItsArena(Find(session, "spawn.boss.cairnwold.the_unpaid"));
+        var warden = Find(session, "spawn.boss.field_ruins.gate_warden.deep");
+        AssertInsideItsArena(warden);
+        // DUNGEON END: the deep court keeps its kill.
+        Assert.Equal(0L, session.Setup.Combat.Spawns.Single(s => s.Key == warden.Key).RespawnTicks);
+    }
+
+    [Fact]
     public void TheRopeCave_HoldsTheMatriarch()
     {
         using var profile = new TempProfile();

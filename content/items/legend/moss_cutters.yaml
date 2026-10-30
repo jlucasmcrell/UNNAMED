@@ -1,0 +1,12 @@
+id: item.legend.moss_cutters
+kind: item
+schema: 1
+display_key: item.legend.moss_cutters.name
+tags: [item, legendary]
+name: The Moss Cutters
+notes: "D19 (canon/BOSSES.md 6): the Unpaid's drop - the shears Cairnwold's own moss-cutters use on the Sinking Moss, which is the ground the bull makes a weapon in phase two. They cut peat, rope and the hide of anything that stands in the bog."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 2.0
+value_base: 260

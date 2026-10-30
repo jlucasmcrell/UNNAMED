@@ -14,10 +14,10 @@ creatures:
   role: sentinel
 at:
   position_m:
-  - 551.0
-  - 643.0
+  - 541.0
+  - 636.0
   radius_m: 18
 level_band:
 - 6
 - 6
-encounter_recovery: { min_x_m: 538, min_z_m: 626, max_x_m: 558, max_z_m: 646, safe_x_m: 548, safe_z_m: 650 }
+encounter_recovery: { min_x_m: 531, min_z_m: 626, max_x_m: 551, max_z_m: 646, safe_x_m: 541, safe_z_m: 650 }
