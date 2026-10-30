@@ -1,4 +1,4 @@
-// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
+﻿// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
 // behaviour roles, skill passives and item uses (DATA_MODEL.md Â§4.4, Â§4.7, Â§4.8, Â§4.17, Â§4.19, Â§4.21; PROTOTYPE.md Â§4.1,
 // Â§4.4; M3c, M3d)
 // No Godot references - pure C#
@@ -523,6 +523,7 @@ public static class CombatContent
             Mm(perception, "hearing_m"))
         {
             NightSight = perception.GetValueOrDefault("night_sight") as string == "true",
+            ScentMm = map.ContainsKey("scent_m") ? Mm(map, "scent_m") : 0,
         };
         if (senses.SightMm < 0 || senses.HearingMm < 0 || senses.FieldOfViewMdeg is <= 0 or > 360_000)
             throw new FormatException($"{id}: perception needs non-negative ranges and a field of view in (0, 360]");

@@ -630,6 +630,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// </summary>
     private int _stealthLevel;
 
+    /// <summary>Which way the air moves today (STEALTH 4.6): derived from the world seed and the day, so no state is saved for it.</summary>
+    private long WindBearing => WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 57_600));
+
+
+
     private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel);
 
     private double StealthAwarenessFactor() => StealthRules.AwarenessFactor(_stealthLevel);
@@ -813,6 +818,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 KnownZMm = body.Body.ZMm,
                 // It is already evidence, not a sound to be weighed: the watch goes alert at once and walks to it.
                 Mind = next.Mind is CreatureMind.Unaware or CreatureMind.Returning ? CreatureMind.Suspicious : next.Mind,
+            };
+        }
+        // The wind (STEALTH 4.6): a nose is the counter to the dark, the grass and the crouch. It gives a place to go, never a sighting - the animal
+        // walks to where the smell is thickest, which is where the character was, and that is the pursuit the stealth player has to break.
+        if (!asleep && target && !drawn && senses.ScentMm > 0 && next.Mind != CreatureMind.Engaged
+            && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= senses.ScentMm
+            && ScentRules.Carries(WindBearing, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
+            && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm))
+        {
+            next = next with
+            {
+                Awareness = Math.Max(next.Awareness, rules.HeardNoise),
+                Knows = true,
+                KnownXMm = player.XMm,
+                KnownZMm = player.ZMm,
             };
         }
         if (pounce && target)

@@ -1,4 +1,4 @@
-// UNNAMED Domain - perception, and the behaviour roles creatures play (STEALTH_DETECTION_AND_THREAT.md §1-§5, §16;
+﻿// UNNAMED Domain - perception, and the behaviour roles creatures play (STEALTH_DETECTION_AND_THREAT.md §1-§5, §16;
 // SYSTEMS.md S-23; M3d)
 // No Godot references - pure C#
 
@@ -14,6 +14,12 @@ public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm)
     /// spider read a dark room; a person does not, which is the whole of a stealth player's night.
     /// </summary>
     public bool NightSight { get; init; }
+
+    /// <summary>
+    /// How far it can smell the character downwind (STEALTH 4.6; <c>scent_m</c>): zero for a person, a long way for a wolf or a spider. A nose
+    /// ignores the dark, the grass and the crouch, and it gives a place to go rather than a sighting.
+    /// </summary>
+    public long ScentMm { get; init; }
 }
 
 /// <summary>
