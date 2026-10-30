@@ -57652,7 +57652,17 @@ stations:
 - key: station.oh_harbour_forge
   kind: forge
   position_m: [1532.0, 765.0]
-containers: []
+containers:
+- key: container.otherhome.exchange_strongbox
+  lock_tier: 2
+  loot_ref: loot.blackvein_strongbox
+  position_m: [1623.0, 763.0]
+  stack_slots: 4
+- key: container.otherhome.quay_cache
+  lock_tier: 1
+  loot_ref: loot.den_cache
+  position_m: [1341.0, 498.0]
+  stack_slots: 6
 readables: []
 switches:
 - key: switch.oh_assize_notice
