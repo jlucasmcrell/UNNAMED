@@ -361,6 +361,9 @@ public sealed partial class SkinnedModel : Node3D
 
     public bool Has(string state) => _states.Contains(state);
 
+    /// <summary>Name an already baked exact-target take for another combat state (a binding's native_states). No retarget or bone edits.</summary>
+    public void Alias(string state, string nativeState) => Alias(_player.GetAnimationLibrary(""), state, nativeState);
+
     /// <summary>Name an already baked exact-target take for a creature state; no retarget or bone edits.</summary>
     private void Alias(AnimationLibrary library, string state, string nativeState)
     {

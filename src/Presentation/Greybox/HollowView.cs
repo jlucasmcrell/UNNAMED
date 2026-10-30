@@ -33,6 +33,27 @@ public partial class HollowView : Node3D
 
     public Godot.Environment? SpaceEnvironment => _environments?.FirstOrDefault().Environment;
 
+    private MeshInstance3D? _tidalWater;
+    private TidalWater? _tide;
+    private Node3D[]? _tidalProps;
+    private SedgeArtView? _sedgeArt;
+    public void SetTideTick(long tick)
+    {
+        if (_tidalWater is not null && _tide is not null)
+        {
+            float level = _tide.LevelAt(tick) / 1000f;
+            _sedgeArt?.SetTideLevel(level);
+            _tidalWater.Position = new Vector3(_tidalWater.Position.X, level, _tidalWater.Position.Z);
+            _tidalProps ??= GetNodeOrNull<Node3D>("Dressing")?.GetChildren().OfType<Node3D>()
+                .Where(n => n.HasMeta("tidal_visible_above_m") || n.HasMeta("tidal_float_offset_m")).ToArray() ?? Array.Empty<Node3D>();
+            foreach (var prop in _tidalProps)
+            {
+                if (prop.HasMeta("tidal_visible_above_m")) prop.Visible = level >= prop.GetMeta("tidal_visible_above_m").AsSingle();
+                if (prop.HasMeta("tidal_float_offset_m")) prop.Position = new Vector3(prop.Position.X, level + prop.GetMeta("tidal_float_offset_m").AsSingle(), prop.Position.Z);
+            }
+        }
+    }
+
     public void SetSpaceActive(bool active)
     {
         Visible = active;
@@ -181,7 +202,12 @@ public partial class HollowView : Node3D
         bool exterior = layout.IsOutdoors;
         if (exterior)
         {
-            AddChild(BuildWater(layout.Space));
+            if (layout.Tide is { } tide)
+            {
+                _tidalWater = WaterView.BuildTidal(this, layout.Space);
+                _tide = tide;
+            }
+            else AddChild(BuildWater(layout.Space));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -189,9 +215,9 @@ public partial class HollowView : Node3D
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
-        var ravine = BuildRavine(layout.Space, terrain);
+        var ravine = layout.Tide is null ? BuildRavine(layout.Space, terrain) : new Node3D { Name = "OpenFenHorizon" };
         AddChild(ravine);
-        if (VisualOptions.Terrain == "terrain3d")
+        if (VisualOptions.Terrain == "terrain3d" && layout.Tide is null)
             DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout));
         // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
         if (VisualOptions.Recipes && _ground is { } field)
@@ -215,13 +241,14 @@ public partial class HollowView : Node3D
             AddChild(life);
             var indoors = _bindings.Buildings.Keys.Select(prefix => Footprint(layout, prefix)).OfType<BoxBlocker>()
                 .Select(b => new Rect2(b.MinXMm / 1000f, b.MinZMm / 1000f, (b.MaxXMm - b.MinXMm) / 1000f, (b.MaxZMm - b.MinZMm) / 1000f)).ToList();
-            AmbientLife.Build(life, lifeGround, 0xA3B1E7, indoors);
+            AmbientLife.Build(life, lifeGround, 0xA3B1E7, indoors, layout.Id);
             PerchedRavens.Build(life, _art, lifeGround);
         }
         }
 
         AddChild(BuildDebugMarkers(layout));
         AddChild(BuildLighting(layout, terrain, exterior));
+        if (exterior) _sedgeArt = SedgeArtView.Build(this, ground, _art, layout.Id);
     }
 
     /// <summary>
@@ -390,12 +417,27 @@ public partial class HollowView : Node3D
         }
         var mesh = new ArrayMesh();
         var materials = new List<Material>();
+        var chunks = new Node3D { Name = "Terrain" };
+        void FinishChunk()
+        {
+            if (mesh.GetSurfaceCount() == 0) return;
+            var part = new MeshInstance3D { Name = $"Cells_{chunks.GetChildCount()}", Mesh = mesh };
+            for (int n = 0; n < materials.Count; n++) part.SetSurfaceOverrideMaterial(n, materials[n]);
+            var collision = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
+            using var shape = mesh.CreateTrimeshShape();
+            collision.AddChild(new CollisionShape3D { Shape = shape });
+            part.AddChild(collision); chunks.AddChild(part);
+            mesh = new ArrayMesh(); materials = new List<Material>();
+        }
         // The four grounds in one splat shader (their borders blended, the tiling broken up, the paths worn in: Phase A, the visual audit's
         // V2); without all four, each cell its own world material, or the greybox colour.
         var splat = _ground?.TerrainMaterial(_art);
         foreach (var (cell, tool) in cells)
         {
+            // Godot permits at most 256 surfaces in one ArrayMesh; a full region has 400 cells.
+            if (mesh.GetSurfaceCount() == 128) FinishChunk();
             tool.GenerateNormals();
+            tool.GenerateTangents();
             tool.Commit(mesh);
             string? id = _bindings.Terrain.GetValueOrDefault(cell);
             if (splat is not null && _ground!.Cells.Contains(cell))
@@ -414,14 +456,15 @@ public partial class HollowView : Node3D
                 Coverage.Fallback("terrain", cell, id is null ? "no ground bound for this cell: a flat colour" : _art.Why(id) ?? "its material would not load", id);
             }
         }
-        var node = new MeshInstance3D { Name = "Terrain", Mesh = mesh };
-        for (int s = 0; s < materials.Count; s++)
-            node.SetSurfaceOverrideMaterial(s, materials[s]);
-        var body = new StaticBody3D { CollisionLayer = CameraCollisionLayer, CollisionMask = 0 };
-        using var cameraShape = mesh.CreateTrimeshShape();
-        body.AddChild(new CollisionShape3D { Shape = cameraShape });
-        node.AddChild(body);
-        return node;
+        FinishChunk();
+        GD.Print($"UNNAMED terrain: {cells.Count} cell surfaces in {chunks.GetChildCount()} bounded mesh(es)");
+        if (chunks.GetChildCount() == 1)
+        {
+            var single = chunks.GetChild<Node3D>(0);
+            chunks.RemoveChild(single); chunks.Free(); single.Name = "Terrain";
+            return single;
+        }
+        return chunks;
     }
 
     /// <summary>
@@ -488,7 +531,10 @@ public partial class HollowView : Node3D
         }
         // Collision for art something else draws (the Barrowworks threshold's spoil bank): the camera's collider only.
         if (look.Hidden)
-            return Unseen(BuildStructure(blocker, terrain, SupportFor(blocker)));
+        {
+            Coverage.Resolved("structure", blocker.Id, "domain-only footprint");
+            return look.CameraCollisionOff ? new Node3D { Name = blocker.Id } : Unseen(BuildStructure(blocker, terrain, SupportFor(blocker)));
+        }
         if (look.Surface is { } surface && look.Model is null)
         {
             if (_art.WorldMaterial(surface) is not { } material)
