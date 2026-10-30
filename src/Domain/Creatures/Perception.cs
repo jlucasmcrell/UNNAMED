@@ -22,6 +22,15 @@ public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm)
     public long ScentMm { get; init; }
 }
 
+/// <summary>What last told a creature there was something there (STEALTH §2.7a): the four things a body betrays itself by.</summary>
+public enum NoticeKind
+{
+    Sight,
+    Sound,
+    Sign,
+    Scent,
+}
+
 /// <summary>
 /// How awareness grows and fades (STEALTH §3: awareness is not binary). It runs 0..<see cref="Perception.Full"/>: at
 /// <see cref="Suspicious"/> an actor stops what it is doing to look or listen; at full it has found its target.

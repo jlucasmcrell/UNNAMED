@@ -140,9 +140,19 @@ public partial class Main
                     : (0f, false);
                 return new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
                     UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged,
-                    saw ? NoticeSense.Eye : NoticeSense.Ear, bearing, has, OtherOf(c.DefId));
+                    // What gave the character away, from the creature's own record of it (STEALTH §2.7a): an eye, an ear, a print, or a nose on the
+                    // wind - not a guess from the geometry, which could only ever say "saw" or "heard".
+                    SenseOf(c) is { } sense ? sense : (saw ? NoticeSense.Eye : NoticeSense.Ear), bearing, has, OtherOf(c.DefId));
             })
             .ToList());
+        static NoticeSense? SenseOf(CreatureView c) => c.LastNotice switch
+        {
+            UNNAMED.Domain.Creatures.NoticeKind.Sight => NoticeSense.Eye,
+            UNNAMED.Domain.Creatures.NoticeKind.Sound => NoticeSense.Ear,
+            UNNAMED.Domain.Creatures.NoticeKind.Sign => NoticeSense.Footprint,
+            UNNAMED.Domain.Creatures.NoticeKind.Scent => NoticeSense.Nose,
+            _ => null,
+        };
         bool OtherOf(string defId) => _session.Setup.Combat.Creatures.TryGetValue(defId, out var definition)
             && definition.Tags.Contains("other");
         _hud.SetStealth(UNNAMED.Presentation.Ui.Models.ShadowModel.From(simulation.PlayerLightBand),

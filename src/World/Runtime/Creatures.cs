@@ -1,4 +1,4 @@
-// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -68,6 +68,12 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     [System.Text.Json.Serialization.JsonIgnore]
     public bool Knows { get; init; }
 
+
+    /// <summary>What last told it there was something there (STEALTH §2.7a): an eye, an ear, a sign left behind, or a nose on the wind. Transient
+    /// like the known place, because it is a hint for the HUD rather than a fact the world is saved with.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public NoticeKind LastNotice { get; init; }
+
     [System.Text.Json.Serialization.JsonIgnore]
     public long KnownXMm { get; init; }
 
@@ -134,6 +140,11 @@ internal sealed record CreatureState(
     public long LastSeenTick { get; init; }
     public long SearchUntil { get; init; }
     public bool HasCalled { get; init; }
+
+    /// <summary>What last told it there was something there (STEALTH §2.7a): an eye, an ear, a sign left behind, or a nose on the wind. Runtime
+    /// only, like the known place - a hint for the HUD rather than a fact the world is saved with.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public NoticeKind LastNotice { get; init; }
     public long NextChargeTick { get; init; }
     // Transient human-like defense and attack chain state (Sedge D18).
     public long GuardUntil { get; init; }
@@ -826,7 +837,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         int awareness = Perception.Accrue(c.Awareness, seen, effective.SightMm, rules, TickMs, StealthAwarenessFactor());
         var next = c with { Awareness = awareness };
         if (seen is not null)
-            next = next with { Knows = true, KnownXMm = player.XMm, KnownZMm = player.ZMm, LastSeenTick = tick };
+            next = next with { Knows = true, KnownXMm = player.XMm, KnownZMm = player.ZMm, LastSeenTick = tick, LastNotice = NoticeKind.Sight };
 
         long hearing = asleep ? senses.HearingMm * c.Role.SleepHearingPercent / 100 : senses.HearingMm;
         bool pounce = false;
@@ -842,7 +853,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             int level = noise.Call ? rules.HeardCall : rules.HeardNoise;
             if (next.Mind == CreatureMind.Engaged && next.Knows && seen is not null)
                 continue;   // already watching the target; a sound adds nothing
-            next = next with { Awareness = Math.Max(next.Awareness, level), Knows = true, KnownXMm = noise.XMm, KnownZMm = noise.ZMm };
+            next = next with { Awareness = Math.Max(next.Awareness, level), Knows = true, KnownXMm = noise.XMm, KnownZMm = noise.ZMm, LastNotice = NoticeKind.Sound };
             // An ambusher feels a footfall in its territory and goes for it at once.
             pounce |= !noise.Call && c.Role.PounceOnNoise
                       && (c.Role.TerritoryMm <= 0 || Distance(noise.XMm, noise.ZMm, c.HomeXMm, c.HomeZMm) <= c.Role.TerritoryMm);
@@ -859,6 +870,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Knows = true,
                 KnownXMm = body.Body.XMm,
                 KnownZMm = body.Body.ZMm,
+                // What gave the character away was the body they left behind, not an eye on them: the print the HUD shows (STEALTH §2.7a).
+                LastNotice = NoticeKind.Sign,
                 // It is already evidence, not a sound to be weighed: the watch goes alert at once and walks to it.
                 Mind = next.Mind is CreatureMind.Unaware or CreatureMind.Returning ? CreatureMind.Suspicious : next.Mind,
             };
@@ -876,6 +889,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             next = next with
             {
                 Awareness = smelled,
+                LastNotice = NoticeKind.Scent,
                 Knows = next.Knows || smelled >= rules.Suspicious,
                 KnownXMm = smelled >= rules.Suspicious ? player.XMm : next.KnownXMm,
                 KnownZMm = smelled >= rules.Suspicious ? player.ZMm : next.KnownZMm,
@@ -1879,6 +1893,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 c.Mind, c.Awareness, Asleep(c, tick))
             {
                 Generation = c.Generation, Peaceful = c.Role.Peaceful, Knows = c.Knows, KnownXMm = c.KnownXMm, KnownZMm = c.KnownZMm,
+                LastNotice = c.LastNotice,
                 Rooted = c.Alive && _context.ControlOn(c.Id) == ControlKind.Roots,
                 Paralysed = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.paralyse"),
                 Poisoned = c.Alive && State.Effects.GetValueOrDefault(c.Id, ImmutableArray<ActiveEffect>.Empty).Any(e => e.EffectId == "effect.venom"),
