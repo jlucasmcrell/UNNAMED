@@ -58697,6 +58697,12 @@ roads:
   name: The Causeway Road
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs:
+- npc_ref: npc.otherhome.water_carrier
+  position_m: [1402.0, 604.0]
+  facing_deg: 180
+- npc_ref: npc.otherhome.row_child
+  position_m: [1428.0, 614.0]
+  facing_deg: 240
 - npc_ref: npc.otherhome.exchange_clerk
   position_m: [1622.0, 778.0]
   facing_deg: 180
