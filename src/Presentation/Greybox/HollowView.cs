@@ -203,7 +203,7 @@ public partial class HollowView : Node3D
             AddChild(ravine);
         }
         if (VisualOptions.Terrain == "terrain3d")
-            DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout));
+            DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout), layout.Id);
         // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
         if (VisualOptions.Recipes && _ground is { } field)
         {
@@ -256,14 +256,14 @@ public partial class HollowView : Node3D
         return new Terrain3DView.Detail(crowns, buildings, new[] { Terrain3DView.CharwoodStream });
     }
 
-    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine, Terrain3DView.Detail detail)
+    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine, Terrain3DView.Detail detail, string regionId)
     {
         if (_ground is null)
         {
             Coverage.Fallback("terrain", "terrain3d", "no ground field to take the layers from: the Phase-A ground stands");
             return;
         }
-        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why, detail);
+        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why, detail, regionId: regionId);
         if (drawn is null)
         {
             Coverage.Fallback("terrain", "terrain3d", why ?? "Terrain3D did not build: the Phase-A ground stands");
