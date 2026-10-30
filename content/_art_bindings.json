@@ -2459,6 +2459,11 @@
       "material": "stone",
       "note": "The dormant Rim Stone above Cairnwold (travel groundwork 2026-10-16): the Ashen Waystone's scanned stone at the Rim's own smaller footprint, so the two read as one kind of thing."
     },
+    "rock_cairnwold_stone": {
+      "model": "landmark_ph_waystone_a",
+      "material": "stone",
+      "note": "D18: Cairnwold's own gate stone - the shipped waystone landmark standing at the south gate."
+    },
     "rock_waystone": {
       "model": "landmark_ph_waystone_a",
       "material": "stone",
