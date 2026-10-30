@@ -745,7 +745,10 @@ public sealed class ArtLibrary
         // Each import uploads its images uncompressed until the cache's copies replace them, and the renderer frees a texture only as
         // frames advance. A boot builds every model inside one frame, so without a frame now and then those uploads pile up to the
         // whole scene's uncompressed size (Barrowworks first entry, packaged: 15.7 GB dedicated peak and 10.9 GB after; with this, 5.0).
-        if (++_importsSinceFlush % 4 == 0)
+        // Only from a frame that has already drawn: forcing a draw before the first one faults natively in a packaged build with a
+        // real renderer (SEHException at godot_icall_2_1259(bool, double), B-003 - the 6900XT farm boot died inside LoadScene every
+        // time while every headless boot, on the dummy renderer, never did).
+        if (++_importsSinceFlush % 4 == 0 && Engine.GetFramesDrawn() > 0)
             RenderingServer.ForceDraw(false);
         var parsed = Take(path);
         using var document = parsed?.Document ?? new GltfDocument();
@@ -857,7 +860,7 @@ public sealed class ArtLibrary
             var mesh = entry.Mesh;
             // Only an ImporterMesh has GenerateLods; the glTF importer hands back an ArrayMesh in a packaged build, and the
             // call on that faults natively (SEHException, seen on the 6900XT farm while the editor build was fine).
-            if (mesh is not ImporterMesh || mesh.GetBlendShapeCount() > 0) continue;
+            if (mesh is null || mesh.GetBlendShapeCount() > 0) continue;
             long indices = 0;
             bool existing = false;
             for (int surface = 0; surface < mesh.GetSurfaceCount(); surface++)
