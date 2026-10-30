@@ -136,7 +136,10 @@ public partial class Main
             "lock" => (Mathf.Pi, -0.04f),
             // The seam rock's south face from (428, 644.2): due north, at the vein.
             "mine" => (Mathf.Pi, -0.06f),
-            _ => throw new ArgumentException($"--shot-beat wants fish, lock or mine; got '{beat}'"),
+            // The deer ground at the Charwood spawn (612, 718): looking east along the trees, tilted down so the ground a person reads is in
+            // frame rather than the treeline.
+            "track" => (Mathf.DegToRad(270f), -0.42f),
+            _ => throw new ArgumentException($"--shot-beat wants fish, lock, mine or track; got '{beat}'"),
         };
 
         /// <summary>Advance one frame: press this frame's key, let the game read it, and name the picture this frame is. Null when it is
@@ -213,7 +216,6 @@ public partial class Main
                 {
                     _moments.Add($"- tick {read.Tick}: read **{read.Count} went {read.BearingMdeg} mdeg, {read.AgeTicks} ticks old**");
                     Shot("01_read");
-                    _bearing = read.BearingMdeg;
                     _step = 2;
                     _stepFrame = _frame;
                     return;
@@ -489,8 +491,6 @@ public partial class Main
         /// <summary>The last read of the ground, so the beat can wait for sign rather than guess at it.</summary>
         private SpoorRead? _read;
 
-        /// <summary>The bearing the first read gave, and the way the beat walks.</summary>
-        private int _bearing;
 
         private void Shot(string name)
         {
