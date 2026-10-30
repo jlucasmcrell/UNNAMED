@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -215,6 +215,14 @@ public partial class Main
                     if (rejected.Count > 0)
                         File.AppendAllText(Path.Combine(directory, "equip_refused.txt"), $"{wantedItem}: {string.Join("; ", rejected)}{System.Environment.NewLine}");
                 }
+
+            // What the character actually left the pack with and what is actually in their hands. The stills read UNARMED for three captures and
+            // nothing in the logs explained it, so the route writes the truth beside the frames instead of leaving me to read a corner of the HUD.
+            File.WriteAllText(Path.Combine(directory, "kit.json"), System.Text.Json.JsonSerializer.Serialize(new
+            {
+                inventory = sim.Player.Inventory.Select(e => new { e.DefId, e.Count }),
+                equipment = sim.Player.Equipment.Select(kv => new { slot = kv.Key.ToString(), kv.Value }),
+            }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 
             // 1. The dark lane: nothing lit, nothing moving, the gem at its lowest and the ring flat.
             _controller.Crouch(true);
