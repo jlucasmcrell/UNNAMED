@@ -573,7 +573,7 @@ public class ContentLoaderTests
                 "hint.reputation", "hint.skills", "hint.specialised_bags", "hint.stash",
                 "hint.station_storage", "hint.stuck", "hint.teacher_practise", "hint.trade",
                 "hint.trainers", "hint.waystones", "hint.worn_price", "item.ammo.arrow_rough", "item.ammo.bolt_iron", "item.ammo.knife_thrown",
-                "item.armor.cloak", "item.armor.veil_cloak", "item.armor.hide_boots", "item.armor.hide_cap", "item.armor.hide_vest",
+                "item.armor.cloak", "item.armor.stills_ward", "item.armor.veil_cloak", "item.armor.hide_boots", "item.armor.hide_cap", "item.armor.hide_vest",
                 "item.armor.lame_coif", "item.armor.lame_sabatons", "item.armor.lamework_jack", "item.armor.smith_gloves",
                 "item.armor.timber_shield", "item.armor.wool_trousers", "item.artefact.lantern_foot", "item.bag.herb_pouch",
                 "item.bag.pack_large", "item.bag.quiver", "item.bag.reagent_satchel", "item.bag.satchel",

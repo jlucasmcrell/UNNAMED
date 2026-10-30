@@ -908,7 +908,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         }
         // The wind (STEALTH 4.6): a nose is the counter to the dark, the grass and the crouch. It gives a place to go, never a sighting - the animal
         // walks to where the smell is thickest, which is where the character was, and that is the pursuit the stealth player has to break.
-        if (!asleep && target && !drawn && senses.ScentMm > 0 && next.Mind != CreatureMind.Engaged
+        if (!asleep && target && !drawn && senses.ScentMm > 0 && next.Mind != CreatureMind.Engaged && !_context.PlayerScentWard()
             && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= senses.ScentMm
             && ScentRules.Carries(WindBearing, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
             && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm))

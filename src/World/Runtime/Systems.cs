@@ -258,6 +258,12 @@ internal sealed class SystemContext
     /// <summary>
     /// The best cloak the character is wearing (STEALTH §10.1): the largest share of a body any worn piece takes off the eye, never more than half.
     /// </summary>
+    /// <summary>
+    /// Whether a worn ward shuts the nose (STEALTH §10.4): the animals can still see and hear the wearer, it is one sense shut and not a cloak.
+    /// </summary>
+    public bool PlayerScentWard() => State.Equipment.Values
+        .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+        .Any(entry => entry is not null && (Setup.Items.Catalog.Find(entry.DefId)?.ScentWard ?? false));
     public double PlayerStealthBonus() => Math.Clamp(
         State.Equipment.Values
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))

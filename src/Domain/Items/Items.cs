@@ -393,6 +393,12 @@ public sealed record ItemDefinition(
     public long DetectRangeMm { get; init; }
 
     /// <summary>
+    /// A ward of still air, from <c>scent_ward</c> (STEALTH §10.4): worn, it stops a nose finding the wearer downwind. The animals can still see and
+    /// hear them - it is one sense shut, not a cloak.
+    /// </summary>
+    public bool ScentWard { get; init; }
+
+    /// <summary>
     /// It can be thrown and what it makes where it lands (STEALTH §3.2): zero for anything that cannot be thrown as a lure. The throw is a
     /// noise, not a weapon - what an observer gets is a place to look, never the thrower.
     /// </summary>

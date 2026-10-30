@@ -6321,6 +6321,7 @@
   "panel.settings": "ui.panel.settings",
   "item.armor.cloak": "ui.item.cloak",
     "item.armor.veil_cloak": "ui.item.cloak",
+    "item.armor.stills_ward": "ui.item.cloak",
   "item.armor.hide_boots": "ui.item.hide_boots",
   "item.armor.smith_gloves": "ui.item.smith_gloves",
   "item.armor.timber_shield": "ui.item.timber_shield",

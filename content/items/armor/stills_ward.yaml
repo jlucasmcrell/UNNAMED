@@ -1,0 +1,18 @@
+﻿id: item.armor.stills_ward
+kind: item.armor
+schema: 1
+display_key: item.armor.stills_ward.name
+tags: [item]
+name: Stills Ward
+notes: A knot of bog-cotton and rowan worn at the throat (STEALTH 10.4; D23 S7). It holds the air around the wearer still, so a nose downwind finds nothing - one sense shut, not a cloak. The animals can still see and hear you.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.2
+value_base: 110
+slot: amulet
+armor_value: 0
+scent_ward: true
+material_class: cloth
+durability_max: 100
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }

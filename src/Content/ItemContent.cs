@@ -230,6 +230,8 @@ public static class ItemContent
 
             // A detection device (STEALTH §10.3): how much further the wearer reads what has noticed them, in metres.
             DetectRangeMm = map.ContainsKey("detect_range_m") ? Grams(map, "detect_range_m") : 0,
+            // A ward of still air (STEALTH 10.4): worn, it stops a nose finding the wearer downwind.
+            ScentWard = map.TryGetValue("scent_ward", out var ward) && (ward is bool on ? on : ward is string word && word.Equals("true", StringComparison.OrdinalIgnoreCase)),
         };
     }
 
