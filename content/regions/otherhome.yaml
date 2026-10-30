@@ -50741,6 +50741,267 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_pile_000
+  circle_m: [1215.0, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_001
+  circle_m: [1215.0, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_002
+  circle_m: [1219.5, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_003
+  circle_m: [1219.5, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_004
+  circle_m: [1224.0, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_005
+  circle_m: [1224.0, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_006
+  circle_m: [1228.5, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_007
+  circle_m: [1228.5, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_008
+  circle_m: [1233.0, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_009
+  circle_m: [1233.0, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_010
+  circle_m: [1237.5, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_011
+  circle_m: [1237.5, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_012
+  circle_m: [1242.0, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_013
+  circle_m: [1242.0, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_014
+  circle_m: [1246.5, 440.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_015
+  circle_m: [1246.5, 447.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_016
+  circle_m: [1221.0, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_017
+  circle_m: [1221.0, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_018
+  circle_m: [1224.75, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_019
+  circle_m: [1224.75, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_020
+  circle_m: [1228.5, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_021
+  circle_m: [1228.5, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_022
+  circle_m: [1232.25, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_023
+  circle_m: [1232.25, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_024
+  circle_m: [1236.0, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_025
+  circle_m: [1236.0, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_026
+  circle_m: [1239.75, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_027
+  circle_m: [1239.75, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_028
+  circle_m: [1243.5, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_029
+  circle_m: [1243.5, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_030
+  circle_m: [1247.25, 500.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_031
+  circle_m: [1247.25, 507.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_032
+  circle_m: [1227.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_033
+  circle_m: [1227.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_034
+  circle_m: [1230.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_035
+  circle_m: [1230.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_036
+  circle_m: [1233.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_037
+  circle_m: [1233.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_038
+  circle_m: [1236.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_039
+  circle_m: [1236.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_040
+  circle_m: [1239.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_041
+  circle_m: [1239.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_042
+  circle_m: [1242.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_043
+  circle_m: [1242.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_044
+  circle_m: [1245.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_045
+  circle_m: [1245.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_pile_046
+  circle_m: [1248.0, 548.8, 0.45]
+  height_m: 3.0
+- id: oh_pile_047
+  circle_m: [1248.0, 555.2, 0.45]
+  height_m: 3.0
+- id: oh_stall_0_wall_0
+  box_m: [1619.8, 763.8, 1621.0, 770.2]
+  height_m: 2.2
+- id: oh_stall_0_wall_1
+  box_m: [1623.0, 763.8, 1624.2, 770.2]
+  height_m: 2.2
+- id: oh_stall_0_wall_2
+  box_m: [1618.8, 768.0, 1625.2, 769.2]
+  height_m: 2.2
+- id: oh_stall_0_roof
+  box_m: [1619.8, 764.8, 1624.2, 769.2]
+  height_m: 2.6
+- id: oh_stall_0_cart
+  circle_m: [1622.0, 766.4, 1.1]
+  height_m: 1.5
+- id: oh_stall_1_wall_0
+  box_m: [1649.8, 763.8, 1651.0, 770.2]
+  height_m: 2.2
+- id: oh_stall_1_wall_1
+  box_m: [1653.0, 763.8, 1654.2, 770.2]
+  height_m: 2.2
+- id: oh_stall_1_wall_2
+  box_m: [1648.8, 768.0, 1655.2, 769.2]
+  height_m: 2.2
+- id: oh_stall_1_roof
+  box_m: [1649.8, 764.8, 1654.2, 769.2]
+  height_m: 2.6
+- id: oh_stall_1_cart
+  circle_m: [1652.0, 766.4, 1.1]
+  height_m: 1.5
+- id: oh_stall_2_wall_0
+  box_m: [1679.8, 763.8, 1681.0, 770.2]
+  height_m: 2.2
+- id: oh_stall_2_wall_1
+  box_m: [1683.0, 763.8, 1684.2, 770.2]
+  height_m: 2.2
+- id: oh_stall_2_wall_2
+  box_m: [1678.8, 768.0, 1685.2, 769.2]
+  height_m: 2.2
+- id: oh_stall_2_roof
+  box_m: [1679.8, 764.8, 1684.2, 769.2]
+  height_m: 2.6
+- id: oh_stall_2_cart
+  circle_m: [1682.0, 766.4, 1.1]
+  height_m: 1.5
+- id: oh_houseb_000
+  box_m: [1319.5, 593.0, 1324.5, 597.0]
+  height_m: 4.4
+- id: oh_housea_000
+  box_m: [1788.0, 592.0, 1796.0, 598.0]
+  height_m: 6.5
+- id: oh_houseb_001
+  box_m: [1449.5, 593.0, 1454.5, 597.0]
+  height_m: 4.4
+- id: oh_housea_001
+  box_m: [1528.0, 592.0, 1536.0, 598.0]
+  height_m: 6.5
+- id: oh_housea_002
+  box_m: [1318.0, 622.0, 1326.0, 628.0]
+  height_m: 6.5
+- id: oh_houseb_002
+  box_m: [1789.5, 623.0, 1794.5, 627.0]
+  height_m: 4.4
+- id: oh_housea_003
+  box_m: [1448.0, 622.0, 1456.0, 628.0]
+  height_m: 6.5
+- id: oh_houseb_003
+  box_m: [1529.5, 623.0, 1534.5, 627.0]
+  height_m: 4.4
+- id: oh_houseb_004
+  box_m: [1319.5, 653.0, 1324.5, 657.0]
+  height_m: 4.4
+- id: oh_housea_004
+  box_m: [1788.0, 652.0, 1796.0, 658.0]
+  height_m: 6.5
+- id: oh_houseb_005
+  box_m: [1449.5, 653.0, 1454.5, 657.0]
+  height_m: 4.4
+- id: oh_housea_005
+  box_m: [1528.0, 652.0, 1536.0, 658.0]
+  height_m: 6.5
+- id: oh_housea_006
+  box_m: [1318.0, 682.0, 1326.0, 688.0]
+  height_m: 6.5
+- id: oh_houseb_006
+  box_m: [1789.5, 683.0, 1794.5, 687.0]
+  height_m: 4.4
+- id: oh_housea_007
+  box_m: [1448.0, 682.0, 1456.0, 688.0]
+  height_m: 6.5
+- id: oh_houseb_007
+  box_m: [1529.5, 683.0, 1534.5, 687.0]
+  height_m: 4.4
+- id: oh_houseb_008
+  box_m: [1319.5, 713.0, 1324.5, 717.0]
+  height_m: 4.4
+- id: oh_housea_008
+  box_m: [1788.0, 712.0, 1796.0, 718.0]
+  height_m: 6.5
+- id: oh_houseb_009
+  box_m: [1449.5, 713.0, 1454.5, 717.0]
+  height_m: 4.4
+- id: oh_housea_009
+  box_m: [1528.0, 712.0, 1536.0, 718.0]
+  height_m: 6.5
+- id: oh_housea_010
+  box_m: [1318.0, 742.0, 1326.0, 748.0]
+  height_m: 6.5
+- id: oh_houseb_010
+  box_m: [1789.5, 743.0, 1794.5, 747.0]
+  height_m: 4.4
+- id: oh_housea_011
+  box_m: [1448.0, 742.0, 1456.0, 748.0]
+  height_m: 6.5
+- id: oh_houseb_011
+  box_m: [1529.5, 743.0, 1534.5, 747.0]
+  height_m: 4.4
 - id: oh_quaywall_000
   box_m: [1245.52, 400.00, 1246.72, 404.00]
   height_m: 1.4
@@ -53225,130 +53486,130 @@ structures:
 
 
 
-- id: oh_housea_000
+- id: oh_housea_012
   box_m: [1353.0, 593.5, 1361.0, 599.5]
   height_m: 6.5
-- id: oh_houseb_000
+- id: oh_houseb_012
   box_m: [1392.5, 594.5, 1397.5, 598.5]
   height_m: 4.4
-- id: oh_houseb_001
+- id: oh_houseb_013
   box_m: [1430.5, 594.5, 1435.5, 598.5]
   height_m: 4.4
-- id: oh_housea_001
+- id: oh_housea_013
   box_m: [1613.0, 593.5, 1621.0, 599.5]
   height_m: 6.5
-- id: oh_houseb_002
+- id: oh_houseb_014
   box_m: [1652.5, 594.5, 1657.5, 598.5]
   height_m: 4.4
-- id: oh_houseb_003
+- id: oh_houseb_015
   box_m: [1690.5, 594.5, 1695.5, 598.5]
   height_m: 4.4
-- id: oh_housea_002
+- id: oh_housea_014
   box_m: [1727.0, 593.5, 1735.0, 599.5]
   height_m: 6.5
-- id: oh_houseb_004
+- id: oh_houseb_016
   box_m: [1354.5, 624.5, 1359.5, 628.5]
   height_m: 4.4
-- id: oh_houseb_005
+- id: oh_houseb_017
   box_m: [1392.5, 624.5, 1397.5, 628.5]
   height_m: 4.4
-- id: oh_housea_003
+- id: oh_housea_015
   box_m: [1429.0, 623.5, 1437.0, 629.5]
   height_m: 6.5
-- id: oh_houseb_006
+- id: oh_houseb_018
   box_m: [1614.5, 624.5, 1619.5, 628.5]
   height_m: 4.4
-- id: oh_houseb_007
+- id: oh_houseb_019
   box_m: [1652.5, 624.5, 1657.5, 628.5]
   height_m: 4.4
-- id: oh_housea_004
+- id: oh_housea_016
   box_m: [1689.0, 623.5, 1697.0, 629.5]
   height_m: 6.5
-- id: oh_houseb_008
+- id: oh_houseb_020
   box_m: [1728.5, 624.5, 1733.5, 628.5]
   height_m: 4.4
-- id: oh_houseb_009
+- id: oh_houseb_021
   box_m: [1354.5, 654.5, 1359.5, 658.5]
   height_m: 4.4
-- id: oh_housea_005
+- id: oh_housea_017
   box_m: [1391.0, 653.5, 1399.0, 659.5]
   height_m: 6.5
-- id: oh_houseb_010
+- id: oh_houseb_022
   box_m: [1430.5, 654.5, 1435.5, 658.5]
   height_m: 4.4
-- id: oh_houseb_011
+- id: oh_houseb_023
   box_m: [1614.5, 654.5, 1619.5, 658.5]
   height_m: 4.4
-- id: oh_housea_006
+- id: oh_housea_018
   box_m: [1651.0, 653.5, 1659.0, 659.5]
   height_m: 6.5
-- id: oh_houseb_012
+- id: oh_houseb_024
   box_m: [1690.5, 654.5, 1695.5, 658.5]
   height_m: 4.4
-- id: oh_houseb_013
+- id: oh_houseb_025
   box_m: [1728.5, 654.5, 1733.5, 658.5]
   height_m: 4.4
-- id: oh_housea_007
+- id: oh_housea_019
   box_m: [1353.0, 683.5, 1361.0, 689.5]
   height_m: 6.5
-- id: oh_houseb_014
+- id: oh_houseb_026
   box_m: [1392.5, 684.5, 1397.5, 688.5]
   height_m: 4.4
-- id: oh_houseb_015
+- id: oh_houseb_027
   box_m: [1430.5, 684.5, 1435.5, 688.5]
   height_m: 4.4
-- id: oh_housea_008
+- id: oh_housea_020
   box_m: [1613.0, 683.5, 1621.0, 689.5]
   height_m: 6.5
-- id: oh_houseb_016
+- id: oh_houseb_028
   box_m: [1652.5, 684.5, 1657.5, 688.5]
   height_m: 4.4
-- id: oh_houseb_017
+- id: oh_houseb_029
   box_m: [1690.5, 684.5, 1695.5, 688.5]
   height_m: 4.4
-- id: oh_housea_009
+- id: oh_housea_021
   box_m: [1727.0, 683.5, 1735.0, 689.5]
   height_m: 6.5
-- id: oh_houseb_018
+- id: oh_houseb_030
   box_m: [1354.5, 714.5, 1359.5, 718.5]
   height_m: 4.4
-- id: oh_houseb_019
+- id: oh_houseb_031
   box_m: [1392.5, 714.5, 1397.5, 718.5]
   height_m: 4.4
-- id: oh_housea_010
+- id: oh_housea_022
   box_m: [1429.0, 713.5, 1437.0, 719.5]
   height_m: 6.5
-- id: oh_houseb_020
+- id: oh_houseb_032
   box_m: [1614.5, 714.5, 1619.5, 718.5]
   height_m: 4.4
-- id: oh_houseb_021
+- id: oh_houseb_033
   box_m: [1652.5, 714.5, 1657.5, 718.5]
   height_m: 4.4
-- id: oh_housea_011
+- id: oh_housea_023
   box_m: [1689.0, 713.5, 1697.0, 719.5]
   height_m: 6.5
-- id: oh_houseb_022
+- id: oh_houseb_034
   box_m: [1728.5, 714.5, 1733.5, 718.5]
   height_m: 4.4
-- id: oh_houseb_023
+- id: oh_houseb_035
   box_m: [1354.5, 744.5, 1359.5, 748.5]
   height_m: 4.4
-- id: oh_housea_012
+- id: oh_housea_024
   box_m: [1391.0, 743.5, 1399.0, 749.5]
   height_m: 6.5
-- id: oh_houseb_024
+- id: oh_houseb_036
   box_m: [1430.5, 744.5, 1435.5, 748.5]
   height_m: 4.4
-- id: oh_houseb_025
+- id: oh_houseb_037
   box_m: [1614.5, 744.5, 1619.5, 748.5]
   height_m: 4.4
-- id: oh_housea_013
+- id: oh_housea_025
   box_m: [1651.0, 743.5, 1659.0, 749.5]
   height_m: 6.5
-- id: oh_houseb_026
+- id: oh_houseb_038
   box_m: [1690.5, 744.5, 1695.5, 748.5]
   height_m: 4.4
-- id: oh_houseb_027
+- id: oh_houseb_039
   box_m: [1728.5, 744.5, 1733.5, 748.5]
   height_m: 4.4
 - id: oh_quay_cart
@@ -53369,148 +53630,148 @@ structures:
 - id: oh_quay_hurdle_b
   circle_m: [1306.0, 516.0, 0.9]
   height_m: 1.4
-- id: oh_housea_014
+- id: oh_housea_026
   box_m: [1334.0, 584.0, 1342.0, 590.0]
   height_m: 6.5
-- id: oh_houseb_028
+- id: oh_houseb_040
   box_m: [1373.5, 585.0, 1378.5, 589.0]
   height_m: 4.4
-- id: oh_housea_015
+- id: oh_housea_027
   box_m: [1410.0, 584.0, 1418.0, 590.0]
   height_m: 6.5
-- id: oh_houseb_029
+- id: oh_houseb_041
   box_m: [1595.5, 585.0, 1600.5, 589.0]
   height_m: 4.4
-- id: oh_housea_016
+- id: oh_housea_028
   box_m: [1632.0, 584.0, 1640.0, 590.0]
   height_m: 6.5
-- id: oh_houseb_030
+- id: oh_houseb_042
   box_m: [1671.5, 585.0, 1676.5, 589.0]
   height_m: 4.4
-- id: oh_housea_017
+- id: oh_housea_029
   box_m: [1708.0, 584.0, 1716.0, 590.0]
   height_m: 6.5
-- id: oh_houseb_031
+- id: oh_houseb_043
   box_m: [1747.5, 585.0, 1752.5, 589.0]
   height_m: 4.4
-- id: oh_housea_018
+- id: oh_housea_030
   box_m: [1335.5, 615.0, 1340.5, 619.0]
   height_m: 4.4
-- id: oh_houseb_032
+- id: oh_houseb_044
   box_m: [1372.0, 614.0, 1380.0, 620.0]
   height_m: 6.5
-- id: oh_housea_019
+- id: oh_housea_031
   box_m: [1411.5, 615.0, 1416.5, 619.0]
   height_m: 4.4
-- id: oh_houseb_033
+- id: oh_houseb_045
   box_m: [1594.0, 614.0, 1602.0, 620.0]
   height_m: 6.5
-- id: oh_housea_020
+- id: oh_housea_032
   box_m: [1633.5, 615.0, 1638.5, 619.0]
   height_m: 4.4
-- id: oh_houseb_034
+- id: oh_houseb_046
   box_m: [1670.0, 614.0, 1678.0, 620.0]
   height_m: 6.5
-- id: oh_housea_021
+- id: oh_housea_033
   box_m: [1709.5, 615.0, 1714.5, 619.0]
   height_m: 4.4
-- id: oh_houseb_035
+- id: oh_houseb_047
   box_m: [1746.0, 614.0, 1754.0, 620.0]
   height_m: 6.5
-- id: oh_housea_022
+- id: oh_housea_034
   box_m: [1334.0, 644.0, 1342.0, 650.0]
   height_m: 6.5
-- id: oh_houseb_036
+- id: oh_houseb_048
   box_m: [1373.5, 645.0, 1378.5, 649.0]
   height_m: 4.4
-- id: oh_housea_023
+- id: oh_housea_035
   box_m: [1410.0, 644.0, 1418.0, 650.0]
   height_m: 6.5
-- id: oh_houseb_037
+- id: oh_houseb_049
   box_m: [1595.5, 645.0, 1600.5, 649.0]
   height_m: 4.4
-- id: oh_housea_024
+- id: oh_housea_036
   box_m: [1632.0, 644.0, 1640.0, 650.0]
   height_m: 6.5
-- id: oh_houseb_038
+- id: oh_houseb_050
   box_m: [1671.5, 645.0, 1676.5, 649.0]
   height_m: 4.4
-- id: oh_housea_025
+- id: oh_housea_037
   box_m: [1708.0, 644.0, 1716.0, 650.0]
   height_m: 6.5
-- id: oh_houseb_039
+- id: oh_houseb_051
   box_m: [1747.5, 645.0, 1752.5, 649.0]
   height_m: 4.4
-- id: oh_housea_026
+- id: oh_housea_038
   box_m: [1335.5, 675.0, 1340.5, 679.0]
   height_m: 4.4
-- id: oh_houseb_040
+- id: oh_houseb_052
   box_m: [1372.0, 674.0, 1380.0, 680.0]
   height_m: 6.5
-- id: oh_housea_027
+- id: oh_housea_039
   box_m: [1411.5, 675.0, 1416.5, 679.0]
   height_m: 4.4
-- id: oh_houseb_041
+- id: oh_houseb_053
   box_m: [1594.0, 674.0, 1602.0, 680.0]
   height_m: 6.5
-- id: oh_housea_028
+- id: oh_housea_040
   box_m: [1633.5, 675.0, 1638.5, 679.0]
   height_m: 4.4
-- id: oh_houseb_042
+- id: oh_houseb_054
   box_m: [1670.0, 674.0, 1678.0, 680.0]
   height_m: 6.5
-- id: oh_housea_029
+- id: oh_housea_041
   box_m: [1709.5, 675.0, 1714.5, 679.0]
   height_m: 4.4
-- id: oh_houseb_043
+- id: oh_houseb_055
   box_m: [1746.0, 674.0, 1754.0, 680.0]
   height_m: 6.5
-- id: oh_housea_030
+- id: oh_housea_042
   box_m: [1334.0, 704.0, 1342.0, 710.0]
   height_m: 6.5
-- id: oh_houseb_044
+- id: oh_houseb_056
   box_m: [1373.5, 705.0, 1378.5, 709.0]
   height_m: 4.4
-- id: oh_housea_031
+- id: oh_housea_043
   box_m: [1410.0, 704.0, 1418.0, 710.0]
   height_m: 6.5
-- id: oh_houseb_045
+- id: oh_houseb_057
   box_m: [1595.5, 705.0, 1600.5, 709.0]
   height_m: 4.4
-- id: oh_housea_032
+- id: oh_housea_044
   box_m: [1632.0, 704.0, 1640.0, 710.0]
   height_m: 6.5
-- id: oh_houseb_046
+- id: oh_houseb_058
   box_m: [1671.5, 705.0, 1676.5, 709.0]
   height_m: 4.4
-- id: oh_housea_033
+- id: oh_housea_045
   box_m: [1708.0, 704.0, 1716.0, 710.0]
   height_m: 6.5
-- id: oh_houseb_047
+- id: oh_houseb_059
   box_m: [1747.5, 705.0, 1752.5, 709.0]
   height_m: 4.4
-- id: oh_housea_034
+- id: oh_housea_046
   box_m: [1335.5, 735.0, 1340.5, 739.0]
   height_m: 4.4
-- id: oh_houseb_048
+- id: oh_houseb_060
   box_m: [1372.0, 734.0, 1380.0, 740.0]
   height_m: 6.5
-- id: oh_housea_035
+- id: oh_housea_047
   box_m: [1411.5, 735.0, 1416.5, 739.0]
   height_m: 4.4
-- id: oh_houseb_049
+- id: oh_houseb_061
   box_m: [1594.0, 734.0, 1602.0, 740.0]
   height_m: 6.5
-- id: oh_housea_036
+- id: oh_housea_048
   box_m: [1633.5, 735.0, 1638.5, 739.0]
   height_m: 4.4
-- id: oh_houseb_050
+- id: oh_houseb_062
   box_m: [1670.0, 734.0, 1678.0, 740.0]
   height_m: 6.5
-- id: oh_housea_037
+- id: oh_housea_049
   box_m: [1709.5, 735.0, 1714.5, 739.0]
   height_m: 4.4
-- id: oh_houseb_051
+- id: oh_houseb_063
   box_m: [1746.0, 734.0, 1754.0, 740.0]
   height_m: 6.5
 - id: oh_long_survey_hq

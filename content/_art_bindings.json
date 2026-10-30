@@ -777,9 +777,34 @@
       ],
       "note": "Gate 2: the harbour's workshops."
     },
-    "oh_housea_014": {
+    "oh_houseb_000": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_000": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -800,9 +825,10 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_houseb_028": {
+    "oh_houseb_001": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -823,32 +849,10 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_houseb_029": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_015": {
+    "oh_housea_001": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -869,55 +873,82 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_houseb_030": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_031": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_016": {
+    "oh_housea_002": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_002": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_003": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_003": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -941,6 +972,7 @@
     "oh_houseb_004": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -961,9 +993,706 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_houseb_033": {
+    "oh_housea_004": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_005": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_005": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_006": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_006": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_007": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_007": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_008": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_008": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_009": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_009": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_010": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_010": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_011": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_011": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_012": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_012": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_013": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_013": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_014": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_015": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_014": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_016": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_017": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_015": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_018": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_019": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_016": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_020": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_021": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -987,6 +1716,7 @@
     "oh_housea_017": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1007,9 +1737,10 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_houseb_034": {
+    "oh_houseb_022": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1030,9 +1761,10 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_houseb_035": {
+    "oh_houseb_023": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1056,558 +1788,7 @@
     "oh_housea_018": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_036": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_037": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_019": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_038": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_039": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_020": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_040": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_041": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_021": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_042": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_043": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_022": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_044": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_045": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_023": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_046": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_047": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_024": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_048": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_049": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_025": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_050": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_houseb_051": {
-      "model": "bld_fab_cw_house_02",
-      "material": "stone",
-      "interior_light": {
-        "at": [
-          2.72,
-          0.9,
-          -1.0
-        ],
-        "colour": [
-          1.0,
-          0.62,
-          0.32
-        ],
-        "energy": 1.8,
-        "range": 9,
-        "shadows": true,
-        "size": 0.25,
-        "fog_energy": 0.4,
-        "attenuation": 1.2
-      },
-      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
-    },
-    "oh_housea_026": {
-      "model": "bld_fab_cw_house_01",
-      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1631,6 +1812,7 @@
     "oh_houseb_024": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1654,6 +1836,7 @@
     "oh_houseb_025": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1674,9 +1857,10 @@
       },
       "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
     },
-    "oh_housea_027": {
+    "oh_housea_019": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1700,6 +1884,7 @@
     "oh_houseb_026": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1723,6 +1908,175 @@
     "oh_houseb_027": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_020": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_028": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_029": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_021": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_030": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_031": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_022": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1746,6 +2100,343 @@
     "oh_houseb_032": {
       "model": "bld_fab_cw_house_02",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_033": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_023": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_034": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_035": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_024": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_036": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_037": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_025": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_038": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_039": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_026": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_040": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_027": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_041": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1769,6 +2460,31 @@
     "oh_housea_028": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_042": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1792,6 +2508,31 @@
     "oh_housea_029": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_043": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1815,6 +2556,31 @@
     "oh_housea_030": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_044": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1838,6 +2604,31 @@
     "oh_housea_031": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_045": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1861,6 +2652,31 @@
     "oh_housea_032": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_046": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1884,6 +2700,31 @@
     "oh_housea_033": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_047": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1907,6 +2748,31 @@
     "oh_housea_034": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_048": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1930,6 +2796,31 @@
     "oh_housea_035": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_049": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1953,6 +2844,31 @@
     "oh_housea_036": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_050": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -1976,6 +2892,607 @@
     "oh_housea_037": {
       "model": "bld_fab_cw_house_01",
       "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_051": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_038": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_052": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_039": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_053": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_040": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_054": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_041": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_055": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_042": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_056": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_043": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_057": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_044": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_058": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_045": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_059": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_046": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_060": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_047": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_061": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_048": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_062": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_housea_049": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 180,
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      },
+      "note": "Gate 2: a district house on the terrace - door on +Z, to the water."
+    },
+    "oh_houseb_063": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 180,
       "interior_light": {
         "at": [
           2.72,
@@ -7890,6 +9407,321 @@
       "model": "wall_cos_drystone_02_l400",
       "material": "stone",
       "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
+    },
+    "oh_pile_000": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_001": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_002": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_003": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_004": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_005": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_006": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_007": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_008": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_009": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_010": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_011": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_012": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_013": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_014": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_015": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_016": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_017": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_018": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_019": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_020": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_021": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_022": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_023": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_024": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_025": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_026": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_027": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_028": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_029": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_030": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_031": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_032": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_033": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_034": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_035": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_036": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_037": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_038": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_039": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_040": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_041": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_042": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_043": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_044": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_045": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_046": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_pile_047": {
+      "model": "prop_bp_beam_mossy",
+      "material": "wood",
+      "note": "Gate 2: a jetty pile, driven into the harbour bed."
+    },
+    "oh_stall_0_wall_0": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_0_wall_1": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_0_wall_2": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_0_roof": {
+      "model": "piece_bp_timber_roof",
+      "material": "wood",
+      "note": "Gate 2: the stall's roof over its counter."
+    },
+    "oh_stall_0_cart": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Gate 2: the stall's own cart, loaded."
+    },
+    "oh_stall_1_wall_0": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_1_wall_1": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_1_wall_2": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_1_roof": {
+      "model": "piece_bp_timber_roof",
+      "material": "wood",
+      "note": "Gate 2: the stall's roof over its counter."
+    },
+    "oh_stall_1_cart": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Gate 2: the stall's own cart, loaded."
+    },
+    "oh_stall_2_wall_0": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_2_wall_1": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_2_wall_2": {
+      "model": "piece_bp_timber_wall",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back and sides."
+    },
+    "oh_stall_2_roof": {
+      "model": "piece_bp_timber_roof",
+      "material": "wood",
+      "note": "Gate 2: the stall's roof over its counter."
+    },
+    "oh_stall_2_cart": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Gate 2: the stall's own cart, loaded."
     }
   },
   "doors": {
