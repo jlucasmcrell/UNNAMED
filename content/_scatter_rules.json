@@ -423,7 +423,7 @@
         "material_packed_dirt_ground": 4.0,
         "material_churned_wet_mud": 2.4,
         "material_marsh_grass_turf": 4.6,
-        "ter_ph_grass_ground": 3.2,
+        "ter_ph_grass_ground": 4.2,
         "ter_ph_coast_sand_rocks_02": 1.1,
         "ter_ph_brown_mud_03": 0.3
       },
@@ -555,8 +555,8 @@
         "material_packed_dirt_ground": 0.6,
         "material_churned_wet_mud": 0.8,
         "material_marsh_grass_turf": 1.5,
-        "ter_ph_grass_ground": 0.45,
-        "ter_ph_coast_sand_rocks_02": 0.3
+        "ter_ph_grass_ground": 0.8,
+        "ter_ph_coast_sand_rocks_02": 0.5
       },
       "lush": {
         "material_marsh_grass_turf": 1.0,
