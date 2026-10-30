@@ -14539,6 +14539,56 @@
       "model": "prop_bp_lantern_post",
       "material": "iron",
       "note": "Gate 3: a lantern at a stair's foot or a lane's end."
+    },
+    "oh_gate_stone_b0": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b1": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b2": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b3": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b4": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b5": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b6": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_b7": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's second course, offset half a step."
+    },
+    "oh_gate_stone_c6": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's third course, on the seaward stones."
+    },
+    "oh_gate_stone_c7": {
+      "model": "rock_ph_ironstone_boulder_a",
+      "material": "stone",
+      "note": "Gate 2: the Drowned Gate's third course, on the seaward stones."
     }
   },
   "doors": {

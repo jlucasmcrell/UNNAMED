@@ -50741,6 +50741,36 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_gate_stone_b0
+  circle_m: [1236.02, 603.95, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b1
+  circle_m: [1221.95, 618.02, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b2
+  circle_m: [1202.05, 618.02, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b3
+  circle_m: [1187.98, 603.95, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b4
+  circle_m: [1187.98, 584.05, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b5
+  circle_m: [1202.05, 569.98, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b6
+  circle_m: [1221.95, 569.98, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_b7
+  circle_m: [1236.02, 584.05, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_c6
+  circle_m: [1212.0, 568.0, 1.14]
+  height_m: 1.71
+- id: oh_gate_stone_c7
+  circle_m: [1230.38, 575.62, 1.14]
+  height_m: 1.71
 - id: oh_well_plaza
   box_m: [1599.05, 785.05, 1600.95, 786.95]
   height_m: 3.42
