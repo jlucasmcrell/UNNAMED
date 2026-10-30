@@ -682,6 +682,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>Which authored lights the character has put out, by key. Runtime only, like a lure's hold.</summary>
     private readonly HashSet<string> _doused = new(StringComparer.Ordinal);
 
+    /// <summary>How many creatures have found the character. A clean run is the one where this never leaves zero (STEALTH §9).</summary>
+    private int _detections;
+
     private long _echoMm;
     private long _echoUntilTick;
 
@@ -910,7 +913,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
         }
         if (pounce && target)
             next = next with { Mind = CreatureMind.Engaged, LastSeenTick = tick };
-        return Decide(next, c.Mind, seen, tick);
+        var decided = Decide(next, c.Mind, seen, tick);
+        // The ghost ledger (STEALTH §9): a creature that has found the character ends the clean run, counted once, when it happens.
+        if (decided.Mind == CreatureMind.Engaged && c.Mind != CreatureMind.Engaged)
+            _detections++;
+        return decided;
     }
 
     /// <summary>
@@ -1011,6 +1018,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>Whether an authored light is out, so presentation can dim what the simulation has stopped counting.</summary>
     internal bool IsDoused(string key) => _doused.Contains(key);
+
+    /// <summary>How many creatures have become engaged on the character: zero is a ghost (STEALTH §9).</summary>
+    internal int Detections => _detections;
     /// <summary>How close a body must be to be picked up, and how far it is carried to the cover that hides it.</summary>
     private const long HideReachMm = 2_000;
     private const long HideCarryMm = 8_000;

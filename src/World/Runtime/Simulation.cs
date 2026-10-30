@@ -700,6 +700,9 @@ public sealed class Simulation
     /// <summary>Whether an authored light is out, so the world view can dim the lamp the simulation has stopped counting (STEALTH §2.2).</summary>
     public bool IsLightDoused(string key) => _creatures.IsDoused(key);
 
+    /// <summary>How many creatures have found the character so far: zero is what a ghost run means (STEALTH §9).</summary>
+    public int StealthDetections() => _creatures.Detections;
+
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;
 
