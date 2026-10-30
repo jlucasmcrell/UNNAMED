@@ -368,9 +368,28 @@ public partial class Main
                 await Beat("thrown_lure", words, 2.2);
             }
 
-            // 8. S2's surfaces: the ground under the body, and the ring it is worth. Gravel and timber carry; grass and mud do not.
+            // 8. S2's surfaces: walk from the ground the character is on to the nearest patch of a different one, and name both with their rings. The
+            // comparison is the point - a viewer should see the number change when the boots do.
             if (wanted("surface"))
-                await Beat("the_ground", $"The ground here: {sim.PlayerSurface}\nThe same step, worth more on gravel than on grass", 1.8);
+            {
+                string before = sim.PlayerSurface;
+                long ringBefore = sim.PlayerNoiseMm;
+                var here = sim.Player.Body;
+                var patch = sim.Setup.LayoutFor(sim.ActiveLayout.SpaceId).Surfaces
+                    .Where(p => p.Kind != before)
+                    .OrderBy(p => Math.Pow((p.MinXMm + p.MaxXMm) / 2.0 - here.XMm, 2) + Math.Pow((p.MinZMm + p.MaxZMm) / 2.0 - here.ZMm, 2))
+                    .FirstOrDefault();
+                if (patch is not null)
+                {
+                    await Approach(((patch.MinXMm + patch.MaxXMm) / 2, (patch.MinZMm + patch.MaxZMm) / 2), within: 1_500, seconds: 12);
+                    await Walk(Vector3.Forward, Gait.Walk, 0.8);
+                    await Beat("the_ground", $"From {before} to {sim.PlayerSurface}\nThe same walk: {ringBefore} mm of ring, then {sim.PlayerNoiseMm} mm", 2.0);
+                }
+                else
+                {
+                    await Beat("the_ground", $"The ground here: {before}\nNo other surface within reach to walk onto", 1.8);
+                }
+            }
             File.WriteAllText(Path.Combine(directory, "captions.json"), JsonSerializer.Serialize(captions));
             File.WriteAllText(Path.Combine(directory, "summary.json"), JsonSerializer.Serialize(new
             {
