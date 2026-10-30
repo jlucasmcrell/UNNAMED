@@ -6422,7 +6422,8 @@
     "item.weapon.reality_projector": "ui.item.hunting_bow",
     "item.weapon.stun_device": "ui.item.hunting_bow",
     "item.weapon.tractor_projector": "ui.item.hunting_bow",
-    "item.weapon.water_projector": "ui.item.hunting_bow"
+    "item.weapon.water_projector": "ui.item.hunting_bow",
+    "item.tool.lure_stone": "ui.item.glass_marble"
   },
   "effects": {
     "cast_charge": "vfx.magic.cast_charge",
