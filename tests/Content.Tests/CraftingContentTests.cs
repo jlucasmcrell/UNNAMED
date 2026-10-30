@@ -66,7 +66,7 @@ public class CraftingContentTests
 
         Assert.Equal(new[]
         {
-            "node.carcass.boar", "node.carcass.deer", "node.carcass.grey_wolf", "node.fibre.bog_cotton", "node.firstplay.ashbloom",
+            "node.carcass.boar", "node.carcass.crow", "node.carcass.deer", "node.carcass.duck", "node.carcass.elk", "node.carcass.grey_wolf", "node.carcass.moose", "node.carcass.rabbit", "node.carcass.red_fox", "node.carcass.trout", "node.fibre.bog_cotton", "node.firstplay.ashbloom",
             "node.herb.boneleaf", "node.herb.woundmoss", "node.ore.bog_iron", "node.ore.grey_iron", "node.ore.hidden_bog_iron",
             "node.ore.hidden_grey_iron", "node.ore.iron_seam", "node.ore.loose_iron", "node.sedge.tidewashed_spar",
             "node.trap.larder_snare", "node.trap.pelt_snare", "node.wood.ash_stand", "node.wood.deadfall", "node.wood.pine_resin",
