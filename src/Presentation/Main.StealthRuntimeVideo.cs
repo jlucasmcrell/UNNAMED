@@ -15,18 +15,32 @@ public partial class Main
     {
         if (_options.GetValueOrDefault("--stealth-runtime-video") is not { Length: > 0 } directory)
             return;
-        string guard = _options.GetValueOrDefault("--stealth-guard") ?? "npc.frontier.waystation_watch";
-        string label = _options.GetValueOrDefault("--stealth-area") ?? "waystation";
+        // One run, every area: `--stealth-areas "waystation=npc.frontier.waystation_watch,cairn=...,road=..."`, each area's own
+        // clip under the run's directory. A single area can still be named with --stealth-area/--stealth-guard.
+        var areas = _options.GetValueOrDefault("--stealth-areas") is { Length: > 0 } list
+            ? list.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+                .Select(pair => pair.Split('=', 2))
+                .Where(pair => pair.Length == 2)
+                .Select(pair => (Area: pair[0], Guard: pair[1]))
+                .ToArray()
+            : new[]
+            {
+                (_options.GetValueOrDefault("--stealth-area") ?? "waystation",
+                    _options.GetValueOrDefault("--stealth-guard") ?? "npc.frontier.waystation_watch"),
+            };
         _ = Run();
         async Task Run()
         {
-            try
+            foreach (var (area, guard) in areas)
             {
-                await StealthRuntimeVideo(Path.GetFullPath(directory), guard, label);
-            }
-            catch (Exception error)
-            {
-                GD.PushError($"STEALTH_RUNTIME_VIDEO failed: {error}");
+                try
+                {
+                    await StealthRuntimeVideo(Path.Combine(Path.GetFullPath(directory), area), guard, area);
+                }
+                catch (Exception error)
+                {
+                    GD.PushError($"STEALTH_RUNTIME_VIDEO failed for {area}: {error}");
+                }
             }
             CaptureQuit.At(this, 0);
         }
