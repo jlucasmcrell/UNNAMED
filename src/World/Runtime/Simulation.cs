@@ -264,6 +264,7 @@ public sealed class Simulation
     private readonly DurabilitySystem _durability;
     private readonly BurningLightsSystem _lights;
     private readonly DetectionSystem _detection;
+    private readonly AlarmSystem _alarms;
     private readonly LadenSystem _laden;
     private readonly PartySheetSystem _sheets;
     private readonly PetSystem _pets;
@@ -400,6 +401,7 @@ public sealed class Simulation
         _durability.Listen(bus);
         _lights = new BurningLightsSystem(_context, player.Id);
         _detection = new DetectionSystem(_context, player.Id);
+        _alarms = new AlarmSystem(_context, _npcs);
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
         _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
@@ -715,7 +717,7 @@ public sealed class Simulation
     /// Which way the air moves today, in millidegrees (STEALTH §4.6): the same for every body in the world, derived from the seed and the day, so a
     /// scent test can stand a creature upwind of the character and be sure that is where it is.
     /// </summary>
-    public long WindBearing() => _creatures.WindBearingOf;
+    public long WindBearing() => _creatures.WindBearingOfPublic;
 
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;

@@ -659,6 +659,11 @@ public static class QuestRules
                 return One(new Term($"arrived at {t.StoneKey} by the stones while active", progress.ToString(), ">= 1", progress >= 1));
             case WaystoneKnown w:
                 return One(Is($"{w.StoneKey} known", facts.KnowsStone(w.StoneKey)));
+            case DeedObjective d:
+                // A deed objective moves only when the deed is recorded (QuestRules.Record); here it reports where it stands, so a quest that
+                // is advanced for any other reason does not reset it.
+                return One(new Term($"a {d.Kind} deed{(d.SubjectId is null ? "" : $" in {d.SubjectId}")}", progress.ToString(),
+                    $">= {d.Count}", progress >= d.Count));
             case FactionReputation f:
             {
                 int level = facts.StandingLevel(f.FactionId);

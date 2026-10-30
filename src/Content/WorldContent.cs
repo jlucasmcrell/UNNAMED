@@ -5,6 +5,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
@@ -263,6 +264,8 @@ public static class WorldContent
         try
         {
             var map = Read(region.YamlSource);
+            // Seconds in the content become ticks through the game's own tick length, never a hard-coded rate.
+            int ticksPerSecond = Math.Max(1, (int)Math.Round(1000.0 / Math.Max(1, TickMilliseconds(loader))));
             var regionKey = RegionKey.Parse(Text(map, "region_key"));
             // `space:` is the space this region's coordinates belong to (M8 D10). Absent means the exterior,
             // which is every region that existed before M8 and every one that is part of the world; an
@@ -712,6 +715,8 @@ public static class WorldContent
                 Lights = Lights(map, minX, minZ, maxX, maxZ, Check),
                 Covers = Covers(map, minX, minZ, maxX, maxZ, Check),
                 Placements = StealthPlacements(map, minX, minZ, maxX, maxZ, Check),
+                Patrols = Patrols(map, Check, ticksPerSecond),
+                Winds = Winds(map, Check),
                 Surfaces = GroundSurfaces(map, minX, minZ, maxX, maxZ, Check),
                 Opening = opening,
             };
@@ -852,6 +857,49 @@ public static class WorldContent
     /// <c>capture_sites</c> a non-lethal run leaves a living body in. Each is a plain list of positions: read here so a mistake is a
     /// lint error rather than a silent absence, which is what these four hooks were until they had a schema.
     /// </summary>
+    /// <summary>
+    /// The patrols a region authors, as loops the NPC simulation can walk: each stop is a position, the period is the length of the round and the
+    /// blind spot is the stretch of it where a body behind cover is not seen. The audit reads the same section as placements; this is the runtime's.
+    /// </summary>
+    private static ImmutableArray<PatrolSite> Patrols(Dictionary<object, object> map, Action<bool, string, string> check, int ticksPerSecond)
+    {
+        var patrols = ImmutableArray.CreateBuilder<PatrolSite>();
+        foreach (var (entry, i) in (map.ContainsKey("patrols") ? List(map, "patrols") : new List<object>()).Select((p, i) => (p, i)))
+        {
+            var patrol = entry as Dictionary<object, object> ?? throw new FormatException($"patrols[{i}] must be a map");
+            string key = Text(patrol, "key");
+            var stops = List(patrol, "stops_m").Select(s =>
+            {
+                var pair = s as List<object> ?? throw new FormatException($"{key}: a stop must be [x, z]");
+                if (pair.Count != 2)
+                    throw new FormatException($"{key}: a stop must be [x, z]");
+                return new PatrolStop(ToMm(pair[0], $"{key} stop x"), ToMm(pair[1], $"{key} stop z"));
+            }).ToImmutableArray();
+            patrols.Add(new PatrolSite(key, Text(patrol, "npc_ref"), stops, Int(patrol, "period_s") * ticksPerSecond)
+            {
+                BlindSpotTicks = Int(patrol, "blind_spot_s") * ticksPerSecond,
+            });
+        }
+        return patrols.ToImmutable();
+    }
+
+    /// <summary>The wind an area authors: a bearing and a strength over a radius, which scents are read against.</summary>
+    private static ImmutableArray<WindSite> Winds(Dictionary<object, object> map, Action<bool, string, string> check)
+    {
+        var winds = ImmutableArray.CreateBuilder<WindSite>();
+        foreach (var (entry, i) in (map.ContainsKey("winds") ? List(map, "winds") : new List<object>()).Select((w, i) => (w, i)))
+        {
+            var wind = entry as Dictionary<object, object> ?? throw new FormatException($"winds[{i}] must be a map");
+            var (x, z) = Pair(wind, "position_m");
+            string key = Text(wind, "key");
+            winds.Add(new WindSite(key, x, z, (long)Math.Round(Number(wind, "vector_deg") * 1000), Number(wind, "strength_mps"))
+            {
+                RadiusMm = wind.ContainsKey("radius_m") ? Mm(wind, "radius_m") : 60_000,
+            });
+        }
+        return winds.ToImmutable();
+    }
+
     private static ImmutableArray<StealthPlacement> StealthPlacements(Dictionary<object, object> map, long minX, long minZ, long maxX, long maxZ,
         Action<bool, string, string> check)
     {

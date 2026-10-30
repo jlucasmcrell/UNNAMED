@@ -661,6 +661,16 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>Which way the air moves today (STEALTH 4.6): derived from the world seed and the day, so no state is saved for it.</summary>
     private long WindBearing => WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 57_600));
 
+    /// <summary>
+    /// Which way the air moves at a place (STEALTH §4.6, §8.2): a wind content authors over that ground wins, and the day's prevailing wind is
+    /// what everywhere unwritten gets. The nose is measured at the nose, so a gorge that draws and a road gap that funnels smell differently.
+    /// </summary>
+    private long WindAt(long xMm, long zMm) => WindRules.BearingAt(WindBearing, _context.Setup.Layout.Winds, xMm, zMm);
+
+    /// <summary>Which way the air moves where the character stands (STEALTH §4.6): the local wind, for the readout and the tests.</summary>
+    internal long WindBearingOfPublic => WindAt(State.Body.XMm, State.Body.ZMm);
+
+    /// <summary>Which way the day's air moves, before any ground has a say.</summary>
     internal long WindBearingOf => WindBearing;
 
     private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel) * StealthGear.Noise(PlayerEffectIds());
@@ -965,7 +975,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // walks to where the smell is thickest, which is where the character was, and that is the pursuit the stealth player has to break.
         if (!asleep && target && !drawn && senses.ScentMm > 0 && next.Mind != CreatureMind.Engaged
             && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= senses.ScentMm
-            && ScentRules.Carries(WindBearing, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
+            && ScentRules.Carries(WindAt(c.Body.XMm, c.Body.ZMm), c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
             && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm))
         {
             // A nose is not a sighting and it is not instant: it builds as the scent does, at half the rate a pair of eyes builds it. Until the animal

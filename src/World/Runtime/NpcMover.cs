@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
@@ -31,6 +32,17 @@ internal sealed class NpcTierSimulation : ITierSimulation
 
 internal sealed partial class NpcSystem
 {
+    /// <summary>Where an alarm bell sends the guards, and when they stop answering it (STEALTH §8.2).</summary>
+    private long _alarmXMm, _alarmZMm, _alarmUntilTick;
+
+    /// <summary>A bell has rung: everyone within its earshot goes to the post. The responders answer before their rounds do.</summary>
+    public void RespondToAlarm(long xMm, long zMm, long untilTick)
+    {
+        _alarmXMm = xMm;
+        _alarmZMm = zMm;
+        _alarmUntilTick = untilTick;
+    }
+
     /// <summary>Headway: a step of at least 30% of a walk's travel, else the tick counts as stuck.</summary>
     private const long HeadwayMm = 24;
 
@@ -178,8 +190,46 @@ internal sealed partial class NpcSystem
             return (at.XMm, at.ZMm, at.FacingMdeg);
         }
         int hourOfDay = (int)(((State.World.NpcLife!.Hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay);
+        // An alarm outranks both the round and the day: a body that hears the bell goes to it (STEALTH §8.2).
+        if (_alarmUntilTick > State.WorldTick)
+        {
+            long dx = _alarmXMm - npc.XMm, dz = _alarmZMm - npc.ZMm;
+            if (dx * dx + dz * dz <= AlarmSystem.EarshotMm * AlarmSystem.EarshotMm)
+                return (_alarmXMm, _alarmZMm, 0);
+        }
+        // A patrol (STEALTH §8.2): while she is on duty the round is her goal, so she walks stop to stop and stands at each one. Off duty she
+        // goes back to her routine - the round is the post, not the day.
+        if (PatrolLegFor(npc, routine, hourOfDay) is { } round)
+            return (round.XMm, round.ZMm, (int)round.FacingMdeg);
         var own = routine.AnchorFor(npc.Activity, hourOfDay);
         return (own.XMm, own.ZMm, own.FacingMdeg);
+    }
+
+    /// <summary>
+    /// Where her patrol has her at this tick, or null when she is not on it: the authored round (STEALTH §8.2) is walked at a walk while her
+    /// routine's work hours are open, and she stands at each stop for the rest of its share of the period. A body with no patrol - everyone in
+    /// the game so far - never enters this.
+    /// </summary>
+    private PatrolLeg? PatrolLegFor(NpcLifeRecord life, RoutineDefinition routine, int hourOfDay)
+    {
+        var layout = _context.Setup.Layout;
+        if (layout.Patrols.IsDefaultOrEmpty)
+            return null;
+        bool onDuty = routine.WorkFromHour <= routine.WorkToHour
+            ? hourOfDay >= routine.WorkFromHour && hourOfDay < routine.WorkToHour
+            : hourOfDay >= routine.WorkFromHour || hourOfDay < routine.WorkToHour;
+        if (!onDuty)
+            return null;
+        foreach (var patrol in layout.Patrols)
+        {
+            if (patrol.NpcId != routine.Key)
+                continue;
+            int tickMs = TickMs;
+            long walkMmPerSecond = Math.Max(1, _context.Setup.Movement.BaseSpeedMmPerSecond * _context.Setup.Movement.WalkPercent / 100);
+            long step = Math.Max(1, walkMmPerSecond * tickMs / 1000);
+            return PatrolRules.At(patrol, State.WorldTick, step);
+        }
+        return null;
     }
 
     /// <summary>

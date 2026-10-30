@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 
 namespace UNNAMED.Domain.Spatial;
 
@@ -217,6 +218,12 @@ public sealed record RegionLayout(
     /// audit and the mission layer read; nothing in the tick drives movement from them yet.
     /// </summary>
     public ImmutableArray<StealthPlacement> Placements { get; init; } = ImmutableArray<StealthPlacement>.Empty;
+
+    /// <summary>The patrols the area authors (STEALTH §8.2): the guards and the rounds they walk, which the NPC tier simulation drives.</summary>
+    public ImmutableArray<PatrolSite> Patrols { get; init; } = ImmutableArray<PatrolSite>.Empty;
+
+    /// <summary>The ground where the air moves its own way (STEALTH §4.6): the wind a nose and a shot are read against.</summary>
+    public ImmutableArray<WindSite> Winds { get; init; } = ImmutableArray<WindSite>.Empty;
 
     /// <summary>What the ground is made of, patch by patch (STEALTH §3.1): the one place a footfall's carry is decided by the floor.</summary>
     public ImmutableArray<SurfacePatch> Surfaces { get; init; } = ImmutableArray<SurfacePatch>.Empty;

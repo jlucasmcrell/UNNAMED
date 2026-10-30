@@ -246,6 +246,8 @@ structures:
   - { id: tree_137, circle_m: [196.2, 66.8, 0.4], height_m: 7.0 }
   - { id: tree_138, circle_m: [196.0, 61.4, 0.4], height_m: 7.0 }
   - { id: tree_139, circle_m: [197.7, 54.6, 0.4], height_m: 7.0 }
+  # D23 S6 (HOOK.STEALTH.ALARM): the yard bell's own post, where the waystation's people can reach it.
+  - { id: bellpost_ashen_hollow_yard, circle_m: [56, 144, 0.6], height_m: 2.6 }
 # Doors block movement while closed; their open state is a world flag in their cell.
   # ---- ASHEN HOLLOW INTERIORS, 2026-09-29 ---------------------------------------------------
   # Priority 6 said "interiors - THERE ARE NONE ANYWHERE; houses are solid collision boxes so the
@@ -425,6 +427,12 @@ switches:
     verb: Steady
     locked_text: "It slides out from under your hand. Somewhere in the ring a Quiet Stone is still out of line."
     done_text: "The heart holds. The ring goes quiet all at once, and across it Tavar's shadow catches up with him."
+  - key: switch.bell.hollow_yard
+    structure: bellpost_ashen_hollow_yard
+    flag_ref: world.ward.hollow_bell
+    name: the yard bell
+    verb: Ring
+    done_text: "The bell over the yard takes one swinging blow and keeps ringing. Every door on the green opens at the sound."
 # Barriers (M6): a footprint that blocks until a world flag in its cell is set - the fold that holds Tavar (bible §16, §17).
 barriers:
   - key: barrier.foldscar_fold
