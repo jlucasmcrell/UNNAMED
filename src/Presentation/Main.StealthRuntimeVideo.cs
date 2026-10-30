@@ -21,21 +21,23 @@ public partial class Main
             ? list.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
                 .Select(pair => pair.Split('=', 2))
                 .Where(pair => pair.Length == 2)
-                .Select(pair => (Area: pair[0], Guard: pair[1]))
+                .Select(pair => pair[1].Split('@', 2))
+                .Select(parts => (Area: parts[0], Guard: parts[1], Portal: parts.Length > 2 ? parts[2] : (string?)null))
                 .ToArray()
             : new[]
             {
                 (_options.GetValueOrDefault("--stealth-area") ?? "waystation",
-                    _options.GetValueOrDefault("--stealth-guard") ?? "npc.frontier.waystation_watch"),
+                    _options.GetValueOrDefault("--stealth-guard") ?? "npc.frontier.waystation_watch",
+                    (string?)null),
             };
         _ = Run();
         async Task Run()
         {
-            foreach (var (area, guard) in areas)
+            foreach (var (area, guard, portal) in areas)
             {
                 try
                 {
-                    await StealthRuntimeVideo(Path.Combine(Path.GetFullPath(directory), area), guard, area);
+                    await StealthRuntimeVideo(Path.Combine(Path.GetFullPath(directory), area), guard, area, portal);
                 }
                 catch (Exception error)
                 {
@@ -51,7 +53,7 @@ public partial class Main
     /// bell at the post is rung and she answers it. Booted with <c>--stealth-runtime-video &lt;dir&gt; --stealth-guard &lt;npc id&gt;</c>; the page
     /// writes numbered frames the way the route proof does, so the run is watched rather than asserted.
     /// </summary>
-    private async Task StealthRuntimeVideo(string directory, string guardId, string label)
+    private async Task StealthRuntimeVideo(string directory, string guardId, string label, string? entryPortal = null)
     {
         Directory.CreateDirectory(directory);
         Directory.CreateDirectory(Path.Combine(directory, "frames"));
@@ -59,6 +61,29 @@ public partial class Main
         for (int wait = 0; wait < 900 && _session.Simulation is null; wait++)
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         var simulation = _session.Simulation ?? throw new System.IO.InvalidDataException("No world for the runtime video");
+        if (entryPortal is { Length: > 0 })
+        {
+            // Walk to the threshold on the same steering a player uses, take it, and wait for the space to change: the interior's watch
+            // lives in the interior, so nothing is filmed until the character is through.
+            var portal = simulation.ActiveLayout.Portals.Portals.FirstOrDefault(p => p.Key == entryPortal);
+            if (portal is not null)
+            {
+                long px = portal.ExteriorXMm, pz = portal.ExteriorZMm;
+                for (int i = 0; i < 2400; i++)
+                {
+                    var body = simulation.Player.Body;
+                    double dx = px - body.XMm, dz = pz - body.ZMm;
+                    if (dx * dx + dz * dz < 1_500_000)
+                        break;
+                    _controller.SteerWorld(new Vector3((float)dx, 0, (float)dz).Normalized(), Domain.Spatial.Gait.Run, _camera);
+                    await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                }
+            }
+            _session.Submit(new EnterSpaceCommand(simulation.PlayerId, entryPortal));
+            var before = simulation.ActiveLayout.SpaceId;
+            for (int i = 0; i < 600 && simulation.ActiveLayout.SpaceId == before; i++)
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        }
         _rcd3Driving = true;
         _npcs.SuppressPresentationForBenchmark = false;
         bool hudWasVisible = _hud.Visible;
@@ -157,5 +182,8 @@ public partial class Main
         Mark("end", $"{label}: done, {rejected.Count} refused commands");
         await SavedFrame(directory, frame, "final");
         _hud.Visible = hudWasVisible;
+        caption.QueueFree();
+        layer.QueueFree();
+        film.QueueFree();
     }
 }
