@@ -22,7 +22,7 @@ public partial class Main
             if (Time.GetTicksMsec() > deadline)
             {
                 File.WriteAllText(Path.Combine(directory, "failed.txt"), "Opening recorder did not start");
-                GetTree().Quit(3);
+                CaptureQuit.At(this, 3);
                 return;
             }
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);

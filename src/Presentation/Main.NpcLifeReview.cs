@@ -153,7 +153,7 @@ public partial class Main
             ulong stop = Time.GetTicksMsec() + 15000;
             while (!File.Exists(Path.Combine(directory, "recording.stopped")) && Time.GetTicksMsec() < stop)
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            GetTree().Quit(File.ReadAllText(Path.Combine(directory, "gate.exit")) == "0" ? 0 : 1);
+            CaptureQuit.At(this, File.ReadAllText(Path.Combine(directory, "gate.exit")) == "0" ? 0 : 1);
         }
     }
 }

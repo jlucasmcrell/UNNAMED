@@ -84,6 +84,8 @@ public partial class Main : Node3D
     private SystemMenuPanel _menu = null!;
     private CanvasLayer? _openedFromMenu;
     private bool _escapeToMenu;
+    /// <summary>No one is at the window: a harness run, a headless one, or one the engine quits itself (<c>--quit-after</c>).</summary>
+    private bool _unattended;
     private SaveOutcome? _lastSave;
     private string? _loadedFrom;
     private EffectsPanel _effectsPanel = null!;
@@ -285,7 +287,9 @@ public partial class Main : Node3D
     {
         _loading?.End();
         GD.PushError($"UNNAMED cannot start: {e}");
-        if (DisplayServer.GetName() != "headless")
+        // The dialog is modal: with no one at the window it waited for ever (the B-008 batch sat 37 min on a scatter path its
+        // launcher split at a space). An unattended run has the reason in the log and stderr, and leaves with 2.
+        if (!_unattended)
             OS.Alert($"Otherreach cannot start.\n\n{why}\n\nThe log, with the details: {LogPath}", "Otherreach");
         CaptureQuit.At(this, 2);
     }
@@ -308,6 +312,7 @@ public partial class Main : Node3D
         _escapeToMenu = _options.GetValueOrDefault("--menu-escape") == "back";
         if (!harness && DisplayServer.GetName() != "headless")
             _loading = new Ui.LoadingScreen(GetViewport());
+        _unattended = _loading is null || OS.GetCmdlineArgs().Contains("--quit-after");
         Settings.SettingsStore.Load(persist: !harness);
         if (harness)
         {
@@ -323,6 +328,13 @@ public partial class Main : Node3D
         if (_flags.Contains("--spike"))
         {
             AddChild(new SpikeScene(_options.GetValueOrDefault("--perf-out", DefaultPerfOut("spike")), Seconds()));
+            return;
+        }
+        // Offline build of a workspace's texture cache, with no world and no GPU: the only way to add the entries a packaged
+        // boot requires (TextureCache.RequireCompressed) without walking the game to each of them first (B-013).
+        if (OS.GetEnvironment("OTHERREACH_HUMGEN_CACHE_ROOT") is { Length: > 0 })
+        {
+            AddChild(new HumGenCacheBuild());
             return;
         }
         if (_options.TryGetValue("--art-gallery", out string? gallery))
@@ -528,6 +540,12 @@ public partial class Main : Node3D
         _loading?.Stage("Building the world", 0.12);
         int before = GetChildCount();
         ulong building = Time.GetTicksMsec();
+        // A harness run has no loading screen to hide the half-built world, so once the camera exists every load flush drew it at the
+        // run's tier: at Ultra on the 3090 each such frame held the GPU at 100% for ~11 s, and the device was lost inside
+        // ArtLibrary.LoadScene under ItemsView.BuildContainers (B-015). Nothing needs the world drawn until it is built.
+        bool hideBuild = _loading is null && !GetViewport().Disable3D;
+        if (hideBuild)
+            GetViewport().Disable3D = true;
         try
         {
             BuildScene();
@@ -537,7 +555,9 @@ public partial class Main : Node3D
             if (e is InvalidDataException && e.Message.StartsWith("Packaged texture >=2K is uncompressed:", StringComparison.Ordinal))
             {
                 GD.PushError(e.ToString());
-                GetTree().Quit(1);
+                // Through CaptureQuit like every other quit, so a failed run leaves the process instead of unwinding a
+                // half-built world the engine then frees twice (B-001).
+                CaptureQuit.At(this, 1);
                 return;
             }
             // The asset library is generated elsewhere: a record it cannot read must cost its art, never the game (the Phase-1 technical
@@ -555,6 +575,8 @@ public partial class Main : Node3D
             _assets = AssetCatalog.Empty;
             BuildScene();
         }
+        if (hideBuild)
+            GetViewport().Disable3D = false;
         _sceneMs = Time.GetTicksMsec() - building;
         _art.EndPrefetch();
         if (loadOrder is not null)
@@ -1670,6 +1692,7 @@ public partial class Main : Node3D
             GD.Print($"UNNAMED audio: {_sounds.Played.Count} of {_sounds.Count} sounds played this run; asked for and missing: " +
                      (_sounds.Unknown.Count == 0 ? "none" : string.Join(", ", _sounds.Unknown)) +
                      (OS.GetEnvironment("UNNAMED_AUDIO_LOG") is { Length: > 0 } log ? WriteAudioLog(log) : ""));
+        CaptureQuit.Finished();
     }
 
     private string WriteAudioLog(string path)

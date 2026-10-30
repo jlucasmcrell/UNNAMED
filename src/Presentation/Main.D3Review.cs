@@ -53,7 +53,7 @@ public partial class Main
             File.WriteAllText(Path.Combine(directory, "failure.txt"), e.ToString());
             File.WriteAllText(Path.Combine(directory, "gate.exit"), "1");
             GD.PushError(e.ToString());
-            GetTree().Quit(1);
+            CaptureQuit.At(this, 1);
         }
     }
 }

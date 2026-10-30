@@ -98,8 +98,17 @@ public sealed class TextureCache
             Hits++;
             return cached;
         }
-        if (!Building || image() is not { } picture)
+        if (!Building)
             return null;
+        if (image() is not { } picture)
+        {
+            // The source is there but Godot could not decode it, so no entry can ever be built for it and a packaged boot
+            // will refuse it for ever (B-013: vfx/ext_unity_flame02.png shipped that way). The builder used to count this as
+            // nothing at all, which is how a root reached a release with a manifest entry whose .dds was never written.
+            Failed++;
+            GD.PushWarning($"UNNAMED texture cache: could not decode {Path.GetRelativePath(_root, source)}; no entry can be built for it");
+            return null;
+        }
         string? dds = Compress(picture, role);
         if (dds is null)
         {

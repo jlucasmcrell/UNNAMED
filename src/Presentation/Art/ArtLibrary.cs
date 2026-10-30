@@ -746,7 +746,13 @@ public sealed class ArtLibrary
         // frames advance. A boot builds every model inside one frame, so without a frame now and then those uploads pile up to the
         // whole scene's uncompressed size (Barrowworks first entry, packaged: 15.7 GB dedicated peak and 10.9 GB after; with this, 5.0).
         if (++_importsSinceFlush % 4 == 0)
+        {
+            ulong flushStarted = Time.GetTicksUsec();
             RenderingServer.ForceDraw(false);
+            double flushMs = (Time.GetTicksUsec() - flushStarted) / 1000.0;
+            if (flushMs > 100 && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+                GD.Print($"UNNAMED load flush: {flushMs:0} ms after {_importsSinceFlush} imports");
+        }
         var parsed = Take(path);
         using var document = parsed?.Document ?? new GltfDocument();
         using var state = parsed?.State ?? new GltfState();
@@ -855,7 +861,9 @@ public sealed class ArtLibrary
         foreach (var entry in meshes)
         {
             var mesh = entry.Mesh;
-            if (mesh is null || mesh.GetBlendShapeCount() > 0) continue;
+            // Only an ImporterMesh has GenerateLods; the glTF importer hands back an ArrayMesh in a packaged build, and the
+            // call on that faults natively (SEHException, seen on the 6900XT farm while the editor build was fine).
+            if (mesh is not ImporterMesh || mesh.GetBlendShapeCount() > 0) continue;
             long indices = 0;
             bool existing = false;
             for (int surface = 0; surface < mesh.GetSurfaceCount(); surface++)

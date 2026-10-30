@@ -53,7 +53,7 @@ public partial class TreeShadowLodGate : Node
             GD.Print($"TREE_SHADOW_LOD_GATE_PASS {cases}: accepted default ON all tiers; explicit baseline OFF; visible mesh/buffers/materials shared; proxy idempotent");
             GetTree().Quit();
         }
-        catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
+        catch (Exception error) { GD.PushError(error.ToString()); CaptureQuit.At(this, 1); }
         finally
         {
             System.Environment.SetEnvironmentVariable("UNNAMED_TREE_SHADOW_LOD", prior);

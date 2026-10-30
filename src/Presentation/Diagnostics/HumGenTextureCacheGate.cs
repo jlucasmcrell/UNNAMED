@@ -34,7 +34,7 @@ public partial class HumGenTextureCacheGate : Node
         catch (Exception error)
         {
             GD.PushError(error.ToString());
-            GetTree().Quit(1);
+            CaptureQuit.At(this, 1);
         }
     }
 }
