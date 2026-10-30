@@ -535,6 +535,12 @@ public partial class Main : Node3D
         _loading?.Stage("Building the world", 0.12);
         int before = GetChildCount();
         ulong building = Time.GetTicksMsec();
+        // A harness run has no loading screen to hide the half-built world, so once the camera exists every load flush drew it at the
+        // run's tier: at Ultra on the 3090 each such frame held the GPU at 100% for ~11 s, and the device was lost inside
+        // ArtLibrary.LoadScene under ItemsView.BuildContainers (B-015). Nothing needs the world drawn until it is built.
+        bool hideBuild = _loading is null && !GetViewport().Disable3D;
+        if (hideBuild)
+            GetViewport().Disable3D = true;
         try
         {
             BuildScene();
@@ -564,6 +570,8 @@ public partial class Main : Node3D
             _assets = AssetCatalog.Empty;
             BuildScene();
         }
+        if (hideBuild)
+            GetViewport().Disable3D = false;
         _sceneMs = Time.GetTicksMsec() - building;
         _art.EndPrefetch();
         if (loadOrder is not null)

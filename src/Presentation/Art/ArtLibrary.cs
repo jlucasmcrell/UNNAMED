@@ -746,7 +746,13 @@ public sealed class ArtLibrary
         // frames advance. A boot builds every model inside one frame, so without a frame now and then those uploads pile up to the
         // whole scene's uncompressed size (Barrowworks first entry, packaged: 15.7 GB dedicated peak and 10.9 GB after; with this, 5.0).
         if (++_importsSinceFlush % 4 == 0)
+        {
+            ulong flushStarted = Time.GetTicksUsec();
             RenderingServer.ForceDraw(false);
+            double flushMs = (Time.GetTicksUsec() - flushStarted) / 1000.0;
+            if (flushMs > 100 && OS.GetEnvironment("UNNAMED_LOAD_REPORT") == "1")
+                GD.Print($"UNNAMED load flush: {flushMs:0} ms after {_importsSinceFlush} imports");
+        }
         var parsed = Take(path);
         using var document = parsed?.Document ?? new GltfDocument();
         using var state = parsed?.State ?? new GltfState();
