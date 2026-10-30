@@ -17,8 +17,19 @@ public partial class Main
             return;
         string guard = _options.GetValueOrDefault("--stealth-guard") ?? "npc.frontier.waystation_watch";
         string label = _options.GetValueOrDefault("--stealth-area") ?? "waystation";
-        _ = StealthRuntimeVideo(Path.GetFullPath(directory), guard, label).ContinueWith(_ => GetTree().Quit(),
-            TaskScheduler.FromCurrentSynchronizationContext());
+        _ = Run();
+        async Task Run()
+        {
+            try
+            {
+                await StealthRuntimeVideo(Path.GetFullPath(directory), guard, label);
+            }
+            catch (Exception error)
+            {
+                GD.PushError($"STEALTH_RUNTIME_VIDEO failed: {error}");
+            }
+            CaptureQuit.At(this, 0);
+        }
     }
 
     /// <summary>
@@ -31,6 +42,8 @@ public partial class Main
         Directory.CreateDirectory(directory);
         Directory.CreateDirectory(Path.Combine(directory, "frames"));
         DisplayServer.WindowSetTitle("Otherreach_D23_Runtime_" + label);
+        for (int wait = 0; wait < 900 && _session.Simulation is null; wait++)
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         var simulation = _session.Simulation ?? throw new System.IO.InvalidDataException("No world for the runtime video");
         _rcd3Driving = true;
         _npcs.SuppressPresentationForBenchmark = false;
