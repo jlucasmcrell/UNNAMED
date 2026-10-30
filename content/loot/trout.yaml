@@ -1,0 +1,9 @@
+id: loot.trout
+kind: loot
+schema: 1
+display_key: loot.trout.name
+tags: [loot]
+notes: A brown trout - a pan fish, and the reason anyone carries a line to the outfall.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [1, 1] }

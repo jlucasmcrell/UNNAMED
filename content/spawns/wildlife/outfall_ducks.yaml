@@ -1,0 +1,15 @@
+id: spawn.cairnwold.outfall_ducks
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.outfall_ducks.name
+tags: [spawn]
+notes: Mallards on the outfall pools, paddling the shallows and grazing the bank between them.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.duck, count: [4, 4], role: yard_fowl }
+at:
+  position_m: [1082, 706]
+  radius_m: 8
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 18000 }
+tier_hint: A

@@ -85,7 +85,7 @@ public class CombatContentTests
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
         // 29, not 30: the Ring Custodian's spawn is region.barrowworks' and this run is the start area's, so
         // CombatContent correctly does not carry it. A run of the ring has it and not these.
-        Assert.Equal(50, spawns.Count);   // includes the accepted Foldscar and Old Late packs in addition to the existing regional spawns
+        Assert.Equal(54, spawns.Count);   // includes the accepted Foldscar and Old Late packs in addition to the existing regional spawns
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
@@ -103,10 +103,10 @@ public class CombatContentTests
         Assert.Equal(new[]
             {
                 "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
-                "creature.beast.chicken", "creature.beast.doe", "creature.beast.elk", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster", "creature.beast.sedge_eel_serpent",
+                "creature.beast.chicken", "creature.beast.crow", "creature.beast.doe", "creature.beast.duck", "creature.beast.elk", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.moose", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster", "creature.beast.sedge_eel_serpent",
                 "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour", "creature.construct.gate_tender", "creature.construct.gate_warden",
                 "creature.construct.ring_custodian",
-                "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.humanoid.back_ledger_raider", "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned",
+                "creature.fish.trout", "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.humanoid.back_ledger_raider", "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned",
             }, setup.Creatures.Keys);
         Assert.Equal(1_100L, setup.Creatures["creature.grazer.fellhorn"].RadiusMm); // C1 gore contact stays 0.3 m farther out.
         var barrowback = setup.Creatures["creature.grazer.barrowback"];

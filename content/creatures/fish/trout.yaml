@@ -1,0 +1,22 @@
+id: creature.fish.trout
+kind: creature
+schema: 1
+display_key: creature.fish.trout.name
+tags: [creature, fish]
+name: Brown Trout
+notes: The fish of the outfall and the cold runs below it. It holds in the current and darts at anything small enough to be food; a line in the water is the only way at it.
+family: fish
+archetype: prey
+level_band: [1, 1]
+pools: { health: 4 }
+attack_set: [ability.creature.tail_slap]
+armor: { head: 0, torso: 0, limbs: 0 }
+move_speed_m_s: 1.8
+turn_deg_s: 540
+body_radius_m: 0.12
+xp_value: 5
+loot_table: loot.trout
+perception: { sight_m: 8, hearing_m: 6, fov_deg: 340 }
+tier_hint: A
+tameable: false
+aquatic: true

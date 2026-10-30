@@ -1,0 +1,21 @@
+id: creature.beast.duck
+kind: creature
+schema: 1
+display_key: creature.beast.duck.name
+tags: [creature, beast, fowl]
+name: Mallard
+notes: Waterfowl of the outfall pools and the mill race. It paddles in the shallows, grazes the bank, and goes up in a clatter when anything comes within three paces.
+family: fowl
+archetype: prey
+level_band: [1, 1]
+pools: { health: 6 }
+attack_set: [ability.creature.peck]
+armor: { head: 0, torso: 0, limbs: 0 }
+move_speed_m_s: 1.2
+turn_deg_s: 360
+body_radius_m: 0.18
+xp_value: 4
+loot_table: loot.fowl
+perception: { sight_m: 20, hearing_m: 22, fov_deg: 320 }
+tier_hint: A
+tameable: false

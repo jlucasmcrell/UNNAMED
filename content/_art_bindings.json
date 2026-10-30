@@ -5926,6 +5926,58 @@
     "flee": "flee"
    },
    "note": "WildMesh SK_Elk from the 100 MODELS pack; own idle, walk, trot and sprint takes. Its rig arrives pitched, so the shipped body and every clip carry a +90 degree root rotation. Silent."
+  },
+  "creature.beast.moose": {
+   "model": "creature_wm_moose",
+   "clips": "creature.creature_wm_moose",
+   "voice": "",
+   "flesh": "hide",
+   "blow": "gore",
+   "steps": {
+    "walk": "walk",
+    "run": "run",
+    "flee": "flee"
+   },
+   "note": "WildMesh bull moose; own idle, walk, trot and sprint takes. Silent."
+  },
+  "creature.beast.duck": {
+   "model": "creature_wm_duck",
+   "clips": "creature.creature_wm_duck",
+   "voice": "",
+   "flesh": "fowl",
+   "blow": "none",
+   "steps": {
+    "walk": "walk",
+    "run": "run",
+    "flee": "flee"
+   },
+   "note": "WildMesh mallard; paddles and grazes on its own takes. Silent."
+  },
+  "creature.beast.crow": {
+   "model": "creature_wm_crow",
+   "clips": "creature.creature_wm_crow",
+   "voice": "",
+   "flesh": "fowl",
+   "blow": "none",
+   "steps": {
+    "walk": "walk",
+    "run": "run",
+    "flee": "flee"
+   },
+   "note": "WildMesh crow; hops and flies on its own takes. Silent."
+  },
+  "creature.fish.trout": {
+   "model": "creature_wm_trout",
+   "clips": "creature.creature_wm_trout",
+   "voice": "",
+   "flesh": "fish",
+   "blow": "none",
+   "steps": {
+    "walk": "swim",
+    "run": "swim",
+    "flee": "swim"
+   },
+   "note": "WildMesh trout; a shoal fish whose only gait is the swim it holds station with."
   }
  },
  "audio": {

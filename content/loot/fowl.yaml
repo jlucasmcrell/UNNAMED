@@ -1,0 +1,10 @@
+id: loot.fowl
+kind: loot
+schema: 1
+display_key: loot.fowl.name
+tags: [loot]
+notes: A bird brought down - a small meal and feathers for fletching.
+rolls: 0
+guaranteed:
+  - { item_ref: item.material.raw_meat, count_range: [1, 1] }
+  - { item_ref: item.material.feathers, count_range: [1, 2] }
