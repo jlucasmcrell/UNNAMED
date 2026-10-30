@@ -339,7 +339,11 @@ public static class SkyView
         if (VisualOptions.Clouds == "sunshine" && sky.Get("sun").AsGodotObject() is DirectionalLight3D cloudSun)
         {
             if (CloudsView.Attach(sky, cloudSun, out string? cloudsWhy))
-                sky.Set("clouds_enabled", false);   // Sky3D's flat 2D cloud layer gives way to the volumetric one
+                sky.Set("clouds_enabled", false);
+            // Sky3D's screen-space fog is a 2 x 2 quad pinned at the world origin; from anywhere but the origin its
+            // geometry shows as a hard wedge across the sky (the owner's "diagonal seam"). The world's haze is Godot's
+            // own, from atmosphere.json, so this layer goes.
+            sky.Set("fog_enabled", false);   // Sky3D's flat 2D cloud layer gives way to the volumetric one
         else if (VisualOptions.Clouds == "none")
             // No cloud layer at all: Sky3D would otherwise draw its cumulus disc, whose rim reads as a hard arc across
             // the sky from anywhere near the ground (the owner's "hard diagonal seam", Gate 2 verdict).
