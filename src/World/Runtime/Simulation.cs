@@ -695,6 +695,11 @@ public sealed class Simulation
     public string PlayerSurface => _creatures.PlayerSurface;
 
     /// <summary>
+    /// Where a searching creature will look next (STEALTH 4.2), for tests and reviews: the widening pattern is a rule, and a rule can be read.
+    public (long X, long Z) SearchPointOf(EntityId creature, long searchStartedTick, long tick) =>
+        _creatures.Find(creature) is { } state ? _creatures.SearchPoint(state, tick, searchStartedTick) : (0, 0);
+
+    /// <summary>
     /// How visible the character is to one creature, from 0 (not in a state to be seen at all) upward, as the sight check itself computes it
     /// (STEALTH §2): the light they both stand in, the cover the character is behind, their posture and what they carry. Read-only, for tests
     /// and reviews that need the factor rather than the consequence.

@@ -900,10 +900,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 if (c.SearchUntil == 0)
                     c = c with { SearchUntil = tick + 2L * Setup.Awareness.SearchTicks };
                 if (tick >= c.SearchUntil || !Keeps(c, c.KnownXMm, c.KnownZMm))
-                    return c with { Mind = CreatureMind.Returning, Knows = false, Awareness = 0 };
+                    // Giving up is not forgetting (STEALTH §4.3): a watch that has searched goes back to its post uneasy, and the next sighting
+                    // starts a third of the way to suspicious instead of from nothing.
+                    return c with { Mind = CreatureMind.Returning, Knows = false, Awareness = Math.Max(c.Awareness, Setup.Awareness.Suspicious / 2) };
                 if (!Arrived(c, c.KnownXMm, c.KnownZMm))
                     return c with { Body = Move(c, c.KnownXMm, c.KnownZMm, Gait.Run) };
-                return Wander(c, c.KnownXMm, c.KnownZMm, 4_000, tick);
+                // Then the places a body that got away would have gone: a widening walk around the last known point, a golden-angle step at a
+                // time so consecutive steps never retrace each other (§4.2). The step count comes from the clock, so it costs no saved state.
+                var (sx, sz) = SearchPoint(c, tick, c.SearchUntil - 2L * Setup.Awareness.SearchTicks);
+                return c with { Body = Move(c, sx, sz, Gait.Walk) };
             case CreatureMind.Returning:
                 if (Arrived(c, c.HomeXMm, c.HomeZMm))
                     return c with { Mind = CreatureMind.Unaware, Knows = false, LastSeenTick = 0, SearchUntil = 0 };
@@ -951,6 +956,32 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// Drift between points around a place, a leg per period: each period's point is rolled from the creature's name and
     /// the period, so the drift follows from the tick alone. Arrived early, it waits for the next.
     /// </summary>
+    /// <summary>
+    /// Where a searching body looks next (STEALTH §4.2): a widening arc around the last known point, one golden-angle step per leg, so the
+    /// second step is never on top of the first and the walk covers a whole circle rather than a line. The count comes from the clock since
+    /// the target was lost, so a reload searches the same places without saving an index.
+    /// </summary>
+    internal (long X, long Z) SearchPoint(CreatureState c, long tick, long searchStartedTick)
+    {
+        // The search's own start is passed in: a search that began on a heard noise works the same as one that began on a sighting.
+        // One leg every SearchStepTicks from the tick the search began, so the same search looks at the same places after a reload.
+        long step = Math.Max(1, (tick - searchStartedTick) / SearchStepTicks + 1);
+        // A widening circle around the place the target was last known, bounded by the ground the creature is allowed to cover, so a watch with
+        // a tight post searches its own few metres and a hunter ranges wider. The centre is the last known point, not the post: what it is looking
+        // for was never at the post.
+        long reach = Math.Min(SearchMaxMm, Math.Max(SearchStartMm, C.LeashMm / 2));
+        long radius = Math.Min(SearchStartMm + (step - 1) * SearchStrideMm, reach);
+        double angle = step * SearchGoldenAngle;
+        return (c.KnownXMm + (long)Math.Round(Math.Cos(angle) * radius), c.KnownZMm + (long)Math.Round(Math.Sin(angle) * radius));
+    }
+
+    /// <summary>How long one leg of a search lasts, how far the first one walks, how much each widens, and how far it will go.</summary>
+    private const long SearchStepTicks = 20;
+    private const long SearchStartMm = 2_000;
+    private const long SearchStrideMm = 1_500;
+    private const long SearchMaxMm = 9_000;
+    private const double SearchGoldenAngle = 2.399963229728653;
+
     private CreatureState Wander(CreatureState c, long aroundX, long aroundZ, long radius, long tick)
     {
         if (radius <= 0)
