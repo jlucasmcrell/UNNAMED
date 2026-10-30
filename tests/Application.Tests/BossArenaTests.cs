@@ -81,6 +81,27 @@ public class BossArenaTests
     }
 
     [Fact]
+    public void EveryBossInAnUnbuiltArea_StandsOnADevScaffoldRegion()
+    {
+        // Owner ruling 2026-10-30: a boss may stand on placeholder ground as data, but never in a player build. The 20 flat
+        // patches are tagged dev_scaffold, and Main refuses --region for one unless --dev-scaffold is given; this asserts the
+        // tag those bosses depend on, and that the five built areas are NOT tagged (they must always load).
+        string regions = System.IO.Path.Combine(Harness.RepoRoot(), "content", "regions");
+        var scaffold = new List<string>();
+        foreach (string path in System.IO.Directory.GetFiles(regions, "*.yaml"))
+        {
+            string text = System.IO.File.ReadAllText(path);
+            bool tagged = text.Contains("- dev_scaffold", StringComparison.Ordinal);
+            string name = System.IO.Path.GetFileNameWithoutExtension(path);
+            if (tagged)
+                scaffold.Add(name);
+        }
+        Assert.Equal(20, scaffold.Count);
+        foreach (string built in new[] { "starting_frontier", "ashen_hollow", "barrowworks", "den_gorge_cave", "sedge_levels" })
+            Assert.DoesNotContain(built, scaffold);
+    }
+
+    [Fact]
     public void TheNextThree_HaveTheirCourts_AndTheirBands()
     {
         using var profile = new TempProfile();
