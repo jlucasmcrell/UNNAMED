@@ -1,0 +1,15 @@
+id: spawn.ashen_hollow.crows
+kind: spawn
+schema: 1
+display_key: spawn.ashen_hollow.crows.name
+tags: [spawn]
+notes: Crows on the hollow waystation, walking the roofs and the road out before they lift
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.crow, count: [4, 4], role: wildlife }
+at:
+  position_m: [48, 150]
+  radius_m: 14
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

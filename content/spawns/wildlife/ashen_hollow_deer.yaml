@@ -1,0 +1,16 @@
+id: spawn.ashen_hollow.deer
+kind: spawn
+schema: 1
+display_key: spawn.ashen_hollow.deer.name
+tags: [spawn]
+notes: Red deer in the hollow trees on the eastern side, two hinds and the stag that keeps them
+region_ref: region.ashen_hollow
+creatures:
+  - { creature_ref: creature.beast.doe, count: [2, 2], role: skittish }
+  - { creature_ref: creature.beast.buck, count: [1, 1], role: skittish }
+at:
+  position_m: [160, 110]
+  radius_m: 14
+level_band: [1, 2]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

@@ -677,7 +677,7 @@ public class ContentLoaderTests
                 "skill.smithing", "skill.stealth", "skill.survival", "skill.tracking", "skill.vital",
                 "skill.warding",
                 "skill.woodworking",
-                "spawn.ashen.east_deer", "spawn.ashen.field_hares", "spawn.ashen.ravine_fox", "spawn.ashen.waystation_crows", "spawn.barrowworks.bend_husk", "spawn.barrowworks.inspection_spiders", "spawn.barrowworks.ring_custodian", "spawn.barrowworks.ruin_crows", "spawn.barrowworks.sorting_spider_north",
+                "spawn.ashen.east_deer", "spawn.ashen.field_hares", "spawn.ashen.ravine_fox", "spawn.ashen.waystation_crows", "spawn.ashen_hollow.crows", "spawn.ashen_hollow.deer", "spawn.ashen_hollow.fox", "spawn.ashen_hollow.hares", "spawn.barrowworks.bend_husk", "spawn.barrowworks.inspection_spiders", "spawn.barrowworks.ring_custodian", "spawn.barrowworks.ruin_crows", "spawn.barrowworks.sorting_spider_north",
                 "spawn.barrowworks.sorting_spider_south", "spawn.barrowworks.wash_spider", "spawn.barrowworks.yard_hares", "spawn.cairnwold.barrow_sentinel", "spawn.cairnwold.birch_boar",
                 "spawn.cairnwold.birch_deer", "spawn.cairnwold.crag_walker", "spawn.cairnwold.foldscar_moose", "spawn.cairnwold.fox", "spawn.cairnwold.gorge_spiders",
                 "spawn.cairnwold.hens", "spawn.cairnwold.millpond_deer", "spawn.cairnwold.millpond_ducks", "spawn.cairnwold.moor_elk_herd", "spawn.cairnwold.moor_hares", "spawn.cairnwold.moor_strays", "spawn.cairnwold.moor_west_elk", "spawn.cairnwold.outfall_ducks", "spawn.cairnwold.outfall_hares",

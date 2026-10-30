@@ -17,11 +17,14 @@ public sealed class FaunaContentTests
         "creature.fish.trout",
     ];
 
-    // The four regions the session actually simulates; a spawn anywhere else is declared and never placed.
+    // The four regions the session actually simulates. A spawn in `Declared`-only ground is populated for the day that area is booted, and
+    // is listed here so the exception stays explicit rather than turning this test into a formality.
     private static readonly string[] Simulated =
     [
         "region.starting_frontier", "region.barrowworks", "region.den_gorge_cave", "region.sedge_levels",
     ];
+
+    private static readonly string[] DeclaredOnly = ["region.ashen_hollow"];
 
     private static ContentLoader Load()
     {
@@ -51,7 +54,7 @@ public sealed class FaunaContentTests
         var loader = Load();
         foreach (var spawn in loader.GetByKind("spawn").Values)
         {
-            Assert.Contains(Simulated, region => spawn.YamlSource!.Contains($"region_ref: {region}"));
+            Assert.Contains(Simulated.Concat(DeclaredOnly), region => spawn.YamlSource!.Contains($"region_ref: {region}"));
         }
     }
 
