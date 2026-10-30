@@ -157,6 +157,8 @@ sections:
   - id: frontier_wardrobe
     title: "Frontier wardrobe"
     entries:
+      - binds: [humgen_creator_f_outfit_outfit_period_robe]
+        text: "Monk's Robe by Donitz, MakeHuman Community, CC0. Native custom-content fitting, body controls, lining and coverage mask for Otherreach."
       - binds: [frontier_]
         text: "Frontier garments, modified, fitted and combined for Otherreach:"
         lines:

@@ -22457,6 +22457,15 @@
    "paths": {
     "m": "outfits\\male\\Summer\\BBQ_Barry.blend"
    }
+  },
+  {
+   "id": "outfit.period.robe",
+   "label": "Scholar's wool robe",
+   "group": "Frontier roles",
+   "paths": {
+    "f": "period/outfit.period.robe",
+    "m": "period/outfit.period.robe"
+   }
   }
  ],
  "footwear": [
