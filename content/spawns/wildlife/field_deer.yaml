@@ -1,0 +1,16 @@
+id: spawn.field.deer
+kind: spawn
+schema: 1
+display_key: spawn.field.deer.name
+tags: [spawn]
+notes: Red deer grazing the field edge at first light, two hinds and a stag keeping clear of the tenders
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.doe, count: [2, 2], role: skittish }
+  - { creature_ref: creature.beast.buck, count: [1, 1], role: skittish }
+at:
+  position_m: [840, 768]
+  radius_m: 12
+level_band: [1, 2]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

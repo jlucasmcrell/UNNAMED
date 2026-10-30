@@ -1,0 +1,15 @@
+id: spawn.barrowworks.yard_fox
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.yard_fox.name
+tags: [spawn]
+notes: A dog fox working the Barrowworks yard for what the spiders leave of the hares
+region_ref: region.barrowworks
+creatures:
+  - { creature_ref: creature.beast.red_fox, count: [1, 1], role: wildlife }
+at:
+  position_m: [58, 96]
+  radius_m: 10
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A
