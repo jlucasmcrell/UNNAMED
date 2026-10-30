@@ -296,7 +296,7 @@ internal sealed partial class NpcSystem
         {
             // A body pressed into something cannot plan from where it stands: it steps out to the nearest place it can stand first.
             if (StandingClear(body) is { } clear)
-                Write(npc, life, BodyAt(clear.XMm, clear.ZMm, body.FacingMdeg), NavRoute.None, 0);
+                Write(npc, life, BodyAt(npc.Space, clear.XMm, clear.ZMm, body.FacingMdeg), NavRoute.None, 0);
             else
                 Write(npc, life, body, step.Route, life.StuckTicks + 1);
             return;
@@ -337,7 +337,7 @@ internal sealed partial class NpcSystem
             Write(npc, life, body, route, life.StuckTicks + 1);
             return;
         }
-        Write(npc, life, BodyAt(nx, nz, landed ? goalFacing : facing), landed ? NavRoute.None : route, 0);
+        Write(npc, life, BodyAt(npc.Space, nx, nz, landed ? goalFacing : facing), landed ? NavRoute.None : route, 0);
     }
 
     /// <summary>
@@ -401,7 +401,7 @@ internal sealed partial class NpcSystem
         }
         var intent = new MoveIntent(direction.X, direction.Z, Gait.Walk, CombatRules.FacingTowards(body.XMm, body.ZMm, target.XMm, target.ZMm));
         // She walks on the ground of the space she stands in, not the character's: an exterior villager is not lifted onto an interior's floor.
-        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.LayoutFor(npc.Space).Space, Obstacles(npc.Definition.Id), TickMs), landing);
+        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.LayoutFor(npc.Space).Space, Obstacles(npc), TickMs), landing);
     }
 
     private static int DivRound(long numerator, long denominator) =>
@@ -409,17 +409,17 @@ internal sealed partial class NpcSystem
 
     /// <summary>
     /// What a walking NPC's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people - all in the
-    /// exterior, where every life walks; a character in an interior space (the Barrowworks) is not in their way.
+    /// space she stands in. Interiors have lives of their own now (the Barrowworks' watch), so the exterior is not the only floor walked.
     /// </summary>
-    private List<Blocker> Obstacles(string self)
+    private List<Blocker> Obstacles(NpcState self)
     {
         long r = _context.Setup.Movement.BodyRadiusMm;
-        var obstacles = new List<Blocker>(_context.ClosedDoors(SpaceId.Exterior));
-        obstacles.AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space.IsExterior)
+        var obstacles = new List<Blocker>(_context.ClosedDoors(self.Space));
+        obstacles.AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space == self.Space)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)));
-        if (State.Space.IsExterior)
+        if (State.Space == self.Space)
             obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, r, 0));
-        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != self)
+        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != self.Definition.Id && n.Space == self.Space)
             .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, r, 0)));
         return obstacles;
     }
@@ -438,7 +438,7 @@ internal sealed partial class NpcSystem
     private bool StepAside(NpcState npc, NpcLifeRecord life)
     {
         var intent = _playerIntent();
-        if (!intent.IsMoving || !State.Space.IsExterior)
+        if (!intent.IsMoving || npc.Space != State.Space)
             return false;
         var player = State.Body;
         long r = _context.Setup.Movement.BodyRadiusMm;

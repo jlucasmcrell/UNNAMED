@@ -10,15 +10,15 @@ A level-L character has put its L-1 level-up points into Might. The sword and ba
 
 | Weapon | Level | Might | Median s | Fastest s | Slowest s | Median attacks | In the 4-8 s band |
 |---|---|---|---|---|---|---|---|
-| Rusted Sword | 1 | 10 | 6.70 | 5.15 | 9.60 | 9 | yes |
-| Rusted Sword | 2 | 11 | 5.55 | 4.10 | 7.40 | 7 | yes |
-| Rusted Sword | 3 | 12 | 4.85 | 3.35 | 6.65 | 7 | yes |
+| Rusted Sword | 1 | 10 | 6.80 | 5.15 | 9.60 | 9 | yes |
+| Rusted Sword | 2 | 11 | 5.55 | 4.10 | 6.30 | 7 | yes |
+| Rusted Sword | 3 | 12 | 4.85 | 3.35 | 5.60 | 7 | yes |
 | Hunting Bow | 1 | 10 | 7.45 | 4.85 | 11.75 | 6 | yes |
 | Hunting Bow | 2 | 11 | 6.15 | 3.55 | 8.65 | 5 | yes |
 | Hunting Bow | 3 | 12 | 4.85 | 3.55 | 7.35 | 4 | yes |
-| Unarmed | 1 | 10 | 24.20* | 14.80 | 59.90 | 27 | no (a fallback, not a weapon family) |
-| Unarmed | 2 | 11 | 16.50 | 12.45 | 24.35 | 22 | no (a fallback, not a weapon family) |
-| Unarmed | 3 | 12 | 13.50 | 10.60 | 17.75 | 20 | no (a fallback, not a weapon family) |
+| Unarmed | 1 | 10 | 23.45* | 14.80 | 59.90 | 27 | no (a fallback, not a weapon family) |
+| Unarmed | 2 | 11 | 15.00 | 12.45 | 24.35 | 22 | no (a fallback, not a weapon family) |
+| Unarmed | 3 | 12 | 13.40 | 10.60 | 15.35 | 19 | no (a fallback, not a weapon family) |
 
 ## Dying, standing still
 
@@ -26,12 +26,12 @@ A level-1 character wakes the wolves with one swing each, then stands: no guard,
 
 | Wolves and armor | Median s | Fastest s | Slowest s | In the 8-15 s band |
 |---|---|---|---|---|
-| 1 wolf, armor: none | 19.90 | 15.00 | 24.40 | no |
-| 2 wolves, armor: none | 13.50 | 10.25 | 17.90 | yes |
-| 4 wolves, armor: none | 13.00 | 9.00 | 15.25 | yes |
-| 1 wolf, armor: hide vest + cap | 20.80 | 15.40 | 26.40 | no |
-| 2 wolves, armor: hide vest + cap | 14.00 | 11.60 | 18.15 | yes |
-| 4 wolves, armor: hide vest + cap | 13.35 | 9.05 | 15.35 | yes |
+| 1 wolf, armor: none | 19.90 | 15.00 | 24.95 | no |
+| 2 wolves, armor: none | 13.40 | 10.25 | 17.25 | yes |
+| 4 wolves, armor: none | 12.00 | 10.00 | 15.10 | yes |
+| 1 wolf, armor: hide vest + cap | 20.80 | 15.40 | 26.65 | no |
+| 2 wolves, armor: hide vest + cap | 14.00 | 11.60 | 17.25 | yes |
+| 4 wolves, armor: hide vest + cap | 12.80 | 10.30 | 15.50 | yes |
 
 ## No health sponges
 
@@ -39,5 +39,5 @@ The same body authored at level 6 with a doubled bite (8-12). The owner first-up
 
 | Wolf | Level | Health | Bite | Kill with the sword, median s | Death standing still, median s |
 |---|---|---|---|---|---|
-| As authored | 2 | 50 | 4-6 | 6.70 | 19.90 |
+| As authored | 2 | 50 | 4-6 | 6.80 | 19.90 |
 | Over-band variant | 6 | 50 | 8-12 | >=60 (trade lost/censored) | 5.05 |

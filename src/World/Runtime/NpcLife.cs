@@ -82,7 +82,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         if (routine.NpcId is { } npcId)
         {
             if (State.Npcs.TryGetValue(npcId, out var named) && !State.Companions.ContainsKey(npcId))
-                Place(named, BodyAt(life.XMm, life.ZMm, life.FacingMdeg));
+                Place(named, BodyAt(named.Space, life.XMm, life.ZMm, life.FacingMdeg));
             return;
         }
         var id = ResidentIdOf(routine.Id, life.Generation);
@@ -212,7 +212,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
     {
         SetLife(WithCell(npc with { XMm = x, ZMm = z, FacingMdeg = facing, Route = NavRoute.None, StuckTicks = 0 }));
         if (State.Npcs.TryGetValue(npc.Key, out var body))
-            Place(body, BodyAt(x, z, facing));
+            Place(body, BodyAt(body.Space, x, z, facing));
     }
 
     /// <summary>A resident leaves (DN4). A named NPC never does by rule.</summary>
