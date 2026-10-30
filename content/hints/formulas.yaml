@@ -7,4 +7,4 @@ notes: "Existing."
 category: magic
 trigger: formula_learned
 order: 0
-text: "{key:quick_4} {key:quick_5} {key:quick_6} work your formulas. Each spends Focus and builds Strain; at high Strain a working can cost health."
+text: "{key:quick_4} {key:quick_5} {key:quick_6} work your formulas. A formula spends Focus and builds Strain - high Strain takes health instead."

@@ -5,7 +5,7 @@ display_key: quest.ashen_hollow.end_of_playtest.name
 tags: [quest]
 notes: The playtest's closing journal entry. Renn's farewell line (offered once all four story quests are done) starts it and the same line completes it, so it lands under Done with the feedback text as its summary. Text only - the itch.io line is words for the player to read; nothing here or anywhere reaches the network.
 title: End of the playtest
-summary: "You have seen this stretch of the road. Berrin knows the Rim Stone rite; the road east and the account you chose prepare the next journey. Vessmere is beyond this playable slice. Bind a return point deliberately, and leave feedback on what you found. Thank you for playing. If you have a minute, leave a comment on the game's itch.io page - what you enjoyed, what broke, and where you got lost. Every comment gets read."
+summary: "You have walked this stretch of the road and it has said what it has to say. Bind a return point before you leave it."
 track: side
 giver_ref: npc.ashen_hollow.renn_vale
 entry_objective: o_book

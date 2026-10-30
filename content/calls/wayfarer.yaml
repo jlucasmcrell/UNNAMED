@@ -6,7 +6,7 @@ tags: [call]
 name: Wayfarer
 tagline: "The road kept going, so you did."
 description: "The road was the only thing that kept going, and you went with it. You know the waystation customs and what the Waystones are, an old network of travellers' stones. It is not your first road, and the boots show it."
-recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "…and not your first road, by the look of those boots." }
+recognition: { npc_ref: npc.ashen_hollow.renn_vale, line: "Those boots have been further than this road. Not your first, then." }
 notes: A CC-0 Call (accepted OD-C03; C11:43-49, 109; OR:85-98) - the content bible's working package name (§14). Built only from existing items, skills and NPCs. The bias, skills, kit and contact are working choices pending the C11 text, which is not in this repo.
 attribute_bias: { endurance: 2, might: 1, agility: 1 }
 skills: { skill.athletics: 15, skill.one_hand_blade: 15 }
