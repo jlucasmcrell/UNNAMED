@@ -1,6 +1,6 @@
 // UNNAMED Presentation - diagnostic only: report scenery whose height does not match the ground the renderer draws.
 //
-// Set UNNAMED_SCENERY_PROBE=1 and the boot prints, for each scenery group, how many pieces stand more than a metre off the drawn
+// Set OTHERREACH_SCENERY_PROBE=1 and the boot prints, for each scenery group, how many pieces stand more than a metre off the drawn
 // surface and the worst of them with name, position and delta. That turns "boulders float in the sky" into a set of named pieces and the
 // exact placement path that lifted them, instead of a guess about which of the four dressing passes is responsible.
 
@@ -15,7 +15,7 @@ public static class SceneryProbe
 
     public static void Report(Node3D root, Func<float, float, float> drawn, string label)
     {
-        if (OS.GetEnvironment("UNNAMED_SCENERY_PROBE") != "1")
+        if (OS.GetEnvironment("OTHERREACH_SCENERY_PROBE") != "1")
             return;
         var offenders = new List<(string Name, Vector3 At, float Off)>();
         Walk(root, drawn, label.Length == 0 ? "scenery" : label, offenders);
