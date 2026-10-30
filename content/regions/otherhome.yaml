@@ -57859,7 +57859,7 @@ stations:
 containers:
 - key: container.otherhome.exchange_strongbox
   lock_tier: 2
-  loot_ref: loot.blackvein_strongbox
+  loot_ref: loot.otherhome.port_ledger
   position_m: [1623.0, 763.0]
   stack_slots: 4
 - key: container.otherhome.quay_cache

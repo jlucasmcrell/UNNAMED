@@ -1,0 +1,19 @@
+id: item.otherhome.port_ledger
+kind: item
+schema: 1
+display_key: item.otherhome.port_ledger.name
+tags: [item]
+name: The Port Ledger
+notes: >-
+  The Tidepearl Exchange's working copybook: what the port's smiths and fletchers have been paid to make, season by season,
+  with the patterns drawn out beside the tallies in a clerk's neat hand. Reading it teaches the trades it records - a
+  merchant's book that happens to be a manual, because a merchant who cannot judge a smith's work pays too much for it.
+category: misc
+stack_max: 1
+weight: 0.6
+consume: false
+value_base: 12
+grants:
+- { kind: recipe, ref: recipe.smithing.iron_billet }
+- { kind: recipe, ref: recipe.smithing.lame_coif }
+- { kind: recipe, ref: recipe.fletching.arrows }
