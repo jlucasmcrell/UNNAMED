@@ -1,4 +1,4 @@
-# D23 stealth: the 68-row audit, re-run against `systems/stealth`
+﻿# D23 stealth: the 68-row audit, re-run against `systems/stealth`
 
 Run 2026-10-30 against worktree `D:\Otherreach_Scratch\ds_stealth_wt`, branch `systems/stealth` (off `build2-integ` `303bdbe8`), HEAD `da858b8e`.
 Source of the rows: `canon/STEALTH.md` §1. States: **IMPL** built and exercised; **PART** some of it; **DES** designed and content reserved;
@@ -11,7 +11,8 @@ Source of the rows: `canon/STEALTH.md` §1. States: **IMPL** built and exercised
 | baseline (`build2-integ`, 2026-10-28) | 15 | 22 | 19 | 12 |
 | after S0+S1 | 24 | 20 | 16 | 8 |
 | after S2+S3+S4 | 35 | 15 | 12 | 6 |
-| after S5+S6+S7 (this run) | **47** | **14** | **4** | **3** |
+| after S5+S6+S7 | 47 | 14 | 4 | 3 |
+| after the S4/S6/S7 close-out (this run) | **52** | **12** | **2** | **2** |
 
 ## What moved, and where to look
 
@@ -38,6 +39,10 @@ Source of the rows: `canon/STEALTH.md` §1. States: **IMPL** built and exercised
 | 30 | a device reads what has noticed the wearer, further | IMPL | `detect_range_m` → `Systems.PlayerDetectRangeMm`, read by the HUD; `item.tool.watchglass`; `StealthGearTests` |
 | 31 | bodies discovered raise alarm | IMPL | `CorpseInSight`; `StealthBodiesTests` |
 | 33 | animals by scent and wind | IMPL | `ScentRules`, `WindRules`; `StealthScentTests`; the nose accrues per tick (`23a69d39`) |
+| 34 | a pack notices one of its own going missing | IMPL | a death records the role and the place; a packmate within forty metres that saw nothing goes suspicious and looks there; `StealthMissingPackTests` |
+| 35 | a body can crawl | IMPL | `Stance.Prone` with its own eye height, sight gain and noise; `CrouchCommand.Prone`, a Crawl verb and the crouch key cycling through it; `StealthProneTests` |
+| 36 | a ward of still air shuts the nose | IMPL | `scent_ward` → `Systems.PlayerScentWard`, read by the scent rule; `item.armor.stills_ward`; `StealthWardTests` |
+| 37 | the drag is an action of its own | IMPL | `DragBodyCommand`, a metre a step, the body left in the open; `StealthDragTests` (end to end off a real takedown) |
 | 40 | a body in water or a chest is out of sight | IMPL | `BodyHidden` reads `WaterUnder` depth and `ContainerSite`; `11a71c78`, `da858b8e` |
 | 41 | body carry / drag | IMPL | carry into cover (`HideBodyCommand`) and drag a metre at a time (`DragBodyCommand`) — the drag's own end-to-end test is skipped, the command is not |
 | 42 | hide bodies | IMPL | a corpse in 100 % cover, in deep water, or at a chest stops being a sign |
@@ -56,16 +61,13 @@ Source of the rows: `canon/STEALTH.md` §1. States: **IMPL** built and exercised
 ## Still owed, precisely
 
 - **S4**: takedowns through doors; carry *targets* (putting a body into a chest as a command rather than a place you drop it); ledges as a hiding
-  place; takedown animations (no clip set is owned); an end-to-end ledge test (the reach rule is tested, the arena helper cannot place a body at
-  height). The drag's own test is skipped for the same fixture reason.
+  place; and the takedown and prone **animations** (no clip set is owned - the stances, speeds, noise radii and sight gains all exist); an
+  end-to-end ledge test (the reach rule is tested, the arena helper cannot place a body at height).
 - **S5**: wind on arrows and the drop it implies (`ProjectileRules.HoldoverMm` exists, unwired); a scope with steadying breath; retrievable
-  arrows; and the *wound* arriving with the flight — the impact noise travels now, the damage still lands at release because the strike pipeline
-  is bound to the attack action and refuses a blow whose windup is over.
-- **S6**: the ghost and non-lethal bonuses are *paid against* a ledger now, but no bonus is awarded; stealth routes in the build-2 areas.
-- **S7**: wards against being scried, which the content model has no field for.
-- **S3**: missing patrol members needs patrol rosters in the role data; guards hold a post today.
-- **S1**: a prone pose (the stance has a speed and a noise radius and no clip); the shot-out trigger's line of flight is wired and its reach rule
-  is tested, but no authored lamp on a clear line has been shot along yet.
-- **Proof**: S0 is FINISHED (`work/farm_stealth02/route.mp4`, its contact sheet and `shot.json`). S1 onwards are waiting on a GPU: the 3090 is
-  codex's owner-reserved lease and the 6900XT farm has been running other lanes' jobs all morning. `deepseek_stealth04` (HUD fix and the S7
-  gear in the kit) is queued there.
+  arrows (there is no ground-item system for a spent arrow to lie in); and the *wound* arriving with the flight - the impact noise travels now,
+  the damage still lands at release because the strike pipeline is bound to the attack action and refuses a blow whose windup is over.
+- **S6**: the ghost and non-lethal bonuses are *paid against* a ledger now (`Simulation.StealthDetections`), but no bonus is awarded; stealth
+  routes in the build-2 areas.
+- **Proof**: **S0 and S1 are FINISHED**. S0 has `work/farm_stealth02/route.mp4`, its contact sheet and `shot.json`; S1 has
+  `work/farm_stealth05/route.mp4`, its contact sheet, the HUD proof still (`crop_dark.png`) and `phases.jsonl`. S2 and S3 are code-complete and
+  wait on `deepseek_stealth08` (the corrected lure and surface beats) in the 6900XT farm queue; the 3090 remains codex's owner-reserved lease.
