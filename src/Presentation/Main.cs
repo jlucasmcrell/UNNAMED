@@ -46,6 +46,13 @@ public partial class Main : Node3D
     /// <summary>F3 and F4 work in debug builds, or on a release build launched with <c>--dev</c>.</summary>
     private bool _developer;
     private readonly Dictionary<string, string> _options = new(StringComparer.Ordinal);
+
+    /// <summary>How much of the stealth read is drawn (STEALTH §2.7a): the full shadow and ring, or the minimal setting's sound and body language.</summary>
+    private UNNAMED.Presentation.Ui.Models.StealthHudMode _stealthHud = UNNAMED.Presentation.Ui.Models.StealthHudMode.Full;
+    // --stealth-hud minimal: the settings switch the owner asked for (STEALTH §2.7a) - no silhouette and no ring, so the read is the sound itself.
+    private void ReadStealthHudOption() => _stealthHud = string.Equals(_options.GetValueOrDefault("--stealth-hud"), "minimal", StringComparison.OrdinalIgnoreCase)
+        ? UNNAMED.Presentation.Ui.Models.StealthHudMode.Minimal
+        : UNNAMED.Presentation.Ui.Models.StealthHudMode.Full;
     private GameSession _session = null!;
     private HollowView _hollow = null!;
 
@@ -302,6 +309,7 @@ public partial class Main : Node3D
             GD.Print("UNNAMED direct EXE: using packaged PLAY defaults");
         }
         ParseArguments(Ui.Models.PlaytestLaunchDefaults.Resolve(arguments, Home(), OS.HasFeature("template")));
+        ReadStealthHudOption();
         // A player's run plays with the player's settings (the window, the tier they chose, the dials); a harness run never reads or
         // writes them (its numbers stay comparable).
         _developer = OS.IsDebugBuild() || _flags.Contains("--dev");
@@ -1998,7 +2006,7 @@ public partial class Main : Node3D
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
-                    or "--stealth-review" or "--stealth-probe" or "--stealth-beats"
+                    or "--stealth-review" or "--stealth-probe" or "--stealth-beats" or "--stealth-hud"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

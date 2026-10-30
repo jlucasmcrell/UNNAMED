@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the awareness indicator (STEALTH_DETECTION_AND_THREAT.md §20; STEALTH.md §2.7)
+﻿// UNNAMED Presentation - the awareness indicator (STEALTH_DETECTION_AND_THREAT.md §20; STEALTH.md §2.7)
 // Godot presentation only: it draws the awareness creatures already carry; no simulation state lives here.
 
 using Godot;
@@ -12,7 +12,7 @@ namespace UNNAMED.Presentation.Ui;
 /// noise's own place, not the body. Presentation only; every number comes from the creature view.
 /// </summary>
 public readonly record struct AwarenessCue(string Name, int Awareness, int HeardNoise, int Suspicious, int Full, bool Engaged,
-    NoticeSense Sense = NoticeSense.Eye, float BearingDegrees = 0, bool HasDirection = false);
+    NoticeSense Sense = NoticeSense.Eye, float BearingDegrees = 0, bool HasDirection = false, bool Other = false);
 
 /// <summary>
 /// §20's design rule made visible: each nearby body is an arc that fills with the real number and empties as it decays, with what told it and
@@ -99,8 +99,14 @@ public partial class AwarenessMeter : Control
                 DrawLine(at + new Vector2(0, 3.5f), at + new Vector2(0, 6.5f), colour, 1.2f, true);
                 break;
             case NoticeSense.Nose:
+                // Three motes drifting with the wind: scent, which is the one sense a crouch and a shadow do not answer.
                 foreach (float dy in new[] { -3f, 0f, 3f })
                     DrawCircle(at + new Vector2(0, dy), 1f, colour);
+                break;
+            case NoticeSense.Footprint:
+                // A print: a heel and a sole, the mark a body or a trail leaves (the owner's ruling, STEALTH §2.7a).
+                DrawCircle(at + new Vector2(0, 2.6f), 2.6f, colour);
+                DrawCircle(at + new Vector2(0, -2.4f), 1.6f, colour);
                 break;
             default:
                 DrawArc(at, 3.5f, Mathf.Pi, Mathf.Tau, 10, colour, 1.2f, true);

@@ -140,13 +140,14 @@ public partial class Main
                     : (0f, false);
                 return new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
                     UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged,
-                    saw ? NoticeSense.Eye : NoticeSense.Ear, bearing, has);
+                    saw ? NoticeSense.Eye : NoticeSense.Ear, bearing, has, OtherOf(c.DefId));
             })
             .ToList());
-        // The light gem and the noise ring, from the same numbers the creatures are read by (STEALTH §2.7).
-        _hud.SetStealth(UNNAMED.Presentation.Ui.Models.LightGemModel.From(simulation.PlayerLightBand),
+        bool OtherOf(string defId) => _session.Setup.Combat.Creatures.TryGetValue(defId, out var definition)
+            && definition.Tags.Contains("other");
+        _hud.SetStealth(UNNAMED.Presentation.Ui.Models.ShadowModel.From(simulation.PlayerLightBand),
             UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm, simulation.PlayerSurface),
-            posture.Stance == UNNAMED.Domain.Spatial.Stance.Crouched);
+            _stealthHud);
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         var questRows = QuestPresentation.Tracker(quests, tracked);

@@ -6,26 +6,45 @@ using UNNAMED.Domain.Combat;
 namespace UNNAMED.Presentation.Ui.Models;
 
 /// <summary>
-/// The light gem's whole content (STEALTH §2.7): the band the character is standing in as a named shape, a fill and a word. Shape carries the
-/// band as well as colour, so a colour-blind player reads the same four steps. It is the band the sight check itself uses - there is no
-/// second, hidden number.
+/// The character's own silhouette in the band they are standing in (STEALTH Â§2.7a, the owner's ruling of 2026-10-30): drawn solid black when the
+/// character is in the dark and washed almost out when they stand in the light, so the player reads their own body going from hidden to exposed -
+/// the same four steps the sight check uses, still four distinct figures, and still readable without colour.
 /// </summary>
-public readonly record struct LightGemModel(LightBand Band, string Shape, string Words, float Fill)
+public readonly record struct ShadowModel(LightBand Band, float Ink, string Words, string Shape, string People)
 {
-    public static LightGemModel From(LightBand band) => band switch
+    public static ShadowModel From(LightBand band, string people = "people.kal") => band switch
     {
-        LightBand.Dark => new(band, "closed", "Shrouded", 0.12f),
-        LightBand.Dim => new(band, "half", "In shadow", 0.4f),
-        LightBand.Lit => new(band, "open", "In the light", 0.72f),
-        _ => new(band, "radiant", "Lit up", 1f),
+        LightBand.Dark => new(band, 1f, "Shrouded", "flat", people),
+        LightBand.Dim => new(band, 0.72f, "In shadow", "soft", people),
+        LightBand.Lit => new(band, 0.42f, "In the light", "edged", people),
+        _ => new(band, 0.16f, "Lit up", "washed", people),
     };
 
-    /// <summary>The four steps the gem is read in, brightest last: what a settings page lists.</summary>
+    /// <summary>The four steps the silhouette is read in, darkest first: what a settings page lists.</summary>
     public static readonly LightBand[] Bands = { LightBand.Dark, LightBand.Dim, LightBand.Lit, LightBand.Bright };
+
+    /// <summary>
+    /// How the hue leans, per people (the owner's "tinted per people"): a token rather than a colour, so the palette stays in the presentation's own
+    /// hands and the model stays testable.
+    /// </summary>
+    public static string Tint(string people) => people switch
+    {
+        "people.siann" => "chalk",
+        "people.veth" => "rust",
+        "people.ashborn" => "ash",
+        _ => "stone",
+    };
+}
+
+/// <summary>How much of the stealth read is drawn (STEALTH Â§2.7a): the full silhouette and ring, or the minimal setting's sound and body language only.</summary>
+public enum StealthHudMode
+{
+    Full,
+    Minimal,
 }
 
 /// <summary>
-/// The noise the character is making right now (STEALTH §2.7's ring): the actual radius the creatures are hearing this tick, in metres, and
+/// The noise the character is making right now (STEALTH Â§2.7's ring): the actual radius the creatures are hearing this tick, in metres, and
 /// the surface or act that made it. The ring is drawn at that radius, so a crouch-walk really is a small circle and a sprint a large one.
 /// </summary>
 public readonly record struct NoiseRingModel(float RadiusMetres, string Words)
@@ -40,25 +59,34 @@ public readonly record struct NoiseRingModel(float RadiusMetres, string Words)
     }
 }
 
-/// <summary>What told an observer there was something there (STEALTH §2.7): an eye saw it, an ear heard it, a nose scented it.</summary>
+/// <summary>What told an observer there was something there (STEALTH Â§2.7a): an eye saw it, an ear heard it, a print or a body showed them, a nose scented it.</summary>
 public enum NoticeSense
 {
     Eye,
     Ear,
+    Footprint,
     Nose,
 }
 
 /// <summary>
-/// One observer's awareness as the HUD shows it: the real number over the real scale, what told it, and the bearing to the place it thinks
-/// the character is - which for a noise or a scent is that noise's own place, not the body. The fill ring is the same value
-/// <c>Perception.Accrue</c> keeps, so the player reads exactly what the creature knows.
+/// One observer's awareness as the HUD shows it: the real number over the real scale, what told it, the bearing to the place it thinks the
+/// character is - which for a noise or a scent is that noise's own place, not the body - and whether the sense that found them was not a person's.
 /// </summary>
-public readonly record struct AwarenessRead(int Awareness, int Full, NoticeSense Sense, float BearingDegrees, bool HasDirection)
+public readonly record struct AwarenessRead(int Awareness, int Full, NoticeSense Sense, float BearingDegrees, bool HasDirection, bool Other = false)
 {
     public static readonly AwarenessRead None = new(0, 100, NoticeSense.Eye, 0, false);
 
     /// <summary>The share of the way to full, 0..1, which is the ring's fill.</summary>
     public float Fill => Full <= 0 ? 0 : Math.Clamp(Awareness / (float)Full, 0f, 1f);
+
+    /// <summary>The glyph the meter draws for this read: a shape, so the player never has to read a colour to know what gave them away.</summary>
+    public static string Glyph(NoticeSense sense) => sense switch
+    {
+        NoticeSense.Ear => "ear",
+        NoticeSense.Footprint => "print",
+        NoticeSense.Nose => "nose",
+        _ => "eye",
+    };
 
     /// <summary>
     /// Bearing from the observer to the place it is looking at, in degrees clockwise from world +Z (north), which is the world's own

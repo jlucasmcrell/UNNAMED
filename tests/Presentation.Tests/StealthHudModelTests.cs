@@ -1,4 +1,4 @@
-using UNNAMED.Domain.Combat;
+﻿using UNNAMED.Domain.Combat;
 using UNNAMED.Presentation.Ui.Models;
 
 namespace UNNAMED.Presentation.Tests;
@@ -11,26 +11,26 @@ namespace UNNAMED.Presentation.Tests;
 public class StealthHudModelTests
 {
     [Theory]
-    [InlineData(LightBand.Dark, "closed")]
-    [InlineData(LightBand.Dim, "half")]
-    [InlineData(LightBand.Lit, "open")]
-    [InlineData(LightBand.Bright, "radiant")]
-    public void TheGemHasAShapeOfItsOwnForEveryBand(LightBand band, string shape)
+    [InlineData(LightBand.Dark, "flat")]
+    [InlineData(LightBand.Dim, "soft")]
+    [InlineData(LightBand.Lit, "edged")]
+    [InlineData(LightBand.Bright, "washed")]
+    public void TheSilhouetteHasAShapeOfItsOwnForEveryBand(LightBand band, string shape)
     {
-        var gem = LightGemModel.From(band);
+        var gem = ShadowModel.From(band);
         Assert.Equal(shape, gem.Shape);
         Assert.Equal(band, gem.Band);
         Assert.False(string.IsNullOrWhiteSpace(gem.Words));
     }
 
     [Fact]
-    public void TheGemRisesMonotonically_SoBrighterNeverReadsDarker()
+    public void TheInkFallsMonotonically_SoABrighterBandNeverReadsDarker()
     {
-        var fills = LightGemModel.Bands.Select(b => LightGemModel.From(b).Fill).ToArray();
+        var fills = ShadowModel.Bands.Select(b => ShadowModel.From(b).Ink).ToArray();
         for (int i = 1; i < fills.Length; i++)
-            Assert.True(fills[i] > fills[i - 1], $"{LightGemModel.Bands[i]} must read brighter than {LightGemModel.Bands[i - 1]}");
+            Assert.True(fills[i] < fills[i - 1], $"{ShadowModel.Bands[i]} must read fainter than {ShadowModel.Bands[i - 1]}");
         // All four bands are distinct in shape, so a colour-blind player still reads four steps.
-        Assert.Equal(4, LightGemModel.Bands.Select(b => LightGemModel.From(b).Shape).Distinct().Count());
+        Assert.Equal(4, ShadowModel.Bands.Select(b => ShadowModel.From(b).Shape).Distinct().Count());
     }
 
     [Theory]
