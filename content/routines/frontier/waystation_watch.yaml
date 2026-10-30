@@ -11,7 +11,7 @@ role: guard
 roles: [steward]
 work_hours: [6, 22]
 anchors:
-  home: {position_m: [430, 754], facing_deg: 90}
+  home: {position_m: [430, 754], facing_deg: 180}
   work: {position_m: [436, 748], facing_deg: 270}
   supper: {position_m: [440, 742], facing_deg: 0}
 schedule:
