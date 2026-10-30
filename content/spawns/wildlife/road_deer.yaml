@@ -6,7 +6,7 @@ tags: [spawn]
 notes: Two hinds in the birch along the road (canon firstplay road_doe).
 region_ref: region.starting_frontier
 creatures:
-  - { creature_ref: creature.beast.doe, count: [2, 2], role: skittish }
+  - { creature_ref: creature.beast.doe, count: [3, 3], role: skittish }
 at:
   position_m: [790, 715]
   radius_m: 6

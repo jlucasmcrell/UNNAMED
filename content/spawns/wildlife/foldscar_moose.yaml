@@ -6,7 +6,7 @@ tags: [spawn]
 notes: A pair of mire moose in the wet ground below the Foldscar, where the barrowbacks range. They do not run far.
 region_ref: region.starting_frontier
 creatures:
-  - { creature_ref: creature.beast.moose, count: [2, 2], role: herd_shy }
+  - { creature_ref: creature.beast.moose, count: [3, 3], role: herd_shy }
 at:
   position_m: [560, 600]
   radius_m: 10

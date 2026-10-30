@@ -8,7 +8,7 @@ notes: 'Grey wolves on the open basin floor, away from the village and out where
   ground is bare of cover - the first thing a player meets if they walk east off the
   drove road instead of into the village. CAIRNWOLD''s own spawn: the region shipped
   with the eight Ashen Hollow spawn files copied into its content tree, every one
-  of them carrying `region_ref: region.ashen_hollow` and placing its creatures at
+  of them carrying `region_ref: region.starting_frontier` and placing its creatures at
   Ashen Hollow''s coordinates, so the region had NO enemies in it at all. A stray
   and a pair of roamers with a route round the basin, at level 2 so they are
   a first fight rather than a wall.'
