@@ -41,6 +41,9 @@ public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand
 /// </summary>
 internal sealed record LeaveCarcassCommand(string Key, string NodeDefId, long XMm, long ZMm) : InternalCommand;
 
+/// <summary>The corpse a carcass lay with is gone - rotted, emptied or risen again - and the carcass goes with it.</summary>
+internal sealed record ClearCarcassCommand(string Key) : InternalCommand;
+
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
 public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor);
 
@@ -132,6 +135,12 @@ internal sealed class GatheringSystem : IAbstractAdvance
     public string? Handle(LeaveCarcassCommand command, long tick)
     {
         LeaveCarcass(command.Key, command.NodeDefId, command.XMm, command.ZMm);
+        return null;
+    }
+
+    public string? Handle(ClearCarcassCommand command, long tick)
+    {
+        _nodes.RemoveAll(n => n.Key == command.Key);
         return null;
     }
 
