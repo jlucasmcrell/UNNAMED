@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -366,6 +366,21 @@ public partial class Main
                     ? "The stone lands\nNothing awake here to be distracted - the birds are roosting"
                     : $"The Lure Stone, thrown off the lane\n{after?.Mind}: {before} -> {after?.Awareness ?? 0} - it looks where the noise is, not at the body";
                 await Beat("thrown_lure", words, 2.2);
+
+                // S3's own half of the same event: a noise gives a place to look, and the animal goes to look at it. The beat names the animal's mind and how
+                // far off it is while it hunts the noise - a search is a widening around a remembered point, not a chase.
+                if (wanted("search") && watched is not null)
+                {
+                    await Rcd3Wait(4.0);
+                    var seeker = sim.Creatures.FirstOrDefault(c => c.Id == watched.Id);
+                    if (seeker is not null)
+                    {
+                        double gap = Math.Sqrt(Math.Pow(seeker.Body.XMm - sim.Player.Body.XMm, 2)
+                            + Math.Pow(seeker.Body.ZMm - sim.Player.Body.ZMm, 2)) / 1000.0;
+                        await Beat("searching", $"{seeker.DefId[(seeker.DefId.LastIndexOf('.') + 1)..]}: {seeker.Mind}\n"
+                            + $"It hunts the noise, {gap:0.0} m out - and nothing here has seen the body", 2.2);
+                    }
+                }
             }
 
             // 8. S2's surfaces: walk from the ground the character is on to the nearest patch of a different one, and name both with their rings. The
