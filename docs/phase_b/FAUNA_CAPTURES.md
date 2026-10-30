@@ -16,7 +16,7 @@ Frames live in `C:\Otherreach_Farm\results\<job>\` (the farm's output folders) a
 | hare | `claude_area_moor02\near.png` (+ crop `moor02_left.png`) | a hare in moor grass, brown body and pale ears | good |
 | Upland Elk | `claude_motion_elk04\near.png` (+ crop `elk04_near_animal.png`) | banner "UPLAND ELK - Level 3: Hard. Neutral - can be hunted."; body with pale antlers on the ground | partial: pose unresolved |
 | Upland Elk | `claude_motion_elk03\near.png` (+ crop `elk03_near_bottom.png`) | an upright multi-tined antler and body at the camera | partial: cropped |
-| crow | - | two attempts; the first stood inside Cairnwold village, the second was too distant to identify a crow | **not captured** |
+| crow | - | three attempts: inside Cairnwold village, then too distant, then a close stand at 1012,690 that framed a frost hare rather than the mob | **not captured** |
 | trout | - | four shoals exist in content; no frame shows a fish under water | **not captured** |
 
 ## Things noticed in the frames that are not fauna
