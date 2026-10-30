@@ -438,7 +438,12 @@ public class QuestContentTests
             e => e.Code == "QST001" && e.Message.Contains("has no line 'elsewhere'", StringComparison.Ordinal));
         Assert.Contains(ErrorsWith(Halda, HaldaFirst,
                 Step("defeat_creature", "{ creature_ref: creature.grazer.barrowback, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }"),
-                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn")),
+                // Both barrowback spawns become fellhorns, each in the fellhorn's own band, so the spawns stay valid and the quest's
+                // objective is the only thing wrong.
+                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn"),
+                ("spawns/wildlife/foldscar_barrowbacks.yaml", "level_band: [5, 5]", "level_band: [3, 3]"),
+                ("spawns/old_late/brute.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn"),
+                ("spawns/old_late/brute.yaml", "level_band:\n- 5\n- 5", "level_band:\n- 3\n- 3")),
             e => e.Code == "QST001" && e.Message.Contains("no spawn places creature.grazer.barrowback", StringComparison.Ordinal));
         Assert.Contains(HaldaWith(Step("waystone_known", "{ waystone_ref: waystone.far_north }")),
             e => e.Code == "QST001" && e.Message.Contains("no region places the Waystone waystone.far_north", StringComparison.Ordinal));
