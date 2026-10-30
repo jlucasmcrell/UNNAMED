@@ -1,4 +1,4 @@
-// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -265,6 +265,7 @@ public partial class Main : Node3D
                 InstallDsShots();
                 InstallInnShots();
                 InstallCampReview();
+                InstallStealthReview();   // D23's stealth proof route, driven by --stealth-review
                 InstallInnRoom();
                 InstallLoreShots();
                 InstallPetOrders();
@@ -370,6 +371,7 @@ public partial class Main : Node3D
               || _options.ContainsKey("--creator-shots") || (_options.ContainsKey("--ds-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--inn-shots")
               || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
+              || _options.ContainsKey("--stealth-review")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");

@@ -1,0 +1,248 @@
+﻿using System.Text.Json;
+using Godot;
+using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Spatial;
+using UNNAMED.World.Runtime;
+
+namespace UNNAMED.Presentation;
+
+/// <summary>
+/// D23's stealth proof route (STEALTH.md §2.7, §7): one real-time pass down the waystation's lane at night that shows the three reads the
+/// player actually uses - the light gem, the noise ring and an observer's awareness with the direction it is looking - and then a shot at
+/// something that has not noticed the character.
+/// </summary>
+/// <remarks>
+/// Booted with the fixture's own kit (<c>--start-items</c>) and driven only through the same public commands the player's keys submit. Every
+/// beat writes a still and appends a line to <c>phases.jsonl</c>, and the whole pass writes a numbered frame sequence beside them for
+/// stitching, because what moves here (a body crouching, an awareness ring filling, an arrow flying) is what has to be watched as motion.
+/// </remarks>
+public partial class Main
+{
+    /// <summary>A frame every this many rendered frames: 20 fps at a 60 Hz loop is enough for a route, and a third of the disk.</summary>
+    private const int StealthEveryNthFrame = 3;
+
+    private void InstallStealthReview()
+    {
+        if (_options.GetValueOrDefault("--stealth-review") is not { Length: > 0 } directory)
+            return;
+        _rcd3Driving = _innFreeCamera = true;
+        _ = StealthReview(Path.GetFullPath(directory), _options.GetValueOrDefault("--stealth-beats") ?? "all");
+    }
+
+    private async Task StealthReview(string directory, string beats)
+    {
+        Directory.CreateDirectory(directory);
+        Directory.CreateDirectory(Path.Combine(directory, "frames"));
+        DisplayServer.WindowSetTitle("Otherreach_D23_Stealth_Proof");
+        bool wanted(string beat) => beats is "all" || beats.Split(',').Contains(beat, StringComparer.OrdinalIgnoreCase);
+        var rejected = new List<string>();
+        _session.Subscribe<CommandRejected>(e => rejected.Add(e.Reason));
+        var captions = new List<object>();
+        int frame = 0;
+
+        void Mark(string phase, string caption, long tick) =>
+            File.AppendAllText(Path.Combine(directory, "phases.jsonl"), JsonSerializer.Serialize(new
+            {
+                phase, caption, tick, elapsed_s = Math.Round(Time.GetTicksMsec() / 1000.0, 2),
+                lit_permille = _session.Simulation!.PlayerLitPermille,
+                band = _session.Simulation!.PlayerLightBand.ToString(),
+                noise_m = _session.Simulation!.PlayerNoiseMm / 1000.0,
+                stance = _session.Simulation!.Posture.Stance.ToString(),
+                creatures = _session.Simulation!.Creatures.Select(c => new { c.DefId, mind = c.Mind.ToString(), c.Awareness, c.Knows }),
+            }) + System.Environment.NewLine);
+
+        // The route's own camera caption strip: what a reviewer reads in the video without a title card beside it.
+        var layer = new CanvasLayer { Layer = 100 };
+        var caption = new Label { Position = new Vector2(26, 24) };
+        caption.AddThemeFontSizeOverride("font_size", 22);
+        caption.AddThemeConstantOverride("outline_size", 8);
+        layer.AddChild(caption);
+        AddChild(layer);
+
+        async Task Wait(double seconds) => await Rcd3Wait(seconds);
+
+        /// One beat: hold the shot, say what it is, and keep the frame ticker running for the whole time it lasts.
+        async Task Beat(string phase, string words, double seconds, bool still = true)
+        {
+            var sim = _session.Simulation!;
+            caption.Text = words;
+            Captions();
+            Mark(phase, words, sim.WorldTick);
+            if (still)
+                await SavedFrame(directory, frame++, $"{frame:0000}_{phase}");
+            ulong until = Time.GetTicksMsec() + (ulong)Math.Ceiling(seconds * 1000);
+            while (Time.GetTicksMsec() < until)
+            {
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
+                    await SavedFrame(directory, frame++, null);
+            }
+        }
+
+        void Captions() => captions.Add(new { text = caption.Text, frame = Engine.GetFramesDrawn() });
+
+        /// Walk (or run, when far) toward a region point until the body is inside <paramref name="within"/> millimetres of it, or the time is up.
+        async Task Approach((long XMm, long ZMm) to, long within, double seconds)
+        {
+            ulong until = Time.GetTicksMsec() + (ulong)Math.Ceiling(seconds * 1000);
+            while (Time.GetTicksMsec() < until)
+            {
+                var body = _session.Simulation!.Player.Body;
+                long dx = to.XMm - body.XMm, dz = to.ZMm - body.ZMm;
+                double gap = Math.Sqrt((double)dx * dx + (double)dz * dz);
+                if (gap <= within)
+                    break;
+                var toward = new Vector3(dx / 1000f, 0, dz / 1000f);
+                _controller.SteerWorld(toward, gap > 13_000 ? Gait.Run : Gait.Walk, _camera);
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
+                    await SavedFrame(directory, frame++, null);
+            }
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        }
+
+        /// A short walk, captured, at a gait and stance the beat asks for.
+        async Task Walk(Vector3 toward, Gait gait, double seconds)
+        {
+            ulong until = Time.GetTicksMsec() + (ulong)Math.Ceiling(seconds * 1000);
+            while (Time.GetTicksMsec() < until)
+            {
+                _controller.SteerWorld(toward.Length() > .1f ? toward.Normalized() : Vector3.Zero, gait, _camera);
+                await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
+                    await SavedFrame(directory, frame++, null);
+            }
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+        }
+
+        try
+        {
+            // A body with nothing shiny in the off hand: the gem must read what is there, not what the HUD hopes.
+            var sim = _session.Simulation!;
+
+            // Night: from the 07:30 the world starts at, run the clock to the small hours so the lane really is dark (config, §2.4).
+            if (sim.WorldTick < 33_000)
+                sim.Advance(33_000 - sim.WorldTick);
+            await Rcd3Wait(1.2);
+
+            // The fixture's own kit out of the pack and into the hands, through the command a player's click submits.
+            foreach (string wantedItem in new[] { "item.weapon.hunting_bow", "item.weapon.iron_dagger", "item.tool.torch" })
+                if (sim.Player.Inventory.FirstOrDefault(e => e.DefId == wantedItem) is { } entry)
+                {
+                    rejected.Clear();
+                    _session.Submit(new EquipCommand(sim.PlayerId, entry.ItemId));
+                    await Rcd3Wait(0.3);
+                    if (rejected.Count > 0)
+                        File.AppendAllText(Path.Combine(directory, "equip_refused.txt"), $"{wantedItem}: {string.Join("; ", rejected)}{System.Environment.NewLine}");
+                }
+
+            // 1. The dark lane: nothing lit, nothing moving, the gem at its lowest and the ring flat.
+            _controller.Crouch(true);
+            if (wanted("dark"))
+                await Beat("dark_lane", "Night, down the lane\nShrouded - nothing to be seen by", 2.5);
+
+            // 2. Crouch-walking: a small ring, and the gem unchanged because the light has not changed.
+            if (wanted("crouch"))
+            {
+                await Walk(Vector3.Back, Gait.Walk, 1.6);
+                await Beat("crouch_walk", "Crouched, walking\nA quieter ring, and no lighter", 1.8);
+            }
+
+            // 3. Under the yard lamp: the same body in better light, which is the whole of S1's read.
+            if (wanted("lamp"))
+            {
+                var yard = _session.Setup.LayoutFor(sim.ActiveLayout.SpaceId).Lights.FirstOrDefault(l => l.Key == "light.waystation_yard");
+                if (yard is not null)
+                {
+                    // Run the lane, then the last few metres at a walk, so the approach reads as a body arriving rather than a slide.
+                    await Approach((yard.XMm, yard.ZMm), within: 2_000, seconds: 14);
+                    await Walk(Vector3.Zero, Gait.Walk, 0.6);
+                    _controller.Crouch(false);
+                    await Beat("under_the_lamp", "Under the yard lamp\nIn the light - and that is what a watch sees", 2.5);
+                }
+            }
+
+            // 4. Standing tall in the open: the ring at a walk, and the body plainly visible.
+            if (wanted("open"))
+            {
+                await Walk(Vector3.Forward, Gait.Walk, 1.4);
+                await Beat("open_ground", "Standing in the open\nThe same body, worth more to a pair of eyes", 1.8);
+            }
+
+            // 5. The shot: whatever is nearest that can be shot, from behind, at the range a bow has.
+            if (wanted("shot"))
+            {
+                var quarry = sim.Creatures
+                    .Where(c => c.Alive)
+                    .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .FirstOrDefault();
+                if (quarry is not null)
+                {
+                    caption.Text = $"A {quarry.DefId[(quarry.DefId.LastIndexOf('.') + 1)..]}, {Distance(sim.Player.Body, quarry.Body):0} m";
+                    await Beat("quarry_found", caption.Text + "\nThe bow, and a body that has not noticed", 1.2);
+                    // Close to the range a hunting bow is good at, then put the arrow through it.
+                    await Approach((quarry.Body.XMm, quarry.Body.ZMm), within: 22_000, seconds: 16);
+                    var body = sim.Player.Body;
+                    var toward = new Vector3((quarry.Body.XMm - body.XMm) / 1000f, 0, (quarry.Body.ZMm - body.ZMm) / 1000f);
+                    _controller.SteerWorld(toward, Gait.Walk, _camera);
+                    await Wait(0.25);
+                    _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+                    rejected.Clear();
+                    _session.Submit(new AttackCommand(sim.PlayerId));
+                    await Beat("loose", "The shot\nNo swing, no shout: the bow's own sound", 1.6, still: false);
+                    await Beat("after_the_shot", $"The bolt of it\n{rejected.Count} refused: {string.Join("; ", rejected.Take(2))}", 1.6);
+                }
+            }
+
+            // 6. Awareness: what the body that is still standing has made of all this.
+            if (wanted("aware"))
+            {
+                var nearest = sim.Creatures
+                    .Where(c => c.Alive)
+                    .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .FirstOrDefault();
+                var words = nearest is null
+                    ? "Nothing left to notice"
+                    : $"{nearest.DefId[(nearest.DefId.LastIndexOf('.') + 1)..]}: {nearest.Mind}, awareness {nearest.Awareness}";
+                await Beat("awareness", words, 2.2);
+            }
+
+            File.WriteAllText(Path.Combine(directory, "captions.json"), JsonSerializer.Serialize(captions));
+            File.WriteAllText(Path.Combine(directory, "summary.json"), JsonSerializer.Serialize(new
+            {
+                frames = frame,
+                beats = captions.Count,
+                rejected,
+                band = sim.PlayerLightBand.ToString(),
+                lit_permille = sim.PlayerLitPermille,
+                note = "D23 stealth proof route: light gem, noise ring, awareness, one shot.",
+            }));
+        }
+        catch (Exception e)
+        {
+            File.WriteAllText(Path.Combine(directory, "failure.txt"), e.ToString());
+            throw;
+        }
+        finally
+        {
+            _controller.Crouch(false);
+            _controller.SteerWorld(Vector3.Zero, Gait.Walk, _camera);
+            CaptureQuit.At(this, 3);
+        }
+
+        static double Distance(Body a, Body b) =>
+            Math.Sqrt(Math.Pow(a.XMm - b.XMm, 2) + Math.Pow(a.ZMm - b.ZMm, 2)) / 1000.0;
+    }
+
+    /// <summary>One captured frame: a numbered frame for the sequence, and (when asked) a named still for the contact sheet.</summary>
+    private async Task<string> SavedFrame(string directory, int frame, string? stillName)
+    {
+        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+        var image = GetViewport().GetTexture().GetImage();
+        image.SavePng(Path.Combine(directory, "frames", $"f{frame:00000}.png"));
+        if (stillName is not null)
+            image.SavePng(Path.Combine(directory, "still_" + stillName + ".png"));
+        return stillName ?? string.Empty;
+    }
+}
