@@ -743,7 +743,7 @@ public class ContentLoaderTests
                 "effect.shadow_stuffed", "effect.silenced", "effect.ward_tripwire",
                 "item.ammo.blowpipe_dart", "item.ammo.dart_cartridge", "item.armor.boots_muffled",
                 "item.armor.cloak_optical", "item.consumable.sleep_draught", "item.consumable.wake_dose",
-                "item.misc.lure_stone", "item.tool.detector_motion", "item.tool.detector_thermal",
+                "item.tool.detector_motion", "item.tool.detector_thermal",
                 "item.tool.lure_stone", "item.tool.rune_key_archive", "item.tool.scent_mask",
                 "item.tool.silencer", "item.tool.ward_tripwire", "item.weapon.air_projector",
                 "item.weapon.blowpipe", "item.weapon.charge_rifle", "item.weapon.cosmic_projector",

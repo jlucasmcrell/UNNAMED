@@ -125,6 +125,8 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.PlayerVisibilityTo),   // how visible the character is to one creature, for tests and reviews (D23 S1)
             nameof(UNNAMED.World.Runtime.Simulation.SearchPointOf),   // where a searching creature looks next, for tests and reviews (D23 S3)
             nameof(UNNAMED.World.Runtime.Simulation.WindBearing),   // which way the air moves today, for tests and reviews (D23 S3)
+            nameof(UNNAMED.World.Runtime.Simulation.WindBearingAt),   // which way the air moves at a place, authored wind first, for tests and reviews (D23 S6)
+            nameof(UNNAMED.World.Runtime.Simulation.WindStrengthAt),   // how hard the authored air moves at a place, for tests and reviews (D23 S6)
             nameof(UNNAMED.World.Runtime.Simulation.IsLightDoused),   // is an authored light out, for the world view that dims it (D23 S1)
             nameof(UNNAMED.World.Runtime.Simulation.StealthDetections),   // how many creatures have found the character, for the ghost ledger (D23 S6)
             nameof(UNNAMED.World.Runtime.Simulation.PlayerDetectionRangeMm),   // how far the HUD reads what has noticed the player (D23 S7)

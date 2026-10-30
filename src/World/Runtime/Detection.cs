@@ -103,7 +103,7 @@ internal sealed class DetectionSystem
             seen.Add(creature.Key);
             reading.Add(new DetectorContact(read.Sense, creature.Key, creature.Body.XMm, creature.Body.ZMm, tick));
             if (_contacts.Add(creature.Key))
-                _context.Events.Publish(reading[^1]);
+                _context.Events.Publish(new DetectorContact(read.Sense, creature.Key, creature.Body.XMm, creature.Body.ZMm, tick));
         }
         _contacts.IntersectWith(seen);
         Contacts = reading.ToImmutable();
