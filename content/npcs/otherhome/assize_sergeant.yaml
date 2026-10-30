@@ -6,6 +6,15 @@ display_key: npc.otherhome.assize_sergeant.name
 tags: [npc]
 name: Bal Corrin
 notes: "The Gate Assize's sergeant: the notice on the ring is his hand, and the licence to work the waters is his to issue or refuse."
+dialogue_ref: dialogue.otherhome.assize_sergeant
 unique: true
 role: guard
 services: []
+# What she teaches: the watch's drill. The Assize holds the Drowned Gate's ring, and a ring is held with a shaft's length of
+# clearance, so the sergeant drills the long thrust into anyone who will stand still long enough.
+teaches:
+  - kind: technique
+    ability_ref: ability.polearm.long_thrust
+    fee: 25
+    by_dialogue: true
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }

@@ -1,0 +1,26 @@
+id: dialogue.otherhome.assize_sergeant
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.assize_sergeant.name
+tags: [dialogue]
+notes: Sergeant Iva Tarn, the Assize's sergeant - holds the Drowned Gate's ring and drills the watch, because a ring is held with a shaft's length of clearance. She teaches the long thrust.
+participants: [npc.otherhome.assize_sergeant]
+root_node: greet
+nodes:
+  greet:
+    text: "\"The Gate stays shut. That's not a threat, it's a rota.\" She plants the butt of the shaft on the stone, once. \"You're the one the clerk wrote down. Good - then you can hold a line.\""
+    choices:
+      - id: teach
+        text: "Drill me, then."
+        consequences:
+          - { command: teach, refs: [ability.polearm.long_thrust] }
+          - { command: record_relationship_event, npc_ref: npc.otherhome.assize_sergeant, dimension: trust, delta: 4, event: asked_to_learn }
+        next: lesson
+      - id: gate
+        text: "What's on the other side of it?"
+        next: again
+  lesson:
+    text: "\"Long thrust isn't a reach, it's a decision you make early.\" She steps back and marks the stone with her heel. \"Past that mark, you've committed. So commit on purpose.\""
+    next: again
+  again:
+    text: "\"Rota's the rota. If you're not drilling you're carrying.\""

@@ -1,0 +1,19 @@
+id: spawn.otherhome.boars_west_slope
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.boars_west_slope.name
+tags: [spawn]
+notes: "A sounder in the scrub west of the terraces, where the shore path cuts inland."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.bristleback_boar
+  count:
+  - 3
+  - 3
+  role: roamer
+at:
+  position_m: [1300.0, 760.0]
+  radius_m: 12
+level_band:
+- 4
+- 4
