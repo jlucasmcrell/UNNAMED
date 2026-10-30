@@ -6960,6 +6960,936 @@
       "model": "wall_cos_drystone_02_l400",
       "material": "stone",
       "note": "Gate 2: the terrace's retaining wall."
+    },
+    "oh_quaywall_000": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_001": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_002": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_003": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_004": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_005": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_006": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_007": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_008": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_009": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_010": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_011": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_012": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_013": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_014": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_015": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_016": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_017": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_018": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_019": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_020": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_021": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_022": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_023": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_024": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_025": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_026": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_027": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_028": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_029": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_030": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_031": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_032": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_033": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_034": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_035": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_036": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_037": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_038": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_039": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_040": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_041": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_042": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_043": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_044": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_045": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_046": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_047": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_048": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_049": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_050": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_051": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_052": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_053": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_054": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_055": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_056": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_057": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_058": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_059": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_060": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_061": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_062": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_063": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_064": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_065": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_066": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_067": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_068": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_069": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_070": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_071": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_072": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_073": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_074": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_075": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_076": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_077": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_078": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_079": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_080": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_081": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_082": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_083": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_084": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_085": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_086": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_087": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_088": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_089": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_090": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_091": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_092": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_093": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_094": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_095": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_096": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_097": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_098": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_099": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_100": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_101": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_102": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_103": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_104": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_105": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_106": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_107": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_108": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_109": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_110": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_111": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_112": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_113": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_114": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_115": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_116": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_117": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_118": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_119": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_120": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_121": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_122": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_123": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_124": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_125": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_126": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_127": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_128": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_129": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_130": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_131": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_132": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_133": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_134": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_135": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_136": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_137": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_138": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_139": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_140": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_141": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_142": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_143": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_144": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_145": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_146": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_147": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_148": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_149": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_150": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_151": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_152": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_153": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_154": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_155": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_156": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_157": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_158": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_159": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_160": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_161": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_162": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_163": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_164": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_165": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_166": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_167": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_168": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_169": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_170": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_171": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_172": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_173": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_174": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_175": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_176": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_177": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_178": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_179": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_180": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_181": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_182": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_183": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_184": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
+    },
+    "oh_quaywall_185": {
+      "model": "wall_cos_drystone_02_l400",
+      "material": "stone",
+      "note": "Gate 2: the quay wall along the waterline - a harbour's vertical edge."
     }
   },
   "doors": {

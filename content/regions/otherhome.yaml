@@ -110,6 +110,564 @@ generation:
     amplitude_mm: 0
     samples_per_axis: 2
 structures:
+- id: oh_quaywall_000
+  box_m: [1244.12, 400.0, 1248.12, 404.0]
+  height_m: 3.4
+- id: oh_quaywall_001
+  box_m: [1244.26, 404.0, 1248.26, 408.0]
+  height_m: 3.4
+- id: oh_quaywall_002
+  box_m: [1244.41, 408.0, 1248.41, 412.0]
+  height_m: 3.4
+- id: oh_quaywall_003
+  box_m: [1244.56, 412.0, 1248.56, 416.0]
+  height_m: 3.4
+- id: oh_quaywall_004
+  box_m: [1244.71, 416.0, 1248.71, 420.0]
+  height_m: 3.4
+- id: oh_quaywall_005
+  box_m: [1244.85, 420.0, 1248.85, 424.0]
+  height_m: 3.4
+- id: oh_quaywall_006
+  box_m: [1245.0, 424.0, 1249.0, 428.0]
+  height_m: 3.4
+- id: oh_quaywall_007
+  box_m: [1245.15, 428.0, 1249.15, 432.0]
+  height_m: 3.4
+- id: oh_quaywall_008
+  box_m: [1245.29, 432.0, 1249.29, 436.0]
+  height_m: 3.4
+- id: oh_quaywall_009
+  box_m: [1245.44, 436.0, 1249.44, 440.0]
+  height_m: 3.4
+- id: oh_quaywall_010
+  box_m: [1245.59, 440.0, 1249.59, 444.0]
+  height_m: 3.4
+- id: oh_quaywall_011
+  box_m: [1245.74, 444.0, 1249.74, 448.0]
+  height_m: 3.4
+- id: oh_quaywall_012
+  box_m: [1245.88, 448.0, 1249.88, 452.0]
+  height_m: 3.4
+- id: oh_quaywall_013
+  box_m: [1246.03, 452.0, 1250.03, 456.0]
+  height_m: 3.4
+- id: oh_quaywall_014
+  box_m: [1246.18, 456.0, 1250.18, 460.0]
+  height_m: 3.4
+- id: oh_quaywall_015
+  box_m: [1246.32, 460.0, 1250.32, 464.0]
+  height_m: 3.4
+- id: oh_quaywall_016
+  box_m: [1246.47, 464.0, 1250.47, 468.0]
+  height_m: 3.4
+- id: oh_quaywall_017
+  box_m: [1246.62, 468.0, 1250.62, 472.0]
+  height_m: 3.4
+- id: oh_quaywall_018
+  box_m: [1246.76, 472.0, 1250.76, 476.0]
+  height_m: 3.4
+- id: oh_quaywall_019
+  box_m: [1246.91, 476.0, 1250.91, 480.0]
+  height_m: 3.4
+- id: oh_quaywall_020
+  box_m: [1247.06, 480.0, 1251.06, 484.0]
+  height_m: 3.4
+- id: oh_quaywall_021
+  box_m: [1247.2, 484.0, 1251.2, 488.0]
+  height_m: 3.4
+- id: oh_quaywall_022
+  box_m: [1247.35, 488.0, 1251.35, 492.0]
+  height_m: 3.4
+- id: oh_quaywall_023
+  box_m: [1247.49, 492.0, 1251.49, 496.0]
+  height_m: 3.4
+- id: oh_quaywall_024
+  box_m: [1247.64, 496.0, 1251.64, 500.0]
+  height_m: 3.4
+- id: oh_quaywall_025
+  box_m: [1247.78, 500.0, 1251.78, 504.0]
+  height_m: 3.4
+- id: oh_quaywall_026
+  box_m: [1247.93, 504.0, 1251.93, 508.0]
+  height_m: 3.4
+- id: oh_quaywall_027
+  box_m: [1248.07, 508.0, 1252.07, 512.0]
+  height_m: 3.4
+- id: oh_quaywall_028
+  box_m: [1248.21, 512.0, 1252.21, 516.0]
+  height_m: 3.4
+- id: oh_quaywall_029
+  box_m: [1248.36, 516.0, 1252.36, 520.0]
+  height_m: 3.4
+- id: oh_quaywall_030
+  box_m: [1248.5, 520.0, 1252.5, 524.0]
+  height_m: 3.4
+- id: oh_quaywall_031
+  box_m: [1248.64, 524.0, 1252.64, 528.0]
+  height_m: 3.4
+- id: oh_quaywall_032
+  box_m: [1248.78, 528.0, 1252.78, 532.0]
+  height_m: 3.4
+- id: oh_quaywall_033
+  box_m: [1248.93, 532.0, 1252.93, 536.0]
+  height_m: 3.4
+- id: oh_quaywall_034
+  box_m: [1249.07, 536.0, 1253.07, 540.0]
+  height_m: 3.4
+- id: oh_quaywall_035
+  box_m: [1249.21, 540.0, 1253.21, 544.0]
+  height_m: 3.4
+- id: oh_quaywall_036
+  box_m: [1249.35, 544.0, 1253.35, 548.0]
+  height_m: 3.4
+- id: oh_quaywall_037
+  box_m: [1249.49, 548.0, 1253.49, 552.0]
+  height_m: 3.4
+- id: oh_quaywall_038
+  box_m: [1249.63, 552.0, 1253.63, 556.0]
+  height_m: 3.4
+- id: oh_quaywall_039
+  box_m: [1249.77, 556.0, 1253.77, 560.0]
+  height_m: 3.4
+- id: oh_quaywall_040
+  box_m: [1249.9, 560.0, 1253.9, 564.0]
+  height_m: 3.4
+- id: oh_quaywall_041
+  box_m: [1250.04, 564.0, 1254.04, 568.0]
+  height_m: 3.4
+- id: oh_quaywall_042
+  box_m: [1250.18, 568.0, 1254.18, 572.0]
+  height_m: 3.4
+- id: oh_quaywall_043
+  box_m: [1250.32, 572.0, 1254.32, 576.0]
+  height_m: 3.4
+- id: oh_quaywall_044
+  box_m: [1250.45, 576.0, 1254.45, 580.0]
+  height_m: 3.4
+- id: oh_quaywall_045
+  box_m: [1250.59, 580.0, 1254.59, 584.0]
+  height_m: 3.4
+- id: oh_quaywall_046
+  box_m: [1250.72, 584.0, 1254.72, 588.0]
+  height_m: 3.4
+- id: oh_quaywall_047
+  box_m: [1250.86, 588.0, 1254.86, 592.0]
+  height_m: 3.4
+- id: oh_quaywall_048
+  box_m: [1250.99, 592.0, 1254.99, 596.0]
+  height_m: 3.4
+- id: oh_quaywall_049
+  box_m: [1251.12, 596.0, 1255.12, 600.0]
+  height_m: 3.4
+- id: oh_quaywall_050
+  box_m: [1251.25, 600.0, 1255.25, 604.0]
+  height_m: 3.4
+- id: oh_quaywall_051
+  box_m: [1251.39, 604.0, 1255.39, 608.0]
+  height_m: 3.4
+- id: oh_quaywall_052
+  box_m: [1251.52, 608.0, 1255.52, 612.0]
+  height_m: 3.4
+- id: oh_quaywall_053
+  box_m: [1251.65, 612.0, 1255.65, 616.0]
+  height_m: 3.4
+- id: oh_quaywall_054
+  box_m: [1251.78, 616.0, 1255.78, 620.0]
+  height_m: 3.4
+- id: oh_quaywall_055
+  box_m: [1251.91, 620.0, 1255.91, 624.0]
+  height_m: 3.4
+- id: oh_quaywall_056
+  box_m: [1252.03, 624.0, 1256.03, 628.0]
+  height_m: 3.4
+- id: oh_quaywall_057
+  box_m: [1252.16, 628.0, 1256.16, 632.0]
+  height_m: 3.4
+- id: oh_quaywall_058
+  box_m: [1252.29, 632.0, 1256.29, 636.0]
+  height_m: 3.4
+- id: oh_quaywall_059
+  box_m: [1252.41, 636.0, 1256.41, 640.0]
+  height_m: 3.4
+- id: oh_quaywall_060
+  box_m: [1252.54, 640.0, 1256.54, 644.0]
+  height_m: 3.4
+- id: oh_quaywall_061
+  box_m: [1252.66, 644.0, 1256.66, 648.0]
+  height_m: 3.4
+- id: oh_quaywall_062
+  box_m: [1252.78, 648.0, 1256.78, 652.0]
+  height_m: 3.4
+- id: oh_quaywall_063
+  box_m: [1252.9, 652.0, 1256.9, 656.0]
+  height_m: 3.4
+- id: oh_quaywall_064
+  box_m: [1253.03, 656.0, 1257.03, 660.0]
+  height_m: 3.4
+- id: oh_quaywall_065
+  box_m: [1253.15, 660.0, 1257.15, 664.0]
+  height_m: 3.4
+- id: oh_quaywall_066
+  box_m: [1253.27, 664.0, 1257.27, 668.0]
+  height_m: 3.4
+- id: oh_quaywall_067
+  box_m: [1253.38, 668.0, 1257.38, 672.0]
+  height_m: 3.4
+- id: oh_quaywall_068
+  box_m: [1253.5, 672.0, 1257.5, 676.0]
+  height_m: 3.4
+- id: oh_quaywall_069
+  box_m: [1253.62, 676.0, 1257.62, 680.0]
+  height_m: 3.4
+- id: oh_quaywall_070
+  box_m: [1253.73, 680.0, 1257.73, 684.0]
+  height_m: 3.4
+- id: oh_quaywall_071
+  box_m: [1253.85, 684.0, 1257.85, 688.0]
+  height_m: 3.4
+- id: oh_quaywall_072
+  box_m: [1253.96, 688.0, 1257.96, 692.0]
+  height_m: 3.4
+- id: oh_quaywall_073
+  box_m: [1254.08, 692.0, 1258.08, 696.0]
+  height_m: 3.4
+- id: oh_quaywall_074
+  box_m: [1254.19, 696.0, 1258.19, 700.0]
+  height_m: 3.4
+- id: oh_quaywall_075
+  box_m: [1254.3, 700.0, 1258.3, 704.0]
+  height_m: 3.4
+- id: oh_quaywall_076
+  box_m: [1254.41, 704.0, 1258.41, 708.0]
+  height_m: 3.4
+- id: oh_quaywall_077
+  box_m: [1254.52, 708.0, 1258.52, 712.0]
+  height_m: 3.4
+- id: oh_quaywall_078
+  box_m: [1254.62, 712.0, 1258.62, 716.0]
+  height_m: 3.4
+- id: oh_quaywall_079
+  box_m: [1254.73, 716.0, 1258.73, 720.0]
+  height_m: 3.4
+- id: oh_quaywall_080
+  box_m: [1254.84, 720.0, 1258.84, 724.0]
+  height_m: 3.4
+- id: oh_quaywall_081
+  box_m: [1254.94, 724.0, 1258.94, 728.0]
+  height_m: 3.4
+- id: oh_quaywall_082
+  box_m: [1255.04, 728.0, 1259.04, 732.0]
+  height_m: 3.4
+- id: oh_quaywall_083
+  box_m: [1255.15, 732.0, 1259.15, 736.0]
+  height_m: 3.4
+- id: oh_quaywall_084
+  box_m: [1255.25, 736.0, 1259.25, 740.0]
+  height_m: 3.4
+- id: oh_quaywall_085
+  box_m: [1255.35, 740.0, 1259.35, 744.0]
+  height_m: 3.4
+- id: oh_quaywall_086
+  box_m: [1255.44, 744.0, 1259.44, 748.0]
+  height_m: 3.4
+- id: oh_quaywall_087
+  box_m: [1255.54, 748.0, 1259.54, 752.0]
+  height_m: 3.4
+- id: oh_quaywall_088
+  box_m: [1255.64, 752.0, 1259.64, 756.0]
+  height_m: 3.4
+- id: oh_quaywall_089
+  box_m: [1255.73, 756.0, 1259.73, 760.0]
+  height_m: 3.4
+- id: oh_quaywall_090
+  box_m: [1255.83, 760.0, 1259.83, 764.0]
+  height_m: 3.4
+- id: oh_quaywall_091
+  box_m: [1255.92, 764.0, 1259.92, 768.0]
+  height_m: 3.4
+- id: oh_quaywall_092
+  box_m: [1256.01, 768.0, 1260.01, 772.0]
+  height_m: 3.4
+- id: oh_quaywall_093
+  box_m: [1256.1, 772.0, 1260.1, 776.0]
+  height_m: 3.4
+- id: oh_quaywall_094
+  box_m: [1256.19, 776.0, 1260.19, 780.0]
+  height_m: 3.4
+- id: oh_quaywall_095
+  box_m: [1256.28, 780.0, 1260.28, 784.0]
+  height_m: 3.4
+- id: oh_quaywall_096
+  box_m: [1256.37, 784.0, 1260.37, 788.0]
+  height_m: 3.4
+- id: oh_quaywall_097
+  box_m: [1256.45, 788.0, 1260.45, 792.0]
+  height_m: 3.4
+- id: oh_quaywall_098
+  box_m: [1256.54, 792.0, 1260.54, 796.0]
+  height_m: 3.4
+- id: oh_quaywall_099
+  box_m: [1256.62, 796.0, 1260.62, 800.0]
+  height_m: 3.4
+- id: oh_quaywall_100
+  box_m: [1256.7, 800.0, 1260.7, 804.0]
+  height_m: 3.4
+- id: oh_quaywall_101
+  box_m: [1256.78, 804.0, 1260.78, 808.0]
+  height_m: 3.4
+- id: oh_quaywall_102
+  box_m: [1256.86, 808.0, 1260.86, 812.0]
+  height_m: 3.4
+- id: oh_quaywall_103
+  box_m: [1256.94, 812.0, 1260.94, 816.0]
+  height_m: 3.4
+- id: oh_quaywall_104
+  box_m: [1257.01, 816.0, 1261.01, 820.0]
+  height_m: 3.4
+- id: oh_quaywall_105
+  box_m: [1257.09, 820.0, 1261.09, 824.0]
+  height_m: 3.4
+- id: oh_quaywall_106
+  box_m: [1257.16, 824.0, 1261.16, 828.0]
+  height_m: 3.4
+- id: oh_quaywall_107
+  box_m: [1257.23, 828.0, 1261.23, 832.0]
+  height_m: 3.4
+- id: oh_quaywall_108
+  box_m: [1257.31, 832.0, 1261.31, 836.0]
+  height_m: 3.4
+- id: oh_quaywall_109
+  box_m: [1257.38, 836.0, 1261.38, 840.0]
+  height_m: 3.4
+- id: oh_quaywall_110
+  box_m: [1257.44, 840.0, 1261.44, 844.0]
+  height_m: 3.4
+- id: oh_quaywall_111
+  box_m: [1257.51, 844.0, 1261.51, 848.0]
+  height_m: 3.4
+- id: oh_quaywall_112
+  box_m: [1257.58, 848.0, 1261.58, 852.0]
+  height_m: 3.4
+- id: oh_quaywall_113
+  box_m: [1257.64, 852.0, 1261.64, 856.0]
+  height_m: 3.4
+- id: oh_quaywall_114
+  box_m: [1257.7, 856.0, 1261.7, 860.0]
+  height_m: 3.4
+- id: oh_quaywall_115
+  box_m: [1257.76, 860.0, 1261.76, 864.0]
+  height_m: 3.4
+- id: oh_quaywall_116
+  box_m: [1257.82, 864.0, 1261.82, 868.0]
+  height_m: 3.4
+- id: oh_quaywall_117
+  box_m: [1257.88, 868.0, 1261.88, 872.0]
+  height_m: 3.4
+- id: oh_quaywall_118
+  box_m: [1257.94, 872.0, 1261.94, 876.0]
+  height_m: 3.4
+- id: oh_quaywall_119
+  box_m: [1257.99, 876.0, 1261.99, 880.0]
+  height_m: 3.4
+- id: oh_quaywall_120
+  box_m: [1258.05, 880.0, 1262.05, 884.0]
+  height_m: 3.4
+- id: oh_quaywall_121
+  box_m: [1258.1, 884.0, 1262.1, 888.0]
+  height_m: 3.4
+- id: oh_quaywall_122
+  box_m: [1258.15, 888.0, 1262.15, 892.0]
+  height_m: 3.4
+- id: oh_quaywall_123
+  box_m: [1258.2, 892.0, 1262.2, 896.0]
+  height_m: 3.4
+- id: oh_quaywall_124
+  box_m: [1258.25, 896.0, 1262.25, 900.0]
+  height_m: 3.4
+- id: oh_quaywall_125
+  box_m: [1258.3, 900.0, 1262.3, 904.0]
+  height_m: 3.4
+- id: oh_quaywall_126
+  box_m: [1258.34, 904.0, 1262.34, 908.0]
+  height_m: 3.4
+- id: oh_quaywall_127
+  box_m: [1258.39, 908.0, 1262.39, 912.0]
+  height_m: 3.4
+- id: oh_quaywall_128
+  box_m: [1258.43, 912.0, 1262.43, 916.0]
+  height_m: 3.4
+- id: oh_quaywall_129
+  box_m: [1258.47, 916.0, 1262.47, 920.0]
+  height_m: 3.4
+- id: oh_quaywall_130
+  box_m: [1258.51, 920.0, 1262.51, 924.0]
+  height_m: 3.4
+- id: oh_quaywall_131
+  box_m: [1258.55, 924.0, 1262.55, 928.0]
+  height_m: 3.4
+- id: oh_quaywall_132
+  box_m: [1258.58, 928.0, 1262.58, 932.0]
+  height_m: 3.4
+- id: oh_quaywall_133
+  box_m: [1258.62, 932.0, 1262.62, 936.0]
+  height_m: 3.4
+- id: oh_quaywall_134
+  box_m: [1258.65, 936.0, 1262.65, 940.0]
+  height_m: 3.4
+- id: oh_quaywall_135
+  box_m: [1258.68, 940.0, 1262.68, 944.0]
+  height_m: 3.4
+- id: oh_quaywall_136
+  box_m: [1258.71, 944.0, 1262.71, 948.0]
+  height_m: 3.4
+- id: oh_quaywall_137
+  box_m: [1258.74, 948.0, 1262.74, 952.0]
+  height_m: 3.4
+- id: oh_quaywall_138
+  box_m: [1258.77, 952.0, 1262.77, 956.0]
+  height_m: 3.4
+- id: oh_quaywall_139
+  box_m: [1258.8, 956.0, 1262.8, 960.0]
+  height_m: 3.4
+- id: oh_quaywall_140
+  box_m: [1258.82, 960.0, 1262.82, 964.0]
+  height_m: 3.4
+- id: oh_quaywall_141
+  box_m: [1258.84, 964.0, 1262.84, 968.0]
+  height_m: 3.4
+- id: oh_quaywall_142
+  box_m: [1258.86, 968.0, 1262.86, 972.0]
+  height_m: 3.4
+- id: oh_quaywall_143
+  box_m: [1258.88, 972.0, 1262.88, 976.0]
+  height_m: 3.4
+- id: oh_quaywall_144
+  box_m: [1258.9, 976.0, 1262.9, 980.0]
+  height_m: 3.4
+- id: oh_quaywall_145
+  box_m: [1258.92, 980.0, 1262.92, 984.0]
+  height_m: 3.4
+- id: oh_quaywall_146
+  box_m: [1258.93, 984.0, 1262.93, 988.0]
+  height_m: 3.4
+- id: oh_quaywall_147
+  box_m: [1258.95, 988.0, 1262.95, 992.0]
+  height_m: 3.4
+- id: oh_quaywall_148
+  box_m: [1258.96, 992.0, 1262.96, 996.0]
+  height_m: 3.4
+- id: oh_quaywall_149
+  box_m: [1258.97, 996.0, 1262.97, 1000.0]
+  height_m: 3.4
+- id: oh_quaywall_150
+  box_m: [1258.98, 1000.0, 1262.98, 1004.0]
+  height_m: 3.4
+- id: oh_quaywall_151
+  box_m: [1258.99, 1004.0, 1262.99, 1008.0]
+  height_m: 3.4
+- id: oh_quaywall_152
+  box_m: [1258.99, 1008.0, 1262.99, 1012.0]
+  height_m: 3.4
+- id: oh_quaywall_153
+  box_m: [1259.0, 1012.0, 1263.0, 1016.0]
+  height_m: 3.4
+- id: oh_quaywall_154
+  box_m: [1259.0, 1016.0, 1263.0, 1020.0]
+  height_m: 3.4
+- id: oh_quaywall_155
+  box_m: [1259.0, 1020.0, 1263.0, 1024.0]
+  height_m: 3.4
+- id: oh_quaywall_156
+  box_m: [1259.0, 1024.0, 1263.0, 1028.0]
+  height_m: 3.4
+- id: oh_quaywall_157
+  box_m: [1259.0, 1028.0, 1263.0, 1032.0]
+  height_m: 3.4
+- id: oh_quaywall_158
+  box_m: [1258.99, 1032.0, 1262.99, 1036.0]
+  height_m: 3.4
+- id: oh_quaywall_159
+  box_m: [1258.99, 1036.0, 1262.99, 1040.0]
+  height_m: 3.4
+- id: oh_quaywall_160
+  box_m: [1258.98, 1040.0, 1262.98, 1044.0]
+  height_m: 3.4
+- id: oh_quaywall_161
+  box_m: [1258.97, 1044.0, 1262.97, 1048.0]
+  height_m: 3.4
+- id: oh_quaywall_162
+  box_m: [1258.96, 1048.0, 1262.96, 1052.0]
+  height_m: 3.4
+- id: oh_quaywall_163
+  box_m: [1258.95, 1052.0, 1262.95, 1056.0]
+  height_m: 3.4
+- id: oh_quaywall_164
+  box_m: [1258.94, 1056.0, 1262.94, 1060.0]
+  height_m: 3.4
+- id: oh_quaywall_165
+  box_m: [1258.93, 1060.0, 1262.93, 1064.0]
+  height_m: 3.4
+- id: oh_quaywall_166
+  box_m: [1258.91, 1064.0, 1262.91, 1068.0]
+  height_m: 3.4
+- id: oh_quaywall_167
+  box_m: [1258.89, 1068.0, 1262.89, 1072.0]
+  height_m: 3.4
+- id: oh_quaywall_168
+  box_m: [1258.87, 1072.0, 1262.87, 1076.0]
+  height_m: 3.4
+- id: oh_quaywall_169
+  box_m: [1258.85, 1076.0, 1262.85, 1080.0]
+  height_m: 3.4
+- id: oh_quaywall_170
+  box_m: [1258.83, 1080.0, 1262.83, 1084.0]
+  height_m: 3.4
+- id: oh_quaywall_171
+  box_m: [1258.81, 1084.0, 1262.81, 1088.0]
+  height_m: 3.4
+- id: oh_quaywall_172
+  box_m: [1258.78, 1088.0, 1262.78, 1092.0]
+  height_m: 3.4
+- id: oh_quaywall_173
+  box_m: [1258.76, 1092.0, 1262.76, 1096.0]
+  height_m: 3.4
+- id: oh_quaywall_174
+  box_m: [1258.73, 1096.0, 1262.73, 1100.0]
+  height_m: 3.4
+- id: oh_quaywall_175
+  box_m: [1258.7, 1100.0, 1262.7, 1104.0]
+  height_m: 3.4
+- id: oh_quaywall_176
+  box_m: [1258.67, 1104.0, 1262.67, 1108.0]
+  height_m: 3.4
+- id: oh_quaywall_177
+  box_m: [1258.63, 1108.0, 1262.63, 1112.0]
+  height_m: 3.4
+- id: oh_quaywall_178
+  box_m: [1258.6, 1112.0, 1262.6, 1116.0]
+  height_m: 3.4
+- id: oh_quaywall_179
+  box_m: [1258.56, 1116.0, 1262.56, 1120.0]
+  height_m: 3.4
+- id: oh_quaywall_180
+  box_m: [1258.53, 1120.0, 1262.53, 1124.0]
+  height_m: 3.4
+- id: oh_quaywall_181
+  box_m: [1258.49, 1124.0, 1262.49, 1128.0]
+  height_m: 3.4
+- id: oh_quaywall_182
+  box_m: [1258.45, 1128.0, 1262.45, 1132.0]
+  height_m: 3.4
+- id: oh_quaywall_183
+  box_m: [1258.41, 1132.0, 1262.41, 1136.0]
+  height_m: 3.4
+- id: oh_quaywall_184
+  box_m: [1258.36, 1136.0, 1262.36, 1140.0]
+  height_m: 3.4
+- id: oh_quaywall_185
+  box_m: [1258.32, 1140.0, 1262.32, 1144.0]
+  height_m: 3.4
 - id: oh_retaining_000
   box_m: [1302.0, 602.7, 1306.0, 603.3]
   height_m: 1.5
