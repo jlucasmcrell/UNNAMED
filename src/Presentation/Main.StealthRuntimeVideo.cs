@@ -70,8 +70,21 @@ public partial class Main
             if (portal is not null)
             {
                 long px = portal.ExteriorXMm, pz = portal.ExteriorZMm;
-                // The threshold can be a couple of hundred metres from where the run put the character: walk at a run until the portal is in
-                // reach, and only then take it. Arriving is what the entry needs; a straight line is enough, the ground is the world's own.
+                // The threshold can be a couple of hundred metres from where the run put the character, and a wall is not a reason to film
+                // the wrong place: follow the game's own path there, the way the other capture harnesses arrive somewhere.
+                var target = new Body(px, simulation.Player.Body.YMm, pz, simulation.Player.Body.FacingMdeg);
+                foreach (var point in Playthrough.WayTo(simulation, simulation.Player.Body, target))
+                {
+                    for (int give = 0; give < 9000; give++)
+                    {
+                        var body = simulation.Player.Body;
+                        var step = new Vector3((float)(point.X - body.XMm / 1000.0), 0, (float)(point.Z - body.ZMm / 1000.0));
+                        if (step.Length() < .3f)
+                            break;
+                        _controller.SteerWorld(step.Normalized(), Domain.Spatial.Gait.Run, _camera);
+                        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                    }
+                }
                 _controller.SteerWorld(Vector3.Zero, Domain.Spatial.Gait.Run, _camera);
                 for (int i = 0; i < 12_000; i++)
                 {
