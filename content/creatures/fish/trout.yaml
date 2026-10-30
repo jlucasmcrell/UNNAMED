@@ -15,6 +15,7 @@ move_speed_m_s: 1.8
 turn_deg_s: 540
 body_radius_m: 0.12
 xp_value: 5
+carcass_ref: node.carcass.trout
 loot_table: loot.trout
 perception: { sight_m: 8, hearing_m: 6, fov_deg: 340 }
 tier_hint: A

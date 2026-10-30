@@ -1,0 +1,9 @@
+id: resource.carcass.trout
+kind: resource
+schema: 1
+display_key: resource.carcass.trout.name
+tags: [resource]
+name: Trout Carcass
+notes: "The body a trout leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.fish_trout, count_range: [1, 1] }

@@ -1,0 +1,13 @@
+id: node.carcass.moose
+kind: node
+schema: 1
+display_key: node.carcass.moose.name
+tags: [node]
+name: Moose Carcass
+notes: "A bull moose down in the wet ground: hide, meat and a deal of bone, and more than one carrying trip out of it."
+resource_ref: resource.carcass.moose
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 8
+tier: 1

@@ -1,0 +1,9 @@
+id: resource.carcass.duck
+kind: resource
+schema: 1
+display_key: resource.carcass.duck.name
+tags: [resource]
+name: Duck Carcass
+notes: "The body a duck leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.feathers, count_range: [1, 2] }

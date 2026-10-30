@@ -1,0 +1,9 @@
+id: resource.carcass.crow
+kind: resource
+schema: 1
+display_key: resource.carcass.crow.name
+tags: [resource]
+name: Crow Carcass
+notes: "The body a crow leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.feathers, count_range: [1, 2] }

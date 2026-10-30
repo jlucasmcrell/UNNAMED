@@ -15,6 +15,7 @@ move_speed_m_s: 4.0
 turn_deg_s: 540
 body_radius_m: 0.14
 xp_value: 3
+carcass_ref: node.carcass.crow
 loot_table: loot.fowl
 perception: { sight_m: 40, hearing_m: 26, fov_deg: 340 }
 tier_hint: A

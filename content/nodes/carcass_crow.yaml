@@ -1,0 +1,13 @@
+id: node.carcass.crow
+kind: node
+schema: 1
+display_key: node.carcass.crow.name
+tags: [node]
+name: Crow Carcass
+notes: "A crow where it fell: black feathers, little meat, and the old use for the feathers."
+resource_ref: resource.carcass.crow
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 2
+tier: 1

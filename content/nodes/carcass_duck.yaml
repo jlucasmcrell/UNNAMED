@@ -1,0 +1,13 @@
+id: node.carcass.duck
+kind: node
+schema: 1
+display_key: node.carcass.duck.name
+tags: [node]
+name: Duck Carcass
+notes: "A mallard in the reeds - a small body, a small meal, feathers worth keeping."
+resource_ref: resource.carcass.duck
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 2
+tier: 1

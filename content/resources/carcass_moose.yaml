@@ -1,0 +1,9 @@
+id: resource.carcass.moose
+kind: resource
+schema: 1
+display_key: resource.carcass.moose.name
+tags: [resource]
+name: Moose Carcass
+notes: "The body a moose leaves behind; what it yields is what it carried."
+yields:
+  - { item_ref: item.material.deer_hide, count_range: [1, 3] }

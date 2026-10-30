@@ -1,0 +1,13 @@
+id: node.carcass.trout
+kind: node
+schema: 1
+display_key: node.carcass.trout.name
+tags: [node]
+name: Trout Carcass
+notes: "A trout landed or speared - the fish itself is the harvest."
+resource_ref: resource.carcass.trout
+charges: 2
+respawn: none
+harvest_skill: skill.skinning
+difficulty: 1
+tier: 1

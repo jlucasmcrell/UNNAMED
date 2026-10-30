@@ -15,6 +15,7 @@ move_speed_m_s: 4.6
 turn_deg_s: 150
 body_radius_m: 0.9
 xp_value: 40
+carcass_ref: node.carcass.moose
 loot_table: loot.moose
 perception: { sight_m: 28, hearing_m: 30, fov_deg: 280 }
 tier_hint: A

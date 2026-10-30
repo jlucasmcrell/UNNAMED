@@ -15,6 +15,7 @@ move_speed_m_s: 1.2
 turn_deg_s: 360
 body_radius_m: 0.18
 xp_value: 4
+carcass_ref: node.carcass.duck
 loot_table: loot.fowl
 perception: { sight_m: 20, hearing_m: 22, fov_deg: 320 }
 tier_hint: A
