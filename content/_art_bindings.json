@@ -14589,6 +14589,131 @@
       "model": "rock_ph_ironstone_boulder_a",
       "material": "stone",
       "note": "Gate 2: the Drowned Gate's third course, on the seaward stones."
+    },
+    "oh_plaza_crate_000": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crateb_001": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrel_002": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrelw_003": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_basket_004": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crate_005": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crateb_006": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrel_007": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrelw_008": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_basket_009": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crate_010": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crateb_011": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrel_012": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrelw_013": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_basket_014": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crate_015": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crateb_016": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrel_017": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrelw_018": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_basket_019": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crate_020": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_crateb_021": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrel_022": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_barrelw_023": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 3: market traffic on the plaza's apron."
+    },
+    "oh_plaza_cart": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 3: a cart left at the square's edge."
     }
   },
   "doors": {

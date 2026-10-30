@@ -50741,6 +50741,81 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_plaza_crate_000
+  box_m: [1547.7, 771.7, 1548.3, 772.3]
+  height_m: 0.6
+- id: oh_plaza_crateb_001
+  box_m: [1573.62, 771.73, 1574.38, 772.27]
+  height_m: 0.5
+- id: oh_plaza_barrel_002
+  box_m: [1599.75, 771.75, 1600.25, 772.25]
+  height_m: 0.9
+- id: oh_plaza_barrelw_003
+  box_m: [1625.72, 771.73, 1626.27, 772.27]
+  height_m: 0.8
+- id: oh_plaza_basket_004
+  box_m: [1651.84, 771.84, 1652.16, 772.16]
+  height_m: 0.34
+- id: oh_plaza_crate_005
+  box_m: [1677.7, 771.7, 1678.3, 772.3]
+  height_m: 0.6
+- id: oh_plaza_crateb_006
+  box_m: [1559.62, 777.73, 1560.38, 778.27]
+  height_m: 0.5
+- id: oh_plaza_barrel_007
+  box_m: [1585.75, 777.75, 1586.25, 778.25]
+  height_m: 0.9
+- id: oh_plaza_barrelw_008
+  box_m: [1611.72, 777.73, 1612.27, 778.27]
+  height_m: 0.8
+- id: oh_plaza_basket_009
+  box_m: [1637.84, 777.84, 1638.16, 778.16]
+  height_m: 0.34
+- id: oh_plaza_crate_010
+  box_m: [1663.7, 777.7, 1664.3, 778.3]
+  height_m: 0.6
+- id: oh_plaza_crateb_011
+  box_m: [1689.62, 777.73, 1690.38, 778.27]
+  height_m: 0.5
+- id: oh_plaza_barrel_012
+  box_m: [1547.75, 783.75, 1548.25, 784.25]
+  height_m: 0.9
+- id: oh_plaza_barrelw_013
+  box_m: [1573.72, 783.73, 1574.27, 784.27]
+  height_m: 0.8
+- id: oh_plaza_basket_014
+  box_m: [1599.84, 783.84, 1600.16, 784.16]
+  height_m: 0.34
+- id: oh_plaza_crate_015
+  box_m: [1625.7, 783.7, 1626.3, 784.3]
+  height_m: 0.6
+- id: oh_plaza_crateb_016
+  box_m: [1651.62, 783.73, 1652.38, 784.27]
+  height_m: 0.5
+- id: oh_plaza_barrel_017
+  box_m: [1677.75, 783.75, 1678.25, 784.25]
+  height_m: 0.9
+- id: oh_plaza_barrelw_018
+  box_m: [1559.72, 789.73, 1560.27, 790.27]
+  height_m: 0.8
+- id: oh_plaza_basket_019
+  box_m: [1585.84, 789.84, 1586.16, 790.16]
+  height_m: 0.34
+- id: oh_plaza_crate_020
+  box_m: [1611.7, 789.7, 1612.3, 790.3]
+  height_m: 0.6
+- id: oh_plaza_crateb_021
+  box_m: [1637.62, 789.73, 1638.38, 790.27]
+  height_m: 0.5
+- id: oh_plaza_barrel_022
+  box_m: [1663.75, 789.75, 1664.25, 790.25]
+  height_m: 0.9
+- id: oh_plaza_barrelw_023
+  box_m: [1689.72, 789.73, 1690.27, 790.27]
+  height_m: 0.8
+- id: oh_plaza_cart
+  box_m: [1545.0, 749.0, 1547.0, 751.0]
+  height_m: 1.2
 - id: oh_gate_stone_b0
   circle_m: [1236.02, 603.95, 1.14]
   height_m: 1.71
