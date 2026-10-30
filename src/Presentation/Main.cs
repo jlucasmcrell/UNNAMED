@@ -371,7 +371,7 @@ public partial class Main : Node3D
               || _options.ContainsKey("--creator-shots") || (_options.ContainsKey("--ds-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--inn-shots")
               || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
-              || _options.ContainsKey("--stealth-review")
+              || _options.ContainsKey("--stealth-review") || _options.ContainsKey("--stealth-probe")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -434,7 +434,8 @@ public partial class Main : Node3D
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
-                        || _options.ContainsKey("--pet-review") || _options.ContainsKey("--camp-review"));
+                        || _options.ContainsKey("--pet-review") || _options.ContainsKey("--camp-review")
+                        || _options.ContainsKey("--stealth-review") || _options.ContainsKey("--stealth-probe"));
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = c1Review || (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
