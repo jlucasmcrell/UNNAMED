@@ -100,6 +100,10 @@ New-Item -ItemType Directory -Force "$game\saves" | Out-Null
 "--- verify"
 python "$here\approved_player_bodies.py" $game --verify
 if ($LASTEXITCODE -ne 0) { throw 'Approved body verification failed; do not ship this package' }
+# B-002: a >=2K source with no signed cache entry makes the game refuse to boot, and the export's own
+# check runs before primary and fallback are staged beside it, so the assembled folder is gated here.
+python "$here\check_texture_cache.py" $game "$logs\texture_cache_audit.json"
+if ($LASTEXITCODE -ne 0) { throw 'large art texture cache is missing/stale/uncompressed/downscaled (see logs\texture_cache_audit.json)' }
 foreach ($required in 'Otherreach.exe', 'PLAY.bat', 'PLAY Ultra 4K.bat', 'README.md', 'connected_route.json', 'THIRD_PARTY_NOTICES', 'content\_art_bindings.json', 'content\_scatter_rules.json', 'primary\bindings.json', 'fallback\ready') {
     if (-not (Test-Path "$game\$required")) { throw "assembled folder lacks $required" }
 }
