@@ -378,6 +378,11 @@ public partial class Main : Node3D
         // --region: which region the run plays. Content is chosen by id, so a new region needs no code
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
+        // Owner decision 2026-10-30: a region tagged dev_scaffold is flat ground standing in for an area that is not built
+        // yet, so no player build loads one - no boss on placeholder ground in a playtest. A capture or a content check
+        // opens it with --dev-scaffold (or UNNAMED_DEV_SCAFFOLD=1) and says so in the log.
+        if (region != "region.starting_frontier" && (IsScaffoldRegion(region) && !DevScaffoldAllowed()))
+            throw new InvalidOperationException($"{region} is a dev scaffold: its area is not built, so it does not load in a player build (--dev-scaffold opens it for a capture)");
         // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
         var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot")
             || _options.ContainsKey("--stand") ? ShotStart() : null;
@@ -2008,6 +2013,26 @@ public partial class Main : Node3D
     /// <summary>The companion lying downed as this NPC, or null (M6).</summary>
     private CompanionView? DownedCompanion(string npcId) =>
         _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
+
+    /// <summary>Whether a region file says it is one of the flat patches that stand in for an unbuilt area.</summary>
+    private bool IsScaffoldRegion(string regionId)
+    {
+        string path = Path.Combine(_options.GetValueOrDefault("--content-root") ?? Home() + "/content", "regions",
+            regionId["region.".Length..] + ".yaml");
+        if (!File.Exists(path))
+            return false;
+        foreach (string line in File.ReadLines(path))
+        {
+            if (line.TrimStart().StartsWith("dev_scaffold", StringComparison.Ordinal) || line.Contains("- dev_scaffold", StringComparison.Ordinal))
+                return true;
+            if (line.StartsWith("bounds_m:", StringComparison.Ordinal))
+                break;
+        }
+        return false;
+    }
+
+    private bool DevScaffoldAllowed() =>
+        _flags.Contains("--dev-scaffold") || OS.GetEnvironment("UNNAMED_DEV_SCAFFOLD") == "1";
 
     private void ParseArguments(string[] arguments)
     {

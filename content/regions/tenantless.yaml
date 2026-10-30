@@ -4,7 +4,8 @@ schema: 1
 display_key: region.tenantless.name
 tags:
 - region
-notes: 'D19 scaffold: the tenantless patch the canon boss for this area stands in. Flat ground on the 4 m grid, 512 m a side, its own spawn at the centre. Written by the boss lane so the spawn, the court and the painted arena are real content; the area''s own terrain, cells and art are the art lane''s pass and replace this grid when they land.'
+- dev_scaffold
+notes: 'D19 scaffold: the tenantless patch the canon boss for this area stands in. Flat ground on the 4 m grid, 512 m a side, its own spawn at the centre. Written by the boss lane so the spawn, the court and the painted arena are real content; the area''s own terrain, cells and art are the art lane''s pass and replace this grid when they land. DEV SCAFFOLD (owner decision 2026-10-30): this flat patch stands in for an area that is not built yet, so nothing here loads in a player build - the region only opens with --dev-scaffold (or UNNAMED_DEV_SCAFFOLD=1) for a capture or a content check. Its boss is data, not a playable encounter.'
 region_key: r_16_0
 cells:
 - r_16_0:c_07_07
