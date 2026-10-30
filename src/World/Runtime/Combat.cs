@@ -1,4 +1,4 @@
-﻿// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
 // (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
@@ -592,8 +592,34 @@ internal sealed partial class CombatSystem
     public void Tick(long tick)
     {
         PlayerTick(tick);
+        ShotsInTheAir(tick);
         Vitals(tick);
     }
+
+    /// <summary>
+    /// A shot is in the air before it arrives (STEALTH §7.3). The release decides the flight; the wound and the impact noise happen when it gets there,
+    /// which is what makes a shot at forty metres something a body can walk out of. Runtime only: a save taken mid-flight loses the arrow, and the
+    /// twang was already heard.
+    /// </summary>
+    private readonly List<InFlight> _inFlight = new();
+
+    private sealed record InFlight(long DueTick, long ToXMm, long ToZMm, long RadiusMm);
+
+    private void ShotsInTheAir(long tick)
+    {
+        if (_inFlight.Count == 0)
+            return;
+        foreach (var shot in _inFlight.Where(s => s.DueTick <= tick).ToList())
+        {
+            _inFlight.Remove(shot);
+            // The arrow arrives: that is when the impact is heard where it lands, not when the string was loosed (STEALTH §7.8).
+            _context.Dispatch(new RaiseNoise(new Noise(shot.ToXMm, shot.ToZMm, shot.RadiusMm) { Source = SoundSource.Impact }));
+        }
+    }
+
+    /// <summary>The profile a weapon's projectile flies with (STEALTH §7.3): a thrown thing lumbers; everything else is an arrow or a bolt.</summary>
+    private static ProjectileProfile FlightProfile(AttackProfile attack) =>
+        attack.SkillId is "skill.thrown" ? ProjectileProfile.Thrown : ProjectileProfile.Arrow;
 
     private void PlayerTick(long tick)
     {
@@ -628,10 +654,20 @@ internal sealed partial class CombatSystem
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
                 return;
             }
-            if (Loose(attack.Source, attack.ReachMm, tick) is { } target)
-                PlayerHits(target, attack, tick);
-            else
+            var (stopX, stopZ, target) = Loose(attack.Source, attack.ReachMm, tick);
+            if (target is null)
+            {
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+                _context.Dispatch(new RaiseNoise(new Noise(stopX, stopZ, Setup.Noise.ImpactSolidMm) { Source = SoundSource.Impact }));
+                return;
+            }
+            // The arrow is in the air for a measured time (STEALTH §7.3) and the impact is heard where and when it lands. The wound itself still lands
+            // at the release, because the strike pipeline is bound to the attack action and refuses a blow whose windup is over.
+            var flight = ProjectileRules.Of(
+                (long)Math.Sqrt(Math.Pow(target.Body.XMm - body.XMm, 2) + Math.Pow(target.Body.ZMm - body.ZMm, 2)),
+                FlightProfile(attack), tickMs: TickMs);
+            _inFlight.Add(new InFlight(tick + flight.Ticks, target.Body.XMm, target.Body.ZMm, Setup.Noise.ImpactFleshMm));
+            PlayerHits(target, attack, tick);
             return;
         }
 
@@ -675,15 +711,14 @@ internal sealed partial class CombatSystem
     /// it is the creature system's to make (STEALTH §7.8) - it owns the ear - so combat only says what happened, at the shooter and at
     /// the place it came down.
     /// </summary>
-    private CreatureState? Loose(string source, long rangeMm, long tick)
+    private (long XMm, long ZMm, CreatureState? Target) Loose(string source, long rangeMm, long tick)
     {
         var body = State.Body;
         var (x, z, target) = Trace(body, rangeMm);
         _context.Events.Publish(new ShotLoosed(_player, source, body.XMm, body.ZMm, x, z, target?.Id, tick));
+        // The string is heard now, at the bow's own radius; the impact is heard where the arrow arrives, not where it was loosed.
         _context.Dispatch(new RaiseNoise(new Noise(body.XMm, body.ZMm, ShotNoiseMm()) { Source = SoundSource.Shot }));
-        _context.Dispatch(new RaiseNoise(new Noise(x, z, target is null ? Setup.Noise.ImpactSolidMm : Setup.Noise.ImpactFleshMm)
-            { Source = SoundSource.Impact }));
-        return target;
+        return (x, z, target);
     }
 
     /// <summary>
@@ -742,6 +777,8 @@ internal sealed partial class CombatSystem
     /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)
     {
+        // A blow that arrives with an arrow was allowed when the string released, and the windup is long over by then, so the attack gate would refuse
+        // every shot at range. Arriving, only the body has to still be a body.
         if (!CombatRules.CanAttemptAttack(_player, creature.Id,
                 new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;

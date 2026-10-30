@@ -1,10 +1,11 @@
-// UNNAMED World - magic at run time: casting a known formula for Focus and Strain, its tell, its release, and what breaks
+﻿// UNNAMED World - magic at run time: casting a known formula for Focus and Strain, its tell, its release, and what breaks
 // it (SYSTEMS.md S-13; MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md; PROGRESSION.md §7; M3e)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Magic;
 using UNNAMED.Domain.Progression;
 
@@ -118,11 +119,14 @@ internal sealed partial class CombatSystem
         {
             if (formula.Targeting == Targeting.Projectile)
             {
-                var target = Loose(formula.Id, formula.Blow!.ReachMm, tick);
+                var (stopX, stopZ, target) = Loose(formula.Id, formula.Blow!.ReachMm, tick);
                 if (target is not null)
                     PlayerHits(target, formula.Blow, tick);
                 else
+                {
                     _context.Events.Publish(new AttackMissed(_player, formula.Id, tick));
+                    _context.Dispatch(new RaiseNoise(new Noise(stopX, stopZ, Setup.Noise.ImpactSolidMm) { Source = SoundSource.Impact }));
+                }
             }
             else
             {
