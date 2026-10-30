@@ -420,6 +420,13 @@ public partial class Main : Node3D
                     ? (item, int.Parse(count)) : throw new ArgumentException($"--start-items: '{i}' is not item:count"))]
                 : [],
             StartLevel = int.TryParse(_options.GetValueOrDefault("--start-level"), out int startLevel) && startLevel > 1 ? startLevel : 0,
+            // A capture that has to show what a technique reads gets a character who has earned it: --start-skills skill.tracking:15,insight:12.
+            // Harness only - a packaged player's build never receives it (the flag is refused below in an exported run, and it is not in
+            // PlaytestLaunchDefaults).
+            StartSkills = _options.GetValueOrDefault("--start-skills") is { } competence && !OS.HasFeature("template")
+                ? [.. competence.Split(',').Select(i => i.Split(':') is [var key, var level]
+                    ? (key, int.Parse(level)) : throw new ArgumentException($"--start-skills: '{i}' is not key:level"))]
+                : [],
         });
         SkyView.ClockAtWorldStart = (float)_session.ClockAtWorldStartHours;
         _session.SubscriberFailed += SubscriberFailed;
@@ -1990,7 +1997,7 @@ public partial class Main : Node3D
             if (arguments[i] is "--perf-out" or "--perf-seconds" or "--ui-shots" or "--playthrough" or "--playthrough-verify" or "--asset-root" or "--delta-shots"
                     or "--profile" or "--resume-shots" or "--content-root" or "--layout-check" or "--perf-route"
                     or "--art-gallery" or "--visual-audit" or "--visual-audit-ab" or "--audio-audition" or "--vfx-sheet" or "--kit-sheet" or "--coverage-out" or "--anim-sheet" or "--audit-shots" or "--visual"
-                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-actions" or "--shot-beat" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
+                    or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-actions" or "--shot-beat" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--start-skills" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"

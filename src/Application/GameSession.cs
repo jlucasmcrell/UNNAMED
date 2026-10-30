@@ -70,6 +70,14 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     /// </summary>
     public int StartLevel { get; init; }
 
+    /// <summary>
+    /// Competences a capture's new character already has, by the same fixture door as <see cref="StartItems"/>: <c>skill.tracking:15</c>
+    /// sets that discipline's level, and an attribute's own key (<c>insight:12</c>) spends allocation until the attribute reads that high. A
+    /// capture that has to show tracking's reads - which canon gates behind Read the Ground's tracking 15 and insight 12 - gets a tracker who
+    /// has earned them, rather than a softer gate. Harness only: the flag is refused in an exported build.
+    /// </summary>
+    public ImmutableArray<(string Key, int Level)> StartSkills { get; init; } = [];
+
     /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
 }
@@ -445,6 +453,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
                 Level = Options.StartLevel,
                 Allocation = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, Options.StartLevel - 1) }),
             });
+        if (!Options.StartSkills.IsEmpty)
+            player = player.WithProgression(Granted(player.Progression, Options.StartSkills));
         var world = new WorldDelta(Generator, seed, new Registry());
         var simulation = Simulation.Start(Setup, player, world, 0, _bus);
         _character = id.Value;   // a save of the last character still being written goes to that character's folder: Queue kept it
@@ -458,6 +468,30 @@ public sealed class GameSession : IDomainEvents, IDisposable
             _simulation.DrainCommands();
         }
         return _simulation!;
+    }
+
+    /// <summary>
+    /// A capture fixture's competences: a <c>skill.</c> key sets that discipline's level outright, and any other key is an attribute, which
+    /// allocation is spent on until <see cref="ProgressionEngine.AttributeValue"/> reads the level asked for.
+    /// </summary>
+    private CharacterProgression Granted(CharacterProgression progression, ImmutableArray<(string Key, int Level)> competence)
+    {
+        var skills = progression.Skills.ToBuilder();
+        var allocation = progression.Allocation.ToBuilder();
+        foreach (var (key, level) in competence)
+        {
+            if (ProgressionKeys.IsSkillId(key))
+            {
+                skills[key] = new SkillState(level, 0);
+                continue;
+            }
+            CharacterAttribute attribute = ProgressionKeys.Attributes
+                .FirstOrDefault(a => ProgressionKeys.Key(a) == key, CharacterAttribute.Insight);
+            int missing = level - ProgressionEngine.AttributeValue(progression, attribute, Setup.Progression);
+            if (missing > 0)
+                allocation[attribute] = allocation.GetValueOrDefault(attribute) + missing;
+        }
+        return progression with { Skills = skills.ToImmutable(), Allocation = allocation.ToImmutable() };
     }
 
     /// <summary>
