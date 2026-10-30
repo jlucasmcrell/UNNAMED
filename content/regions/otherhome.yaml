@@ -50741,195 +50741,258 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_stall_2_thatch
+  box_m: [1679.0, 765.0, 1685.0, 769.0]
+  height_m: 2.9
+- id: oh_stall_2_hurdle_5
+  box_m: [1683.1, 768.4, 1684.5, 768.5]
+  height_m: 1.2
+- id: oh_stall_2_hurdle_4
+  box_m: [1683.1, 767.2, 1684.5, 767.4]
+  height_m: 1.2
+- id: oh_stall_2_hurdle_3
+  box_m: [1683.1, 765.8, 1684.5, 765.9]
+  height_m: 1.2
+- id: oh_stall_2_hurdle_2
+  box_m: [1679.5, 768.4, 1680.9, 768.5]
+  height_m: 1.2
+- id: oh_stall_2_hurdle_1
+  box_m: [1679.5, 767.2, 1680.9, 767.4]
+  height_m: 1.2
+- id: oh_stall_2_hurdle_0
+  box_m: [1679.5, 765.8, 1680.9, 765.9]
+  height_m: 1.2
+- id: oh_stall_1_thatch
+  box_m: [1649.0, 765.0, 1655.0, 769.0]
+  height_m: 2.9
+- id: oh_stall_1_hurdle_5
+  box_m: [1653.1, 768.4, 1654.5, 768.5]
+  height_m: 1.2
+- id: oh_stall_1_hurdle_4
+  box_m: [1653.1, 767.2, 1654.5, 767.4]
+  height_m: 1.2
+- id: oh_stall_1_hurdle_3
+  box_m: [1653.1, 765.8, 1654.5, 765.9]
+  height_m: 1.2
+- id: oh_stall_1_hurdle_2
+  box_m: [1649.5, 768.4, 1650.9, 768.5]
+  height_m: 1.2
+- id: oh_stall_1_hurdle_1
+  box_m: [1649.5, 767.2, 1650.9, 767.4]
+  height_m: 1.2
+- id: oh_stall_1_hurdle_0
+  box_m: [1649.5, 765.8, 1650.9, 765.9]
+  height_m: 1.2
+- id: oh_stall_0_thatch
+  box_m: [1619.0, 765.0, 1625.0, 769.0]
+  height_m: 2.9
+- id: oh_stall_0_hurdle_5
+  box_m: [1623.1, 768.4, 1624.5, 768.5]
+  height_m: 1.2
+- id: oh_stall_0_hurdle_4
+  box_m: [1623.1, 767.2, 1624.5, 767.4]
+  height_m: 1.2
+- id: oh_stall_0_hurdle_3
+  box_m: [1623.1, 765.8, 1624.5, 765.9]
+  height_m: 1.2
+- id: oh_stall_0_hurdle_2
+  box_m: [1619.5, 768.4, 1620.9, 768.5]
+  height_m: 1.2
+- id: oh_stall_0_hurdle_1
+  box_m: [1619.5, 767.2, 1620.9, 767.4]
+  height_m: 1.2
+- id: oh_stall_0_hurdle_0
+  box_m: [1619.5, 765.8, 1620.9, 765.9]
+  height_m: 1.2
 - id: oh_pile_000
-  circle_m: [1215.0, 440.8, 0.45]
+  circle_m: [1215.0, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_001
-  circle_m: [1215.0, 447.2, 0.45]
+  circle_m: [1215.0, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_002
-  circle_m: [1219.5, 440.8, 0.45]
+  circle_m: [1219.5, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_003
-  circle_m: [1219.5, 447.2, 0.45]
+  circle_m: [1219.5, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_004
-  circle_m: [1224.0, 440.8, 0.45]
+  circle_m: [1224.0, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_005
-  circle_m: [1224.0, 447.2, 0.45]
+  circle_m: [1224.0, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_006
-  circle_m: [1228.5, 440.8, 0.45]
+  circle_m: [1228.5, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_007
-  circle_m: [1228.5, 447.2, 0.45]
+  circle_m: [1228.5, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_008
-  circle_m: [1233.0, 440.8, 0.45]
+  circle_m: [1233.0, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_009
-  circle_m: [1233.0, 447.2, 0.45]
+  circle_m: [1233.0, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_010
-  circle_m: [1237.5, 440.8, 0.45]
+  circle_m: [1237.5, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_011
-  circle_m: [1237.5, 447.2, 0.45]
+  circle_m: [1237.5, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_012
-  circle_m: [1242.0, 440.8, 0.45]
+  circle_m: [1242.0, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_013
-  circle_m: [1242.0, 447.2, 0.45]
+  circle_m: [1242.0, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_014
-  circle_m: [1246.5, 440.8, 0.45]
+  circle_m: [1246.5, 440.8, 0.5]
   height_m: 3.0
 - id: oh_pile_015
-  circle_m: [1246.5, 447.2, 0.45]
+  circle_m: [1246.5, 447.2, 0.5]
   height_m: 3.0
 - id: oh_pile_016
-  circle_m: [1221.0, 500.8, 0.45]
+  circle_m: [1221.0, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_017
-  circle_m: [1221.0, 507.2, 0.45]
+  circle_m: [1221.0, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_018
-  circle_m: [1224.75, 500.8, 0.45]
+  circle_m: [1224.75, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_019
-  circle_m: [1224.75, 507.2, 0.45]
+  circle_m: [1224.75, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_020
-  circle_m: [1228.5, 500.8, 0.45]
+  circle_m: [1228.5, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_021
-  circle_m: [1228.5, 507.2, 0.45]
+  circle_m: [1228.5, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_022
-  circle_m: [1232.25, 500.8, 0.45]
+  circle_m: [1232.25, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_023
-  circle_m: [1232.25, 507.2, 0.45]
+  circle_m: [1232.25, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_024
-  circle_m: [1236.0, 500.8, 0.45]
+  circle_m: [1236.0, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_025
-  circle_m: [1236.0, 507.2, 0.45]
+  circle_m: [1236.0, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_026
-  circle_m: [1239.75, 500.8, 0.45]
+  circle_m: [1239.75, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_027
-  circle_m: [1239.75, 507.2, 0.45]
+  circle_m: [1239.75, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_028
-  circle_m: [1243.5, 500.8, 0.45]
+  circle_m: [1243.5, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_029
-  circle_m: [1243.5, 507.2, 0.45]
+  circle_m: [1243.5, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_030
-  circle_m: [1247.25, 500.8, 0.45]
+  circle_m: [1247.25, 500.8, 0.5]
   height_m: 3.0
 - id: oh_pile_031
-  circle_m: [1247.25, 507.2, 0.45]
+  circle_m: [1247.25, 507.2, 0.5]
   height_m: 3.0
 - id: oh_pile_032
-  circle_m: [1227.0, 548.8, 0.45]
+  circle_m: [1227.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_033
-  circle_m: [1227.0, 555.2, 0.45]
+  circle_m: [1227.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_034
-  circle_m: [1230.0, 548.8, 0.45]
+  circle_m: [1230.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_035
-  circle_m: [1230.0, 555.2, 0.45]
+  circle_m: [1230.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_036
-  circle_m: [1233.0, 548.8, 0.45]
+  circle_m: [1233.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_037
-  circle_m: [1233.0, 555.2, 0.45]
+  circle_m: [1233.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_038
-  circle_m: [1236.0, 548.8, 0.45]
+  circle_m: [1236.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_039
-  circle_m: [1236.0, 555.2, 0.45]
+  circle_m: [1236.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_040
-  circle_m: [1239.0, 548.8, 0.45]
+  circle_m: [1239.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_041
-  circle_m: [1239.0, 555.2, 0.45]
+  circle_m: [1239.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_042
-  circle_m: [1242.0, 548.8, 0.45]
+  circle_m: [1242.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_043
-  circle_m: [1242.0, 555.2, 0.45]
+  circle_m: [1242.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_044
-  circle_m: [1245.0, 548.8, 0.45]
+  circle_m: [1245.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_045
-  circle_m: [1245.0, 555.2, 0.45]
+  circle_m: [1245.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_pile_046
-  circle_m: [1248.0, 548.8, 0.45]
+  circle_m: [1248.0, 548.8, 0.5]
   height_m: 3.0
 - id: oh_pile_047
-  circle_m: [1248.0, 555.2, 0.45]
+  circle_m: [1248.0, 555.2, 0.5]
   height_m: 3.0
 - id: oh_stall_0_wall_0
-  box_m: [1619.8, 763.8, 1621.0, 770.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_0_wall_1
-  box_m: [1623.0, 763.8, 1624.2, 770.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_0_wall_2
-  box_m: [1618.8, 768.0, 1625.2, 769.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_0_roof
-  box_m: [1619.8, 764.8, 1624.2, 769.2]
-  height_m: 2.6
+  box_m: [0.0, 0.0, 3.6, 2.4]
+  height_m: 2.9
 - id: oh_stall_0_cart
-  circle_m: [1622.0, 766.4, 1.1]
-  height_m: 1.5
+  box_m: [0.0, 0.0, 3.5, 1.45]
+  height_m: 1.4
 - id: oh_stall_1_wall_0
-  box_m: [1649.8, 763.8, 1651.0, 770.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_1_wall_1
-  box_m: [1653.0, 763.8, 1654.2, 770.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_1_wall_2
-  box_m: [1648.8, 768.0, 1655.2, 769.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_1_roof
-  box_m: [1649.8, 764.8, 1654.2, 769.2]
-  height_m: 2.6
+  box_m: [0.0, 0.0, 3.6, 2.4]
+  height_m: 2.9
 - id: oh_stall_1_cart
-  circle_m: [1652.0, 766.4, 1.1]
-  height_m: 1.5
+  box_m: [0.0, 0.0, 3.5, 1.45]
+  height_m: 1.4
 - id: oh_stall_2_wall_0
-  box_m: [1679.8, 763.8, 1681.0, 770.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_2_wall_1
-  box_m: [1683.0, 763.8, 1684.2, 770.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_2_wall_2
-  box_m: [1678.8, 768.0, 1685.2, 769.2]
-  height_m: 2.2
+  box_m: [0.0, 0.0, 1.4, 0.15]
+  height_m: 1.2
 - id: oh_stall_2_roof
-  box_m: [1679.8, 764.8, 1684.2, 769.2]
-  height_m: 2.6
+  box_m: [0.0, 0.0, 3.6, 2.4]
+  height_m: 2.9
 - id: oh_stall_2_cart
-  circle_m: [1682.0, 766.4, 1.1]
-  height_m: 1.5
+  box_m: [0.0, 0.0, 3.5, 1.45]
+  height_m: 1.4
 - id: oh_houseb_000
   box_m: [1319.5, 593.0, 1324.5, 597.0]
   height_m: 4.4

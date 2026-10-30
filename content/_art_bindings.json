@@ -9649,22 +9649,37 @@
       "material": "wood",
       "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
-    "oh_stall_0_wall_0": {
+    "oh_stall_0_hurdle_0": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_0_wall_1": {
+    "oh_stall_0_hurdle_1": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_0_wall_2": {
+    "oh_stall_0_hurdle_2": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_0_roof": {
+    "oh_stall_0_hurdle_3": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_0_hurdle_4": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_0_hurdle_5": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_0_thatch": {
       "model": "cw_roof_thatch",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
@@ -9674,22 +9689,37 @@
       "material": "wood",
       "note": "Gate 2: the stall's own cart."
     },
-    "oh_stall_1_wall_0": {
+    "oh_stall_1_hurdle_0": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_1_wall_1": {
+    "oh_stall_1_hurdle_1": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_1_wall_2": {
+    "oh_stall_1_hurdle_2": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_1_roof": {
+    "oh_stall_1_hurdle_3": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_1_hurdle_4": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_1_hurdle_5": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_1_thatch": {
       "model": "cw_roof_thatch",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
@@ -9699,22 +9729,37 @@
       "material": "wood",
       "note": "Gate 2: the stall's own cart."
     },
-    "oh_stall_2_wall_0": {
+    "oh_stall_2_hurdle_0": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_2_wall_1": {
+    "oh_stall_2_hurdle_1": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_2_wall_2": {
+    "oh_stall_2_hurdle_2": {
       "model": "cw_hurdle_fence",
       "material": "wood",
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
-    "oh_stall_2_roof": {
+    "oh_stall_2_hurdle_3": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_2_hurdle_4": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_2_hurdle_5": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's back, wattle on posts."
+    },
+    "oh_stall_2_thatch": {
       "model": "cw_roof_thatch",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
