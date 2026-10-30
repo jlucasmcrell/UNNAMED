@@ -9012,7 +9012,7 @@
       "material": "wood"
     },
     "beam_woundmoss": {
-      "model": "cw_dead_trunk_a",
+      "model": "cw_dead_trunk_b",
       "material": "wood",
       "note": "Gate 2: a jetty pile - a trunk driven into the harbour bed."
     },
@@ -9292,7 +9292,7 @@
       "note": "The Steps stone: the landmark the other districts' stones use."
     },
     "oh_assize_notice": {
-      "model": "bw_codex_notice",
+      "model": "piece_bp_timber_wall",
       "material": "wood",
       "scale": 0.65,
       "offset": [
@@ -9300,7 +9300,7 @@
         1.1,
         0
       ],
-      "note": "The Assize's notice on its post, at the ring's edge."
+      "note": "The Assize's notice on its post at the ring's edge: a planked panel, the Gate's terms cut into it."
     },
     "oh_gate_stone_0": {
       "model": "rock_ph_moss_boulder_l",
@@ -12896,7 +12896,7 @@
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_0_thatch": {
-      "model": "cw_roof_thatch",
+      "model": "piece_bp_timber_roof",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
     },
@@ -12931,7 +12931,7 @@
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_1_thatch": {
-      "model": "cw_roof_thatch",
+      "model": "piece_bp_timber_roof",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
     },
@@ -12966,12 +12966,12 @@
       "note": "Gate 2: a market stall's back, wattle on posts."
     },
     "oh_stall_2_thatch": {
-      "model": "cw_roof_thatch",
+      "model": "piece_bp_timber_roof",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
     },
     "oh_lane_post_000": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13001,7 +13001,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_005": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13031,7 +13031,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_010": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13061,7 +13061,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_015": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13091,7 +13091,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_020": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13121,7 +13121,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_025": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13151,7 +13151,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_030": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13181,7 +13181,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_035": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13211,7 +13211,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_040": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13241,7 +13241,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_045": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13271,7 +13271,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_050": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13301,7 +13301,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_055": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13331,7 +13331,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_060": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
@@ -13361,7 +13361,7 @@
       "note": "Gate 2: a hurdle against the lane's edge."
     },
     "oh_lane_post_065": {
-      "model": "cw_lantern_post",
+      "model": "prop_bp_lantern_post",
       "material": "wood",
       "yaw": 180,
       "note": "Gate 2: a lantern post on the lane."
