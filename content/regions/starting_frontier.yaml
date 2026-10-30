@@ -150814,6 +150814,15 @@ gear_makers:
   - maker.oldworks.old_works
 
 npcs:
+- npc_ref: npc.frontier.waystation_watch
+  position_m: [436, 748]
+  facing_deg: 270
+- npc_ref: npc.frontier.cairn_watch
+  position_m: [982, 664]
+  facing_deg: 180
+- npc_ref: npc.frontier.road_watch
+  position_m: [712, 691]
+  facing_deg: 270
 - npc_ref: npc.ashen_hollow.renn_vale
   position_m:
   - 446.5
@@ -152837,19 +152846,19 @@ patrols:
 # the blind spot is the stretch of it where a body behind cover cannot be seen, and it is the window the route skills pay for.
 - key: patrol.waystation_yard
   position_m: [459, 748]
-  npc_ref: npc.ashen_hollow.tavar_orr
+  npc_ref: npc.frontier.waystation_watch
   period_s: 90
   blind_spot_s: 24
-  stops_m: [[459, 748], [447, 738], [440, 726], [452, 730]]
+  stops_m: [[430, 752], [436, 748], [440, 742], [434, 744]]
 - key: patrol.cairnwold_street
   position_m: [978, 668]
-  npc_ref: npc.ashen_hollow.tavar_orr
+  npc_ref: npc.frontier.cairn_watch
   period_s: 120
   blind_spot_s: 30
   stops_m: [[978, 668], [962, 655], [985, 690], [995, 670]]
 - key: patrol.road_bend
   position_m: [706, 690]
-  npc_ref: npc.ashen_hollow.tavar_orr
+  npc_ref: npc.frontier.road_watch
   period_s: 150
   blind_spot_s: 40
   stops_m: [[706, 690], [700, 660], [718, 664]]

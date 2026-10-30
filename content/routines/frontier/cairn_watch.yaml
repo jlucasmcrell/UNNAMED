@@ -1,0 +1,21 @@
+id: routine.frontier.cairn_watch
+kind: routine
+schema: 1
+display_key: routine.frontier.cairn_watch.name
+tags: [routine, frontier]
+notes: "D23 S6 (HOOK.STEALTH.PATROL): Cairnwold's watch walks the street round past the lantern and the lodge. Work hours are the round's: outside them she is home."
+region_ref: region.starting_frontier
+npc_ref: npc.frontier.cairn_watch
+settlement: ashen_hollow
+role: guard
+roles: [guard]
+work_hours: [6, 22]
+anchors:
+  home: {position_m: [978, 668], facing_deg: 90}
+  work: {position_m: [982, 664], facing_deg: 180}
+  supper: {position_m: [975, 660], facing_deg: 0}
+schedule:
+  - {hours: [0, 6], at: home}
+  - {hours: [6, 19], at: work}
+  - {hours: [19, 22], at: supper}
+  - {hours: [22, 24], at: home}

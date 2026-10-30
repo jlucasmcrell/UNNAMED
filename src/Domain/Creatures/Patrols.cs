@@ -57,6 +57,15 @@ public static class PatrolRules
         return new PatrolLeg(index, true, x, z, Facing(previous, stop));
     }
 
+    /// <summary>Which way a body faces looking along a direction, in millidegrees clockwise from north (the world's convention).</summary>
+    public static long FacingToward(long dx, long dz)
+    {
+        if (dx == 0 && dz == 0)
+            return 0;
+        double degrees = Math.Atan2(dx, dz) * 180 / Math.PI;
+        return (long)Math.Round(((degrees + 360) % 360) * 1000);
+    }
+
     /// <summary>Which way a body faces walking from one stop to the next, in millidegrees clockwise from north (the world's convention).</summary>
     private static long Facing(PatrolStop from, PatrolStop to)
     {

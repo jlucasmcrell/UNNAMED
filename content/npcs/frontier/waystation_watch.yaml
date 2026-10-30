@@ -1,0 +1,12 @@
+id: npc.frontier.waystation_watch
+kind: npc
+sex: f
+schema: 1
+display_key: npc.frontier.waystation_watch.name
+tags: [npc, frontier]
+name: The Waystation Watch
+notes: "D23 S6 (HOOK.STEALTH.PATROL): the waystation's watch walks the yard round - the board, the lodge door, the forge yard and the gate - and stands her post between times. She keeps the waystation yard, and her round is the loop a stealth route has to read."
+role: guard
+services: []
+dialogue_ref: dialogue.frontier.waystation_watch
+unique: true

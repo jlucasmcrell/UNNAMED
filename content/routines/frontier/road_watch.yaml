@@ -1,0 +1,21 @@
+id: routine.frontier.road_watch
+kind: routine
+schema: 1
+display_key: routine.frontier.road_watch.name
+tags: [routine, frontier]
+notes: "D23 S6 (HOOK.STEALTH.PATROL): the road's watch walks the bend round - the wain, the rim and the gap - which is the road's own patrol. Work hours are the round's: outside them she is home."
+region_ref: region.starting_frontier
+npc_ref: npc.frontier.road_watch
+settlement: ashen_hollow
+role: guard
+roles: [guard]
+work_hours: [5, 23]
+anchors:
+  home: {position_m: [706, 690], facing_deg: 90}
+  work: {position_m: [712, 691], facing_deg: 270}
+  supper: {position_m: [700, 680], facing_deg: 0}
+schedule:
+  - {hours: [0, 5], at: home}
+  - {hours: [5, 19], at: work}
+  - {hours: [19, 23], at: supper}
+  - {hours: [23, 24], at: home}

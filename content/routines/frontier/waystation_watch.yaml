@@ -1,0 +1,21 @@
+id: routine.frontier.waystation_watch
+kind: routine
+schema: 1
+display_key: routine.frontier.waystation_watch.name
+tags: [routine, frontier]
+notes: "D23 S6 (HOOK.STEALTH.PATROL): the waystation's watch walks the yard round - the board, the lodge door, the forge yard and the gate - and stands her post between times. Work hours are the round's: outside them she is home."
+region_ref: region.starting_frontier
+npc_ref: npc.frontier.waystation_watch
+settlement: ashen_hollow
+role: guard
+roles: [guard]
+work_hours: [6, 22]
+anchors:
+  home: {position_m: [430, 754], facing_deg: 90}
+  work: {position_m: [436, 748], facing_deg: 270}
+  supper: {position_m: [440, 742], facing_deg: 0}
+schedule:
+  - {hours: [0, 6], at: home}
+  - {hours: [6, 19], at: work}
+  - {hours: [19, 22], at: supper}
+  - {hours: [22, 24], at: home}

@@ -26,6 +26,9 @@ internal sealed class AlarmSystem
     /// <summary>How close a creature must be to a bell, and engaged, before it rings it.</summary>
     public const long RingMm = 14_000;
 
+    /// <summary>How close to a bell's post a responder comes: near enough to be at it, not inside it.</summary>
+    public const long PostStandOffMm = 1_200;
+
     /// <summary>How long the guards keep heading for the bell after one rings.</summary>
     public const long RespondTicks = 600;
 

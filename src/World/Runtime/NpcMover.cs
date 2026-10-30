@@ -194,8 +194,13 @@ internal sealed partial class NpcSystem
         if (_alarmUntilTick > State.WorldTick)
         {
             long dx = _alarmXMm - npc.XMm, dz = _alarmZMm - npc.ZMm;
-            if (dx * dx + dz * dz <= AlarmSystem.EarshotMm * AlarmSystem.EarshotMm)
-                return (_alarmXMm, _alarmZMm, 0);
+            double away = Math.Sqrt((double)dx * dx + (double)dz * dz);
+            if (away <= AlarmSystem.EarshotMm)
+            {
+                // A bell hangs on a post: she answers the alarm beside it, not inside it. Stand off by a body's reach and face the post.
+                double scale = away > AlarmSystem.PostStandOffMm ? (away - AlarmSystem.PostStandOffMm) / away : 0;
+                return (npc.XMm + (long)Math.Round(dx * scale), npc.ZMm + (long)Math.Round(dz * scale), (int)PatrolRules.FacingToward(dx, dz));
+            }
         }
         // A patrol (STEALTH §8.2): while she is on duty the round is her goal, so she walks stop to stop and stands at each one. Off duty she
         // goes back to her routine - the round is the post, not the day.

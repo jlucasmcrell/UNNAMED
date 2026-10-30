@@ -719,6 +719,17 @@ public sealed class Simulation
     /// </summary>
     public long WindBearing() => _creatures.WindBearingOfPublic;
 
+    /// <summary>
+    /// Which way the air moves at a place (STEALTH §4.6): the wind content authors over that ground if it covers the point, else the day's
+    /// prevailing wind. The same number the creatures' noses are read against, so a readout and the world agree.
+    /// </summary>
+    public long WindBearingAt(long xMm, long zMm) =>
+        UNNAMED.Domain.Creatures.WindRules.BearingAt(_creatures.WindBearingOf, ActiveLayout.Winds, xMm, zMm);
+
+    /// <summary>The strength of the air at a place, in metres a second (authored where content gives a wind).</summary>
+    public double WindStrengthAt(long xMm, long zMm) =>
+        UNNAMED.Domain.Creatures.WindRules.StrengthAt(0, ActiveLayout.Winds, xMm, zMm);
+
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;
 
@@ -1133,6 +1144,7 @@ public sealed class Simulation
             _laden.Tick(tick);
             _lights.Tick(tick);
             _detection.Tick(tick);
+            _alarms.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
             _pets.Tick(tick);
