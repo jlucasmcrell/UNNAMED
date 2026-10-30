@@ -355,24 +355,24 @@ public partial class Main
                 // So the subject is chosen by the RULE - a role that answers a call, or a watchman on a post - rather than by a name I guessed at.
                 bool AnswersNoise(CreatureView c) =>
                     c.RoleId == "sentinel" || (sim.Setup.Combat.Roles.TryGetValue(c.RoleId, out var role) && role.AnswersCalls);
+                // A stone carries twenty metres and a nose hears forty, so the subject has to be near enough for the landing to matter: within forty-five
+                // metres of where the character stands. Straight-line steering cannot path around a wall, so chasing a subject across the region never worked.
+                const long ThrowReachMm = 45_000;
+                double FromHere(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2)
+                    + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2));
                 var hunter = sim.Creatures
-                    .Where(c => c.Alive && !c.Asleep && AnswersNoise(c))
+                    .Where(c => c.Alive && !c.Asleep && AnswersNoise(c) && FromHere(c) <= ThrowReachMm)
                     .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
-                    .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .ThenBy(FromHere)
                     .FirstOrDefault();
-                // Close the distance in attempts rather than one long walk: an animal that wanders needs following, and a stone thrown from eighty metres
-                // lands nowhere near the ears it was meant for. Three attempts, then the caption says what the gap actually was.
-                for (int attempt = 0; attempt < 3 && hunter is not null; attempt++)
+                // One short approach, in case the subject is just outside a comfortable throw; the caption then says what the gap actually was.
+                if (hunter is not null && FromHere(hunter) > 15_000)
                 {
-                    double hunterGap = Math.Sqrt(Math.Pow(hunter.Body.XMm - sim.Player.Body.XMm, 2)
-                        + Math.Pow(hunter.Body.ZMm - sim.Player.Body.ZMm, 2));
-                    if (hunterGap <= 15_000)
-                        break;
-                    await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 12_000, seconds: 40);
+                    await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 12_000, seconds: 20);
                     hunter = sim.Creatures
-                        .Where(c => c.Alive && !c.Asleep && AnswersNoise(c))
+                        .Where(c => c.Alive && !c.Asleep && AnswersNoise(c) && FromHere(c) <= ThrowReachMm)
                         .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
-                        .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                        .ThenBy(FromHere)
                         .FirstOrDefault();
                 }
                 var watched = sim.Creatures
