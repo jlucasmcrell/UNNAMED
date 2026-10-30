@@ -351,8 +351,19 @@ public partial class Main
             // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
             if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
             {
-                // The subject is chosen BY THE MECHANIC, not by proximity: a sleeping animal is deaf to a stone and a chicken does not answer one, so the beat
-                // wants something awake whose role answers a noise - a hunter - and throws the stone toward it so the landing is inside its hearing.
+                // A hunter is the subject - something with a nose that answers a noise - but the world only streams what is near, so when none is loaded the
+                // beat walks toward the nearest one it can see before throwing. A stone nobody is near proves nothing.
+                var hunter = sim.Creatures
+                    .Where(c => c.Alive && !c.Asleep && c.RoleId == "pack_hunter")
+                    .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .FirstOrDefault();
+                if (hunter is not null)
+                {
+                    double hunterGap = Math.Sqrt(Math.Pow(hunter.Body.XMm - sim.Player.Body.XMm, 2)
+                        + Math.Pow(hunter.Body.ZMm - sim.Player.Body.ZMm, 2));
+                    if (hunterGap > 25_000)
+                        await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 20_000, seconds: 25);
+                }
                 var watched = sim.Creatures
                     .Where(c => c.Alive && !c.Asleep)
                     .OrderBy(c => c.RoleId == "pack_hunter" ? 0 : 1)
