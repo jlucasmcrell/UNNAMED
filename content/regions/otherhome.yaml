@@ -57867,7 +57867,21 @@ containers:
   loot_ref: loot.den_cache
   position_m: [1341.0, 498.0]
   stack_slots: 6
-readables: []
+readables:
+- key: readable.otherhome.survey_plaque
+  lore_ref: lore.otherhome_survey_plaque
+  page: 1
+  circle_m: [1571.0, 772.0, 0.6]
+  height_m: 1.5
+  name: the survey plate at the Long Survey's door
+  verb: Read
+- key: readable.otherhome.assize_terms
+  lore_ref: lore.otherhome_assize_terms
+  page: 1
+  circle_m: [1706.0, 777.0, 0.5]
+  height_m: 1.3
+  name: the Assize's terms at the ring's edge
+  verb: Read
 switches:
 - key: switch.oh_assize_notice
   structure: oh_assize_notice

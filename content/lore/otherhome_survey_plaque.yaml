@@ -1,0 +1,19 @@
+id: lore.otherhome_survey_plaque
+kind: lore
+schema: 1
+display_key: lore.otherhome_survey_plaque.name
+tags: [lore]
+title: The survey plate at the Long Surveys door
+category: places
+pages:
+- page: 1
+  sources:
+  - how: inspected
+    ref: readable.otherhome.survey_plaque
+  text: >-
+    A survey plate of the Long Survey, cut in the same hand as the seventy-seven that stand along the frontier road, and set
+    into the harbour's own wall. It records what the body measures and never what it decides: the height of the four terraces
+    above mean water, the bearing and reach of each flight of stairs, the depth of the sound at the piers in three seasons, and
+    the date on which the terraces were last found to have moved. That date is not recent, and the margin beside it carries a
+    second hand's note in the older orthography of the district: that the movement was the Gate's, and not the ground's. No
+    name is given either way.
