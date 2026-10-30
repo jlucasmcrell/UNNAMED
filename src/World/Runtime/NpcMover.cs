@@ -217,7 +217,7 @@ internal sealed partial class NpcSystem
     /// </summary>
     private PatrolLeg? PatrolLegFor(NpcLifeRecord life, RoutineDefinition routine, int hourOfDay)
     {
-        var layout = _context.Setup.Layout;
+        var layout = _context.Layout;
         if (layout.Patrols.IsDefaultOrEmpty)
             return null;
         bool onDuty = routine.WorkFromHour <= routine.WorkToHour
@@ -400,7 +400,7 @@ internal sealed partial class NpcSystem
             direction = ((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection));
         }
         var intent = new MoveIntent(direction.X, direction.Z, Gait.Walk, CombatRules.FacingTowards(body.XMm, body.ZMm, target.XMm, target.ZMm));
-        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.Layout.Space, Obstacles(npc.Definition.Id), TickMs), landing);
+        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Layout.Space, Obstacles(npc.Definition.Id), TickMs), landing);
     }
 
     private static int DivRound(long numerator, long denominator) =>
@@ -466,7 +466,7 @@ internal sealed partial class NpcSystem
     private bool InTheWay(string npcId, MoveIntent intent)
     {
         var from = State.Body;
-        var space = _context.Setup.Layout.Space;
+        var space = _context.Layout.Space;
         var all = _context.Obstacles();
         var (with, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all, TickMs);
         var (without, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all.Where(b => b.Id != npcId).ToImmutableArray(), TickMs);

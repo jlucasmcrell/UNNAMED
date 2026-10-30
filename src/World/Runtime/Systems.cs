@@ -77,6 +77,13 @@ internal sealed class SystemContext
 
     public RuntimeState State { get; }
     public SimulationSetup Setup { get; }
+
+    /// <summary>
+    /// The layout of the space the character is in: the region's own outside, an interior's when a portal has been taken (the Barrowworks'
+    /// thirteen rooms are their own layout). Systems that move or place bodies must ask this, not <see cref="SimulationSetup.Layout"/>,
+    /// or they act on the exterior while the character stands indoors.
+    /// </summary>
+    public RegionLayout Layout => Setup.LayoutFor(State.Space);
     public IEnumerable<(RegionLayout Layout,StationSite Site)> Stations(EntityId player) =>
         Setup.Sites(l=>l.Stations).Concat(Camps.View(this,player) is { } camp
             ? new[] { (Setup.Layout,camp.Station) } : Enumerable.Empty<(RegionLayout,StationSite)>());
