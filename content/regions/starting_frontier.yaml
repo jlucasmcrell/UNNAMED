@@ -151278,11 +151278,12 @@ stations:
   position_m:
   - 962.0
   - 692.0
+# Off the millpond's jetty shelf, where the old spot (956, 688) left it with water either side and a jetty post at the fire.
 - key: station.cairnwold.cookfire
   kind: cookfire
   position_m:
-  - 956.0
-  - 688.0
+  - 950.0
+  - 682.0
 - key: station.road.rim_cookfire
   kind: cookfire
   position_m:
