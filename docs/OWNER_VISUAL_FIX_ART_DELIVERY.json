@@ -1,5 +1,5 @@
 {
-  "status": "ART_CACHE_AND_PACKAGED_BOOT_PASS_VISUAL_COMPARISON_PENDING",
+  "status": "REQUESTED_FOUR_BUGS_RESOLVED_PRIVATE_PROOF_REVIEWED_B020_OPEN",
   "package": "D:\\Otherreach_Scratch\\visual_bug_package_20261030",
   "roots": {
     "primary": {
@@ -57,10 +57,23 @@
     "B005_packaged_recheck_provenance.json": {
       "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B005_packaged_recheck_provenance.json",
       "sha256": "795fdfa48bb5911da81a03bb29da2ea8cc85a9de8d7fb47275618cb0a784f9fe"
+    },
+    "B014_reviewed_packaged_proof.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B014_reviewed_packaged_proof.json",
+      "sha256": "0cb096973ad60a93b571e2871b1f363ef39291fab440c9179cfd5ba0e087794c"
+    },
+    "B004_B005_reviewed_packaged_proof.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B004_B005_reviewed_packaged_proof.json",
+      "sha256": "87a627fd24aa9808940bcc222ff381e746f559ce698045e85ad7b39e6beea018"
+    },
+    "B004_foldscar_scene_attribution.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B004_foldscar_scene_attribution.json",
+      "sha256": "7bff2d430b3c5dd724a8bab0505e1180ada2c590509682d2418ff81955751d86"
     }
   },
   "owner_install_untouched": true,
   "owner_save_copied": false,
   "marketing_stopped": true,
-  "limitations": "Private diagnostic assembly and Test02 native engine, no owner installation. Old quit handling retained until Claude B-001/B-017 integration. B-016 transition required before owner install. Recovered dependency PNGs represent approved native BC7 decoded pixels, not original pre-compression authoring files; native DDS bytes are unchanged."
+  "limitations": "Private diagnostic assembly and Test02 native engine, no owner installation. Old quit handling retained until Claude B-001/B-017 integration. B-016 transition required before owner install. Recovered dependency PNGs represent approved native BC7 decoded pixels, not original pre-compression authoring files; native DDS bytes are unchanged.",
+  "remaining": "B-020 Kal near outfit/body clipping; other owner bug gates and Claude save/quit work. Marketing stopped; owner installation unchanged."
 }
