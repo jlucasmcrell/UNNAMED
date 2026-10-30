@@ -20,11 +20,16 @@ def main(context,human):
         original=coords(obj.data.shape_keys.reference_key.data)
         at=native._transformed(original,transform)
         garment=native._garment(at,native._triangles(obj),base)
+        # fit_shape also restores its minimum skin gap when A == B. That
+        # rest-fit is not a shape delta: adding it to every control makes even
+        # an eye slider move a robe, and several negative body dials compound it.
+        covariance=native.vertex_covariance(base.co,base.co,native._body(human).edges)
+        reference=native.fit_shape(at,garment.binding,base.co,base.co,covariance)
         changes=[]
         for key,delta in deltas:
             covariance=native.vertex_covariance(base.co,base.co+delta,native._body(human).edges)
             fitted=native.fit_shape(at,garment.binding,base.co,base.co+delta,covariance)
-            change=(fitted-at)@np.linalg.inv(transform[:3,:3]).T
+            change=(fitted-reference)@np.linalg.inv(transform[:3,:3]).T
             if np.max(np.abs(change),initial=0)>.00001:changes.append((key,change))
         correction=sum((change*key.value for key,change in changes),np.zeros_like(original))
         for existing in obj.data.shape_keys.key_blocks:
