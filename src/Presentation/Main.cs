@@ -417,6 +417,7 @@ public partial class Main : Node3D
         _session = GameSession.Boot(new GameOptions(contentRoot, profile)
         {
             LockProfile = true,
+            ValidatedContentCache = ProjectSettings.GlobalizePath("user://content_checks"),
             RegionId = region,
             Barrowworks = VisualOptions.Barrowworks,
             // A --shot names a place to stand, so the session opens the player there instead of making the
