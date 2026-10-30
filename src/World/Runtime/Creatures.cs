@@ -885,7 +885,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             // A nose is not a sighting and it is not instant: it builds as the scent does, at half the rate a pair of eyes builds it. Until the animal
             // is suspicious enough to act there is nothing for it to act on, so it learns the place only once the smell has told it something (§4.6).
-            int smelled = Math.Min(Perception.Full, next.Awareness + Math.Max(1, rules.SightPerSecondAtRange / 2));
+            // Half of what a pair of eyes adds per second, converted to a tick: the creature's own awareness clock runs in per-second rates and this
+            // is the one place that has to divide by the tick rate itself (a nose that added 20 a tick was making the character smell like a bonfire).
+            int smelled = Math.Min(Perception.Full, next.Awareness + Math.Max(1, rules.SightPerSecondAtRange / 40));
             next = next with
             {
                 Awareness = smelled,
