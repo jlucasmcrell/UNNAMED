@@ -1,0 +1,15 @@
+id: spawn.hollow.hollow_crows
+kind: spawn
+schema: 1
+display_key: spawn.hollow.hollow_crows.name
+tags: [spawn]
+notes: Crows over the hollow field, a mob that follows the plough line and lifts together.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.crow, count: [4, 4], role: wildlife }
+at:
+  position_m: [470, 706]
+  radius_m: 14
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

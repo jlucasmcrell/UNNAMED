@@ -1,0 +1,15 @@
+id: spawn.cairnwold.millpond_ducks
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.millpond_ducks.name
+tags: [spawn]
+notes: A raft of mallards on the millpond itself, paddling the still water between the jetty and the reeds.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.duck, count: [5, 5], role: yard_fowl }
+at:
+  position_m: [966, 702]
+  radius_m: 9
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

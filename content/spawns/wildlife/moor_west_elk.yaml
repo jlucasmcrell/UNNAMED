@@ -1,0 +1,16 @@
+id: spawn.cairnwold.moor_west_elk
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.moor_west_elk.name
+tags: [spawn]
+notes: A second elk band on the western moor, hinds and a bull working the open ground above the millrace.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.elk, count: [3, 3], role: herd_shy }
+  - { creature_ref: creature.beast.elk, count: [1, 1], role: skittish }
+at:
+  position_m: [1010, 640]
+  radius_m: 16
+level_band: [3, 3]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

@@ -1,0 +1,16 @@
+id: spawn.cairnwold.millpond_deer
+kind: spawn
+schema: 1
+display_key: spawn.cairnwold.millpond_deer.name
+tags: [spawn]
+notes: Red deer down to the millpond at first light - two hinds and a stag, the water at their backs.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.beast.doe, count: [2, 2], role: skittish }
+  - { creature_ref: creature.beast.buck, count: [1, 1], role: skittish }
+at:
+  position_m: [950, 712]
+  radius_m: 10
+level_band: [1, 2]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

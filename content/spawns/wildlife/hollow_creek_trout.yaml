@@ -1,0 +1,15 @@
+id: spawn.hollow.creek_trout
+kind: spawn
+schema: 1
+display_key: spawn.hollow.creek_trout.name
+tags: [spawn]
+notes: Trout in the Ashen Hollow creek where it runs deep under the bank, a shoal a fisher can find by the rise.
+region_ref: region.starting_frontier
+creatures:
+  - { creature_ref: creature.fish.trout, count: [4, 4], role: wildlife }
+at:
+  position_m: [496, 744]
+  radius_m: 6
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A
