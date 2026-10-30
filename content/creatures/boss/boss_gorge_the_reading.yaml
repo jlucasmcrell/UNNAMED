@@ -5,36 +5,36 @@ display_key: creature.boss.gorge.the_reading.name
 tags:
 - creature
 - construct
-name: Animated Armour
-notes: 'D19 boss variant of creature.boss.gorge.the_reading (canon/BOSSES.md: boss.gorge.the_reading). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Reading
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 90
+  health: 85
 attack_set:
 - ability.creature.armour_slam
-- ability.creature.animated_armour_heavy
+- ability.creature.gauge_sweep
 - ability.creature.animated_armour_rush
 armor:
   head: 0
-  torso: 45
-  limbs: 35
+  torso: 40
+  limbs: 30
 resistances:
-  physical_pierce: 0.5
+  physical_pierce: 0.45
 weak_point:
-  region: head
+  region: limbs
   from_behind: true
-move_speed_m_s: 1.8
-turn_deg_s: 90
-body_radius_m: 0.45
+move_speed_m_s: 2.0
+turn_deg_s: 65
+body_radius_m: 1.3
 xp_value: 60
 loot_table: loot.boss.gorge.the_reading
 perception:
-  sight_m: 15
-  hearing_m: 18
-  fov_deg: 100
+  sight_m: 26
+  hearing_m: 22
+  fov_deg: 130
 tier_hint: A
 tameable: false

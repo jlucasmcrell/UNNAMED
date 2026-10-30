@@ -10,3 +10,13 @@ entries:
   count_range:
   - 1
   - 1
+- item_ref: item.material.river_finds
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.fish_eel
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

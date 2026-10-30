@@ -6,8 +6,8 @@ tags:
 - creature
 - construct
 - boss
-name: Gate Warden
-notes: 'D19 boss variant of creature.construct.gate_warden (canon/BOSSES.md: boss.field_ruins.gate_warden.deep). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Gate Warden
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
@@ -17,8 +17,8 @@ pools:
   health: 130
 attack_set:
 - ability.creature.warden_sweep
-- ability.creature.warden_fall
 - ability.creature.warden_grasp
+- ability.creature.warden_fall
 armor:
   head: 30
   torso: 50

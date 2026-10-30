@@ -10,3 +10,13 @@ entries:
   count_range:
   - 1
   - 1
+- item_ref: item.material.barrowback_hide
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.meat_raw
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

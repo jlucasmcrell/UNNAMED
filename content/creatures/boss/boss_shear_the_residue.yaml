@@ -5,31 +5,37 @@ display_key: creature.boss.shear.the_residue.name
 tags:
 - creature
 - undead
-notes: 'D19 boss variant of creature.boss.shear.the_residue (canon/BOSSES.md: boss.shear.the_residue). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
-name: Drowned Oath-Keeper
+name: The Residue
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: undead
 archetype: undead
 level_band:
 - 12
 - 12
 pools:
-  health: 85
+  health: 70
 attack_set:
-- ability.creature.sedge_drowned_heavy
-- ability.creature.sedge_drowned_rush
 - ability.creature.sedge_drowned_light
+- ability.creature.gauge_sweep
+- ability.creature.sedge_drowned_rush
 armor:
-  head: 2
-  torso: 3
+  head: 1
+  torso: 2
   limbs: 1
-move_speed_m_s: 2.3
-turn_deg_s: 180
-body_radius_m: 0.38
-xp_value: 60
+resistances:
+  frost: 0.6
+  physical_pierce: 0.2
+weak_point:
+  region: torso
+  from_behind: false
+move_speed_m_s: 2.6
+turn_deg_s: 70
+body_radius_m: 1.2
+xp_value: 65
+loot_table: loot.boss.shear.the_residue
 perception:
-  sight_m: 18
-  hearing_m: 14
-  fov_deg: 130
+  sight_m: 24
+  hearing_m: 28
+  fov_deg: 120
 tier_hint: A
 tameable: false
-loot_table: loot.boss.shear.the_residue

@@ -5,36 +5,37 @@ display_key: creature.boss.holds.the_fixed_warden.name
 tags:
 - creature
 - construct
-name: Animated Armour
-notes: 'D19 boss variant of creature.boss.holds.the_fixed_warden (canon/BOSSES.md: boss.holds.the_fixed_warden). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Fixed Warden
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 90
+  health: 115
 attack_set:
 - ability.creature.armour_slam
 - ability.creature.animated_armour_heavy
 - ability.creature.animated_armour_rush
 armor:
   head: 0
-  torso: 45
-  limbs: 35
+  torso: 52
+  limbs: 42
 resistances:
-  physical_pierce: 0.5
+  physical_pierce: 0.6
+  physical_slash: 0.35
 weak_point:
   region: head
   from_behind: true
-move_speed_m_s: 1.8
-turn_deg_s: 90
-body_radius_m: 0.45
-xp_value: 60
+move_speed_m_s: 1.5
+turn_deg_s: 45
+body_radius_m: 1.6
+xp_value: 75
 loot_table: loot.boss.holds.the_fixed_warden
 perception:
-  sight_m: 15
-  hearing_m: 18
+  sight_m: 18
+  hearing_m: 26
   fov_deg: 100
 tier_hint: A
 tameable: false

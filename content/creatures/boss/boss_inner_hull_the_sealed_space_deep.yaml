@@ -5,36 +5,36 @@ display_key: creature.boss.inner_hull.the_sealed_space.deep.name
 tags:
 - creature
 - construct
-name: Gate Tender
-notes: 'D19 boss variant of creature.boss.inner_hull.the_sealed_space.deep (canon/BOSSES.md: boss.inner_hull.the_sealed_space.deep). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Sealed Space
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 4
 - 4
 pools:
-  health: 60
+  health: 55
 attack_set:
 - ability.creature.tender_strike
-- ability.creature.gate_tender_heavy
 - ability.creature.gate_tender_rush
+- ability.creature.hound_lunge
 armor:
-  head: 8
-  torso: 14
-  limbs: 8
+  head: 6
+  torso: 12
+  limbs: 6
 resistances:
-  physical_pierce: 0.4
+  physical_pierce: 0.3
 weak_point:
-  region: torso
+  region: limbs
   from_behind: true
-move_speed_m_s: 3.2
-turn_deg_s: 140
-body_radius_m: 0.6
-xp_value: 50
+move_speed_m_s: 3.4
+turn_deg_s: 85
+body_radius_m: 0.9
+xp_value: 55
 loot_table: loot.boss.inner_hull.the_sealed_space.deep
 perception:
-  sight_m: 20
-  hearing_m: 22
+  sight_m: 22
+  hearing_m: 34
   fov_deg: 140
 tier_hint: A
 tameable: false

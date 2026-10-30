@@ -5,15 +5,15 @@ display_key: creature.boss.empty_shore.maintenance_still_running.name
 tags:
 - creature
 - construct
-name: Animated Armour
-notes: 'D19 boss variant of creature.boss.empty_shore.maintenance_still_running (canon/BOSSES.md: boss.empty_shore.maintenance_still_running). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: Maintenance, Still Running
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 90
+  health: 95
 attack_set:
 - ability.creature.armour_slam
 - ability.creature.animated_armour_heavy
@@ -23,18 +23,19 @@ armor:
   torso: 45
   limbs: 35
 resistances:
-  physical_pierce: 0.5
+  physical_pierce: 0.55
+  physical_slash: 0.3
 weak_point:
   region: head
-  from_behind: true
+  from_behind: false
 move_speed_m_s: 1.8
-turn_deg_s: 90
-body_radius_m: 0.45
-xp_value: 60
+turn_deg_s: 60
+body_radius_m: 1.4
+xp_value: 65
 loot_table: loot.boss.empty_shore.maintenance_still_running
 perception:
-  sight_m: 15
-  hearing_m: 18
-  fov_deg: 100
+  sight_m: 22
+  hearing_m: 24
+  fov_deg: 120
 tier_hint: A
 tameable: false

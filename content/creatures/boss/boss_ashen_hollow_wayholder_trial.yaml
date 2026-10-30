@@ -5,8 +5,8 @@ display_key: creature.boss.ashen_hollow.wayholder_trial.name
 tags:
 - creature
 - construct
-name: Gate Tender
-notes: 'D19 boss variant of creature.construct.gate_tender (canon/BOSSES.md: boss.ashen_hollow.wayholder_trial). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Gate Tender
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
@@ -23,18 +23,18 @@ armor:
   torso: 14
   limbs: 8
 resistances:
-  physical_pierce: 0.4
+  fire: 0.3
 weak_point:
   region: torso
-  from_behind: true
+  from_behind: false
 move_speed_m_s: 3.2
-turn_deg_s: 140
-body_radius_m: 0.6
+turn_deg_s: 80
+body_radius_m: 1.0
 xp_value: 50
 loot_table: loot.boss.ashen_hollow.wayholder_trial
 perception:
-  sight_m: 20
-  hearing_m: 22
-  fov_deg: 140
+  sight_m: 26
+  hearing_m: 28
+  fov_deg: 130
 tier_hint: A
 tameable: false

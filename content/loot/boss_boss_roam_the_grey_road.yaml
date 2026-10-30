@@ -4,4 +4,14 @@ schema: 1
 display_key: loot.boss.roam.the_grey_road.name
 notes: 'D19: what boss.roam.the_grey_road leaves. No legendary: canon names none for this one.'
 rolls: 0
-entries: []
+entries:
+- item_ref: item.material.pelt_grey_wolf
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.meat_raw
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

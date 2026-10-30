@@ -6,37 +6,37 @@ tags:
 - creature
 - construct
 - boss
-name: Ring Custodian
-notes: 'D19 boss variant of creature.boss.sounding.drowned_custodian.deep (canon/BOSSES.md: boss.sounding.drowned_custodian.deep). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Drowned Custodian
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 150
+  health: 165
 attack_set:
 - ability.creature.gauge_sweep
+- ability.creature.sedge_drowned_rush
 - ability.creature.measure_fall
-- ability.creature.index_grasp
 armor:
-  head: 30
-  torso: 50
-  limbs: 40
+  head: 14
+  torso: 36
+  limbs: 26
 resistances:
-  physical_pierce: 0.5
-  physical_slash: 0.25
+  physical_slash: 0.3
+  fire: 0.5
 weak_point:
-  region: torso
-  from_behind: true
+  region: head
+  from_behind: false
 move_speed_m_s: 2.0
-turn_deg_s: 75
-body_radius_m: 0.6
+turn_deg_s: 50
+body_radius_m: 1.6
 xp_value: 150
 loot_table: loot.boss.sounding.drowned_custodian.deep
 perception:
-  sight_m: 18
-  hearing_m: 22
+  sight_m: 22
+  hearing_m: 30
   fov_deg: 120
 tier_hint: A
 tameable: false

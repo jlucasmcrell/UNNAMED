@@ -4,4 +4,9 @@ schema: 1
 display_key: loot.boss.sedge.keeping_house.name
 notes: 'D19: what boss.sedge.keeping_house leaves. No legendary: canon names none for this one.'
 rolls: 0
-entries: []
+entries:
+- item_ref: item.material.iron_ingot
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

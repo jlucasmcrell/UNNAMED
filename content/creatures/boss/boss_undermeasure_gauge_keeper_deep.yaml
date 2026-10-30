@@ -6,37 +6,36 @@ tags:
 - creature
 - construct
 - boss
-name: Ring Custodian
-notes: 'D19 boss variant of creature.boss.undermeasure.gauge_keeper.deep (canon/BOSSES.md: boss.undermeasure.gauge_keeper.deep). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Gauge-Keeper
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 150
+  health: 135
 attack_set:
 - ability.creature.gauge_sweep
-- ability.creature.measure_fall
 - ability.creature.index_grasp
+- ability.creature.animated_armour_rush
 armor:
-  head: 30
-  torso: 50
-  limbs: 40
+  head: 20
+  torso: 42
+  limbs: 32
 resistances:
-  physical_pierce: 0.5
-  physical_slash: 0.25
+  physical_pierce: 0.35
 weak_point:
-  region: torso
+  region: limbs
   from_behind: true
-move_speed_m_s: 2.0
-turn_deg_s: 75
-body_radius_m: 0.6
-xp_value: 150
+move_speed_m_s: 2.4
+turn_deg_s: 70
+body_radius_m: 1.4
+xp_value: 145
 loot_table: loot.boss.undermeasure.gauge_keeper.deep
 perception:
-  sight_m: 18
-  hearing_m: 22
-  fov_deg: 120
+  sight_m: 28
+  hearing_m: 26
+  fov_deg: 140
 tier_hint: A
 tameable: false

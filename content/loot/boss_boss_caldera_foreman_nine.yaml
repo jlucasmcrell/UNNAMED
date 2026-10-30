@@ -10,3 +10,13 @@ entries:
   count_range:
   - 1
   - 1
+- item_ref: item.material.iron_ore
+  chance: 1.0
+  count_range:
+  - 2
+  - 4
+- item_ref: item.material.ash_haft
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

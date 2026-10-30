@@ -6,37 +6,37 @@ tags:
 - creature
 - construct
 - boss
-name: Ring Custodian
-notes: 'D19 boss variant of creature.construct.ring_custodian (canon/BOSSES.md: boss.barrowworks.ring_custodian.deep). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Ring Custodian
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 150
+  health: 175
 attack_set:
 - ability.creature.gauge_sweep
-- ability.creature.measure_fall
 - ability.creature.index_grasp
+- ability.creature.measure_fall
 armor:
-  head: 30
-  torso: 50
-  limbs: 40
+  head: 26
+  torso: 48
+  limbs: 38
 resistances:
   physical_pierce: 0.5
   physical_slash: 0.25
 weak_point:
   region: torso
   from_behind: true
-move_speed_m_s: 2.0
-turn_deg_s: 75
-body_radius_m: 0.6
-xp_value: 150
+move_speed_m_s: 1.9
+turn_deg_s: 50
+body_radius_m: 1.7
+xp_value: 170
 loot_table: loot.boss.barrowworks.ring_custodian.deep
 perception:
-  sight_m: 18
-  hearing_m: 22
+  sight_m: 24
+  hearing_m: 26
   fov_deg: 120
 tier_hint: A
 tameable: false

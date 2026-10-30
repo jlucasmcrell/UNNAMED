@@ -10,3 +10,13 @@ entries:
   count_range:
   - 1
   - 1
+- item_ref: item.material.bog_cotton
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.boneleaf
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

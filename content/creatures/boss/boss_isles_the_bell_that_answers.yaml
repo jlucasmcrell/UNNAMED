@@ -6,37 +6,37 @@ tags:
 - creature
 - construct
 - boss
-name: Gate Warden
-notes: 'D19 boss variant of creature.boss.isles.the_bell_that_answers (canon/BOSSES.md: boss.isles.the_bell_that_answers). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: The Bell That Answers
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
 family: construct
 archetype: construct
 level_band:
 - 5
 - 5
 pools:
-  health: 130
+  health: 150
 attack_set:
-- ability.creature.warden_sweep
-- ability.creature.warden_fall
 - ability.creature.warden_grasp
+- ability.creature.warden_fall
+- ability.creature.measure_fall
 armor:
-  head: 30
-  torso: 50
-  limbs: 40
+  head: 22
+  torso: 42
+  limbs: 34
 resistances:
-  physical_pierce: 0.5
-  physical_slash: 0.25
+  physical_blunt: 0.4
+  shock: 0.6
 weak_point:
   region: torso
-  from_behind: true
-move_speed_m_s: 1.6
+  from_behind: false
+move_speed_m_s: 1.7
 turn_deg_s: 55
-body_radius_m: 1.6
-xp_value: 160
+body_radius_m: 1.7
+xp_value: 170
 loot_table: loot.boss.isles.the_bell_that_answers
 perception:
-  sight_m: 24
-  hearing_m: 26
-  fov_deg: 120
+  sight_m: 20
+  hearing_m: 34
+  fov_deg: 140
 tier_hint: A
 tameable: false
