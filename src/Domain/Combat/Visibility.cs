@@ -1,4 +1,4 @@
-// UNNAMED Domain - how visible a body is, and to whom (STEALTH.md §2: light, cover, posture, silhouette)
+﻿// UNNAMED Domain - how visible a body is, and to whom (STEALTH.md §2: light, cover, posture, silhouette)
 // No Godot references - pure C#
 
 using UNNAMED.Domain.Spatial;
@@ -131,6 +131,14 @@ public static class Visibility
     /// gain, whether the observer has only its periphery on it, and a silhouette against a bright backdrop. Never zero: 0.35 at two metres is
     /// still a body standing in front of you.
     /// </summary>
+    /// <summary>
+    /// Whether a body standing in the dark is drawn as a shape against light behind it (STEALTH §2.4): the air beyond it, along the observer's own line,
+    /// is lit - so what the watch sees is a silhouette against the lamp rather than a body in the dark. That is the rule the light gem cannot show on its
+    /// own, and the one that makes a lit yard the most dangerous thing in a dark night.
+    /// </summary>
+    public static bool Silhouetted(LightBand band, int litBeyondPermille, int litEnoughPermille = 450) =>
+        band is LightBand.Dark or LightBand.Dim && litBeyondPermille >= litEnoughPermille;
+
     public static double Factor(LightRules rules, LightBand band, bool nightSight, double seenFraction, PostureRule posture,
         bool peripheralOnly, bool silhouette)
     {

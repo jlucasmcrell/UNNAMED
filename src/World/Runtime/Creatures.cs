@@ -799,7 +799,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // still a body in front of it, read at the periphery's own 0.4 (§2.3).
         if (peripheral && distance > 6_000)
             return 0;
-        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouette: false);
+        // Light behind the character counts as much as light on them (STEALTH §2.4): a body in the dark against a lit yard is a shape a watch sees.
+        double len = Math.Max(1, distance);
+        long beyondX = (long)(player.XMm + (player.XMm - c.Body.XMm) / len * SilhouetteBeyondMm);
+        long beyondZ = (long)(player.ZMm + (player.ZMm - c.Body.ZMm) / len * SilhouetteBeyondMm);
+        bool silhouetted = Visibility.Silhouetted(band, LitAt(beyondX, beyondZ));
+        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouetted);
         // Bright gear and gilt read at a distance in good light (STEALTH §3.3).
         double penalty = _context.PlayerStealthPenalty();
         return penalty > 0 ? factor * (1 + penalty) : factor;
@@ -1000,6 +1005,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     /// <summary>How far a hand reaches to a lamp: an arm and a step.</summary>
     private const long DouseReachMm = 2_500;
+
+    /// <summary>How far past the character the eye looks for the light that draws them: the far side of a lane.</summary>
+    private const long SilhouetteBeyondMm = 8_000;
 
     /// <summary>Whether an authored light is out, so presentation can dim what the simulation has stopped counting.</summary>
     internal bool IsDoused(string key) => _doused.Contains(key);
