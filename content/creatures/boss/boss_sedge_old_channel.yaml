@@ -1,0 +1,35 @@
+id: creature.boss.sedge.old_channel
+kind: creature
+schema: 1
+display_key: creature.boss.sedge.old_channel.name
+tags:
+- creature
+- beast
+notes: 'D19 boss variant of creature.beast.sedge_eel_serpent (canon/BOSSES.md: boss.sedge.old_channel). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: Eel-Serpent
+family: beast
+archetype: predator
+level_band:
+- 12
+- 12
+pools:
+  health: 95
+attack_set:
+- ability.creature.sedge_eel_serpent_heavy
+- ability.creature.sedge_eel_serpent_rush
+- ability.creature.sedge_eel_serpent_light
+armor:
+  head: 2
+  torso: 3
+  limbs: 1
+move_speed_m_s: 3.3
+turn_deg_s: 300
+body_radius_m: 0.65
+xp_value: 60
+perception:
+  sight_m: 18
+  hearing_m: 14
+  fov_deg: 130
+tier_hint: A
+tameable: false
+loot_table: loot.boss.sedge.old_channel

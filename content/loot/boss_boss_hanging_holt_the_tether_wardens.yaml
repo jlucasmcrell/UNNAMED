@@ -1,0 +1,12 @@
+id: loot.boss.hanging_holt.the_tether_wardens
+kind: loot
+schema: 1
+display_key: loot.boss.hanging_holt.the_tether_wardens.name
+notes: 'D19: what boss.hanging_holt.the_tether_wardens leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.tether_link
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

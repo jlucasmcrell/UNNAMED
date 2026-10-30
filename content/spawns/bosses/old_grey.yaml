@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.1): Old Grey, the alpha of the wayside pack, and the lesson the first road teaches - wolves circle, and the alpha does not. P1 two wolves circle and take turns darting in; P2 at half health he stops circling and comes straight down the road, and the tell is that he stops growling. FIELD, band 6."
 region_ref: region.starting_frontier
 creatures:
-- creature_ref: creature.beast.wolf_grey_alpha
+- creature_ref: creature.boss.the_road.old_grey
   count:
   - 1
   - 1

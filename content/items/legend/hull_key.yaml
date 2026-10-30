@@ -1,0 +1,12 @@
+id: item.legend.hull_key
+kind: item
+schema: 1
+display_key: item.legend.hull_key.name
+tags: [item, legendary]
+name: The Hull Key
+notes: "The Inner Hull's sealed-space key. The space it opens was sealed from the inside."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 1.8
+value_base: 640

@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.1): the thing that answers when Old Late's crown answers a breath late - the quiet half-second after the wind. The document says plainly that this one needs art and wants an audio-and-silhouette treatment; until that exists it is carried by the gate tender's stone body, which the document names as its acceptable stone echo. FIELD, band 7."
 region_ref: region.starting_frontier
 creatures:
-- creature_ref: creature.construct.gate_tender
+- creature_ref: creature.boss.old_late.the_breath_late
   count:
   - 1
   - 1

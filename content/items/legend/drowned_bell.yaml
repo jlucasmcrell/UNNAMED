@@ -1,0 +1,12 @@
+id: item.legend.drowned_bell
+kind: item
+schema: 1
+display_key: item.legend.drowned_bell.name
+tags: [item, legendary]
+name: The Drowned Bell
+notes: "The Sounding's drowned bell, still ringing where nothing can hear it."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 8.0
+value_base: 780

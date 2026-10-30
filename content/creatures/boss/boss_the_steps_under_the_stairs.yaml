@@ -1,0 +1,42 @@
+id: creature.boss.the_steps.under_the_stairs
+kind: creature
+schema: 1
+display_key: creature.boss.the_steps.under_the_stairs.name
+tags:
+- creature
+- construct
+- boss
+name: Gate Warden
+notes: 'D19 boss variant of creature.boss.the_steps.under_the_stairs (canon/BOSSES.md: boss.the_steps.under_the_stairs). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 130
+attack_set:
+- ability.creature.warden_sweep
+- ability.creature.warden_fall
+- ability.creature.warden_grasp
+armor:
+  head: 30
+  torso: 50
+  limbs: 40
+resistances:
+  physical_pierce: 0.5
+  physical_slash: 0.25
+weak_point:
+  region: torso
+  from_behind: true
+move_speed_m_s: 1.6
+turn_deg_s: 55
+body_radius_m: 1.6
+xp_value: 160
+loot_table: loot.boss.the_steps.under_the_stairs
+perception:
+  sight_m: 24
+  hearing_m: 26
+  fov_deg: 120
+tier_hint: A
+tameable: false

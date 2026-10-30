@@ -1,0 +1,15 @@
+id: item.legend.first_formed_maul
+kind: item
+schema: 1
+display_key: item.legend.first_formed_maul.name
+tags:
+- item
+- legendary
+name: The First Formed Maul
+notes: The Ordrun Holds' first formed thing carries the maul it was formed with, and
+  the maul remembers the forming.
+category: misc
+item_class: notable
+stack_max: 1
+weight: 6.2
+value_base: 640

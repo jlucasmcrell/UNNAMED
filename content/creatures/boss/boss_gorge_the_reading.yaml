@@ -1,0 +1,40 @@
+id: creature.boss.gorge.the_reading
+kind: creature
+schema: 1
+display_key: creature.boss.gorge.the_reading.name
+tags:
+- creature
+- construct
+name: Animated Armour
+notes: 'D19 boss variant of creature.boss.gorge.the_reading (canon/BOSSES.md: boss.gorge.the_reading). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 90
+attack_set:
+- ability.creature.armour_slam
+- ability.creature.animated_armour_heavy
+- ability.creature.animated_armour_rush
+armor:
+  head: 0
+  torso: 45
+  limbs: 35
+resistances:
+  physical_pierce: 0.5
+weak_point:
+  region: head
+  from_behind: true
+move_speed_m_s: 1.8
+turn_deg_s: 90
+body_radius_m: 0.45
+xp_value: 60
+loot_table: loot.boss.gorge.the_reading
+perception:
+  sight_m: 15
+  hearing_m: 18
+  fov_deg: 100
+tier_hint: A
+tameable: false

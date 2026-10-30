@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.2): Old Channel, the Eel-Serpent, in the channel under the causeway. It holds the water, and the water is the arena: the fight is won by reading the channel's own tide, which is what the Tide Reader drop is for. FIELD, band 13."
 region_ref: region.sedge_levels
 creatures:
-- creature_ref: creature.beast.sedge_eel_serpent
+- creature_ref: creature.boss.sedge.old_channel
   count:
   - 1
   - 1

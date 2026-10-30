@@ -1,0 +1,12 @@
+id: loot.boss.keelward.salt_walker
+kind: loot
+schema: 1
+display_key: loot.boss.keelward.salt_walker.name
+notes: 'D19: what boss.keelward.salt_walker leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.salt_walker_core
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

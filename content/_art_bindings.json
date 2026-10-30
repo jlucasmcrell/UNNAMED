@@ -5996,6 +5996,844 @@
     "run": "run"
    },
    "note": "D19: the WildMesh realistic deer, converted from FBX to GLB with its own textures and rig. No clip set yet - the animated Unity pack beside it has the takes and they are not retargeted in this branch, so the animal stands and moves on its skeleton without a walk cycle."
+  },
+  "creature.boss.caldera.foreman_nine": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.colophon.the_specification": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.counties.the_unsworn": {
+   "model": "humgen_mob_raider",
+   "clips": {
+    "idle": "player.mh.idle",
+    "walk": "player.mh.walk",
+    "run": "player.mh.run",
+    "sprint": "player.mh.sprint",
+    "crouch_idle": "player.mh.crouch_idle",
+    "crouch_walk": "player.mh.crouch_walk",
+    "jump_start": "player.mh.jump_start",
+    "fall": "player.mh.fall",
+    "land": "player.mh.land",
+    "interact": "player.mh.interact",
+    "stop": "player.mh.idle",
+    "turn": "player.mh.idle",
+    "talk": "player.mh.talk",
+    "sword_ready": "player.mh.sword_ready",
+    "sword_attack": "player.mh.sword_attack_1_mc",
+    "sword_attack_1": "player.mh.sword_attack_1_mc",
+    "sword_attack_2": "player.mh.sword_attack_2_mc",
+    "sword_attack_3": "player.mh.sword_attack_3_mc",
+    "sword_attack_4": "player.mh.sword_attack_4_mc",
+    "sword_block": "player.mh.sword_block_mc",
+    "bow_ready": "player.mh.bow_ready_mc",
+    "bow_draw": "player.mh.bow_draw_mc",
+    "spear_ready": "player.mh.spear_ready_mc",
+    "spear_thrust": "player.mh.spear_thrust_mc",
+    "cast": "player.mh.cast",
+    "hit": "player.mh.hit_mc",
+    "death": "player.mh.death_mc"
+   },
+   "native_states": {
+    "ability.creature.back_ledger_raider_light_1": "sword_attack_1",
+    "ability.creature.back_ledger_raider_light_2": "sword_attack_2",
+    "ability.creature.back_ledger_raider_heavy_1": "sword_attack_3",
+    "ability.creature.back_ledger_raider_heavy_2": "sword_attack_2",
+    "ability.creature.back_ledger_raider_rush_1": "sword_attack_1",
+    "ability.creature.back_ledger_raider_rush_2": "sword_attack_3"
+   },
+   "weapon_item": "item.weapon.rusted_sword",
+   "voice": "",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "back_weapon_model": "weapon_real_arming_sword_sheathed",
+   "note": "Native HumGen body and full-source material bakes; exact-target Epic IK/GLTFExporter motion; C1 moves unchanged."
+  },
+  "creature.boss.foldscar.doubled_hart": {
+   "model": "creature_doubled_hart",
+   "flesh": "fur",
+   "voice": "deer",
+   "blow": "antler",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "D19: the WildMesh realistic deer, converted from FBX to GLB with its own textures and rig. No clip set yet - the animated Unity pack beside it has the takes and they are not retargeted in this branch, so the animal stands and moves on its skeleton without a walk cycle."
+  },
+  "creature.boss.empty_shore.maintenance_still_running": {
+   "model": "creature_playtest_empty_armour",
+   "clips": {
+    "idle": "creature.creature_playtest_empty_armour.idle",
+    "walk": "creature.creature_playtest_empty_armour.walk",
+    "run": "creature.creature_playtest_empty_armour.run",
+    "attack": "creature.creature_playtest_empty_armour.attack",
+    "hit": "creature.creature_playtest_empty_armour.hit",
+    "death": "creature.creature_playtest_empty_armour.death",
+    "idle_b": "creature.creature_playtest_empty_armour.idle_b",
+    "hit_b": "creature.creature_playtest_empty_armour.hit_b",
+    "ability.creature.armour_slam": "creature.creature_playtest_empty_armour.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Empty plate, no dark visor filler; open rear helm. Authored overhead gauntlet slam.",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   }
+  },
+  "creature.boss.field_ruins.gate_warden.deep": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.gorge.the_reading": {
+   "model": "creature_playtest_empty_armour",
+   "clips": {
+    "idle": "creature.creature_playtest_empty_armour.idle",
+    "walk": "creature.creature_playtest_empty_armour.walk",
+    "run": "creature.creature_playtest_empty_armour.run",
+    "attack": "creature.creature_playtest_empty_armour.attack",
+    "hit": "creature.creature_playtest_empty_armour.hit",
+    "death": "creature.creature_playtest_empty_armour.death",
+    "idle_b": "creature.creature_playtest_empty_armour.idle_b",
+    "hit_b": "creature.creature_playtest_empty_armour.hit_b",
+    "ability.creature.armour_slam": "creature.creature_playtest_empty_armour.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Empty plate, no dark visor filler; open rear helm. Authored overhead gauntlet slam.",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   }
+  },
+  "creature.boss.hanging_holt.the_tether_wardens": {
+   "model": "creature_playtest_empty_armour",
+   "clips": {
+    "idle": "creature.creature_playtest_empty_armour.idle",
+    "walk": "creature.creature_playtest_empty_armour.walk",
+    "run": "creature.creature_playtest_empty_armour.run",
+    "attack": "creature.creature_playtest_empty_armour.attack",
+    "hit": "creature.creature_playtest_empty_armour.hit",
+    "death": "creature.creature_playtest_empty_armour.death",
+    "idle_b": "creature.creature_playtest_empty_armour.idle_b",
+    "hit_b": "creature.creature_playtest_empty_armour.hit_b",
+    "ability.creature.armour_slam": "creature.creature_playtest_empty_armour.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Empty plate, no dark visor filler; open rear helm. Authored overhead gauntlet slam.",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   }
+  },
+  "creature.boss.holds.the_fixed_warden": {
+   "model": "creature_playtest_empty_armour",
+   "clips": {
+    "idle": "creature.creature_playtest_empty_armour.idle",
+    "walk": "creature.creature_playtest_empty_armour.walk",
+    "run": "creature.creature_playtest_empty_armour.run",
+    "attack": "creature.creature_playtest_empty_armour.attack",
+    "hit": "creature.creature_playtest_empty_armour.hit",
+    "death": "creature.creature_playtest_empty_armour.death",
+    "idle_b": "creature.creature_playtest_empty_armour.idle_b",
+    "hit_b": "creature.creature_playtest_empty_armour.hit_b",
+    "ability.creature.armour_slam": "creature.creature_playtest_empty_armour.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Empty plate, no dark visor filler; open rear helm. Authored overhead gauntlet slam.",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   }
+  },
+  "creature.boss.inner_hull.the_sealed_space.deep": {
+   "model": "creature_d5_rock_golem",
+   "clips": {
+    "idle": "creature.creature_d5_rock_golem.idle",
+    "walk": "creature.creature_d5_rock_golem.walk",
+    "run": "creature.creature_d5_rock_golem.run",
+    "attack": "creature.creature_d5_rock_golem.attack",
+    "hit": "creature.creature_d5_rock_golem.hit",
+    "death": "creature.creature_d5_rock_golem.death",
+    "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 0.5,
+   "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
+  },
+  "creature.boss.isles.the_bell_that_answers": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.keelward.salt_walker": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.sedge.keeping_house": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.manyside.the_knot_keeper": {
+   "model": "creature_d5_rock_golem",
+   "clips": {
+    "idle": "creature.creature_d5_rock_golem.idle",
+    "walk": "creature.creature_d5_rock_golem.walk",
+    "run": "creature.creature_d5_rock_golem.run",
+    "attack": "creature.creature_d5_rock_golem.attack",
+    "hit": "creature.creature_d5_rock_golem.hit",
+    "death": "creature.creature_d5_rock_golem.death",
+    "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 0.5,
+   "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
+  },
+  "creature.boss.den_gorge.matriarch": {
+   "model": "creature_d5_tarantula_matriarch",
+   "clips": {
+    "idle": "creature.creature_d5_tarantula_matriarch.idle",
+    "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
+    "walk": "creature.creature_d5_tarantula_matriarch.walk",
+    "run": "creature.creature_d5_tarantula_matriarch.walk",
+    "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
+    "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
+    "death": "creature.creature_d5_tarantula_matriarch.dead",
+    "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
+    "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
+    "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
+    "hit": "creature.creature_playtest_cave_spider.hit"
+   },
+   "voice": "cave_hunting_spider",
+   "flesh": "chitin",
+   "blow": "sting",
+   "note": "Distinct Mixall native brown/orange tarantula, 3m body length, original six takes/rig and full native 2K diffuse. Source has no dedicated hit take; not falsely borrowed from Nephila. Gait pace remains subject to native conversion review.",
+   "steps": {
+    "walk": "scuttle",
+    "run": "scuttle_fast"
+   }
+  },
+  "creature.boss.sedge.old_channel": {
+   "model": "sedge_eel_serpent",
+   "clips": {},
+   "voice": "sedge_eel_serpent",
+   "flesh": "chitin",
+   "blow": "sting",
+   "steps": {
+    "walk": "walk",
+    "run": "move_fast"
+   },
+   "note": "D5 private creature payload; Sedge Gate 4 art reviewed separately from the station capture."
+  },
+  "creature.boss.the_road.old_grey": {
+   "model": "creature_wm_grey_wolf_b",
+   "clips": {
+    "idle": "creature.creature_wm_grey_wolf_b.idle",
+    "walk": "creature.creature_wm_grey_wolf_b.walk",
+    "run": "creature.creature_wm_grey_wolf_b.run",
+    "attack": "creature.creature_wm_grey_wolf_b.attack",
+    "hit": "creature.creature_wm_grey_wolf_b.hit",
+    "death": "creature.creature_wm_grey_wolf_b.death",
+    "idle_b": "creature.creature_wm_grey_wolf_b.idle_b",
+    "idle_c": "creature.creature_wm_grey_wolf_b.idle_c",
+    "hit_b": "creature.creature_wm_grey_wolf_b.hit_b",
+    "death_b": "creature.creature_wm_grey_wolf_b.death_b",
+    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+    "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
+    "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
+    "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
+    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
+   },
+   "voice": "grey_wolf",
+   "flesh": "fur",
+   "blow": "bite",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat. | D19 asset pass: kept this WildMesh grey wolf (rigged, authored idle/walk/run/attack/hit/death takes, full textures, 1.30x alpha scale). The BlenderKit candidates on F: were rejected for a boss body: Wolf_760c65b5_lod0.glb carries no skin, no animation and no images, and the Stylized-Wolf-Warrior is a humanoid warrior rather than a wolf.",
+   "otherfauna": {
+    "scale": [
+     1.534,
+     1.534
+    ],
+    "shader": {
+     "saturation": 0.12,
+     "value": 0.14,
+     "mottle_tint": [
+      0.82,
+      0.86,
+      0.9
+     ],
+     "mottle_strength": 0,
+     "mottle_scale": 0.07,
+     "mottle_cover": 0.5,
+     "mottle_from": 0.4,
+     "ruff_strength": 1.45
+    }
+   }
+  },
+  "creature.boss.plumb.the_ring_builder": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.barrowworks.ring_custodian.deep": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.roam.the_grey_road": {
+   "model": "creature_wm_grey_wolf_b",
+   "clips": {
+    "idle": "creature.creature_wm_grey_wolf_b.idle",
+    "walk": "creature.creature_wm_grey_wolf_b.walk",
+    "run": "creature.creature_wm_grey_wolf_b.run",
+    "attack": "creature.creature_wm_grey_wolf_b.attack",
+    "hit": "creature.creature_wm_grey_wolf_b.hit",
+    "death": "creature.creature_wm_grey_wolf_b.death",
+    "idle_b": "creature.creature_wm_grey_wolf_b.idle_b",
+    "idle_c": "creature.creature_wm_grey_wolf_b.idle_c",
+    "hit_b": "creature.creature_wm_grey_wolf_b.hit_b",
+    "death_b": "creature.creature_wm_grey_wolf_b.death_b",
+    "ability.creature.wolf_bite_1": "creature.creature_wm_grey_wolf_b.attack",
+    "ability.creature.wolf_bite_2": "creature.c1_wolf.bite_leg",
+    "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
+    "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
+    "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
+    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
+   },
+   "voice": "grey_wolf",
+   "flesh": "fur",
+   "blow": "bite",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "C1 rework: same native wolf rig, exactly 1.30x the standard grey wolf, with a high-contrast pale mantle over a charcoal coat. | D19 asset pass: kept this WildMesh grey wolf (rigged, authored idle/walk/run/attack/hit/death takes, full textures, 1.30x alpha scale). The BlenderKit candidates on F: were rejected for a boss body: Wolf_760c65b5_lod0.glb carries no skin, no animation and no images, and the Stylized-Wolf-Warrior is a humanoid warrior rather than a wolf.",
+   "otherfauna": {
+    "scale": [
+     1.534,
+     1.534
+    ],
+    "shader": {
+     "saturation": 0.12,
+     "value": 0.14,
+     "mottle_tint": [
+      0.82,
+      0.86,
+      0.9
+     ],
+     "mottle_strength": 0,
+     "mottle_scale": 0.07,
+     "mottle_cover": 0.5,
+     "mottle_from": 0.4,
+     "ruff_strength": 1.45
+    }
+   }
+  },
+  "creature.boss.roam.the_kept_thing": {
+   "model": "creature_d5_rock_golem",
+   "clips": {
+    "idle": "creature.creature_d5_rock_golem.idle",
+    "walk": "creature.creature_d5_rock_golem.walk",
+    "run": "creature.creature_d5_rock_golem.run",
+    "attack": "creature.creature_d5_rock_golem.attack",
+    "hit": "creature.creature_d5_rock_golem.hit",
+    "death": "creature.creature_d5_rock_golem.death",
+    "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 0.5,
+   "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
+  },
+  "creature.boss.roam.the_othertide_walker": {
+   "model": "humgen_mob_drowned",
+   "clips": {},
+   "voice": "bone_walker_husk",
+   "flesh": "bone",
+   "blow": "claw",
+   "steps": {
+    "walk": "walk",
+    "run": "move_fast"
+   },
+   "native_states": {
+    "idle": "zombie_idle",
+    "walk": "zombie_walk",
+    "run": "zombie_walk",
+    "attack": "punch_cross",
+    "hit": "hit_knockback",
+    "ability.creature.sedge_drowned_light_1": "punch_jab",
+    "ability.creature.sedge_drowned_light_2": "punch_cross",
+    "ability.creature.sedge_drowned_heavy_1": "punch_cross",
+    "ability.creature.sedge_drowned_heavy_2": "zombie_scratch",
+    "ability.creature.sedge_drowned_rush_1": "punch_jab",
+    "ability.creature.sedge_drowned_rush_2": "punch_cross"
+   },
+   "note": "Native HumGen body and full-source material bakes; exact-target Epic IK/GLTFExporter motion; C1 moves unchanged."
+  },
+  "creature.boss.roam.the_stranded_herd": {
+   "model": "creature_wm_fellhorn",
+   "clips": "creature.creature_wm_fellhorn",
+   "voice": "fellhorn",
+   "flesh": "hide",
+   "blow": "gore",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "WildMesh Buffalo (bison), 1.9 m hump; recorded voice set fellhorn (Sonniss GDC 2026, staged 2026-10-14)."
+  },
+  "creature.boss.shear.the_residue": {
+   "model": "humgen_mob_drowned",
+   "clips": {},
+   "voice": "bone_walker_husk",
+   "flesh": "bone",
+   "blow": "claw",
+   "steps": {
+    "walk": "walk",
+    "run": "move_fast"
+   },
+   "native_states": {
+    "idle": "zombie_idle",
+    "walk": "zombie_walk",
+    "run": "zombie_walk",
+    "attack": "punch_cross",
+    "hit": "hit_knockback",
+    "ability.creature.sedge_drowned_light_1": "punch_jab",
+    "ability.creature.sedge_drowned_light_2": "punch_cross",
+    "ability.creature.sedge_drowned_heavy_1": "punch_cross",
+    "ability.creature.sedge_drowned_heavy_2": "zombie_scratch",
+    "ability.creature.sedge_drowned_rush_1": "punch_jab",
+    "ability.creature.sedge_drowned_rush_2": "punch_cross"
+   },
+   "note": "Native HumGen body and full-source material bakes; exact-target Epic IK/GLTFExporter motion; C1 moves unchanged."
+  },
+  "creature.boss.sounding.drowned_custodian.deep": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.steppe.glassantler": {
+   "model": "creature_doubled_hart",
+   "flesh": "fur",
+   "voice": "deer",
+   "blow": "antler",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "D19: the WildMesh realistic deer, converted from FBX to GLB with its own textures and rig. No clip set yet - the animated Unity pack beside it has the takes and they are not retargeted in this branch, so the animal stands and moves on its skeleton without a walk cycle."
+  },
+  "creature.boss.still_field.the_stillness": {
+   "model": "creature_playtest_empty_armour",
+   "clips": {
+    "idle": "creature.creature_playtest_empty_armour.idle",
+    "walk": "creature.creature_playtest_empty_armour.walk",
+    "run": "creature.creature_playtest_empty_armour.run",
+    "attack": "creature.creature_playtest_empty_armour.attack",
+    "hit": "creature.creature_playtest_empty_armour.hit",
+    "death": "creature.creature_playtest_empty_armour.death",
+    "idle_b": "creature.creature_playtest_empty_armour.idle_b",
+    "hit_b": "creature.creature_playtest_empty_armour.hit_b",
+    "ability.creature.armour_slam": "creature.creature_playtest_empty_armour.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "note": "Playtest enemy replacement 2026-10-18; held licensed source, no generative assets. Empty plate, no dark visor filler; open rear helm. Authored overhead gauntlet slam.",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   }
+  },
+  "creature.boss.tenantless.crown_vault_keeper.deep": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.old_late.the_breath_late": {
+   "model": "creature_d5_rock_golem",
+   "clips": {
+    "idle": "creature.creature_d5_rock_golem.idle",
+    "walk": "creature.creature_d5_rock_golem.walk",
+    "run": "creature.creature_d5_rock_golem.run",
+    "attack": "creature.creature_d5_rock_golem.attack",
+    "hit": "creature.creature_d5_rock_golem.hit",
+    "death": "creature.creature_d5_rock_golem.death",
+    "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 0.5,
+   "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
+  },
+  "creature.boss.the_steps.under_the_stairs": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.cairnwold.the_unpaid": {
+   "model": "creature_wm_barrowback",
+   "clips": "creature.creature_wm_barrowback",
+   "voice": "barrowback",
+   "flesh": "hide",
+   "blow": "gore",
+   "steps": {
+    "walk": "walk",
+    "run": "run"
+   },
+   "note": "D19 asset pass: body is the WildMesh realistic WildBoar (SK_WildBoar, rigged, its own textures), converted FBX->GLB and staged at barrowback scale (1.55x). The BlenderKit Boar_a7343c16 on F: was the candidate and was rejected: its harvest GLB carries no skin, no animation and no textures."
+  },
+  "creature.boss.underhold.first_formed.deep": {
+   "model": "creature_d5_stone_giant",
+   "clips": {
+    "idle": "creature.creature_d5_stone_giant.idle",
+    "walk": "creature.creature_d5_stone_giant.walk",
+    "run": "creature.creature_d5_stone_giant.run",
+    "attack": "creature.creature_d5_stone_giant.attack",
+    "hit": "creature.creature_d5_stone_giant.hit",
+    "death": "creature.creature_d5_stone_giant.death",
+    "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+    "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "move_heavy",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 1.8,
+   "note": "MR-0002 giant stone: armoured stone titan, 4K PBR, 79-bone deform rig; accepted UAL humanoid takes retargeted and slowed for weight.",
+   "paces": {
+    "walk": 3.76,
+    "run": 12.2
+   }
+  },
+  "creature.boss.undermeasure.gauge_keeper.deep": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.vessmere.the_sealed_thing": {
+   "model": "bw_codex_custodian",
+   "clips": {
+    "idle": "creature.bw_codex_custodian.idle",
+    "walk": "creature.bw_codex_custodian.walk",
+    "run": "creature.bw_codex_custodian.run",
+    "hit": "creature.bw_codex_custodian.hit",
+    "death": "creature.bw_codex_custodian.death",
+    "attack": "creature.bw_codex_custodian.sweep",
+    "ability.creature.gauge_sweep": "creature.bw_codex_custodian.sweep",
+    "ability.creature.measure_fall": "creature.bw_codex_custodian.fall",
+    "ability.creature.index_grasp": "creature.bw_codex_custodian.grasp"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+  },
+  "creature.boss.ashen_hollow.wayholder_trial": {
+   "model": "creature_d5_rock_golem",
+   "clips": {
+    "idle": "creature.creature_d5_rock_golem.idle",
+    "walk": "creature.creature_d5_rock_golem.walk",
+    "run": "creature.creature_d5_rock_golem.run",
+    "attack": "creature.creature_d5_rock_golem.attack",
+    "hit": "creature.creature_d5_rock_golem.hit",
+    "death": "creature.creature_d5_rock_golem.death",
+    "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2"
+   },
+   "voice": "animated_armour",
+   "flesh": "plate",
+   "blow": "slam",
+   "steps": {
+    "walk": "walk",
+    "run": "move_heavy"
+   },
+   "uniform_scale": 0.5,
+   "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
   }
  },
  "audio": {

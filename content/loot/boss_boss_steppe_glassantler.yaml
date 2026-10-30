@@ -1,0 +1,12 @@
+id: loot.boss.steppe.glassantler
+kind: loot
+schema: 1
+display_key: loot.boss.steppe.glassantler.name
+notes: 'D19: what boss.steppe.glassantler leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.glass_antler
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

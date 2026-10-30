@@ -1,0 +1,15 @@
+id: item.legend.record_stone
+kind: item
+schema: 1
+display_key: item.legend.record_stone.name
+tags:
+- item
+- legendary
+name: The Record Stone
+notes: 'The Tenantless crown-vault keeper''s record stone: every tenant who ever held
+  the vault, cut into slate.'
+category: misc
+item_class: notable
+stack_max: 1
+weight: 4.0
+value_base: 560

@@ -1,0 +1,12 @@
+id: loot.boss.vessmere.the_sealed_thing
+kind: loot
+schema: 1
+display_key: loot.boss.vessmere.the_sealed_thing.name
+notes: 'D19: what boss.vessmere.the_sealed_thing leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.seam_wedge
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

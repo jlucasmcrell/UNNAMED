@@ -1,0 +1,42 @@
+id: creature.boss.vessmere.the_sealed_thing
+kind: creature
+schema: 1
+display_key: creature.boss.vessmere.the_sealed_thing.name
+tags:
+- creature
+- construct
+- boss
+name: Ring Custodian
+notes: 'D19 boss variant of creature.boss.vessmere.the_sealed_thing (canon/BOSSES.md: boss.vessmere.the_sealed_thing). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 150
+attack_set:
+- ability.creature.gauge_sweep
+- ability.creature.measure_fall
+- ability.creature.index_grasp
+armor:
+  head: 30
+  torso: 50
+  limbs: 40
+resistances:
+  physical_pierce: 0.5
+  physical_slash: 0.25
+weak_point:
+  region: torso
+  from_behind: true
+move_speed_m_s: 2.0
+turn_deg_s: 75
+body_radius_m: 0.6
+xp_value: 150
+loot_table: loot.boss.vessmere.the_sealed_thing
+perception:
+  sight_m: 18
+  hearing_m: 22
+  fov_deg: 120
+tier_hint: A
+tameable: false

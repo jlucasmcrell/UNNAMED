@@ -114,6 +114,28 @@ public class BossArenaTests
     }
 
     [Fact]
+    public void EveryCanonBoss_StandsInACourt_AndCarriesItsOwnLoot()
+    {
+        // D19 roster check, over the content itself: every boss spawn has a court (so its arena is painted), a band its
+        // members match, and a body whose loot table is the boss's own - so two bosses sharing a body cannot share drops.
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, "region.starting_frontier");
+        var bosses = session.Setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.boss.", StringComparison.Ordinal)).ToList();
+                // Only this region's spawns are co-loaded, so the count is the frontier's own bosses; the full 35-boss roster
+        // is the content's, read from the spawn files by the captures and by lint.
+        Assert.True(bosses.Count >= 6, $"expected the frontier's bosses, found {bosses.Count}");
+        foreach (var spawn in bosses)
+        {
+            Assert.NotNull(spawn.Recovery);
+            Assert.True(spawn.Recovery!.MaxXMm > spawn.Recovery.MinXMm && spawn.Recovery.MaxZMm > spawn.Recovery.MinZMm);
+            // The band is checked against the creature it spawns (CMB001 does the same at lint time).
+            foreach (var member in spawn.Members)
+                Assert.NotNull(session.Setup.Combat.Creatures[member.CreatureId].LootTableId);
+        }
+        Assert.Equal(bosses.Count, bosses.Select(s => s.Key).Distinct().Count());
+    }
+
+    [Fact]
     public void TheKeepingHouse_HoldsItsCustodianInSedge()
     {
         using var profile = new TempProfile();

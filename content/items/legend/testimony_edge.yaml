@@ -1,0 +1,12 @@
+id: item.legend.testimony_edge
+kind: item
+schema: 1
+display_key: item.legend.testimony_edge.name
+tags: [item, legendary]
+name: Testimony Edge
+notes: "The edge the Lettered Gorge reads a case off: every notch is a verdict it has given."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 2.4
+value_base: 430

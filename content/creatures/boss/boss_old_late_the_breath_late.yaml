@@ -1,0 +1,40 @@
+id: creature.boss.old_late.the_breath_late
+kind: creature
+schema: 1
+display_key: creature.boss.old_late.the_breath_late.name
+tags:
+- creature
+- construct
+name: Gate Tender
+notes: 'D19 boss variant of creature.construct.gate_tender (canon/BOSSES.md: boss.old_late.the_breath_late). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: construct
+archetype: construct
+level_band:
+- 4
+- 4
+pools:
+  health: 60
+attack_set:
+- ability.creature.tender_strike
+- ability.creature.gate_tender_heavy
+- ability.creature.gate_tender_rush
+armor:
+  head: 8
+  torso: 14
+  limbs: 8
+resistances:
+  physical_pierce: 0.4
+weak_point:
+  region: torso
+  from_behind: true
+move_speed_m_s: 3.2
+turn_deg_s: 140
+body_radius_m: 0.6
+xp_value: 50
+loot_table: loot.boss.old_late.the_breath_late
+perception:
+  sight_m: 20
+  hearing_m: 22
+  fov_deg: 140
+tier_hint: A
+tameable: false

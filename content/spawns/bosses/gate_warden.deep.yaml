@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.1): the Gate Warden, shipped as a creature, given the room it was written for - the ruin's whole argument is the Stopped Gate it stands in front of. Its phases are its own sweep, fall and grasp, each a reading of the ground you are standing on. DUNGEON END, band 5, no respawn."
 region_ref: region.starting_frontier
 creatures:
-- creature_ref: creature.construct.gate_warden
+- creature_ref: creature.boss.field_ruins.gate_warden.deep
   count:
   - 1
   - 1

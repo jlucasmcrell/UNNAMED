@@ -1,0 +1,12 @@
+id: loot.boss.empty_shore.maintenance_still_running
+kind: loot
+schema: 1
+display_key: loot.boss.empty_shore.maintenance_still_running.name
+notes: 'D19: what boss.empty_shore.maintenance_still_running leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.shore_kept
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

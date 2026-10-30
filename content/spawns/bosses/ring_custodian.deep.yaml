@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.1): the Custodian of the Measure, the end boss it was always written to be. Three phases, and each is a reading: the Gauge Sweep reads the room, the Measure Falls makes the floor the mechanic, the Index Grasp takes what stands still. DUNGEON END, band 8, no respawn."
 region_ref: region.barrowworks
 creatures:
-- creature_ref: creature.construct.ring_custodian
+- creature_ref: creature.boss.barrowworks.ring_custodian.deep
   count:
   - 1
   - 1

@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.1): the Matriarch, already shipped as a creature and already feared; this gives her a room and a rule. P1 the lair - the webs across the rope cave are cuttable, and cutting them chooses where the fight happens. P2 she drops the ceiling, telegraphed by the rope going slack. FIELD, band 7."
 region_ref: region.den_gorge_cave
 creatures:
-- creature_ref: creature.beast.hunting_spider_matriarch
+- creature_ref: creature.boss.den_gorge.matriarch
   count:
   - 1
   - 1

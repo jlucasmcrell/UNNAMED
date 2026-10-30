@@ -1,0 +1,12 @@
+id: loot.boss.sounding.drowned_custodian.deep
+kind: loot
+schema: 1
+display_key: loot.boss.sounding.drowned_custodian.deep.name
+notes: 'D19: what boss.sounding.drowned_custodian.deep leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.drowned_bell
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

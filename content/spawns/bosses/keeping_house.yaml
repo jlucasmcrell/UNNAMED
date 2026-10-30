@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.2): the second Sedge boss - a drowned house whose family is gone and the custodian construct that still keeps it. Not a drowned person: Sedge's drowned villages belong to the Mor. FIELD, band 16. Its phases are the construct's own sweep, fall and grasp, each one a reading of the room it has been keeping."
 region_ref: region.sedge_levels
 creatures:
-- creature_ref: creature.construct.ring_custodian
+- creature_ref: creature.boss.sedge.keeping_house
   count:
   - 1
   - 1

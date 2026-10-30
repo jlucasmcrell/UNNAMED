@@ -1,0 +1,28 @@
+id: spawn.boss.shear.the_residue
+kind: spawn
+schema: 1
+display_key: spawn.boss.shear.the_residue.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the the shear boss, ROAMING. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.undead.sedge_drowned, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.the_shear
+creatures:
+- creature_ref: creature.boss.shear.the_residue
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 27000.0
+  - 1000.0
+  radius_m: 2
+level_band:
+- 12
+- 12
+respawn:
+  kind: timer
+  window_ticks: 900000
+tier_hint: A
+encounter_recovery: { min_x_m: 26982.0, min_z_m: 982.0, max_x_m: 27018.0, max_z_m: 1018.0, safe_x_m: 27000.0, safe_z_m: 974.0 }

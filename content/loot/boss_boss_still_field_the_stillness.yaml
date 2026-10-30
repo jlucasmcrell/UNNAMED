@@ -1,0 +1,7 @@
+id: loot.boss.still_field.the_stillness
+kind: loot
+schema: 1
+display_key: loot.boss.still_field.the_stillness.name
+notes: 'D19: what boss.still_field.the_stillness leaves. No legendary: canon names none for this one.'
+rolls: 0
+entries: []

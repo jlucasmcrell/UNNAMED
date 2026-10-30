@@ -8,7 +8,7 @@ tags:
 notes: "D19 (canon/BOSSES.md 3.1): Renn puts a stranger through the waystation's own test against a Gate Tender borrowed from the Spill, with a wager on it. FIELD trial, band 3. The arena rule is the whole lesson: the yard's chalked circle is the fight, and stepping out of it forfeits."
 region_ref: region.starting_frontier
 creatures:
-- creature_ref: creature.construct.gate_tender
+- creature_ref: creature.boss.ashen_hollow.wayholder_trial
   count:
   - 1
   - 1

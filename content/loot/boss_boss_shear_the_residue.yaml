@@ -1,0 +1,12 @@
+id: loot.boss.shear.the_residue
+kind: loot
+schema: 1
+display_key: loot.boss.shear.the_residue.name
+notes: 'D19: what boss.shear.the_residue leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.residue_shard
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
