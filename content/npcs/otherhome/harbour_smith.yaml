@@ -6,7 +6,18 @@ display_key: npc.otherhome.harbour_smith.name
 tags: [npc]
 name: Dema Orsk
 notes: "The harbour's smith: the quay's ironwork, the boats' fittings and the Assize's chain, mended in the same hour."
+dialogue_ref: dialogue.otherhome.harbour_smith
 unique: true
 role: craftsperson
 services: [trade, repair]
 merchant_ref: merchant.otherhome.tidepearl_clerk
+# What she teaches (WP9, C10): the blade's technique to anyone who can hold one, for a fee, and the port's forge recipes by
+# her own lines. Fees are provisional, in the ledger's coin.
+teaches:
+  - kind: technique
+    ability_ref: ability.blade.power_strike
+    fee: 30
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - { kind: recipe, recipe_ref: recipe.smithing.iron_billet, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.march_spear, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.smithing.lame_coif, by_dialogue: true }

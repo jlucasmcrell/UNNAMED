@@ -57540,19 +57540,19 @@ roads:
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs:
 - npc_ref: npc.otherhome.exchange_clerk
-  position_m: [1622.0, 1110.0]
+  position_m: [1622.0, 778.0]
   facing_deg: 180
 - npc_ref: npc.otherhome.survey_archivist
-  position_m: [1572.0, 1110.0]
+  position_m: [1572.0, 776.0]
   facing_deg: 180
 - npc_ref: npc.otherhome.concord_geometer
-  position_m: [1692.0, 1110.0]
+  position_m: [1692.0, 776.0]
   facing_deg: 180
 - npc_ref: npc.otherhome.assize_sergeant
-  position_m: [1730.0, 1130.0]
+  position_m: [1712.0, 780.0]
   facing_deg: 180
 - npc_ref: npc.otherhome.harbour_smith
-  position_m: [1532.0, 1110.0]
+  position_m: [1532.0, 777.0]
   facing_deg: 180
 - npc_ref: npc.otherhome.ferryman
   position_m: [1452.0, 504.0]

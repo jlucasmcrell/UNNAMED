@@ -6,6 +6,16 @@ display_key: npc.otherhome.ferryman.name
 tags: [npc]
 name: Mor Hask
 notes: "The ferry steps' own man: he takes the crossings the jetties cannot, and knows which of the district's roofs leak."
+dialogue_ref: dialogue.otherhome.ferryman
 unique: true
 role: villager
 services: []
+# What he teaches: the bow's technique, learned keeping the sound's birds off the cargo, and the fletching bench's recipes
+# from the hours the crossing leaves him.
+teaches:
+  - kind: technique
+    ability_ref: ability.bow.aimed_shot
+    fee: 20
+    requires: { skill: { skill_ref: skill.bow, band: familiar } }
+  - { kind: recipe, recipe_ref: recipe.fletching.arrows, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow, by_dialogue: true }
