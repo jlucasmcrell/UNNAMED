@@ -594,6 +594,7 @@ public class ContentLoaderTests
                 "item.tool.lockpicks", "item.tool.torch", "item.tool.water_flask", "item.tool.water_flask_empty", "item.trinket.alpha_fang",
                 "item.trinket.matriarch_fang", "item.trinket.wolf_fang", "item.weapon.haldas_bow", "item.weapon.haldas_knife",
                 "item.weapon.hunting_bow", "item.weapon.iron_dagger", "item.weapon.knife_brace", "item.weapon.light_crossbow", "item.weapon.march_spear",
+                "item.weapon.marksman_rifle", "item.weapon.sleep_dart",
                 "item.weapon.rusted_sword",
                 "location.barrowworks.blind_store", "location.barrowworks.gauge_archive", "location.barrowworks.headworks", "location.barrowworks.intake_hall",
                 "location.barrowworks.r01_threshold", "location.barrowworks.r03_wash_passage", "location.barrowworks.r04_drain_mouth", "location.barrowworks.r05_sorting_floor",
