@@ -11,7 +11,9 @@ from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'animation'))
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 from audit_humgen_transport import Glb
+from bake_body_coverage import protected_joints
 
 def triangles(g,p):
     return g.accessor(p['indices']).astype(int).reshape((-1,3)).tolist()
@@ -38,7 +40,6 @@ def main(body_file,part_file,refit):
     bp=next(p for p in bm['primitives'] if body.doc['materials'][p['material']]['name'].endswith('_Skin'))
     bpos=body.accessor(bp['attributes']['POSITION']);bt=tree(bpos,triangles(body,bp))
     joints=body.accessor(bp['attributes']['JOINTS_0']).astype(int);weights=body.accessor(bp['attributes']['WEIGHTS_0'])
-    joint_names=[body.doc['nodes'][i]['name'].lower() for i in body.doc['skins'][0]['joints']]
     binary=bytearray(part.binary);changes=[];written=set()
     by_name={n['name']:part.doc['meshes'][n['mesh']] for n in part.doc['nodes'] if 'mesh' in n}
     for name,mesh in by_name.items():
@@ -83,11 +84,10 @@ def main(body_file,part_file,refit):
     cloth=tree(points,faces);uv=body.accessor(bp['attributes']['TEXCOORD_0'])
     covered=set();protected=set()
     full_robe='outfit_period_robe' in Path(part_file).name
+    exposed_joints=protected_joints(body.doc['nodes'],body.doc['skins'][0]['joints'],feet=full_robe)
     normals=body.accessor(bp['attributes']['NORMAL'])
     for i,p in enumerate(bpos):
-        bone=joint_names[joints[i,int(weights[i].argmax())]]
-        exposed_bones=('head','neck','hand','finger','thumb') + (('foot','toe') if full_robe else ())
-        if any(word in bone for word in exposed_bones):
+        if exposed_joints[joints[i,int(weights[i].argmax())]]:
             protected.add(i);continue
         # This authored full-length, long-sleeved robe conceals torso, arms and
         # legs. A nearest-surface stencil leaves patches where its coarse cloth

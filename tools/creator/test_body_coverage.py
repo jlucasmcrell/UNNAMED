@@ -6,6 +6,13 @@ from PIL import Image
 import bake_body_coverage as coverage
 
 class CoverageTests(unittest.TestCase):
+    def test_hand_protection_includes_fingers_without_hand_in_their_name(self):
+        nodes=[dict(name='Root',children=[1,4]),dict(name='LeftHand',children=[2]),
+               dict(name='LeftIndexProximal',children=[3]),dict(name='LeftIndexDistal'),
+               dict(name='LeftFoot',children=[5]),dict(name='LeftToes')]
+        self.assertEqual(coverage.protected_joints(nodes,list(range(6))),[False,True,True,True,False,False])
+        self.assertEqual(coverage.protected_joints(nodes,list(range(6)),feet=True),[False,True,True,True,True,True])
+
     def render(self,data):
         with tempfile.TemporaryDirectory() as directory:
             folder=Path(directory);(folder/'body_coverage.json').write_text(json.dumps(data))

@@ -8,14 +8,22 @@ import json
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw
 import numpy as np
 
 SIZE = 1024
 GROW = 3
 
+def protected_joints(nodes, joints, feet=False):
+    """Exposed anatomy includes every descendant, e.g. IndexDistal under Hand."""
+    parents={child:i for i,node in enumerate(nodes) for child in node.get('children',[])}
+    words=('head','neck','hand') + (('foot','toe') if feet else ())
+    def exposed(i):
+        return any(word in nodes[i].get('name','').lower() for word in words) or (i in parents and exposed(parents[i]))
+    return [exposed(i) for i in joints]
+
 
 def bake(folder):
+    from PIL import Image, ImageDraw
     source = folder / 'body_coverage.json'
     if not source.exists():
         return None
