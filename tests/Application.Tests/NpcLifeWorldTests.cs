@@ -42,9 +42,10 @@ public class NpcLifeWorldTests
         var session = Harness.Boot(profile);
         var arena = AtSpawn(session);
         var lives = arena.Simulation.Lives;
-        // The eight of the content bible, and D23 S6's three watches: the waystation, Cairnwold and the road each keep a named
-        // guard, because a round a region authors has to be walked by a body with an id (a resident slot cannot be named by npc_ref).
-        Assert.Equal(11, lives.Count(l => !l.Resident));
+        // The eight of the content bible, D23 S6's three watches (the waystation, Cairnwold and the road each keep a named guard, because a
+        // round a region authors has to be walked by a body with an id), and the Barrowworks' own watch, whose routine now travels with the
+        // frontier's lives because the region's threshold leads into her space.
+        Assert.Equal(12, lives.Count(l => !l.Resident));
         Assert.Equal(3, lives.Count(l => l.Resident && l.Settlement == "ashen_hollow"));
         Assert.Equal(6, lives.Count(l => l.Resident && l.Settlement == "cairnwold"));
         foreach (var town in lives.Where(l => l.Resident).GroupBy(l => l.Settlement))

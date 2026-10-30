@@ -1,6 +1,7 @@
 // UNNAMED Application Tests - the stealth world alive: the round a guard walks, and the bell the town answers
 // No Godot references
 
+using UNNAMED.Application;
 using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
@@ -44,6 +45,38 @@ public class StealthRuntimeTests
             if (Harness.WalkTo(session, (long)((post.X + dx) * 1000), (long)((post.Z + dz) * 1000)))
                 return true;
         return false;
+    }
+
+    [Fact]
+    public void TheInteriorWatch_WalksHerRound_InsideTheBarrowworks()
+    {
+        // The fourth area with a round is inside. Three things had to be true for it to walk, and each is asserted here by its effect: the
+        // interior layout holds the round, the watch has a life (her routine is in the setup, which now takes the routines of the interiors the
+        // region's portals lead into), and the mover moves her on the layout of the space she stands in.
+        using var profile = new TempProfile();
+        var session = GameSession.Boot(new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root)
+        {
+            RegionId = "region.starting_frontier",
+            Barrowworks = true,
+        });
+        var (ox, oz) = Harness.HollowOf(session.Setup);
+        var arena = Arena.OpenWith(session, session.Setup, (440 - ox, 621 - oz), 0, []);
+        var simulation = arena.Simulation;
+        Assert.True(simulation.PlayerInExterior);
+        Assert.Null(arena.Submit(new EnterSpaceCommand(simulation.PlayerId, "portal.barrowworks.threshold")));
+        Assert.False(simulation.PlayerInExterior);
+
+        const string Watch = "npc.barrowworks.watchkeeper";
+        Assert.Equal(Watch, simulation.ActiveLayout.Patrols.Single(p => p.Key == "patrol.barrowworks.floor").NpcId);
+        AtHour(simulation, 12);
+        var start = simulation.Npcs.Single(n => n.Id == Watch).Body;
+
+        // Two shares of a 180 s round: she walks out to a stop and back to this one, which no standing body can fake.
+        arena.Tick(2000);
+
+        var after = simulation.Npcs.Single(n => n.Id == Watch).Body;
+        Assert.True(Distance(after.XMm, after.ZMm, start.XMm, start.ZMm) > 5_000,
+            $"the interior watch did not walk her round: {Distance(after.XMm, after.ZMm, start.XMm, start.ZMm)} mm in 100 seconds");
     }
 
     [Fact]
