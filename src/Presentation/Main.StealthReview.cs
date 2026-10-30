@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -24,10 +24,51 @@ public partial class Main
 
     private void InstallStealthReview()
     {
+        // --stealth-probe: boot, prove the scene builds, and quit. It exists because a run of the whole route costs a GPU lease, and the last
+        // two attempts died in BuildScene before the route began; this answers "does this worktree boot at all" in a few seconds of one.
+        if (_options.GetValueOrDefault("--stealth-probe") is { Length: > 0 } probe)
+        {
+            _ = StealthProbe(Path.GetFullPath(probe));
+            return;
+        }
         if (_options.GetValueOrDefault("--stealth-review") is not { Length: > 0 } directory)
             return;
         _rcd3Driving = _innFreeCamera = true;
         _ = StealthReview(Path.GetFullPath(directory), _options.GetValueOrDefault("--stealth-beats") ?? "all");
+    }
+
+    private async Task StealthProbe(string directory)
+    {
+        Directory.CreateDirectory(directory);
+        try
+        {
+            // One drawn frame is the whole proof: the scene built, the world is ticked, and a screenshot came back non-empty.
+            await Rcd3Wait(2);
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            var image = GetViewport().GetTexture().GetImage();
+            image.SavePng(Path.Combine(directory, "boot.png"));
+            var sim = _session.Simulation!;
+            File.WriteAllText(Path.Combine(directory, "boot_ok.json"), JsonSerializer.Serialize(new
+            {
+                ok = image.GetWidth() > 0 && image.GetHeight() > 0,
+                width = image.GetWidth(),
+                height = image.GetHeight(),
+                tick = sim.WorldTick,
+                region = sim.ActiveLayout.Id,
+                creatures = sim.Creatures.Length,
+                band = sim.PlayerLightBand.ToString(),
+                noise_mm = sim.PlayerNoiseMm,
+            }));
+        }
+        catch (Exception e)
+        {
+            File.WriteAllText(Path.Combine(directory, "boot_failed.txt"), e.ToString());
+            throw;
+        }
+        finally
+        {
+            CaptureQuit.At(this, 3);
+        }
     }
 
     private async Task StealthReview(string directory, string beats)
