@@ -319,6 +319,15 @@ public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType
     public double SneakMultiplier { get; init; } = 1.0;
 
     /// <summary>
+    /// The effect this weapon leaves on what it hits, from <c>on_hit_effect</c>, and the chance of it out of a hundred from
+    /// <c>on_hit_effect_percent</c> (STEALTH §8): a sleep dart's whole point.
+    /// </summary>
+    public string? OnHitEffect { get; init; }
+
+    /// <summary>How often that effect lands, out of a hundred: a dart is made for it, a sword is not.</summary>
+    public int OnHitEffectPercent { get; init; } = 100;
+
+    /// <summary>
     /// How far this weapon's own swing carries, from <c>swing_noise_m</c> (STEALTH §3.3, §5.1): a knife's arm moves quietly, a great
     /// sword does not. Zero takes <c>config.creature_behaviour.noise_m.swing</c>.
     /// </summary>

@@ -1,4 +1,4 @@
-// UNNAMED Domain - the one damage pipeline, creature combat definitions and status effects
+﻿// UNNAMED Domain - the one damage pipeline, creature combat definitions and status effects
 // (SYSTEMS.md S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md Â§17-Â§19, Â§32; M3c)
 // No Godot references - pure C#
 

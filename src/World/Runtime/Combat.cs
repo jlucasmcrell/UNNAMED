@@ -579,6 +579,9 @@ internal sealed partial class CombatSystem
                 SkillId = weapon.SkillId,
                 // A shot at a target that has not noticed it is the weapon's own sneak blow, as a blade's is (STEALTH §7.1).
                 SneakMultiplier = weapon.SneakMultiplier,
+                  // What the shot leaves behind (STEALTH §8): a sleep dart is a dart because of this line and nothing else.
+                  OnHitEffect = weapon.OnHitEffect,
+                  OnHitEffectPercent = weapon.OnHitEffectPercent,
             };
         }
         int total = Math.Max(3, Ticks(weapon.AttackMs));

@@ -137,6 +137,9 @@ public static class ItemContent
                 DrawMs = map.ContainsKey("draw_time") ? (int)Grams(map, "draw_time") : 0,
                 StaminaCost = map.ContainsKey("stamina_cost") ? Int(map, "stamina_cost") : null,
                 SneakMultiplier = map.ContainsKey("sneak_multiplier") ? Number(map, "sneak_multiplier") : 1.0,
+                // What the weapon leaves on what it hits (STEALTH §8): a sleep dart is a dart because of these two lines.
+                OnHitEffect = map.GetValueOrDefault("on_hit_effect") as string,
+                OnHitEffectPercent = map.ContainsKey("on_hit_effect_percent") ? Int(map, "on_hit_effect_percent") : 100,
                 SwingNoiseMm = map.ContainsKey("swing_noise_m") ? (long)Math.Round(Number(map, "swing_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
                 ShotNoiseMm = map.ContainsKey("shot_noise_m") ? (long)Math.Round(Number(map, "shot_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
             };
@@ -223,6 +226,8 @@ public static class ItemContent
             NoiseDampen = map.ContainsKey("noise_dampen") ? Number(map, "noise_dampen") : 0,
             // A cloak that hides (STEALTH §10.1): the share of a body it takes off the eye, 0 to 0.5, worn rather than carried.
             StealthBonus = map.ContainsKey("stealth_bonus") ? Number(map, "stealth_bonus") : 0,
+            // What a weapon does to what it hits beyond the wound (STEALTH §8): a sleep dart's whole point.
+
             // A detection device (STEALTH §10.3): how much further the wearer reads what has noticed them, in metres.
             DetectRangeMm = map.ContainsKey("detect_range_m") ? Grams(map, "detect_range_m") : 0,
         };
