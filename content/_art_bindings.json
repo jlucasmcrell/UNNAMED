@@ -5973,11 +5973,11 @@
    "flesh": "fish",
    "blow": "none",
    "steps": {
-    "walk": "swim",
-    "run": "swim",
-    "flee": "swim"
+    "walk": "walk",
+    "run": "run",
+    "flee": "flee"
    },
-   "note": "WildMesh trout; a shoal fish whose only gait is the swim it holds station with."
+   "note": "WildMesh trout; a shoal fish whose three gaits are all the swim it holds station with."
   }
  },
  "audio": {
