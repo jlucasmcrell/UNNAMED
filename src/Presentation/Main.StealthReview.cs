@@ -348,6 +348,27 @@ public partial class Main
                 await Beat("awareness", words, 2.2);
             }
 
+            // 7. S2's distraction: a lure stone thrown away from the body, and the nearest animal's attention going with it.
+            if (wanted("lure") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.misc.lure_stone") is { } stone)
+            {
+                var watched = sim.Creatures
+                    .Where(c => c.Alive)
+                    .OrderBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                    .FirstOrDefault();
+                int before = watched?.Awareness ?? 0;
+                rejected.Clear();
+                _session.Submit(new ThrowCommand(sim.PlayerId, stone.ItemId, -700, 700));
+                await Rcd3Wait(1.6);
+                var after = watched is null ? null : sim.Creatures.FirstOrDefault(c => c.Id == watched.Id);
+                var words = watched is null
+                    ? "The stone lands\nNothing here to be distracted"
+                    : $"The Lure Stone, thrown off the lane\n{after?.Mind}: {before} -> {after?.Awareness ?? 0} - it looks where the noise is, not at the body";
+                await Beat("thrown_lure", words, 2.2);
+            }
+
+            // 8. S2's surfaces: the ground under the body, and the ring it is worth. Gravel and timber carry; grass and mud do not.
+            if (wanted("surface"))
+                await Beat("the_ground", $"The ground here: {sim.PlayerSurface}\nThe same step, worth more on gravel than on grass", 1.8);
             File.WriteAllText(Path.Combine(directory, "captions.json"), JsonSerializer.Serialize(captions));
             File.WriteAllText(Path.Combine(directory, "summary.json"), JsonSerializer.Serialize(new
             {
