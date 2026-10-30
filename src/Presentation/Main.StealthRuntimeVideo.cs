@@ -123,11 +123,21 @@ public partial class Main
         AddChild(film);
         film.MakeCurrent();
 
+        /// The watch as this space sees her, or null when she is not in it yet.
+        Body? GuardView() => simulation.Npcs
+            .Where(n => n.Id == guardId && n.Space == simulation.ActiveLayout.SpaceId)
+            .Select(n => n.Body).FirstOrDefault();
+
+        /// Where the camera should look: at her when she is there, else at the first stop of the round she is due to walk.
+        Body GuardFramed() => GuardView()
+            ?? (simulation.ActiveLayout.Patrols.FirstOrDefault(p => p.NpcId == guardId) is { Stops.Length: > 0 } round
+                ? new Body(round.Stops[0].XMm, 0, round.Stops[0].ZMm, 0)
+                : simulation.Player.Body);
+
         /// The camera behind the watch, looking the way she looks: what a body following her would see.
         void FollowGuard()
         {
-            var guard = simulation.Npcs.Where(n => n.Id == guardId && n.Space == simulation.ActiveLayout.SpaceId)
-                .Select(n => n.Body).FirstOrDefault();
+            var guard = GuardFramed();
             double facing = guard.FacingMdeg / 1000.0 * Math.PI / 180;
             var eye = new Vector3(guard.XMm / 1000f, guard.YMm / 1000f + 1.6f, guard.ZMm / 1000f);
             var ahead = new Vector3((float)Math.Sin(facing), 0, (float)Math.Cos(facing));
@@ -143,9 +153,7 @@ public partial class Main
         {
             for (int i = 0; i < 3600; i++)
             {
-                var guard = simulation.Npcs.Where(n => n.Id == guardId && n.Space == simulation.ActiveLayout.SpaceId)
-                    .Select(n => n.Body).FirstOrDefault();
-                if (guard.XMm == 0 && guard.ZMm == 0)
+                if (GuardView() is not { } guard)
                     break;
                 var body = simulation.Player.Body;
                 double dx = guard.XMm - body.XMm, dz = guard.ZMm - body.ZMm;
