@@ -1,4 +1,4 @@
-﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -932,8 +932,19 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// not a crime and is skipped; a dead person or wolf is, and the watcher will go to it - and search around it, which is where the killer was.
     /// </summary>
     /// <summary>Whether a corpse was laid where nobody looks (STEALTH §6.3): inside cover that hides a standing body whole.</summary>
-    private bool BodyHidden(CreatureState corpse) =>
-        _context.Setup.LayoutFor(corpse.Site.Space).Covers.Any(cover => cover.HidesBody && cover.Holds(corpse.Body.XMm, corpse.Body.ZMm));
+    /// <summary>
+    /// A body in water is out of sight (STEALTH §6.3): dropped in a pool deep enough to swallow it, it stops being a sign the way one carried into a bush
+    /// does - the drop is the hiding. A puddle will not do it, so the rule reads the water's own depth and not its presence.
+    /// </summary>
+    private static bool SunkInWater(WalkSpace layout, long xMm, long zMm) =>
+        layout.WaterUnder(xMm, zMm) is { } water && water.DepthMm > WaterSite.SwimDepthMm;
+
+    private bool BodyHidden(CreatureState corpse)
+    {
+        var layout = _context.Setup.LayoutFor(corpse.Site.Space);
+        return SunkInWater(_context.Setup.SpaceFor(corpse.Site.Space), corpse.Body.XMm, corpse.Body.ZMm)
+            || layout.Covers.Any(cover => cover.HidesBody && cover.Holds(corpse.Body.XMm, corpse.Body.ZMm));
+    }
 
     /// <summary>
     /// Carry a body into cover (STEALTH §6.3). Only a corpse within reach can be taken, and only if there is a hiding place near it: the body is
