@@ -248,6 +248,17 @@ internal sealed class SystemContext
     /// How much further the character is seen for what they have equipped (WP3a): the equipped items' <c>stealth_penalty</c>, summed and
     /// capped at 1 - a lit torch in the off hand.
     /// </summary>
+    /// <summary>
+    /// The best sound dampening the character is wearing (STEALTH §10.2): the largest share any worn piece takes off the step, and never more than
+    /// 0.6 - what is worn can muffle a step, not remove it.
+    /// </summary>
+    public double PlayerNoiseDampen() => Math.Clamp(
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.NoiseDampen ?? 0)
+            .DefaultIfEmpty(0)
+            .Max(),
+        0, 0.6);
     public double PlayerStealthPenalty() =>
         Math.Min(1, State.Equipment.Values
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))

@@ -369,6 +369,12 @@ public sealed record ItemDefinition(
     public double StealthPenalty { get; init; }
 
     /// <summary>
+    /// How much of the step a worn thing swallows, from <c>noise_dampen</c> (STEALTH §10.2): soft soles, a muffled scabbard, cloth over mail. It is a
+    /// share of the radius, 0 to 0.6, and the best piece worn sets it rather than the sum - two pads do not make a silent boot.
+    /// </summary>
+    public double NoiseDampen { get; init; }
+
+    /// <summary>
     /// It can be thrown and what it makes where it lands (STEALTH §3.2): zero for anything that cannot be thrown as a lure. The throw is a
     /// noise, not a weapon - what an observer gets is a place to look, never the thrower.
     /// </summary>

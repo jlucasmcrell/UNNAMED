@@ -637,6 +637,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (State.WorldTick <= _echoUntilTick)
             radius = Math.Max(radius, _echoMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
+        // What is worn swallows part of the step before the skill gets a say (STEALTH §10.2): soft soles, a muffled scabbard, cloth over mail.
+        double dampen = _context.PlayerNoiseDampen();
+        if (radius > 0 && dampen > 0)
+            radius = Math.Max(1, (long)Math.Round(radius * (1 - dampen), MidpointRounding.AwayFromZero));
         return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
 

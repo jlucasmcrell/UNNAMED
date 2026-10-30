@@ -219,6 +219,8 @@ public static class ItemContent
             Heritage = map.GetValueOrDefault("heritage") as string,
             ThrowNoiseMm = map.ContainsKey("throw_noise_m") ? (long)Math.Round(Number(map, "throw_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
             ThrowRangeMm = map.ContainsKey("throw_range_m") ? (long)Math.Round(Number(map, "throw_range_m") * 1000, MidpointRounding.AwayFromZero) : 0,
+            // A sound dampener (STEALTH §10.2): what a worn thing takes off the footstep, as a share of the radius, 0 to 0.6.
+            NoiseDampen = map.ContainsKey("noise_dampen") ? Number(map, "noise_dampen") : 0,
         };
     }
 
