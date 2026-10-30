@@ -1,4 +1,4 @@
-﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -543,6 +543,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
     public string? Handle(RaiseNoise command, long tick)
     {
         Sound(command.Noise);
+        // A sound the character made where the character stands is theirs, and it stays on the ring for two seconds (STEALTH §2.7): a shot at the
+        // bow's own radius, a swing at the blade's. A stone thrown down a corridor is not this, because it was not made where they stand.
+        var body = State.Body;
+        double from = Math.Sqrt(Math.Pow(command.Noise.XMm - body.XMm, 2) + Math.Pow(command.Noise.ZMm - body.ZMm, 2));
+        if (command.Noise.RadiusMm > 0 && from <= 2_000)
+        {
+            _echoMm = command.Noise.RadiusMm;
+            _echoUntilTick = tick + 40;
+        }
         return null;
     }
 
@@ -604,11 +613,16 @@ internal sealed class CreatureSystem : IAbstractAdvance
             },
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
-        if (combat.Action.Kind == ActionKind.Attack && !Ranged(combat.Action) && phase is CombatPhase.Windup or CombatPhase.Active)
-            radius = Math.Max(radius, SwingNoise());
-        // The ground decides how far a step carries before the skill gets a say (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8).
+        // The ground decides how far a STEP carries (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8) - and only a step: a bowstring twangs the same
+        // on gravel as on grass. A swing is heard at the weapon's own swing radius and a shot at its own shot radius, which is the loudest thing a
+        // stealth player does and has to show on the HUD's ring while it is in the air (STEALTH §2.7).
         if (radius > 0)
             radius = Math.Max(1, (long)Math.Round(radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface), MidpointRounding.AwayFromZero));
+        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
+            radius = Math.Max(radius, Ranged(combat.Action) ? ShotNoiseMm() : SwingNoise());
+        // A sound is heard for a moment after it is made: a ring that forgot a shot the same tick it was loosed would be telling the player nothing.
+        if (State.WorldTick <= _echoUntilTick)
+            radius = Math.Max(radius, _echoMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
@@ -626,11 +640,28 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private static bool Ranged(ActionState action) => action.Attack is { Ranged: true };
 
+    /// <summary>How far the weapon in hand is heard loosing (STEALTH §7.8): a bow's twang, a crossbow's thunk, a thrown knife's hush.</summary>
+    private long ShotNoiseMm() =>
+        State.Equipment.TryGetValue(EquipSlot.MainHand, out var id)
+        && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+        && _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon is { ShotNoiseMm: > 0 } weapon
+            ? weapon.ShotNoiseMm
+            : Setup.Noise.SwingMm;
+
     /// <summary>
     /// The character's stealth level, read once a tick (finding 26: the skill levels with use) rather than once per creature per tick - the
     /// awareness factor is asked for by every body that can see the character, and offline catch-up ticks thousands of them.
     /// </summary>
     private int _stealthLevel;
+
+    /// <summary>The last loud thing the character did and when it stops showing (STEALTH §2.7). Volatile - a save does not need it.</summary>
+    private long _echoMm;
+    private long _echoUntilTick;
+
+    /// <summary>Which way the air moves today (STEALTH 4.6): derived from the world seed and the day, so no state is saved for it.</summary>
+    private long WindBearing => WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 57_600));
+
+    internal long WindBearingOf => WindBearing;
 
     private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel) * StealthGear.Noise(PlayerEffectIds());
 
@@ -831,7 +862,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// How visible the character is to one observer (STEALTH §2): the light they are both standing in, the share of them the cover leaves,
     /// their posture, whether the observer has only its periphery on them, and the brightness of what they carry. The dark shortens this
     /// observer's sight; it does not hide anyone.
-    /// </summary>
+
     internal double VisibleTo(CreatureState c, Body player)
     {
         var rules = Light;
@@ -916,9 +947,106 @@ internal sealed class CreatureSystem : IAbstractAdvance
             // A herd defends its own: a peaceful creature that answers its kind's call goes straight to the fight.
             pounce |= noise.Call && c.Role.Peaceful;
         }
+        // A body where a body should not be is a sign (STEALTH §4.5): a watch that comes upon one of its own kind dead stops looking at its
+        // patrol and goes to look at THAT - and the place it saw the body becomes the place it searches, which is the corner you did the work in.
+        if (!asleep && !c.Role.Peaceful && next.Mind != CreatureMind.Engaged && CorpseInSight(c) is { } body)
+        {
+            next = next with
+            {
+                Awareness = Math.Max(next.Awareness, rules.Suspicious),
+                Knows = true,
+                KnownXMm = body.Body.XMm,
+                KnownZMm = body.Body.ZMm,
+                // It is already evidence, not a sound to be weighed: the watch goes alert at once and walks to it.
+                Mind = next.Mind is CreatureMind.Unaware or CreatureMind.Returning ? CreatureMind.Suspicious : next.Mind,
+            };
+        }
+        // The wind (STEALTH 4.6): a nose is the counter to the dark, the grass and the crouch. It gives a place to go, never a sighting - the animal
+        // walks to where the smell is thickest, which is where the character was, and that is the pursuit the stealth player has to break.
+        if (!asleep && target && !drawn && senses.ScentMm > 0 && next.Mind != CreatureMind.Engaged
+            && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= senses.ScentMm
+            && ScentRules.Carries(WindBearing, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
+            && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm))
+        {
+            // A nose is not a sighting and it is not instant: it builds as the scent does, at half the rate a pair of eyes builds it. Until the animal
+            // is suspicious enough to act there is nothing for it to act on, so it learns the place only once the smell has told it something (§4.6).
+            int smelled = Math.Min(Perception.Full, next.Awareness + Math.Max(1, rules.SightPerSecondAtRange / 2));
+            next = next with
+            {
+                Awareness = smelled,
+                Knows = next.Knows || smelled >= rules.Suspicious,
+                KnownXMm = smelled >= rules.Suspicious ? player.XMm : next.KnownXMm,
+                KnownZMm = smelled >= rules.Suspicious ? player.ZMm : next.KnownZMm,
+            };
+        }
         if (pounce && target)
             next = next with { Mind = CreatureMind.Engaged, LastSeenTick = tick };
         return Decide(next, c.Mind, seen, tick);
+    }
+
+    /// <summary>
+    /// The nearest body of something that is not wildlife lying dead inside this watcher's sight (STEALTH §4.5). A dead deer is
+    /// not a crime and is skipped; a dead person or wolf is, and the watcher will go to it - and search around it, which is where the killer was.
+    /// </summary>
+    /// <summary>Whether a corpse was laid where nobody looks (STEALTH §6.3): inside cover that hides a standing body whole.</summary>
+    private bool BodyHidden(CreatureState corpse) =>
+        _context.Setup.LayoutFor(corpse.Site.Space).Covers.Any(cover => cover.HidesBody && cover.Holds(corpse.Body.XMm, corpse.Body.ZMm));
+
+    /// <summary>
+    /// Carry a body into cover (STEALTH §6.3). Only a corpse within reach can be taken, and only if there is a hiding place near it: the body is
+    /// laid in the nearest one, which is the whole of the mechanic - after this the ground it lies on no longer tells anyone anything.
+    /// </summary>
+    public string? Handle(HideBodyCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var body = State.Body;
+        var corpse = State.Creatures.Values.FirstOrDefault(c => c.Id == command.Target && c.Alive == false
+            && c.Condition == CreatureCondition.Corpse && c.Site.Space == State.Space
+            && Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm) <= HideReachMm);
+        if (corpse is null)
+            return "nothing within reach to carry";
+        if (BodyHidden(corpse))
+            return "it is already out of sight";
+        var covers = _context.Setup.LayoutFor(State.Space).Covers
+            .Where(cover => cover.HidesBody)
+            .Select(cover => (Cover: cover, Gap: Distance(cover.XMm, cover.ZMm, corpse.Body.XMm, corpse.Body.ZMm)))
+            .Where(c => c.Gap <= HideCarryMm)
+            .OrderBy(c => c.Gap)
+            .ToList();
+        if (covers.Count == 0)
+            return "nowhere to put it";
+        var into = covers[0].Cover;
+        var moved = corpse with { Body = corpse.Body with { XMm = into.XMm, ZMm = into.ZMm } };
+        State.SetCreature(_owner, moved);
+        _context.Events.Publish(new BodyHidden(_player, corpse.Id, corpse.Definition.Id, into.Key, tick));
+        return null;
+    }
+
+    /// <summary>How close a body must be to be picked up, and how far it is carried to the cover that hides it.</summary>
+    private const long HideReachMm = 2_000;
+    private const long HideCarryMm = 8_000;
+
+    private CreatureState? CorpseInSight(CreatureState c)
+    {
+        var senses = c.Definition.Senses;
+        CreatureState? nearest = null;
+        double best = double.MaxValue;
+        foreach (var other in State.Creatures.Values)
+        {
+            if (other.Condition != CreatureCondition.Corpse || other.Id == c.Id || other.Role.Peaceful || BodyHidden(other))
+                continue;
+            if (other.Site.Space != c.Site.Space)
+                continue;
+            double gap = Distance(c.Body.XMm, c.Body.ZMm, other.Body.XMm, other.Body.ZMm);
+            if (gap > senses.SightMm || gap >= best)
+                continue;
+            if (Perception.Sees(c.Body, senses, other.Body.XMm, other.Body.ZMm, Walls(c)) is null)
+                continue;
+            best = gap;
+            nearest = other;
+        }
+        return nearest;
     }
 
     private CreatureState Decide(CreatureState c, CreatureMind was, double? seen, long tick)
@@ -1015,10 +1143,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 if (c.SearchUntil == 0)
                     c = c with { SearchUntil = tick + 2L * Setup.Awareness.SearchTicks };
                 if (tick >= c.SearchUntil || !Keeps(c, c.KnownXMm, c.KnownZMm))
-                    return c with { Mind = CreatureMind.Returning, Knows = false, Awareness = 0 };
+                    // Giving up is not forgetting (STEALTH §4.3): a watch that has searched goes back to its post uneasy, and the next sighting
+                    // starts a third of the way to suspicious instead of from nothing.
+                    return c with { Mind = CreatureMind.Returning, Knows = false, Awareness = Math.Max(c.Awareness, Setup.Awareness.Suspicious / 2) };
                 if (!Arrived(c, c.KnownXMm, c.KnownZMm))
                     return c with { Body = Move(c, c.KnownXMm, c.KnownZMm, Gait.Run) };
-                return Wander(c, c.KnownXMm, c.KnownZMm, 4_000, tick);
+                // Then the places a body that got away would have gone: a widening walk around the last known point, a golden-angle step at a
+                // time so consecutive steps never retrace each other (§4.2). The step count comes from the clock, so it costs no saved state.
+                var (sx, sz) = SearchPoint(c, tick, c.SearchUntil - 2L * Setup.Awareness.SearchTicks);
+                return c with { Body = Move(c, sx, sz, Gait.Walk) };
             case CreatureMind.Returning:
                 if (Arrived(c, c.HomeXMm, c.HomeZMm))
                     return c with { Mind = CreatureMind.Unaware, Knows = false, LastSeenTick = 0, SearchUntil = 0 };
@@ -1066,6 +1199,32 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// Drift between points around a place, a leg per period: each period's point is rolled from the creature's name and
     /// the period, so the drift follows from the tick alone. Arrived early, it waits for the next.
     /// </summary>
+    /// <summary>
+    /// Where a searching body looks next (STEALTH §4.2): a widening arc around the last known point, one golden-angle step per leg, so the
+    /// second step is never on top of the first and the walk covers a whole circle rather than a line. The count comes from the clock since
+    /// the target was lost, so a reload searches the same places without saving an index.
+    /// </summary>
+    internal (long X, long Z) SearchPoint(CreatureState c, long tick, long searchStartedTick)
+    {
+        // The search's own start is passed in: a search that began on a heard noise works the same as one that began on a sighting.
+        // One leg every SearchStepTicks from the tick the search began, so the same search looks at the same places after a reload.
+        long step = Math.Max(1, (tick - searchStartedTick) / SearchStepTicks + 1);
+        // A widening circle around the place the target was last known, bounded by the ground the creature is allowed to cover, so a watch with
+        // a tight post searches its own few metres and a hunter ranges wider. The centre is the last known point, not the post: what it is looking
+        // for was never at the post.
+        long reach = Math.Min(SearchMaxMm, Math.Max(SearchStartMm, C.LeashMm / 2));
+        long radius = Math.Min(SearchStartMm + (step - 1) * SearchStrideMm, reach);
+        double angle = step * SearchGoldenAngle;
+        return (c.KnownXMm + (long)Math.Round(Math.Cos(angle) * radius), c.KnownZMm + (long)Math.Round(Math.Sin(angle) * radius));
+    }
+
+    /// <summary>How long one leg of a search lasts, how far the first one walks, how much each widens, and how far it will go.</summary>
+    private const long SearchStepTicks = 20;
+    private const long SearchStartMm = 2_000;
+    private const long SearchStrideMm = 1_500;
+    private const long SearchMaxMm = 9_000;
+    private const double SearchGoldenAngle = 2.399963229728653;
+
     private CreatureState Wander(CreatureState c, long aroundX, long aroundZ, long radius, long tick)
     {
         if (radius <= 0)

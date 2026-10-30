@@ -1,4 +1,4 @@
-// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -265,6 +265,7 @@ public partial class Main : Node3D
                 InstallDsShots();
                 InstallInnShots();
                 InstallCampReview();
+                InstallStealthReview();   // D23's stealth proof route, driven by --stealth-review
                 InstallInnRoom();
                 InstallLoreShots();
                 InstallPetOrders();
@@ -370,6 +371,7 @@ public partial class Main : Node3D
               || _options.ContainsKey("--creator-shots") || (_options.ContainsKey("--ds-shots") && !_options.ContainsKey("--profile"))
               || _options.ContainsKey("--inn-shots")
               || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
+              || _options.ContainsKey("--stealth-review") || _options.ContainsKey("--stealth-probe")
             ? Path.Combine(OS.GetUserDataDir(), "scratch", $"run-{System.Environment.ProcessId}")
             : _options.GetValueOrDefault("--profile") is { } chosen ? Path.GetFullPath(chosen)
             : Path.Combine(OS.GetUserDataDir(), "saves", "default");
@@ -432,7 +434,8 @@ public partial class Main : Node3D
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
                         || _options.ContainsKey("--showcase") || _options.ContainsKey("--inn-shots") || _options.ContainsKey("--lore-shots") || _options.ContainsKey("--pet-shots")
-                        || _options.ContainsKey("--pet-review") || _options.ContainsKey("--camp-review"));
+                        || _options.ContainsKey("--pet-review") || _options.ContainsKey("--camp-review")
+                        || _options.ContainsKey("--stealth-review") || _options.ContainsKey("--stealth-probe"));
         // No run of a harness takes the mouse - but the input check, which checks who has it.
         _scripted = c1Review || (scripted && !_flags.Contains("--input-check")) || _options.ContainsKey("--resume-shots");
         // A scripted run plays one world from its start - the acceptance playthrough a fixed one, so it is the same run every time (M6).
@@ -1995,6 +1998,7 @@ public partial class Main : Node3D
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
+                    or "--stealth-review" or "--stealth-probe" or "--stealth-beats"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

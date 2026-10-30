@@ -711,14 +711,26 @@ public sealed class Simulation
     /// <summary>How far the character is heard right now, in millimetres: the HUD's noise ring is drawn at exactly this radius (§2.7).</summary>
     public long PlayerNoiseMm => _creatures.PlayerNoiseRadiusMm();
 
+    /// <summary>
+    /// Which way the air moves today, in millidegrees (STEALTH §4.6): the same for every body in the world, derived from the seed and the day, so a
+    /// scent test can stand a creature upwind of the character and be sure that is where it is.
+    /// </summary>
+    public long WindBearing() => _creatures.WindBearingOf;
+
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;
+
+    /// <summary>
+    /// Where a searching creature will look next (STEALTH 4.2), for tests and reviews: the widening pattern is a rule, and a rule can be read.
+    public (long X, long Z) SearchPointOf(EntityId creature, long searchStartedTick, long tick) =>
+        _creatures.Find(creature) is { } state ? _creatures.SearchPoint(state, tick, searchStartedTick) : (0, 0);
 
     /// <summary>
     /// How visible the character is to one creature, from 0 (not in a state to be seen at all) upward, as the sight check itself computes it
     /// (STEALTH §2): the light they both stand in, the cover the character is behind, their posture and what they carry. Read-only, for tests
     /// and reviews that need the factor rather than the consequence.
     /// </summary>
+
     public double PlayerVisibilityTo(EntityId creature) =>
         _creatures.Views().FirstOrDefault(c => c.Id == creature) is { } view && _creatures.Find(creature) is { } state
             ? _creatures.VisibleTo(state, Player.Body)
@@ -1019,6 +1031,7 @@ public sealed class Simulation
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
             ThrowCommand throwCommand => _combat.Handle(throwCommand, WorldTick),
                 TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
+            HideBodyCommand hide => _creatures.Handle(hide, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
                 CastCommand cast => _combat.Handle(cast, WorldTick),

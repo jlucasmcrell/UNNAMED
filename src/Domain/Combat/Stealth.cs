@@ -1,4 +1,4 @@
-// UNNAMED Domain - stealth as the player's own competence, and the assassin's two instruments (STEALTH_DETECTION_AND_THREAT.md
+﻿// UNNAMED Domain - stealth as the player's own competence, and the assassin's two instruments (STEALTH_DETECTION_AND_THREAT.md
 // §12, §13, §14, §20; PROGRESSION.md §6; owner findings 26 and 27)
 // No Godot references - pure C#
 
@@ -80,6 +80,27 @@ public static class TakedownRules
     // "Even" uses the same threat band as the plate: the reviewed level-2 wolf vs level-1 Ada is Even.
     public static bool Executes(bool dagger, bool unaware, bool fromBehind, Threat threat, bool boss) =>
         dagger && unaware && fromBehind && threat <= Threat.Even && !boss;
+    /// <summary>
+    /// Reach for a blade's work (STEALTH §5.3): a step and the weapon's length on the level, and from above - a ledge, a stair, a wall the character
+    /// has climbed - as far as the drop is deep, because a body that comes down on someone reaches them from further up. It never reaches UP: a
+    /// takedown is not a grab at someone standing over you.
+    /// </summary>
+    public static bool InReach(long reachMm, long actorY, long targetY, long horizontalMm)
+    {
+        long drop = actorY - targetY;
+        long extra = drop >= MinDropMm ? Math.Min(drop * 2, MaxDropReachMm) : 0;
+        if (drop < -MaxReachUpMm)
+            return false;
+        return horizontalMm <= reachMm + extra;
+    }
+
+    /// <summary>How far below the character has to be before the drop itself is worth anything, and the most it can add.</summary>
+    public const long MinDropMm = 1_200;
+    public const long MaxDropReachMm = 3_000;
+
+    /// <summary>How far above the character a target can be and still be taken - an arm's length, no more.</summary>
+    public const long MaxReachUpMm = 600;
+
     /// <summary>The vital a takedown aims at: the head from behind, the torso from inside reach (COMBAT §19's weak points).</summary>
     public static BodyRegion Vital(bool fromBehind) => fromBehind ? BodyRegion.Head : BodyRegion.Torso;
 

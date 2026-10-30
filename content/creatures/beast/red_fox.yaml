@@ -1,4 +1,4 @@
-id: creature.beast.red_fox
+﻿id: creature.beast.red_fox
 kind: creature
 schema: 1
 display_key: creature.beast.red_fox.name

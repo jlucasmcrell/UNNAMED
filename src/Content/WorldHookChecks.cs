@@ -1,4 +1,4 @@
-// UNNAMED Content - the world-hooks audit (brief D15)
+﻿// UNNAMED Content - the world-hooks audit (brief D15)
 // No Godot references - pure C#
 
 using System.Globalization;
@@ -441,6 +441,12 @@ public static class WorldHookChecks
             case "field_equals":
                 return placed.Count(p => p.Section == Scalar(argument, "section")
                                          && Scalar(p.Node, Scalar(argument, "field")) == Scalar(argument, "equals"));
+            case "placed_section":
+            {
+                // A section of a region's own authoring, counted by its entries (D23 stealth): cover, light and ground are placed in the
+                // region's metres, not defined as their own content kind, so this is how the audit sees them.
+                return placed.Count(p => p.Section == Scalar(argument, "section"));
+            }
             case "node":
             {
                 string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";

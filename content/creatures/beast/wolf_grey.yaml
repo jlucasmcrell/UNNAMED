@@ -1,4 +1,4 @@
-id: creature.beast.wolf_grey
+﻿id: creature.beast.wolf_grey
 kind: creature
 schema: 1
 display_key: creature.beast.wolf_grey.name
@@ -17,7 +17,7 @@ body_radius_m: 0.45
 xp_value: 30
 loot_table: loot.wolf_grey # its corpse holds this until searched
 carcass_ref: node.carcass.grey_wolf
-perception: { sight_m: 25, hearing_m: 30, fov_deg: 140, night_sight: true }   # sight in a cone, hearing all round, and a dark room is still a room to it (STEALTH 2.1)
+perception: { sight_m: 25, hearing_m: 30, fov_deg: 140, night_sight: true, scent_m: 30 }   # sight in a cone, hearing all round, and a dark room is still a room to it (STEALTH 2.1)
 tier_hint: A
 tameable: true             # spec 43: wolves are one of the tameable kinds; ember hounds and bosses are not
 pet:
