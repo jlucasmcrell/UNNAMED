@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -360,12 +360,20 @@ public partial class Main
                     .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
                     .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
                     .FirstOrDefault();
-                if (hunter is not null)
+                // Close the distance in attempts rather than one long walk: an animal that wanders needs following, and a stone thrown from eighty metres
+                // lands nowhere near the ears it was meant for. Three attempts, then the caption says what the gap actually was.
+                for (int attempt = 0; attempt < 3 && hunter is not null; attempt++)
                 {
                     double hunterGap = Math.Sqrt(Math.Pow(hunter.Body.XMm - sim.Player.Body.XMm, 2)
                         + Math.Pow(hunter.Body.ZMm - sim.Player.Body.ZMm, 2));
-                    if (hunterGap > 25_000)
-                        await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 8_000, seconds: 90);
+                    if (hunterGap <= 15_000)
+                        break;
+                    await Approach((hunter.Body.XMm, hunter.Body.ZMm), within: 12_000, seconds: 40);
+                    hunter = sim.Creatures
+                        .Where(c => c.Alive && !c.Asleep && AnswersNoise(c))
+                        .OrderBy(c => c.RoleId == "sentinel" ? 0 : 1)
+                        .ThenBy(c => Math.Pow(c.Body.XMm - sim.Player.Body.XMm, 2) + Math.Pow(c.Body.ZMm - sim.Player.Body.ZMm, 2))
+                        .FirstOrDefault();
                 }
                 var watched = sim.Creatures
                     .Where(c => c.Alive && !c.Asleep)
