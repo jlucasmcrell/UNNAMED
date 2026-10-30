@@ -204,7 +204,9 @@ public partial class Main
             // The fixture's own kit out of the pack and into the hands, through the command a player's click submits.
             // The bow and the blade only: the torch stays in the pack until the beat that lights it, because a lit torch is a light standing where
             // the body is and it would flatten every reading before that (STEALTH §2.2).
-            foreach (string wantedItem in new[] { "item.weapon.hunting_bow", "item.weapon.iron_dagger" })
+                        // The blade first and the bow last: each equip replaces the main hand, so the last one listed is the one the route actually holds, and a
+            // route that means to shoot has to end with the bow in its hands (this is why three captures reported a silent "loose").
+            foreach (string wantedItem in new[] { "item.weapon.iron_dagger", "item.weapon.hunting_bow" })
                 if (sim.Player.Inventory.FirstOrDefault(e => e.DefId == wantedItem) is { } entry)
                 {
                     rejected.Clear();
