@@ -635,6 +635,15 @@ internal sealed partial class CombatSystem
         return (long)Math.Sqrt(Math.Pow(px - nx, 2) + Math.Pow(pz - nz, 2));
     }
     /// <summary>The profile a weapon's projectile flies with (STEALTH §7.3): a thrown thing lumbers; everything else is an arrow or a bolt.</summary>
+    /// <summary>The air's own bearing today, the same wind the noses read (STEALTH §4.6, §7.5).</summary>
+    private long WindBearing => UNNAMED.Domain.Creatures.WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 1));
+
+    /// <summary>
+    /// How hard the air is moving, in millimetres per second of flight. The wind's bearing is a daily fact; its strength is taken from the same seed so a
+    /// windy day is a windy day for every shot in it, and 0 on a still one means the arrow goes where it was pointed.
+    /// </summary>
+    private long WindStrengthMmPerSecond =>
+        (long)(((ulong)State.World.WorldSeed ^ (ulong)(State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 1))) % 1_400UL);
     private static ProjectileProfile FlightProfile(AttackProfile attack) =>
         attack.SkillId is "skill.thrown" ? ProjectileProfile.Thrown : ProjectileProfile.Arrow;
 
@@ -672,6 +681,15 @@ internal sealed partial class CombatSystem
                 return;
             }
             var (stopX, stopZ, target) = Loose(attack.Source, attack.ReachMm, tick);
+            // A shot that hits nothing comes down where the air put it (STEALTH §7.5), not where the eye pointed: the wind's own bearing and strength
+            // carried it for as long as it was in the air.
+            if (target is null)
+            {
+                long carryMm = (long)Math.Sqrt(Math.Pow(stopX - body.XMm, 2) + Math.Pow(stopZ - body.ZMm, 2));
+                var carried = ProjectileRules.CarriedMm(WindBearing, WindStrengthMmPerSecond, carryMm, FlightProfile(attack), TickMs);
+                stopX += carried.XMm;
+                stopZ += carried.ZMm;
+            }
             if (target is null)
             {
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));

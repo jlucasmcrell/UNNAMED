@@ -1,4 +1,4 @@
-// UNNAMED Domain - an arrow in the air (STEALTH.md §7.3, §7.4): it takes time, it falls, and the wind pushes it
+﻿// UNNAMED Domain - an arrow in the air (STEALTH.md §7.3, §7.4): it takes time, it falls, and the wind pushes it
 // No Godot references - pure C#
 
 namespace UNNAMED.Domain.Combat;
@@ -57,6 +57,18 @@ public static class ProjectileRules
     /// How far above the mark a shooter must hold to hit it at this distance (STEALTH §7.4's holdover): the fall itself, because a bow does not
     /// consult the shooter about gravity.
     /// </summary>
+    /// <summary>
+    /// How far the air carries a shot in its flight (STEALTH §7.5): the wind's own strength times the seconds the arrow is in the air, toward the bearing
+    /// it blows. It moves where a shot that hits nothing comes down - the line a shot takes through the air at release is the line it is judged on.
+    /// </summary>
+    public static (long XMm, long ZMm) CarriedMm(long bearingMdeg, long strengthMmPerSecond, long distanceMm, ProjectileProfile profile, int tickMs = 50)
+    {
+        double seconds = Of(distanceMm, profile, tickMs: tickMs).Ticks * tickMs / 1000.0;
+        double rad = bearingMdeg / 1000.0 * Math.PI / 180;
+        double carry = strengthMmPerSecond * seconds;
+        return ((long)Math.Round(Math.Sin(rad) * carry), (long)Math.Round(Math.Cos(rad) * carry));
+    }
+
     public static long HoldoverMm(long distanceMm, ProjectileProfile profile, int tickMs = 50) =>
         Of(distanceMm, profile, tickMs: tickMs).DropMm;
 }
