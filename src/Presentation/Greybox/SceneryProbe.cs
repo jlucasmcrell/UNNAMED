@@ -30,7 +30,9 @@ public static class SceneryProbe
     {
         foreach (var child in node.GetChildren())
         {
-            if (child is Node3D piece && piece.GetChildCount() > 0)
+            // A placed rock is a MeshInstance3D with no children, which an earlier version of this walk skipped entirely - so the one node kind
+            // that matters most went unreported. Anything that draws, or holds something that does, is measured.
+            if (child is Node3D piece && (piece is MeshInstance3D || piece.GetChildCount() > 0))
             {
                 var at = piece.GlobalPosition;
                 float off = at.Y - drawn(at.X, at.Z);
