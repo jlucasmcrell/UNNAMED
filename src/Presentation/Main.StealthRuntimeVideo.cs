@@ -22,6 +22,7 @@ public partial class Main
                 .Select(pair => pair.Split('=', 2))
                 .Where(pair => pair.Length == 2)
                 .Select(pair => pair[1].Split('@', 2))
+                .Where(parts => parts.Length >= 2)
                 .Select(parts => (Area: parts[0], Guard: parts[1], Portal: parts.Length > 2 ? parts[2] : (string?)null))
                 .ToArray()
             : new[]
