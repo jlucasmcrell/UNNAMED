@@ -19,7 +19,7 @@ public class EquipFromThePackTests
     /// <summary>A character strong enough for the bow, holding a bow and a dagger in the pack and nothing in their hands.</summary>
     private static Func<PlayerRecord, PlayerRecord> Carrying => r =>
     {
-        var inventory = new List<InventoryEntry> { Arena.Stack(Bow, 1), Arena.Stack(Dagger, 1) };
+        var inventory = new List<InventoryEntry> { Arena.Stack(Bow, 1), Arena.Stack(Dagger, 1), Arena.Stack("item.ammo.arrow_rough", 12) };
         var progression = r.Progression with
         {
             Level = 10,
@@ -55,5 +55,13 @@ public class EquipFromThePackTests
         arena.Tick(2);
         Assert.Equal(bow, arena.Simulation.Player.Equipment[EquipSlot.MainHand]);
         Assert.Equal(Bow, arena.Simulation.Player.Inventory.Single(e => e.ItemId == arena.Simulation.Player.Equipment[EquipSlot.MainHand]).DefId);
+
+        // And it shoots: a bow in the hand and an attack command have to put an arrow in the air, not a swing. Four proof captures said otherwise
+        // (no ShotLoosed, a 10 m ring through the beat captioned "The shot"), so this is the assertion that would have caught it.
+        var shots = arena.Record<ShotLoosed>();
+        Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+        for (int i = 0; i < 60 && shots.Count == 0; i++)
+            arena.Tick();
+        Assert.Single(shots);
     }
 }

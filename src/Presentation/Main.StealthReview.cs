@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -83,6 +83,8 @@ public partial class Main
         // The shot, recorded from the simulation's own event rather than sampled at a beat: four captures reported a silent "loose" because the
         // beat happened to fall outside the two ticks the shot was in the air, and the fix is to hear the event, not to look harder.
         var shots = new List<UNNAMED.World.Runtime.ShotLoosed>();
+        var misses = new List<UNNAMED.World.Runtime.AttackMissed>();
+        _session.Subscribe<UNNAMED.World.Runtime.AttackMissed>(e => misses.Add(e));
         _session.Subscribe<UNNAMED.World.Runtime.ShotLoosed>(e => shots.Add(e));
         long ShotPeakNoise() => _session.Simulation!.PlayerNoiseMm;
         var captions = new List<object>();
@@ -227,7 +229,12 @@ public partial class Main
             File.WriteAllText(Path.Combine(directory, "kit.json"), System.Text.Json.JsonSerializer.Serialize(new
             {
                 inventory = sim.Player.Inventory.Select(e => new { e.DefId, e.Count }),
-                equipment = sim.Player.Equipment.Select(kv => new { slot = kv.Key.ToString(), kv.Value }),
+                // The definition, not the item id: "which weapon is in the hand" has cost four captures already.
+                equipment = sim.Player.Equipment.Select(kv => new
+                {
+                    slot = kv.Key.ToString(),
+                    item = sim.Player.Inventory.FirstOrDefault(e => e.ItemId == kv.Value)?.DefId ?? "unknown",
+                }),
             }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
 
             // 1. The dark lane: nothing lit, nothing moving, the gem at its lowest and the ring flat.
@@ -270,6 +277,13 @@ public partial class Main
                 _session.Submit(new EquipCommand(sim.PlayerId, torch.ItemId));
                 await Rcd3Wait(0.4);
                 await Beat("torch_lit", "The torch out of the pack\nCarrying a light is the loudest thing a thief does", 2.2);
+                // The torch took the hand. Put the bow back before the shot, or the shot is a swing at nothing - which is what four captures of a
+                // silent "loose" were: a torch held up to the light, and an arrow never loosed.
+                if (sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.weapon.hunting_bow") is { } shotBow)
+                {
+                    _session.Submit(new EquipCommand(sim.PlayerId, shotBow.ItemId));
+                    await Rcd3Wait(0.4);
+                }
             }
 
             // 5. The shot: whatever is nearest that can be shot, from behind, at the range a bow has.
@@ -293,6 +307,7 @@ public partial class Main
                     rejected.Clear();
                     rejected.Clear();
                     shots.Clear();
+                    misses.Clear();
                     _session.Submit(new AttackCommand(sim.PlayerId));
                     // Wait for the string, and keep the loudest ring reading across the flight: the shot is heard at the bow own radius and it has to
                     // be caught while it is there, not sampled once and reported as silence (STEALTH 2.7, 7.8).
@@ -309,6 +324,8 @@ public partial class Main
                         shots = shots.Select(s => new { s.Source, from_x = s.FromXMm / 1000.0, from_z = s.FromZMm / 1000.0, to_x = s.ToXMm / 1000.0, to_z = s.ToZMm / 1000.0 }),
                         peak_noise_m = peak / 1000.0,
                         refused = rejected,
+                        missed = misses.Count,
+                        ammo = sim.Player.Inventory.Where(e => e.DefId.StartsWith("item.ammo.", StringComparison.Ordinal)).Select(e => new { e.DefId, e.Count }),
                     }, new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
                     string shotWords = shots.Count == 0
                         ? "The loose\nNo shot: " + (rejected.Count > 0 ? string.Join("; ", rejected.Take(2)) : "nothing loosed")
