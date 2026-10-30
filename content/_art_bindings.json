@@ -14714,6 +14714,1101 @@
       "model": "cw_cart_two_wheel",
       "material": "wood",
       "note": "Gate 3: a cart left at the square's edge."
+    },
+    "oh_kerb_000": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_001": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_002": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_003": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_004": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_005": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_006": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_007": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_008": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_009": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_010": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_011": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_012": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_013": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_014": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_015": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_016": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_017": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_018": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_019": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_020": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_021": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_022": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_023": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_024": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_025": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_026": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_027": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_028": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_029": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_030": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_031": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_032": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_033": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_034": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_035": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_036": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_037": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_038": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_039": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_040": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_041": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_042": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_043": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_044": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_045": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_046": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_047": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_048": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_049": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_050": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_051": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_052": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_053": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_054": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_055": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_056": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_057": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_058": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_059": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_060": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_061": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_062": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_063": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_064": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_065": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_066": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_067": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_068": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_069": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_070": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_071": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_072": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_073": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_074": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_075": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_076": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_077": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_078": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_079": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_080": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_081": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_082": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_083": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_084": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_085": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_086": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_087": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_088": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_089": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_090": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_091": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_092": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_093": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_094": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_095": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_096": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_097": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_098": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_099": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_100": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_101": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_102": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_103": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_104": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_105": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_106": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_107": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_108": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_109": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_110": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_111": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_112": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_113": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_114": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_115": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_116": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_117": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_118": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_119": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_120": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_121": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_122": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_123": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_124": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_125": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_126": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_127": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_128": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_129": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_130": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_131": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_132": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_133": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_134": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_135": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_136": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_137": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_138": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_139": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_140": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_141": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_142": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_143": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_144": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_145": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_146": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_147": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_148": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_149": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_150": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_151": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_152": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_153": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_154": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_155": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_156": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_157": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_158": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_159": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_160": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_161": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_162": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_163": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_164": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_165": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_166": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_167": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_168": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_169": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_170": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_171": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_172": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_173": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_174": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_175": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_176": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_177": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_178": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_179": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_180": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_181": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_182": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_183": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_184": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_185": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_186": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_187": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_188": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_189": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_190": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_191": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_192": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_193": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_194": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_195": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_196": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_197": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_198": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_199": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_200": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_201": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_202": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_203": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_204": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_205": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_206": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_kerb_207": {
+      "model": "cw_gravel_stone_a",
+      "material": "stone",
+      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
+    },
+    "oh_street_cart_000": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_crate_001": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_crateb_002": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_crate_003": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_crateb_004": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_barrel_005": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_wood_006": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_crateb_007": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_barrel_008": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_wood_009": {
+      "model": "cw_woodpile_a",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_street_cart_010": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: traffic standing on the lane between the rows."
     }
   },
   "doors": {
