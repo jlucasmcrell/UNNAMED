@@ -325,6 +325,13 @@ public partial class Main : Node3D
             AddChild(new SpikeScene(_options.GetValueOrDefault("--perf-out", DefaultPerfOut("spike")), Seconds()));
             return;
         }
+        // Offline build of a workspace's texture cache, with no world and no GPU: the only way to add the entries a packaged
+        // boot requires (TextureCache.RequireCompressed) without walking the game to each of them first (B-013).
+        if (OS.GetEnvironment("OTHERREACH_HUMGEN_CACHE_ROOT") is { Length: > 0 })
+        {
+            AddChild(new HumGenCacheBuild());
+            return;
+        }
         if (_options.TryGetValue("--art-gallery", out string? gallery))
         {
             var catalog = AssetCatalog.Load(_options.GetValueOrDefault("--asset-root"), Home());
