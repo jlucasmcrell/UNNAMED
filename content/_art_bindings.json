@@ -16386,20 +16386,9 @@
   },
   "stations": {
     "notice_board": {
-      "model": "bw_codex_notice",
-      "scale": 0.65,
-      "offset": [
-        0,
-        0.8,
-        0
-      ],
-      "note": "Reuse the shipped licensed wooden notice panel; lifted to reading height on the inn wall.",
-      "beside": "prop_bp_lantern_post",
-      "beside_offset": [
-        1.1,
-        0,
-        0
-      ]
+      "model": "piece_bp_timber_wall",
+      "material": "timber",
+      "note": "Gate 3: the Assize's board at the ring's edge - a timber wall piece, as the notice itself is placed."
     },
     "anvil": {
       "model": "station_bp_anvil",
