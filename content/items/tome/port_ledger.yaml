@@ -13,7 +13,9 @@ stack_max: 1
 weight: 0.6
 consume: false
 value_base: 12
-grants:
-- { kind: recipe, ref: recipe.smithing.iron_billet }
-- { kind: recipe, ref: recipe.smithing.lame_coif }
-- { kind: recipe, ref: recipe.fletching.arrows }
+use:
+  consume: true
+  grants:
+  - { kind: recipe, ref: recipe.smithing.iron_billet }
+  - { kind: recipe, ref: recipe.smithing.lame_coif }
+  - { kind: recipe, ref: recipe.fletching.arrows }
