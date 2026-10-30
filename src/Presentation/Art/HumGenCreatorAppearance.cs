@@ -86,6 +86,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        controller.Standoff(model); // Dye starts from the native material; keep clearance on the final drawn copy.
         // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
         // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
         Stencil(art, model, controller._worn);
@@ -213,11 +214,13 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (kind is not ("Outfit" or "Footwear")) continue;
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
             {
-                if ((mesh.HasMeta("creator_part_kind") ? Origin(mesh, surface) : mesh.GetSurfaceOverrideMaterial(surface)) is not BaseMaterial3D cloth) continue;
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? Origin(mesh, surface)) is not BaseMaterial3D cloth) continue;
                 if (cloth.HasMeta("creator_standoff")) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
-                grown.GrowAmount = GarmentStandoff;
+                grown.Grow = true;
+                // The lining normals face inward: move both shells outward together.
+                grown.GrowAmount = mesh.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) ? -GarmentStandoff : GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
