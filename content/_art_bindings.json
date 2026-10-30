@@ -2919,19 +2919,22 @@
       "note": "D18: a jetty deck board - the waystation's own timber pad."
     },
     "cw_jetty_post_1": {
-      "model": "piece_bp_timber_wall",
+      "model": "prop_cw_jetty_piling",
+      "offset": [0, -2.5, 0],
       "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
+      "note": "Cairnwold piling: accepted mossy timber stood upright, full texture/LOD detail; 2.5 m buried below the jetty shelf to the pond bed."
     },
     "cw_jetty_post_2": {
-      "model": "piece_bp_timber_wall",
+      "model": "prop_cw_jetty_piling",
+      "offset": [0, -2.5, 0],
       "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
+      "note": "Cairnwold piling: accepted mossy timber stood upright, full texture/LOD detail; 2.5 m buried below the jetty shelf to the pond bed."
     },
     "cw_jetty_post_3": {
-      "model": "piece_bp_timber_wall",
+      "model": "prop_cw_jetty_piling",
+      "offset": [0, -2.5, 0],
       "material": "wood",
-      "note": "D18: a jetty piling, the timber wall piece stood on end."
+      "note": "Cairnwold piling: accepted mossy timber stood upright, full texture/LOD detail; 2.5 m buried below the jetty shelf to the pond bed."
     },
     "cw_pond_reeds_1": {
       "model": "flora_cattail_clump",
