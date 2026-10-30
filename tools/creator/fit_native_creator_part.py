@@ -77,23 +77,26 @@ def main(body_file,part_file,refit):
     cloth=tree(points,faces);normals=body.accessor(bp['attributes']['NORMAL']);uv=body.accessor(bp['attributes']['TEXCOORD_0'])
     joints=body.accessor(bp['attributes']['JOINTS_0']).astype(int);weights=body.accessor(bp['attributes']['WEIGHTS_0'])
     joint_names=[body.doc['nodes'][i]['name'].lower() for i in body.doc['skins'][0]['joints']]
-    covered=set()
+    covered=set();protected=set()
     for i,p in enumerate(bpos):
         bone=joint_names[joints[i,int(weights[i].argmax())]]
-        if any(word in bone for word in ('head','neck','hand','finger','thumb')):continue
+        if any(word in bone for word in ('head','neck','hand','finger','thumb')):
+            protected.add(i);continue
         probe=Vector(p);hit=cloth.find_nearest(probe)
         if hit[0] is not None and hit[3]<=.02 and (probe-hit[0]).dot(hit[1])<.001:covered.add(i)
         outward=Vector(normals[i]).normalized();ray=cloth.ray_cast(probe,outward,.6)
         if ray[0] is not None and ray[1].dot(outward)>0:covered.add(i)
-    painted=[]
+    painted=[];exposed=[]
     for face in triangles(body,bp):
+        uv_face=[value for i in face for value in (float(uv[i,0]),float(1-uv[i,1]))]
+        if any(i in protected for i in face):exposed.append(uv_face)
         if not all(i in covered for i in face):continue
         # bake_body_coverage consumes Blender UVs; glTF's V is already flipped.
-        painted.append([value for i in face for value in (float(uv[i,0]),float(1-uv[i,1]))])
+        painted.append(uv_face)
     folder=Path(part_file).parent
-    (folder/'body_coverage.json').write_text(json.dumps(dict(target_body_sha256=hashlib.sha256(Path(body_file).read_bytes()).hexdigest(),body_vertex_count=len(bpos),covered=len(covered),uv_triangles=painted,source='Exported native body UV0 / LOD0 outer garment, protected head/neck/hands; all triangle corners covered')))
+    (folder/'body_coverage.json').write_text(json.dumps(dict(target_body_sha256=hashlib.sha256(Path(body_file).read_bytes()).hexdigest(),body_vertex_count=len(bpos),covered=len(covered),uv_triangles=painted,protected_uv_triangles=exposed,source='Exported native body UV0 / LOD0 outer garment, protected head/neck/hands; all triangle corners covered')))
     receipt=dict(body=str(body_file),part=str(part_file),before_sha256=before,after_sha256=hashlib.sha256(Path(part_file).read_bytes()).hexdigest(),refitted=refit,position_changes=changes,all_non_position_payload_bytes_preserved=True,coverage_vertices=len(covered),coverage_triangles=len(painted))
-    (folder/'native_fit_receipt.json').write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt),flush=True)
+    (folder/('native_fit_receipt.json' if refit else 'native_coverage_receipt.json')).write_text(json.dumps(receipt,indent=2));print(json.dumps(receipt),flush=True)
 
 if __name__=='__main__':
     args=sys.argv[sys.argv.index('--')+1:];main(Path(args[0]),Path(args[1]),'--fit' in args[2:])
