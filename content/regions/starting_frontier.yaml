@@ -150678,6 +150678,7 @@ containers:
   - 789
   stack_slots: 12
   lock_tier: 1
+- { key: container.area.field_ruins.hollow, loot_ref: loot.barrow_cache, position_m: [852, 752], stack_slots: 4 }
 # D18: the longhouse aumbry. Sel's copied herbal is what makes the hollow's B source real: a book
 # that teaches two salves when read (item.tome.herbal_remedies, use.grants).
 - key: container.longhouse_shelf
@@ -150805,10 +150806,6 @@ gear_makers:
   - maker.siann.gorge_cutler
   - maker.mor.sounding_custodians
   - maker.oldworks.old_works
-switches:
-- { key: switch.area.ashen-hollow.bell, structure: none, flag_ref: world.ward.frontier_alarm, name: the ashen-hollow bell, verb: Ring }
-switches:
-- { key: switch.area.cairnwold.bell, structure: none, flag_ref: world.ward.frontier_alarm, name: the cairnwold bell, verb: Ring }
 
 npcs:
 - npc_ref: npc.ashen_hollow.renn_vale
@@ -152787,6 +152784,7 @@ covers:
 - { key: cover.area.den-gorge-and-rope-cave.hedge, kind: hedge, position_m: [523, 788], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
 - { key: cover.area.the-field-ruins.crates, kind: crate, position_m: [855, 757], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
 - { key: cover.area.the-field-ruins.hedge, kind: hedge, position_m: [847, 754], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.area.cairnwold.grass, kind: tall_grass, position_m: [1000, 670], radius_m: 5.0, height_m: 1.2, blocks_sight_percent: 67 }
 # D23 S2 - what the ground is made of (STEALTH.md 3.1). A footfall carries further on gravel and metal and less on grass and mud; the smallest
 # patch holding a point wins, so a floor inside a yard is one entry each, and everywhere unwritten is bare earth.
 surfaces:
