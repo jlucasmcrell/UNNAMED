@@ -12,3 +12,4 @@ a test compares today's load with it, and names each field a schema step since h
 | Save | Schema | Written by | How |
 |---|---|---|---|
 | `m6_acceptance/` | 12 | commit `3e6dbcc` (M6: the husk patrols Blackvein; the perf walk keeps clear of creatures) - the build `docs/acceptance/m6` was made with | on a checkout of that commit, `godot --path src/Presentation -- --playthrough <dir>`: the content bible's acceptance path, from its fixed seed, ending home with Tavar after a ward. `save/` is `<dir>/profile/manual_acceptance`; `state_saved.json` is `<dir>/state_saved.json` |
+| `public_1_1_slate_gambino/` | 40 | Public Playtest 1.1 (worldgen fingerprint `ae5ec797…`), the owner's own play on 2026-10-27 | the owner's quick save of Slate Gambino (Kal, Smith's Hand), copied unedited from his profile; B-016 |
