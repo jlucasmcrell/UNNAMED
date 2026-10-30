@@ -1,0 +1,21 @@
+id: creature.grazer.elk
+kind: creature
+schema: 1
+display_key: creature.grazer.elk.name
+tags: [creature, grazer]
+name: Elk
+notes: "D19: the big deer of the higher ground - WildMesh SK_Elk converted to GLB with its own textures. Worth more than a red deer and harder to bring down, which is what makes the hunting curve read."
+family: grazer
+archetype: prey
+level_band: [3, 3]
+pools: { health: 66 }
+attack_set: [ability.creature.tusk_sweep]
+armor: { head: 2, torso: 2, limbs: 1 }
+move_speed_m_s: 6.0
+turn_deg_s: 200
+body_radius_m: 0.7
+xp_value: 26
+loot_table: loot.elk
+perception: { sight_m: 32, hearing_m: 36, fov_deg: 250 }
+tier_hint: B
+tameable: false

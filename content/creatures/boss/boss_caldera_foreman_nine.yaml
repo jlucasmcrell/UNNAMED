@@ -1,0 +1,42 @@
+id: creature.boss.caldera.foreman_nine
+kind: creature
+schema: 1
+display_key: creature.boss.caldera.foreman_nine.name
+tags:
+- creature
+- construct
+- boss
+name: Foreman Nine
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 120
+attack_set:
+- ability.creature.warden_sweep
+- ability.creature.armour_slam
+- ability.creature.warden_grasp
+armor:
+  head: 26
+  torso: 46
+  limbs: 36
+resistances:
+  physical_blunt: 0.5
+  fire: 0.3
+weak_point:
+  region: limbs
+  from_behind: false
+move_speed_m_s: 1.8
+turn_deg_s: 60
+body_radius_m: 1.5
+xp_value: 150
+loot_table: loot.boss.caldera.foreman_nine
+perception:
+  sight_m: 26
+  hearing_m: 24
+  fov_deg: 130
+tier_hint: A
+tameable: false

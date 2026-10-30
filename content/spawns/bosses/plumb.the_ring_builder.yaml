@@ -1,0 +1,27 @@
+id: spawn.boss.plumb.the_ring_builder
+kind: spawn
+schema: 1
+display_key: spawn.boss.plumb.the_ring_builder.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the the plumb boss, DUNGEON END. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.construct.ring_custodian, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.the_plumb
+creatures:
+- creature_ref: creature.boss.plumb.the_ring_builder
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 23000.0
+  - 1000.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: A
+encounter_recovery: { min_x_m: 22984.0, min_z_m: 984.0, max_x_m: 23016.0, max_z_m: 1016.0, safe_x_m: 23000.0, safe_z_m: 976.0 }

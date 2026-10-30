@@ -8,3 +8,5 @@ rolls: 0
 guaranteed:
   - { item_ref: item.material.raw_meat, count_range: [4, 4] }
   - { item_ref: item.material.barrowback_hide, count_range: [1, 1] }
+entries:
+  - { item_ref: item.legend.moss_cutters, chance: 1.0, count_range: [1, 1] }

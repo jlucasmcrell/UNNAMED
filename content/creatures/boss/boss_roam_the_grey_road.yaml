@@ -1,0 +1,40 @@
+id: creature.boss.roam.the_grey_road
+kind: creature
+schema: 1
+display_key: creature.boss.roam.the_grey_road.name
+tags:
+- creature
+- boss
+name: The Grey Road
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: beast
+archetype: predator
+level_band:
+- 3
+- 3
+pools:
+  health: 95
+attack_set:
+- ability.creature.wolf_bite
+- ability.creature.wolf_grey_rush
+- ability.creature.hound_lunge
+armor:
+  head: 2
+  torso: 3
+  limbs: 2
+resistances:
+  physical_slash: 0.2
+weak_point:
+  region: limbs
+  from_behind: true
+move_speed_m_s: 5.2
+turn_deg_s: 110
+body_radius_m: 1.1
+xp_value: 100
+loot_table: loot.boss.roam.the_grey_road
+perception:
+  sight_m: 30
+  hearing_m: 32
+  fov_deg: 140
+tier_hint: A
+tameable: false

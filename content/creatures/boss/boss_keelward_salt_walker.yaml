@@ -1,0 +1,42 @@
+id: creature.boss.keelward.salt_walker
+kind: creature
+schema: 1
+display_key: creature.boss.keelward.salt_walker.name
+tags:
+- creature
+- construct
+- boss
+name: The Salt Walker
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 140
+attack_set:
+- ability.creature.warden_sweep
+- ability.creature.sedge_drowned_light
+- ability.creature.warden_grasp
+armor:
+  head: 16
+  torso: 38
+  limbs: 28
+resistances:
+  physical_slash: 0.35
+  frost: 0.5
+weak_point:
+  region: limbs
+  from_behind: true
+move_speed_m_s: 2.0
+turn_deg_s: 65
+body_radius_m: 1.6
+xp_value: 155
+loot_table: loot.boss.keelward.salt_walker
+perception:
+  sight_m: 24
+  hearing_m: 30
+  fov_deg: 130
+tier_hint: A
+tameable: false

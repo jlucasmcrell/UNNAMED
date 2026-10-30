@@ -1,0 +1,41 @@
+id: creature.boss.undermeasure.gauge_keeper.deep
+kind: creature
+schema: 1
+display_key: creature.boss.undermeasure.gauge_keeper.deep.name
+tags:
+- creature
+- construct
+- boss
+name: The Gauge-Keeper
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 135
+attack_set:
+- ability.creature.gauge_sweep
+- ability.creature.index_grasp
+- ability.creature.animated_armour_rush
+armor:
+  head: 20
+  torso: 42
+  limbs: 32
+resistances:
+  physical_pierce: 0.35
+weak_point:
+  region: limbs
+  from_behind: true
+move_speed_m_s: 2.4
+turn_deg_s: 70
+body_radius_m: 1.4
+xp_value: 145
+loot_table: loot.boss.undermeasure.gauge_keeper.deep
+perception:
+  sight_m: 28
+  hearing_m: 26
+  fov_deg: 140
+tier_hint: A
+tameable: false

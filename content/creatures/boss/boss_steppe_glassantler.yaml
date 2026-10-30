@@ -1,0 +1,41 @@
+id: creature.boss.steppe.glassantler
+kind: creature
+schema: 1
+display_key: creature.boss.steppe.glassantler.name
+tags:
+- creature
+- grazer
+name: The Glassantler
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: grazer
+archetype: apex
+level_band:
+- 6
+- 6
+pools:
+  health: 380
+attack_set:
+- ability.creature.tusk_sweep
+- ability.creature.grazer_charge
+- ability.creature.buck_rush
+armor:
+  head: 6
+  torso: 7
+  limbs: 5
+resistances:
+  physical_pierce: 0.3
+  frost: 0.6
+weak_point:
+  region: limbs
+  from_behind: true
+move_speed_m_s: 6.4
+turn_deg_s: 95
+body_radius_m: 2.1
+xp_value: 175
+loot_table: loot.boss.steppe.glassantler
+perception:
+  sight_m: 34
+  hearing_m: 30
+  fov_deg: 140
+tier_hint: A
+tameable: false

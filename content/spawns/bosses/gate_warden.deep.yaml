@@ -1,0 +1,27 @@
+id: spawn.boss.field_ruins.gate_warden.deep
+kind: spawn
+schema: 1
+display_key: spawn.boss.field_ruins.gate_warden.deep.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.1): the Gate Warden, shipped as a creature, given the room it was written for - the ruin's whole argument is the Stopped Gate it stands in front of. Its phases are its own sweep, fall and grasp, each a reading of the ground you are standing on. DUNGEON END, band 5, no respawn."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.boss.field_ruins.gate_warden.deep
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 866.0
+  - 762.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: A
+encounter_recovery: { min_x_m: 856.0, min_z_m: 752.0, max_x_m: 876.0, max_z_m: 772.0, safe_x_m: 866.0, safe_z_m: 746.0 }

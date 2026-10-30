@@ -1,0 +1,17 @@
+id: loot.boss.the_steps.under_the_stairs
+kind: loot
+schema: 1
+display_key: loot.boss.the_steps.under_the_stairs.name
+notes: 'D19: what boss.the_steps.under_the_stairs leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.stair_chain
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.timber
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

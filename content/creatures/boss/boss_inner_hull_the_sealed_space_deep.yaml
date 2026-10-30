@@ -1,0 +1,40 @@
+id: creature.boss.inner_hull.the_sealed_space.deep
+kind: creature
+schema: 1
+display_key: creature.boss.inner_hull.the_sealed_space.deep.name
+tags:
+- creature
+- construct
+name: The Sealed Space
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 4
+- 4
+pools:
+  health: 55
+attack_set:
+- ability.creature.tender_strike
+- ability.creature.gate_tender_rush
+- ability.creature.hound_lunge
+armor:
+  head: 6
+  torso: 12
+  limbs: 6
+resistances:
+  physical_pierce: 0.3
+weak_point:
+  region: limbs
+  from_behind: true
+move_speed_m_s: 3.4
+turn_deg_s: 85
+body_radius_m: 0.9
+xp_value: 55
+loot_table: loot.boss.inner_hull.the_sealed_space.deep
+perception:
+  sight_m: 22
+  hearing_m: 34
+  fov_deg: 140
+tier_hint: A
+tameable: false

@@ -1,0 +1,39 @@
+id: creature.boss.den_gorge.matriarch
+kind: creature
+schema: 1
+display_key: creature.boss.den_gorge.matriarch.name
+tags:
+- creature
+- beast
+- boss
+name: Hunting Spider Matriarch
+notes: 'D19 boss variant of creature.beast.hunting_spider_matriarch (canon/BOSSES.md: boss.den_gorge.matriarch). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: beast
+archetype: predator
+level_band:
+- 4
+- 4
+pools:
+  health: 170
+  stamina: 120
+attack_set:
+- ability.creature.spider_bite
+- ability.creature.matriarch_lunge
+- ability.creature.hunting_spider_matriarch_heavy
+armor:
+  head: 8
+  torso: 10
+  limbs: 6
+resistances:
+  physical_pierce: 0.25
+move_speed_m_s: 5.0
+turn_deg_s: 140
+body_radius_m: 1.25
+xp_value: 160
+loot_table: loot.boss.den_gorge.matriarch
+perception:
+  sight_m: 7
+  hearing_m: 20
+  fov_deg: 360
+tier_hint: A
+tameable: false

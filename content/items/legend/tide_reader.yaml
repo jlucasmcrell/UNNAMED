@@ -1,0 +1,12 @@
+id: item.legend.tide_reader
+kind: item
+schema: 1
+display_key: item.legend.tide_reader.name
+tags: [item, legendary]
+name: The Tide Reader
+notes: "D19 (canon/BOSSES.md §6): the Eel-Serpent's table of tides, scratched into a slate the serpent had been swallowing and spitting for years. It reads the channel's water, not the coast's."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 0.9
+value_base: 250

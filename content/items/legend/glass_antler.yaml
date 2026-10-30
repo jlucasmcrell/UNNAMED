@@ -1,0 +1,12 @@
+id: item.legend.glass_antler
+kind: item
+schema: 1
+display_key: item.legend.glass_antler.name
+tags: [item, legendary]
+name: The Glass Antler
+notes: "The Walked Steppe's glassantler: antler grown to glass by the walking, and it cuts like it."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 4.4
+value_base: 560

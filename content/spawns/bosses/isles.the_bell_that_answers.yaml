@@ -1,0 +1,28 @@
+id: spawn.boss.isles.the_bell_that_answers
+kind: spawn
+schema: 1
+display_key: spawn.boss.isles.the_bell_that_answers.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the sounding isles boss, GROUP. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.construct.gate_warden, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.sounding_isles
+creatures:
+- creature_ref: creature.boss.isles.the_bell_that_answers
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 17000.0
+  - 1000.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: timer
+  window_ticks: 900000
+tier_hint: A
+encounter_recovery: { min_x_m: 16982.0, min_z_m: 982.0, max_x_m: 17018.0, max_z_m: 1018.0, safe_x_m: 17000.0, safe_z_m: 974.0 }

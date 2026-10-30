@@ -1,0 +1,17 @@
+id: loot.boss.holds.the_fixed_warden
+kind: loot
+schema: 1
+display_key: loot.boss.holds.the_fixed_warden.name
+notes: 'D19: what boss.holds.the_fixed_warden leaves. No legendary: canon names none for this one.'
+rolls: 0
+entries:
+- item_ref: item.material.iron_ingot
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.iron_ore
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

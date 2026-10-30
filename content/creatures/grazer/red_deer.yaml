@@ -1,0 +1,21 @@
+id: creature.grazer.red_deer
+kind: creature
+schema: 1
+display_key: creature.grazer.red_deer.name
+tags: [creature, grazer]
+name: Red Deer
+notes: "D19: ordinary world fauna, the body the Doubled Hart is made from. WildMesh SK_RedDeerMale, converted to GLB with its own textures. Hunted for meat and hide; the hunting and skinning skills rise from it."
+family: grazer
+archetype: prey
+level_band: [2, 2]
+pools: { health: 40 }
+attack_set: [ability.creature.tusk_sweep]
+armor: { head: 1, torso: 1, limbs: 0 }
+move_speed_m_s: 6.4
+turn_deg_s: 220
+body_radius_m: 0.6
+xp_value: 18
+loot_table: loot.red_deer
+perception: { sight_m: 30, hearing_m: 34, fov_deg: 260 }
+tier_hint: B
+tameable: false

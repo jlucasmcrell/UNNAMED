@@ -32,3 +32,4 @@ perception:
   fov_deg: 130
 tier_hint: A
 tameable: false
+loot_table: loot.sedge_eel_serpent

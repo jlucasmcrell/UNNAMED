@@ -1,0 +1,28 @@
+id: spawn.boss.the_road.old_grey
+kind: spawn
+schema: 1
+display_key: spawn.boss.the_road.old_grey.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.1): Old Grey, the alpha of the wayside pack, and the lesson the first road teaches - wolves circle, and the alpha does not. P1 two wolves circle and take turns darting in; P2 at half health he stops circling and comes straight down the road, and the tell is that he stops growling. FIELD, band 6."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.boss.the_road.old_grey
+  count:
+  - 1
+  - 1
+  role: den_alpha
+at:
+  position_m:
+  - 476.0
+  - 762.0
+  radius_m: 2
+level_band:
+- 3
+- 3
+respawn:
+  kind: timer
+  window_ticks: 7200
+tier_hint: A
+encounter_recovery: { min_x_m: 466.0, min_z_m: 752.0, max_x_m: 486.0, max_z_m: 772.0, safe_x_m: 476.0, safe_z_m: 746.0 }

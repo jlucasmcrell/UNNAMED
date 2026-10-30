@@ -1,0 +1,35 @@
+id: creature.boss.roam.the_othertide_walker
+kind: creature
+schema: 1
+display_key: creature.boss.roam.the_othertide_walker.name
+tags:
+- creature
+- undead
+notes: 'D19 boss variant of creature.boss.roam.the_othertide_walker (canon/BOSSES.md: boss.roam.the_othertide_walker). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: Drowned Oath-Keeper
+family: undead
+archetype: undead
+level_band:
+- 12
+- 12
+pools:
+  health: 85
+attack_set:
+- ability.creature.sedge_drowned_heavy
+- ability.creature.sedge_drowned_rush
+- ability.creature.sedge_drowned_light
+armor:
+  head: 2
+  torso: 3
+  limbs: 1
+move_speed_m_s: 2.3
+turn_deg_s: 180
+body_radius_m: 0.38
+xp_value: 60
+perception:
+  sight_m: 18
+  hearing_m: 14
+  fov_deg: 130
+tier_hint: A
+tameable: false
+loot_table: loot.boss.roam.the_othertide_walker

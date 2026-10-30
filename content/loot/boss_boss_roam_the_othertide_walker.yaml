@@ -1,0 +1,17 @@
+id: loot.boss.roam.the_othertide_walker
+kind: loot
+schema: 1
+display_key: loot.boss.roam.the_othertide_walker.name
+notes: 'D19: what boss.roam.the_othertide_walker leaves. No legendary: canon names none for this one.'
+rolls: 0
+entries:
+- item_ref: item.material.fish_eel
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.river_finds
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

@@ -1,0 +1,12 @@
+id: item.legend.tether_link
+kind: item
+schema: 1
+display_key: item.legend.tether_link.name
+tags: [item, legendary]
+name: Tether Link
+notes: "One link of the Hanging Holt's tether chain, still warm from the wardens who held it."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 3.6
+value_base: 620

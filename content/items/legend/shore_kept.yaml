@@ -1,0 +1,12 @@
+id: item.legend.shore_kept
+kind: item
+schema: 1
+display_key: item.legend.shore_kept.name
+tags: [item, legendary]
+name: Shore Kept
+notes: "The Empty Shore's maintenance token: whatever the shore still keeps, this is the record of it."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 2.2
+value_base: 520

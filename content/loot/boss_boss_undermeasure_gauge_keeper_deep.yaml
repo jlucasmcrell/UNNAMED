@@ -1,0 +1,17 @@
+id: loot.boss.undermeasure.gauge_keeper.deep
+kind: loot
+schema: 1
+display_key: loot.boss.undermeasure.gauge_keeper.deep.name
+notes: 'D19: what boss.undermeasure.gauge_keeper.deep leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.gauge_ring
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.iron_ore
+  chance: 1.0
+  count_range:
+  - 1
+  - 3

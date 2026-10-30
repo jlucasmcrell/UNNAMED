@@ -1,0 +1,17 @@
+id: loot.boss.plumb.the_ring_builder
+kind: loot
+schema: 1
+display_key: loot.boss.plumb.the_ring_builder.name
+notes: 'D19: what boss.plumb.the_ring_builder leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.ring_of_the_plumb
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.iron_ore
+  chance: 1.0
+  count_range:
+  - 2
+  - 3

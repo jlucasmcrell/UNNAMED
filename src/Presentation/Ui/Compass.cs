@@ -101,14 +101,16 @@ public partial class Compass : Control
     /// <summary>Use the pipeline's dial: its face (the round, needle-up part of the icon) cut out of the picture around it.</summary>
     public void UseDial(Texture2D? icon)
     {
-        if (icon is null)
+        // A run with no HUD (--visual hud=none, a proof frame) still builds its panels: the dial node is there without a
+        // material, so the crop has nothing to write its region into. Nothing to do, and the run must not stop for it.
+        if (icon is null || _dial is not { } dial || dial.Material is not ShaderMaterial material)
             return;
         int size = icon.GetWidth();
         // The face sits a little below the icon's middle, under the ring it hangs from: centre (0.5, 0.545), radius 0.335 of the width.
         int radius = (int)(size * 0.335f), x = size / 2 - radius, y = (int)(size * 0.545f) - radius;
         // Crop in the shader so the signed compressed source stays compressed on the GPU.
-        _dial.Texture = icon;
-        ((ShaderMaterial)_dial.Material).SetShaderParameter("dial_region",
+        dial.Texture = icon;
+        material.SetShaderParameter("dial_region",
             new Vector4((float)x / size, (float)y / icon.GetHeight(), 2f * radius / size, 2f * radius / icon.GetHeight()));
         _marks.DrawnDial = false;
     }

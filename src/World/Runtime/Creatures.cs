@@ -37,7 +37,14 @@ public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, Im
     public ImmutableArray<(long XMm, long ZMm)> Route { get; init; } = ImmutableArray<(long XMm, long ZMm)>.Empty;
 }
 
-public sealed record EncounterRecovery(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long SafeXMm, long SafeZMm);
+public sealed record EncounterRecovery(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long SafeXMm, long SafeZMm)
+{
+    /// <summary>
+    /// The arena's rule (D19): a <em>forfeit</em> court ends the attempt the moment the mark is left - the Wayholder's
+    /// chalked circle, the Custodian's marked floor - where an ordinary court waits out the outside-the-court grace.
+    /// </summary>
+    public bool Forfeit { get; init; }
+}
 public sealed record EncounterRestarted(string SpawnKey, bool Loaded, long Tick);
 
 public sealed record CreatureView(EntityId Id, string Key, string DefId, string RoleId, Body Body, int Health, int MaxHealth,
@@ -504,7 +511,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
                                || player.ZMm < court.MinZMm || player.ZMm > court.MaxZMm || State.PlayerCombat.Defeated;
                 int count = outside ? _outsideAttemptTicks.GetValueOrDefault(key) + 1 : 0;
                 _outsideAttemptTicks[key] = count;
-                if (count >= 20)
+                // A forfeit court (D19) ends the attempt on the first tick outside its mark: stepping out of the
+                // chalked circle or off the scored floor is the loss, not a wait.
+                int grace = court.Forfeit ? 1 : 20;
+                if (count >= grace)
                 {
                     Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
                     var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);

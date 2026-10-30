@@ -1,0 +1,25 @@
+id: spawn.fauna.doe_near_road
+kind: spawn
+schema: 1
+display_key: spawn.fauna.doe_near_road.name
+tags:
+- spawn
+notes: "D19 fauna: does grazing the road verge, the first deer a new hunter meets."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.grazer.doe
+  count:
+  - 2
+  - 2
+  role: skittish
+at:
+  position_m:
+  - 480.0
+  - 690.0
+  radius_m: 18
+level_band:
+- 1
+- 1
+respawn:
+  kind: timer
+  window_ticks: 1080000

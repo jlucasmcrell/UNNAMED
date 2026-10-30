@@ -1,0 +1,12 @@
+id: item.legend.oathbroken
+kind: item
+schema: 1
+display_key: item.legend.oathbroken.name
+tags: [item, legendary]
+name: Oathbroken
+notes: "The blade of the Sworn Counties' unsworn captain, broken across the oath it refused."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 2.6
+value_base: 460

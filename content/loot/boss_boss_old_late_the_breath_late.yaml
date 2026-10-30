@@ -1,0 +1,17 @@
+id: loot.boss.old_late.the_breath_late
+kind: loot
+schema: 1
+display_key: loot.boss.old_late.the_breath_late.name
+notes: 'D19: what boss.old_late.the_breath_late leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.quiet_folk_hand
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.herb_woundmoss
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

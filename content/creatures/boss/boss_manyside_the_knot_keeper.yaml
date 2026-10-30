@@ -1,0 +1,40 @@
+id: creature.boss.manyside.the_knot_keeper
+kind: creature
+schema: 1
+display_key: creature.boss.manyside.the_knot_keeper.name
+tags:
+- creature
+- construct
+name: The Knot-Keeper
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 4
+- 4
+pools:
+  health: 70
+attack_set:
+- ability.creature.gate_tender_heavy
+- ability.creature.tender_strike
+- ability.creature.spider_bite
+armor:
+  head: 10
+  torso: 16
+  limbs: 10
+resistances:
+  physical_slash: 0.4
+weak_point:
+  region: torso
+  from_behind: true
+move_speed_m_s: 2.9
+turn_deg_s: 75
+body_radius_m: 1.1
+xp_value: 60
+loot_table: loot.boss.manyside.the_knot_keeper
+perception:
+  sight_m: 24
+  hearing_m: 26
+  fov_deg: 120
+tier_hint: A
+tameable: false

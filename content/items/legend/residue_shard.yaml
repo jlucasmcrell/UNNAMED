@@ -1,0 +1,12 @@
+id: item.legend.residue_shard
+kind: item
+schema: 1
+display_key: item.legend.residue_shard.name
+tags: [item, legendary]
+name: Residue Shard
+notes: "What the Shear leaves behind when it passes: a shard of the thing it cut down to."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 1.4
+value_base: 660

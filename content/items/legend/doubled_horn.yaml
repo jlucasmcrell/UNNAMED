@@ -1,0 +1,13 @@
+id: item.legend.doubled_horn
+kind: item
+schema: 1
+display_key: item.legend.doubled_horn.name
+tags: [item, legendary]
+name: The Doubled Horn
+notes: "D19 (canon/BOSSES.md §6): the hart's horn, which is one horn and was two while the fold held it. Kept as a trophy; held, it is a small argument about which of the two was real."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 0.3
+value_base: 240
+equip_slot: amulet

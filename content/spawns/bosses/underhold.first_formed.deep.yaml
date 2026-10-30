@@ -1,0 +1,27 @@
+id: spawn.boss.underhold.first_formed.deep
+kind: spawn
+schema: 1
+display_key: spawn.boss.underhold.first_formed.deep.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the ordrun holds boss, DUNGEON END. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.construct.gate_warden, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.ordrun_holds
+creatures:
+- creature_ref: creature.boss.underhold.first_formed.deep
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 13060.0
+  - 1040.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: A
+encounter_recovery: { min_x_m: 13046.0, min_z_m: 1026.0, max_x_m: 13074.0, max_z_m: 1054.0, safe_x_m: 13060.0, safe_z_m: 1018.0 }

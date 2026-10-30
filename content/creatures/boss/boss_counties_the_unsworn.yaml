@@ -1,0 +1,35 @@
+id: creature.boss.counties.the_unsworn
+kind: creature
+schema: 1
+display_key: creature.boss.counties.the_unsworn.name
+tags:
+- creature
+- humanoid
+notes: 'D19 boss variant of creature.boss.counties.the_unsworn (canon/BOSSES.md: boss.counties.the_unsworn). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+name: Back Ledger Raider
+family: humanoid
+archetype: predator
+level_band:
+- 12
+- 12
+pools:
+  health: 75
+attack_set:
+- ability.creature.back_ledger_raider_heavy
+- ability.creature.back_ledger_raider_rush
+- ability.creature.back_ledger_raider_light
+armor:
+  head: 2
+  torso: 3
+  limbs: 1
+move_speed_m_s: 4.4
+turn_deg_s: 300
+body_radius_m: 0.35
+xp_value: 60
+perception:
+  sight_m: 18
+  hearing_m: 14
+  fov_deg: 130
+tier_hint: A
+tameable: false
+loot_table: loot.boss.counties.the_unsworn

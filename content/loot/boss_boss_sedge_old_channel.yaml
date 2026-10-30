@@ -1,0 +1,12 @@
+id: loot.boss.sedge.old_channel
+kind: loot
+schema: 1
+display_key: loot.boss.sedge.old_channel.name
+notes: 'D19: what boss.sedge.old_channel leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.tide_reader
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

@@ -1,0 +1,22 @@
+id: loot.boss.cairnwold.the_unpaid
+kind: loot
+schema: 1
+display_key: loot.boss.cairnwold.the_unpaid.name
+notes: 'D19: what boss.cairnwold.the_unpaid leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.moss_cutters
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.barrowback_hide
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.meat_raw
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

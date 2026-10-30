@@ -1,0 +1,12 @@
+id: item.legend.schedule_plate
+kind: item
+schema: 1
+display_key: item.legend.schedule_plate.name
+tags: [item, legendary]
+name: The Schedule Plate
+notes: "The Tended Caldera's foreman's own plate: nine shifts cut into brass, and every shift still owed."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 3.0
+value_base: 420
