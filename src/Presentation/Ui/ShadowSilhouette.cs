@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the stealth read: the character's own silhouette and the noise they are making (STEALTH.md §2.7a)
+﻿// UNNAMED Presentation - the stealth read: the character's own silhouette and the noise they are making (STEALTH.md §2.7a)
 // Godot presentation only: it draws the numbers the simulation already keeps, and decides nothing.
 
 using Godot;
@@ -105,12 +105,9 @@ public partial class ShadowSilhouette : Control
             centre + new Vector2(2.4f, 18),
         }, body);
 
-        // A washed-out figure keeps its edge, or it stops being readable in the bright bands at all.
-        if (ink < 0.5f)
-        {
-            var edge = new Color(tint, 0.9f);
-            DrawArc(centre + new Vector2(0, -13), 5.4f, 0, Mathf.Tau, 18, edge, 1.2f, true);
-        }
+        // Every band keeps an edge, faint when the figure is black and stronger when it is washed out: a silhouette drawn in black on a night scene is
+        // the point of the Shrouded band, but a player still has to see that it is there.
+        DrawArc(centre + new Vector2(0, -13), 5.4f, 0, Mathf.Tau, 18, new Color(tint, ink > 0.8f ? 0.35f : 0.9f), 1.2f, true);
     }
 
     /// <summary>
