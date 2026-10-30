@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Godot;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
@@ -178,7 +178,8 @@ public partial class Main
                 if (gap <= within)
                     break;
                 var toward = new Vector3(dx / 1000f, 0, dz / 1000f);
-                _controller.SteerWorld(toward, gap > 13_000 ? Gait.Run : Gait.Walk, _camera);
+                // A walk, never a run: a run intent the body has no stamina for leaves it standing, which is exactly what two long approaches did.
+                _controller.SteerWorld(toward, Gait.Walk, _camera);
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 if (Engine.GetFramesDrawn() % StealthEveryNthFrame == 0)
                     await Shot(null);
