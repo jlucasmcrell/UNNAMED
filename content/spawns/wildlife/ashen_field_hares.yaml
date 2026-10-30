@@ -1,0 +1,15 @@
+id: spawn.ashen.field_hares
+kind: spawn
+schema: 1
+display_key: spawn.ashen.field_hares.name
+tags: [spawn]
+notes: 'Hares in the open south field of the hollow, where the grass runs down toward the ravine and there is nowhere to hide but speed.'
+region_ref: region.ashen_hollow
+creatures:
+    - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
+at:
+  position_m: [120, 60]
+  radius_m: 10
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A
