@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.ashen.ravine_fox.name
 tags: [spawn]
-notes: 'A dog fox on the ravine side of the hollow, working the wall for what the hares leave.'
+notes: A dog fox on the ravine side of the hollow, working the wall for what the hares leave.
 region_ref: region.ashen_hollow
 creatures:
     - { creature_ref: creature.beast.red_fox, count: [1, 1], role: wildlife }

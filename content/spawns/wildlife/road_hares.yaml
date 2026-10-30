@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.road.hares.name
 tags: [spawn]
-notes: Hares on the road's grassy shoulder, halfway between the two settlements.
+notes: Hares on the roads grassy shoulder, halfway between the two settlements.
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.rabbit, count: [2, 2], role: wildlife }

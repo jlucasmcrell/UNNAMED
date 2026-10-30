@@ -1,0 +1,15 @@
+id: spawn.barrowworks.yard_hares
+kind: spawn
+schema: 1
+display_key: spawn.barrowworks.yard_hares.name
+tags: [spawn]
+notes: Hares in the grass between the yard and the sorting floor, living under the spiders notice.
+region_ref: region.barrowworks
+creatures:
+  - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
+at:
+  position_m: [1160, 600]
+  radius_m: 10
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

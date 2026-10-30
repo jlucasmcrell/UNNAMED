@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.ashen.field_hares.name
 tags: [spawn]
-notes: 'Hares in the open south field of the hollow, where the grass runs down toward the ravine and there is nowhere to hide but speed.'
+notes: Hares in the open south field of the hollow, where the grass runs down toward the ravine and there is nowhere to hide but speed.
 region_ref: region.ashen_hollow
 creatures:
     - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }

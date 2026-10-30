@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.hollow.charwood_doe_herd.name
 tags: [spawn]
-notes: A hind band in the Charwood's edge, does and their yearlings, with the stag that keeps them standing off in the birches.
+notes: A hind band in the Charwoods edge, does and their yearlings, with the stag that keeps them standing off in the birches.
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.doe, count: [4, 4], role: herd_shy }

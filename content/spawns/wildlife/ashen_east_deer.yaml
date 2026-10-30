@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.ashen.east_deer.name
 tags: [spawn]
-notes: 'Red deer along the eastern trees of the hollow: two hinds grazing the edge and the stag that keeps them.'
+notes: Red deer along the eastern trees of the hollow - two hinds grazing the edge and the stag that keeps them.
 region_ref: region.ashen_hollow
 creatures:
     - { creature_ref: creature.beast.doe, count: [2, 2], role: herd_shy }

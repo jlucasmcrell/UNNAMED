@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.cairnwold.moor_elk_herd.name
 tags: [spawn]
-notes: Upland elk on the high birch east of the road - hinds grazing with a bull at the herd's edge, drifting between the trees and the open moor.
+notes: Upland elk on the high birch east of the road - hinds grazing with a bull at the herds edge, drifting between the trees and the open moor.
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.elk, count: [3, 3], role: herd_shy }

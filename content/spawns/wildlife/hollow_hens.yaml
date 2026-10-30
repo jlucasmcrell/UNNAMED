@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.hollow.hens.name
 tags: [spawn]
-notes: The waystation's hens in the yard between the longhouse and the forge shed - the first animals a new arrival sees.
+notes: The waystations hens in the yard between the longhouse and the forge shed - the first animals a new arrival sees.
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.chicken, count: [3, 3], role: yard_fowl }

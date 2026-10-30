@@ -1,0 +1,15 @@
+id: spawn.den_gorge.mouth_fox
+kind: spawn
+schema: 1
+display_key: spawn.den_gorge.mouth_fox.name
+tags: [spawn]
+notes: A dog fox on the gorge mouth, working the scree for what the hares leave.
+region_ref: region.den_gorge_cave
+creatures:
+  - { creature_ref: creature.beast.red_fox, count: [1, 1], role: wildlife }
+at:
+  position_m: [650, 486]
+  radius_m: 10
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

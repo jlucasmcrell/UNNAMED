@@ -1,0 +1,15 @@
+id: spawn.den_gorge.mouth_hares
+kind: spawn
+schema: 1
+display_key: spawn.den_gorge.mouth_hares.name
+tags: [spawn]
+notes: Hares on the scree outside the gorge mouth, where the spiders do not hunt.
+region_ref: region.den_gorge_cave
+creatures:
+  - { creature_ref: creature.beast.rabbit, count: [3, 3], role: wildlife }
+at:
+  position_m: [640, 470]
+  radius_m: 12
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

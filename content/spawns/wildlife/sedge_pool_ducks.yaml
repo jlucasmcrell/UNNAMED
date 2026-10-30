@@ -1,0 +1,15 @@
+id: spawn.sedge.pool_ducks
+kind: spawn
+schema: 1
+display_key: spawn.sedge.pool_ducks.name
+tags: [spawn]
+notes: Mallards on the sedge pools, paddling the shallows between the eel channels and grazing the bank.
+region_ref: region.sedge_levels
+creatures:
+  - { creature_ref: creature.beast.duck, count: [4, 4], role: yard_fowl }
+at:
+  position_m: [4870, 742]
+  radius_m: 8
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

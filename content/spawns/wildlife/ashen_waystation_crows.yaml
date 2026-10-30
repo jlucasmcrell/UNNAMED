@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.ashen.waystation_crows.name
 tags: [spawn]
-notes: 'Crows on the waystation: a mob that walks the roofs, the wall and the road out, and is gone the moment anyone looks up.'
+notes: Crows on the waystation - a mob that walks the roofs, the wall and the road out, and is gone the moment anyone looks up.
 region_ref: region.ashen_hollow
 creatures:
     - { creature_ref: creature.beast.crow, count: [4, 4], role: wildlife }

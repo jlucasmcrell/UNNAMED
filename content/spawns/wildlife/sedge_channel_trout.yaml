@@ -1,0 +1,15 @@
+id: spawn.sedge.channel_trout
+kind: spawn
+schema: 1
+display_key: spawn.sedge.channel_trout.name
+tags: [spawn]
+notes: A trout shoal holding in the sedge channel where the water runs clear over sand.
+region_ref: region.sedge_levels
+creatures:
+  - { creature_ref: creature.fish.trout, count: [4, 4], role: wildlife }
+at:
+  position_m: [4884, 744]
+  radius_m: 6
+level_band: [1, 1]
+respawn: { kind: timer, window_ticks: 36000 }
+tier_hint: A

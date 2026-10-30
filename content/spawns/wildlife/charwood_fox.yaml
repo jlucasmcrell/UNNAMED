@@ -3,7 +3,7 @@ kind: spawn
 schema: 1
 display_key: spawn.hollow.charwood_fox.name
 tags: [spawn]
-notes: A fox working the Charwood's edge (canon firstplay charwood_fox).
+notes: A fox working the Charwoods edge (canon firstplay charwood_fox).
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.red_fox, count: [1, 1], role: wildlife }
