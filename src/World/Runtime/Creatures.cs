@@ -718,7 +718,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// How visible the character is to one observer (STEALTH §2): the light they are both standing in, the share of them the cover leaves,
     /// their posture, whether the observer has only its periphery on them, and the brightness of what they carry. The dark shortens this
     /// observer's sight; it does not hide anyone.
-    /// </summary>
+
     internal double VisibleTo(CreatureState c, Body player)
     {
         var rules = Light;

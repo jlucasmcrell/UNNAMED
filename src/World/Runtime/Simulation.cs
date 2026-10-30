@@ -704,6 +704,7 @@ public sealed class Simulation
     /// (STEALTH §2): the light they both stand in, the cover the character is behind, their posture and what they carry. Read-only, for tests
     /// and reviews that need the factor rather than the consequence.
     /// </summary>
+
     public double PlayerVisibilityTo(EntityId creature) =>
         _creatures.Views().FirstOrDefault(c => c.Id == creature) is { } view && _creatures.Find(creature) is { } state
             ? _creatures.VisibleTo(state, Player.Body)

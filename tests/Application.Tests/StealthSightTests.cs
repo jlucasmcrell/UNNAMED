@@ -1,93 +1,65 @@
 ﻿using UNNAMED.Domain;
 using UNNAMED.Domain.Creatures;
-using UNNAMED.Domain.Items;
-using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Application.Tests;
 
 /// <summary>
-/// Perception's front door (STEALTH.md section 2.1): a watchman looking at the character in daylight notices them and comes for them. Every other
-/// stealth test in this branch reaches a creature through a noise, a sign or a takedown; this one is the plain sighting the rest assume.
+/// Perception's front door (STEALTH.md section 2.1): a watchman looking at the character in daylight notices them, and then comes for them. Every
+/// other stealth test in this branch reaches a creature through a noise, a sign or a takedown; this one is the plain sighting the rest assume.
 /// </summary>
+/// <remarks>
+/// The first version of this test looked for awareness after two hundred ticks and found none, which read like a broken sight check and was not: a
+/// hostile watchman who notices the character at six metres kills them inside ten seconds, and a downed character respawns at the region's spawn
+/// point forty metres away, where there is nothing to see. The sighting is fast and the fight is fast; the test now watches the first seconds.
+/// </remarks>
 public class StealthSightTests
 {
     private const string Watch = "creature.humanoid.back_ledger_raider";
-    private const long Day = 12_000;
 
-    private static Func<PlayerRecord, PlayerRecord> Quiet => r =>
-    {
-        var inventory = r.Inventory.Where(e => e.DefId is "item.weapon.iron_dagger").ToList();
-        if (inventory.Count == 0)
-            inventory.Add(Arena.Stack("item.weapon.iron_dagger", 1));
-        var dagger = inventory.First(e => e.DefId == "item.weapon.iron_dagger").ItemId;
-        return new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, inventory, r.Progression, r.FacingMdeg,
-            r.Discoveries, new[] { KeyValuePair.Create(EquipSlot.MainHand, dagger) }, r.Currency, r.Effects);
-    };
+    /// <summary>A clear patch of the road, where the arena puts a body where it is asked (checked by the gap, not assumed).</summary>
+    private const double RoadX = 470, RoadZ = 745;
 
     /// <summary>
-    /// Standing in a watchman's line of sight in daylight, on the nearest clear ground along it: he notices the character and then comes for them.
-    /// The ground is chosen by asking the world whether a wall crosses the line, because that is the same question the sight check asks.
+    /// Six metres in front of a watchman in daylight: he notices within a second, is coming within a second more, and is on the character - which is
+    /// the whole of what an unaware target has to fear.
     /// </summary>
-    [Fact(Skip = "Found by this test on 2026-10-29 and left as the next lane's first task: a watchman 3 m from the character in daylight, no wall "
-        + "between them and a visibility factor of 1.15, never notices - awareness stays 0 over 400 ticks - while noises and bodies do raise it. "
-        + "Either sight perception is not running for a placed creature or the arena harness is missing a step the game performs; S5 and S6 both "
-        + "lean on the sighting, so this is worth resolving before either.")]
+    [Fact]
     public void AWatchmanLookingAtTheCharacter_NoticesHimAndComesForHim()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // The placement rolls the watchman's facing; the character stands along it, so this is a plain sighting and not a guess about geometry.
-        double facing = Arena.OpenCreatures(session, session.Setup, (120, 60), 0, new[] { (Watch, 120.0, 68.0, "sentinel") },
-            Quiet, startTick: Day, origin: (0, 0)).Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
-
-        // The nearest clear ground along that line, three metres out and further: a wall between them means no sighting, by design.
-        double? placed = null;
-        for (double metres = 3; metres <= 12 && placed is null; metres += 1)
-        {
-            var at = (120.0 + Math.Sin(facing) * metres, 68.0 + Math.Cos(facing) * metres);
-            var probe = Arena.OpenCreatures(session, session.Setup, at, 0, new[] { (Watch, 120.0, 68.0, "sentinel") },
-                Quiet, startTick: Day, origin: (0, 0));
-            var watcher = probe.Creature();
-            var me = probe.Simulation.Player.Body;
-            double gap = Math.Sqrt(Math.Pow(watcher.Body.XMm - me.XMm, 2) + Math.Pow(watcher.Body.ZMm - me.ZMm, 2)) / 1000.0;
-            if (gap > metres + 1.5 || gap < metres - 1.5)
-                continue;   // the body was not put where the test asked: somewhere else is a different test
-            if (!probe.Simulation.Walled(watcher.Body.XMm, watcher.Body.ZMm, me.XMm, me.ZMm))
-                placed = metres;
-        }
-        Assert.NotNull(placed);
-        var eye = (120.0 + Math.Sin(facing) * placed!.Value, 68.0 + Math.Cos(facing) * placed.Value);
+        double facing = Arena.OpenCreatures(session, session.Setup, (RoadX, RoadZ), 0, new[] { (Watch, RoadX, RoadZ, "sentinel") },
+            null, startTick: 12_000, origin: (0, 0)).Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
+        var eye = (RoadX + Math.Sin(facing) * 6, RoadZ + Math.Cos(facing) * 6);
         var arena = Arena.OpenCreatures(session, session.Setup, eye, (int)Math.Round(facing * 180 / Math.PI) + 180,
-            new[] { (Watch, 120.0, 68.0, "sentinel") }, Quiet, startTick: Day);
+            new[] { (Watch, RoadX, RoadZ, "sentinel") }, null, startTick: 12_000, origin: (0, 0));
 
-        // Past the login grace, then ten seconds of being looked at.
-        arena.Tick(200);
-        int noticedAt = -1;
-        for (int i = 0; i < 400 && noticedAt < 0; i++)
-        {
-            arena.Tick(1);
-            if (arena.Creature().Awareness > 0)
-                noticedAt = i;
-        }
         var seen = arena.Creature();
         double range = Math.Sqrt(Math.Pow(seen.Body.XMm - arena.Simulation.Player.Body.XMm, 2)
                                + Math.Pow(seen.Body.ZMm - arena.Simulation.Player.Body.ZMm, 2)) / 1000.0;
-        Assert.True(noticedAt >= 0,
-            $"a watchman {range:0.0} m away in daylight has to notice (visibility {arena.Simulation.PlayerVisibilityTo(seen.Id):0.000}, "
-            + $"asleep {seen.Asleep}, facing {seen.Body.FacingMdeg / 1000:0} deg)");
+        Assert.True(range < 7, $"the character has to be where the test put them ({range:0.0} m)");
 
-        // And then he does something about it: engaged, and closing.
-        bool engaged = false;
-        for (int i = 0; i < 600 && !engaged; i++)
+        int noticedAt = -1, engagedAt = -1;
+        for (int i = 1; i <= 40 && engagedAt < 0; i++)
         {
             arena.Tick(1);
-            engaged = arena.Creature().Mind == CreatureMind.Engaged;
+            var watcher = arena.Creature();
+            if (noticedAt < 0 && watcher.Awareness > 0)
+                noticedAt = i;
+            if (watcher.Mind == CreatureMind.Engaged)
+                engagedAt = i;
         }
-        Assert.True(engaged, $"noticing has to lead somewhere ({arena.Creature().Mind}, awareness {arena.Creature().Awareness})");
-        double closedTo = Math.Sqrt(Math.Pow(arena.Creature().Body.XMm - arena.Simulation.Player.Body.XMm, 2)
-                                  + Math.Pow(arena.Creature().Body.ZMm - arena.Simulation.Player.Body.ZMm, 2)) / 1000.0;
-        Assert.True(closedTo < range, $"and he has to come closer: {range:0.0} m to {closedTo:0.0} m");
+        Assert.True(noticedAt > 0, "a watchman six metres away in daylight has to notice");
+        Assert.True(noticedAt <= 5, $"and quickly: noticed on tick {noticedAt}");
+        Assert.True(engagedAt > 0, "noticing has to lead somewhere");
+        Assert.True(engagedAt <= 30, $"and soon: engaged on tick {engagedAt}");
+
+        // And he is on the character, not standing off: the gap is closing.
+        double closing = Math.Sqrt(Math.Pow(arena.Creature().Body.XMm - arena.Simulation.Player.Body.XMm, 2)
+                                 + Math.Pow(arena.Creature().Body.ZMm - arena.Simulation.Player.Body.ZMm, 2)) / 1000.0;
+        Assert.True(closing < range, $"he comes closer: {range:0.0} m to {closing:0.0} m");
     }
 }
