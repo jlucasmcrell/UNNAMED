@@ -1,4 +1,4 @@
-// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -689,6 +689,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>How many creatures have found the character. A clean run is the one where this never leaves zero (STEALTH §9).</summary>
     private int _detections;
 
+    /// <summary>Where creatures of which role have died lately, so a packmate can miss one (STEALTH §4.6).</summary>
+    private readonly List<(string RoleId, SpaceId Space, long XMm, long ZMm, long Tick)> _losses = new();
+
+    /// <summary>How many losses are remembered: a patrol that lost someone an hour ago is no longer looking.</summary>
+    private const int DieLossMemory = 32;
+
+    /// <summary>How near a creature has to come to a lost packmate's place to notice the gap.</summary>
+    private const long LossNoticeMm = 40_000;
+
     private long _echoMm;
     private long _echoUntilTick;
 
@@ -920,6 +929,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
         }
         if (pounce && target)
             next = next with { Mind = CreatureMind.Engaged, LastSeenTick = tick };
+        // A packmate missing from where it stood (STEALTH §4.6): a role that has lost someone near here is worth going to look at, once.
+        if (c.Mind is not CreatureMind.Engaged and not CreatureMind.Fleeing)
+            foreach (var loss in _losses)
+                if (loss.RoleId == c.Role.Id && loss.Space == c.Site.Space && loss.Tick > c.LastSeenTick
+                    && (long)Math.Sqrt(Math.Pow(loss.XMm - c.Body.XMm, 2) + Math.Pow(loss.ZMm - c.Body.ZMm, 2)) <= LossNoticeMm)
+                {
+                    next = next with
+                    {
+                        Awareness = Math.Max(next.Awareness, rules.Suspicious),
+                        KnownXMm = loss.XMm,
+                        KnownZMm = loss.ZMm,
+                        LastSeenTick = tick,
+                    };
+                    break;
+                }
         var decided = Decide(next, c.Mind, seen, tick);
         // The ghost ledger (STEALTH §9): a creature that has found the character ends the clean run, counted once, when it happens.
         if (decided.Mind == CreatureMind.Engaged && c.Mind != CreatureMind.Engaged)
@@ -1590,6 +1614,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
             || State.Companions.Values.Any(p => State.Npcs.TryGetValue(p.NpcId, out var npc) && npc.InstanceId == killer))
             killer = _player;
         _context.Dispatch(new ClearEffects(c.Id));
+        // A patrol notices its own going missing (STEALTH §4.6): the place and the role are kept, and a packmate that comes near it looks there.
+        _losses.Add((c.Role.Id, c.Site.Space, c.Body.XMm, c.Body.ZMm, tick));
+        if (_losses.Count > DieLossMemory)
+            _losses.RemoveRange(0, _losses.Count - DieLossMemory);
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick) { DirectAttacker = directAttacker });
 
         // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a
