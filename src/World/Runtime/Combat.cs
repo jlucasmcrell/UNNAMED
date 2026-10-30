@@ -1,4 +1,4 @@
-﻿// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
 // (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
@@ -364,6 +364,9 @@ public sealed record ThrowCommand(EntityId Actor, EntityId Item, long DirXPermil
 
 /// <summary>Something was thrown, from the body to the place it came down: presentation draws the arc, and the ear was given a place to look.</summary>
 public sealed record Thrown(EntityId Actor, string DefId, long FromXMm, long FromZMm, long ToXMm, long ToZMm, long Tick);
+
+/// <summary>A body was put down without a wound: it sleeps where it stood, and wakes fighting if anything wounds it (STEALTH §5.2).</summary>
+public sealed record Subdued(EntityId Actor, EntityId Target, string DefId, long Tick);
 
 // ── systems ─────────────────────────────────────────────────────────────────
 
@@ -837,6 +840,16 @@ internal sealed partial class CombatSystem
         if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness) && !EffectsOf(creature.Id).Any(e => e.EffectId == "effect.sleep"))
             return "it has noticed you";
         var definition = creature.Definition;
+        // A choke is not a blade (STEALTH §5.2): the body goes down asleep where it stands and wakes fighting if anything wounds it. Same reach,
+        // same unaware target - only what happens at the end of it changes, which is what a route wants where a corpse would raise the street.
+        if (command.NonLethal)
+        {
+            _context.Dispatch(new ApplyEffect(creature.Id, "effect.sleep"));
+            _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", definition.Level, PracticeOutcome.Success, tick)));
+            _context.Events.Publish(new Subdued(_player, creature.Id, definition.Id, tick));
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
+            return null;
+        }
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
         var fromBehind = Behind(creature.Body, body);

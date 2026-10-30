@@ -801,9 +801,49 @@ internal sealed class CreatureSystem : IAbstractAdvance
             // A herd defends its own: a peaceful creature that answers its kind's call goes straight to the fight.
             pounce |= noise.Call && c.Role.Peaceful;
         }
+        // A body where a body should not be is a sign (STEALTH §4.5): a watch that comes upon one of its own kind dead stops looking at its
+        // patrol and goes to look at THAT - and the place it saw the body becomes the place it searches, which is the corner you did the work in.
+        if (!asleep && !c.Role.Peaceful && next.Mind != CreatureMind.Engaged && CorpseInSight(c) is { } body)
+        {
+            next = next with
+            {
+                Awareness = Math.Max(next.Awareness, rules.Suspicious),
+                Knows = true,
+                KnownXMm = body.Body.XMm,
+                KnownZMm = body.Body.ZMm,
+                // It is already evidence, not a sound to be weighed: the watch goes alert at once and walks to it.
+                Mind = next.Mind is CreatureMind.Unaware or CreatureMind.Returning ? CreatureMind.Suspicious : next.Mind,
+            };
+        }
         if (pounce && target)
             next = next with { Mind = CreatureMind.Engaged, LastSeenTick = tick };
         return Decide(next, c.Mind, seen, tick);
+    }
+
+    /// <summary>
+    /// The nearest body of something that is not wildlife lying dead inside this watcher's sight (STEALTH §4.5). A dead deer is
+    /// not a crime and is skipped; a dead person or wolf is, and the watcher will go to it - and search around it, which is where the killer was.
+    /// </summary>
+    private CreatureState? CorpseInSight(CreatureState c)
+    {
+        var senses = c.Definition.Senses;
+        CreatureState? nearest = null;
+        double best = double.MaxValue;
+        foreach (var other in State.Creatures.Values)
+        {
+            if (other.Condition != CreatureCondition.Corpse || other.Id == c.Id || other.Role.Peaceful)
+                continue;
+            if (other.Site.Space != c.Site.Space)
+                continue;
+            double gap = Distance(c.Body.XMm, c.Body.ZMm, other.Body.XMm, other.Body.ZMm);
+            if (gap > senses.SightMm || gap >= best)
+                continue;
+            if (Perception.Sees(c.Body, senses, other.Body.XMm, other.Body.ZMm, Walls(c)) is null)
+                continue;
+            best = gap;
+            nearest = other;
+        }
+        return nearest;
     }
 
     private CreatureState Decide(CreatureState c, CreatureMind was, double? seen, long tick)

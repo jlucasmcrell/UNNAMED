@@ -1,4 +1,4 @@
-// UNNAMED World - the commands presentation may submit (ARCHITECTURE.md §4.1, D-11)
+﻿// UNNAMED World - the commands presentation may submit (ARCHITECTURE.md §4.1, D-11)
 // No Godot references - pure C#
 
 using UNNAMED.Domain;
@@ -35,7 +35,7 @@ public sealed record GlideCommand(EntityId Actor, bool Spread) : GameCommand(Act
 /// Put a knife into a creature that has not noticed the character (STEALTH §12-§14; owner finding 27). The body nearest and inside the
 /// weapon's reach is the target; the outcome is an armour-and-vital check, so an armoured or well-built body survives and turns.
 /// </summary>
-public sealed record TakedownCommand(EntityId Actor) : GameCommand(Actor);
+public sealed record TakedownCommand(EntityId Actor, bool NonLethal = false) : GameCommand(Actor);
 
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);
