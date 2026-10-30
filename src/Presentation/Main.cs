@@ -2007,6 +2007,7 @@ public partial class Main : Node3D
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                     or "--stealth-review" or "--stealth-probe" or "--stealth-beats" or "--stealth-hud"
+            or "--stealth-runtime-video" or "--stealth-guard" or "--stealth-area" or "--stealth-areas"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

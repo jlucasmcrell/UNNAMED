@@ -503,6 +503,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         State.SetNoises(_owner, ImmutableArray<Noise>.Empty);
         _stealthLevel = ProgressionEngine.SkillLevel(State.Progression, "skill.stealth");
         PracticeStealth(tick);
+        PracticeUnnoticedPass(tick);
+        TrackGhostCrossing(tick);
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
@@ -704,16 +706,41 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>Which way the air moves today (STEALTH 4.6): derived from the world seed and the day, so no state is saved for it.</summary>
     private long WindBearing => WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 57_600));
 
+    /// <summary>
+    /// Which way the air moves at a place (STEALTH §4.6, §8.2): a wind content authors over that ground wins, and the day's prevailing wind is
+    /// what everywhere unwritten gets. The nose is measured at the nose, so a gorge that draws and a road gap that funnels smell differently.
+    /// </summary>
+    private long WindAt(long xMm, long zMm) => WindRules.BearingAt(WindBearing, _context.Setup.Layout.Winds, xMm, zMm);
+
+    /// <summary>Which way the air moves where the character stands (STEALTH §4.6): the local wind, for the readout and the tests.</summary>
+    internal long WindBearingOfPublic => WindAt(State.Body.XMm, State.Body.ZMm);
+
+    /// <summary>Which way the day's air moves, before any ground has a say.</summary>
     internal long WindBearingOf => WindBearing;
 
+    private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel) * StealthGear.Noise(PlayerEffectIds());
 
-
-    private double StealthNoiseFactor() => StealthRules.NoiseFactor(_stealthLevel);
+    /// <summary>
+    /// The stealth kit's effects on the character right now (STEALTH.md 10). Read per call, like the skill level: a cloak ending, or a dampener's cell
+    /// running out, takes effect on the next sight check rather than at the next turn.
+    /// </summary>
+    private ImmutableArray<string> PlayerEffectIds() =>
+        State.Effects.TryGetValue(_player, out var effects)
+            ? effects.Select(e => e.EffectId).ToImmutableArray()
+            : ImmutableArray<string>.Empty;
 
     private double StealthAwarenessFactor() => StealthRules.AwarenessFactor(_stealthLevel);
 
     private const long StealthPracticeTicks = 60;
     private long _nextStealthPractice;
+
+    /// <summary>How close an unaware hostile must be for a pass to count: six metres, canon's own number (STEALTH.md 9.2).</summary>
+    private const long CloseCallMm = 6_000;
+
+    /// <summary>How often a close pass pays: at most once every three seconds.</summary>
+    private const int CloseCallTicks = 60;
+
+    private long _nextCloseCall;
 
     /// <summary>
     /// The skill levels with use (finding 26, PROGRESSION.md §4.2): moving crouched while nothing has noticed the character is practice, one
@@ -727,6 +754,100 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return;
         _nextStealthPractice = tick + StealthPracticeTicks;
         _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", 1, PracticeOutcome.Success, tick)));
+    }
+
+    /// <summary>
+    /// Walking close to something that could have seen you and did not is what stealth is practice at (STEALTH.md 9.2's *unnoticed pass*): a
+    /// body within six metres of a live, unaware hostile, moving, and not already engaged. Once every three seconds at most, so a blind guard
+    /// standing beside a patient player is not a treadmill.
+    /// </summary>
+    private void PracticeUnnoticedPass(long tick)
+    {
+        if (tick < _nextCloseCall || !_intent().IsMoving)
+            return;
+        var player = State.Body;
+        bool close = false;
+        foreach (var creature in State.Creatures.Values)
+        {
+            if (!creature.Alive || creature.Site.Space != State.Space)
+                continue;
+            if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness))
+                continue;
+            long dx = creature.Body.XMm - player.XMm;
+            long dz = creature.Body.ZMm - player.ZMm;
+            if (dx * dx + dz * dz > CloseCallMm * CloseCallMm)
+                continue;
+            close = true;
+            break;
+        }
+        if (!close)
+            return;
+        _nextCloseCall = tick + CloseCallTicks;
+        _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", 1, PracticeOutcome.Success, tick)));
+    }
+
+    /// <summary>
+    /// The space the ghost tally is counting, and whether it has been spoiled (STEALTH.md 9.3): a crossing is a GHOST when nothing reached
+    /// suspicion-by-sight and nothing died, and UNSEEN when nothing even left its unaware band. Both are paid on the way out, once per space, and
+    /// paid as a deed so a quest can wait for one.
+    /// </summary>
+    private string? _ghostSpace;
+
+    private string? _ghostPending;
+
+    private bool _ghostEngaged;
+
+    private bool _ghostNoticed;
+
+    private bool _ghostKilled;
+
+    /// <summary>The space left last, so a doorway walked back and forth is not a farm.</summary>
+    private string? _ghostPaidSpace;
+
+    private const int GhostXp = 25;
+
+    /// <summary>The alarm count a crossing must have stayed under: alarm bells are the third leg of canon's Ghost tag.</summary>
+    private void TrackGhostCrossing(long tick)
+    {
+        string space = State.Space.ToString();
+        if (_ghostSpace is null)
+        {
+            _ghostSpace = space;
+            return;
+        }
+        if (_ghostSpace != space)
+        {
+            string left = _ghostSpace;
+            // The exterior is the default space and its name is the empty string, so a crossing of it is labelled for the record.
+            // A deed's subject is a definition id (PlayerState checks it), so the exterior is named as a space: space.exterior.
+            string label = left.Length == 0 ? "space.exterior" : left;
+            if (left != _ghostPaidSpace && !_ghostKilled && !_ghostNoticed)
+            {
+                // GHOST: nothing died and nobody grew suspicious on sight (STEALTH.md 9.3). UNSEEN: on top of that, nothing ever engaged.
+                _ghostPaidSpace = left;
+                _context.Dispatch(new RecordDeed(new Deed(DeedKind.Ghosted, label, 1, Domain.Crafting.Quality.Standard, null, tick)));
+                _context.Dispatch(new AwardExperience(new XpAward(XpSource.Stealth, GhostXp, tick) { FirstKey = $"ghost|{label}" }));
+                if (!_ghostEngaged)
+                {
+                    _context.Dispatch(new RecordDeed(new Deed(DeedKind.Unseen, label, 1, Domain.Crafting.Quality.Standard, null, tick)));
+                    _context.Dispatch(new AwardExperience(new XpAward(XpSource.Stealth, GhostXp, tick) { FirstKey = $"unseen|{label}" }));
+                }
+            }
+            _ghostSpace = space;
+            _ghostEngaged = false;
+            _ghostNoticed = false;
+            _ghostKilled = false;
+        }
+        foreach (var creature in State.Creatures.Values)
+        {
+            // A body that kept its post and never looked is the best kind of crossing; one that looked is still a ghost if it never raised the alarm.
+            if (!creature.Alive || creature.Site.Space.ToString() != space)
+                continue;
+            if (creature.Awareness >= Setup.Awareness.Suspicious)
+                _ghostNoticed = true;
+            if (creature.Mind == CreatureMind.Engaged)
+                _ghostEngaged = true;
+        }
     }
 
     private CreatureState Live(CreatureState c, long tick, List<Noise> noises)
@@ -820,7 +941,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         long beyondX = (long)(player.XMm + (player.XMm - c.Body.XMm) / len * SilhouetteBeyondMm);
         long beyondZ = (long)(player.ZMm + (player.ZMm - c.Body.ZMm) / len * SilhouetteBeyondMm);
         bool silhouetted = Visibility.Silhouetted(band, LitAt(beyondX, beyondZ));
-        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouetted);
+        // What the character is wearing or carrying (STEALTH.md 10, S7): a cloak's worth, applied to the physical reading above, never instead of it.
+        double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouetted,
+            gearFactor: StealthGear.Visibility(PlayerEffectIds(), _intent().IsMoving));
         // Bright gear and gilt read at a distance in good light (STEALTH §3.3), and a cloak takes a share back (STEALTH §10.1).
         double penalty = _context.PlayerStealthPenalty();
         if (penalty > 0)
@@ -910,7 +1033,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // walks to where the smell is thickest, which is where the character was, and that is the pursuit the stealth player has to break.
         if (!asleep && target && !drawn && senses.ScentMm > 0 && next.Mind != CreatureMind.Engaged && !_context.PlayerScentWard()
             && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= senses.ScentMm
-            && ScentRules.Carries(WindBearing, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
+            && ScentRules.Carries(WindAt(c.Body.XMm, c.Body.ZMm), c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm)
             && !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm))
         {
             // A nose is not a sighting and it is not instant: it builds as the scent does, at half the rate a pair of eyes builds it. Until the animal
@@ -1618,6 +1741,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         _losses.Add((c.Role.Id, c.Site.Space, c.Body.XMm, c.Body.ZMm, tick));
         if (_losses.Count > DieLossMemory)
             _losses.RemoveRange(0, _losses.Count - DieLossMemory);
+        _ghostKilled = true;
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick) { DirectAttacker = directAttacker });
 
         // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a

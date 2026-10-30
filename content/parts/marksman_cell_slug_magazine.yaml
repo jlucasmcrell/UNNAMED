@@ -1,0 +1,14 @@
+id: part.marksman.cell.slug_magazine
+kind: part
+schema: 1
+display_key: part.marksman.cell.slug_magazine.name
+tags: [cell, rail, magazine]
+name: Slug Magazine
+notes: "A slug magazine for the rail line: rounds, not charges."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons/Ammunition-caliber-5.56x45mm_e5b19cec"
+family: marksman
+slot: cell
+mesh: mesh.part.marksman.cell.slug_magazine
+material_slots: [cell]
+tier_min: 3
+stat_contrib: { damage_mult: 1.02, reach_add: 0.0, weight_add: 0.25, speed_mult: 1.0, durability_add: 0 }

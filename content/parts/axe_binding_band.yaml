@@ -1,0 +1,14 @@
+id: part.axe.binding.band
+kind: part
+schema: 1
+display_key: part.axe.binding.band.name
+asset: "D21 Haft and shaft band, PARTIAL"
+tags: [binding, iron]
+name: Iron Band Binding
+notes: "A band of iron at the socket: the part that stops a head from working loose."
+family: axe
+slot: binding
+mesh: mesh.part.axe.binding.band
+material_slots: [metal_binding]
+tier_min: 1
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.04, speed_mult: 1.0, durability_add: 10 }

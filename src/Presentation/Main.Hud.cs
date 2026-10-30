@@ -157,7 +157,9 @@ public partial class Main
             && definition.Tags.Contains("other");
         _hud.SetStealth(UNNAMED.Presentation.Ui.Models.ShadowModel.From(simulation.PlayerLightBand),
             UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm, simulation.PlayerSurface),
-            _stealthHud);
+            _stealthHud,
+            UNNAMED.Presentation.Ui.Models.DetectorReadModel.From(
+                simulation.DetectorContacts.Select(c => (c.Sense, c.XMm, c.ZMm)), playerBody.XMm, playerBody.ZMm));
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         var questRows = QuestPresentation.Tracker(quests, tracked);

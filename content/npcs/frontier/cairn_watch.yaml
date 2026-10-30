@@ -1,0 +1,12 @@
+id: npc.frontier.cairn_watch
+kind: npc
+sex: f
+schema: 1
+display_key: npc.frontier.cairn_watch.name
+tags: [npc, frontier]
+name: The Cairn Watch
+notes: "D23 S6 (HOOK.STEALTH.PATROL): Cairnwold's watch walks the street round past the lantern and the lodge. She keeps Cairnwold's street, and her round is the loop a stealth route has to read."
+role: guard
+services: []
+dialogue_ref: dialogue.frontier.cairn_watch
+unique: true

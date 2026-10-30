@@ -1,0 +1,21 @@
+id: item.weapon.cosmic_projector
+kind: item.weapon
+schema: 1
+display_key: item.weapon.cosmic_projector.name
+tags: [weapon, tech, projector, cosmic]
+name: Cosmic Projector
+notes: "A cosmic collimator with a sealed star-metal core: hand-placed relic only, never rolled (4.1.1, 4.1.2)."
+category: weapon
+stack_max: 1
+weight: 3.6
+value_base: 900
+item_class: ordinary
+damage: [9, 12]
+damage_type: arcane
+attack_speed: 0.56
+reach: 8.0
+hands: two
+skill_ref: skill.projector
+durability_max: 180
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: projector.cosmic, maker_ref: maker.oldworks.old_works, part_tier: 4 }

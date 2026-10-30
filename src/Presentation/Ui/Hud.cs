@@ -324,9 +324,12 @@ public partial class Hud : CanvasLayer
             _otherEdge.Visible = other;
     }
 
-    /// <summary>The band the character stands in and the radius they are heard at: both are the simulation's own numbers (STEALTH §2.7).</summary>
-    /// <summary>The stealth read: the character's own shadow in the band they stand in, and the noise they are making (STEALTH 2.7a).</summary>
-    public void SetStealth(ShadowModel shadow, NoiseRingModel noise, StealthHudMode mode) => _gem.Set(shadow, noise, mode);
+    /// <summary>
+    /// The stealth read: the character's own shadow in the band they stand in, and the noise they are making (STEALTH 2.7a), and what a carried
+    /// sensor is reading (D23 S7) - empty when none is carried.
+    /// </summary>
+    public void SetStealth(ShadowModel shadow, NoiseRingModel noise, StealthHudMode mode, DetectorReadModel detector = default) =>
+        _gem.Set(shadow, noise, mode, detector);
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(TargetPlate? plate)

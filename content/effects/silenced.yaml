@@ -1,0 +1,13 @@
+id: effect.silenced
+kind: effect
+schema: 1
+display_key: effect.silenced.name
+tags: [effect, stealth, tech]
+name: Silenced
+notes: "A marksman's silencer (STEALTH.md 10): a shot's report at four tenths. Heat, range loss and bulk are the price; a spent casing or a broken bolt is the sign it leaves."
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 10.0
+tick_interval_min: 0
+dispel_category: tech

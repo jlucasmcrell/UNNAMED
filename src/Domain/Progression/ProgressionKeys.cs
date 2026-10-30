@@ -9,7 +9,7 @@ namespace UNNAMED.Domain.Progression;
 public enum CharacterAttribute { Might, Endurance, Agility, Precision, Will, Insight, Presence }
 
 /// <summary>Where level XP comes from (§3.3). The anti-farm guards key on it.</summary>
-public enum XpSource { Discovery, QuestObjective, Combat, Production, Social }
+public enum XpSource { Discovery, QuestObjective, Combat, Production, Social, Stealth }
 
 /// <summary>How a technique, formula or recipe entered the knowledge record (§4.4) - the only way knowledge enters.</summary>
 public enum LearningSource { StartingPackage, Teacher, Book, Quest, Study, Experiment, Discovery, Artifact, Culture }
@@ -54,6 +54,7 @@ public static class ProgressionKeys
         XpSource.Combat => "combat",
         XpSource.Production => "production",
         XpSource.Social => "social",
+        XpSource.Stealth => "stealth",
         _ => throw new ArgumentOutOfRangeException(nameof(value), value, null),
     };
 

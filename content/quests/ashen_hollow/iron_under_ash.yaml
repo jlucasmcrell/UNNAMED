@@ -23,7 +23,7 @@ objectives:
   - id: o_ore
     type: acquire_item
     description: Obtain raw iron ore.
-    params: { item_ref: item.material.iron_ore, or_item_refs: [item.material.iron_ingot, item.weapon.march_spear], count: 1 }
+    params: { item_ref: item.material.iron_ore, or_item_refs: [item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword], count: 1 }
     next: [o_return]
   - id: o_return
     type: explore_location

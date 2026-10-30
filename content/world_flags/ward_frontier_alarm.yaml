@@ -1,0 +1,9 @@
+id: world.ward.frontier_alarm
+kind: world_flag
+schema: 1
+display_key: world.ward.frontier_alarm.name
+tags: [world_flag, stealth]
+notes: "D23 S7 (STEALTH.md 10): set when a frontier ward is crossed."
+type: bool
+default: false
+owning_system: S-19

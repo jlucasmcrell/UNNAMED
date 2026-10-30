@@ -1,0 +1,14 @@
+id: part.spear.haft.long
+kind: part
+schema: 1
+display_key: part.spear.haft.long.name
+asset: "D21 Haft and shaft: handle_1 [B], PARTIAL"
+tags: [haft, pole]
+name: Two-Metre Haft
+notes: "The pole every polearm mounts on; ash, socket at one end."
+family: spear
+slot: haft
+mesh: mesh.part.spear.haft.long
+material_slots: [wood, wrap]
+tier_min: 1
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.0, speed_mult: 1.0, durability_add: 0 }

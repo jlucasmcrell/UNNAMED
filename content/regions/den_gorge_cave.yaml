@@ -211,6 +211,17 @@ structures:
 containers:
   - { key: container.den_gorge.haldas_store, loot_ref: loot.haldas_store, position_m: [541.5, 754.0], stack_slots: 6 }
 doors: []
+lights:
+- { key: light.cave_mouth, position_m: [538, 806], radius_m: 5, intensity: 600, dousable: true }
+- { key: light.cave_gallery, position_m: [548, 758], radius_m: 6, intensity: 620, dousable: true }
+covers:
+- { key: cover.cave_fern, kind: tall_grass, position_m: [512, 798], radius_m: 4.0, height_m: 1.2, blocks_sight_percent: 67 }
+- { key: cover.cave_pillar, kind: pillar, position_m: [540, 770], radius_m: 2.0, height_m: 2.4, blocks_sight_percent: 100 }
+routes:
+- { key: route.den_gorge_cave.shadow.cave_mouth, kind: shadow, position_m: [538.5, 805.0], to_m: [530, 780], cover_percent: 85 }
+- { key: route.den_gorge_cave.ledge.shelf_lip, kind: ledge, position_m: [520, 790], to_m: [505, 770], cover_percent: 80, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.den_gorge_cave.vent.sink, kind: vent, position_m: [545, 760], to_m: [552, 755], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 } }
+- { key: route.den_gorge_cave.grass.cave_fern, kind: grass, position_m: [510, 800], to_m: [515, 790], cover_percent: 60 }
 npcs: []
 nodes: []
 stations: []

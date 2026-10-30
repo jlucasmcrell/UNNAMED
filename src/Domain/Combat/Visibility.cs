@@ -1,4 +1,5 @@
-﻿// UNNAMED Domain - how visible a body is, and to whom (STEALTH.md §2: light, cover, posture, silhouette)
+using System.Collections.Immutable;
+// UNNAMED Domain - how visible a body is, and to whom (STEALTH.md §2: light, cover, posture, silhouette)
 // No Godot references - pure C#
 
 using UNNAMED.Domain.Spatial;
@@ -127,11 +128,6 @@ public static class Visibility
     }
 
     /// <summary>
-    /// The whole visibility of a body for one observer (STEALTH §2): the band's factor, the share of it the cover leaves, the posture's own
-    /// gain, whether the observer has only its periphery on it, and a silhouette against a bright backdrop. Never zero: 0.35 at two metres is
-    /// still a body standing in front of you.
-    /// </summary>
-    /// <summary>
     /// Whether a body standing in the dark is drawn as a shape against light behind it (STEALTH §2.4): the air beyond it, along the observer's own line,
     /// is lit - so what the watch sees is a silhouette against the lamp rather than a body in the dark. That is the rule the light gem cannot show on its
     /// own, and the one that makes a lit yard the most dangerous thing in a dark night.
@@ -139,15 +135,25 @@ public static class Visibility
     public static bool Silhouetted(LightBand band, int litBeyondPermille, int litEnoughPermille = 450) =>
         band is LightBand.Dark or LightBand.Dim && litBeyondPermille >= litEnoughPermille;
 
+    /// <summary>
+    /// The whole visibility of a body for one observer (STEALTH §2): the band's factor, the share of it the cover leaves, the posture's own
+    /// gain, whether the observer has only its periphery on it, and a silhouette against a bright backdrop. Never zero: 0.35 at two metres is
+    /// still a body standing in front of you.
+    /// </summary>
+    /// <param name="gearFactor">
+    /// What the character is wearing or carrying does to being seen (STEALTH.md 10): an optical cloak's 0.25 standing still or 0.6 moving, and 1.0
+    /// for nothing. It scales the whole product, so no piece of kit ever makes a body unseeable - it only makes them less likely to be seen under the
+    /// stated conditions, exactly as the canon table says.
+    /// </param>
     public static double Factor(LightRules rules, LightBand band, bool nightSight, double seenFraction, PostureRule posture,
-        bool peripheralOnly, bool silhouette)
+        bool peripheralOnly, bool silhouette, double gearFactor = 1.0)
     {
         double factor = rules.SightFactor(band, nightSight) * Math.Clamp(seenFraction, 0.0, 1.0) * posture.SightGain;
         if (peripheralOnly)
             factor *= 0.4;
         if (silhouette)
             factor *= rules.BrightFactor;
-        return factor;
+        return factor * Math.Clamp(gearFactor, 0.05, 1.0);
     }
 
     /// <summary>
@@ -177,3 +183,37 @@ public static class Visibility
         return cos >= Math.Cos(fieldOfViewMdeg / 2000.0 * Math.PI / 180);
     }
 }
+
+/// <summary>
+/// An authored way through a place that does not fight for it (STEALTH.md section 8.1): a shadow line, a grass line, a ledge, a roof way, a vent,
+/// a servant's passage, a wall, a sewer or a disguise. Each carries what it needs of the character and how much sight it denies, so a route is a
+/// real choice with a price rather than a free path.
+/// </summary>
+public sealed record StealthRouteSite(
+    string Key,
+    string Kind,
+    long XMm,
+    long ZMm,
+    long ToXMm,
+    long ToZMm,
+    int CoverPercent)
+{
+    /// <summary>The route kinds canon allows (STEALTH.md 8.1).</summary>
+    public static readonly ImmutableArray<string> Kinds = ImmutableArray.Create(
+        "shadow", "grass", "ledge", "roof", "vent", "servant", "wall", "sewer", "trap", "disguise");
+
+    /// <summary>The skill and band a route asks for, when it asks for one (a ledge is athletics, a vent is lockpicking).</summary>
+    public string? SkillId { get; init; }
+
+    public int SkillMin { get; init; }
+
+    /// <summary>How far this route can see to a target zone: a perch is a route that looks down one (STEALTH.md 8.2).</summary>
+    public long SightlineMm { get; init; }
+}
+
+/// <summary>
+/// A stealth placement a region authors that is not a route or a cover (STEALTH.md 8.2, 10): a patrol (<c>patrols</c>), a wind exposure
+/// (<c>winds</c>), a kennel with its handler (<c>kennels</c>), or a place a body can be held alive (<c>capture_sites</c>). The section
+/// it came from is kept, so the hook audit can count one kind without the others.
+/// </summary>
+public sealed record StealthPlacement(string Section, string Key, long XMm, long ZMm);

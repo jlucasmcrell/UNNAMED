@@ -29,6 +29,7 @@ public partial class ShadowSilhouette : Control
     private ShadowModel _shadow = ShadowModel.From(LightBand.Lit);
     private NoiseRingModel _noise = NoiseRingModel.From(0);
     private StealthHudMode _mode = StealthHudMode.Full;
+    private DetectorReadModel _detector = DetectorReadModel.None;
 
     public override void _Ready()
     {
@@ -37,25 +38,31 @@ public partial class ShadowSilhouette : Control
         Size = CustomMinimumSize;
     }
 
-    /// <summary>Hand it the band, the noise radius and the mode; all three are the real quantities.</summary>
-    public void Set(ShadowModel shadow, NoiseRingModel noise, StealthHudMode mode)
+    /// <summary>Hand it the band, the noise radius, the mode and what a carried sensor reads; all are the real quantities.</summary>
+    public void Set(ShadowModel shadow, NoiseRingModel noise, StealthHudMode mode, DetectorReadModel detector = default)
     {
-        if (_shadow == shadow && _noise == noise && _mode == mode)
+        var read = detector.Contacts == 0 && detector.Words.Length == 0 ? DetectorReadModel.None : detector;
+        if (_shadow == shadow && _noise == noise && _mode == mode && _detector == read)
             return;
         _shadow = shadow;
         _noise = noise;
         _mode = mode;
+        _detector = read;
         QueueRedraw();
     }
 
     public override void _Draw()
     {
+        var font = GetThemeDefaultFont();
+        // The sensors' own line, and only when one is carried: a detector readout that is always on would be a wall-hack (STEALTH.md 10). It is the
+        // kit's read, not the stealth gauge, so the minimal setting keeps it.
+        if (_detector.Contacts > 0)
+            DrawString(font, new Vector2(Tile + 12, 52), _detector.Words, HorizontalAlignment.Left, -1, 11, new Color(0.55f, 0.85f, 0.78f, 0.95f));
         if (_mode == StealthHudMode.Minimal)
             return;
         // A black figure on a black night needs something to be black against (the owner's ruling is a shadow, and a shadow needs a lit ground):
         // a dim plate behind the figure, dark enough not to shout and light enough that the silhouette's edge reads at a glance.
         DrawRect(new Rect2(0, 0, Tile + 2, 58), new Color(0.10f, 0.11f, 0.13f, 0.78f));
-        var font = GetThemeDefaultFont();
         var centre = new Vector2(Tile / 2 + 4, 30);
         var tint = Tint(ShadowModel.Tint(_shadow.People));
         DrawRipples(centre);

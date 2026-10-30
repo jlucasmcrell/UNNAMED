@@ -107,6 +107,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>Resource nodes, recipes, and the tuning of quality (M3f).</summary>
     public CraftingSetup Crafting { get; init; } = CraftingSetup.Empty;
 
+    /// <summary>D21's parts, makers and materials: what an assembled recipe builds from.</summary>
+    public UNNAMED.Domain.Items.GearSetup Gear { get; init; } = UNNAMED.Domain.Items.GearSetup.Empty;
+
     /// <summary>The named NPCs and their conversations (M4).</summary>
     public SocialSetup Social { get; init; } = SocialSetup.Empty;
 
@@ -260,6 +263,8 @@ public sealed class Simulation
     private readonly TeachingSystem _teaching;
     private readonly DurabilitySystem _durability;
     private readonly BurningLightsSystem _lights;
+    private readonly DetectionSystem _detection;
+    private readonly AlarmSystem _alarms;
     private readonly LadenSystem _laden;
     private readonly PartySheetSystem _sheets;
     private readonly PetSystem _pets;
@@ -395,6 +400,8 @@ public sealed class Simulation
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
         _lights = new BurningLightsSystem(_context, player.Id);
+        _detection = new DetectionSystem(_context, player.Id);
+        _alarms = new AlarmSystem(_context, _npcs);
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
         _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
@@ -540,6 +547,18 @@ public sealed class Simulation
     }
 
     /// <summary>The cell a door stands in, in the space its layout stands in: its flag lives in that cell's delta.</summary>
+    /// <summary>A thrown lure: the world hears it where it lands, and the wards it crossed are spent (D23 S7, STEALTH.md 3.2).</summary>
+    private string? Distract(DistractCommand command)
+    {
+        _detection.Distract(_state.Space, command.XMm, command.ZMm);
+        // A thrown lure is an impact heard where it landed, which is what a thrown stone is (STEALTH.md 3.2).
+        _context.Dispatch(new RaiseNoise(new UNNAMED.Domain.Creatures.Noise(command.XMm, command.ZMm, Setup.Combat.Noise.ImpactSolidMm)
+        {
+            Source = UNNAMED.Domain.Creatures.SoundSource.Impact,
+        }));
+        return null;
+    }
+
     public static CellKey CellOf(SpaceId space, DoorSite door) => CellOf(space, door.ClosedFootprint);
 
     /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
@@ -568,6 +587,9 @@ public sealed class Simulation
 
     /// <summary>The sparse world delta. Its public members only read (tests/Architecture.Tests).</summary>
     public WorldDelta World => _state.World;
+
+    /// <summary>What the character's carried sensors read this tick (D23 S7): transient, empty when nothing is carried.</summary>
+    public ImmutableArray<DetectorContact> DetectorContacts => _detection.Contacts;
 
     /// <summary>Standing or crouched, and how far into a jump (the owner's M6 playtest): cheap to read every frame.</summary>
     public Posture Posture => _state.Posture;
@@ -695,7 +717,18 @@ public sealed class Simulation
     /// Which way the air moves today, in millidegrees (STEALTH §4.6): the same for every body in the world, derived from the seed and the day, so a
     /// scent test can stand a creature upwind of the character and be sure that is where it is.
     /// </summary>
-    public long WindBearing() => _creatures.WindBearingOf;
+    public long WindBearing() => _creatures.WindBearingOfPublic;
+
+    /// <summary>
+    /// Which way the air moves at a place (STEALTH §4.6): the wind content authors over that ground if it covers the point, else the day's
+    /// prevailing wind. The same number the creatures' noses are read against, so a readout and the world agree.
+    /// </summary>
+    public long WindBearingAt(long xMm, long zMm) =>
+        UNNAMED.Domain.Creatures.WindRules.BearingAt(_creatures.WindBearingOf, ActiveLayout.Winds, xMm, zMm);
+
+    /// <summary>The strength of the air at a place, in metres a second (authored where content gives a wind).</summary>
+    public double WindStrengthAt(long xMm, long zMm) =>
+        UNNAMED.Domain.Creatures.WindRules.StrengthAt(0, ActiveLayout.Winds, xMm, zMm);
 
     /// <summary>Whether an authored light is out, so the world view can dim the lamp the simulation has stopped counting (STEALTH §2.2).</summary>
     public bool IsLightDoused(string key) => _creatures.IsDoused(key);
@@ -1080,6 +1113,7 @@ public sealed class Simulation
                 SwapGearSetCommand swap => _gearSets.Handle(swap, WorldTick),
                 CancelGearSwapCommand cancel => _gearSets.Handle(cancel, WorldTick),
                 RepairCommand repair => _durability.Handle(repair, WorldTick),
+        DistractCommand distract => Distract(distract),
                 MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 JoinGroupCommand join => _lfg.Handle(join, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
@@ -1120,6 +1154,8 @@ public sealed class Simulation
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);
+            _detection.Tick(tick);
+            _alarms.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
             _pets.Tick(tick);

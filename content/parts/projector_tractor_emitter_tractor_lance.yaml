@@ -1,0 +1,15 @@
+id: part.projector.tractor.emitter.tractor_lance
+kind: part
+schema: 1
+display_key: part.projector.tractor.emitter.tractor_lance.name
+tags: [emitter, tractor, tech, long]
+name: Field Projector Lance
+notes: "Field coil and gravity yoke: a held thing, not a hit thing. The long emitter: more reach, more heat, more to maintain."
+noun: "long tractor projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.tractor
+slot: emitter
+mesh: mesh.part.projector.tractor.emitter.tractor_lance
+material_slots: [emitter_main, lens]
+tier_min: 3
+stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.35, speed_mult: 0.95, durability_add: 5 }

@@ -1,0 +1,13 @@
+id: item.armor.cloak_optical
+kind: item
+schema: 1
+display_key: item.armor.cloak_optical.name
+tags: [armor, tech, stealth, cloak]
+name: Optical Cloak
+notes: "A Vaskaal optical cloak: the shimmer that hides still bodies best (STEALTH.md 10). It draws on a power cell, and rain, fog, dust and water end it; inside six metres an observer sees the movement."
+category: armor
+stack_max: 1
+weight: 2.5
+value_base: 420
+item_class: ordinary
+use: { effect_ref: effect.cloaked, consume: false }

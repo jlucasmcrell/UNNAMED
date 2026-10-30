@@ -18,3 +18,4 @@ hands: two
 skill_ref: skill.polearm
 durability_max: 200       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
 repair: { station: anvil, skill_ref: skill.smithing, skill_min: 5, item_ref: item.material.iron_ingot }
+assembly: { family: spear, maker_ref: maker.kal.vossgar_forge, part_tier: 1 }

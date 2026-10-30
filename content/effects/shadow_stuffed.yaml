@@ -1,0 +1,13 @@
+id: effect.shadow_stuffed
+kind: effect
+schema: 1
+display_key: effect.shadow_stuffed.name
+tags: [effect, stealth, magic]
+name: Shadow-stuffed
+notes: "Shadow-stuff (STEALTH.md 10): a local Dark patch made in a lit space for twenty seconds - a manipulation of light, not of sight. Light spells and a lit torch undo it, and an alarm still has its sound."
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 10.0
+tick_interval_min: 0
+dispel_category: magic

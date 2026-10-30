@@ -81,6 +81,9 @@ public sealed record ContainerItem(EntityId ItemId, string DefId, int Count)
 
     /// <summary>Its wear (WP3b): it stays with its item in a chest or a trader's wares.</summary>
     public ItemWear? Wear { get; init; }
+
+    /// <summary>How it was assembled (D21 G4): a rolled piece keeps its parts, maker and material in the chest that holds it.</summary>
+    public UNNAMED.Domain.Items.GearBuild? Built { get; init; }
 }
 
 /// <summary>

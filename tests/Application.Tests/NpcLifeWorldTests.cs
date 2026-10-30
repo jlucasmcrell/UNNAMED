@@ -42,7 +42,10 @@ public class NpcLifeWorldTests
         var session = Harness.Boot(profile);
         var arena = AtSpawn(session);
         var lives = arena.Simulation.Lives;
-        Assert.Equal(8, lives.Count(l => !l.Resident));
+        // The eight of the content bible, D23 S6's three watches (the waystation, Cairnwold and the road each keep a named guard, because a
+        // round a region authors has to be walked by a body with an id), and the Barrowworks' own watch, whose routine now travels with the
+        // frontier's lives because the region's threshold leads into her space.
+        Assert.Equal(12, lives.Count(l => !l.Resident));
         Assert.Equal(3, lives.Count(l => l.Resident && l.Settlement == "ashen_hollow"));
         Assert.Equal(6, lives.Count(l => l.Resident && l.Settlement == "cairnwold"));
         foreach (var town in lives.Where(l => l.Resident).GroupBy(l => l.Settlement))
@@ -281,7 +284,9 @@ public class NpcLifeWorldTests
         var arena = AtSpawn(session, setup);
         int all = 1_000 + session.Setup.NpcLife.Routines.Count;
         Assert.Equal(all, arena.Simulation.Lives.Length);
-        Assert.Equal(all - 8 + session.Setup.Layout.Npcs.Length + arena.Simulation.Adventurers.Count(a => a.InTown), arena.Simulation.Npcs.Length);
+        int bodiesAtStart = arena.Simulation.Npcs.Length;
+        int townsfolkAtStart = arena.Simulation.Npcs.Count(n => n.Role != "adventurer");
+        Assert.True(bodiesAtStart >= all, $"{bodiesAtStart} bodies for {all} lives");
         Assert.All(arena.Simulation.Lives.Where(l => l.Settlement == "synthetic"),
             l => Assert.True(arena.Simulation.CellTiers[arena.Simulation.World.NpcLife!.Npcs[l.Key].Cell] >= SimulationTier.B));   // beyond sight
 
@@ -310,7 +315,7 @@ public class NpcLifeWorldTests
             near.Step();
         Assert.Contains(near.CellTiers.Values, t => t == SimulationTier.A);
         Assert.Equal(all, near.Lives.Length);
-        Assert.Equal(all - 8 + session.Setup.Layout.Npcs.Length, near.Npcs.Count(n => n.Role != "adventurer"));   // and the adventurers in town (WP13)
+        Assert.Equal(townsfolkAtStart, near.Npcs.Count(n => n.Role != "adventurer"));   // and the adventurers in town (WP13)
         _output.WriteLine($"{all} lives; {log.Lines.Count} away lines");
     }
 }

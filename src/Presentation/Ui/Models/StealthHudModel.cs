@@ -101,3 +101,23 @@ public readonly record struct AwarenessRead(int Awareness, int Full, NoticeSense
         return ((float)((degrees + 360) % 360), true);
     }
 }
+
+/// <summary>
+/// What the carried sensors are reading (D23 S7, STEALTH.md 10): how many bodies they have, which sense found the nearest, and the bearing to it.
+/// Empty when no sensor is carried, which is why the HUD draws nothing then - a detector readout that is always on would be a wall-hack.
+/// </summary>
+public readonly record struct DetectorReadModel(int Contacts, string Sense, float BearingDegrees, bool HasDirection, string Words)
+{
+    public static readonly DetectorReadModel None = new(0, "none", 0, false, "");
+
+    public static DetectorReadModel From(IEnumerable<(string Sense, long XMm, long ZMm)> contacts, long fromXMm, long fromZMm)
+    {
+        var list = contacts.ToArray();
+        if (list.Length == 0)
+            return None;
+        var (sense, x, z) = list[0];
+        var (bearing, has) = AwarenessRead.Toward(fromXMm, fromZMm, x, z);
+        return new DetectorReadModel(list.Length, sense, bearing, has,
+            list.Length == 1 ? $"1 body ({sense})" : $"{list.Length} bodies ({sense} nearest)");
+    }
+}

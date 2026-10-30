@@ -19,11 +19,18 @@ public static class ContentChecks
     {
         ["item_ref"] = new[] { "item", "item.weapon", "item.armor" },
         ["creature_ref"] = new[] { "creature" },
+    // D23 S6: a stealth deed objective may name the space whose crossing it counts.
+    ["subject_ref"] = new[] { "space" },
+    // D23 S7: a ward raises an alarm a listener can act on, and that alarm is a world flag.
+    ["alarm_ref"] = new[] { "world_flag" },
         // D18 SYSTEMS (needed-2): a body's skinning node, so carcass_ref may name a node kind.
         ["carcass_ref"] = new[] { "node" },
         ["npc_ref"] = new[] { "npc" },
         ["spell_ref"] = new[] { "spell" },
         ["ability_ref"] = new[] { "ability" },
+        ["part_ref"] = new[] { "part" },
+        ["maker_ref"] = new[] { "maker" },
+        ["material_ref"] = new[] { "material" },
         ["effect_ref"] = new[] { "effect" },
         ["affix_ref"] = new[] { "affix" },
         ["recipe_ref"] = new[] { "recipe" },
@@ -60,6 +67,11 @@ public static class ContentChecks
         ["giver_ref"] = new[] { "npc" },  // a quest's giver (§4.11): a role name, not a kind
         ["discipline"] = new[] { "skill" },   // an active technique's weapon-family skill (§4.7; WP9)
         ["companion_ref"] = new[] { "npc" },  // a personal quest's companion (WP15b): a role name, not a kind
+        // D23 S6: a kennel names the person who works it and the dog itself (HOOK.STEALTH.DOG); a capture site names the
+        // place a taken body is left alive (HOOK.STEALTH.NONLETHAL).
+        ["handler_ref"] = new[] { "npc" },
+        ["dog_ref"] = new[] { "creature" },
+        ["holding_ref"] = new[] { "location" },
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>

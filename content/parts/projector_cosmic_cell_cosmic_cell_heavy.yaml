@@ -1,0 +1,14 @@
+id: part.projector.cosmic.cell.cosmic_cell_heavy
+kind: part
+schema: 1
+display_key: part.projector.cosmic.cell.cosmic_cell_heavy.name
+tags: [cell, cosmic, tech, heavy]
+name: Cosmic Projector Heavy Cell
+notes: "A heavier cell: more shots, more weight, more heat per shot."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.cosmic
+slot: cell
+mesh: mesh.part.projector.cosmic.cell.cosmic_cell_heavy
+material_slots: [cell]
+tier_min: 3
+stat_contrib: { damage_mult: 1.04, reach_add: 0.0, weight_add: 0.25, speed_mult: 0.98, durability_add: 0 }

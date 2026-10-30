@@ -14,7 +14,9 @@ public class WaystationInnTests
         var arena = AdventurerWorldTests.AtTheInn(session);
         var sim = arena.Simulation;
         var routines = session.Setup.NpcLife.Routines.Values.Where(r => r.Settlement == "ashen_hollow").ToArray();
-        Assert.Equal(7, routines.Length);
+        // The townsfolk who keep the hollow (7), and D23 S6's three watches: the waystation, Cairnwold and the road each sleep
+        // at home in ashen_hollow's houses, so their routines are part of the inn's own rule about beds and stools.
+        Assert.Equal(10, routines.Length);
         // A visitor must not claim a stool reached by a resident's supper anchor.
         var inn = session.Setup.Adventurers!.Settlements["ashen_hollow"].Inn!;
         Assert.Equal(180_000, Assert.Single(inn.Beds).FacingMdeg);
@@ -45,6 +47,10 @@ public class WaystationInnTests
                     Assert.Equal((held.XMm, held.ZMm), (body.XMm, body.ZMm));
                     continue;
                 }
+                // A watch with a round is not standing on her work anchor in work hours: the round is her goal then (D23 S6), and the
+                // inn's rule about beds and stools is about everyone the rounds leave at home.
+                if (session.Setup.Layout.Patrols.Any(p => p.NpcId == r.Key))
+                    continue;
                 string activity = r.ActivityAt(hour, session.Setup.NpcLife.Rules);
                 var anchor = r.AnchorFor(activity, hour);
                 Assert.Equal((anchor.XMm, anchor.ZMm), (body.XMm, body.ZMm));

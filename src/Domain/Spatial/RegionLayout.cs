@@ -2,6 +2,8 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 
 namespace UNNAMED.Domain.Spatial;
 
@@ -168,8 +170,20 @@ public sealed record RegionLayout(
     /// <summary>The region's authored resource nodes (M3f).</summary>
     public ImmutableArray<NodeSite> Nodes { get; init; } = ImmutableArray<NodeSite>.Empty;
 
+    /// <summary>The wards set across the region's passages (D23 S7, STEALTH.md 10).</summary>
+    public ImmutableArray<WardSite> Wards { get; init; } = ImmutableArray<WardSite>.Empty;
+
+    /// <summary>The region's authored stealth routes (D23 S6, STEALTH.md 8.1).</summary>
+    public ImmutableArray<StealthRouteSite> Routes { get; init; } = ImmutableArray<StealthRouteSite>.Empty;
+
     /// <summary>The region's crafting stations (M3f).</summary>
     public ImmutableArray<StationSite> Stations { get; init; } = ImmutableArray<StationSite>.Empty;
+
+    /// <summary>
+    /// The makers whose work this region's loot rolls (GEAR_GENERATION section 11: the place picks the maker, not the level). Empty means any maker
+    /// whose part sets cover the family, taken in id order.
+    /// </summary>
+    public ImmutableArray<string> GearMakers { get; init; } = ImmutableArray<string>.Empty;
 
     /// <summary>The region's named NPCs, each where they stand (M4).</summary>
     public ImmutableArray<NpcSite> Npcs { get; init; } = ImmutableArray<NpcSite>.Empty;
@@ -197,6 +211,19 @@ public sealed record RegionLayout(
 
     /// <summary>Cover volumes (STEALTH §2.3): what a body can be partly behind, and at what posture.</summary>
     public ImmutableArray<CoverVolume> Covers { get; init; } = ImmutableArray<CoverVolume>.Empty;
+
+    /// <summary>
+    /// The stealth placements a region authors besides routes and covers (STEALTH.md 8.2, 10): a patrol loop with its period and blind
+    /// spot, a wind exposure, a kennel and its handler, and the place a non-lethal run leaves a living body. They are content facts the
+    /// audit and the mission layer read; nothing in the tick drives movement from them yet.
+    /// </summary>
+    public ImmutableArray<StealthPlacement> Placements { get; init; } = ImmutableArray<StealthPlacement>.Empty;
+
+    /// <summary>The patrols the area authors (STEALTH §8.2): the guards and the rounds they walk, which the NPC tier simulation drives.</summary>
+    public ImmutableArray<PatrolSite> Patrols { get; init; } = ImmutableArray<PatrolSite>.Empty;
+
+    /// <summary>The ground where the air moves its own way (STEALTH §4.6): the wind a nose and a shot are read against.</summary>
+    public ImmutableArray<WindSite> Winds { get; init; } = ImmutableArray<WindSite>.Empty;
 
     /// <summary>What the ground is made of, patch by patch (STEALTH §3.1): the one place a footfall's carry is decided by the floor.</summary>
     public ImmutableArray<SurfacePatch> Surfaces { get; init; } = ImmutableArray<SurfacePatch>.Empty;

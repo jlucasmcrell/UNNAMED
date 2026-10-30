@@ -1,0 +1,9 @@
+id: world.ward.hollow_bell
+kind: world_flag
+schema: 1
+display_key: world.ward.hollow_bell.name
+tags: [world_flag, stealth]
+notes: "D23 S6 (HOOK.STEALTH.ALARM): set when the yard bell is rung. The creatures' alarm and the law both read it."
+type: bool
+default: false
+owning_system: S-19

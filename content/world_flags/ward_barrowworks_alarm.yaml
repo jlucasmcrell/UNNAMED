@@ -1,0 +1,9 @@
+id: world.ward.barrowworks_alarm
+kind: world_flag
+schema: 1
+display_key: world.ward.barrowworks_alarm.name
+tags: [world_flag, stealth]
+notes: "D23 S7 (STEALTH.md 10): set when a ward in the Barrowworks is crossed. The creatures' alarm and the law both read it, so a tripped ward is a world fact rather than a popup."
+type: bool
+default: false
+owning_system: S-19

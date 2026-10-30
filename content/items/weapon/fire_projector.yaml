@@ -1,0 +1,21 @@
+id: item.weapon.fire_projector
+kind: item.weapon
+schema: 1
+display_key: item.weapon.fire_projector.name
+tags: [weapon, tech, projector, fire]
+name: Fire Projector
+notes: "A flame projector: the fire family's short-range cone, burning after the burst (GEAR_GENERATION 4.1.1)."
+category: weapon
+stack_max: 1
+weight: 3.4
+value_base: 120
+item_class: ordinary
+damage: [6, 9]
+damage_type: fire
+attack_speed: 0.71
+reach: 6.0
+hands: two
+skill_ref: skill.projector
+durability_max: 120
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: projector.fire, maker_ref: maker.constructed.caldera_works, part_tier: 2 }

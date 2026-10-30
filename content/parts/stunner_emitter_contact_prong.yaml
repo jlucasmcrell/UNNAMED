@@ -1,0 +1,15 @@
+id: part.stunner.emitter.contact_prong
+kind: part
+schema: 1
+display_key: part.stunner.emitter.contact_prong.name
+tags: [emitter, stun]
+name: Contact Prong
+notes: "Two prongs and a short arc: shock at low damage and a brief interrupt."
+noun: "stun device"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: stunner
+slot: emitter
+mesh: mesh.part.stunner.emitter.contact_prong
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.2, speed_mult: 1.0, durability_add: 0 }
