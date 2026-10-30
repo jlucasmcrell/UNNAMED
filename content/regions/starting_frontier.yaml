@@ -150510,6 +150510,13 @@ structures:
 - id: cw_pond_stone_4
   circle_m: [950.0, 711.0, 0.7]
   height_m: 0.36
+# D18: the village's own waystone, at the south gate where the road comes in.
+- id: rock_cairnwold_stone
+  circle_m:
+  - 941.7
+  - 635.8
+  - 0.9
+  height_m: 2.4
 doors:
 - key: door.longhouse
   flag_ref: world.hollow.longhouse_door_open
@@ -151309,6 +151316,27 @@ stations:
   position_m:
   - 556.7
   - 652.7
+# D18: the trades Cairnwold's dossier asks a village for and the build had no station for.
+- key: station.cw_alembic
+  kind: alembic
+  position_m:
+  - 977.0
+  - 663.6
+- key: station.cw_tanning
+  kind: tanning_rack
+  position_m:
+  - 982.0
+  - 686.6
+- key: station.cw_archive
+  kind: archive
+  position_m:
+  - 956.2
+  - 639.6
+- key: station.cw_notice_board
+  kind: notice_board
+  position_m:
+  - 956.4
+  - 645.0
 switches:
 - key: switch.old_late_fold
   structure: old_late
@@ -152110,6 +152138,13 @@ waystones:
   arrival_m:
   - 652.2
   - 745.0
+- key: waystone.cairnwold
+  structure: rock_cairnwold_stone
+  name: Cairnwold Stone
+  location_ref: location.cairnwold.village
+  arrival_m:
+  - 948.0
+  - 632.0
 roads:
 - id: road.old_east_road
   name: Old East Road

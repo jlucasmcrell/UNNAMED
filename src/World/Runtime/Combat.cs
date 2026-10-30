@@ -644,7 +644,7 @@ internal sealed partial class CombatSystem
                 new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
-            definition.Resistances, Blocking: false, Dodging: false);
+            definition.Resistances, creature.Blocks(State.Body, attack, tick, C), creature.Dodges(tick, C));
         var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
