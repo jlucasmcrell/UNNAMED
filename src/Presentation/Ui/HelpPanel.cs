@@ -2,6 +2,7 @@
 // Godot presentation only: it reads the input map; nothing here holds state (D-11)
 
 using Godot;
+using UNNAMED.Content;
 using UNNAMED.Domain.Guidance;
 using UNNAMED.Presentation.Settings;
 
@@ -134,6 +135,8 @@ public partial class HelpPanel : CanvasLayer
             +"Sip a full flask for a little recovery; refill at a well or the stream. Rest at your fire for faster health recovery outside a fight; movement ends rest. "
             +"Bog and grey iron can be field-repaired to standard at a fire, using the repair material and skill shown on the item. "
             +"After death, choose your camp or bound Waystone. Time and weather keep moving; there are no hunger or thirst meters."));
+        // The Field Guide's own topics (SYS-166): the systems the hints teach once, readable whenever the question comes back.
+        entries.AddRange(FieldGuideContent.Entries);
         foreach (var hint in Hints?.Invoke() ?? Enumerable.Empty<HintDefinition>())
             entries.Add(FieldGuide.Of(hint, Key));
         if (Files.Length > 0)
@@ -196,6 +199,17 @@ public partial class HelpPanel : CanvasLayer
                 world.AddChild(UiKit.Words(paragraph, 16, HudStyle.Bone));
         }
         _results.AddChild(world);
+        // The guide's own topics, section by section: what the game does, in the world's voice, for when a hint has already gone by.
+        foreach (var group in FieldGuideContent.Entries.GroupBy(entry => entry.Section))
+        {
+            var topics = UiKit.Section(group.Key, $"{group.Count()} entries");
+            foreach (var entry in group)
+            {
+                topics.AddChild(UiKit.Words(entry.Title, 18, HudStyle.Bone));
+                topics.AddChild(UiKit.Words(entry.Body, 16, HudStyle.Ash));
+            }
+            _results.AddChild(topics);
+        }
         if (Files.Length > 0)
         {
             var support = UiKit.Section("Support", "what a tester sends with a problem report");
