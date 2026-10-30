@@ -50804,51 +50804,6 @@ structures:
 - id: oh_stall_0_hurdle_0
   box_m: [1619.5, 765.8, 1620.9, 765.9]
   height_m: 1.2
-- id: oh_stall_0_wall_0
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_0_wall_1
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_0_wall_2
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_0_roof
-  box_m: [0.0, 0.0, 3.6, 2.4]
-  height_m: 2.9
-- id: oh_stall_0_cart
-  box_m: [0.0, 0.0, 3.5, 1.45]
-  height_m: 1.4
-- id: oh_stall_1_wall_0
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_1_wall_1
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_1_wall_2
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_1_roof
-  box_m: [0.0, 0.0, 3.6, 2.4]
-  height_m: 2.9
-- id: oh_stall_1_cart
-  box_m: [0.0, 0.0, 3.5, 1.45]
-  height_m: 1.4
-- id: oh_stall_2_wall_0
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_2_wall_1
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_2_wall_2
-  box_m: [0.0, 0.0, 1.4, 0.15]
-  height_m: 1.2
-- id: oh_stall_2_roof
-  box_m: [0.0, 0.0, 3.6, 2.4]
-  height_m: 2.9
-- id: oh_stall_2_cart
-  box_m: [0.0, 0.0, 3.5, 1.45]
-  height_m: 1.4
 - id: oh_houseb_000
   box_m: [1319.5, 593.0, 1324.5, 597.0]
   height_m: 4.4
@@ -54130,28 +54085,28 @@ structures:
   - 1134.0
   height_m: 1.4
 - id: oh_gate_stone_0
-  circle_m: [594.00, 3.20, 1.14]
+  circle_m: [1238.00, 594.00, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_1
-  circle_m: [612.38, 3.20, 1.14]
+  circle_m: [1230.38, 612.38, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_2
-  circle_m: [620.00, 3.20, 1.14]
+  circle_m: [1212.00, 620.00, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_3
-  circle_m: [612.38, 3.20, 1.14]
+  circle_m: [1193.62, 612.38, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_4
-  circle_m: [594.00, 3.20, 1.14]
+  circle_m: [1186.00, 594.00, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_5
-  circle_m: [575.62, 3.20, 1.14]
+  circle_m: [1193.62, 575.62, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_6
-  circle_m: [568.00, 3.20, 1.14]
+  circle_m: [1212.00, 568.00, 1.14]
   height_m: 1.71
 - id: oh_gate_stone_7
-  circle_m: [575.62, 3.20, 1.14]
+  circle_m: [1230.38, 575.62, 1.14]
   height_m: 1.71
 - id: oh_cistern_lip_0
   circle_m: [684.00, 1.20, 0.3]

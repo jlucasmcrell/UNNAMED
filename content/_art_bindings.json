@@ -9444,11 +9444,6 @@
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
     },
-    "oh_stall_0_cart": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 2: the stall's own cart."
-    },
     "oh_stall_1_hurdle_0": {
       "model": "cw_hurdle_fence",
       "material": "wood",
@@ -9484,11 +9479,6 @@
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
     },
-    "oh_stall_1_cart": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 2: the stall's own cart."
-    },
     "oh_stall_2_hurdle_0": {
       "model": "cw_hurdle_fence",
       "material": "wood",
@@ -9523,11 +9513,6 @@
       "model": "cw_roof_thatch",
       "material": "wood",
       "note": "Gate 2: the stall's thatch over its counter."
-    },
-    "oh_stall_2_cart": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 2: the stall's own cart."
     }
   },
   "doors": {
