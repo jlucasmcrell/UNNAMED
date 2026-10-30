@@ -215,7 +215,7 @@ public partial class Main
                 // Walk in short stretches and read as we go: sign lies where the animals went, and a read reaches six metres.
                 if ((_frame - _stepFrame) % 40 < 20)
                     Press("move_forward");
-                if (_read is { Readable: true } read)
+                if (_read is { Readable: true, Count: > 0 } read)
                 {
                     _moments.Add($"- tick {read.Tick}: read **{read.Count} went {read.BearingMdeg} mdeg, {read.AgeTicks} ticks old**");
                     Shot("01_read");
