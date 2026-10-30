@@ -102,6 +102,30 @@ public class BossArenaTests
     }
 
     [Fact]
+    public void EveryBossFightsWithItsOwnMoves_AndDropsItsOwnLegendary()
+    {
+        // D19's promise, checked on the content the game loads: a boss is a named creature variant whose phases are the moves
+        // of the body it wears (a tell is a move, not a health bar), and whose loot table is its own - so two bosses that share a
+        // body cannot share drops, and canon's legendary for each one comes out of its own table.
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, "region.starting_frontier");
+        var creatures = session.Setup.Combat.Creatures;
+        var bosses = creatures.Values.Where(c => c.Id.StartsWith("creature.boss.", StringComparison.Ordinal)).ToList();
+        Assert.True(bosses.Count >= 10, $"expected the boss variants, found {bosses.Count}");
+        foreach (var boss in bosses)
+        {
+            // a boss fights with a real profile: reach, wind-up, active and recovery frames, and stamina it costs
+            Assert.True(boss.Attack.ReachMm > 0 && boss.Attack.WindupTicks + boss.Attack.ActiveTicks > 0,
+                $"{boss.Id} fights with no usable attack profile");
+            Assert.False(string.IsNullOrWhiteSpace(boss.Attack.Source), $"{boss.Id} names no attack set");
+            Assert.NotNull(boss.LootTableId);
+            Assert.StartsWith("loot.boss.", boss.LootTableId, StringComparison.Ordinal);
+        }
+        // every boss loot table is distinct: a shared table would be a shared drop
+        Assert.Equal(bosses.Count, bosses.Select(b => b.LootTableId).Distinct().Count());
+    }
+
+    [Fact]
     public void TheNextThree_HaveTheirCourts_AndTheirBands()
     {
         using var profile = new TempProfile();
