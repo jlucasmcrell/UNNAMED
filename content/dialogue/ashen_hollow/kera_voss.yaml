@@ -351,7 +351,7 @@ nodes:
         text: "It's done."
         next: again
   lesson:
-    text: "Good! Then bring me iron. Blackvein Cut - the old quarry, south off the road. There's a seam on the floor of it; break me some ore out. Ore goes in the hearth and comes out a billet, if you keep the fire honest. A billet and a straight ash haft - Charwood's thick with ash - and the anvil makes you a spear. Make it yourself, bring it here, and I'll tell you the truth about it. And don't blame the iron. It's always the hands."
+    text: "Good! Then bring me iron. Blackvein Cut - the old quarry, south off the road. There's a seam on the floor of it, black, like somebody spilled the night on it. Break me some out. Ore in that hearth, billet out of it, and a straight ash haft from Charwood makes you a spear. Bring it here and I'll tell you the truth about it. And don't blame the iron. It's always the hands."
     once: true
     next_if_exhausted: again
     choices:
@@ -370,7 +370,7 @@ nodes:
     next_if_exhausted: again
     choices:
       - id: back
-        text: "Thank you."
+        text: "Don't thank me. Bring me the next one."
         next: again
   judged:
     text: "Hm. It'll hold. Mostly. See here - the socket's loose, you hurried the quench. Don't be sorry, be slower. The next one'll be better. They always are, if you're paying attention."
@@ -381,7 +381,7 @@ nodes:
         text: "I'll try again."
         next: again
   wings:
-    text: "Something behind her shoulders shifts under the harness, like a sail deciding against it. \"They fold. They're not for flying - not in this air, and not with my supper in me. Good for coming down off a roof slow. Good for keeping the forge draught off in winter. Don't touch them. I'd take your arm off, and then I'd feel bad, and then where would we be.\""
+    text: "Something behind her shoulders shifts under the harness, like a sail deciding against it. \"Careful - they're load-bearing.\" She flexes one, and the anvil dust lifts off the floor and settles again. \"Not for flying. For landing. There's a difference, and the difference is who walks away.\" She turns back to the work. \"They ask me if I fly. I ask them if they walk everywhere on purpose.\""
     choices:
       - id: back
         text: "Hands to myself."
@@ -467,7 +467,7 @@ nodes:
     text: "Ha! Rusty, lumpy, perfect. Coin's on the bench - and don't count it in front of me, it's rude."
     choices:
       - id: back
-        text: "Thanks, Kera."
+        text: "Coin's on the bench. Go on, count it."
         next: again
   fletching:
     text: "Arrows! A smith's afterthought - so think about them after. Split an ash haft into shafts, feather them - hen feathers do, the hens won't miss them - and that's a dozen. A bow's two hafts, a small hide for the grip and a string. Spin the string from the cotton grass in Cairnwold's moss. Or don't, and find out why you should. Bench, not my anvil."

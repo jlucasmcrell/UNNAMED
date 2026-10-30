@@ -24,9 +24,9 @@ nodes:
         text: "Less of it?"
         next: complaint
       - id: leave
-        text: "Not today."
+        text: "Not today. The rope can drip a while longer."
   again:
-    text: "Still drawing. Still thinner than it was. Still nobody listening - present company possibly excepted."
+    text: "Still drawing. Still thinner than it was. Still nobody listening - present company possibly excepted. \"A Kal smith told me this water was structurally honest. Thirty years and I still don't know if that was a kindness.\""
     choices:
       - id: bog_return
         text: "I brought three ashbloom."
@@ -118,7 +118,7 @@ nodes:
     next_if_exhausted: again
     choices:
       - id: back
-        text: "I will."
+        text: "Grey root, grey stem, grey leaf. I'll not wash it."
         next: again
   herbs:
     text: "\"Ashbloom in the wet, heather on the dry, and bog-cotton wherever you'll sink if you stand still to admire it.\" She ticks them off on wet fingers. \"And up in the moss, some nights, something that glows that I've no name for and don't intend to pick. Tam tried counting the lights. I'd rather know what they are than how many.\""

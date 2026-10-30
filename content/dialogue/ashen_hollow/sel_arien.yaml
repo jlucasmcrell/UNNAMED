@@ -42,7 +42,7 @@ nodes:
           - { kind: visited, node: barrowworks_report, not: true }
         next: barrowworks_report
   again:
-    text: "You again. Good. I've been talking to the stones, and they make poor witnesses."
+    text: "You again. Good. I've been talking to the stones, and they make poor witnesses. \"A Kal's wings are a ratio problem, not a mystery - more weight than surface, and not one of them has ever admitted it.\""
     choices:
       # Offered until the notes have changed hands: leaving her at the offer, a full pack or a load in between loses nothing. A save that
       # already carries them is not offered a second copy.
@@ -311,7 +311,7 @@ nodes:
     text: "\"Not the Primer - Berrin keeps that, in Cairnwold, if he can find the shelf. This is mine.\" She takes a gathering of pages from the back of her ledger and tears it free along a line she has clearly folded many times. \"A fair copy of the one working I trust in the field. Brace Ward. It holds the body for a few breaths while the ground decides what it's doing. Read it once and it stays with you. And don't push past what your body can hold. I've seen what that costs; I'll swear to it.\""
     choices:
       - id: take
-        text: "Thank you. I'll be careful."
+        text: "I'll be careful. And I'll read it twice."
         consequences:
           - { command: transfer_item, item_ref: item.tome.field_notes, count: 1, to: player }
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.sel_arien, dimension: trust, delta: 5, event: given_the_notes }
@@ -323,7 +323,7 @@ nodes:
         text: "I will."
         next: again
   foldscar:
-    text: "Foldscar. Three standing stones around something that isn't there any more - or isn't here. I have guesses about what they were for. I've graded them, and none is better than one chance in three, so I don't say them aloud."
+    text: "Foldscar. Three standing stones round something that isn't there any more - or isn't here. Stand in the middle and the cold comes off the wrong side. I've graded a dozen guesses about what they were for and none is better than one in three, so I keep them to myself."
     choices:
       - id: tavar
         text: "Something out there is wrong. What is it?"
@@ -371,7 +371,7 @@ nodes:
     text: "Past your tolerance a working takes it out of your body instead. It won't refuse you. That's the danger. I've seen it, so I'll swear to that much."
     choices:
       - id: back
-        text: "I'll remember."
+        text: "So it spends me instead of refusing. I'll remember."
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
   spill:

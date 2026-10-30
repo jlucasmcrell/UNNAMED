@@ -239,12 +239,12 @@ nodes:
         text: "I will."
         next: again
   walls:
-    text: "Mortar wants lime, and lime wants a kiln, and a kiln wants a man who does nothing else all summer - and nobody here has ever had a summer like that. Drystone wants a winter and two good hands. My grandfather built the long wall by the beck and swore at every stone of it; I can show you the ones he swore at hardest. They're not old, these walls. They're patient. There's a difference, and it's most of what this village is."
+    text: "Mortar wants lime, lime wants a kiln, and a kiln wants a man with nothing else to do all summer - and nobody here has ever had that summer. Drystone wants a winter and two good hands, so drystone is what we have. These walls aren't old. They're patient. There's a difference, and it's most of what this village is."
     once: true
     next_if_exhausted: again
     choices:
       - id: back
-        text: "I had not thought of it that way."
+        text: "A kiln, a lime-man and a free summer. No wonder it's stone."
         next: again
   granary:
     text: "On staddles, aye - stone legs, with a flat cap-stone on every one. A mouse runs up the leg, meets the cap, hangs there upside down thinking about its choices, and drops off. Not a pretty answer. It's kept grain dry for two hundred years, so it's the right one. Tam will tell you exactly how many years. Tam will tell you exactly how many of anything."
@@ -260,7 +260,7 @@ nodes:
     next_if_exhausted: again
     choices:
       - id: back
-        text: "Thank you."
+        text: "A line, not a scatter. I'll look at the crags again."
         next: again
   lodge_book:
     text: "\"The lodge book. Everyone who's sat by this fire, near enough - births, burials, who owes who a ewe. Strangers too.\" He wets the pen. \"Name?\" You give it. He writes it slowly, then reads it back aloud, the way people here say names - as if it might need to last. \"There. Now you've been here. You'd be surprised how few can say that and prove it.\""
@@ -288,7 +288,7 @@ nodes:
         text: "Three hands and a name. I'll remember."
         next: again
   personal:
-    text: "Keeps me? Ha. Nothing keeps me - I keep it. That's a Veth joke; it's funnier if you're Veth. Someone has to remember why the doors are where they are, and Tam counts what comes in, and I remember who brought it. Only... I've started writing things down twice. Don't tell Tam. She'll want to count them."
+    text: "Keeps me? Ha. Nothing keeps me - I keep it. That's a Veth joke; it's funnier if you're Veth. Someone has to remember why the doors are where they are, and Tam counts what comes in, and I remember who brought it. Only... I've started writing things down twice. Don't tell Tam. She'll want to count them. \"A Kal smith came through with a broken wing and stayed the winter. Best work we ever had. Worst flier - and he'd tell you that himself.\""
     choices:
       - id: back
         text: "Your secret's safe."
