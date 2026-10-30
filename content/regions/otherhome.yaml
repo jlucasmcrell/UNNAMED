@@ -50741,6 +50741,120 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_mkt_000_side
+  box_m: [1578.3, 766.7, 1581.7, 766.9]
+  height_m: 1.2
+- id: oh_mkt_001_post
+  box_m: [1581.5, 769.1, 1581.8, 769.4]
+  height_m: 2.6
+- id: oh_mkt_002_side
+  box_m: [1610.3, 766.7, 1613.7, 766.9]
+  height_m: 1.2
+- id: oh_mkt_003_post
+  box_m: [1613.5, 769.1, 1613.8, 769.4]
+  height_m: 2.6
+- id: oh_mkt_004_side
+  box_m: [1642.3, 766.7, 1645.7, 766.9]
+  height_m: 1.2
+- id: oh_mkt_005_post
+  box_m: [1645.5, 769.1, 1645.8, 769.4]
+  height_m: 2.6
+- id: oh_mkt_006_side
+  box_m: [1578.3, 788.7, 1581.7, 788.9]
+  height_m: 1.2
+- id: oh_mkt_007_post
+  box_m: [1581.5, 791.1, 1581.8, 791.4]
+  height_m: 2.6
+- id: oh_mkt_008_side
+  box_m: [1610.3, 788.7, 1613.7, 788.9]
+  height_m: 1.2
+- id: oh_mkt_009_post
+  box_m: [1613.5, 791.1, 1613.8, 791.4]
+  height_m: 2.6
+- id: oh_mkt_010_side
+  box_m: [1642.3, 788.7, 1645.7, 788.9]
+  height_m: 1.2
+- id: oh_mkt_011_post
+  box_m: [1645.5, 791.1, 1645.8, 791.4]
+  height_m: 2.6
+- id: oh_mkt_cart_00
+  box_m: [1571.05, 778.4, 1572.95, 779.6]
+  height_m: 1.2
+- id: oh_mkt_cart_01
+  box_m: [1655.05, 778.4, 1656.95, 779.6]
+  height_m: 1.2
+- id: oh_mkt_cart_02
+  box_m: [1627.05, 783.4, 1628.95, 784.6]
+  height_m: 1.2
+- id: oh_mkt_goods_000
+  box_m: [1569.7, 773.7, 1570.3, 774.3]
+  height_m: 0.8999999999999999
+- id: oh_mkt_goods_001
+  box_m: [1586.62, 773.62, 1587.38, 774.38]
+  height_m: 1.05
+- id: oh_mkt_goods_002
+  box_m: [1603.75, 773.75, 1604.25, 774.25]
+  height_m: 0.8
+- id: oh_mkt_goods_003
+  box_m: [1620.84, 773.84, 1621.16, 774.16]
+  height_m: 0.62
+- id: oh_mkt_goods_004
+  box_m: [1637.7, 773.7, 1638.3, 774.3]
+  height_m: 0.8999999999999999
+- id: oh_mkt_goods_005
+  box_m: [1654.62, 773.62, 1655.38, 774.38]
+  height_m: 1.05
+- id: oh_mkt_goods_006
+  box_m: [1569.75, 779.75, 1570.25, 780.25]
+  height_m: 0.8
+- id: oh_mkt_goods_007
+  box_m: [1586.84, 779.84, 1587.16, 780.16]
+  height_m: 0.62
+- id: oh_mkt_goods_008
+  box_m: [1603.7, 779.7, 1604.3, 780.3]
+  height_m: 0.8999999999999999
+- id: oh_mkt_goods_009
+  box_m: [1620.62, 779.62, 1621.38, 780.38]
+  height_m: 1.05
+- id: oh_mkt_goods_010
+  box_m: [1637.75, 779.75, 1638.25, 780.25]
+  height_m: 0.8
+- id: oh_mkt_goods_011
+  box_m: [1569.7, 785.7, 1570.3, 786.3]
+  height_m: 0.8999999999999999
+- id: oh_mkt_goods_012
+  box_m: [1586.62, 785.62, 1587.38, 786.38]
+  height_m: 1.05
+- id: oh_mkt_goods_013
+  box_m: [1603.75, 785.75, 1604.25, 786.25]
+  height_m: 0.8
+- id: oh_mkt_goods_014
+  box_m: [1620.84, 785.84, 1621.16, 786.16]
+  height_m: 0.62
+- id: oh_mkt_goods_015
+  box_m: [1637.7, 785.7, 1638.3, 786.3]
+  height_m: 0.8999999999999999
+- id: oh_mkt_goods_016
+  box_m: [1654.62, 785.62, 1655.38, 786.38]
+  height_m: 1.05
+- id: oh_mkt_goods_017
+  box_m: [1569.75, 791.75, 1570.25, 792.25]
+  height_m: 0.8
+- id: oh_mkt_goods_018
+  box_m: [1586.84, 791.84, 1587.16, 792.16]
+  height_m: 0.62
+- id: oh_mkt_goods_019
+  box_m: [1603.7, 791.7, 1604.3, 792.3]
+  height_m: 0.8999999999999999
+- id: oh_mkt_goods_020
+  box_m: [1620.62, 791.62, 1621.38, 792.38]
+  height_m: 1.05
+- id: oh_mkt_goods_021
+  box_m: [1637.75, 791.75, 1638.25, 792.25]
+  height_m: 0.8
+- id: oh_mkt_goods_022
+  box_m: [1654.84, 791.84, 1655.16, 792.16]
+  height_m: 0.62
 - id: oh_kerb_000
   box_m: [1352.0, 594.32, 1352.46, 594.78]
   height_m: 0.24
@@ -58583,6 +58697,12 @@ roads:
   name: The Causeway Road
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs:
+- npc_ref: npc.otherhome.market_vendor
+  position_m: [1612.0, 782.0]
+  facing_deg: 180
+- npc_ref: npc.otherhome.stall_keeper
+  position_m: [1580.0, 782.0]
+  facing_deg: 0
 - npc_ref: npc.otherhome.water_carrier
   position_m: [1402.0, 604.0]
   facing_deg: 180

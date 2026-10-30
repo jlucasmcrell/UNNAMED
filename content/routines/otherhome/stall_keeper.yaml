@@ -1,0 +1,20 @@
+id: routine.otherhome.stall_keeper
+kind: routine
+schema: 1
+display_key: routine.otherhome.stall_keeper.name
+tags: [routine]
+notes: "The north row's stall, the Exchange's door when the tallies are due, and home at dusk."
+region_ref: region.otherhome
+people_ref: people.veth
+settlement: otherhome
+role: vendor
+roles: [vendor]
+work_hours: [7, 19]
+anchors:
+  home: {position_m: [1580.0, 782.0], facing_deg: 0}
+  work: {position_m: [1580.0, 780.0], facing_deg: 0}
+  exchange: {position_m: [1622.0, 774.0], facing_deg: 180}
+schedule:
+  - {hours: [7, 12], at: work}
+  - {hours: [12, 15], at: exchange}
+  - {hours: [15, 19], at: work}

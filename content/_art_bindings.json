@@ -15619,6 +15619,196 @@
       "model": "cw_cart_two_wheel",
       "material": "wood",
       "note": "Gate 2: traffic standing on the lane between the rows."
+    },
+    "oh_mkt_000_side": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's hurdle side."
+    },
+    "oh_mkt_001_post": {
+      "model": "prop_bp_lantern_post",
+      "material": "timber",
+      "note": "Gate 2: the stall's corner post."
+    },
+    "oh_mkt_002_side": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's hurdle side."
+    },
+    "oh_mkt_003_post": {
+      "model": "prop_bp_lantern_post",
+      "material": "timber",
+      "note": "Gate 2: the stall's corner post."
+    },
+    "oh_mkt_004_side": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's hurdle side."
+    },
+    "oh_mkt_005_post": {
+      "model": "prop_bp_lantern_post",
+      "material": "timber",
+      "note": "Gate 2: the stall's corner post."
+    },
+    "oh_mkt_006_side": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's hurdle side."
+    },
+    "oh_mkt_007_post": {
+      "model": "prop_bp_lantern_post",
+      "material": "timber",
+      "note": "Gate 2: the stall's corner post."
+    },
+    "oh_mkt_008_side": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's hurdle side."
+    },
+    "oh_mkt_009_post": {
+      "model": "prop_bp_lantern_post",
+      "material": "timber",
+      "note": "Gate 2: the stall's corner post."
+    },
+    "oh_mkt_010_side": {
+      "model": "cw_hurdle_fence",
+      "material": "wood",
+      "note": "Gate 2: a market stall's hurdle side."
+    },
+    "oh_mkt_011_post": {
+      "model": "prop_bp_lantern_post",
+      "material": "timber",
+      "note": "Gate 2: the stall's corner post."
+    },
+    "oh_mkt_cart_00": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: a cart brought in to the market."
+    },
+    "oh_mkt_cart_01": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: a cart brought in to the market."
+    },
+    "oh_mkt_cart_02": {
+      "model": "cw_cart_two_wheel",
+      "material": "wood",
+      "note": "Gate 2: a cart brought in to the market."
+    },
+    "oh_mkt_goods_000": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_001": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_002": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_003": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_004": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_005": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_006": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_007": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_008": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_009": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_010": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_011": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_012": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_013": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_014": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_015": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_016": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_017": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_018": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_019": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_020": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_021": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
+    },
+    "oh_mkt_goods_022": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Gate 2: goods at the stalls."
     }
   },
   "doors": {
