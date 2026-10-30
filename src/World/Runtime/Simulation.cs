@@ -703,6 +703,9 @@ public sealed class Simulation
     /// <summary>How many creatures have found the character so far: zero is what a ghost run means (STEALTH §9).</summary>
     public int StealthDetections() => _creatures.Detections;
 
+    /// <summary>How far the character reads what has noticed them, with whatever device they hold (STEALTH §10.3).</summary>
+    public long PlayerDetectionRangeMm() => _context.PlayerDetectRangeMm();
+
     /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
     public string PlayerSurface => _creatures.PlayerSurface;
 

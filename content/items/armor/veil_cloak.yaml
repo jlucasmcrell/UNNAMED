@@ -1,0 +1,18 @@
+﻿id: item.armor.veil_cloak
+kind: item.armor
+schema: 1
+display_key: item.armor.veil_cloak.name
+tags: [item]
+name: Veil Cloak
+notes: Dark cloth cut long, worn over the shoulders (STEALTH 10.1; D23 S7). It takes a fifth of a body off the eye - enough to stand at the edge of a lamp's circle and stay a shape rather than a figure.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.1
+value_base: 48
+slot: cloak
+armor_value: 0
+stealth_bonus: 0.2
+material_class: cloth
+durability_max: 120
+repair: { station: workbench, skill_ref: skill.stealth, skill_min: 2, item_ref: item.material.bog_cotton }

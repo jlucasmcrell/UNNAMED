@@ -127,7 +127,7 @@ public partial class Main
         var playerBody = _controller.Authoritative;
         double Nearness(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - playerBody.XMm, 2) + Math.Pow(c.Body.ZMm - playerBody.ZMm, 2));
         _hud.SetAwareness(simulation.Creatures
-            .Where(c => c.Alive && Nearness(c) < 30_000)
+            .Where(c => c.Alive && Nearness(c) < simulation.PlayerDetectionRangeMm())
             .OrderBy(Nearness)
             .Take(AwarenessMeter.Rows)
             .Select(c =>

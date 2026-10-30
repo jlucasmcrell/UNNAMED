@@ -252,6 +252,26 @@ internal sealed class SystemContext
     /// The best sound dampening the character is wearing (STEALTH §10.2): the largest share any worn piece takes off the step, and never more than
     /// 0.6 - what is worn can muffle a step, not remove it.
     /// </summary>
+    /// <summary>
+    /// The best cloak the character is wearing (STEALTH §10.1): the largest share of a body any worn piece takes off the eye, never more than half.
+    /// </summary>
+    public double PlayerStealthBonus() => Math.Clamp(
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.StealthBonus ?? 0)
+            .DefaultIfEmpty(0)
+            .Max(),
+        0, 0.5);
+
+    /// <summary>
+    /// How far the character can read what has noticed them: the eye's own thirty metres, plus whatever a held device adds (STEALTH §10.3).
+    /// </summary>
+    public long PlayerDetectRangeMm() => 30_000 + Math.Max(0,
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0L : Setup.Items.Catalog.Find(entry.DefId)?.DetectRangeMm ?? 0L)
+            .DefaultIfEmpty(0)
+            .Max());
     public double PlayerNoiseDampen() => Math.Clamp(
         State.Equipment.Values
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))

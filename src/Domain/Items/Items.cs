@@ -375,6 +375,15 @@ public sealed record ItemDefinition(
     public double NoiseDampen { get; init; }
 
     /// <summary>
+    /// How much of a body this worn piece takes off the eye, from <c>stealth_bonus</c> (STEALTH §10.1): a cloak of dark cloth over a still body. It is a
+    /// share, 0 to 0.5, and the best piece worn sets it rather than the sum.
+    /// </summary>
+    public double StealthBonus { get; init; }
+
+    /// <summary>How much further a held device reads what has noticed the wearer, from <c>detect_range_m</c> (STEALTH §10.3).</summary>
+    public long DetectRangeMm { get; init; }
+
+    /// <summary>
     /// It can be thrown and what it makes where it lands (STEALTH §3.2): zero for anything that cannot be thrown as a lure. The throw is a
     /// noise, not a weapon - what an observer gets is a place to look, never the thrower.
     /// </summary>

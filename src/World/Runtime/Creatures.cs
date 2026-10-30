@@ -1,4 +1,4 @@
-﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -812,9 +812,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
         long beyondZ = (long)(player.ZMm + (player.ZMm - c.Body.ZMm) / len * SilhouetteBeyondMm);
         bool silhouetted = Visibility.Silhouetted(band, LitAt(beyondX, beyondZ));
         double factor = Visibility.Factor(rules, band, nightSight, fraction, posture, peripheral, silhouetted);
-        // Bright gear and gilt read at a distance in good light (STEALTH §3.3).
+        // Bright gear and gilt read at a distance in good light (STEALTH §3.3), and a cloak takes a share back (STEALTH §10.1).
         double penalty = _context.PlayerStealthPenalty();
-        return penalty > 0 ? factor * (1 + penalty) : factor;
+        if (penalty > 0)
+            factor *= 1 + penalty;
+        double cloak = _context.PlayerStealthBonus();
+        return cloak > 0 ? factor * (1 - cloak) : factor;
     }
 
     /// <summary>The cover that hides most of a body where it stands, at its posture (STEALTH §2.3).</summary>

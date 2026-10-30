@@ -221,6 +221,10 @@ public static class ItemContent
             ThrowRangeMm = map.ContainsKey("throw_range_m") ? (long)Math.Round(Number(map, "throw_range_m") * 1000, MidpointRounding.AwayFromZero) : 0,
             // A sound dampener (STEALTH §10.2): what a worn thing takes off the footstep, as a share of the radius, 0 to 0.6.
             NoiseDampen = map.ContainsKey("noise_dampen") ? Number(map, "noise_dampen") : 0,
+            // A cloak that hides (STEALTH §10.1): the share of a body it takes off the eye, 0 to 0.5, worn rather than carried.
+            StealthBonus = map.ContainsKey("stealth_bonus") ? Number(map, "stealth_bonus") : 0,
+            // A detection device (STEALTH §10.3): how much further the wearer reads what has noticed them, in metres.
+            DetectRangeMm = map.ContainsKey("detect_range_m") ? Grams(map, "detect_range_m") : 0,
         };
     }
 
