@@ -85,7 +85,9 @@ def main(body_file,part_file,refit):
         probe=Vector(p);hit=cloth.find_nearest(probe)
         if hit[0] is not None and hit[3]<=.02 and ((probe-hit[0]).dot(hit[1])<.001 or hit[3]<=.008):covered.add(i)
         outward=Vector(normals[i]).normalized();ray=cloth.ray_cast(probe,outward,.6)
-        if ray[0] is not None and ray[1].dot(outward)>0:covered.add(i)
+        # A thick garment's authored lining faces inward. It still covers skin;
+        # an outward ray need not reach an outward-facing triangle first.
+        if ray[0] is not None:covered.add(i)
     painted=[];exposed=[]
     for face in triangles(body,bp):
         uv_face=[value for i in face for value in (float(uv[i,0]),float(1-uv[i,1]))]
