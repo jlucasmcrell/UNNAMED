@@ -942,9 +942,15 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private bool BodyHidden(CreatureState corpse)
     {
         var layout = _context.Setup.LayoutFor(corpse.Site.Space);
+        // Water swallows it, a chest holds it, and cover hides it (STEALTH §6.3): the brief's hiding places, three of them read here.
         return SunkInWater(_context.Setup.SpaceFor(corpse.Site.Space), corpse.Body.XMm, corpse.Body.ZMm)
-            || layout.Covers.Any(cover => cover.HidesBody && cover.Holds(corpse.Body.XMm, corpse.Body.ZMm));
+            || layout.Covers.Any(cover => cover.HidesBody && cover.Holds(corpse.Body.XMm, corpse.Body.ZMm))
+            || layout.Containers.Any(box => Near(box, corpse.Body));
     }
+
+    /// <summary>A body lying at a chest or a barrel is in it, as far as anyone walking past is concerned (STEALTH §6.3).</summary>
+    private static bool Near(ContainerSite box, Body body) =>
+        (long)Math.Sqrt(Math.Pow(box.XMm - body.XMm, 2) + Math.Pow(box.ZMm - body.ZMm, 2)) <= 1_200;
 
     /// <summary>
     /// Carry a body into cover (STEALTH §6.3). Only a corpse within reach can be taken, and only if there is a hiding place near it: the body is
