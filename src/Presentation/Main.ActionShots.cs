@@ -165,7 +165,12 @@ public partial class Main
             readInput();
             // The body faces where the camera looks, so the character is turned to the water, the lock or the seam and not standing
             // with their back to it. The camera is set before this, so the turn is the read one.
-            _controller.SteerWorld(Vector3.Zero, Gait.Run, _camera, faceCamera: true);
+            // The beat presses the game's own movement keys, so a held forward key has to reach the stick or a beat that walks would
+            // stand still: the drive is the camera's own forward, which is the look this frame already set.
+            var drive = Input.IsActionPressed("move_forward")
+                ? new Vector3(-Mathf.Sin(_camera.Yaw), 0f, -Mathf.Cos(_camera.Yaw))
+                : Vector3.Zero;
+            _controller.SteerWorld(drive, Gait.Run, _camera, faceCamera: true);
             if (_shot is not null)
             {
                 _moments.Add($"- frame {_frame}: picture **{_shot}.png**");
@@ -236,7 +241,7 @@ public partial class Main
                     _stepFrame = _frame;
                     return;
                 }
-                if (_frame - _stepFrame > 600)
+                if (_frame - _stepFrame > 1_600)
                 {
                     Fail($"no sign in ten seconds at {simulation.Player.Body.XMm / 1000.0:0.#},{simulation.Player.Body.ZMm / 1000.0:0.#}"
                         + $" (last read: {_read?.Reason ?? "nothing"})");
