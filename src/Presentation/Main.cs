@@ -978,7 +978,8 @@ public partial class Main : Node3D
         {
             // First entry: the ring's figures, its sound beds and its pipelines, once for the session.
             _creatures = _interiorCreatures = new CreaturesView { Name = "InteriorCreatures" };
-            _interiors[_session.Simulation!.ActiveLayout.SpaceId].Creatures = _creatures;
+            if (_interiors.TryGetValue(_session.Simulation!.ActiveLayout.SpaceId, out var bootedRoom))
+                bootedRoom.Creatures = _creatures;
             _creatures.Bind(_art, bindings);
             _interior!.AddChild(_creatures);
             // The ring's figures exist from the moment the interior does: a frozen capture (and the audit's target
@@ -1076,7 +1077,9 @@ public partial class Main : Node3D
             _interior.Visible = true;
             _avatar.Position = new Vector3(50, 0, 106);
             _creatures.Draw(_session.Simulation!, 0, 0);
-            foreach (var room in _interiors[BarrowworksSpace].Layout.Space.Blockers.OfType<BoxBlocker>()
+            if (!_interiors.TryGetValue(BarrowworksSpace, out var ringRoom))
+            return;
+        foreach (var room in ringRoom.Layout.Space.Blockers.OfType<BoxBlocker>()
                          .Where(b => b.Id.Length > 4 && b.Id[0] == 'r' && b.Id.Contains("_wall", StringComparison.Ordinal))
                          .GroupBy(b => b.Id[..3]))
             {
