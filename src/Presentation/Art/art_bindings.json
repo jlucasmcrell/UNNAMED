@@ -6198,6 +6198,8 @@
  "icons": {
   "item.consumable.salve_minor": "ui.item.restorative",
   "item.weapon.hunting_bow": "ui.item.hunting_bow",
+    "item.weapon.marksman_rifle": "ui.item.hunting_bow",
+    "item.weapon.sleep_dart": "ui.item.hunting_bow",
   "item.weapon.haldas_bow": "ui.item.hunting_bow",
   "item.weapon.light_crossbow": "ui.item.hunting_bow",
   "item.weapon.knife_brace": "ui.item.iron_dagger",
