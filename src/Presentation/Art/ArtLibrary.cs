@@ -855,7 +855,9 @@ public sealed class ArtLibrary
         foreach (var entry in meshes)
         {
             var mesh = entry.Mesh;
-            if (mesh is null || mesh.GetBlendShapeCount() > 0) continue;
+            // Only an ImporterMesh has GenerateLods; the glTF importer hands back an ArrayMesh in a packaged build, and the
+            // call on that faults natively (SEHException, seen on the 6900XT farm while the editor build was fine).
+            if (mesh is not ImporterMesh || mesh.GetBlendShapeCount() > 0) continue;
             long indices = 0;
             bool existing = false;
             for (int surface = 0; surface < mesh.GetSurfaceCount(); surface++)
