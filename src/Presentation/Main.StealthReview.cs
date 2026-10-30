@@ -236,7 +236,7 @@ public partial class Main
                     await Approach((yard.XMm, yard.ZMm), within: 2_000, seconds: 14);
                     await Walk(Vector3.Zero, Gait.Walk, 0.6);
                     _controller.Crouch(false);
-                    await Beat("under_the_lamp", "Under the yard lamp\nIn the light - and that is what a watch sees", 2.5);
+                    await Beat("under_the_lamp", "Past the yard lamp\nIts circle is lit; this lane is not, and the gem says so", 2.5);
                 }
             }
 
@@ -326,9 +326,16 @@ public partial class Main
     {
         await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
         var image = GetViewport().GetTexture().GetImage();
-        image.SavePng(Path.Combine(directory, "frames", $"f{frame:00000}.png"));
+        // The sequence is a downscaled JPEG and the stills are full-size PNGs: saving 1.4 MB of lossless PNG per frame made the first pass a
+        // three-second timelapse of a hundred-second route, which is not the real-time video the phase asks for. Timing is recorded beside the
+        // frames so the stitcher can play them at the speed they happened.
+        var small = image.Duplicate() as Image ?? image;
+        small.Resize(Math.Min(1280, image.GetWidth()), Math.Min(720, image.GetHeight()), Image.Interpolation.Bilinear);
+        small.SaveJpg(Path.Combine(directory, "frames", $"f{frame:00000}.jpg"), 0.82f);
         if (stillName is not null)
             image.SavePng(Path.Combine(directory, "still_" + stillName + ".png"));
+        File.AppendAllText(Path.Combine(directory, "frames.log"),
+            $"{frame}\t{Time.GetTicksMsec() / 1000.0:0.000}{System.Environment.NewLine}");
         return stillName ?? string.Empty;
     }
 }

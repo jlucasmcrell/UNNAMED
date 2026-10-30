@@ -1,4 +1,4 @@
-﻿// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
+// UNNAMED World - creatures at run time: spawners, perception, behaviour roles, corpses and respawn
 // (SYSTEMS.md S-23, S-31; STEALTH_DETECTION_AND_THREAT.md §1-§7, §16; PROTOTYPE.md §4.1, §7.4; M3d)
 // No Godot references - pure C#
 
@@ -602,11 +602,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
             },
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
-        if (combat.Action.Kind == ActionKind.Attack && !Ranged(combat.Action) && phase is CombatPhase.Windup or CombatPhase.Active)
-            radius = Math.Max(radius, SwingNoise());
-        // The ground decides how far a step carries before the skill gets a say (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8).
+        // The ground decides how far a STEP carries (STEALTH §3.1: gravel 1.5, metal 1.8, grass 0.8) - and only a step: a bowstring twangs the same
+        // on gravel as on grass. A swing is heard at the weapon's own swing radius and a shot at its own shot radius, which is the loudest thing a
+        // stealth player does and has to show on the HUD's ring while it is in the air (STEALTH §2.7).
         if (radius > 0)
             radius = Math.Max(1, (long)Math.Round(radius * UNNAMED.Domain.Spatial.Surfaces.Factor(PlayerSurface), MidpointRounding.AwayFromZero));
+        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
+            radius = Math.Max(radius, Ranged(combat.Action) ? ShotNoiseMm() : SwingNoise());
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         return radius > 0 ? Math.Max(1, (long)Math.Round(radius * StealthNoiseFactor(), MidpointRounding.AwayFromZero)) : 0;
     }
@@ -623,6 +625,14 @@ internal sealed class CreatureSystem : IAbstractAdvance
             : Setup.Noise.SwingMm;
 
     private static bool Ranged(ActionState action) => action.Attack is { Ranged: true };
+
+    /// <summary>How far the weapon in hand is heard loosing (STEALTH §7.8): a bow's twang, a crossbow's thunk, a thrown knife's hush.</summary>
+    private long ShotNoiseMm() =>
+        State.Equipment.TryGetValue(EquipSlot.MainHand, out var id)
+        && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+        && _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon is { ShotNoiseMm: > 0 } weapon
+            ? weapon.ShotNoiseMm
+            : Setup.Noise.SwingMm;
 
     /// <summary>
     /// The character's stealth level, read once a tick (finding 26: the skill levels with use) rather than once per creature per tick - the
