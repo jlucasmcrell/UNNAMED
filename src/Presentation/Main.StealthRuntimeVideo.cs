@@ -70,20 +70,26 @@ public partial class Main
             if (portal is not null)
             {
                 long px = portal.ExteriorXMm, pz = portal.ExteriorZMm;
-                for (int i = 0; i < 2400; i++)
+                // The threshold can be a couple of hundred metres from where the run put the character: walk at a run until the portal is in
+                // reach, and only then take it. Arriving is what the entry needs; a straight line is enough, the ground is the world's own.
+                _controller.SteerWorld(Vector3.Zero, Domain.Spatial.Gait.Run, _camera);
+                for (int i = 0; i < 12_000; i++)
                 {
                     var body = simulation.Player.Body;
                     double dx = px - body.XMm, dz = pz - body.ZMm;
-                    if (dx * dx + dz * dz < 1_500_000)
+                    if (dx * dx + dz * dz < 900_000)
                         break;
                     _controller.SteerWorld(new Vector3((float)dx, 0, (float)dz).Normalized(), Domain.Spatial.Gait.Run, _camera);
                     await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
                 }
+                _controller.SteerWorld(Vector3.Zero, Domain.Spatial.Gait.Run, _camera);
             }
-            _session.Submit(new EnterSpaceCommand(simulation.PlayerId, entryPortal));
             var before = simulation.ActiveLayout.SpaceId;
-            for (int i = 0; i < 600 && simulation.ActiveLayout.SpaceId == before; i++)
+            _session.Submit(new EnterSpaceCommand(simulation.PlayerId, entryPortal));
+            for (int i = 0; i < 900 && simulation.ActiveLayout.SpaceId == before; i++)
                 await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            if (simulation.ActiveLayout.SpaceId == before)
+                GD.PushError($"STEALTH_RUNTIME_VIDEO: {entryPortal} did not take; filming the space the character is in");
         }
         _rcd3Driving = true;
         _npcs.SuppressPresentationForBenchmark = false;

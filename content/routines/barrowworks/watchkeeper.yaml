@@ -9,7 +9,7 @@ npc_ref: npc.barrowworks.watchkeeper
 people_ref: people.veth
 settlement: barrowworks
 role: guard
-roles: [guard]
+roles: [steward]
 work_hours: [8, 20]
 anchors:
   home: {position_m: [52, 26], facing_deg: 90}
