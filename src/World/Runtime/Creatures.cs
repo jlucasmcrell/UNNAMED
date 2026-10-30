@@ -404,6 +404,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     };
                 }
                 State.SetCreature(_owner, state);
+                // A carcass is a node only the running game holds: a body loaded as a corpse lies where it fell again, still to be skinned.
+                if (state.Condition == CreatureCondition.Corpse && definition.CarcassRef is { } carcass)
+                    _context.Dispatch(new LeaveCarcassCommand($"carcass.{state.Id}", carcass, state.Body.XMm, state.Body.ZMm));
                 // Party composition changes later. Even an untouched authored-size
                 // creature needs its spawn scale retained instead of being resized on load.
                 if (Scale is not null && State.World.Creature(key) is null) Save(state);
