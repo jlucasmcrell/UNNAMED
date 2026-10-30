@@ -6968,6 +6968,630 @@
         "attenuation": 1.2
       },
       "note": "Gate 2: the Exchange's granary on the plaza - staddled, as a store is."
+    },
+    "oh_front_a_000": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_000": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_001": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_001": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_002": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_002": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_003": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_003": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_004": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_004": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_005": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_005": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_006": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_006": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_007": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_007": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_008": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_008": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_009": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_009": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_010": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_010": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_011": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_011": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_a_012": {
+      "model": "bld_fab_cw_house_01",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
+    },
+    "oh_front_b_012": {
+      "model": "bld_fab_cw_house_02",
+      "material": "stone",
+      "yaw": 0,
+      "note": "Gate 2: a waterfront house - its door faces the sound.",
+      "interior_light": {
+        "at": [
+          2.72,
+          0.9,
+          -1.0
+        ],
+        "colour": [
+          1.0,
+          0.62,
+          0.32
+        ],
+        "energy": 1.8,
+        "range": 9,
+        "shadows": true,
+        "size": 0.25,
+        "fog_energy": 0.4,
+        "attenuation": 1.2
+      }
     }
   },
   "roof_groups": [

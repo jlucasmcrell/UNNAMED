@@ -50741,6 +50741,84 @@ terrain:
     - 42.52
     - 42.56
 structures:
+- id: oh_front_a_000
+  box_m: [1303.0, 557.0, 1311.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_000
+  box_m: [1325.5, 558.0, 1330.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_001
+  box_m: [1345.0, 557.0, 1353.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_001
+  box_m: [1367.5, 558.0, 1372.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_002
+  box_m: [1387.0, 557.0, 1395.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_002
+  box_m: [1409.5, 558.0, 1414.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_003
+  box_m: [1429.0, 557.0, 1437.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_003
+  box_m: [1451.5, 558.0, 1456.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_004
+  box_m: [1471.0, 557.0, 1479.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_004
+  box_m: [1493.5, 558.0, 1498.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_005
+  box_m: [1513.0, 557.0, 1521.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_005
+  box_m: [1535.5, 558.0, 1540.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_006
+  box_m: [1555.0, 557.0, 1563.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_006
+  box_m: [1577.5, 558.0, 1582.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_007
+  box_m: [1597.0, 557.0, 1605.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_007
+  box_m: [1619.5, 558.0, 1624.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_008
+  box_m: [1639.0, 557.0, 1647.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_008
+  box_m: [1661.5, 558.0, 1666.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_009
+  box_m: [1681.0, 557.0, 1689.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_009
+  box_m: [1703.5, 558.0, 1708.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_010
+  box_m: [1723.0, 557.0, 1731.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_010
+  box_m: [1745.5, 558.0, 1750.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_011
+  box_m: [1765.0, 557.0, 1773.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_011
+  box_m: [1787.5, 558.0, 1792.5, 562.0]
+  height_m: 4.4
+- id: oh_front_a_012
+  box_m: [1807.0, 557.0, 1815.0, 563.0]
+  height_m: 6.5
+- id: oh_front_b_012
+  box_m: [1829.5, 558.0, 1834.5, 562.0]
+  height_m: 4.4
 - id: oh_quay_barrel_000
   box_m: [1266.67, 813.69, 1267.29, 814.31]
   height_m: 0.95
