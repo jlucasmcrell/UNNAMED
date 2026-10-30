@@ -202,7 +202,9 @@ public partial class Main
             await Rcd3Wait(1.2);
 
             // The fixture's own kit out of the pack and into the hands, through the command a player's click submits.
-            foreach (string wantedItem in new[] { "item.weapon.hunting_bow", "item.weapon.iron_dagger", "item.tool.torch" })
+            // The bow and the blade only: the torch stays in the pack until the beat that lights it, because a lit torch is a light standing where
+            // the body is and it would flatten every reading before that (STEALTH §2.2).
+            foreach (string wantedItem in new[] { "item.weapon.hunting_bow", "item.weapon.iron_dagger" })
                 if (sim.Player.Inventory.FirstOrDefault(e => e.DefId == wantedItem) is { } entry)
                 {
                     rejected.Clear();
@@ -243,6 +245,15 @@ public partial class Main
             {
                 await Walk(Vector3.Forward, Gait.Walk, 1.4);
                 await Beat("open_ground", "Standing in the open\nThe same body, worth more to a pair of eyes", 1.8);
+            }
+
+            // 4b. The torch out of the pack: the same body, the same lane, and the gem climbing because the player chose to carry a light.
+            if (wanted("torch") && sim.Player.Inventory.FirstOrDefault(e => e.DefId == "item.tool.torch") is { } torch)
+            {
+                rejected.Clear();
+                _session.Submit(new EquipCommand(sim.PlayerId, torch.ItemId));
+                await Rcd3Wait(0.4);
+                await Beat("torch_lit", "The torch out of the pack\nCarrying a light is the loudest thing a thief does", 2.2);
             }
 
             // 5. The shot: whatever is nearest that can be shot, from behind, at the range a bow has.
