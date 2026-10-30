@@ -120,7 +120,7 @@ public class BarrowworksFrontierTests
         var rolled = Assert.Single(arena.Simulation.Player.Inventory.Where(i => i.DefId == "item.weapon.rusted_sword" && i.Built is not null));
         var build = rolled.Built!;
         Assert.Equal("sword", build.Family);
-        Assert.Equal("maker.veth.waystation_smithy", build.MakerId);
+        Assert.Equal("maker.veth.reach_smith", build.MakerId);
         Assert.Equal(4, build.Parts.Count);
         Assert.All(build.Parts.Keys, slot => Assert.Contains(slot, new[] { "blade", "guard", "grip", "pommel" }));
         Assert.NotEmpty(build.Materials);

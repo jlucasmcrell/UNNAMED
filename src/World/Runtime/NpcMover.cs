@@ -400,7 +400,8 @@ internal sealed partial class NpcSystem
             direction = ((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection));
         }
         var intent = new MoveIntent(direction.X, direction.Z, Gait.Walk, CombatRules.FacingTowards(body.XMm, body.ZMm, target.XMm, target.ZMm));
-        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Layout.Space, Obstacles(npc.Definition.Id), TickMs), landing);
+        // She walks on the ground of the space she stands in, not the character's: an exterior villager is not lifted onto an interior's floor.
+        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.LayoutFor(npc.Space).Space, Obstacles(npc.Definition.Id), TickMs), landing);
     }
 
     private static int DivRound(long numerator, long denominator) =>
