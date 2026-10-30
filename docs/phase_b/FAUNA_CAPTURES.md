@@ -38,7 +38,20 @@ Seven standpoints from `work\fauna_capture_all.ps1`, judged frame by frame:
 | `claude_cap_moor_crows` | the camera stands inside the player's own head, so the flock cannot be seen; the frame is the player's scalp and a Frost Hare banner | **unusable standpoint** - crows still not captured |
 | `claude_cap_sedge_ducks` | the sedge renders as a bare grey plane - no ground detail, no water, no ducks - on this build and asset root | **unusable** - the duck proof stands on `claude_fauna_sedge01` instead |
 | `claude_cap_field_deer` | the stand lands at the gate itself: "Animated Armour", "Gate Warden", "Gate Tender" targets and the industrial architecture, no deer | **wrong standpoint** - the deer field is not at (852,768) |
-| `claude_cap_millpond` | did not finish inside the job window | **no result** |
+| `claude_cap_millpond` | banner "MALLARD - Level 1: Even. Passive - can be hunted." over the millpond with "LANDMARK DISCOVERED: CAIRNWOLD"; the ducks are too small to make out at this range | **good for the banner**, ducks unproven here |
 
 **What the set did establish**: the elk photographed with its banner and body (`claude_cap_elk_band`), and deer standing in numbers at Old Late (four animals on
 the crop). **What it did not**: crows, the field deer, the sedge, and anything at the millpond.
+
+## Elk motion proof (2026-10-30 17:05)
+
+`claude_proof_elkvideo02` wrote 82 in-game screenshots (`--watch-shots`, every 15 frames at 60 fps, 18 s of walking the elk ground) and they are
+assembled into `F:\otherreach_captures\fauna_areas\elk_motion_proof.mp4` (20.5 s, 1280x720, 12 MB).
+
+What it shows: the "UPLAND ELK - Level 3: Hard. Neutral - can be hunted." banner over the elk ground, the camera walking the stand, and a small tan
+animal far to the left at ~7 s. **The elk is too far from the camera to judge its gait**, so this is a motion *record* of the ground, not yet a proof
+that the animal walks correctly. A closer pass is owed.
+
+The farm cannot record with the runner's desktop grab: `record: true` came back with
+`[Parsed_ddagrab] Failed to enumerate DXGI output 0 ... Error opening input file ddagrab=framerate=30`, so the frame-sequence route above is the only
+video path on that host.
