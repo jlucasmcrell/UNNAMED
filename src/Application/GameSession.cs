@@ -797,6 +797,21 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>Cross out a journal note; the reason it was refused, or null.</summary>
     public string? RemoveNote(int index) => Notes is { } notes ? notes.Remove(index) : "there is no running world";
 
+    /// <summary>Mark the ground the character stands on (GEN-01); the reason it was refused, or null.</summary>
+    public string? AddPin(string label) =>
+        Pins is { } pins && _simulation is { } simulation
+            ? pins.Add(simulation.Player.Body.XMm, simulation.Player.Body.ZMm, label, simulation.WorldTick)
+            : "there is no running world";
+
+    /// <summary>Take the pin off the ground the character stands on; the reason it was refused, or null.</summary>
+    public string? RemovePin() =>
+        Pins is { } pins && _simulation is { } simulation
+            ? pins.Remove(simulation.Player.Body.XMm, simulation.Player.Body.ZMm)
+            : "there is no running world";
+
+    /// <summary>Take a pin off at a place, for a list of marks.</summary>
+    public string? RemovePinAt(long xMm, long zMm) => Pins is { } pins ? pins.Remove(xMm, zMm) : "there is no running world";
+
     public void Subscribe<T>(Action<T> handler) => _bus.Subscribe(handler);
 
     public void Unsubscribe<T>(Action<T> handler) => _bus.Unsubscribe(handler);

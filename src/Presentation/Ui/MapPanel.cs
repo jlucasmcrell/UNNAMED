@@ -22,6 +22,8 @@ public partial class MapPanel : CanvasLayer
     private HudIcons _icons = HudIcons.None;
     private MapCanvas _canvas = null!;
     private Label _known = null!;
+    private LineEdit _pin = null!;
+    private Label _error = null!;
     private Label _date = null!;
 
     public void Bind(GameSession session) => _session = session;
@@ -52,6 +54,30 @@ public partial class MapPanel : CanvasLayer
         _sheet.Body.AddChild(legend);
         _known = UiKit.Words(string.Empty, 17, HudStyle.Ash);
         _sheet.Body.AddChild(_known);
+
+        // Your own marks (GEN-01): the same idiom the journal uses for a note - words in a field, and a button to set them down here.
+        var marks = UiKit.Section("Pins", "Your own marks on the ground you stand on. Only you see them.");
+        marks.AddThemeConstantOverride("separation", 6);
+        var row = new HBoxContainer();
+        row.AddThemeConstantOverride("separation", 10);
+        _pin = new LineEdit
+        {
+            PlaceholderText = "Mark this place",
+            MaxLength = MapPins.MaxLabel,
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        };
+        UiKit.Id(_pin, "pin.text");
+        var field = _pin;
+        void Mark() => _error.Text = _session?.AddPin(field.Text) ?? "there is no running world";
+        field.TextSubmitted += _ => Mark();
+        row.AddChild(field);
+        row.AddChild(UiKit.Action("Mark here", Mark, UiKit.Kind.Primary, compact: true, id: "pin.mark"));
+        row.AddChild(UiKit.Action("Take this one back", () => _error.Text = _session?.RemovePin() ?? "there is no running world",
+            UiKit.Kind.Destructive, compact: true, id: "pin.take"));
+        marks.AddChild(row);
+        _error = UiKit.Words(string.Empty, 16, HudStyle.Ember);
+        marks.AddChild(_error);
+        _sheet.Body.AddChild(marks);
     }
 
     public override void _Process(double delta)
