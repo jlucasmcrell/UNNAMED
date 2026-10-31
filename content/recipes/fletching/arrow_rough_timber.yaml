@@ -1,0 +1,19 @@
+id: recipe.fletching.arrow_rough_timber
+kind: recipe
+schema: 1
+display_key: recipe.fletching.arrow_rough_timber.name
+tags: [recipe]
+name: Split-Timber Arrows
+notes: One length of timber split into eight shafts, fletched with feathers and tipped with a rough iron point - the ammunition a new archer makes rather than buys.
+station: workbench
+skill_ref: skill.woodworking
+complexity: 2
+inputs:
+  - { item_ref: item.material.timber, count: 1 }
+  - { item_ref: item.material.feathers, count: 2 }
+  - { item_ref: item.material.iron_ore, count: 1 }
+outputs:
+  - { item_ref: item.ammo.arrow_rough, count: 8, quality_roll: false }
+xp_award: { xp: 10 }
+discovery:
+  experiment: true

@@ -88,16 +88,16 @@ public class CraftingContentTests
 
         Assert.Equal(new[]
         {
-            "recipe.cooking.boil_water", "recipe.cooking.herb_tea", "recipe.cooking.roast_meat", "recipe.cooking.torch",
-            "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
-            "recipe.herbal.salve_ember", "recipe.herbal.salve_ember_boneleaf", "recipe.herbal.salve_minor", "recipe.herbal.salve_minor_ashbloom",
+            "recipe.cooking.boil_water", "recipe.cooking.herb_tea", "recipe.cooking.herb_tea_ashbloom", "recipe.cooking.roast_meat", "recipe.cooking.torch", "recipe.cooking.trail_stew",
+            "recipe.fletching.arrow_rough_timber", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
+            "recipe.herbal.salve_ember", "recipe.herbal.salve_ember_boneleaf", "recipe.herbal.salve_field", "recipe.herbal.salve_minor", "recipe.herbal.salve_minor_ashbloom",
             "recipe.herbal.salve_minor_boiled",
-            "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn",
+            "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots", "recipe.leatherwork.hide_boots_deer", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn", "recipe.leatherwork.hide_cap_pelt",
             "recipe.leatherwork.hide_vest", "recipe.leatherwork.hide_vest_barrowback", "recipe.leatherwork.smith_gloves", "recipe.leatherwork.timber_shield",
             "recipe.leatherwork.wool_trousers", "recipe.outfitting.herb_pouch", "recipe.outfitting.pack_large", "recipe.outfitting.quiver",
-            "recipe.outfitting.reagent_satchel", "recipe.outfitting.satchel", "recipe.smithing.fitting_wedge", "recipe.smithing.iron_billet",
+            "recipe.outfitting.reagent_satchel", "recipe.outfitting.satchel", "recipe.outfitting.satchel_cotton", "recipe.smithing.fitting_wedge", "recipe.smithing.iron_billet",
             "recipe.smithing.lame_coif", "recipe.smithing.lame_sabatons", "recipe.smithing.lamework_jack", "recipe.smithing.march_spear",
-            "recipe.smithing.torch", "recipe.tanning.wolf_hide",
+            "recipe.smithing.torch", "recipe.tanning.leather_small_smoked", "recipe.tanning.wolf_hide",
         }, crafting.Recipes.Keys);
         Assert.Equal(("workbench", 12), (crafting.Recipes["recipe.fletching.arrows"].StationKind, crafting.Recipes["recipe.fletching.arrows"].OutputCount));
         var billet = crafting.Recipes["recipe.smithing.iron_billet"];
@@ -108,7 +108,7 @@ public class CraftingContentTests
         Assert.Equal(("anvil", 10, "item.weapon.march_spear", true, 40L), (spear.StationKind, spear.Complexity, spear.OutputItemId, spear.QualityRoll, spear.FirstTimeXp));
         Assert.Equal(new[] { new RecipeInput("item.material.iron_ingot", 1), new RecipeInput("item.material.ash_haft", 1) }, spear.Inputs.ToList());
 
-        // PROTOTYPE.md §4.1's one more of whatever a harvest gives, carried by the skill its node practises (D13 §2.7).
+        // PROTOTYPE.md Ã‚Â§4.1's one more of whatever a harvest gives, carried by the skill its node practises (D13 Ã‚Â§2.7).
         Assert.Equal(new[] { "skill.foraging", "skill.herbalism", "skill.logging", "skill.mining", "skill.skinning" },
             crafting.YieldBonuses.Select(b => b.SkillId));
         Assert.All(crafting.YieldBonuses, bonus => Assert.Equal((3, 1), (bonus.FromLevel, bonus.Amount)));

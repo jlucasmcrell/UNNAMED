@@ -1,0 +1,18 @@
+id: recipe.leatherwork.hide_cap_pelt
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_cap_pelt.name
+tags: [recipe]
+name: Pelt Cap
+notes: A grey wolf's pelt and one tanned hide - the wolf cap a first-hour hunter can make from the animal that made him.
+station: workbench
+skill_ref: skill.survival
+complexity: 3
+inputs:
+  - { item_ref: item.material.pelt_grey_wolf, count: 1 }
+  - { item_ref: item.material.leather, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_cap, count: 1, quality_roll: true }
+xp_award: { xp: 20 }
+discovery:
+  experiment: true
