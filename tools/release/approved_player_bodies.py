@@ -1,4 +1,8 @@
-"""Seal an RC's approved body buffers and remove retired player models; verify during packaging.
+"""Verify accepted native character delivery; retain the earlier MetaHuman sealing mode.
+
+HumGen packages carry an accepted_native_character_delivery manifest whose relative
+file hashes come from the accepted body/motion receipts, not from the RC candidate.
+--verify checks every native body and exact-target motion file in that manifest.
 
 Seal only a new RC assetbase, never a shared/source depot:
   python tools/release/approved_player_bodies.py ASSETBASE --approved-base APPROVED_ASSETBASE
@@ -43,6 +47,19 @@ def check(base, records):
         assert poses(document)[:len(record['node_poses'])] == record['node_poses'], f'Unapproved body pose: {path}'
 
 
+def check_native(base, records):
+    """Verify the accepted HumGen bodies and exact-target motion, never seal the candidate itself."""
+    assert records, 'No accepted native character files'
+    for relative, record in records.items():
+        path = (base / relative).resolve()
+        assert path.is_relative_to(base.resolve()), f'External character file refused: {relative}'
+        assert path.is_file(), f'Missing accepted character file: {relative}'
+        assert path.stat().st_size == record['bytes'], f'Changed character file size: {relative}'
+        with path.open('rb') as stream:
+            actual = hashlib.file_digest(stream, 'sha256').hexdigest()
+        assert actual == record['sha256'], f'Unapproved character bytes: {relative}'
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('asset_base', type=Path)
@@ -62,7 +79,12 @@ def main():
             records[aid] = dict(binary_bytes=len(binary), binary_sha256=hashlib.sha256(binary).hexdigest(),
                                 source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(), node_poses=poses(document))
     else:
-        records = json.loads(manifest.read_text())['bodies']
+        delivery = json.loads(manifest.read_text())
+        if delivery.get('kind') == 'accepted_native_character_delivery':
+            check_native(base, delivery['files'])
+            print(f"APPROVED_NATIVE_CHARACTER_FILES {len(delivery['files'])}; verified")
+            return
+        records = delivery['bodies']
     check(base, records)  # Validate all four before removing any retired files.
     retired = []
     for workspace in ('primary', 'fallback'):

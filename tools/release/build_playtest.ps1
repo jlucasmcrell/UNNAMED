@@ -93,6 +93,12 @@ $orphans | Remove-Item
 Get-ChildItem "$game\fallback" -Recurse -Directory | Sort-Object { $_.FullName.Length } -Descending | Where-Object { -not (Get-ChildItem $_.FullName -Force) } | Remove-Item -Force
 
 "--- launchers, notices, route"
+# Native HumGen motion is an external exact-target library, read beside the EXE.
+# It is neither in the PCK nor in primary/fallback; omitting it breaks packaged people.
+if (-not (Test-Path "$AssetBase\humgen_characters\mocap_motion")) { throw 'AssetBase lacks the accepted exact-target HumGen motion library' }
+Robo "$AssetBase\humgen_characters" "$game\humgen_characters"
+# Keep out-of-git art attribution as well as the repository's canonical engine notices.
+if (Test-Path "$AssetBase\THIRD_PARTY_NOTICES") { Robo "$AssetBase\THIRD_PARTY_NOTICES" "$game\THIRD_PARTY_NOTICES" }
 Robo $payload $game '/XD .git'
 Copy-Item "$here\README_TESTER.md" "$game\README.md"
 # The CMU motion-capture clips (rancidmilk pack) ship in fallback\animation\ready; their terms travel with them.
@@ -112,9 +118,12 @@ if ($LASTEXITCODE -ne 0) { throw 'Approved body verification failed; do not ship
 # check runs before primary and fallback are staged beside it, so the assembled folder is gated here.
 python "$here\check_texture_cache.py" $game "$logs\texture_cache_audit.json"
 if ($LASTEXITCODE -ne 0) { throw 'large art texture cache is missing/stale/uncompressed/downscaled (see logs\texture_cache_audit.json)' }
-foreach ($required in 'Otherreach.exe', 'PLAY.bat', 'PLAY Ultra 4K.bat', 'README.md', 'connected_route.json', 'THIRD_PARTY_NOTICES', 'content\_art_bindings.json', 'content\_scatter_rules.json', 'primary\bindings.json', 'fallback\ready') {
+# PLAY explicitly supplies content/_art_bindings.json. Test02 does not carry the
+# optional old primary/bindings.json regional override, so do not require it.
+foreach ($required in 'Otherreach.exe', 'PLAY.bat', 'PLAY Ultra 4K.bat', 'README.md', 'connected_route.json', 'THIRD_PARTY_NOTICES', 'content\_art_bindings.json', 'content\_scatter_rules.json', 'primary\manifests\approved_player_bodies.json', 'humgen_characters\mocap_motion', 'fallback\ready') {
     if (-not (Test-Path "$game\$required")) { throw "assembled folder lacks $required" }
 }
+if (-not (Get-ChildItem "$game\humgen_characters\mocap_motion" -File -Filter '*.res')) { throw 'assembled folder has no native exact-target motion libraries' }
 if (-not (Get-ChildItem $game -Directory -Filter 'data_*')) { throw 'assembled folder lacks the exe data folder' }
 if (Get-ChildItem "$game\content" -Recurse -File | Where-Object { $_.Name -like '*.before_*' -or $_.Name -eq '_forest_patch_probe.json' }) { throw 'a backup or probe file is still in content' }
 
