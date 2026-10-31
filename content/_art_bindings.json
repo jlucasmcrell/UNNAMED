@@ -15884,7 +15884,14 @@
         "walk": "walk",
         "run": "move_heavy"
       },
-      "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+      "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds.",
+      "weak_point_bone": "index",
+      "weak_point_offset_m": [
+        0,
+        0.1,
+        -0.21
+      ],
+      "weak_point_radius_m": 0.24
     },
     "creature.beast.wolf_grey_alpha": {
       "model": "creature_wm_grey_wolf_b",
@@ -17153,7 +17160,14 @@
         "walk": "walk",
         "run": "move_heavy"
       },
-      "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds."
+      "note": "MR-0175 measuring automaton: brass gauge face, iron frame and its own sweep/fall/grasp takes; the same body the Barrowworks region binds.",
+      "weak_point_bone": "index",
+      "weak_point_offset_m": [
+        0,
+        0.1,
+        -0.21
+      ],
+      "weak_point_radius_m": 0.24
     },
     "creature.boss.roam.the_grey_road": {
       "model": "creature_wm_grey_wolf_b",

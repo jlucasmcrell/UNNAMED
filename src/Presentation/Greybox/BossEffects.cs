@@ -18,12 +18,15 @@ public partial class BossEffects : Node3D
     private CreatureDefinition _definition = null!;
     private CreatureBody _figure = null!;
     private Vector3 _weakAt;
+    private Skeleton3D? _weakRig;
+    private int _weakBone;
+    private Vector3 _weakOffset;
     private string? _phase;
     private bool _fighting;
     private float _pulseAge = 3;
     private long _tick = -1;
 
-    public static BossEffects Create(CreatureDefinition definition, CreatureBody figure, ParticleRecipes recipes)
+    public static BossEffects Create(CreatureDefinition definition, CreatureBody figure, ParticleRecipes recipes, CreatureArt? look = null)
     {
         var effect = new BossEffects { Name = "BossTells:" + definition.Id, _definition = definition, _figure = figure };
         effect._floor.MaterialOverride = effect._tell;
@@ -39,6 +42,17 @@ public partial class BossEffects : Node3D
         effect._weakAt = new Vector3(box.GetCenter().X, box.Position.Y + height * y,
             behind ? box.Position.Z - .05f : box.End.Z + .05f);
         float radius = Mathf.Clamp(height * .065f, .13f, .4f);
+        if (look?.WeakPointBone is { } bone)
+        {
+            effect._weakRig = figure.FindChildren("*", nameof(Skeleton3D), true, false).OfType<Skeleton3D>()
+                .FirstOrDefault(rig => rig.FindBone(bone) >= 0)
+                ?? throw new InvalidDataException($"{definition.Id}: native weak-point bone '{bone}' is missing");
+            if (!float.IsFinite(look.WeakPointRadius) || look.WeakPointRadius <= 0 || !look.WeakPointOffset.IsFinite())
+                throw new InvalidDataException($"{definition.Id}: invalid native weak-point cue dimensions");
+            effect._weakBone = effect._weakRig.FindBone(bone);
+            effect._weakOffset = look.WeakPointOffset;
+            radius = look.WeakPointRadius;
+        }
         effect._weak = Carrier("OpenWeakPoint");
         effect._weak.Mesh = new TorusMesh { InnerRadius = radius * .76f, OuterRadius = radius, Rings = 32, RingSegments = 8 };
         effect._weak.MaterialOverride = new StandardMaterial3D
@@ -79,8 +93,16 @@ public partial class BossEffects : Node3D
         _floor.Visible = tell is not null;
         _wave.Visible = _pulseAge < 2.2f;
         _weak.Visible = fighting && view.WeakPointOpen && _definition.WeakPoint is not null;
-        _weak.GlobalPosition = _figure.ToGlobal(_weakAt);
-        _weak.Rotation = new Vector3(Mathf.Pi / 2, _figure.Rotation.Y, 0);
+        if (_weakRig is { } rig)
+        {
+            var bone = rig.GlobalTransform * rig.GetBoneGlobalPose(_weakBone);
+            _weak.GlobalTransform = new Transform3D(bone.Basis * new Basis(Vector3.Right, Mathf.Pi / 2), bone * _weakOffset);
+        }
+        else
+        {
+            _weak.GlobalPosition = _figure.ToGlobal(_weakAt);
+            _weak.Rotation = new Vector3(Mathf.Pi / 2, _figure.Rotation.Y, 0);
+        }
         if (tell is not null)
         {
             _tell.SetShaderParameter("progress", tell.Progress);

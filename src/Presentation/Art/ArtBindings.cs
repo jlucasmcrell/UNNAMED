@@ -113,6 +113,9 @@ public sealed record CreatureArt(string Model, IReadOnlyDictionary<string, strin
     public string? WeaponItem { get; init; }
     public string? BackWeaponModel { get; init; }
     public float UniformScale { get; init; } = 1f;
+    public string? WeakPointBone { get; init; }
+    public Vector3 WeakPointOffset { get; init; }
+    public float WeakPointRadius { get; init; }
     public IReadOnlyDictionary<string, float> Paces { get; init; } = new Dictionary<string, float>();
     /// <summary>How the species is drawn "plausible but wrong" over its scanned model (<see cref="OtherFauna"/>), or null as scanned.</summary>
     public FaunaLook? Fauna { get; init; }
@@ -452,6 +455,9 @@ public sealed class ArtBindings
                             WeaponItem = Text(c.Value, "weapon_item"),
                             BackWeaponModel = Text(c.Value, "back_weapon_model"),
                             UniformScale = Number(c.Value, "uniform_scale", 1),
+                            WeakPointBone = Text(c.Value, "weak_point_bone"),
+                            WeakPointOffset = c.Value.TryGetProperty("weak_point_offset_m", out var weakOffset) ? Vector(weakOffset) : Vector3.Zero,
+                            WeakPointRadius = Number(c.Value, "weak_point_radius_m", 0),
                             Paces = c.Value.TryGetProperty("paces", out var creaturePaces)
                                 ? creaturePaces.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.GetSingle()) : new Dictionary<string, float>(),
                         },

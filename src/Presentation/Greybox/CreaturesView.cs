@@ -123,7 +123,7 @@ public partial class CreaturesView : Node3D
             {
                 if (!_bossEffects.TryGetValue(creature.Id, out var effects))
                 {
-                    effects = BossEffects.Create(boss, figure, _bossRecipes ?? Art.ParticleRecipes.Load(_art.Root));
+                    effects = BossEffects.Create(boss, figure, _bossRecipes ?? Art.ParticleRecipes.Load(_art.Root), _bindings.Creatures.GetValueOrDefault(creature.DefId));
                     AddChild(effects);
                     _bossEffects[creature.Id] = effects;
                 }

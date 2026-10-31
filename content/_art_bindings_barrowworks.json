@@ -2008,7 +2008,14 @@
       "paces": {
         "walk": 1.55,
         "run": 2.2
-      }
+      },
+      "weak_point_bone": "index",
+      "weak_point_offset_m": [
+        0,
+        0.1,
+        -0.21
+      ],
+      "weak_point_radius_m": 0.24
     },
     "creature.beast.cave_hunting_spider": {
       "model": "creature_playtest_cave_spider",
