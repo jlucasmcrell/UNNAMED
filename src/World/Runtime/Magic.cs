@@ -62,7 +62,8 @@ internal sealed partial class CombatSystem
 
     /// <summary>
     /// Begin a working. Every known formula can be cast; above one's skill it costs more Strain and may fizzle, and past
-    /// one's tolerance it costs health - a risk, never a lock (MAGIC "Unsafe casting", "No spell-slot limit").
+    /// one's tolerance it costs health - a risk, never a lock (MAGIC "Unsafe casting", "No spell-slot limit"). What does lock is the
+    /// formula's own cooldown: a heavy working cannot be brought again until it is ready.
     /// </summary>
     public string? Handle(CastCommand command, long tick)
     {
@@ -76,6 +77,8 @@ internal sealed partial class CombatSystem
             return "no Resonance to work with";
         if (Busy(State.PlayerCombat.Action, tick) is { } busy)
             return busy;
+        if (State.PlayerCombat.FormulasReadyAt.TryGetValue(formula.Id, out long ready) && tick < ready)
+            return $"{formula.Id} is not ready ({ready - tick} ticks)";
         if (Focus() < formula.FocusCost)
             return "not enough Focus";
         double castTime = EffectRules.CastTimeMultiplier(EffectsOf(_player), Setup.Effects);
@@ -87,10 +90,16 @@ internal sealed partial class CombatSystem
             Action = ActionState.Begin(ActionKind.Cast, tick) with { Formula = formula },
             Blocking = false,
             LastCast = tick,
+            // The cooldown runs from the moment it is begun: a working broken off in its tell is spent, like a swing.
+            FormulasReadyAt = State.PlayerCombat.FormulasReadyAt.SetItem(formula.Id, tick + formula.CooldownTicks),
         });
         _context.Events.Publish(new CastStarted(_player, formula.Id, formula.CastTicks, tick));
         return null;
     }
+
+    /// <summary>Ticks until a working is ready again; 0 when it is ready now (the quick bar's cooldown sweep).</summary>
+    public int FormulaCooldown(string formulaId, long tick) =>
+        State.PlayerCombat.FormulasReadyAt.TryGetValue(formulaId, out long ready) && ready > tick ? (int)(ready - tick) : 0;
 
     /// <summary>
     /// The tell is over: the working takes its Strain - past tolerance, the excess in health - then fizzles or takes hold.

@@ -338,7 +338,9 @@ public partial class Main
         // A working leaves the actual casting hand; arrows retain their held-weapon offset.
         if (working && _avatar.CastPoint is { } hand) from = hand;
         from += (to - from).Normalized() * (working ? 0.1f : 0.4f);
-        string? stem = working && shot.Source.IndexOf('.') is > 0 and var dot ? "vfx." + shot.Source[(dot + 1)..] : null;
+        // A working without art of its own borrows the formula's it names, so a new formula is drawn the moment it exists.
+        string art = working ? formula!.Art : shot.Source;
+        string? stem = working && art.IndexOf('.') is > 0 and var dot ? "vfx." + art[(dot + 1)..] : null;
         _projectiles.Loose(from, to, working, shot.Target is not null, stem, terrain.HeightAtMm(shot.ToXMm, shot.ToZMm) / 1000f);
     }
 

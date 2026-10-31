@@ -160,13 +160,17 @@ public static class AvailabilityRules
         int cost = MagicRules.StrainCost(formula, skill, constants);
         var (_, backlash) = MagicRules.Settle(c.Strain, cost, c.StrainTolerance, constants);
         string domain = c.Name(formula.DomainSkillId);
+        int wait = c.CooldownSeconds(formula.Id);
         var lines = ImmutableArray.Create(
             new RequirementLine($"{formula.FocusCost} Focus", $"{c.Focus}", c.Focus >= formula.FocusCost),
-            new RequirementLine($"{domain} {formula.Complexity} to work it without a fizzle", $"{skill}", skill >= formula.Complexity));
+            new RequirementLine($"{domain} {formula.Complexity} to work it without a fizzle", $"{skill}", skill >= formula.Complexity),
+            new RequirementLine("Recovered from its last working", wait > 0 ? $"{wait} s to go" : "yes", wait <= 0));
         string? caution = backlash > 0 ? $"Past your Strain tolerance now: working it costs {backlash} health in backlash." : null;
         return c.Focus < formula.FocusCost
             ? new(AvailabilityKind.ShortOf, ReasonText.ShortWord("Focus"), ReasonText.Short("Focus", c.Focus, formula.FocusCost), lines, caution)
-            : new(AvailabilityKind.Ready, ReasonText.Ready, null, lines, caution);
+            : wait > 0
+                ? new(AvailabilityKind.Recovering, ReasonText.RecoveringWord, ReasonText.Recovering(wait), lines, caution)
+                : new(AvailabilityKind.Ready, ReasonText.Ready, null, lines, caution);
     }
 
     /// <summary>

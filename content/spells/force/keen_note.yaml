@@ -1,0 +1,18 @@
+id: spell.force.keen_note
+kind: spell
+schema: 1
+display_key: spell.force.keen_note.name
+tags: [spell]
+name: Keen Note
+notes: "Sound and concussion (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Force / Evocation\": kinetic force, heat, cold, lightning, light, sound/concussion). The cheapest working there is: a note struck at the air in front, felt rather than seen - the first thing a body is taught, because nothing about it can go badly wrong. Level-appropriate from an untrained hand (complexity 1)."
+domain: skill.force
+complexity: 1
+cost: { focus: 4, strain: 3 }
+cast_time_s: 0.3
+range_m: 12
+targeting: projectile
+cooldown_s: 1.0
+requires_skill_level: 0
+vfx: spell.force.impulse_bolt
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [4, 7] }

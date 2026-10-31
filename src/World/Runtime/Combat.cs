@@ -281,6 +281,13 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     public static PlayerCombat Rested { get; } = new(ActionState.Idle, false, 0, -1_000_000, -1_000_000, ImmutableArray<DeathRecapLine>.Empty);
 
+    /// <summary>
+    /// The tick each working is ready to be brought again: its own cooldown, per formula, so a heavy working sits out longer than a light
+    /// one. Transient, like the rest of this record - a load starts with nothing cooling.
+    /// </summary>
+    public ImmutableSortedDictionary<string, long> FormulasReadyAt { get; init; } =
+        ImmutableSortedDictionary.Create<string, long>(StringComparer.Ordinal);
+
     /// <summary>Health reached zero; the death system settles it at the end of the tick, then waits out the death before the respawn.</summary>
     public bool Defeated { get; init; }
 

@@ -1,0 +1,17 @@
+id: spell.warding.tripwire_sigil
+kind: spell
+schema: 1
+display_key: spell.warding.tripwire_sigil.name
+tags: [spell]
+name: Tripwire Sigil
+notes: "Alarms (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Warding\": ...alarms...). A ward a body sets and leaves: the Tripwire Ward, an alarm the moment it is crossed, undone by Quiet the Ward, a rune key or something crossing it first. Slower to draw than a seal and slower again to bring, because a placed alarm is meant to wait. Not offered before the Quiet Seal is known."
+domain: skill.warding
+complexity: 2
+cost: { focus: 10, strain: 7 }
+cast_time_s: 0.7
+targeting: self
+cooldown_s: 5.0
+requires_skill_level: 15
+vfx: spell.warding.brace_ward
+payload:
+  - { type: apply_effect, effect_ref: effect.ward_tripwire }

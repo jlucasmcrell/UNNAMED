@@ -1,0 +1,17 @@
+id: spell.warding.loose_the_root
+kind: spell
+schema: 1
+display_key: spell.warding.loose_the_root.name
+tags: [spell]
+name: Loose the Root
+notes: "A containment lifted (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Warding\": containment). A ward is a thing that holds a body where it stands; this working reads the one already on the caster and unpicks it, which is the same discipline turned around. Cheap for what it is, and the only answer a caster has to a herder's snare. Not offered before the Quiet Seal is known."
+domain: skill.warding
+complexity: 3
+cost: { focus: 9, strain: 7 }
+cast_time_s: 0.6
+targeting: self
+cooldown_s: 4.0
+requires_skill_level: 15
+vfx: spell.warding.brace_ward
+payload:
+  - { type: remove_effect, effect_ref: effect.root }

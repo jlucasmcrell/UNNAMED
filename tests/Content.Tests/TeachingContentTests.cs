@@ -62,7 +62,7 @@ public class TeachingContentTests
     }
 
     [Fact]
-    public void TheTeachers_AreKeraDurnTavarSelTamAndBerrin_EachWithTheirOwnLessons()
+    public void TheTeachers_AreTheOnesContentNames_EachWithTheirOwnLessons()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         Assert.Empty(loader.Errors);
@@ -71,7 +71,7 @@ public class TeachingContentTests
         Assert.Equal(new[]
         {
             "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
-            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.tam_crowden",
+            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.mara_ling", "npc.cairnwold.tam_crowden",
             "npc.otherhome.assize_sergeant", "npc.otherhome.ferryman", "npc.otherhome.harbour_smith", "npc.otherhome.porter", "npc.road.rim_keeper",
             "npc.sedge.iren_orr", "npc.sedge.nessa_reed", "npc.sedge.oren_pin", "npc.sedge.tess_ferry",
         }, npcs.Values.Where(n => !n.Teaches.IsEmpty).Select(n => n.Id));
@@ -87,6 +87,27 @@ public class TeachingContentTests
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.sedge.tess_ferry", TeachingKind.Technique));
         Assert.Equal(new[] { "recipe.herbal.salve_minor", "recipe.herbal.salve_ember" }, Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Recipe));
         Assert.Equal(new[] { "recipe.cooking.roast_meat" }, Lessons("npc.cairnwold.tam_crowden", TeachingKind.Recipe));
+        // The workings (queue #4): the survey scholar holds force and warding, the well keeper holds the body's two, and each tier above the
+        // first is asked for at a price, once familiar with the domain and already knowing the working it is built on.
+        Assert.Equal(new[]
+        {
+            "spell.force.keen_note", "spell.force.rime_pin", "spell.warding.quiet_seal",
+            "spell.force.salt_arc", "spell.warding.tripwire_sigil", "spell.warding.loose_the_root",
+        }, Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Spell));
+        Assert.Equal(new[] { "spell.vital.set_the_bone", "spell.vital.wake_the_nerve" },
+            Lessons("npc.cairnwold.mara_ling", TeachingKind.Spell));
+        Assert.All(npcs.Values.SelectMany(n => n.Teaches).Where(o => o.Kind == TeachingKind.Spell && !o.ByDialogue), o =>
+        {
+            Assert.True(o.Fee >= 0);
+            int floor = o.DefinitionId is "spell.force.keen_note" or "spell.force.rime_pin" or "spell.warding.quiet_seal" or "spell.vital.set_the_bone" ? 0 : 15;
+            if (floor == 0)
+                Assert.Empty(o.Requirements.OfType<SkillBandRequirement>());
+            else
+            {
+                Assert.Equal(floor, Assert.IsType<SkillBandRequirement>(Assert.Single(o.Requirements.OfType<SkillBandRequirement>())).MinLevel);
+                Assert.Single(o.Requirements.OfType<PrerequisiteRequirement>());
+            }
+        });
         // Berrin teaches every building piece (owner decision); Renn teaches the seven pieces that built the Wayhold.
         Assert.Equal(loader.GetByKind("piece").Keys.OrderBy(k => k, StringComparer.Ordinal),
             Lessons("npc.cairnwold.berrin_garth", TeachingKind.BuildingPiece).OrderBy(k => k, StringComparer.Ordinal));

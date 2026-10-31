@@ -117,6 +117,26 @@ public class AvailabilityTests
         Assert.StartsWith("Past your Strain tolerance now", a.Caution);
     }
 
+    [Fact]
+    public void AFormulaStillCooling_IsRecovering_AndSaysHowLong()
+    {
+        var a = AvailabilityRules.Formula(Bolt(), Magic, Context(cooldown: 3));
+        Assert.Equal(AvailabilityKind.Recovering, a.Kind);
+        Assert.Equal("Recovering: ready again in 3 s", a.Reason);
+        Assert.False(a.Ready);
+        Assert.False(a.Checklist[2].Met);   // "Recovered from its last working"
+        Assert.Equal("3 s to go", a.Checklist[2].Have);
+    }
+
+    [Fact]
+    public void AFormulaWhoseCooldownHasPassed_IsReadyAgain()
+    {
+        var a = AvailabilityRules.Formula(Bolt(), Magic, Context(cooldown: 0));
+        Assert.Equal(AvailabilityKind.Ready, a.Kind);
+        Assert.True(a.Checklist[2].Met);
+        Assert.Equal("yes", a.Checklist[2].Have);
+    }
+
     // ---- the risk read by band ----
 
     [Theory]

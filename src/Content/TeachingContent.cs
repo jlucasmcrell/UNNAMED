@@ -202,13 +202,20 @@ public static class TeachingContent
     /// </summary>
     private static object CheckSources(ContentLoader loader)
     {
+        var npcs = SocialContent.BuildNpcs(loader).Values.ToList();
         var sources = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var npc in SocialContent.BuildNpcs(loader).Values)
+        var byBook = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var npc in npcs)
             sources.UnionWith(npc.Teaches.Select(o => o.DefinitionId));
         foreach (var item in loader.GetByKind("item").Values.Concat(loader.GetByKind("item.weapon").Values).Concat(loader.GetByKind("item.armor").Values))
         {
             if (Read(item.YamlSource).GetValueOrDefault("use") is Dictionary<object, object> use && use.ContainsKey("grants"))
-                sources.UnionWith(Rows(use, "grants", item.Id).Select(g => g.GetValueOrDefault("ref") as string).OfType<string>());
+            {
+                var grants = Rows(use, "grants", item.Id).Select(g => (Id: g.GetValueOrDefault("ref") as string, Kind: g.GetValueOrDefault("kind") as string))
+                    .Where(g => g.Id is not null).ToList();
+                sources.UnionWith(grants.Select(g => g.Id!));
+                byBook.UnionWith(grants.Where(g => g.Kind == "spell").Select(g => g.Id!));
+            }
         }
         foreach (var recipe in loader.GetByKind("recipe").Values)
         {
@@ -220,6 +227,25 @@ public static class TeachingContent
         sources.UnionWith(ProgressionContent.BuildRules(loader).StartingPackage.Techniques);
         foreach (var call in CharacterContent.BuildCalls(loader).Values)
             sources.UnionWith(call.Package.Techniques);
+
+        // A working that names a skill floor is taught at it and never below it (TCH001): the floor is a band config.teaching names, a
+        // teacher offers the working at that band or above, and a book cannot hand out what a lesson would withhold.
+        var floors = MagicContent.BuildSkillFloors(loader);
+        var bands = BuildSkillBands(loader);
+        foreach (var (id, floor) in floors.Where(f => f.Value > 0))
+        {
+            if (!bands.ContainsValue(floor))
+                throw new FormatException($"{id}: requires_skill_level {floor} is not a band floor config.teaching names " +
+                                          $"({string.Join(", ", bands.Values.OrderBy(v => v))})");
+            foreach (var npc in npcs)
+            foreach (var offer in npc.Teaches.Where(o => o.Kind == TeachingKind.Spell && o.DefinitionId == id))
+            foreach (var band in offer.Requirements.OfType<SkillBandRequirement>())
+                if (band.MinLevel < floor)
+                    throw new FormatException($"{id}: needs {band.SkillId} at {floor} to be learned, but {npc.Id} offers it at {band.MinLevel} ({band.Band})");
+        }
+        foreach (string gated in byBook)
+            if (floors.TryGetValue(gated, out int floor) && floor > 0)
+                throw new FormatException($"a book cannot teach {gated}: it is gated at a {floor} skill floor, and a book has no lesson to hold it back with");
 
         var learnable = loader.GetByKind("recipe").Keys
             .Concat(loader.GetByKind("spell").Keys)

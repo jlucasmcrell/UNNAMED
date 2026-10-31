@@ -939,6 +939,9 @@ public sealed class Simulation
     /// <summary>Ticks until a technique is ready again (WP9); 0 when it is ready now.</summary>
     public int TechniqueCooldown(string techniqueId) => _combat.TechniqueCooldown(techniqueId, WorldTick);
 
+    /// <summary>Ticks until a working is ready again - its own cooldown, per formula; 0 when it is ready now.</summary>
+    public int FormulaCooldown(string formulaId) => _combat.FormulaCooldown(formulaId, WorldTick);
+
     /// <summary>Ticks until a racial ability is ready again; 0 when it is. The wings' are the movement system's.</summary>
     public int PeopleAbilityCooldown(string abilityId) =>
         _context.PlayerAbilities.FirstOrDefault(a => a.Id == abilityId) is { Action: PeopleAction.Leap or PeopleAction.Flare } wing

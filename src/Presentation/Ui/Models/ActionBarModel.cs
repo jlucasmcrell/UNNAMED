@@ -64,7 +64,9 @@ public static class ActionBarModel
             progression.Pools.Stamina ?? (int)view.Stats.StaminaMax, progression.Pools.Focus ?? (int)view.Stats.FocusMax, progression.Pools.Strain,
             (int)view.Stats.StrainTolerance, progression.Pools.Health ?? (int)view.Stats.HealthMax, held, heldName,
             id => view.Inventory.Where(e => e.DefId == id).Sum(e => e.Count), stationKind,
-            id => ((id.StartsWith("ability.people.", StringComparison.Ordinal) ? simulation.PeopleAbilityCooldown(id) : simulation.TechniqueCooldown(id)) + 19) / 20, name);
+            id => ((id.StartsWith("ability.people.", StringComparison.Ordinal) ? simulation.PeopleAbilityCooldown(id)
+                : id.StartsWith("spell.", StringComparison.Ordinal) ? simulation.FormulaCooldown(id)
+                : simulation.TechniqueCooldown(id)) + 19) / 20, name);
     }
 
     /// <summary>The twelve slots of action bar <paramref name="bar"/> (0 to 5). <paramref name="keyOf"/> names the key that uses a slot, or empty when none does.</summary>

@@ -1894,7 +1894,9 @@ public partial class Main : Node3D
         Probe("avatar/world");
         _creatures.Draw(simulation, alpha, delta);
         Probe("creatures");
-        _magicEffects.Draw(_avatar, combat.Casting, combat.Phase,
+        // The glyph before the hand is drawn in the ink and polygon of the formula the working borrows its art from, when it has none yet.
+        string? casting = combat.Casting is { } cast && _session.Setup.Magic.Formulas.TryGetValue(cast, out var castFormula) ? castFormula.Art : combat.Casting;
+        _magicEffects.Draw(_avatar, casting, combat.Phase,
             combat.Effects.Select(e => (e.EffectId, Math.Max(0, e.ExpiresTick - simulation.WorldTick) * _session.TickSeconds)),
             combat.Strain / (double)Math.Max(1, combat.StrainTolerance), delta);
         Probe("magic effects");

@@ -1,0 +1,18 @@
+id: spell.force.rime_pin
+kind: spell
+schema: 1
+display_key: spell.force.rime_pin.name
+tags: [spell]
+name: Rime Pin
+notes: "Cold held to a point (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Force / Evocation\"). The first working that bites: less than a Shiver Spike's frost and half its cost, so a caster with a little Focus can put one in and keep standing. Complexity 1 - the second rung, not a replacement."
+domain: skill.force
+complexity: 1
+cost: { focus: 5, strain: 4 }
+cast_time_s: 0.35
+range_m: 14
+targeting: projectile
+cooldown_s: 1.2
+requires_skill_level: 0
+vfx: spell.force.impulse_bolt
+payload:
+  - { type: damage, damage_type: frost, amount: [4, 7] }

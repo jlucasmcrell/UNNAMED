@@ -37,6 +37,7 @@ public static class MagicContent
         Try(() => constants = BuildConstants(loader, tickMs), "config.magic", errors);
         var formulas = ImmutableSortedDictionary.Create<string, FormulaDefinition>(StringComparer.Ordinal);
         Try(() => formulas = BuildFormulas(loader, tickMs, constants), "spells", errors);
+        Try(() => CheckArt(formulas), "spells", errors);
         Try(() => BuildTeaches(loader, formulas), "items", errors);
         return errors;
     }
@@ -46,8 +47,31 @@ public static class MagicContent
         int tickMs = WorldContent.TickMilliseconds(loader);
         var constants = BuildConstants(loader, tickMs);
         var formulas = BuildFormulas(loader, tickMs, constants);
+        CheckArt(formulas);
         return new MagicSetup(constants, formulas) { Teaches = BuildTeaches(loader, formulas) };
     }
+
+    /// <summary>
+    /// A working never borrows art that does not exist (MAG001): the formula it names is one this pack builds. Read here because it is a
+    /// fact about the spells alone; the other half of the rule - that a working's skill floor is one its sources keep - is the teacher
+    /// lint's, which already reads every lesson and every book (TCH001).
+    /// </summary>
+    private static void CheckArt(ImmutableSortedDictionary<string, FormulaDefinition> formulas)
+    {
+        foreach (var formula in formulas.Values.Where(f => f.ArtId.Length > 0 && !formulas.ContainsKey(f.ArtId)))
+            throw new FormatException($"{formula.Id}: vfx {formula.ArtId} is not a formula this pack builds - a working borrows the art of one that exists");
+    }
+
+    /// <summary>
+    /// The domain skill each working may be learned at, from the spell definitions alone: the teacher lint needs the floors without
+    /// building the whole magic setup.
+    /// </summary>
+    internal static ImmutableSortedDictionary<string, int> BuildSkillFloors(ContentLoader loader) =>
+        loader.GetByKind("spell").Values.ToImmutableSortedDictionary(d => d.Id, d =>
+        {
+            var map = Read(d.YamlSource);
+            return map.ContainsKey("requires_skill_level") ? Int(map, "requires_skill_level") : 0;
+        }, StringComparer.Ordinal);
 
     /// <summary><c>config.magic</c>: how Focus returns and Strain ebbs, what past-tolerance costs, and what skill and Resonance change.</summary>
     public static MagicConstants BuildConstants(ContentLoader loader, int tickMs)
@@ -107,10 +131,17 @@ public static class MagicContent
                 var other => throw new FormatException($"{id}: targeting '{other}' is not built in Phase 1 (self, projectile)"),
             };
             int castTicks = Math.Max(1, ToTicks(Number(map, "cast_time_s"), tickMs));
+            int cooldownTicks = map.ContainsKey("cooldown_s") ? ToTicks(Number(map, "cooldown_s"), tickMs) : 0;
+            int requires = map.ContainsKey("requires_skill_level") ? Int(map, "requires_skill_level") : 0;
             var formula = new FormulaDefinition(id, domain, Int(map, "complexity"), Int(cost, "focus"), Int(cost, "strain"), castTicks,
-                constants.RecoveryTicks, targeting);
-            if (formula.Complexity < 0 || formula.FocusCost < 0 || formula.StrainCost < 0)
-                throw new FormatException($"{id}: complexity and costs are not negative");
+                constants.RecoveryTicks, targeting)
+            {
+                CooldownTicks = cooldownTicks,
+                ArtId = map.GetValueOrDefault("vfx") as string ?? "",
+                RequiresSkillLevel = requires,
+            };
+            if (formula.Complexity < 0 || formula.FocusCost < 0 || formula.StrainCost < 0 || formula.CooldownTicks < 0 || formula.RequiresSkillLevel < 0)
+                throw new FormatException($"{id}: complexity, costs, its cooldown and the skill it needs are not negative");
 
             AttackProfile? blow = null;
             var applies = new List<string>();
