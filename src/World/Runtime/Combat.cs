@@ -709,8 +709,12 @@ internal sealed partial class CombatSystem
         if (Busy(State.PlayerCombat.Action, tick) is { } busy)
             return busy;
         var attack = PlayerAttack();
-        if (!StealthRules.IsDagger(attack))
-            return "a takedown needs a dagger";
+        // A placed strike needs a weapon that can reach a vital: a dagger at the neck, a bow or a spear at the head (CMB-15,
+        // COMBAT §19). A fist or a blade too short to open a throat or reach a heart cannot place one at all.
+        var dagger = StealthRules.IsDagger(attack);
+        var aimed = PlacedStrikeRules.Reaches(attack, BodyRegion.Head) ? BodyRegion.Head : BodyRegion.Torso;
+        if (!dagger && !PlacedStrikeRules.Reaches(attack, aimed))
+            return "that weapon cannot reach a vital";
         var body = State.Body;
         // Inside reach: the blade's length, a step, and the target's own body.
         var nearest = State.Creatures.Values
@@ -730,8 +734,12 @@ internal sealed partial class CombatSystem
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
         var fromBehind = Behind(creature.Body, body);
-        bool execution = TakedownRules.Executes(true, true, fromBehind,
-            ThreatRules.Of(definition.Level, State.Progression.Level), definition.Tags.Contains("boss") || creature.Site.Recovery is not null);
+        bool boss = definition.Tags.Contains("boss") || creature.Site.Recovery is not null;
+        // The dagger keeps its owner ruling - from behind, Even threat or below. Every other class lands a placed strike when it
+        // can reach a bare vital on a body that has not noticed it, which is what the canon calls lethal regardless of level.
+        bool execution = dagger
+            ? TakedownRules.Executes(true, true, fromBehind, ThreatRules.Of(definition.Level, State.Progression.Level), boss)
+            : PlacedStrikeRules.Lethal(attack, unaware: true, aimed, armouredRegion: defense.Armor.GetValueOrDefault(aimed) > 0, boss: boss);
         var outcome = TakedownRules.Resolve(CombatRules.LevelGap(PlayerStrike(attack) with { Execution = execution },State.Progression.Level,definition.Level+creature.LevelBonus), defense, C, creature.Health, fromBehind,
             Random("takedown", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });

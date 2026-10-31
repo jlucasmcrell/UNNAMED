@@ -117,7 +117,9 @@ public class StealthTests
         double facing = FacingOf(session, wolf);
         var arena = Armed(session, Along(wolf, facing, -1.2), FacingDeg(facing), Sword, creatures: (Arena.Wolf, wolf.Item1, wolf.Item2, "pack_hunter"));
         arena.Tick(2);
-        Assert.Equal("a takedown needs a dagger", arena.Submit(new TakedownCommand(arena.Player)));
+        // CMB-15: the sword now places a strike (it reaches the torso), and the wolf's own hide at that region is what stops it
+        // executing - the canon's "unprotected critical structure", not the weapon class.
+        Assert.Null(arena.Submit(new TakedownCommand(arena.Player)));
         Assert.True(Only(arena).Alive);
     }
 
