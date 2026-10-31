@@ -1,0 +1,87 @@
+{
+  "status": "IN_PROGRESS_SOURCE_CANDIDATES",
+  "production_install": false,
+  "visual_verdict": null,
+  "files": [
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\supplement\\humgen_player_ada_f_motion.res",
+      "bytes": 412706,
+      "sha256": "a3cb348e369a928797426aaf3e73da1dfc73a6a484713d1495a789099c1eb583"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\supplement\\humgen_player_ada_f_motion.res.audit.json",
+      "bytes": 7003,
+      "sha256": "679f11b3dbca90860732d6a06a0e365591cff3d360e7293c10dded773e1e52af"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_ada_f\\prone_fall.glb",
+      "bytes": 612792,
+      "sha256": "679f1b0eabb238a7f18f3fec7af70946638ea824251434ff09b5f48e6ea28577"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_ada_f\\prone_idle.glb",
+      "bytes": 506256,
+      "sha256": "4e05af0a4805de3f442f3c65e485b09f2cd2ef44a56e0211cbeb6848ae77cc5d"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_ada_f\\prone_rise.glb",
+      "bytes": 612792,
+      "sha256": "a1fbeee7df24518a11b0fdb88291f742614e5a92f373bc2a709146db880141da"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_ada_f\\shove.glb",
+      "bytes": 624628,
+      "sha256": "13ac91e4f662ce21d10ce738a901be13de437428950a1db5f368d4f5cf9c4dbf"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_ada_f\\stumble.glb",
+      "bytes": 494452,
+      "sha256": "a0d233bb4d737b494c604805377aaa50a4a12bc5f40001e48054847536f65ea2"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_ada_f\\weapon_pickup.glb",
+      "bytes": 612796,
+      "sha256": "abfe43657de88a16d2baa401bed41ec4e6f4ebabab1cad64ccc4a926df920ce6"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_mateo_m\\prone_fall.glb",
+      "bytes": 612544,
+      "sha256": "f23b65a2af0055ef4cc587ba2921cb074ada2d3550d26f7a654b928777e3d299"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_mateo_m\\prone_idle.glb",
+      "bytes": 506004,
+      "sha256": "7b40732a3d6a49da50ecba3e564984e2ceb17e00ea232b5616b13f58bde6e6c8"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_mateo_m\\prone_rise.glb",
+      "bytes": 612544,
+      "sha256": "080d0293e85c20b1df87fdf3486e070dd4c993942f76a23521c0cc2c6aa3f1dc"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_mateo_m\\shove.glb",
+      "bytes": 624380,
+      "sha256": "6c4381071e2acf0008baca747b607ede44dfd7aaf6b39c5882f6022fef890759"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_mateo_m\\stumble.glb",
+      "bytes": 494204,
+      "sha256": "795fd066b911633cf2a40c983e6f8b2cf2cf4ff6e9af4c6d5914cc3f97123850"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\clips\\humgen_player_mateo_m\\weapon_pickup.glb",
+      "bytes": 612548,
+      "sha256": "6a58af4450465bea016829d8c955e30be4ccdf436b192c6a7238aed6e7f2d181"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\candidate\\mocap_motion\\humgen_player_ada_f_motion.res",
+      "bytes": 2585698,
+      "sha256": "2bf0cdd0863b451da346b30f99a3e0f8b9f778d7bd574c9f4bec693ef1f711cb"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\candidate\\mocap_motion\\humgen_player_ada_f_motion.res.merge.json",
+      "bytes": 478,
+      "sha256": "9286e4c6c5c1cb9a54a8a69b1d63bb409dec648acf6caac0af14420285862aa1"
+    }
+  ]
+}

@@ -1817,15 +1817,16 @@ public partial class Main : Node3D
     {
         var constants = _session.Setup.Combat.Constants;
         var weapon = combat.Weapon;
+        var timing = combat.ControlTiming ?? weapon;
         var working = combat.Casting is { } casting ? _session.Setup.Magic.Formulas[casting] : null;
         int length = combat.Phase switch
         {
             CombatPhase.Windup when working is not null => working.CastTicks,
             CombatPhase.Active when working is not null => 1,
             CombatPhase.Recovery when working is not null => working.RecoveryTicks,
-            CombatPhase.Windup => weapon.WindupTicks,
-            CombatPhase.Active => weapon.ActiveTicks,
-            CombatPhase.Recovery => combat.AttackSource is null ? constants.DodgeRecoveryTicks : weapon.RecoveryTicks,
+            CombatPhase.Windup => timing.WindupTicks,
+            CombatPhase.Active => timing.ActiveTicks,
+            CombatPhase.Recovery => combat.AttackSource is null ? constants.DodgeRecoveryTicks : timing.RecoveryTicks,
             CombatPhase.Dodge => constants.DodgeTicks,
             CombatPhase.Staggered => constants.StaggerTicks,
             _ => 1,
@@ -1835,7 +1836,11 @@ public partial class Main : Node3D
             : weapon.Source == "unarmed" ? Held.Nothing
             : _session.Setup.Items.Catalog.Find(weapon.Source)?.Weapon?.TwoHanded == true ? Held.Spear   // the greybox draws a two-hander as a spear
             : Held.Sword;
-        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null, combat.InCombat);
+        return new CombatStance(combat.Phase, progress, held, combat.Blocking, working is not null, combat.InCombat)
+        {
+            Control = combat.Control,
+            Prone = combat.Prone ? Art.ControlMotion.Prone(combat.ProneTicksLeft, alpha) : null,
+        };
     }
 
     /// <summary>The coverage report's allowlist (<c>res://Art/art_coverage_allowlist.json</c>): greybox kept on purpose, each with its reason.</summary>

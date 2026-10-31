@@ -1,0 +1,8 @@
+{
+  "shove": ["ual1", "Push_Loop"],
+  "stumble": ["ual2", "Hit_Knockback"],
+  "prone_fall": ["fal", "anim_Stand_To_Prone"],
+  "prone_idle": ["fal", "anim_Prone_Idle"],
+  "prone_rise": ["fal", "anim_Prone_To_Stand"],
+  "weapon_pickup": ["ual2", "Farm_Harvest"]
+}

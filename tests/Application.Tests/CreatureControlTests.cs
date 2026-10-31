@@ -88,6 +88,26 @@ public class CreatureControlTests
     // ── the shove ───────────────────────────────────────────────────────────
 
     [Fact]
+    public void TheDrawnControlMoveCarriesItsOwnTiming_AndRetainsTheHeldWeapon()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Facing(session, (120, 60), Boar, "sentinel", Sword, gap: 12);
+        foreach (var move in new[] { ControlMove.Shove, ControlMove.Trip, ControlMove.Disarm })
+        {
+            Assert.Null(arena.Submit(new ControlCommand(arena.Player, move)));
+            var view = arena.Simulation.Combat;
+            Assert.Equal(move, view.Control);
+            Assert.Equal($"control.{move.ToString().ToLowerInvariant()}", view.ControlTiming!.Source);
+            Assert.Equal(Sword, view.Weapon.Source);
+            Assert.Equal(move == ControlMove.Shove ? 4 : move == ControlMove.Trip ? 6 : 5, view.ControlTiming.WindupTicks);
+            arena.Tick(view.ControlTiming.WindupTicks + view.ControlTiming.ActiveTicks + view.ControlTiming.RecoveryTicks + 1);
+            Assert.Null(arena.Simulation.Combat.Control);
+            Assert.Null(arena.Simulation.Combat.ControlTiming);
+        }
+    }
+
+    [Fact]
     public void APlayerShove_KnocksAnUnguardedBoarOffItsFeet()
     {
         using var profile = new TempProfile();

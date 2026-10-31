@@ -60,6 +60,9 @@ public abstract partial class Figure : Node3D
     /// <summary>The clip state being drawn (a skinned body's), for the state log; null for a figure without clips.</summary>
     public virtual string? ClipState => null;
 
+    /// <summary>An event's authored reaction, if this body has that exact clip. Never substitutes a standing hit for a prone hit.</summary>
+    public virtual bool PlayReaction(string clip) => false;
+
     /// <summary>
     /// What is worn on the chest, by its item definition ID, or nothing: a body with outfit variants shows the variant named after the
     /// item (<c>item.armor.hide_vest</c> -> <c>hide_vest</c>), else its base outfit. Presentation only: the equipment is the simulation's.

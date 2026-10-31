@@ -94,7 +94,18 @@ try:
         source_controller = unreal.IKRigController.get_controller(rig)
         assert source_controller.set_skeletal_mesh(source_mesh)
         source_controller.apply_auto_generated_retarget_definition()
-        assert source_controller.set_root_motion_bone("root")
+        source_root = "hip" if sid.startswith("cmu_control_") else "root"
+        assert source_controller.set_root_motion_bone(source_root)
+        if sid.startswith("cmu_control_"):
+            # The acquired Rancidmilk/cgspeed CMU transport uses the recorded hip
+            # as its root and DAZ-style names. Define native FK chains, never edit rests or limb keys.
+            assert source_controller.set_retarget_root("hip")
+            for chain in list(source_controller.get_retarget_chains()):
+                source_controller.remove_retarget_chain(chain.chain_name)
+            for chain, first, last in [("Spine", "abdomen", "chest"), ("Neck", "neck", "head"),
+                                       ("LeftArm", "lShldr", "lHand"), ("RightArm", "rShldr", "rHand"),
+                                       ("LeftLeg", "lThigh", "lFoot"), ("RightLeg", "rThigh", "rFoot")]:
+                source_controller.add_retarget_chain(chain, first, last, "None")
         if sid == "cmu_bow" or sid.startswith("cmu_idle_"):
             assert source_controller.set_retarget_root("Hips")
             assert source_controller.set_retarget_chain_start_bone("Spine", "LowerBack")

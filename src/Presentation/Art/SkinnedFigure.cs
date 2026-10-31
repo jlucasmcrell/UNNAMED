@@ -541,9 +541,21 @@ public sealed partial class SkinnedFigure : Figure
         return variants[_attackTurn++ % variants.Count];
     }
 
+    private string? _reaction;
+    private double _reactionSeconds;
+    public override bool PlayReaction(string clip)
+    {
+        if (!_model.Has(clip)) return false;
+        _reaction = clip;
+        _reactionSeconds = 0;
+        return true;
+    }
+
     private void Animate(float speed, double delta)
     {
         var m = _model;
+        _reactionSeconds += delta;
+        if (_reaction is { } reaction && _reactionSeconds >= m.Length(reaction)) _reaction = null;
         if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_waking is { } waking)
         {
@@ -556,6 +568,15 @@ public sealed partial class SkinnedFigure : Figure
         if (_downed)
         {
             m.Play("death", 0.25f);
+            return;
+        }
+        if (_stance.Prone is { } prone && m.Has(prone.Clip))
+        {
+            _idles.Interrupt();
+            if (_reaction == "prone_hit" && prone.Clip != "prone_rise")
+                m.Hold(_reaction, (float)(_reactionSeconds / m.Length(_reaction)), .05f);
+            else
+                m.Hold(prone.Clip, prone.Through, .05f);
             return;
         }
         if (speed < .25f && _restPose is { } resting)
@@ -589,7 +610,7 @@ public sealed partial class SkinnedFigure : Figure
         }
         var s = _stance;
         float t = Mathf.Clamp(s.Progress, 0, 1);
-        string? action = s switch
+        string? action = s.Control is { } control ? ControlMotion.Action(control) : s switch
         {
             { Casting: true } => "cast",
             { Holds: Held.Sword } => "sword_attack",
@@ -620,6 +641,11 @@ public sealed partial class SkinnedFigure : Figure
         if (s.Phase == CombatPhase.Staggered && m.Has("hit"))
         {
             m.Play("hit", 0.1f);
+            return;
+        }
+        if (_reaction is { } cue && cue != "prone_hit")
+        {
+            m.Hold(cue, (float)(_reactionSeconds / m.Length(cue)), .05f);
             return;
         }
         if (s.Guarding && s.Phase == CombatPhase.Idle)

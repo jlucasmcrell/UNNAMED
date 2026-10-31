@@ -28,6 +28,9 @@ public partial class CreaturesView : Node3D
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
 
     /// <summary>The asset library and its bindings (the Phase-1 asset integration); a creature without a usable model stays greybox.</summary>
+    public bool PlayReaction(EntityId body, string clip) =>
+        _figures.TryGetValue(body, out var figure) && figure.PlayReaction(clip);
+
     public void Bind(Art.ArtLibrary art, Art.ArtBindings bindings)
     {
         _art = art;
@@ -257,6 +260,8 @@ internal sealed record PlaceholderLook(BodyPlan Plan, Color Hide, float Width = 
 /// <summary>A creature as drawn - greybox or from the asset library. Drawn only; it holds a copy of two ticks' bodies, never the truth.</summary>
 public abstract partial class CreatureBody : Node3D
 {
+    public virtual bool PlayReaction(string clip) => false;
+
     public abstract void Place(Body body);
 
     public abstract void Advance(Body body);

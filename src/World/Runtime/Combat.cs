@@ -191,6 +191,10 @@ public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? A
 
     /// <summary>While prone: ticks until they are on their feet again.</summary>
     public int ProneTicksLeft { get; init; }
+
+    /// <summary>The committed control move and its timing, for presentation; the held weapon remains Weapon.</summary>
+    public ControlMove? Control { get; init; }
+    public AttackProfile? ControlTiming { get; init; }
 }
 
 // ── state (internal) ────────────────────────────────────────────────────────
@@ -1290,6 +1294,8 @@ internal sealed partial class CombatSystem
             DownedTicksLeft = combat.DownedUntil > 0 ? (int)Math.Max(0, combat.DownedUntil - State.WorldTick) : 0,
             Prone = combat.Footing.Prone,
             ProneTicksLeft = combat.Footing.ProneRiseTicksRemaining,
+            Control = phase != CombatPhase.Idle ? combat.Action.Control : null,
+            ControlTiming = combat.Action.Control is not null ? combat.Action.Attack : null,
         };
     }
 }

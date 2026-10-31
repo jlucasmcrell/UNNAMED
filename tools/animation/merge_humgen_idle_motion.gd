@@ -1,5 +1,5 @@
 extends SceneTree
-## Add exact-target idle transports while retaining every approved animation and metadata value.
+## Add exact-target transports while retaining every approved animation and metadata value.
 func _initialize():
  var m: Dictionary=JSON.parse_string(FileAccess.get_file_as_string(OS.get_cmdline_user_args()[0]))
  var original: AnimationLibrary=load(m.original)
@@ -11,10 +11,12 @@ func _initialize():
  var merged: AnimationLibrary=original.duplicate(true)
  var sources: Dictionary=original.get_meta("animation_sources").duplicate(true)
  var additions: Dictionary=extra.get_meta("animation_sources")
- assert(extra.has_animation("idle_observe"))
- for name_ in ["idle_observe"]:
+ var added: Array=m.get("states",["idle_observe"])
+ assert(not added.is_empty())
+ for name_ in added:
   assert(extra.has_animation(name_) and not original.has_animation(name_))
-  assert("cmu_idle_" in str(additions[name_]) and not "kaykit" in str(additions[name_]).to_lower())
+  assert(additions.has(name_) and not "kaykit" in str(additions[name_]).to_lower())
+  if name_=="idle_observe":assert("cmu_idle_" in str(additions[name_]))
   merged.add_animation(name_,extra.get_animation(name_))
   sources[name_]=additions[name_]
  merged.set_meta("animation_sources",sources)
@@ -40,7 +42,7 @@ func _initialize():
     keys+=1
  for meta in original.get_meta_list():
   if meta!="animation_sources":assert(original.get_meta(meta)==readback.get_meta(meta))
- var receipt={"status":"PASS","body_sha256":sha,"original_sha256":FileAccess.get_sha256(m.original),"output_sha256":FileAccess.get_sha256(m.output),"original_states":original.get_animation_list().size(),"unchanged_keys":keys,"added_states":["idle_observe"],"states":readback.get_animation_list().size()}
+ var receipt={"status":"PASS","body_sha256":sha,"original_sha256":FileAccess.get_sha256(m.original),"output_sha256":FileAccess.get_sha256(m.output),"original_states":original.get_animation_list().size(),"unchanged_keys":keys,"added_states":added,"states":readback.get_animation_list().size()}
  var f=FileAccess.open(m.output+".merge.json",FileAccess.WRITE)
  f.store_string(JSON.stringify(receipt,"  "));f.close()
  print("HUMGEN_IDLE_MERGE_PASS ",receipt)

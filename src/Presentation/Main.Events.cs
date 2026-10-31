@@ -232,6 +232,9 @@ public partial class Main
         _session.Subscribe<ShotLoosed>(Shot);
         _session.Subscribe<ItemMoved>(e =>
         {
+            if (e.Actor == _session.Simulation!.PlayerId && e.From.Kind == PlaceKind.Ground && e.To.Kind == PlaceKind.Inventory
+                && _session.Setup.Items.Catalog.Find(e.DefId)?.Weapon is not null)
+                _avatar.PlayReaction("weapon_pickup");
             _inventory.Refresh();
             _loot.Refresh();
             if (e.To.Kind == PlaceKind.Inventory && (e.From.Kind == PlaceKind.Ground
@@ -498,6 +501,11 @@ public partial class Main
         });
         _session.Subscribe<HealthChanged>(e =>
         {
+            if (e.Delta < 0 && _session.Simulation is { } simulation)
+            {
+                if (e.Target == simulation.PlayerId && simulation.Combat.Prone) _avatar.PlayReaction("prone_hit");
+                else if (simulation.Creatures.Any(c => c.Id == e.Target && c.Prone)) _creatures.PlayReaction(e.Target, "prone_hit");
+            }
             if (e.Target == _session.Simulation!.PlayerId && e.Source != "strain")
                 _hud.Log($"{Name(e.Source)}: {(e.Delta > 0 ? "+" : "")}{e.Delta}");
         });
@@ -522,6 +530,12 @@ public partial class Main
         _session.Subscribe<ControlResolved>(e =>
         {
             var player = _session.Simulation!.PlayerId;
+            string? reaction = e.Disarmed ? "weapon_drop" : e.Landed && !e.Prone && e.Move == ControlMove.Shove ? "stumble" : null;
+            if (reaction is not null)
+            {
+                if (e.Target == player) _avatar.PlayReaction(reaction);
+                else _creatures.PlayReaction(e.Target, reaction);
+            }
             if (e.Actor == player)
                 _hud.Log(e.Landed || e.Disarmed
                     ? $"You {ControlWord(e.Move)} {WildName(e.Target).ToLowerInvariant()}"

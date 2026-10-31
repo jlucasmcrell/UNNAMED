@@ -18,6 +18,15 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedCreature : CreatureBody
 {
     private SkinnedModel _model = null!;
+    private string? _reaction;
+    private double _reactionSeconds;
+    public override bool PlayReaction(string clip)
+    {
+        if (!_model.Has(clip)) return false;
+        _reaction = clip;
+        _reactionSeconds = 0;
+        return true;
+    }
     public string? ClipState => _model.Current;
     private readonly Label3D _mark = new()
     {
@@ -225,6 +234,8 @@ public sealed partial class SkinnedCreature : CreatureBody
             return;
         }
         Visible = true;
+        _reactionSeconds += delta;
+        if (_reaction is { } reaction && _reactionSeconds >= _model.Length(reaction)) _reaction = null;
         Position = _previous.Lerp(_current, alpha);
         float speed = new Vector2(_current.X - _previous.X, _current.Z - _previous.Z).Length() / 0.05f;
         _yaw = Mathf.LerpAngle(_yaw, Facing(creature.Body), 1f - Mathf.Exp(-16f * (float)delta));
@@ -258,6 +269,23 @@ public sealed partial class SkinnedCreature : CreatureBody
             _phase = creature.Phase;
             _attackSource = creature.AttackSource;
             _phaseTicks = creature.PhaseDurationTicks > 0 ? creature.PhaseDurationTicks : Math.Max(1, creature.PhaseTicksLeft + 1);
+        }
+        if (creature.Prone)
+        {
+            var prone = ControlMotion.Prone(creature.ProneTicksLeft, alpha);
+            if (_model.Has(prone.Clip))
+            {
+                if (_reaction == "prone_hit" && prone.Clip != "prone_rise")
+                    _model.Hold(_reaction, (float)(_reactionSeconds / _model.Length(_reaction)), .05f);
+                else
+                    _model.Hold(prone.Clip, prone.Through, .05f);
+                return;
+            }
+        }
+        if (_reaction is { } cue && cue != "prone_hit" && creature.Phase == CombatPhase.Idle)
+        {
+            _model.Hold(cue, (float)(_reactionSeconds / _model.Length(cue)), .05f);
+            return;
         }
         string attackClip = _chosenAttack;
         float t = 1f - (float)creature.PhaseTicksLeft / _phaseTicks;
