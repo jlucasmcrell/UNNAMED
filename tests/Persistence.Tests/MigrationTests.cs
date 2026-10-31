@@ -749,6 +749,22 @@ public class MigrationTests
     // ── hired lives and trips, schema 27 -> 28 (WP12b) ─────────────────────
 
     [Fact]
+    public void Schema45To46_PutsNobodyOnTheRoad_AndKeepsEveryLife()
+    {
+        using var profile = Fixtures.Copy(45);
+        var store = new SaveStore(profile.Root);
+        var report = store.Migrate(SaveSlots.Quick, Fixtures.Context(new Registry()));
+
+        Assert.Equal(StepPrefixes(45, 16), report.Steps.Select(s => s[..16]));
+        var loaded = store.Load(SaveSlots.Quick, Fixtures.Context(new Registry()));
+        Assert.True(loaded.IsComplete);
+        // Nobody had gone out before schema 46, and every adventurer has been home since the world began.
+        Assert.True(loaded.World.Adventurers?.Expeditions.IsEmpty ?? true);
+        Assert.DoesNotContain(loaded.World.Adventurers?.Agents.Values ?? Enumerable.Empty<AdventurerRecord>(), a => a.BackHomeDay != 0);
+        Assert.Equal(File.ReadAllText(Fixtures.Expected(45)).Replace("\r\n", "\n"), CanonicalState.Render(loaded));
+    }
+
+    [Fact]
     public void Schema27To28_OnlyMovesTheVersion_AndKeepsEveryLife()
     {
         using var profile = Fixtures.Copy(27);

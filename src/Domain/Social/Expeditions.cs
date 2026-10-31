@@ -32,6 +32,15 @@ public sealed record ExpeditionReturn(
     string News);
 
 /// <summary>
+/// A party out from a settlement (GEN-06): the trip the rules planned and what it will bring home, both fixed the midnight it sets out, so a
+/// save taken on the road carries the whole journey and a load brings the same party back with the same spoils.
+/// </summary>
+public sealed record ExpeditionOut(Expedition Plan, ExpeditionReturn Outcome)
+{
+    public bool IsAway(long day) => Plan.IsAway(day);
+}
+
+/// <summary>
 /// Planning an expedition (GEN-06): a party picks a real area it can actually work, stays for the days the work takes, and comes back when the
 /// calendar says so. The choice is deterministic and legible: the most dangerous area within reach of the party's level, then the nearest.
 /// </summary>

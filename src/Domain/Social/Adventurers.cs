@@ -83,6 +83,9 @@ public sealed record AdventurerRecord(string Key, string Slot, int Generation, s
 
     public long ArrivedDay { get; init; }
 
+    /// <summary>The day they last came home from an expedition (GEN-06): 0 for someone who has not been out, so the settled are sent first.</summary>
+    public long BackHomeDay { get; init; }
+
     public ImmutableSortedDictionary<EquipSlot, AdventurerGear> Gear { get; init; } = ImmutableSortedDictionary<EquipSlot, AdventurerGear>.Empty;
 
     /// <summary>Personal items held for a later return to the party, preserving instance history.</summary>
@@ -116,7 +119,7 @@ public sealed record AdventurerRecord(string Key, string Slot, int Generation, s
         && ArrivedDay == other.ArrivedDay && Gear.SequenceEqual(other.Gear) && Belongings.SequenceEqual(other.Belongings) && Pack.SequenceEqual(other.Pack) && Condition == other.Condition
         && InjuredUntilDay == other.InjuredUntilDay && Plan.Day == other.Plan.Day && Plan.Goal == other.Plan.Goal && Plan.Ref == other.Plan.Ref
         && Plan.Group.SequenceEqual(other.Plan.Group) && Plan.PostTick == other.Plan.PostTick && Plan.DepartTick == other.Plan.DepartTick
-        && Party == other.Party && Acquired == other.Acquired && Kills == other.Kills && BountiesClaimed == other.BountiesClaimed;
+        && Party == other.Party && Acquired == other.Acquired && Kills == other.Kills && BountiesClaimed == other.BountiesClaimed && BackHomeDay == other.BackHomeDay;
 
     public override int GetHashCode() => HashCode.Combine(Key, Generation, Coin, Level);
 }
@@ -133,6 +136,13 @@ public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string,
     /// </summary>
     public ImmutableSortedDictionary<string, AdventurerBody> Bodies { get; init; } = ImmutableSortedDictionary.Create<string, AdventurerBody>(StringComparer.Ordinal);
 
+    /// <summary>
+    /// The party out from each settlement on an expedition, by settlement (GEN-06): who is away, where, the days they are gone, and what they
+    /// come back with. Saved with them, so a load mid-trip brings the same party home with the same spoils.
+    /// </summary>
+    public ImmutableSortedDictionary<string, ExpeditionOut> Expeditions { get; init; } =
+        ImmutableSortedDictionary.Create<string, ExpeditionOut>(StringComparer.Ordinal);
+
     public static AdventurerState Empty(long day) => new(day,
         ImmutableSortedDictionary.Create<string, AdventurerRecord>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, AdventurerVacancy>(StringComparer.Ordinal));
@@ -144,7 +154,7 @@ public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string,
         {
             h.Add(a.Key).Add(a.Slot).Add(a.Generation).Add(a.Name).Add(a.PeopleId ?? "-").Add(a.Settlement).Add(a.At).Add(a.Progression.Digest)
                 .Add(a.Coin).Add(a.RiskPercent).Add(a.ArrivedDay).Add((int)a.Condition).Add(a.InjuredUntilDay).Add(a.Party ?? "-")
-                .Add(a.Acquired).Add(a.Kills).Add(a.BountiesClaimed).Add(a.Gear.Count);
+                .Add(a.Acquired).Add(a.Kills).Add(a.BountiesClaimed).Add(a.Gear.Count).Add(a.BackHomeDay);
             foreach (var (slot, gear) in a.Gear)
             {
                 h.Add((int)slot).Add(gear.ItemId.Value).Add(gear.DefId).Add(gear.Quality);
@@ -173,6 +183,10 @@ public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string,
         h.Add(Bodies.Count);
         foreach (var (key, body) in Bodies)
             h.Add(key).Add(body.Name).Add(body.XMm).Add(body.ZMm).Add(body.FacingMdeg);
+        h.Add(Expeditions.Count);
+        foreach (var (settlement, outbound) in Expeditions)
+            h.Add(settlement).Add(outbound.Plan.AreaKey).Add(outbound.Plan.LeftDay).Add(outbound.Plan.ReturnDay)
+                .Add(outbound.Plan.Seed).Add(outbound.Plan.Party.Length);
     }
 }
 
@@ -451,7 +465,13 @@ public static class AdventurerEngine
                 happenings.Add(new AdventurerHappening(Arrived, newcomer.Key) { Settlement = settlement.Id });
             }
         }
-        return (state with { Agents = agents, Vacancies = vacancies }, happenings.ToImmutable());
+        // A settlement content no longer has keeps no party on the road either.
+        return (state with
+        {
+            Agents = agents,
+            Vacancies = vacancies,
+            Expeditions = state.Expeditions.Where(e => day.Settlements.ContainsKey(e.Key)).ToImmutableSortedDictionary(StringComparer.Ordinal),
+        }, happenings.ToImmutable());
     }
 
     /// <summary>One midnight: <paramref name="day"/> must be the day after the state's. Every planned day is resolved, arrivals come, and every life plans the new day.</summary>

@@ -127,7 +127,14 @@ public static class SchemaMigrations
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
-        new SchemaV39ToV40());
+        new SchemaV39ToV40(),
+        // 41 to 45 are charged to other lanes in the plan (see SchemaV46.cs): reserved pass-throughs here, the real step 45 -> 46 last.
+        new SchemaV40ToV41(),
+        new SchemaV41ToV42(),
+        new SchemaV42ToV43(),
+        new SchemaV43ToV44(),
+        new SchemaV44ToV45(),
+        new SchemaV45ToV46());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)

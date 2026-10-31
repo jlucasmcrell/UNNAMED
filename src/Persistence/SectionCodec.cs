@@ -734,6 +734,30 @@ public sealed class AdventurersDto
     [Key("agents")] public AdventurerDto[] Agents { get; set; } = Array.Empty<AdventurerDto>();
     [Key("vacancies")] public AdventurerVacancyDto[] Vacancies { get; set; } = Array.Empty<AdventurerVacancyDto>();
     [Key("bodies")] public AdventurerBodyDto[] Bodies { get; set; } = Array.Empty<AdventurerBodyDto>();
+
+    /// <summary>The party out from each settlement (GEN-06); empty in a save from before anyone went (schema 46).</summary>
+    [Key("expeditions")] public ExpeditionDto[] Expeditions { get; set; } = Array.Empty<ExpeditionDto>();
+}
+
+/// <summary>
+/// A party out from one settlement (schema 46; GEN-06): the trip the rules planned and what it brings home - who went, where, the days they
+/// are away, and the coin and goods they carry back - so a load mid-trip brings the same party home with the same spoils.
+/// </summary>
+[MessagePackObject]
+public sealed class ExpeditionDto
+{
+    [Key("settlement")] public string Settlement { get; set; } = "";
+    [Key("area_key")] public string AreaKey { get; set; } = "";
+    [Key("area_name")] public string AreaName { get; set; } = "";
+    [Key("party")] public string[] Party { get; set; } = Array.Empty<string>();
+    [Key("left_day")] public long LeftDay { get; set; }
+    [Key("return_day")] public long ReturnDay { get; set; }
+    [Key("seed")] public ulong Seed { get; set; }
+    [Key("coin")] public long Coin { get; set; }
+    [Key("loot")] public string[] Loot { get; set; } = Array.Empty<string>();
+    [Key("injured")] public string[] Injured { get; set; } = Array.Empty<string>();
+    [Key("lost")] public bool Lost { get; set; }
+    [Key("news")] public string News { get; set; } = "";
 }
 
 /// <summary>An adventurer's body standing outside the party: whose, by name, and where - a load stands exactly these.</summary>
@@ -763,6 +787,9 @@ public sealed class AdventurerDto
     [Key("risk_percent")] public int RiskPercent { get; set; }
     [Key("arrived_day")] public long ArrivedDay { get; set; }
     [Key("gear")] public AdventurerGearDto[] Gear { get; set; } = Array.Empty<AdventurerGearDto>();
+
+    /// <summary>The day they last came home from an expedition; 0 for someone who has not been out (schema 46).</summary>
+    [Key("back_home_day")] public long BackHomeDay { get; set; }
     [Key("belongings")] public AdventurerItemDto[] Belongings { get; set; } = Array.Empty<AdventurerItemDto>();
     [Key("pack")] public GoodCountDto[] Pack { get; set; } = Array.Empty<GoodCountDto>();
     [Key("condition")] public string Condition { get; set; } = "active";
@@ -1671,7 +1698,7 @@ public static class SectionCodec
             {
                 Day = a.Plan.Day, Goal = a.Plan.Goal, Ref = a.Plan.Ref, Group = a.Plan.Group.ToArray(), PostTick = a.Plan.PostTick, DepartTick = a.Plan.DepartTick,
             },
-            Party = a.Party, Acquired = a.Acquired, Kills = a.Kills, BountiesClaimed = a.BountiesClaimed,
+            Party = a.Party, Acquired = a.Acquired, Kills = a.Kills, BountiesClaimed = a.BountiesClaimed, BackHomeDay = a.BackHomeDay,
         }).ToArray(),
         Vacancies = state.Vacancies.Values.Select(v => new AdventurerVacancyDto
         {
@@ -1679,6 +1706,13 @@ public static class SectionCodec
         }).ToArray(),
         Bodies = state.Bodies.Select(b => new AdventurerBodyDto { Key = b.Key, Name = b.Value.Name, XMm = b.Value.XMm, ZMm = b.Value.ZMm, FacingMdeg = b.Value.FacingMdeg })
             .ToArray(),
+        Expeditions = state.Expeditions.Select(e => new ExpeditionDto
+        {
+            Settlement = e.Key, AreaKey = e.Value.Plan.AreaKey, AreaName = e.Value.Plan.AreaName, Party = e.Value.Plan.Party.ToArray(),
+            LeftDay = e.Value.Plan.LeftDay, ReturnDay = e.Value.Plan.ReturnDay, Seed = e.Value.Plan.Seed,
+            Coin = e.Value.Outcome.Coin, Loot = e.Value.Outcome.Loot.ToArray(), Injured = e.Value.Outcome.Injured.ToArray(),
+            Lost = e.Value.Outcome.Lost, News = e.Value.Outcome.News,
+        }).ToArray(),
     };
 
     private static NpcLifeDto NpcLifeToDto(NpcLifeState life) => new()
@@ -1863,7 +1897,7 @@ public static class SectionCodec
             var record = new AdventurerRecord(a.Key, a.Slot, a.Generation, a.Name, a.Settlement, a.At, ProgressionCodec.FromDto(a.Progression), a.Coin, a.RiskPercent)
             {
                 PeopleId = a.PeopleId, ArrivedDay = a.ArrivedDay, Gear = gear.ToImmutable(), Pack = pack.ToImmutable(), Condition = condition,
-                Belongings=a.Belongings.Select(AdventurerItemOf).ToImmutableArray(),
+                Belongings=a.Belongings.Select(AdventurerItemOf).ToImmutableArray(), BackHomeDay = a.BackHomeDay,
                 InjuredUntilDay = a.InjuredUntilDay, Party = a.Party, Acquired = a.Acquired, Kills = a.Kills, BountiesClaimed = a.BountiesClaimed,
                 Plan = new AdventurerPlan(a.Plan.Day, a.Plan.Goal, a.Plan.Ref)
                 {
@@ -1888,7 +1922,20 @@ public static class SectionCodec
             if (!DefinitionId.IsValid(b.Key) || !bodies.TryAdd(b.Key, new AdventurerBody(b.Name, b.XMm, b.ZMm, b.FacingMdeg)))
                 throw new FormatException($"entities.msgpack holds the adventurer body {b.Key} twice, or under a malformed key");
         }
-        return new AdventurerState(dto.Day, agents.ToImmutable(), vacancies.ToImmutable()) { Bodies = bodies.ToImmutable() };
+        var expeditions = ImmutableSortedDictionary.CreateBuilder<string, ExpeditionOut>(StringComparer.Ordinal);
+        foreach (var e in dto.Expeditions)
+        {
+            if (!DefinitionId.IsValid(e.AreaKey) || e.ReturnDay <= e.LeftDay || e.Party.Length == 0
+                || !expeditions.TryAdd(e.Settlement, new ExpeditionOut(
+                    new Expedition(e.AreaKey, e.AreaName, e.Party.ToImmutableArray(), e.LeftDay, e.ReturnDay, e.Seed),
+                    new ExpeditionReturn(e.AreaKey, e.AreaName, e.Party.ToImmutableArray(), e.LeftDay, e.ReturnDay, e.Coin,
+                        e.Loot.ToImmutableArray(), e.Injured.ToImmutableArray(), e.Lost, e.News))))
+                throw new FormatException($"entities.msgpack holds a malformed expedition out of {e.Settlement}, or two from one settlement");
+        }
+        return new AdventurerState(dto.Day, agents.ToImmutable(), vacancies.ToImmutable())
+        {
+            Bodies = bodies.ToImmutable(), Expeditions = expeditions.ToImmutable(),
+        };
     }
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>
