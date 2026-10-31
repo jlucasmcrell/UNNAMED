@@ -315,6 +315,16 @@ public class BountyTests
         Assert.False(arena.Creature().Alive);
         var corpse = Assert.Single(arena.Simulation.Containers, c => c.Site.Key == arena.Creature().CorpseKey);
         var loot = Assert.Single(corpse.Items.Take(1));
+        // The owner idled up to 2 m from the fight, past the 1.6 m looting reach: walk up to the body first, as a player must.
+        for (int i = 0; i < 200; i++)
+        {
+            var owner = arena.Simulation.Player.Body;
+            long dx = corpse.Site.XMm - owner.XMm, dz = corpse.Site.ZMm - owner.ZMm;
+            if (dx * dx + dz * dz <= 1_000_000)
+                break;
+            arena.Simulation.Enqueue(new MoveCommand(arena.Player, Harness.Toward(dx, dz)));
+            arena.Tick();
+        }
         Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, loot.Ref,
             ItemPlace.In(corpse.Site.Key), ItemPlace.Carried, loot.Count)));
     }
