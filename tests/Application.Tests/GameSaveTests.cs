@@ -96,6 +96,10 @@ public class GameSaveTests
         (new Regex(@"^\$\.player\.FamilyBars$"), null),
         // Schema 41 (B-032): no carcass had given anything up.
         (new Regex(@"^\$\.world\.Creatures\[\d+\]\.CarcassTaken$"), "0"),
+        // Schema 43 (progression): no discipline designated and no masteries yet.
+        (new Regex(@"^\$\.player\.Progression\.DesignatedSkill$"), "null"),
+        (new Regex(@"^\$\.player\.Progression\.Masteries$"), "[]"),
+        (new Regex(@"^\$\.player\.Progression\.Digest$"), null),   // and the record's digest, which reads them
     };
 
     [Fact]
@@ -137,8 +141,8 @@ public class GameSaveTests
         // the faction ledger, and the economy and merchants.
         int members = expected["player"]!["Companions"]!.AsArray().Count;
         // ... and, schema 21, four fields each party member and the party's ledger; schema 23, the quick bar and its cleared record;
-        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; schema 36, the empty pets; schema 40, the empty crossing record; schema 41, each creature record's untouched carcass (eight fields a record in all, with CMB-39's unsaved part structure); and, schema 42 (D21), each stack's empty build record.
-        Assert.Equal(2 + 8 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4 + 1 + stacks, differences.Count);
+        // schema 24, each stack's (empty) wear; schema 25, the party's sheets; schema 26, the NPCs' lives; schema 27, no attack under way; schema 29, the adventurers; schema 30, the space and the portal; schema 31, the Findings; schema 32, the further bars and the gear sets; and, schema 33, the bag slots and each stack's place, lock and junk mark; schema 34, the held weapon family and its layouts; schema 35, the empty lore; schema 36, the empty pets; schema 40, the empty crossing record; schema 41, each creature record's untouched carcass (eight fields a record in all, with CMB-39's unsaved part structure); schema 42 (D21), each stack's empty build record; and, schema 43, no designated discipline and no masteries, and the progression digest that reads them.
+        Assert.Equal(2 + 8 * creatureRecords + 1 + 3 + 1 + 1 + stacks + 1 + 2 + 4 * members + 1 + 2 + stacks + 1 + 1 + 1 + 1 + 2 + 1 + 2 + 1 + 4 * stacks + 4 + 1 + stacks + 3, differences.Count);
 
         // And it plays on: a fixed stretch of ticks, then a walk to the Ashen Waystone, with no observer failing, no body inside anything,
         // Tavar still at the character's side and every quest still answering the debugger.
