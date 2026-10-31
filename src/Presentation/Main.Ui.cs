@@ -79,6 +79,7 @@ public partial class Main
         _noticeBoard = new NoticeBoardPanel { Name = "NoticeBoard" };
         _noticeBoard.Bind(_session);
         AddChild(_noticeBoard);
+        _hud.AnnouncementsCovered = () => _noticeBoard.Visible;
         _map = new MapPanel { Name = "Map" };
         _map.Bind(_session);
         AddChild(_map);
