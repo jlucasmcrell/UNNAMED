@@ -14,7 +14,7 @@ facing_deg: 240
 people_ref: people.veth
 appearance:
   stature_cm: 142
-  face: face.m.asian.ben
+  face: face.m.asian.max
   hair: hair.regular.bowl
   outfit: outfit.period.tunic
   footwear: footwear.extra_outfits_pack.pirate_boots

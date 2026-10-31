@@ -14,7 +14,7 @@ facing_deg: 180
 people_ref: people.veth
 appearance:
   stature_cm: 176
-  face: face.m.caucasian.jack
+  face: face.m.caucasian.rory
   hair: hair.short.short_side_part
   facial_hair: facehair.mustache.large_mustache_short
   outfit: outfit.period.tunic

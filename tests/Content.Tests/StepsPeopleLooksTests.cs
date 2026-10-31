@@ -36,7 +36,12 @@ public class StepsPeopleLooksTests
             }
             if (person.PeopleId == "people.kal") { Assert.Null(look.Hair); Assert.Null(look.FacialHair); }
             if (person.PeopleId == "people.siann") { Assert.NotNull(look.Hair); Assert.Null(look.FacialHair); }
-            if (person.Id == "npc.otherhome.row_child") Assert.True(look.StatureMm < 1600);
+            if (person.Id == "npc.otherhome.row_child")
+            {
+                Assert.True(look.StatureMm < 1600);
+                var face = catalogue.GetProperty("faces").EnumerateArray().Single(f => f.GetProperty("id").GetString() == look.Face);
+                Assert.InRange(face.GetProperty("native").GetProperty("age").GetProperty("set").GetInt32(), 18, 35);
+            }
             else
             {
                 var race = catalogue.GetProperty("races").EnumerateArray().Single(r => r.GetProperty("people").GetString() == person.PeopleId);

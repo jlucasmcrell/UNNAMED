@@ -10,8 +10,11 @@ skin, hair and stone constraints. The selected peoples are visual proposals for
 Claude's verdict, not a new assertion about previously unauthored ancestry.
 
 The row child keeps a short 142 cm silhouette. The available native creator's
-youngest supported face age is 18; this uses that existing young preset rather
-than claiming a new child-face rig. Judge its read in the full-body frame.
+youngest supported face age is 18. The Max preset's unwrinkled native skin
+replaces the Ben preset's baked age-70 skin; the age control remains 18. This
+does not claim a new child-face rig. Eight other younger people likewise use
+age-appropriate native presets instead of elderly baked skin maps. All 27
+faces remain distinct. Judge the child's read in the full-body frame.
 
 ## Native delivery
 
@@ -43,7 +46,9 @@ It checks the boot collar covers the selected anatomy and asserts the face,
 neck, hands and garment GLB bytes remain unchanged. Both guard variants and
 both Pirate Boots variants need their delivered coverage PNG/JSON alongside
 the existing native parts. The four private deliveries are staged under
-`D:\Otherreach_Scratch\steps_finish_20261031\boot_coverage\rigged`.
+`D:\Otherreach_Scratch\steps_finish_20261031\boot_coverage_v2\rigged`.
+The baker explicitly checks samples in native glTF top-left UV coordinates;
+coverage JSON retains the exporter's Blender bottom-left convention.
 Native post-fix frames remain the visual gate; a passing bake is not a verdict.
 
 ## Validation and verdict

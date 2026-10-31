@@ -14,7 +14,7 @@ facing_deg: 0
 people_ref: people.veth
 appearance:
   stature_cm: 188
-  face: face.m.hispanic.enzo
+  face: face.m.hispanic.john
   hair: hair.regular.slicked_back
   facial_hair: facehair.other.stubble_long
   outfit: outfit.period.tunic

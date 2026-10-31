@@ -14,7 +14,7 @@ facing_deg: 0
 people_ref: people.orenth
 appearance:
   stature_cm: 178
-  face: face.f.caucasian.johanna
+  face: face.f.caucasian.emma
   hair: hair.long.ponytail
   outfit: outfit.period.coat
   footwear: footwear.extra_outfits_pack.pirate_boots

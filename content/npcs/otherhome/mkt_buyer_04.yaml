@@ -14,7 +14,7 @@ facing_deg: 180
 people_ref: people.siann
 appearance:
   stature_cm: 144
-  face: face.f.caucasian.clara
+  face: face.f.caucasian.anna
   hair: hair.long.bob_bangs
   outfit: outfit.period.robe
   footwear: footwear.extra_outfits_pack.pirate_boots

@@ -28,13 +28,17 @@ def bake(body_file, folders):
     triangles=faces[foot[faces].all(1)];protected=faces[exposed[faces].any(1)]
     assert len(triangles)>100 and not exposed[triangles].any(),'Foot selection must retain face, neck and every hand descendant'
     size=1024;mask=Image.new('L',(size,size),0);draw=ImageDraw.Draw(mask)
-    def polygon(face):return [(float(uv[i,0])*size,(1-float(uv[i,1]))*size)for i in face]
+    # glTF UVs, unlike Blender's source UVs, already start at the image's top.
+    def polygon(face):return [(float(uv[i,0])*size,float(uv[i,1])*size)for i in face]
     for face in triangles:draw.polygon(polygon(face),fill=255)
     mask=mask.filter(ImageFilter.MaxFilter(7))
     keep=Image.new('L',(size,size),0);keep_draw=ImageDraw.Draw(keep)
     for face in protected:keep_draw.polygon(polygon(face),fill=255)
     pixels=np.asarray(mask).copy();keep_pixels=np.asarray(keep)>0
     assert not pixels[keep_pixels].any(),'A boot mask must never erase exposed face/neck/hands'
+    centres=uv[triangles].mean(1)
+    samples=np.clip((centres*size).astype(int),0,size-1)
+    assert (pixels[samples[:,1],samples[:,0]]>127).all(),'Native glTF foot UVs must sample covered pixels'
     digest=hashlib.sha256(body_file.read_bytes()).hexdigest();results=[]
     for folder in map(Path,folders):
         contract=json.loads((folder/'creator_part.json').read_text())
@@ -53,8 +57,10 @@ def bake(body_file, folders):
         path=folder/'body_coverage.json';data=json.loads(path.read_text())if path.exists()else dict(target_body_sha256=digest,body_vertex_count=len(uv),covered=0,uv_triangles=[])
         # Keep the native export's existing regions and append only the boot layer.
         if 'boot_coverage'not in data:
-            data['uv_triangles'] += [uv[face].reshape(-1).tolist()for face in triangles]
-        data['boot_coverage']=dict(method='native foot/toe hierarchy, >=50% skin weight, complete triangles; 3 px seam padding',
+            for face in triangles:
+                canonical=uv[face].copy();canonical[:,1]=1-canonical[:,1]
+                data['uv_triangles'].append(canonical.reshape(-1).tolist())
+        data['boot_coverage']=dict(method='native foot/toe hierarchy, >=50% skin weight; glTF top-left raster / Blender bottom-left coverage JSON; 3 px seam padding',
             vertices=int(foot.sum()),triangles=len(triangles),collar_m=collar,highest_covered_m=float(positions[foot,1].max()),
             native_part_sha256=part_before,exposed_face_neck_hands_unchanged=True)
         path.write_text(json.dumps(data,separators=(',',':'))+'\n')

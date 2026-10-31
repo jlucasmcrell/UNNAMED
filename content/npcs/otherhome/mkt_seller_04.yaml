@@ -14,7 +14,7 @@ facing_deg: 0
 people_ref: people.siann
 appearance:
   stature_cm: 146
-  face: face.f.caucasian.gwen
+  face: face.f.caucasian.jessica
   hair: hair.long.bob_long
   outfit: outfit.period.dress
   footwear: footwear.extra_outfits_pack.pirate_boots
