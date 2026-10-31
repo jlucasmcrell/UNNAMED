@@ -102,6 +102,16 @@ public static class PlacedStrikeRules
     public static bool Lethal(AttackProfile attack, bool unaware, BodyRegion region, bool armouredRegion, bool boss) =>
         unaware && !boss && !armouredRegion && IsVital(region) && Reaches(attack, region);
 
+    /// <summary>
+    /// Where a region stops being vulnerable: fur and hide (a wolf's 1-2) are not protection against a placed strike into a
+    /// brain or a heart, while real armour (a boar's bristles at 4, mail) is. The canon's clause is an *unprotected*
+    /// critical structure, so the line sits between hide and armour rather than at zero.
+    /// </summary>
+    public const int ProtectedFrom = 3;
+
+    /// <summary>Whether armour of that value on the aimed region is enough to stop a placed strike.</summary>
+    public static bool Protects(int armorAtRegion) => armorAtRegion >= ProtectedFrom;
+
     /// <summary>The damage multiplier a placed strike earns: the x3 only on a vital, and only once the body is aware.</summary>
     public static double Multiplier(bool unaware, BodyRegion region) =>
         unaware || !IsVital(region) ? 1.0 : AwareVitalMultiplier;

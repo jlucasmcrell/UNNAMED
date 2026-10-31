@@ -739,7 +739,7 @@ internal sealed partial class CombatSystem
         // can reach a bare vital on a body that has not noticed it, which is what the canon calls lethal regardless of level.
         bool execution = dagger
             ? TakedownRules.Executes(true, true, fromBehind, ThreatRules.Of(definition.Level, State.Progression.Level), boss)
-            : PlacedStrikeRules.Lethal(attack, unaware: true, aimed, armouredRegion: defense.Armor.GetValueOrDefault(aimed) > 0, boss: boss);
+            : PlacedStrikeRules.Lethal(attack, unaware: true, aimed, armouredRegion: PlacedStrikeRules.Protects(defense.Armor.GetValueOrDefault(aimed)), boss: boss);
         var outcome = TakedownRules.Resolve(CombatRules.LevelGap(PlayerStrike(attack) with { Execution = execution },State.Progression.Level,definition.Level+creature.LevelBonus), defense, C, creature.Health, fromBehind,
             Random("takedown", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });

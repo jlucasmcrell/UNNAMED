@@ -109,7 +109,7 @@ public class StealthTests
     }
 
     [Fact]
-    public void ATakedown_NeedsADagger()
+    public void APlacedStrike_WithASword_ExecutesAnUnawareBody_NotOnlyTheDagger()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -117,10 +117,15 @@ public class StealthTests
         double facing = FacingOf(session, wolf);
         var arena = Armed(session, Along(wolf, facing, -1.2), FacingDeg(facing), Sword, creatures: (Arena.Wolf, wolf.Item1, wolf.Item2, "pack_hunter"));
         arena.Tick(2);
-        // CMB-15: the sword now places a strike (it reaches the torso), and the wolf's own hide at that region is what stops it
-        // executing - the canon's "unprotected critical structure", not the weapon class.
+        Assert.Equal(CreatureMind.Unaware, Only(arena).Mind);
+
+        // CMB-15: a blade that reaches a vital places the strike on a body that has not noticed you, whatever the class
+        // (COMBAT §19). A wolf's hide is 1-2, which is not protection against a blade into a brain or a heart; armour of 3 or
+        // more is - that is where PlacedStrikeRules.ProtectedFrom sits.
         Assert.Null(arena.Submit(new TakedownCommand(arena.Player)));
-        Assert.True(Only(arena).Alive);
+        arena.Tick(2);
+        Assert.False(Only(arena).Alive);
+        Assert.Equal(0, Only(arena).Health);
     }
 
     [Fact]
