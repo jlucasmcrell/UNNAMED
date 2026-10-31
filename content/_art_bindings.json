@@ -9990,15 +9990,9 @@
       "note": "The Steps stone: the landmark the other districts' stones use."
     },
     "oh_assize_notice": {
-      "model": "piece_bp_timber_wall",
+      "model": "piece_bp_timber_door",
       "material": "wood",
-      "scale": 0.65,
-      "offset": [
-        0,
-        1.1,
-        0
-      ],
-      "note": "The Assize's notice on its post at the ring's edge: a planked panel, the Gate's terms cut into it."
+      "note": "The Assize's notice on the pier by the ring: a planked board standing on the stones (it was a 3.4 m wall panel hung 1.1 m up, which floated)."
     },
     "oh_gate_stone_0": {
       "model": "rock_ph_moss_boulder_l",
