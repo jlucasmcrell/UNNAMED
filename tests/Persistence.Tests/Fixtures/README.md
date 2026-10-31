@@ -143,6 +143,7 @@ The same logical world at every version: seed `0x5C1A9E7B4D2F0083`, the profile 
 | `v36/` | The pets schema-36 writer (the animals that travel with the character) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v39/` | The HumGen-creator schema-39 writer (the identity's appearance) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 | `v40/` | The race-abilities schema-40 writer (the origin, the crossing record and open wings) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
+| `v44/` | The upgrades-and-enchanting schema-44 writer (a stack may carry its reforged tier and working; the fixture world has none, so it renders as v43) | `M2.Probe fixture <dir>` (writes content identity 0.1.6) |
 
 The one-off addition to `7ff4c57`'s probe that wrote `v1/`. It is not compiled into this build, since
 that build's world API no longer exists:

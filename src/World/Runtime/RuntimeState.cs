@@ -550,10 +550,10 @@ internal sealed class RuntimeState
     }
 
     public void PlaceItem(SliceOwner owner, CellKey cell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0,
-        NotableRecord? notable = null, ItemWear? wear = null)
+        NotableRecord? notable = null, ItemWear? wear = null, ItemWork? work = null)
     {
         Require(owner, StateSlice.WorldItems);
-        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality, notable, wear);
+        World.PlaceItem(cell, itemId, defId, count, xCm, zCm, quality, notable, wear, work);
     }
 
     public CreatedEntityRecord TakeItem(SliceOwner owner, EntityId itemId)

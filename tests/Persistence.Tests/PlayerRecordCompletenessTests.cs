@@ -50,6 +50,8 @@ public class PlayerRecordCompletenessTests
             Wear = new Domain.Items.ItemWear(12, 2),
             // Assembled from parts (schema 42).
             Built = Build,
+            // Reforged twice, with a working cut into it (schema 44).
+            Work = new Domain.Items.ItemWork(2, new Domain.Items.Inscription("working.fixture.ward", 3)),
         };
         var progression = player.Progression with
         {
@@ -115,10 +117,10 @@ public class PlayerRecordCompletenessTests
                 PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.scout", progression)
                 {
                     Gear = ImmutableSortedDictionary.Create<EquipSlot, PartyGear>()
-                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1), Built = Build }, Loaned: true))
+                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1), Built = Build, Work = new Domain.Items.ItemWork(3, new Domain.Items.Inscription("working.fixture.ember", 1)) }, Loaned: true))
                         .Add(EquipSlot.Head, new PartyGear(new InventoryEntry(Item(8), "item.armor.fixture_cap", 1) { Quality = -1, Notable = vest.Notable }, Loaned: false)),
                     Belongings = ImmutableArray.Create(new InventoryEntry(Item(9), "item.potion.minor_healing", 2) { Quality = 1 },
-                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1), Built = Build with { Name = "Fixture Knife" } },
+                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1), Built = Build with { Name = "Fixture Knife" }, Work = new Domain.Items.ItemWork(1, new Domain.Items.Inscription("working.fixture.keen", 2)) },
                         new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
                 }),
                 // A swing under way that has struck two creatures (schema 27).
@@ -273,11 +275,14 @@ public class PlayerRecordCompletenessTests
         ["player.inventory[].built"] = "a whole build, absent on a plain item; each of its fields is perturbed where one is present (schema 42)",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.inventory[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.inventory[].work"] = "a whole record, absent on a piece as made; each of its fields is perturbed where one is present (schema 44)",
         ["player.party_sheets[].belongings[].built"] = "a whole build, absent on a plain item; each of its fields is perturbed where one is present (schema 42)",
         ["player.party_sheets[].belongings[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].belongings[].work"] = "a whole record, absent on a piece as made; each of its fields is perturbed where one is present (schema 44)",
         ["player.party_sheets[].gear[].item.built"] = "a whole build, absent on a plain item; each of its fields is perturbed where one is present (schema 42)",
         ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].gear[].item.work"] = "a whole record, absent on a piece as made; each of its fields is perturbed where one is present (schema 44)",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
         ["player.crossing.costs[].tier"] = "one cost for each tier, numbered from 1 in order, so no tier changes alone (schema 40)",
         ["player.pets[].role"] = "one of the four role keys, so no other value decodes alone (schema 36)",

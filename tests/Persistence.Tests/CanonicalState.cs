@@ -60,6 +60,7 @@ internal static class CanonicalState
                 json.WriteNumber("quality", entry.Quality);
                 WriteNotable(json, entry.Notable);
                 WriteWear(json, entry.Wear);
+                WriteWork(json, entry.Work);
                 json.WriteEndObject();
             }
             json.WriteEndArray();
@@ -619,6 +620,7 @@ internal static class CanonicalState
                 json.WriteNumber("quality", created.Quality);
                 WriteNotable(json, created.Notable);
                 WriteWear(json, created.Wear);
+                WriteWork(json, created.Work);
                 json.WriteString("baseline_hash", created.BaselineHash);
                 json.WriteEndObject();
             }
@@ -642,6 +644,7 @@ internal static class CanonicalState
                     json.WriteNumber("quality", item.Quality);
                     WriteNotable(json, item.Notable);
                     WriteWear(json, item.Wear);
+                    WriteWork(json, item.Work);
                     json.WriteEndObject();
                 }
                 json.WriteEndArray();
@@ -863,6 +866,21 @@ internal static class CanonicalState
         json.WriteEndObject();
     }
 
+    /// <summary>A piece's work (schema 44): nothing for a piece as made, so every save before it renders as it always has.</summary>
+    private static void WriteWork(Utf8JsonWriter json, UNNAMED.Domain.Items.ItemWork? work)
+    {
+        if (work is null)
+            return;
+        json.WriteStartObject("work");
+        json.WriteNumber("tier", work.Tier);
+        if (work.Inscription is { } inscription)
+        {
+            json.WriteString("working", inscription.WorkingId);
+            json.WriteNumber("stability", inscription.Stability);
+        }
+        json.WriteEndObject();
+    }
+
     /// <summary>A stack's notable record (schema 19): null for an ordinary stack.</summary>
     private static void WriteNotable(Utf8JsonWriter json, UNNAMED.Domain.Items.NotableRecord? notable)
     {
@@ -890,6 +908,7 @@ internal static class CanonicalState
         json.WriteNumber("quality", entry.Quality);
         WriteNotable(json, entry.Notable);
         WriteWear(json, entry.Wear);
+        WriteWork(json, entry.Work);
     }
 
     private static void WriteProgression(Utf8JsonWriter json, CharacterProgression p)

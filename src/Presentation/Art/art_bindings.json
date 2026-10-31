@@ -6484,6 +6484,7 @@
   "skill.herbalism": "ui.skill.survival",
   "skill.skinning": "ui.skill.survival",
   "skill.woodworking": "ui.skill.smithing",
+  "skill.enchanting": "ui.skill.warding",
   "item.material.meat_raw": "ui.item.raw_meat",
   "skill.cooking": "ui.skill.survival",
   "skill.mining": "ui.skill.smithing",

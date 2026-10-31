@@ -151374,6 +151374,12 @@ stations:
   position_m:
   - 949.0
   - 681.0
+# Queue #5: Cairnwold's enchanting bench (HOOK.ENCHANT.SITE), between the cookfire and house 7's door, clear of the hurdle and the wall.
+- key: station.cairnwold.enchanting_bench
+  kind: enchanting_bench
+  position_m:
+  - 952.2
+  - 681.8
 - key: station.road.rim_cookfire
   kind: cookfire
   position_m:

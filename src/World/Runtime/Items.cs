@@ -325,7 +325,7 @@ internal sealed partial class InventorySystem
             PlaceKind.Ground => new NotableOrigin(ProvenanceKind.Found, _context.CellOfSite(source.XMm, source.ZMm).ToString()),
             _ => null,
         };
-        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null, built: whole ? source.Built : null);
+        Put(command.To, definition, command.Count, moving, source.Quality, whole ? source.Notable : null, origin, tick, whole ? source.Wear : null, built: whole ? source.Built : null, work: whole ? source.Work : null);
         if (command.From.Kind == PlaceKind.Container && _context.FindContainer(command.From.ContainerKey!) is { EmptyFlag: { } flag } emptiedSite
             && ContentsOf(emptiedSite).Count == 0)
             _context.Dispatch(new SetWorldFlag(_context.CellOfSite(_context.ContainerSpace(emptiedSite), emptiedSite.XMm, emptiedSite.ZMm), flag, 1));
@@ -507,12 +507,12 @@ internal sealed partial class InventorySystem
             return $"{entry.DefId} is not an item this build knows";
         if (command.DropAt is { } at)
         {
-            Put(ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear, at);
+            Put(ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear, at, work: entry.Work);
             return null;
         }
         bool fits = PackRoom(State.Inventory, definition, entry.Quality, entry.Count) is null
                     && CarriedGrams() + definition.WeightGrams * entry.Count <= CarryLimitGrams();
-        Put(fits ? ItemPlace.Carried : ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear);
+        Put(fits ? ItemPlace.Carried : ItemPlace.Ground, definition, entry.Count, entry.ItemId, entry.Quality, entry.Notable, null, tick, entry.Wear, work: entry.Work);
         return null;
     }
 
@@ -559,6 +559,7 @@ internal sealed partial class InventorySystem
         var worn = command.Slots.Where(State.Equipment.ContainsKey).Select(slot => State.Equipment[slot]).Distinct().ToHashSet();
         var entries = State.Inventory.ToList();
         var outs = new List<InventoryEntry>();
+        var faded = new List<(InventoryEntry Entry, Inscription Working)>();
         for (int i = 0; i < entries.Count; i++)
         {
             var entry = entries[i];
@@ -566,15 +567,33 @@ internal sealed partial class InventorySystem
                 continue;
             bool wasOut = Durability.IsWornOut(entry.Wear, definition.DurabilityMax);
             var (quality, wear) = Durability.Worn(entry.Quality, entry.Wear, definition.DurabilityMax, command.Points);
-            entries[i] = entry with { Quality = quality, Wear = wear };
+            // Use drifts a working's pattern (queue #5): a point of stability for every so much wear.
+            var work = _context.Setup.Crafting.Upgrades.Worn(entry.Work, entry.Wear?.Points ?? 0, wear?.Points ?? 0, out var lost);
+            entries[i] = entry with { Quality = quality, Wear = wear, Work = work };
             if (!wasOut && Durability.IsWornOut(wear, definition.DurabilityMax))
                 outs.Add(entries[i]);
+            if (lost is not null)
+                faded.Add((entries[i], lost));
         }
         if (entries.SequenceEqual(State.Inventory))
             return null;
         Commit(entries);
         foreach (var entry in outs)
             _context.Events.Publish(new ItemWornOut(entry.ItemId, entry.DefId, tick));
+        foreach (var (entry, working) in faded)
+            _context.Events.Publish(new InscriptionFaded(entry.ItemId, entry.DefId, working.WorkingId, tick));
+        return null;
+    }
+
+    /// <summary>A carried piece's work set (queue #5): reforged a tier, or a working cut into it.</summary>
+    public string? Handle(SetWork command)
+    {
+        var entries = State.Inventory.ToList();
+        int index = entries.FindIndex(e => e.ItemId == command.Item);
+        if (index < 0)
+            return $"{command.Item} is not carried";
+        entries[index] = entries[index] with { Work = command.Work };
+        Commit(entries);
         return null;
     }
 
@@ -715,6 +734,8 @@ internal sealed partial class InventorySystem
         public ItemWear? Wear { get; init; }
 
         public UNNAMED.Domain.Items.GearBuild? Built { get; init; }
+
+        public ItemWork? Work { get; init; }
     }
 
     private string? Check(ItemPlace place, bool trading)
@@ -738,14 +759,14 @@ internal sealed partial class InventorySystem
         {
             case PlaceKind.Inventory:
                 return State.Inventory.Where(e => e.ItemId.Value == itemRef)
-                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear, Built = e.Built }).FirstOrDefault();
+                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear, Built = e.Built, Work = e.Work }).FirstOrDefault();
             case PlaceKind.Ground:
             {
                 if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell)
                     || cell.Space != State.Space)
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
-                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear };
+                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear, Work = record.Work };
             }
             default:
             {
@@ -755,6 +776,7 @@ internal sealed partial class InventorySystem
                         Notable = item.Notable,
                         Wear = item.Wear,
                         Built = item.Built,
+                        Work = item.Work,
                     }).FirstOrDefault(l => l.Ref == itemRef);
             }
         }
@@ -765,12 +787,12 @@ internal sealed partial class InventorySystem
 
     /// <summary>A container's contents: its record once it has changed, otherwise its loot table rolled for this world.</summary>
     private IReadOnlyList<(string Ref, string DefId, int Count, EntityId? Id, int Quality, NotableRecord? Notable, ItemWear? Wear,
-        UNNAMED.Domain.Items.GearBuild? Built)> ContentsOf(ContainerSite site)
+        UNNAMED.Domain.Items.GearBuild? Built, ItemWork? Work)> ContentsOf(ContainerSite site)
     {
         if (State.World.Container(site.Key) is { } record)
-            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear, i.Built)).ToList();
+            return record.Items.Select(i => (i.ItemId.Value, i.DefId, i.Count, (EntityId?)i.ItemId, i.Quality, i.Notable, i.Wear, i.Built, i.Work)).ToList();
         return Baseline(site).Select((stack, i) => ($"{site.Key}#{i:00}", stack.Drop.ItemId, stack.Drop.Count, (EntityId?)null, stack.Quality, (NotableRecord?)null,
-            (ItemWear?)null, RollBuild(stack.Drop.ItemId, stack.Quality, site, _context))).ToList();
+            (ItemWear?)null, RollBuild(stack.Drop.ItemId, stack.Quality, site, _context), (ItemWork?)null)).ToList();
     }
 
     /// <summary>
@@ -856,7 +878,7 @@ internal sealed partial class InventorySystem
                 if (whole)
                     return record.InstanceId;
                 var cell = CellKey.Parse(record.HostCell);
-                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear);
+                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear, record.Work);
                 return null;
             }
             default:
@@ -883,7 +905,7 @@ internal sealed partial class InventorySystem
     /// with its item; one that has none yet and should (WP3a) gets it now, from <paramref name="origin"/>.
     /// </summary>
     private void Put(ItemPlace place, ItemDefinition definition, int count, EntityId? moving, int quality, NotableRecord? notable, NotableOrigin? origin, long tick,
-        ItemWear? wear = null, (long XMm, long ZMm)? at = null, UNNAMED.Domain.Items.GearBuild? built = null)
+        ItemWear? wear = null, (long XMm, long ZMm)? at = null, UNNAMED.Domain.Items.GearBuild? built = null, ItemWork? work = null)
     {
         if (notable is null && ItemClasses.KeepsRecord(definition, quality))
         {
@@ -898,7 +920,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(entries.Where(e => e.DefId == definition.Id && e.Quality == quality && !e.Junk).OrderBy(e => e.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (e, add) => entries[entries.IndexOf(e)] = e with { Count = e.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built });
+                    entries.Add(new InventoryEntry(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built, Work = stack == 1 ? work : null });
                 Retire(moving);
                 Commit(entries);
                 break;
@@ -911,7 +933,7 @@ internal sealed partial class InventorySystem
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null);
+                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null, stack == 1 ? work : null);
                 break;
             }
             default:
@@ -922,7 +944,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built });
+                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built, Work = stack == 1 ? work : null });
                 Retire(moving);
                 State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
                 break;

@@ -631,6 +631,21 @@ public sealed class InventoryDto
 
     /// <summary>From schema 42: how it was assembled (D21), or null for a plain item.</summary>
     [Key("built")] public GearBuildDto? Built { get; set; }
+
+    /// <summary>From schema 44: its reforged tier and working, or null for a piece as made.</summary>
+    [Key("work")] public WorkDto? Work { get; set; }
+}
+
+/// <summary>
+/// A piece's work (schema 44, queue #5): the tier it has been reforged to, and the working cut into it with the stability it has left (no
+/// working: null and 0).
+/// </summary>
+[MessagePackObject]
+public sealed class WorkDto
+{
+    [Key("tier")] public int Tier { get; set; }
+    [Key("working")] public string? Working { get; set; }
+    [Key("stability")] public int Stability { get; set; }
 }
 
 /// <summary>
@@ -1021,6 +1036,9 @@ public sealed class ContainerItemDto
 
     /// <summary>From schema 42: how a rolled piece in a chest was assembled (D21 G4), or null.</summary>
     [Key("built")] public GearBuildDto? Built { get; set; }
+
+    /// <summary>From schema 44: its reforged tier and working, or null.</summary>
+    [Key("work")] public WorkDto? Work { get; set; }
 }
 
 [MessagePackObject]
@@ -1043,6 +1061,9 @@ public sealed class CreatedDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 44: a dropped piece's reforged tier and working, or null.</summary>
+    [Key("work")] public WorkDto? Work { get; set; }
 }
 
 [MessagePackObject]
@@ -1100,7 +1121,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Built = BuildToDto(e.Built) })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Built = BuildToDto(e.Built), Work = WorkToDto(e.Work) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -1316,6 +1337,22 @@ public static class SectionCodec
             dto.Materials.ToImmutableSortedDictionary(StringComparer.Ordinal), dto.Affixes.ToImmutableArray(), dto.Sockets) { Name = dto.Name };
     }
 
+    private static WorkDto? WorkToDto(ItemWork? work) => work is null ? null : new WorkDto
+    {
+        Tier = work.Tier, Working = work.Inscription?.WorkingId, Stability = work.Inscription?.Stability ?? 0,
+    };
+
+    /// <summary>A piece's saved work (schema 44), valid, or null for a piece as made.</summary>
+    private static ItemWork? WorkOf(WorkDto? dto, string what)
+    {
+        if (dto is null)
+            return null;
+        var work = new ItemWork(dto.Tier, dto.Working is null ? null : new Inscription(dto.Working, dto.Stability));
+        return work.IsValid && (dto.Working is not null || dto.Stability == 0)
+            ? work
+            : throw new FormatException($"{what} has invalid work (tier {dto.Tier}, working {dto.Working ?? "none"}, stability {dto.Stability})");
+    }
+
     /// <summary>A stack's saved wear (schema 24), in range, or null for an unworn stack.</summary>
     private static ItemWear? WearOf(WearDto? dto, string what)
     {
@@ -1433,7 +1470,7 @@ public static class SectionCodec
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)
             {
                 Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"),
-                Built = BuildOf(e.Built, $"carried {e.ItemId}"),
+                Built = BuildOf(e.Built, $"carried {e.ItemId}"), Work = WorkOf(e.Work, $"carried {e.ItemId}"),
                 Bag = placed[e.ItemId].Bag, Slot = placed[e.ItemId].Slot, Locked = placed[e.ItemId].Locked, Junk = placed[e.ItemId].Junk,
             }),
             ProgressionCodec.FromDto(progression), facing,
@@ -1513,10 +1550,10 @@ public static class SectionCodec
     }
 
     private static InventoryDto StackToDto(InventoryEntry e) =>
-        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Built = BuildToDto(e.Built) };
+        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Built = BuildToDto(e.Built), Work = WorkToDto(e.Work) };
 
     private static InventoryEntry StackOf(InventoryDto e, string what) =>
-        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what), Built = BuildOf(e.Built, what) };
+        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what), Built = BuildOf(e.Built, what), Work = WorkOf(e.Work, what) };
 
     private static CompanionRecord Companion(CompanionDto c)
     {
@@ -1620,6 +1657,7 @@ public static class SectionCodec
                 Quality = c.Quality,
                 Notable = NotableToDto(c.Notable),
                 Wear = WearToDto(c.Wear),
+                Work = WorkToDto(c.Work),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -1627,7 +1665,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear), Built = BuildToDto(i.Built) }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear), Built = BuildToDto(i.Built), Work = WorkToDto(i.Work) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -1772,12 +1810,13 @@ public static class SectionCodec
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
                 Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
                 Wear = WearOf(c.Wear, $"created instance {c.InstanceId}"),
+                Work = WorkOf(c.Work, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}"), Built = BuildOf(i.Built, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}"), Built = BuildOf(i.Built, $"{c.Key} item {i.ItemId}"), Work = WorkOf(i.Work, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();

@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.World.Runtime;
 using static UNNAMED.Content.CombatContent;
 
@@ -29,6 +30,8 @@ public static class CraftingContent
         Try(() => BuildYieldBonuses(loader), "skills", errors);
         Try(() => BuildDropQuality(loader), "config.crafting", errors);
         Try(() => CheckExperiments(BuildConstants(loader), BuildRecipes(loader)), "experiments", errors);
+        Try(() => BuildUpgrades(loader), "config.crafting upgrade", errors);
+        Try(() => BuildWorkings(loader), "config.crafting enchanting", errors);
         if (errors.Count == 0 && loader.Definitions.ContainsKey("config.economy") && loader.GetByKind("recipe").Count > 0)
             Try(() => CheckRecipeMargins(ItemContent.BuildCatalog(loader), ItemContent.BuildPricing(loader), BuildRecipes(loader)), "recipe vendor margin (E-3)", errors);
         return errors;
@@ -39,7 +42,78 @@ public static class CraftingContent
         {
             YieldBonuses = BuildYieldBonuses(loader),
             DropQuality = BuildDropQuality(loader),
+            Upgrades = BuildUpgrades(loader),
+            Workings = BuildWorkings(loader),
         };
+
+    /// <summary>
+    /// <c>config.crafting upgrade</c> and the bench of <c>enchanting</c> (queue #5): how far a piece is reforged, what each tier asks and gives,
+    /// and how a working holds. Absent: the defaults.
+    /// </summary>
+    public static UpgradeRules BuildUpgrades(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.crafting"))
+            return UpgradeRules.Default;
+        var config = Config(loader, "config.crafting");
+        var rules = UpgradeRules.Default;
+        if (config.GetValueOrDefault("upgrade") is Dictionary<object, object> upgrade)
+            rules = new UpgradeRules(Int(upgrade, "max_tier"), Int(upgrade, "skill_per_tier"), Int(upgrade, "material_per_tier"),
+                Int(upgrade, "damage_per_tier"), Int(upgrade, "armor_per_tier"));
+        if (config.GetValueOrDefault("enchanting") is Dictionary<object, object> enchanting)
+            rules = rules with
+            {
+                EnchantingStation = Text(enchanting, "station"),
+                EnchantingSkill = Text(enchanting, "skill_ref"),
+                WearPerStability = Int(enchanting, "wear_per_stability"),
+                SkillPerStability = Int(enchanting, "skill_per_stability"),
+            };
+        if (rules.MaxTier < 0 || rules.SkillPerTier < 0 || rules.MaterialPerTier < 1 || rules.DamagePerTier < 0 || rules.ArmorPerTier < 0
+            || rules.WearPerStability < 1 || rules.SkillPerStability < 1)
+            throw new FormatException("config.crafting upgrade/enchanting: tiers, skill and bonuses not below 0, material and the stability steps at least 1");
+        if (loader.GetByKind("skill").Count > 0 && !loader.Definitions.ContainsKey(rules.EnchantingSkill))
+            throw new FormatException($"config.crafting enchanting skill_ref {rules.EnchantingSkill} is not a skill");
+        return rules;
+    }
+
+    /// <summary>
+    /// <c>config.crafting enchanting.workings</c> (queue #5): each working's ID, name, what it is cut into (<c>weapon</c> or <c>armor</c>), the
+    /// enchanting it needs, its anchor material and how many, its stability, and what it does - <c>damage</c> and <c>damage_type</c> on a weapon,
+    /// <c>armor</c> on armour.
+    /// </summary>
+    public static ImmutableSortedDictionary<string, WorkingDefinition> BuildWorkings(ContentLoader loader)
+    {
+        var none = ImmutableSortedDictionary.Create<string, WorkingDefinition>(StringComparer.Ordinal);
+        if (!loader.Definitions.ContainsKey("config.crafting") || Config(loader, "config.crafting").GetValueOrDefault("enchanting") is not Dictionary<object, object> enchanting)
+            return none;
+        bool items = loader.GetByKind("item").Count > 0;
+        var workings = none.ToBuilder();
+        foreach (var row in Rows(enchanting, "workings", "config.crafting enchanting"))
+        {
+            string id = Text(row, "id");
+            var target = Text(row, "target") switch
+            {
+                "weapon" => WorkingTarget.Weapon,
+                "armor" => WorkingTarget.Armor,
+                var other => throw new FormatException($"{id}: target '{other}' is weapon or armor"),
+            };
+            var working = new WorkingDefinition(id, Text(row, "name"), target, Int(row, "skill_min"), Text(row, "item_ref"), Int(row, "count"), Int(row, "stability"))
+            {
+                Damage = row.ContainsKey("damage") ? Int(row, "damage") : 0,
+                DamageType = row.ContainsKey("damage_type") ? Damage(Text(row, "damage_type")) : null,
+                Armor = row.ContainsKey("armor") ? Int(row, "armor") : 0,
+            };
+            if (!id.StartsWith("working.", StringComparison.Ordinal) || working.SkillMin < 0 || working.MaterialCount < 1 || working.Stability < 1
+                || working.Damage < 0 || working.Armor < 0)
+                throw new FormatException($"{id}: a working.* ID, skill_min not below 0, count and stability at least 1, damage and armor not below 0");
+            if (target == WorkingTarget.Weapon ? working.Armor != 0 : working.Damage != 0 || working.DamageType is not null)
+                throw new FormatException($"{id}: a weapon working gives damage, an armour working armour");
+            if (items && !loader.Definitions.ContainsKey(working.MaterialId))
+                throw new FormatException($"{id}: item_ref {working.MaterialId} is not an item");
+            if (!workings.TryAdd(id, working))
+                throw new FormatException($"{id} is listed twice");
+        }
+        return workings.ToImmutable();
+    }
 
     /// <summary>
     /// <c>config.crafting drop_quality</c>: from which creature level which share of a corpse's stacks is crude and which fine (DCP:662).

@@ -407,6 +407,24 @@ public partial class Main
             _inventory.Refresh();
             Notice(NoticeKind.Items,$"Repaired {Names.Of(_session,e.DefId)} for {e.Coin} coin",3);
         });
+        // Queue #5: a reforge, a working cut, and a working that faded with use.
+        _session.Subscribe<ItemUpgraded>(e =>
+        {
+            _inventory.Refresh();
+            Notice(NoticeKind.Items, $"Reforged {Names.Of(_session, e.DefId)} to tier {e.Tier}", 3);
+        });
+        _session.Subscribe<ItemInscribed>(e =>
+        {
+            _inventory.Refresh();
+            string name = _session.Setup.Crafting.Workings.TryGetValue(e.WorkingId, out var working) ? working.Name : e.WorkingId;
+            Notice(NoticeKind.Items, $"{name} cut into {Names.Of(_session, e.DefId)}, stability {e.Stability}", 3);
+        });
+        _session.Subscribe<InscriptionFaded>(e =>
+        {
+            _inventory.Refresh();
+            string name = _session.Setup.Crafting.Workings.TryGetValue(e.WorkingId, out var working) ? working.Name : e.WorkingId;
+            Notice(NoticeKind.Items, $"The {name} on your {Names.Of(_session, e.DefId)} has faded", 4);
+        });
         _session.Subscribe<RelationshipChanged>(QueueRelationshipNotice);
         _session.Subscribe<CommandRejected>(e =>
         {
@@ -540,9 +558,9 @@ public partial class Main
         });
         _session.Subscribe<CommandRejected>(e =>
         {
-            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand or StartFishingCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
+            if (e.Command is AttackCommand or DodgeCommand or UseItemCommand or CastCommand or TechniqueCommand or PlaceCampCommand or PackCampCommand or RestAtCampCommand or RefillFlaskCommand or CampReturnCommand or VisitStationCommand or RepairCommand or UpgradeCommand or InscribeCommand or StartFishingCommand && !e.Reason.StartsWith("already", StringComparison.Ordinal)
                 && e.Reason is not ("staggered" or "dodging" or "dead"))
-                _hud.Toast(e.Command is TechniqueCommand ? Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Name(m.Value)) : e.Reason, 2);
+                _hud.Toast(e.Command is TechniqueCommand or UpgradeCommand or InscribeCommand ? Regex.Replace(e.Reason, @"\b[a-z_]+(\.[a-z0-9_]+)+\b", m => Name(m.Value)) : e.Reason, 2);
         });
     }
 

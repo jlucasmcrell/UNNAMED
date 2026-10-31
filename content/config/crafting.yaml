@@ -37,3 +37,29 @@ salvage:
   max_percent: 75
   broken_condition_percent: 20
   hint_percent: 5
+
+# Reforging (queue #5; canon 13 §6.2): a weapon or piece of armour reworked a tier up at its own repair station, with its repair skill and
+# repair material. Each tier asks skill_per_tier more skill than the piece's repair least, spends material_per_tier more material than the
+# tier before, and adds its damage or armour. Nothing is rolled and the piece is never at risk (canon 12 §5.4); a working on it loses a
+# point of stability, because reforging the core tests the pattern (canon 13 §6.2).
+upgrade:
+  max_tier: 3
+  skill_per_tier: 10
+  material_per_tier: 2
+  damage_per_tier: 1
+  armor_per_tier: 1
+
+# Enchanting (queue #5; crafting_webs/enchanting_runecraft, SKILLS_AND_TECHNIQUES §Enchanting): a working cut into a weapon or a piece of
+# armour at an enchanting bench. Rune cutting (pattern only) is the 0-14 band's practice; anchor seating opens at 15. A working's stability is
+# its own, +1 a quality step past standard (-1 crude), +1 for every skill_per_stability levels past its least; use drifts it a point every
+# wear_per_stability points of wear, and at none it fades and the piece is plain again. Cutting a new working cuts the old one away.
+enchanting:
+  station: enchanting_bench
+  skill_ref: skill.enchanting
+  wear_per_stability: 20
+  skill_per_stability: 15
+  workings:
+    - { id: working.keen_edge, name: Keen Edge, target: weapon, skill_min: 0, item_ref: item.trinket.wolf_fang, count: 1, stability: 3, damage: 1 }
+    - { id: working.warding_weave, name: Warding Weave, target: armor, skill_min: 0, item_ref: item.material.spider_silk, count: 2, stability: 3, armor: 1 }
+    - { id: working.ember_anchor, name: Ember Anchor, target: weapon, skill_min: 15, item_ref: item.material.cinder_sac, count: 2, stability: 4, damage: 1, damage_type: fire }
+    - { id: working.anchored_ward, name: Anchored Ward, target: armor, skill_min: 15, item_ref: item.material.spider_silk, count: 4, stability: 4, armor: 2 }

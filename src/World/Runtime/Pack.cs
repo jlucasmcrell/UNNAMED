@@ -282,7 +282,7 @@ internal sealed partial class InventorySystem
             return "there is no such order";
         var entries = State.Inventory.ToList();
         // Partial stacks of a kind merge first, into as few stacks as hold them; a locked stack, a marked one and an unmarked one stay apart.
-        foreach (var group in entries.Where(e => !e.Locked && !Worn(e.ItemId) && Items.Catalog.Find(e.DefId) is { Stacks: true } && e.Notable is null && e.Wear is null)
+        foreach (var group in entries.Where(e => !e.Locked && !Worn(e.ItemId) && Items.Catalog.Find(e.DefId) is { Stacks: true } && e.Notable is null && e.Wear is null && e.Work is null)
                      .GroupBy(e => (e.DefId, e.Quality, e.Junk)).Where(g => g.Count() > 1).ToList())
         {
             int stackMax = Items.Catalog.Get(group.Key.DefId).StackMax;

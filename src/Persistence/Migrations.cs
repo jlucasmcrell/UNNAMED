@@ -131,7 +131,8 @@ public static class SchemaMigrations
         new SchemaV39ToV40(),
         new SchemaV40ToV41(),
         new SchemaV41ToV42(),
-        new SchemaV42ToV43());
+        new SchemaV42ToV43(),
+        new SchemaV43ToV44());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2181,6 +2182,24 @@ public sealed class SchemaV42ToV43 : SchemaMigration
 
     public override string Summary =>
         "schema 42 -> 43: the progression record may carry the designated discipline and the masteries (absent means none, so nothing is rewritten)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 43 -> 44: a carried stack, a stack in a container and a dropped stack may carry their work (queue #5): the tier a piece was reforged
+/// to and the working cut into it. The field is additive and its absence is its meaning: nothing in an older save was ever reforged or
+/// inscribed, so every piece loads at tier 0 with no working. The step keeps the sections byte for byte and moves the manifest.
+/// </summary>
+public sealed class SchemaV43ToV44 : SchemaMigration
+{
+    public override int From => 43;
+
+    public override string Summary => "schema 43 -> 44: stacks may carry a reforged tier and a working (absent means tier 0 and none, so nothing is rewritten)";
 
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {

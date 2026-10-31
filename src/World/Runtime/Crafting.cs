@@ -5,6 +5,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Crafting;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Spatial;
@@ -24,6 +25,12 @@ public sealed record CraftingSetup(
 
     /// <summary>How a corpse's stacks roll their quality by the creature's level (DCP:662; WP3a). Empty: every drop is standard.</summary>
     public ImmutableArray<DropQualityBand> DropQuality { get; init; } = ImmutableArray<DropQualityBand>.Empty;
+
+    /// <summary>How far and at what cost a piece is reforged, and how a working holds (queue #5).</summary>
+    public UpgradeRules Upgrades { get; init; } = UpgradeRules.Default;
+
+    /// <summary>The workings an enchanter can cut, by ID (<c>config.crafting enchanting.workings</c>). Empty: none.</summary>
+    public ImmutableSortedDictionary<string, WorkingDefinition> Workings { get; init; } = ImmutableSortedDictionary.Create<string, WorkingDefinition>(StringComparer.Ordinal);
 
     public static CraftingSetup Empty { get; } = new(new CraftingConstants(),
         ImmutableSortedDictionary.Create<string, NodeDefinition>(StringComparer.Ordinal),

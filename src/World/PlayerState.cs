@@ -38,6 +38,9 @@ public sealed record InventoryEntry(EntityId ItemId, string DefId, int Count)
     /// <summary>The wear it has taken and the quality it was made at (WP3b, D5). Null: unworn, at its made quality.</summary>
     public ItemWear? Wear { get; init; }
 
+    /// <summary>Its reforged tier and inscribed working (schema 44, queue #5). Null: as made, with nothing cut into it.</summary>
+    public ItemWork? Work { get; init; }
+
     /// <summary>
     /// Where it lies in the pack (schema 33): bag 0 is the backpack, 1..4 the bag slots, -1 an equipped bag, which lies in none. A slot of
     /// -1 is not placed yet; the pack places it where its kind goes.
@@ -73,6 +76,13 @@ public static class BuildDigest
                 .Add(string.Join(",", built.Parts.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => kv.Key + "=" + kv.Value)))
                 .Add(string.Join(",", built.Materials.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => kv.Key + "=" + kv.Value)))
                 .Add(string.Join(",", built.Affixes)).Add(built.Sockets).Add(built.Name ?? "-");
+}
+
+/// <summary>How a piece's work enters a digest: nothing for a piece as made, so every other stack hashes as it always has (schema 44).</summary>
+public static class WorkDigest
+{
+    public static CanonicalHasher Add(CanonicalHasher h, ItemWork? work) =>
+        work is null ? h : h.Add("work").Add(work.Tier).Add(work.Inscription?.WorkingId ?? "-").Add(work.Inscription?.Stability ?? 0);
 }
 
 /// <summary>How a stack's wear enters a digest: nothing for an unworn stack, so unworn stacks hash as they always have (WP3b).</summary>
@@ -291,6 +301,7 @@ public sealed record PlayerRecord
                 throw new ArgumentException($"Inventory holds item instances, got {entry.ItemId}", nameof(inventory));
             if (!DefinitionId.IsValid(entry.DefId) || entry.Count <= 0 || entry.Notable is { IsValid: false } || (entry.Notable is not null && entry.Count != 1)
                 || entry.Wear is { IsValid: false } || (entry.Wear is not null && entry.Count != 1)
+                || entry.Work is { IsValid: false } || (entry.Work is not null && entry.Count != 1)
                 || entry.Bag is < -1 or > Domain.Items.PackLimits.BagSlots || entry.Slot < -1)
                 throw new ArgumentException($"Invalid inventory entry {entry}", nameof(inventory));
         }
@@ -524,7 +535,7 @@ public sealed record PlayerRecord
             {
                 sheet.Progression.Validate();
                 if (!DefinitionId.IsValid(sheet.NpcId) || !PartyMemberKeys.IsMember(sheet.NpcId) || sheet.Gear.Values.Any(g => g is null)
-                    || sheet.Items.Any(e => e.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(e.DefId) || e.Count <= 0 || e.Notable is { IsValid: false } || e.Wear is { IsValid: false } || (e.Wear is not null && e.Count != 1)))
+                    || sheet.Items.Any(e => e.ItemId.Kind != EntityKind.Item || !DefinitionId.IsValid(e.DefId) || e.Count <= 0 || e.Notable is { IsValid: false } || e.Wear is { IsValid: false } || (e.Wear is not null && e.Count != 1) || e.Work is { IsValid: false } || (e.Work is not null && e.Count != 1)))
                     throw new ArgumentException($"Invalid party sheet for {sheet.NpcId}", nameof(PartySheets));
             }
             var items = sheets.SelectMany(p => p.Items).Select(e => e.ItemId).ToList();
@@ -967,7 +978,7 @@ public sealed record PlayerRecord
             using var h = new CanonicalHasher();
             h.Add("unnamed.player/v10").Add(Id.Value).Add(Name).Add(XMm).Add(YMm).Add(ZMm).Add(FacingMdeg).Add(AppearanceSeed).Add(Inventory.Length);
             foreach (var e in Inventory)
-                BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built);
+                WorkDigest.Add(BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built), e.Work);
             h.Add(Progression.Digest).Add(Discoveries.Length);
             foreach (var d in Discoveries)
                 h.Add(d.LocationId).Add(DiscoveryMethods.Key(d.Method)).Add(d.Tick);
@@ -1112,11 +1123,11 @@ public sealed record PlayerRecord
                 {
                     h.Add(sheet.NpcId).Add(sheet.Progression.Digest).Add(sheet.Gear.Count);
                     foreach (var (slot, gear) in sheet.Gear)
-                        BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
-                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear), gear.Item.Built);
+                        WorkDigest.Add(BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
+                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear), gear.Item.Built), gear.Item.Work);
                     h.Add(sheet.Belongings.Length);
                     foreach (var e in sheet.Belongings)
-                        BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built);
+                        WorkDigest.Add(BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built), e.Work);
                 }
             }
             // The attack under way (schema 27) only when there is one, so every older record digests as it always has.

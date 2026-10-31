@@ -49,6 +49,8 @@ public class GameSaveTests
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\])\[\d+\]\.Wear$"), "null"),
         // D21 (no schema bump: the field is additive and nullable): a stack may carry how it was built; nothing in this save was.
         (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\])\[\d+\]\.Built$"), "null"),
+        // Schema 44 (queue #5): a stack may carry a reforged tier and a working; nothing in an older save was reforged or inscribed.
+        (new Regex(@"^\$\.(player\.Inventory|world\.Created|world\.Containers\[\d+\]\.Items)\[\d+\]\.Work$"), "null"),
         // Schema 20: no faction was ever told anything - the empty ledger.
         (new Regex(@"^\$\.player\.Factions$"), """{"NextActSeq":1,"Acts":[],"Knowledge":[],"Standing":[]}"""),
         // Schema 21 (WP15a): every party member was a companion, aggressive, keeping to the leash, with no contract; no one was recovering

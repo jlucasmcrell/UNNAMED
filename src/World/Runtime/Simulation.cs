@@ -263,6 +263,7 @@ public sealed class Simulation
     private readonly GearSetSystem _gearSets;
     private readonly TeachingSystem _teaching;
     private readonly DurabilitySystem _durability;
+    private readonly UpgradeSystem _upgrades;
     private readonly BurningLightsSystem _lights;
     private readonly DetectionSystem _detection;
     private readonly AlarmSystem _alarms;
@@ -401,6 +402,7 @@ public sealed class Simulation
         _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, _npcs);
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
+        _upgrades = new UpgradeSystem(_context, player.Id);
         _lights = new BurningLightsSystem(_context, player.Id);
         _detection = new DetectionSystem(_context, player.Id);
         _alarms = new AlarmSystem(_context, _npcs);
@@ -1127,6 +1129,8 @@ public sealed class Simulation
                 SwapGearSetCommand swap => _gearSets.Handle(swap, WorldTick),
                 CancelGearSwapCommand cancel => _gearSets.Handle(cancel, WorldTick),
                 RepairCommand repair => _durability.Handle(repair, WorldTick),
+                UpgradeCommand upgrade => _upgrades.Handle(upgrade, WorldTick),
+                InscribeCommand inscribe => _upgrades.Handle(inscribe, WorldTick),
         DistractCommand distract => Distract(distract),
                 MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 JoinGroupCommand join => _lfg.Handle(join, WorldTick),
@@ -1443,6 +1447,7 @@ public sealed class Simulation
         CountUse use => _inventory.Handle(use),
         WearEquipped wear => _inventory.Handle(wear, Now),
         RepairItem repair => _inventory.Handle(repair),
+        SetWork work => _inventory.Handle(work),
         ChangeRelationship change => _relationships.Handle(change, Now),
         ForgetRelationships forget => _relationships.Handle(forget, Now),
         StartQuest start => _quests.Handle(start, Now),

@@ -551,15 +551,22 @@ internal sealed partial class CombatSystem
         if (State.Equipment.TryGetValue(EquipSlot.MainHand, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
             && _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon is { } weapon)
         {
-            // A weapon's quality is its own instance's (M3f): a fine one hits harder than its definition says, a crude one softer.
+            // A weapon's quality is its own instance's (M3f): a fine one hits harder than its definition says, a crude one softer. Its reforged
+            // tiers and the working cut into it add to that, and the working may give the blow its own damage type (queue #5).
             var attack = WeaponAttack(entry.DefId, weapon);
-            int step = entry.Quality * _context.Setup.Crafting.Constants.WeaponDamagePerStep;
+            var working = Working(entry.Work);
+            int step = entry.Quality * _context.Setup.Crafting.Constants.WeaponDamagePerStep + _context.Setup.Crafting.Upgrades.DamageBonus(entry.Work, working);
+            if (working is { Target: WorkingTarget.Weapon, DamageType: { } type })
+                attack = attack with { DamageType = type };
             return step == 0 ? attack : attack with { DamageMin = Math.Max(1, attack.DamageMin + step), DamageMax = Math.Max(1, attack.DamageMax + step) };
         }
         return C.Unarmed;
     }
 
     private AttackProfile WeaponAttack(string defId, WeaponStats weapon) => AttackOf(defId, weapon, C, TickMs);
+
+    private WorkingDefinition? Working(ItemWork? work) =>
+        work?.Inscription is { } inscription ? _context.Setup.Crafting.Workings.GetValueOrDefault(inscription.WorkingId) : null;
 
     /// <summary>
     /// A weapon's attack in ticks: a swing splits into windup, active and recovery; a bow draws, releases once, and nocks. The player's
@@ -1060,6 +1067,7 @@ internal sealed partial class CombatSystem
             State.Equipment.TryGetValue(slot, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
                 && _context.Setup.Items.Catalog.Find(entry.DefId) is { } item
                 ? EquipmentRules.ArmorOf(item, entry.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
+                    + (item.ArmorValue > 0 ? _context.Setup.Crafting.Upgrades.ArmorBonus(entry.Work, Working(entry.Work)) : 0)
                 : 0);
         var armor = ImmutableSortedDictionary.CreateRange(new[]
         {

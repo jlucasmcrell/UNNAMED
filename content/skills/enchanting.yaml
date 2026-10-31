@@ -1,0 +1,9 @@
+id: skill.enchanting
+kind: skill
+schema: 1
+display_key: skill.enchanting.name
+tags: [skill]
+name: Enchanting
+family: crafting
+notes: Persistent magic - anchor, pattern, source, trigger, effect, stability (canon SKILLS_AND_TECHNIQUES §Enchanting). There is no separate runecraft skill; runic work is a tradition of enchanting. Worked at an enchanting bench (queue #5); competence only, no ranks.
+teaches: "Cutting workings into weapons and armour at an enchanting bench: a working past your hand is refused, and the further past its least you are, the longer it holds."

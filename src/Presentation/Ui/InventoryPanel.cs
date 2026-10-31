@@ -577,6 +577,35 @@ public partial class InventoryPanel : CanvasLayer
                 _contextHead.AddChild(field);
             }
         }
+        // Reforging a piece at the station that repairs it, and cutting a working at an enchanting bench (queue #5).
+        var rules = simulation.Setup.Crafting.Upgrades;
+        foreach (var entry in player.Inventory.Where(e => simulation.Setup.Items.Catalog.Find(e.DefId) is { Repair: { } repair } piece && repair.StationKind == station.Kind
+                     && (piece.Weapon is not null || piece.ArmorValue > 0) && (e.Work?.Tier ?? 0) < rules.MaxTier))
+        {
+            var repair = simulation.Setup.Items.Catalog.Find(entry.DefId)!.Repair!;
+            int tier = entry.Work?.Tier ?? 0;
+            var reforge = Button("reforge/" + entry.ItemId, $"Reforge {Names.Of(_session, entry.DefId)} to tier {tier + 1}", () =>
+                Submit(new UpgradeCommand(simulation.PlayerId, entry.ItemId)));
+            reforge.TooltipText = $"Needs {Names.Of(_session, repair.SkillId)} {rules.SkillFor(repair, tier)} and {rules.MaterialFor(tier)} {Names.Of(_session, repair.MaterialId)}"
+                + (entry.Work?.Inscription is not null ? "; the working on it loses a point of stability" : "");
+            _contextHead.AddChild(reforge);
+        }
+        if (station.Kind == rules.EnchantingStation)
+        {
+            foreach (var entry in player.Inventory)
+            {
+                if (simulation.Setup.Items.Catalog.Find(entry.DefId) is not { } piece)
+                    continue;
+                foreach (var working in simulation.Setup.Crafting.Workings.Values.Where(w => w.Target == WorkingTarget.Weapon ? piece.Weapon is not null : piece.ArmorValue > 0))
+                {
+                    var cut = Button($"inscribe/{entry.ItemId}/{working.Id}", $"Cut {working.Name} into {Names.Of(_session, entry.DefId)}", () =>
+                        Submit(new InscribeCommand(simulation.PlayerId, entry.ItemId, working.Id)));
+                    cut.TooltipText = $"Needs {Names.Of(_session, rules.EnchantingSkill)} {working.SkillMin} and {working.MaterialCount} {Names.Of(_session, working.MaterialId)}"
+                        + (entry.Work?.Inscription is { } old ? $"; cuts away {(simulation.Setup.Crafting.Workings.TryGetValue(old.WorkingId, out var was) ? was.Name : old.WorkingId)}" : "");
+                    _contextHead.AddChild(cut);
+                }
+            }
+        }
         var skills = new HFlowContainer();
         skills.AddThemeConstantOverride("h_separation", 8);
         foreach (string skill in recipes.Select(r => r.SkillId).Distinct())
@@ -880,6 +909,15 @@ public partial class InventoryPanel : CanvasLayer
         {
             notes.Add((Provenance(notable), HudStyle.Ash, null));
             notes.Add(($"Familiarity {new string('●', notable.Familiarity)}{new string('○', NotableRecord.MaxFamiliarity - notable.Familiarity)}", HudStyle.Brass, null));
+        }
+        // Its work (queue #5): the tier it was reforged to, and the working cut into it with the stability it has left.
+        if (_chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen)?.Work is { } work)
+        {
+            if (work.Tier > 0)
+                notes.Add(($"Reforged to tier {work.Tier} of {setup.Crafting.Upgrades.MaxTier}.", HudStyle.Brass, null));
+            if (work.Inscription is { } inscription)
+                notes.Add(($"{(setup.Crafting.Workings.TryGetValue(inscription.WorkingId, out var cut) ? cut.Name : Names.Of(_session, inscription.WorkingId))} is cut into it: stability {inscription.Stability}{(inscription.Stability == 1 ? ", close to fading" : "")}.",
+                    inscription.Stability == 1 ? HudStyle.Wound : HudStyle.Brass, null));
         }
         _details.AddChild(grid);
         if (_chosen is not null && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId.Value == _chosen) is { } carriedEntry && !simulation.Player.Bags.Contains(carriedEntry.ItemId))
