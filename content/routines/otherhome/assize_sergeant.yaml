@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.otherhome.assize_sergeant.name
 tags: [routine]
-notes: "Gate 3: the Assize's sergeant's day. The ring watch is narrowed to the two hours after dusk, because the ring is 300 m from the nearest lit post: after that he is back at the board, where a player can actually find the law."
+notes: "The ring at dusk for two hours, then the board where a player can find the law."
 region_ref: region.otherhome
 people_ref: people.veth
 settlement: otherhome

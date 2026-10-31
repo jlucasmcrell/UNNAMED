@@ -58878,7 +58878,7 @@ npcs:
   position_m: [1580.0, 782.0]
   facing_deg: 0
 - npc_ref: npc.otherhome.water_carrier
-  position_m: [1402.0, 604.0]
+  position_m: [1402.38, 604.32]
   facing_deg: 180
 - npc_ref: npc.otherhome.row_child
   position_m: [1428.0, 614.0]

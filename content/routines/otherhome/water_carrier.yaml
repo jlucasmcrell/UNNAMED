@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.otherhome.water_carrier.name
 tags: [routine]
-notes: "The water-carrier's day, ordered so she is not on the same flight as the porter in the same hour: the quay in the early morning, the cistern in the middle of the day, and the flights she actually carries on in the late afternoon."
+notes: "The quay at first light, the cistern through the middle of the day, the flights after - and home once the light goes."
 region_ref: region.otherhome
 people_ref: people.mor
 settlement: otherhome
@@ -11,11 +11,10 @@ role: porter
 roles: [porter]
 work_hours: [6, 19]
 anchors:
-  home: {position_m: [1402.0, 604.0], facing_deg: 180}
+  home: {position_m: [1402.38, 604.32], facing_deg: 180}
   work: {position_m: [1404.0, 612.0], facing_deg: 180}
   quay: {position_m: [1348.0, 476.0], facing_deg: 270}
   cistern: {position_m: [1520.0, 700.0], facing_deg: 0}
 schedule:
   - {hours: [6, 9], at: quay}
   - {hours: [9, 15], at: cistern}
-  - {hours: [15, 19], at: work}
