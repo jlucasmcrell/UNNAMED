@@ -1,0 +1,183 @@
+{
+  "status": "IN_PROGRESS_PRIORITY3_SOURCE_FIT_VERDICT_REQUEST",
+  "motion": {
+    "status": "NATIVE_SOURCE_REQUIRES_REVIEW",
+    "worn": 3,
+    "bones": 63,
+    "body_capsules": 10,
+    "evidence": [
+      {
+        "clip": "idle",
+        "frames": 73,
+        "length": 2.5
+      },
+      {
+        "clip": "sword_attack_1",
+        "frames": 51,
+        "length": 1.5333333015441895
+      },
+      {
+        "clip": "walk",
+        "frames": 40,
+        "length": 1.3333333730697632
+      },
+      {
+        "clip": "run",
+        "frames": 36,
+        "length": 0.9333333373069763
+      }
+    ],
+    "art_problems": {},
+    "scope": "Actual Outfit.Dress, garment layers, native63-joint rig and SpringBoneSimulator3D. Current original body and frontier underlayers. Neutral source stage; not all body variants, head-turn limits, shop/equipment integration or in-game acceptance."
+  },
+  "motion_exit": {
+    "exit": 0,
+    "lease_seconds": 27.102506299997913
+  },
+  "motion_inputs": {
+    "private_source_sha256": "d52f2967c052c3eac78a7129dd0ecb3307245d2c48479ff7f5003be5c3d6bcdd",
+    "assemblies": {
+      "UNNAMED.Application.dll": "7c5034df843c2b9eb80af899e61367971eeb1447c912e22bce578ce169a93a68",
+      "UNNAMED.Content.dll": "a97410df5294ad8110305f7c8bf8bd191b048286109dac83a0e821e983b5921c",
+      "UNNAMED.Domain.dll": "5428db5f0bcc876e16089e246a1a110c07c9da86f145b48d7579fb5ea25696ff",
+      "UNNAMED.EntityRegistry.dll": "30b349e70f75be04753a4b72fc0e48c8fb65ace5a1fe5b5d46103675a96d8412",
+      "UNNAMED.Persistence.dll": "c677d49c387e56bfd1020e6f298bc5905073976c309469f5ec2d21c2b731c059",
+      "UNNAMED.Presentation.dll": "548756875c5e632f5effabe000dc2dc24f89cf95c7396d980d16e4c4e2e63dc7",
+      "UNNAMED.World.dll": "08d1f5a42156e65920d93fa858d504dce95a8de2c0432e056c5236797c18777d"
+    },
+    "scope": "Native garment source stage; not complete game/body-variant acceptance"
+  },
+  "head_targets": {
+    "status": "NATIVE_SOURCE_REQUIRES_REVIEW",
+    "worn": 3,
+    "bones": 63,
+    "body_capsules": 10,
+    "evidence": [
+      {
+        "name": "front",
+        "target": "(-4.9660266E-06, 1.4994332, 9.994588)",
+        "head_basis": "[X: (0.9978921, 0.046467625, 0.045294076), Y: (-0.05894775, 0.94095075, 0.33337128), Z: (-0.027128533, -0.3353386, 0.9417068)]",
+        "primary_limit": 2.443461,
+        "secondary_limit": 1.2217305
+      },
+      {
+        "name": "left",
+        "target": "(-10.000005, 1.4994332, -0.0054120235)",
+        "head_basis": "[X: (0.9978921, 0.046467625, 0.045294076), Y: (-0.05894775, 0.94095075, 0.33337128), Z: (-0.027128533, -0.3353386, 0.9417068)]",
+        "primary_limit": 2.443461,
+        "secondary_limit": 1.2217305
+      },
+      {
+        "name": "right",
+        "target": "(9.999995, 1.4994332, -0.0054120235)",
+        "head_basis": "[X: (0.9978921, 0.046467625, 0.045294076), Y: (-0.05894775, 0.94095075, 0.33337128), Z: (-0.027128533, -0.3353386, 0.9417068)]",
+        "primary_limit": 2.443461,
+        "secondary_limit": 1.2217305
+      },
+      {
+        "name": "up",
+        "target": "(-4.9660266E-06, 11.4994335, 9.994588)",
+        "head_basis": "[X: (0.9978921, 0.046467625, 0.045294076), Y: (-0.05894775, 0.94095075, 0.33337128), Z: (-0.027128533, -0.3353386, 0.9417068)]",
+        "primary_limit": 2.443461,
+        "secondary_limit": 1.2217305
+      },
+      {
+        "name": "down",
+        "target": "(-4.9660266E-06, -8.5005665, 9.994588)",
+        "head_basis": "[X: (0.9978921, 0.046467625, 0.045294076), Y: (-0.05894775, 0.94095075, 0.33337128), Z: (-0.027128533, -0.3353386, 0.9417068)]",
+        "primary_limit": 2.443461,
+        "secondary_limit": 1.2217305
+      },
+      {
+        "name": "behind",
+        "target": "(-4.9660266E-06, 1.4994332, -10.005412)",
+        "head_basis": "[X: (0.9978921, 0.046467625, 0.045294076), Y: (-0.05894775, 0.94095075, 0.33337128), Z: (-0.027128533, -0.3353386, 0.9417068)]",
+        "primary_limit": 2.443461,
+        "secondary_limit": 1.2217305
+      }
+    ],
+    "art_problems": {},
+    "scope": "Actual Outfit.Dress plus actual existing BodyModifiers.LookAt with its production limits, six target directions on native Ada. Source clearance review; no all-variant/equipment acceptance."
+  },
+  "head_exit": {
+    "exit": 0,
+    "lease_seconds": 25.268220499987365
+  },
+  "head_inputs": {
+    "private_source_sha256": "48c020aa943d49094fff7b9d29036cf54b63e09dbe905a61d0b0e079dc91fe7e",
+    "assemblies": {
+      "UNNAMED.Application.dll": "7c5034df843c2b9eb80af899e61367971eeb1447c912e22bce578ce169a93a68",
+      "UNNAMED.Content.dll": "a97410df5294ad8110305f7c8bf8bd191b048286109dac83a0e821e983b5921c",
+      "UNNAMED.Domain.dll": "5428db5f0bcc876e16089e246a1a110c07c9da86f145b48d7579fb5ea25696ff",
+      "UNNAMED.EntityRegistry.dll": "30b349e70f75be04753a4b72fc0e48c8fb65ace5a1fe5b5d46103675a96d8412",
+      "UNNAMED.Persistence.dll": "c677d49c387e56bfd1020e6f298bc5905073976c309469f5ec2d21c2b731c059",
+      "UNNAMED.Presentation.dll": "730eed3e69207468fed5db061efd41ba1cf29b0a802664ff8414ea766e8b8a36",
+      "UNNAMED.World.dll": "08d1f5a42156e65920d93fa858d504dce95a8de2c0432e056c5236797c18777d"
+    },
+    "scope": "Native garment source stage; not complete game/body-variant acceptance"
+  },
+  "setup": {
+    "status": "PASS",
+    "scope": "Headless native Godot setup only; no rendered fit/material/swing acceptance",
+    "native_body_joints_unchanged": 59,
+    "total_joints": 63,
+    "worn": 3,
+    "chains": 2,
+    "body_capsules": 10,
+    "metallic_factors": [
+      0.94,
+      0.92,
+      0.94,
+      0.92,
+      0,
+      0.94
+    ],
+    "art_problems": {}
+  },
+  "source_inputs": [
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_besagews__humgen_player_ada_f\\gap_besagews__humgen_player_ada_f_garment.json",
+      "sha256": "01d12a2ac812081e1c2c91c36b5de18816fba104c866319933b57d59289a1f10"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_besagews__humgen_player_ada_f\\gap_besagews__humgen_player_ada_f_rigged.glb",
+      "sha256": "0e8cee082dc5357589bfd4f1c5e75b6686bf7b7032663babea3d4bb66296d49d"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_gorget__humgen_player_ada_f\\gap_gorget__humgen_player_ada_f_garment.json",
+      "sha256": "ec9495cab93da2ddadeaaa0940c38f96c446c481ac8697ec9a140740139d9764"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_gorget__humgen_player_ada_f\\gap_gorget__humgen_player_ada_f_rigged.glb",
+      "sha256": "634bcbbba73367f8ab33ffa2618b823787804e568ac6472709c70dd33f1aac04"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_voiders__humgen_player_ada_f\\gap_voiders__humgen_player_ada_f_garment.json",
+      "sha256": "3f2d6cb808606eb4466aa573117b920248aa040413e195fc8c477995699bf77c"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_voiders__humgen_player_ada_f\\gap_voiders__humgen_player_ada_f_rigged.glb",
+      "sha256": "a3d7ddb1cce9f506f135cd4926d54dd4ac0ecb204ffb2dd764790e2c54f91ada"
+    }
+  ],
+  "notes": [
+    "Source01 V5 gorget was buried below the frontier collar; rejected and refitted. V6 voiders fit the actual sewn shirt seam instead of bare skin.",
+    "Four original continuous native clips, no interpolation/speed adjustment; contact sheet uses disclosed supporting crops only.",
+    "HEAD images are full unaltered1920x1080 viewport PNGs using actual existing BodyModifiers.LookAt production limits. Its post-draw bone_basis telemetry is the restored underlying animation pose, not a measured final modifier angle; the actual turn is visible in the rendered image.",
+    "Ada native motion and head stages clean exit0/27.10sec and0/25.27sec respectively. No missing requested art.",
+    "This is a neutral native source stage. Mateo, other body sets, distant LODs, equipment/stock binding, all clip poses and exotic garments are still unfinished."
+  ],
+  "sha256": {
+    "HEAD_behind.png": "b42ecf82527fb98bcf64a5fc9ef4edb05c9f1a3b47c3d2e074b8e7efe1546db1",
+    "HEAD_down.png": "53f28a90312e3ef78d17270b4c953a16220e74c8a124b584072fe7e4345f8709",
+    "HEAD_front.png": "1f20614e56b39a4a1098de5922d74f8ddc9c426e5f76df9b43243cbb5de51f40",
+    "HEAD_left.png": "d489f89d025e945855a923a57e2899d88cbaf94c93b671068e427cad95236e20",
+    "HEAD_right.png": "f136636bd9a30e91a402b42b17fcd89c6e4cb805f01c478762d6759ee2094b3e",
+    "HEAD_up.png": "a250ce518c7cec21a9e190cc1eff49883afc1f5112005eabb57ba4a63922f643",
+    "idle.mp4": "7f0aa23913888943cc1b4608d625742779b6062a227e790aa3fc9b61836f9469",
+    "PRIORITY3_NATIVE_ADA_CONTACT.jpg": "d24fee2455499d8348d9bc51e81c07fed5791ada94f37c2674ffe797e49dd349",
+    "run.mp4": "450f4b02f7f35d6538e4aeb1ae10211472e9f51c81752fc3f50f1102bf364111",
+    "sword_attack_1.mp4": "51ed0f69f6d02957ba08517849ed02eb5012b27199e0f09dd511efa76ae2ea2b",
+    "walk.mp4": "7638119b4dd5fdc6fb9a408e3131348947f81837e19af460185d38f337ac1398"
+  }
+}

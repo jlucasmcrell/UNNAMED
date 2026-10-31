@@ -99,10 +99,12 @@ class Garment:
         self.grid(rows, material, binding)
 
     def fit_surface(self, centre):
+        if hasattr(self, "fit_reference"):
+            return self.fit_reference.fit_surface(centre)
         if not hasattr(self, 'surface_tree'):
             points, normals, bindings = [], [], []
             for index, node in enumerate(self.body.doc['nodes']):
-                if 'mesh' not in node or 'Body_LOD0' not in self.body.doc['meshes'][node['mesh']].get('name', ''):
+                if 'mesh' not in node or getattr(self, 'fit_mesh_name', 'Body_LOD0') not in node.get('name', '') + self.body.doc['meshes'][node['mesh']].get('name', ''):
                     continue
                 transform = self.world(index)
                 skin = self.body.doc['skins'][node['skin']]
@@ -119,7 +121,7 @@ class Garment:
             self.surface_tree = cKDTree(self.surface_points)
         _, nearest = self.surface_tree.query(centre)
         normal = self.surface_normals[nearest]
-        fitted = np.asarray(centre) + normal*(.016-np.dot(np.asarray(centre)-self.surface_points[nearest], normal))
+        fitted = np.asarray(centre) + normal*(getattr(self, 'fit_clearance', .016)-np.dot(np.asarray(centre)-self.surface_points[nearest], normal))
         return fitted, self.surface_bindings[nearest], normal
 
     def save(self, destination, layer):
@@ -198,25 +200,25 @@ def gorget(g):
     scale = abs(g.point('LeftUpperArm')[0]-g.point('RightUpperArm')[0])/.3468
     binding = [('UpperChest', 1)]
     # A flared shoulder mantle, turned-down lip, short articulated neck stand and an open jaw clearance.
-    profile = [(.148, .126, -.066), (.144, .122, -.060), (.124, .109, -.038),
-               (.099, .093, -.016), (.080, .078, .002), (.079, .077, .023),
-               (.081, .079, .027), (.084, .082, .024), (.083, .081, .003),
-               (.103, .097, -.018), (.128, .113, -.040), (.148, .126, -.066)]
+    profile = [(.195, .190, -.055), (.191, .186, -.049), (.163, .168, -.027),
+               (.126, .143, .006), (.104, .132, .031), (.103, .131, .049),
+               (.105, .133, .053), (.108, .136, .050), (.107, .135, .032),
+               (.130, .147, .003), (.167, .172, -.030), (.195, .190, -.055)]
     rows = []
     for rx, rz, y in profile:
         rows.append([[neck[0]+scale*rx*math.cos(a), neck[1]+scale*(y-.018*max(0, math.sin(a))),
-                      neck[2]+scale*rz*math.sin(a)] for a in np.linspace(0, 2*math.pi, 97)])
+                      neck[2]+scale*rz*math.sin(a)*(.78 if math.sin(a)<0 else 1)] for a in np.linspace(0, 2*math.pi, 97)])
     g.grid(rows, 0, binding)
     # The rim and the rear rolled collar edge are separate metal surfaces, not painted contours.
-    for y, rx, rz in ((.025, .082, .080), (-.064, .147, .125)):
+    for y, rx, rz in ((.051, .106, .134), (-.053, .194, .189)):
         roll = []
         for v in np.linspace(0, 2*math.pi, 7):
             roll.append([(neck+scale*np.array([(rx+.0022*math.cos(v))*math.cos(u),
-                y-.018*max(0, math.sin(u))+.0022*math.sin(v), (rz+.0022*math.cos(v))*math.sin(u)])).tolist()
+                y-.018*max(0, math.sin(u))+.0022*math.sin(v), (rz+.0022*math.cos(v))*math.sin(u)*(.78 if math.sin(u)<0 else 1)])).tolist()
                 for u in np.linspace(0, 2*math.pi, 97)])
         g.grid(roll, 1, binding)
     for a in np.linspace(0, 2*math.pi, 17)[:-1]:
-        centre = neck + scale*np.array([.128*math.cos(a), -.038-.018*max(0, math.sin(a)), .113*math.sin(a)])
+        centre = neck + scale*np.array([.166*math.cos(a), -.030-.018*max(0, math.sin(a)), .171*math.sin(a)*(.78 if math.sin(a)<0 else 1)])
         g.torus(centre, .0028*scale, .0015*scale, binding, 1, segments=12)
 
 
@@ -273,17 +275,211 @@ def voiders(g):
                 g.torus(centre, .0041, .00085, binding, 0, axis='z', segments=12, basis=basis)
 
 
+
+def bevor(g):
+    neck = g.point('Neck')
+    # An open-backed jaw cup; the short front throat plate clears the rotating mandible.
+    rows = []
+    for y, rx, rz, arc in [(-.060,.100,.103,.78),(-.050,.097,.105,.80),(-.023,.089,.105,.83),
+                           (.004,.085,.110,.85),(.025,.082,.114,.82),(.030,.084,.116,.82),
+                           (.026,.087,.117,.82),(.001,.091,.113,.85),(-.027,.095,.109,.83),(-.060,.100,.103,.78)]:
+        rows.append([(neck+[rx*math.sin(a),y+.015*(1-math.cos(a)),rz*math.cos(a)]).tolist()
+                     for a in np.linspace(-arc,arc,129)])
+    g.grid(rows,0,[('UpperChest',1)])
+    for sign in [-1,1]:
+        g.torus(neck+[sign*.071,-.027,.083],.003,.0014,[('UpperChest',1)],1,axis='z',segments=20)
+
+
+def mail_collar(g, curtain=False):
+    neck = g.point('Neck')
+    # Alternating interlinked rings; widened lower courses drape over the shoulders.
+    courses = 24 if curtain else 9
+    for row in range(courses):
+        y = .018-row*.006
+        flare = max(0, -y-.035)
+        rx, rz = .077+flare*.65, .076+flare*.5
+        circumference = 2*math.pi*math.sqrt((rx*rx+rz*rz)/2)
+        count = int(circumference/.0063)
+        for column in range(count):
+            a=(column+(row%2)*.5)*2*math.pi/count
+            centre=neck+np.array([rx*math.cos(a),y,rz*math.sin(a)])
+            tangent=np.array([-math.sin(a),0,math.cos(a)])
+            radial=np.array([math.cos(a),0,math.sin(a)])
+            tilt=.38 if row%2 else -.38
+            normal=radial*math.cos(tilt)+np.array([0,1,0])*math.sin(tilt)
+            basis=np.column_stack([tangent,np.cross(normal,tangent),normal])
+            upper=float(np.clip((y+.06)/.08,0,1)) if curtain else 0
+            binding=[('Neck',upper),('UpperChest',1-upper)] if curtain else [('UpperChest',1)]
+            g.torus(centre,.0041,.00085,binding,0,axis='z',segments=12,basis=basis)
+
+
+def couters(g):
+    for side in ['Left','Right']:
+        elbow=g.point(side+'LowerArm');sign=1 if side=='Left' else -1
+        # Articulated elbow cop outside, separate inner-seam plate inside the bend.
+        for face in [-1,1]:
+            rows=[]
+            for r in np.linspace(.001,1,14):
+                row=[]
+                for a in np.linspace(0,2*math.pi,97):
+                    offset=np.array([sign*.064*r*math.cos(a),.063*r*math.sin(a),face*(.053+.016*(1-r*r))])
+                    row.append((elbow+offset).tolist())
+                rows.append(row)
+            def binding(point):
+                w=float(np.clip((sign*(point[0]-elbow[0])+.015)/.03,0,1))
+                return [(side+'UpperArm',1-w),(side+'LowerArm',w)]
+            g.grid(rows,0,binding)
+            g.torus(elbow+[0,0,face*.054],.055,.002,binding(elbow),1,axis='z',segments=64)
+        # A narrow retention band encircles the elbow without filling the open flexion seam.
+        rows=[]
+        for x in [-.012,-.008,.008,.012]:
+            rows.append([(elbow+[sign*x,.059*math.cos(a),.052*math.sin(a)]).tolist()
+                         for a in np.linspace(0,2*math.pi,129)])
+        g.grid(rows,2,[(side+'LowerArm',1)])
+
+
+def poleyns(g):
+    for side in ['Left','Right']:
+        knee=g.point(side+'LowerLeg');sign=1 if side=='Left' else -1
+        rows=[]
+        for r in np.linspace(.001,1,16):
+            row=[]
+            for a in np.linspace(0,2*math.pi,129):
+                wing=max(0,sign*math.cos(a))**7*.046
+                row.append((knee+[.060*r*math.cos(a)+sign*wing*r,.080*r*math.sin(a),.071+.021*(1-r*r)]).tolist())
+            rows.append(row)
+        def binding(point):
+            lower=float(np.clip((knee[1]-point[1]+.025)/.05,0,1))
+            return [(side+'UpperLeg',1-lower),(side+'LowerLeg',lower)]
+        g.grid(rows,0,binding)
+        # Only lateral pivots: the back of the knee intentionally remains bare.
+        for dy in [-.040,.040]:
+            g.torus(knee+[sign*.052,dy,.079],.003,.0015,binding(knee+[0,dy,0]),1,axis='z',segments=20)
+
+
+def groin_guard(g):
+    hip=g.point('Hips');rows=[]
+    for y,width,depth in [(-.020,.046,.145),(-.024,.050,.148),(-.055,.048,.150),(-.105,.039,.153),
+                          (-.145,.021,.154),(-.151,.012,.153),(-.145,.021,.150),(-.105,.039,.149),
+                          (-.055,.048,.146),(-.024,.050,.145)]:
+        rows.append([(hip+[x,y,depth+.009*(1-(x/width)**2)]).tolist() for x in np.linspace(-width,width,129)])
+    g.grid(rows,0,[('Hips',1)])
+    for x in [-.025,.025]:g.torus(hip+[x,-.036,.159],.003,.0014,[('Hips',1)],1,axis='z',segments=20)
+
+
+def faulds(g):
+    hip=g.point('Hips')
+    scale=abs(g.point('LeftUpperLeg')[0]-g.point('RightUpperLeg')[0])/.204
+    # Four overlapping flared lames above the moving thigh, not a solid rigid cone.
+    for lame in range(4):
+        top=.135-lame*.032
+        rows=[]
+        for h in [0,.003,.014,.029,.037]:
+            flare=(lame*.032+h)/.13
+            rx=(.179+.055*flare)*scale;rz=(.145+.040*flare)*scale
+            rows.append([(hip+[rx*math.cos(a),scale*(top-h),rz*math.sin(a)]).tolist()
+                         for a in np.linspace(0,2*math.pi,129)])
+        g.grid(rows,0,[('Hips',1)])
+        for a in [.4,math.pi-.4,math.pi+.4,2*math.pi-.4]:
+            g.torus(hip+scale*np.array([(.18+.055*lame/4)*math.cos(a),top-.012,(.146+.04*lame/4)*math.sin(a)]),.003*scale,.0012*scale,[('Hips',1)],1,segments=12)
+    # Each tasset follows its own native thigh. Five separate overlapping plates
+    # retain their shaped edges at full stride instead of bridging the crotch.
+    for side in ['Left','Right']:
+        sign=1 if side=='Left' else -1
+        for lame in range(5):
+            top=.035-lame*.043
+            rows=[]
+            for h in [0,.003,.018,.038,.050]:
+                width=(.058+.004*lame)*scale
+                rows.append([(hip+[sign*.13*scale+x,scale*(top-h),scale*(.175+.018*(1-(x/width)**2))]).tolist()
+                             for x in np.linspace(-width,width,65)])
+            g.grid(rows,0,[(side+'UpperLeg',1)])
+            for dx in [-.045,.045]:
+                g.torus(hip+scale*np.array([sign*.13+dx,top-.012,.190]),.0026*scale,.0012*scale,[(side+'UpperLeg',1)],1,axis='z',segments=12)
+
+
+def sabatons(g):
+    for side in ['Left','Right']:
+        foot=g.point(side+'Foot');toe=g.point(side+'Toes')
+        scale=abs(toe[2]-foot[2])/.126
+        # Interleaved vamp lames; the toe plates use the existing toe joint.
+        for lame in range(9):
+            back=foot[2]+scale*(-.071+lame*.032)
+            binding=[(side+('Toes' if lame>=6 else 'Foot'),1)]
+            rows=[]
+            for dz in [0,.003,.014,.029,.036]:
+                along=(lame*.032+dz)/.29
+                width=scale*(.068+.007*math.sin(along*math.pi))
+                top=scale*(.145-.065*along)
+                rows.append([[foot[0]+width*math.sin(a),scale*.010+top*math.cos(a),back+scale*dz]
+                             for a in np.linspace(-math.pi/2,math.pi/2,65)])
+            g.grid(rows,0,binding)
+            g.grid([rows[-2],rows[-1]],1,binding)
+        # Articulated ankle ring remains separate from the flexing vamp.
+        rows=[]
+        for y,r in [(.102,.055),(.106,.056),(.137,.057),(.171,.063),(.179,.066),(.183,.064)]:
+            rows.append([[foot[0]+scale*r*math.cos(a),scale*y,foot[2]+scale*r*math.sin(a)]
+                         for a in np.linspace(0,2*math.pi,97)])
+        g.grid(rows,0,[(side+'LowerLeg',1)])
+
+
+def gauntlets(g):
+    for side in ['Left','Right']:
+        hand=g.point(side+'Hand');sign=1 if side=='Left' else -1
+        scale=np.linalg.norm(g.point(side+'IndexIntermediate')-g.point(side+'IndexProximal'))/.0423
+        # Flared open-ended wrist cuff, deliberately short of the elbow crease.
+        rows=[]
+        for x,ry,rz in [(-.105,.046,.046),(-.101,.047,.047),(-.070,.039,.041),(-.026,.033,.037),(.006,.032,.036),(.011,.034,.038)]:
+            rows.append([(hand+scale*np.array([sign*x,ry*math.cos(a),rz*math.sin(a)])).tolist()
+                         for a in np.linspace(0,2*math.pi,97)])
+        g.grid(rows,0,[(side+'Hand',1)])
+        # Dorsal metacarpal plate; the palm remains leather rather than a metal mitten.
+        rows=[]
+        for x,width,height in [(.002,.035,.026),(.012,.040,.030),(.040,.045,.032),(.063,.042,.028),(.073,.039,.025)]:
+            rows.append([(hand+scale*np.array([sign*x,height*math.cos(a),width*math.sin(a)])).tolist()
+                         for a in np.linspace(-math.pi/2,math.pi/2,97)])
+        g.grid(rows,0,[(side+'Hand',1)])
+        for digit,radius in [('Thumb',.014),('Index',.012),('Middle',.013),('Ring',.0115),('Little',.010)]:
+            names=[side+digit+n for n in (['Metacarpal','Proximal','Distal'] if digit=='Thumb' else ['Proximal','Intermediate','Distal'])]
+            for segment,bone in enumerate(names):
+                begin=g.point(bone)
+                if segment<2:end=g.point(names[segment+1])
+                else:end=begin+(begin-g.point(names[segment-1]))*.72
+                direction=(end-begin)/np.linalg.norm(end-begin)
+                across=np.cross(direction,np.array([0.,1.,0.]));across/=np.linalg.norm(across)
+                dorsal=np.cross(across,direction)
+                if dorsal[1]<0:dorsal=-dorsal
+                radius_now=radius*scale*(1-segment*.13)
+                rows=[]
+                for through in [0,.08,.40,.72,.91,1.02]:
+                    centre=begin+(end-begin)*through
+                    rows.append([(centre+radius_now*(across*math.sin(a)+dorsal*math.cos(a))).tolist()
+                                 for a in np.linspace(-math.pi*.56,math.pi*.56,49)])
+                g.grid(rows,0,[(bone,1)])
+                g.grid([rows[-2],rows[-1]],1,[(bone,1)])
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--body', type=Path, required=True)
     parser.add_argument('--body-id', required=True)
     parser.add_argument('--out', type=Path, required=True)
+    parser.add_argument('--underlayer', type=Path, help='Native frontier garment for the sewn voider seam; source bytes retained')
+    parser.add_argument('--parts', nargs='+', default=['gorget','besagews','voiders'], choices=['gorget','besagews','voiders','bevor','aventail','mail_standard','couters','poleyns','groin_guard','faulds','sabatons','gauntlets'])
     args = parser.parse_args()
     body = Glb(args.body)
     source_hash = hashlib.sha256(args.body.read_bytes()).hexdigest()
     report = {'body': str(args.body), 'body_sha256': source_hash, 'garments': []}
-    for part, author, layer in [('gorget', gorget, 3), ('besagews', besagews, 3), ('voiders', voiders, 2)]:
+    authors = {'gorget':(gorget,3),'besagews':(besagews,3),'voiders':(voiders,2),'bevor':(bevor,3),
+               'aventail':(lambda g:mail_collar(g,True),2),'mail_standard':(mail_collar,2),
+               'couters':(couters,3),'poleyns':(poleyns,3),'groin_guard':(groin_guard,3),'faulds':(faulds,3),'sabatons':(sabatons,3),'gauntlets':(gauntlets,3)}
+    for part in args.parts:
+        author,layer=authors[part]
         garment = Garment(body, 'gap_'+part+'__'+args.body_id)
+        if part=='voiders' and args.underlayer:
+            reference=Garment(Glb(args.underlayer),'seam_reference')
+            reference.fit_mesh_name='Frontier_Shirt_LOD0'
+            reference.fit_clearance=.002
+            garment.fit_reference=reference
         author(garment)
         report['garments'].append(garment.save(args.out, layer))
     assert hashlib.sha256(args.body.read_bytes()).hexdigest() == source_hash
