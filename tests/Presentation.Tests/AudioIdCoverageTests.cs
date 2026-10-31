@@ -116,6 +116,26 @@ public class AudioIdCoverageTests
     }
 
     [Fact]
+    public void EveryMusicCueTheRuleCanChoose_IsDeliveredOrOnTheGapsList()
+    {
+        // MusicChoice is the score's whole vocabulary: six cues, plus a settlement bed built from the settlement's own theme id
+        var cues = typeof(UNNAMED.Presentation.Audio.MusicChoice)
+            .GetFields(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)
+            .Where(field => field.IsLiteral && field.FieldType == typeof(string))
+            .Select(field => (string)field.GetRawConstantValue()!)
+            .ToList();
+
+        Assert.Contains("mus.combat", cues);   // the one the export question is really about
+        Assert.Equal(6, cues.Count);
+
+        // with no music delivered, every cue must be on the reviewed gaps list - which is how "music is missing" stays a fact and not a hope
+        var gaps = KnownGaps();
+        foreach (string cue in cues)
+            Assert.True(gaps.Contains(cue) || (ArtRoot() is { } root && Delivered(root).Contains(cue)),
+                $"{cue} is neither delivered nor on content/_audio_gaps.yaml: when a cue lands, take its line off the list");
+    }
+
+    [Fact]
     public void EveryCreatureThatIsVoiced_HasAllFourCallsHurtAndDeath()
     {
         if (ArtRoot() is not { } artRoot)
