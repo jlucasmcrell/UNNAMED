@@ -39,6 +39,9 @@ public partial class Main
     /// <summary>A notice of a kind the player may switch off (Settings, Notices): shown unless that kind is hidden.</summary>
     private void Notice(NoticeKind kind, string text, double seconds = 4) => _hud.Toast(text, seconds, kind: kind);
 
+    private void AnnounceRival(NoticeRival card) => _hud.Announce("Rival met", card.Name, HudStyle.Brass,
+        (card.Identity, null), (card.Regard, null));
+
     /// <summary>What a creature out in the world is called, for a notice about it; "the animal" when it has already gone.</summary>
     private string WildName(EntityId creature)
     {
@@ -57,8 +60,7 @@ public partial class Main
             {
                 var card = NoticeBoardModel.Rivals(new[] { rival },
                     id => _session.Setup.Social.Npcs.GetValueOrDefault(id)?.Rival, id => Names.Of(_session, id))[0];
-                _hud.Announce("Rival met", card.Name, HudStyle.Brass,
-                    (card.Identity, null), (card.Regard, null));
+                AnnounceRival(card);
             }
             Notice(NoticeKind.World, $"{e.Name}: {e.Line}", 6);
         });
