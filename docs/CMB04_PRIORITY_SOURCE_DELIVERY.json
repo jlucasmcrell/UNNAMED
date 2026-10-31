@@ -1,0 +1,77 @@
+{
+  "status": "IN_PROGRESS_SOURCE_CANDIDATES",
+  "production_install": false,
+  "visual_verdict": null,
+  "files": [
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\humgen_player_ada_f_gap_authoring.json",
+      "bytes": 1702,
+      "sha256": "8fe21a7a0e062606a3e2e40dbbda4d0737a94d2dc96a8899430554e882cae518"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\humgen_player_mateo_m_gap_authoring.json",
+      "bytes": 1724,
+      "sha256": "5287294f7f8b8ac4a0b50839c39a14d0137e1d25c11d60c256ed704044828ff9"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_besagews__humgen_player_ada_f\\gap_besagews__humgen_player_ada_f_garment.json",
+      "bytes": 426,
+      "sha256": "29827acabe6a53d960a581e3c451d88ce5302eebeaf1b27527667aeb222a17d3"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_besagews__humgen_player_ada_f\\gap_besagews__humgen_player_ada_f_rigged.glb",
+      "bytes": 626008,
+      "sha256": "e8a7c3ecd65947c7a1f3239143f6c1c686c0b68b9e71c896f64141cc2d1a503d"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_besagews__humgen_player_mateo_m\\gap_besagews__humgen_player_mateo_m_garment.json",
+      "bytes": 432,
+      "sha256": "5f281f3ce68ead3bf4355e9bd04591e8f87a349e79bc2727dd73f6949c335a3e"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_besagews__humgen_player_mateo_m\\gap_besagews__humgen_player_mateo_m_rigged.glb",
+      "bytes": 625968,
+      "sha256": "b3d30056267829a63361f2b5e3866020d2af648d24669052a9326b77b02472c4"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_gorget__humgen_player_ada_f\\gap_gorget__humgen_player_ada_f_garment.json",
+      "bytes": 421,
+      "sha256": "d5bdfbbc37fa36fcae5ddb77519188d0f313237f05934cd4f30a8b9bd979f546"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_gorget__humgen_player_ada_f\\gap_gorget__humgen_player_ada_f_rigged.glb",
+      "bytes": 325776,
+      "sha256": "7331180e25ebca6657b0931f503417d00437336e14ec033df925e880d7041d51"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_gorget__humgen_player_mateo_m\\gap_gorget__humgen_player_mateo_m_garment.json",
+      "bytes": 427,
+      "sha256": "593973cad45f18c7aa890e16d4e55f79f311076d38a1f97bcb223411455e8415"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_gorget__humgen_player_mateo_m\\gap_gorget__humgen_player_mateo_m_rigged.glb",
+      "bytes": 325736,
+      "sha256": "8d21ffd93f4333ccde99166c4d953577c081f812deaa1e29ea89ea2d9843c657"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_voiders__humgen_player_ada_f\\gap_voiders__humgen_player_ada_f_garment.json",
+      "bytes": 425,
+      "sha256": "cf8319e595c1c1ea42e4bede0afd60f350e5338336a9a43d9493aa84bdd38f66"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_voiders__humgen_player_ada_f\\gap_voiders__humgen_player_ada_f_rigged.glb",
+      "bytes": 3952788,
+      "sha256": "79ffad57aed56b6deb8ad0502957636ed6664ac80947402cf98ca3701ed3cc4f"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_voiders__humgen_player_mateo_m\\gap_voiders__humgen_player_mateo_m_garment.json",
+      "bytes": 431,
+      "sha256": "ce26e988f42cb9a889e572632470830826c1cabcb5306a3b413d93d5c3ba7e8f"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v4\\gap_voiders__humgen_player_mateo_m\\gap_voiders__humgen_player_mateo_m_rigged.glb",
+      "bytes": 3952748,
+      "sha256": "e346a346f3278f14aed3425ba2ac5765bab0be91cf73b943944015dccbd0cca5"
+    }
+  ]
+}
