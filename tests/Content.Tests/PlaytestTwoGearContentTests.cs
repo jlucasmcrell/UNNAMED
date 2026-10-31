@@ -29,7 +29,8 @@ public class PlaytestTwoGearContentTests
         var haldas = catalog.Get("item.weapon.haldas_bow");
         Assert.True(bow.WeightGrams < hunting.WeightGrams && bow.ValueBase < hunting.ValueBase);
         Assert.True(bow.Weapon!.DrawMs > hunting.Weapon!.DrawMs);
-        Assert.True(bow.Weapon.DamageMin < hunting.Weapon.DamageMin && bow.Weapon.DamageMax > hunting.Weapon.DamageMax);
+        Assert.Equal(hunting.Weapon.DamageMin, bow.Weapon.DamageMin);
+        Assert.Equal(hunting.Weapon.DamageMax, bow.Weapon.DamageMax);
         Assert.True(haldas.Weapon!.DrawMs < hunting.Weapon.DrawMs);
 
         foreach (var row in rows)

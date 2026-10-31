@@ -425,6 +425,16 @@ public partial class AnimationSheet : Node3D
     /// <summary>Bound gear on the game's normal figure in ready/active poses, with full-body and hand views.</summary>
     private void AddGearProfiles()
     {
+        if (_gearItems!.StartsWith("motion:", StringComparison.Ordinal))
+        {
+            AddWornMotion();
+            return;
+        }
+        if (_gearItems!.StartsWith("wear:", StringComparison.Ordinal))
+        {
+            AddWornGearProfiles();
+            return;
+        }
         var figure = SkinnedFigure.Create(_art, _bindings, _profilePerson, _gearBody, people: "people.veth")
             ?? throw new InvalidDataException("Gear review body did not load: " + _profilePerson);
         AddChild(figure);
@@ -475,6 +485,40 @@ public partial class AnimationSheet : Node3D
                 }));
                 _notes.Add($"Gear: {id} / {weapon.Model} / {figure.ModelId} / {(strike ? "active" : "ready")}; game's own figure, grip and stance.");
             }
+        }
+    }
+
+    private void AddWornGearProfiles()
+    {
+        var figure = SkinnedFigure.Create(_art, _bindings, _profilePerson, _gearBody, people: "people.veth")
+            ?? throw new InvalidDataException("Native worn review body missing");
+        AddChild(figure);
+        ApplyWornReviewLook(figure);
+        figure.ReviewNativeGarment(_gearItems![5..].Split(',')[0]);
+        bool crouch = false;
+        var stance = CombatStance.AtRest;
+        _poses.Add(new Pose("native worn gear", figure, f => { f.SetPosture(crouch, false); f.SetStance(stance); }, 0));
+        foreach (string garment in _gearItems![5..].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        foreach (string state in new[] { "idle", "walk", "run", "crouch", "strike" })
+        {
+            var at = figure.Position;
+            foreach (bool side in new[] { false, true })
+                _shots.Add((garment + "_" + state + (side ? "_side" : "_three"), () =>
+                {
+                    figure.ReviewNativeGarment(garment);
+                    crouch = state == "crouch";
+                    stance = CombatStance.AtRest;
+                    figure.Hold(state == "strike" ? "item.weapon.engraved_road_sword" : null);
+                    if (state == "strike")
+                    {
+                        figure.SetStance(new CombatStance(CombatPhase.Windup, .9f, Held.Sword, false));
+                        figure.Pose(at, Mathf.DegToRad(30), 0, 0);
+                        stance = new CombatStance(CombatPhase.Active, .5f, Held.Sword, false);
+                    }
+                    _poses[0] = new Pose("native worn gear", figure, f => { f.SetPosture(crouch, false); f.SetStance(stance); }, state == "walk" ? 1.4f : state == "run" ? 3.2f : 0);
+                    Aim(at + (side ? new Vector3(3.8f, 1.5f, .3f) : new Vector3(2.8f, 1.6f, 3.2f)), at + new Vector3(0, 1, 0));
+                    _notes.Add($"Native worn review: {garment}, body={figure.ModelId}, requested={state}, original clips; groom stowed beneath helm.");
+                }));
         }
     }
 
@@ -652,6 +696,11 @@ public partial class AnimationSheet : Node3D
 
     public override void _Process(double delta)
     {
+        if (_wornMotionFigure is not null)
+        {
+            WornMotionFrame(delta);
+            return;
+        }
         _clock += delta;
         foreach (var (_, model, state, _) in _creatures)
             model.Hold(state, _fraction, 0);

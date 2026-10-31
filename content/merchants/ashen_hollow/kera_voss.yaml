@@ -36,6 +36,10 @@ stock:
   - { item_ref: item.weapon.carving_knife, count: 1, price_bias: 1.0 }
   - { item_ref: item.weapon.double_bit_axe, count: 1, price_bias: 1.0 }
   - { item_ref: item.weapon.notched_road_axe, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.ward_closed_helm, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.river_open_helm, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.open_road_barbute, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.old_ward_greathelm, count: 1, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [60, 400]   # her purse (WP14): the floor each restock brings it back to, and the most it holds
 restock_min: 1            # game days between restocks: her shelf is drawn again from Ashen Hollow's market   # Phase 1 matches these against the item category

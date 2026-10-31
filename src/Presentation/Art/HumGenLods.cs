@@ -35,12 +35,11 @@ public sealed class HumGenLods
     private static List<Part> Parts(IEnumerable<MeshInstance3D> meshes) => meshes.Select(mesh =>
     {
         string name = mesh.Name.ToString();
-        int at = name.LastIndexOf("_LOD", StringComparison.Ordinal);
-        if (at < 0 || !int.TryParse(name.AsSpan(at + 4), out int level))
+        if (CharacterLodBand.Part(name) is not { } part)
             return null;
         mesh.VisibilityRangeBegin = 0;
         mesh.VisibilityRangeEnd = 0;
-        return new Part(mesh, name[..at], level);
+        return new Part(mesh, part.PartName, part.Level);
     }).OfType<Part>().ToList();
 
     public void OutfitVisible(MeshInstance3D mesh, bool shown)

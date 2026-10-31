@@ -16,6 +16,50 @@ public sealed partial class HumGenCreatorAppearance : Node
     private string? _worn;
     private HumGenEyeFitData? _eyeFit;
     private readonly Dictionary<CreatorChoice, string?> _parts = new();
+    private SkinnedModel? _body;
+    private IReadOnlyDictionary<string, float> _activeWeights = new Dictionary<string, float>();
+    private bool _equipmentHead;
+    private ArtLibrary? _art;
+
+    internal static void EquipmentChanged(SkinnedModel body)
+    {
+        var controller = (body.GetParent() ?? body).FindChildren("*", "", true, false).OfType<HumGenCreatorAppearance>().FirstOrDefault(c => c._body == body);
+        if (controller is null) return;
+        var slots = body.Skeleton.GetChildren().OfType<MeshInstance3D>().Select(m => m.GetMeta("native_equipment_slot", "").AsString()).ToHashSet(StringComparer.Ordinal);
+        controller._equipmentHead = slots.Contains("head");
+        controller.DressHead();
+        foreach (var (mesh, _) in controller._meshes)
+        {
+            string kind = mesh.GetMeta("creator_part_kind", "").AsString();
+            if (kind is "Hair" or "FacialHair") body.OutfitVisible(mesh, !controller._equipmentHead);
+            if (kind == "Footwear") body.OutfitVisible(mesh, !slots.Contains("feet"));
+            if (kind == "Outfit" && IsTrousers(mesh.Name.ToString())) body.OutfitVisible(mesh, !slots.Contains("legs"));
+        }
+        if (controller._art is { } art) Stencil(art, controller.GetParent(), controller._worn);
+    }
+
+    private static bool IsTrousers(string name) => new[] { "pants", "trousers", "jeans", "chinos", "leggings" }.Any(name.ToLowerInvariant().Contains);
+
+    internal static void GarmentsChanged(SkinnedModel body, IReadOnlyCollection<MeshInstance3D> removed, IReadOnlyCollection<MeshInstance3D> added)
+    {
+        var controller = (body.GetParent() ?? body).FindChildren("*", "", true, false).OfType<HumGenCreatorAppearance>().FirstOrDefault(c => c._body == body);
+        if (controller is null) return;
+        controller._meshes.RemoveAll(m => removed.Contains(m.Mesh));
+        foreach (var mesh in added)
+        {
+            if (mesh.Mesh is not ArrayMesh array) continue;
+            var keys = new Dictionary<string, int>(StringComparer.Ordinal);
+            for (int i = 0; i < array.GetBlendShapeCount(); i++)
+            {
+                string key = array.GetBlendShapeName(i);
+                if (!key.StartsWith("f_", StringComparison.Ordinal) && !key.StartsWith("b_", StringComparison.Ordinal) && !key.StartsWith("s_", StringComparison.Ordinal)) continue;
+                keys[key] = i;
+                mesh.SetBlendShapeValue(i, controller._activeWeights.GetValueOrDefault(key));
+            }
+            mesh.SetMeta("native_equipment", true);
+            controller._meshes.Add((mesh, keys));
+        }
+    }
 
     /// <summary>
     /// Whether the outfit's own headwear is drawn. The creator hides it on the steps that are about the face and the hair,
@@ -65,7 +109,9 @@ public sealed partial class HumGenCreatorAppearance : Node
         // so an old save or a hand-edited file is corrected at the one place every figure is built (the owner's ruling, 2026-10-28).
         look = controller._data.Constrain(look, controller._catalogue, people);
         controller.Parts(model, art, id, look, people, sex);
+        controller._art = art;
         var weights = controller._data.Weights(look, controller._catalogue, people, sex);
+        controller._activeWeights = weights;
         foreach (var (mesh, keys) in controller._meshes)
         foreach (var (key, index) in keys)
             mesh.SetBlendShapeValue(index, weights.GetValueOrDefault(key));
@@ -86,6 +132,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        controller.Standoff(model);
         // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
         // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
         Stencil(art, model, controller._worn);
@@ -170,8 +217,26 @@ public sealed partial class HumGenCreatorAppearance : Node
     private static void Stencil(ArtLibrary art, Node model, string? part)
     {
         Texture2D? mask = null;
-        if (part is not null && art.RiggedFile(part, "body_coverage.png") is { } path && Image.LoadFromFile(path) is { } painted)
+        var paths = model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+            .Where(m => m.HasMeta("native_equipment_coverage"))
+            .Select(m => m.GetMeta("native_equipment_coverage").AsString()).Distinct().ToList();
+        if (part is not null && art.RiggedFile(part, "body_coverage.png") is { } path) paths.Add(path);
+        byte[]? combined = null;
+        foreach (string coverage in paths)
+        {
+            using var painted = Image.LoadFromFile(coverage);
+            if (painted is null || painted.IsEmpty()) throw new InvalidDataException("Invalid native body coverage: " + coverage);
+            painted.Convert(Image.Format.L8);
+            painted.Resize(1024, 1024, Image.Interpolation.Nearest);
+            byte[] pixels = painted.GetData();
+            if (combined is null) combined = pixels;
+            else for (int i = 0; i < combined.Length; i++) combined[i] = Math.Max(combined[i], pixels[i]);
+        }
+        if (combined is not null)
+        {
+            using var painted = Image.CreateFromData(1024, 1024, false, Image.Format.L8, combined);
             mask = ImageTexture.CreateFromImage(painted);
+        }
         int stencilled = 0;
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
@@ -213,11 +278,12 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (kind is not ("Outfit" or "Footwear")) continue;
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
             {
-                if ((mesh.HasMeta("creator_part_kind") ? Origin(mesh, surface) : mesh.GetSurfaceOverrideMaterial(surface)) is not BaseMaterial3D cloth) continue;
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? Origin(mesh, surface)) is not BaseMaterial3D cloth) continue;
                 if (cloth.HasMeta("creator_standoff")) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
-                grown.GrowAmount = GarmentStandoff;
+                grown.Grow = true;
+                grown.GrowAmount = mesh.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) ? -GarmentStandoff : GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
@@ -250,7 +316,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
         {
             // A modular groom or garment carries its own atlases; the preset set is the body's.
-            if (mesh.HasMeta("creator_part_kind")) continue;
+            if (mesh.HasMeta("creator_part_kind") || mesh.HasMeta("native_equipment")) continue;
             string materialName = Exported(mesh, surface);
             string part = parts.EnumerateObject().Select(p => p.Name).FirstOrDefault(p =>
                 materialName.EndsWith("_" + p, StringComparison.OrdinalIgnoreCase)) ?? "";
@@ -291,6 +357,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// </summary>
     private static void Colour(MeshInstance3D mesh, int surface, JsonElement preset, CharacterAppearance look, string people)
     {
+        if (mesh.HasMeta("native_equipment")) return;
         // A modular groom starts from its own export on every pass; the body's surfaces from the preset set they were just given.
         var material = mesh.HasMeta("creator_part_kind") ? Origin(mesh, surface) : mesh.GetSurfaceOverrideMaterial(surface) ?? Origin(mesh, surface);
         string name = Exported(mesh, surface);
@@ -409,6 +476,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     {
         var body = model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault();
         if (body is null) return;
+        _body = body;
         string face = look.Face ?? _data.FirstFace(sex);
         foreach (var choice in new[] { CreatorChoice.Hair, CreatorChoice.FacialHair, CreatorChoice.Outfit, CreatorChoice.Footwear })
         {
@@ -505,6 +573,7 @@ public sealed partial class HumGenCreatorAppearance : Node
                 Colour(mesh, surface, preset, look, people);
         // A garment swapped in with this pass carries the headwear the step is hiding.
         DressHead();
+        EquipmentChanged(body);
     }
 
     /// <summary>
@@ -518,7 +587,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (!mesh.HasMeta("creator_part_kind")
                 || mesh.GetMeta("creator_part_kind").AsString() != CreatorChoice.Outfit.ToString()) continue;
             bool worn = IsHeadwear(mesh.Mesh?.SurfaceGetMaterial(0)?.ResourceName ?? "") || IsHeadwear(mesh.Name.ToString());
-            if (worn) mesh.Visible = Headwear;
+            if (worn) _body?.OutfitVisible(mesh, Headwear && !_equipmentHead);
         }
     }
 

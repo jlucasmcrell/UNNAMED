@@ -15,7 +15,12 @@ public readonly record struct WornOutfit(string? Chest = null, string? Head = nu
             return set.Concat(new[] { Feet ?? "default:feet", Head, Hands, Cloak }.OfType<string>()
                 .SelectMany(id => equipment.GetValueOrDefault(id) ?? Array.Empty<string>()))
                 .Distinct(StringComparer.Ordinal).ToArray();
-        return permanent.Concat(new[] { Legs, Chest, Feet ?? "default:feet", Head, Hands, Cloak }.OfType<string>()
+        // A fitted boot's tucked-trouser backing is needed only while no actual
+        // leg garment is loaded. Equipping greaves must not draw two trousers.
+        var underlayer = Feet is not null && (Legs is null || !equipment.ContainsKey(Legs))
+            ? equipment.GetValueOrDefault("under:" + Feet) ?? Array.Empty<string>()
+            : Array.Empty<string>();
+        return permanent.Concat(underlayer).Concat(new[] { Legs, Chest, Feet ?? "default:feet", Head, Hands, Cloak }.OfType<string>()
             .SelectMany(id => equipment.GetValueOrDefault(id) ?? Array.Empty<string>()))
             .Distinct(StringComparer.Ordinal).ToArray();
     }

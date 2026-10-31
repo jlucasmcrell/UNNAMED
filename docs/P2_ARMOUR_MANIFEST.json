@@ -1,0 +1,324 @@
+[
+  {
+    "item_id": "item.armor.ward_closed_helm",
+    "name": "Ward Closed Helm",
+    "review_id": "A07",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_heavy_armor\\extracted\\source\\Outfit_Heavy_Armor.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_ward_closed_helm",
+    "icon": "ui.item.ward_closed_helm",
+    "slot": "head",
+    "era": "Medieval / renaissance",
+    "source_object": "Helm_Heavy_Armor",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "0b98c064f31b5e1eacde96172777aa79dadd25f9e954374518898a42a3e9f189",
+    "upstream": {
+      "title": "Mercenary",
+      "author": "Fghdd42",
+      "author_url": "https://sketchfab.com/Fghdd42",
+      "source_url": "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "cca42604d0d6339b85dc4ceae36a7066beabe0ba95297238d8d62c3a2c8f2d74",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_ward_closed_helm__humgen_creator_female",
+        "contract_sha256": "6356ea4180320e472c611adc50d48c1835c2179d5db3ff34b2799bab1b8e8e98",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_ward_closed_helm__humgen_creator_male",
+        "contract_sha256": "440495557e15c29139b5604353b3e8d9674fa8b054c1ebcef8f6b1777a6eca99",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
+        "clock_sha256": "b70bddc3075414d6821ace1b3f86cb3fd0093faf32be9384281822283abfd5c5",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
+        "clock_sha256": "75494ee66c1c025612902a04f75e29af0aafe5edb2a77174aef4d5fb4937144e",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ]
+  },
+  {
+    "item_id": "item.armor.river_open_helm",
+    "name": "River Open Helm",
+    "review_id": "A13",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_scalemail_armor\\extracted\\source\\Outfit_Scalemail_Armor_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_river_open_helm",
+    "icon": "ui.item.river_open_helm",
+    "slot": "head",
+    "era": "Medieval / renaissance",
+    "source_object": "Helm_Scalemail",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "9af13256d5795d2fea341ce5812cf965d6637311ef9d057dc6d664114bffa45c",
+    "upstream": {
+      "title": "Fantasy scaled armor",
+      "author": "nordwar",
+      "author_url": "https://sketchfab.com/nordwar",
+      "source_url": "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_river_open_helm__humgen_creator_female",
+        "contract_sha256": "a5a167168e32313a6b2f3b77850e1b553b473a16fd429a0e03ae3eda0b757759",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_river_open_helm__humgen_creator_male",
+        "contract_sha256": "111f8753e64b5008694a9c2bf6d885734d4d8548b0b65dde012edf60b2df247e",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
+        "clock_sha256": "8957899b699680d040027782e0c2266e9e4781eba7e085d72e2fc8f6ed356655",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
+        "clock_sha256": "012efc1b247e4561da165ddbec8e6d332ff61323ff0cc7dd0c3de5116ddf6e4b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ]
+  },
+  {
+    "item_id": "item.armor.open_road_barbute",
+    "name": "Open Road Barbute",
+    "review_id": "A21",
+    "source": "D:\\Otherreach_Depot\\BlenderKit\\candidates\\headwear\\medieval-barbut-_7912a4c0-db92-45c3-bdb1-e796780e13ec\\medieval-barbut-helmet_88a46f72-5bcb-4f6c-bb7c-ebe420943890.blend",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_open_road_barbute",
+    "icon": "ui.item.open_road_barbute",
+    "slot": "head",
+    "era": "Medieval / renaissance",
+    "source_object": null,
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "Kasit Studio",
+    "licence": "BlenderKit Royalty Free License",
+    "source_url": "https://www.blenderkit.com/asset-gallery-detail/82d97bf7-0b50-42e4-97ae-4b6fa4fa7bbf/",
+    "source_sha256": "b1b73d15cd8f44b5f77fc585913c9aeffc9589814a93357bc28e546a3ddb87c7",
+    "upstream": {
+      "author": "Kasit Studio",
+      "source_url": "https://www.blenderkit.com/asset-gallery-detail/82d97bf7-0b50-42e4-97ae-4b6fa4fa7bbf/",
+      "licence": "BlenderKit Royalty Free License",
+      "identification": "Original held BlenderKit asset and author receipt; no DevonLux compilation involved."
+    },
+    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_open_road_barbute__humgen_creator_female",
+        "contract_sha256": "073a21404d3393561b18026a1cd1e4069073c2c22442486f0a8607ee2dbd3537",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_open_road_barbute__humgen_creator_male",
+        "contract_sha256": "b52b09b4d9802adb94439ef60cadb02ba2524b971079ad243719db6a1f82ffa7",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
+        "clock_sha256": "5c7ba3f28369eac7fd66f9e441045c7d14d2ce0343fd775e7b652ea759d2997c",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
+        "clock_sha256": "a26adef37393d627032c6ea902ef5c3b2ec4e1b5ac989cc9508bbdcda432433b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ]
+  },
+  {
+    "item_id": "item.armor.old_ward_greathelm",
+    "name": "Old Ward Kettle Helm",
+    "review_id": "A23",
+    "source": "D:\\Otherreach_Depot\\BlenderKit\\candidates\\historic-military\\medieval-helmet-_cef557c3-da62-40a5-a6bf-1f3a2972b32a\\medieval-helmet-great-helm-ii_7773e4bc-d9c1-4ba2-938d-5e59c7ea70de.blend",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_old_ward_greathelm",
+    "icon": "ui.item.old_ward_greathelm",
+    "slot": "head",
+    "era": "Medieval / renaissance",
+    "source_object": null,
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "reza bendokht",
+    "licence": "BlenderKit Royalty Free License",
+    "source_url": "https://www.blenderkit.com/asset-gallery-detail/b82fc5e7-0cb2-475f-95ca-6dccce9abfc2/",
+    "source_sha256": "463a16f6b725e456e195e782648e26378b49470ac79e12b31e27030d8caa3f6e",
+    "upstream": {
+      "author": "reza bendokht",
+      "source_url": "https://www.blenderkit.com/asset-gallery-detail/b82fc5e7-0cb2-475f-95ca-6dccce9abfc2/",
+      "licence": "BlenderKit Royalty Free License",
+      "identification": "Original held BlenderKit asset and author receipt; no DevonLux compilation involved."
+    },
+    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_old_ward_greathelm__humgen_creator_female",
+        "contract_sha256": "b1d30a8a7f0eabffe29dc57df0e7f76a59e7ea4044503d04cf24246963b157d5",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_old_ward_greathelm__humgen_creator_male",
+        "contract_sha256": "5308b7c77c7f547e756e82d715fe10c437a4c072dc0ce08cd2188c6f264e28c7",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
+        "clock_sha256": "38d27ee5d8e287445a505c29c4fa32d3f44c94e18490fa7e495cd95474730f24",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
+        "clock_sha256": "5cd6bf25bb0ff25d4607d5394af147b54d3ca48e0db87bdb9a8213980bdf4234",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ]
+  }
+]
