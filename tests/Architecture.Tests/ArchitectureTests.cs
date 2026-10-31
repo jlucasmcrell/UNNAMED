@@ -117,9 +117,16 @@ public class ArchitectureTests
         string[] allowed =
         {
             nameof(UNNAMED.World.Runtime.Simulation.Start), nameof(UNNAMED.World.Runtime.Simulation.NewCharacter),
+            nameof(UNNAMED.World.Runtime.Simulation.Climate),   // a region's season as a climate reading (WLD-37/56)
+            nameof(UNNAMED.World.Runtime.Simulation.MarketPermille),   // what the season leaves of a price
+            nameof(UNNAMED.World.Runtime.Simulation.ForagePermille),   // ... of a node's yield
+            nameof(UNNAMED.World.Runtime.Simulation.RoadPermille),   // ... of a road's pace
+            nameof(UNNAMED.World.Runtime.Simulation.RoadClosed),   // whether an event has shut the road
+            nameof(UNNAMED.World.Runtime.Simulation.ScheduleOf),   // whether a region shelters or keeps festival
             nameof(UNNAMED.World.Runtime.Simulation.CellOf), nameof(UNNAMED.World.Runtime.Simulation.Enqueue),
             nameof(UNNAMED.World.Runtime.Simulation.DrainCommands), nameof(UNNAMED.World.Runtime.Simulation.Step),
             nameof(UNNAMED.World.Runtime.Simulation.CaptureRecord), nameof(UNNAMED.World.Runtime.Simulation.StateDigest),
+            nameof(UNNAMED.World.Runtime.Simulation.WorldEvents),   // the Director's running events in a region (WLD-89)
             nameof(UNNAMED.World.Runtime.Simulation.Wares), nameof(UNNAMED.World.Runtime.Simulation.Diagnose),
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
