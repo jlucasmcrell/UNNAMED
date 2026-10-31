@@ -161,16 +161,17 @@ public class QuestContentTests
 
     [Fact]
     public void AFiniteItemARecipeConsumes_MustAlsoCountWhatItIsMadeInto() =>
-        Assert.Contains(ErrorsWith(Quest1, "params: { item_ref: item.material.iron_ore, or_item_refs: [item.material.iron_ingot, item.weapon.march_spear], count: 1 }",
+        Assert.Contains(ErrorsWith(Quest1, "params: { item_ref: item.material.iron_ore, or_item_refs: [item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword], count: 1 }",
                 "params: { item_ref: item.material.iron_ore, count: 1 }", FiniteSpoil),
             e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ore, and recipe.smithing.iron_billet makes it into item.material.iron_ingot",
                 StringComparison.Ordinal));
 
     [Fact]
     public void WhatTheItemIsMadeInto_MustBeCountedAllTheWayDown() =>
-        // Count the new armour routes so this deliberately missing route is still the March Spear.
-        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
-                "or_item_refs: [item.material.iron_ingot, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]", FiniteSpoil,
+        // Count the new armour routes so this deliberately missing route is still the March Spear (D21's assembled sword stays counted).
+        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword]",
+                "or_item_refs: [item.material.iron_ingot, item.weapon.rusted_sword, item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack]",
+                FiniteSpoil,
                 ("spawns/hollow/iron_shelf_armour.yaml", "kind: timer", "kind: none"), ("spawns/moor/barrow_sentinel.yaml", "kind: timer", "kind: none"),
                 ("spawns/field/breach_west.yaml", "kind: timer", "kind: none"), ("spawns/field/breach_northeast.yaml", "kind: timer", "kind: none"),
                 ("spawns/field/breach_south.yaml", "kind: timer", "kind: none")),
