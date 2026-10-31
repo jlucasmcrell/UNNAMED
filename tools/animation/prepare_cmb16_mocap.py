@@ -7,16 +7,20 @@ import traceback
 import unreal
 
 root = Path(os.environ['OTHERREACH_HUMGEN_ANIMATION_JOB'])
-inputs = root.parent/'sources/cmu_rancidmilk'
-state = {'status': 'RUNNING', 'sources': [], 'provenance':
-         'Owned CMU_rancidmilk archives; CMU performances 137_27 Normal Pick Up, 90_16 fall on face, 91_59 small stumble. '
-         'CMU/cgspeed/Rancidmilk conversion credits and no-standalone-animation-resale terms retained. Candidates, not gameplay acceptance.'}
+prepared = Path(os.environ.get('OTHERREACH_CMU_CONTROL_PREPARED', str(root.parent/'sources/cmu_control/CMU_SOURCES_PREPARED.json')))
+inputs = json.loads(prepared.read_text())
+assert inputs['status'] == 'DONE'
+state = {'status': 'RUNNING', 'sources': [], 'provenance': inputs.get('scope', '')}
+
 try:
     tools = unreal.AssetToolsHelpers.get_asset_tools()
-    for clip in ('137_27', '90_16', '91_59'):
-        path = inputs/(clip+'_source_preview.glb')
+    for source in inputs['sources']:
+        path = Path(source['path'])
         source_hash = hashlib.sha256(path.read_bytes()).hexdigest()
-        provider = 'cmu_control_'+clip
+        assert source_hash == source['sha256']
+        assert 50 < source['rest_root_height_cm'] < 130
+        provider = source['id']
+        assert provider.startswith('cmu_control_')
         folder = '/Game/HumGenSources/'+provider
         if not unreal.EditorAssetLibrary.list_assets(folder, recursive=True, include_folder=False):
             task = unreal.AssetImportTask()
@@ -32,7 +36,7 @@ try:
                 assets.append({'kind': 'mesh', 'asset': item.get_path_name()})
         assert any(a['kind'] == 'animation' for a in assets)
         assert hashlib.sha256(path.read_bytes()).hexdigest() == source_hash
-        state['sources'].append({'id': provider, 'path': str(path), 'sha256': source_hash, 'assets': assets})
+        state['sources'].append(dict(source, assets=assets))
     unreal.EditorAssetLibrary.save_directory('/Game/HumGenSources', only_if_is_dirty=True, recursive=True)
     state['status'] = 'DONE'
 except Exception:

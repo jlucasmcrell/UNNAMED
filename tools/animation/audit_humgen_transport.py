@@ -78,7 +78,7 @@ class Glb:
         return {name: world(i) for name, i in self.names.items()}
 
 
-def audit(body_path, clips):
+def audit(body_path, clips, max_root_offset=None):
     body = Glb(body_path)
     rest = body.globals()
     report = {'body': str(body_path), 'clips': []}
@@ -97,6 +97,11 @@ def audit(body_path, clips):
         animation = clip.doc['animations'][0]
         end = max(float(clip.accessor(s['input'])[-1, 0]) for s in animation['samplers'])
         samples = [clip.globals(t) for t in np.linspace(0, end, 13)]
+        hips = np.array([s['Hips'][:3, 3] for s in samples])
+        assert np.isfinite(hips).all(), 'Non-finite native hip motion'
+        root_offset = float(np.linalg.norm(hips - rest['Hips'][:3, 3], axis=1).max())
+        if max_root_offset is not None:
+            assert root_offset <= max_root_offset, ('Native root motion exceeds metre-scale control bound', str(clip_path), root_offset, max_root_offset)
         measurements = {}
         for name in ['Head', 'LeftUpperArm', 'LeftLowerArm', 'LeftHand', 'RightHand', 'LeftFoot', 'RightFoot']:
             points = np.array([s[name][:3, 3] - s['Hips'][:3, 3] for s in samples])
@@ -105,7 +110,7 @@ def audit(body_path, clips):
                                   'max_displacement_m': round(max(float(np.linalg.norm(a-b)) for a in points for b in points), 4)}
         report['clips'].append({'clip': str(clip_path), 'bones': len(clip.names), 'seconds': end,
                                 'rest_position_error_m': position_error, 'rest_matrix_error': matrix_error,
-                                'motion': measurements})
+                                'max_root_offset_m': root_offset, 'motion': measurements})
     return report
 
 
@@ -114,8 +119,9 @@ if __name__ == '__main__':
     parser.add_argument('body', type=Path)
     parser.add_argument('clips', type=Path, nargs='+')
     parser.add_argument('--report', required=True, type=Path)
+    parser.add_argument('--max-root-offset', type=float, help='Optional metre bound from native rest hips for short control-motion candidates')
     args = parser.parse_args()
-    result = audit(args.body, args.clips)
+    result = audit(args.body, args.clips, args.max_root_offset)
     args.report.write_text(json.dumps(result, indent=2), encoding='utf-8')
     for c in result['clips']:
         print(Path(c['clip']).stem, 'rest error mm', round(c['rest_position_error_m']*1000, 4),

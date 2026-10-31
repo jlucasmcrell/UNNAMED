@@ -119,6 +119,13 @@ try:
         controller.set_preview_mesh(unreal.RetargetSourceOrTarget.TARGET, body)
         for mode in (unreal.RetargetSourceOrTarget.SOURCE, unreal.RetargetSourceOrTarget.TARGET):
             controller.reset_retarget_pose(controller.get_current_retarget_pose_name(mode), [], mode)
+        if sid.startswith("cmu_control_"):
+            height = source.get("rest_root_height_cm")
+            assert height is not None and 50 < height < 130, "CMU control source needs a measured metre-scale reference hip height"
+            # The acquired reference has its hip at zero. Calibrate only Epic's SOURCE retarget pose;
+            # the recorded keys and every native target rest/bind transform remain unchanged.
+            controller.set_root_offset_in_retarget_pose(unreal.Vector(0, 0, height), unreal.RetargetSourceOrTarget.SOURCE)
+            state.setdefault("source_root_calibration_cm", {})[sid] = height
         if sid == "cmu_bow" or sid.startswith("cmu_idle_"):
             # BVH's root offset is zero; its original calibration frame places the
             # pelvis one metre up. Correct the SOURCE retarget pose through Epic's

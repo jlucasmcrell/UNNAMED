@@ -1,6 +1,43 @@
 extends SceneTree
 ## Package native Epic output on its exact original HumGen target. No rest conversion or retarget.
 
+
+# Contact fitting translates the whole recorded pose vertically; no native joint rest or rotation changes.
+func root_height(samples: Array, at: float) -> float:
+ if at<=float(samples[0][0]):return float(samples[0][1])
+ for i in range(1,samples.size()):
+  if at<=float(samples[i][0]):
+   return lerpf(float(samples[i-1][1]),float(samples[i][1]),inverse_lerp(float(samples[i-1][0]),float(samples[i][0]),at))
+ return float(samples[-1][1])
+
+func cut_control(animation: Animation, first: float, last: float) -> Animation:
+ assert(first>=0 and last>first and last<=animation.length+.0001)
+ var cropped: Animation=animation.duplicate(true)
+ for track in animation.get_track_count():
+  var begin_value: Variant
+  var end_value: Variant
+  match animation.track_get_type(track):
+   Animation.TYPE_POSITION_3D:
+    begin_value=animation.position_track_interpolate(track,first)
+    end_value=animation.position_track_interpolate(track,last)
+   Animation.TYPE_ROTATION_3D:
+    begin_value=animation.rotation_track_interpolate(track,first)
+    end_value=animation.rotation_track_interpolate(track,last)
+   Animation.TYPE_SCALE_3D:
+    begin_value=animation.scale_track_interpolate(track,first)
+    end_value=animation.scale_track_interpolate(track,last)
+   _:assert(false,"Control transport contains an unsupported non-skeletal track")
+  var keys: Array=[]
+  for key in animation.track_get_key_count(track):
+   var at=animation.track_get_key_time(track,key)
+   if at>first+.00001 and at<last-.00001:keys.append([at-first,animation.track_get_key_value(track,key),animation.track_get_key_transition(track,key)])
+  for key in range(cropped.track_get_key_count(track)-1,-1,-1):cropped.track_remove_key(track,key)
+  cropped.track_insert_key(track,0,begin_value)
+  for key in keys:cropped.track_insert_key(track,key[0],key[1],key[2])
+  cropped.track_insert_key(track,last-first,end_value)
+ cropped.length=last-first
+ return cropped
+
 func _initialize() -> void:
  call_deferred("build")
 
@@ -149,6 +186,21 @@ func build() -> void:
      keys.append([((old_length-at) if source_rate<0 else at)/absf(source_rate),animation.track_get_key_value(track,key),animation.track_get_key_transition(track,key)])
     for key in range(animation.track_get_key_count(track)-1,-1,-1): animation.track_remove_key(track,key)
     for key in keys: animation.track_insert_key(track,key[0],key[1],key[2])
+  if entry.has("root_height_samples"):
+   assert(is_equal_approx(source_rate,1.0),"Contact-fit sample times require original playback rate")
+   var fit: Array=entry.root_height_samples
+   assert(fit.size()>=2)
+   var fitted=false
+   for track in animation.get_track_count():
+    if animation.track_get_path(track).get_subname(0)=="Root" and animation.track_get_type(track)==Animation.TYPE_POSITION_3D:
+     for key in animation.track_get_key_count(track):
+      var value: Vector3=animation.track_get_key_value(track,key)
+      value.y+=root_height(fit,animation.track_get_key_time(track,key))
+      animation.track_set_key_value(track,key,value)
+     fitted=true
+   assert(fitted,"Control transport has no native Root position track")
+  if entry.has("start_seconds"):
+   animation=cut_control(animation,float(entry.start_seconds),float(entry.end_seconds))
   var finger_error := 0.0
   for track in range(animation.get_track_count()-1,-1,-1):
    var path := animation.track_get_path(track)
