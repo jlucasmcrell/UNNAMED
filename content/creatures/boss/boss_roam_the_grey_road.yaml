@@ -18,6 +18,7 @@ attack_set:
 - ability.creature.wolf_bite
 - ability.creature.wolf_grey_rush
 - ability.creature.hound_lunge
+- ability.creature.wolf_grey_heavy   # C1: the committed heavy every kit carries
 armor:
   head: 2
   torso: 3
@@ -48,3 +49,4 @@ phases:
   - ability.creature.wolf_bite
   - ability.creature.wolf_grey_rush
   - ability.creature.hound_lunge
+  - ability.creature.wolf_grey_heavy

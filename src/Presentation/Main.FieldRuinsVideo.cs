@@ -68,7 +68,7 @@ public partial class Main
                 var to = new Vector3((float)((current.Body.XMm - body.XMm) / 1000.0), 0, (float)((current.Body.ZMm - body.ZMm) / 1000.0));
                 var goal = to;
                 // The slow-turning constructs are fought from behind, where their plate is open (their lore's own advice).
-                if (current.DefId is "creature.construct.gate_warden" or "creature.construct.animated_armour")
+                if (current.DefId is "creature.boss.field_ruins.gate_warden.deep" or "creature.construct.animated_armour")
                 {
                     float facing = current.Body.FacingMdeg / 1000f * Mathf.Pi / 180f;
                     var forward = new Vector3(Mathf.Sin(facing), 0, Mathf.Cos(facing));
@@ -204,7 +204,7 @@ public partial class Main
                 await Look((866, 762), 4);
                 Mark("in_court");
                 // A sentinel holds its post until it notices a body: walk to the warden and take it on from behind.
-                if (sim.Creatures.FirstOrDefault(c => c.DefId == "creature.construct.gate_warden" && c.Alive) is { } warden)
+                if (sim.Creatures.FirstOrDefault(c => c.DefId == "creature.boss.field_ruins.gate_warden.deep" && c.Alive) is { } warden)
                     await Fight(warden, 240);
                 // Each spot is within reach (1.6 m from the structure's edge) of the switch it stills.
                 await Still("switch.field.anchor_west", (840.2, 759.4));

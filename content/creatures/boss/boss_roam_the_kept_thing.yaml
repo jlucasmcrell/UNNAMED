@@ -18,6 +18,7 @@ attack_set:
 - ability.creature.tender_strike
 - ability.creature.wolf_bite
 - ability.creature.gate_tender_rush
+- ability.creature.gate_tender_heavy   # C1: the committed heavy every kit carries
 armor:
   head: 12
   torso: 18
@@ -48,3 +49,4 @@ phases:
   - ability.creature.tender_strike
   - ability.creature.wolf_bite
   - ability.creature.gate_tender_rush
+  - ability.creature.gate_tender_heavy

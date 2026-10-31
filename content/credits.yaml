@@ -144,6 +144,10 @@ sections:
       - ledger: [A-B01]
         binds: [flora_bk_, flora_old_]
         text: "Trees: free assets from BlenderKit, including the Ceiba Tree by Jordi Se-Cam (blenderkit.com)."
+      - binds: [prop_bk_harbour_crane, prop_bk_rope_coil, prop_bk_fish_crate_net, prop_bk_rowboat, prop_bk_rowboat_rustic]
+        text: "The Steps' north quay, converted for Otherreach from BlenderKit (BlenderKit Royalty Free License):"
+        lines:
+          - "Heavy medieval crane by Abhay Pratap; Rope by PolyCrate; Fish Crate with Net by Rafael Games; Row Boat and Rustic wooden rowboat by Md. Monjur Rahman."
       - ledger: [A-K01, A-U01]
         text: "Particle and smoke textures: Kenney (kenney.nl), CC0; Unity Labs VFX image sequences, CC0."
       - ledger: [A-SK01]
