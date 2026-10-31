@@ -320,10 +320,11 @@ public partial class Main
         var from = new Vector3(shot.FromXMm / 1000f, terrain.HeightAtMm(shot.FromXMm, shot.FromZMm) / 1000f + 1.4f, shot.FromZMm / 1000f);
         float height = shot.Target is not null ? 0.7f : atRange ? (working ? 1.2f : 0.05f) : 1.3f;
         var to = new Vector3(shot.ToXMm / 1000f, terrain.HeightAtMm(shot.ToXMm, shot.ToZMm) / 1000f + height, shot.ToZMm / 1000f);
-        // Out of the hands, not the chest.
-        from += (to - from).Normalized() * 0.4f;
+        // A working leaves the actual casting hand; arrows retain their held-weapon offset.
+        if (working && _avatar.CastPoint is { } hand) from = hand;
+        from += (to - from).Normalized() * (working ? 0.1f : 0.4f);
         string? stem = working && shot.Source.IndexOf('.') is > 0 and var dot ? "vfx." + shot.Source[(dot + 1)..] : null;
-        _projectiles.Loose(from, to, working, shot.Target is not null, stem);
+        _projectiles.Loose(from, to, working, shot.Target is not null, stem, terrain.HeightAtMm(shot.ToXMm, shot.ToZMm) / 1000f);
     }
 
     /// <summary>Quests (M5): a toast when one starts, moves or ends; what it pays in the log. The tracker and journal redraw each frame.</summary>
@@ -493,7 +494,11 @@ public partial class Main
             if (e.Target == _session.Simulation!.PlayerId && e.Source != "strain")
                 _hud.Log($"{Name(e.Source)}: {(e.Delta > 0 ? "+" : "")}{e.Delta}");
         });
-        _session.Subscribe<CastCompleted>(e => _hud.Log($"You work {Name(e.FormulaId)} (+{e.Strain} Strain)"));
+        _session.Subscribe<CastCompleted>(e =>
+        {
+            _hud.Log($"You work {Name(e.FormulaId)} (+{e.Strain} Strain)");
+            if (e.Caster == _session.Simulation!.PlayerId) _magicEffects.Resolve(_avatar, e.FormulaId);
+        });
         _session.Subscribe<CastFizzled>(e => _hud.Log($"Your {Name(e.FormulaId)} fizzles (+{e.Strain} Strain)"));
         _session.Subscribe<CastInterrupted>(e => _hud.Log($"Your {Name(e.FormulaId)} is broken off ({e.Reason})"));
         _session.Subscribe<StrainBacklash>(e => _hud.Log($"Strain backlash: -{e.Damage} health"));

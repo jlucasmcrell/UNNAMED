@@ -25,6 +25,8 @@ public abstract partial class FormulaForm : Node3D
         "form:cast_glyph" => new CastGlyph(),
         "form:bolt_core" => new BoltCore(),
         "form:bolt_shock" => new BoltShock(),
+        "form:holdfast_ring" => new SpellGroundMark(false),
+        "form:frost_rim" => new SpellGroundMark(true),
         _ => null,
     };
 
@@ -645,4 +647,47 @@ void fragment() {
     ALPHA = clamp(rim * 1.8, 0.0, 1.0) * fade;
 }
 ";
+}
+
+/// <summary>A brief anchored ward inscription or irregular frost rim. Neither persists for the buff's duration.</summary>
+public partial class SpellGroundMark(bool frost) : FormulaForm
+{
+    public const double Seconds = 1.05;
+    private ShaderMaterial _material = null!;
+    protected override double EndSeconds => 0.15;
+
+    public override void _Ready()
+    {
+        _material = Material(frost ? FrostShader : CircleShader,
+            ("ink", frost ? new Color("#c3e9e9") : new Color("#ded1a2")),
+            ("radius", frost ? 0.52f : 0.63f), ("half_size", 0.8f), ("energy", 0f), ("line_m", 0.009f));
+        AddChild(Drawn("GroundMark", new QuadMesh { Size = Vector2.One * 1.6f }, _material));
+        RotationDegrees = new Vector3(-90, 0, 0);
+    }
+
+    protected override void Animate()
+    {
+        float fade = Smooth(Age / 0.12) * (1 - Smooth((Age - 0.48) / (Seconds - 0.48)));
+        _material.SetShaderParameter("energy", fade * 0.9f);
+        _material.SetShaderParameter("drawn", Smooth(Age / 0.2));
+    }
+
+    private static readonly Shader FrostShader = new() { Code = @"
+shader_type spatial;
+render_mode unshaded, blend_add, cull_disabled, depth_draw_never, shadows_disabled;
+uniform vec3 ink : source_color;
+uniform float radius = 0.52;
+uniform float half_size = 0.8;
+uniform float energy = 1.0;
+void fragment() {
+    vec2 p = (UV - 0.5) * 2.0 * half_size;
+    float a = atan(p.y, p.x);
+    float r = length(p);
+    float jagged = radius + sin(a * 17.0) * 0.022 + sin(a * 31.0) * 0.013;
+    float rim = (1.0 - smoothstep(0.018, 0.044, abs(r - jagged)));
+    float spokes = pow(max(0.0, cos(a * 19.0 + sin(a * 7.0))), 22.0);
+    spokes *= smoothstep(radius * 0.46, radius * 0.8, r) * (1.0 - smoothstep(radius, radius * 1.15, r));
+    ALBEDO = ink * (rim * 0.7 + spokes * 0.55) * energy;
+    ALPHA = clamp((rim + spokes) * energy, 0.0, 0.8);
+}" };
 }

@@ -10,6 +10,14 @@
     "billboard velocity (a streak along the flight) need the ParticleRecipes.cs patch beside this file; fps 0 on a grid = one random frame."
   ],
   "effects": {
+    "vfx.force.cinder_dart_travel": ["cinder_dart_flame", "cinder_dart_embers"],
+    "vfx.force.cinder_dart_impact": ["cinder_dart_bloom", "cinder_dart_sparks"],
+    "vfx.force.shiver_spike_travel": ["shiver_spike_core", "shiver_spike_wake"],
+    "vfx.force.shiver_spike_impact": ["form:frost_rim", "shiver_spike_splinters", "shiver_spike_mist"],
+    "spell.warding.holdfast_release": ["form:holdfast_ring", "holdfast_grit"],
+    "spell.warding.hush_the_sting_release": ["hush_purge_bloom", "hush_purge_sparks"],
+    "spell.vital.clear_the_dead_weight_release": ["dead_weight_flakes", "dead_weight_dust"],
+    "effect.ember_mending": ["ember_mend_motes"],
     "comment": "What the game draws with recipes (--visual vfx=recipes): a flipbook effect's ID, or a greybox moment's key, to the recipes that stand in for it. hit.<material>: HitImpacts (authoritative HitResolved only).",
     "vfx.force.impulse_bolt_travel": ["form:bolt_core", "force_bolt_wake"],
     "vfx.force.impulse_bolt_impact": ["form:bolt_shock", "force_bolt_shards", "force_bolt_dust"],
@@ -32,12 +40,32 @@
     "creature.beast.ash_ember_hound": "ember"
   },
   "formulas": {
+    "spell.force.cinder_dart": {"ink": "#ffb75a", "sides": 3},
+    "spell.force.shiver_spike": {"ink": "#b6eff2", "sides": 3},
+    "spell.warding.holdfast": {"ink": "#e0d5ad", "sides": 4},
+    "spell.warding.hush_the_sting": {"ink": "#dceac7", "sides": 4},
+    "spell.vital.ember_mend": {"ink": "#ffd08a", "sides": 6},
+    "spell.vital.clear_the_dead_weight": {"ink": "#d9caa7", "sides": 6},
     "comment": "The cast glyph per formula (Phase B VFX lane): its ink, and the polygon turning inside it - Force three sides, Warding four, Vital six.",
     "spell.force.impulse_bolt": { "ink": "#d6e6ff", "sides": 3 },
     "spell.warding.brace_ward": { "ink": "#a4c8ff", "sides": 4 },
     "spell.vital.mending_thread": { "ink": "#ffe4ae", "sides": 6 }
   },
   "recipes": {
+    "cinder_dart_flame": {"mode": "stream", "texture": "vfx/ext_unity_flame02.png", "amount": 24, "lifetime": 0.24, "size": [0.12, 0.23], "size_curve": [1, 0.65, 0], "velocity": [0.1, 0.3], "spread": 180, "gravity": [0, 0, 0], "blend": "add", "energy": 1.25, "color": ["#fff3caff", "#ffae43e0", "#ed4b1680", "#5a210b00"], "grid": [8, 8], "frames": 64, "fps": 48},
+    "cinder_dart_embers": {"mode": "stream", "texture": "vfx/cos_ns1_point.png", "amount": 13, "lifetime": 0.38, "size": [0.012, 0.035], "size_curve": [0.3, 1, 0.0], "velocity": [0.05, 0.4], "spread": 180, "gravity": [0, 0.12, 0], "blend": "add", "energy": 1, "color": ["#fff0c7ff", "#ffb63dbb", "#ce4b1300"]},
+    "cinder_dart_bloom": {"mode": "burst", "texture": "vfx/ext_unity_fireball01_energy.png", "amount": 7, "lifetime": 0.42, "size": [0.22, 0.4], "size_curve": [0.5, 1, 0], "velocity": [0.15, 0.7], "spread": 180, "gravity": [0, 0, 0], "blend": "add", "energy": 1.25, "color": ["#fff3c4dd", "#ffb23dbb", "#d7471470", "#5b210b00"], "grid": [8, 8], "frames": 64, "fps": 64},
+    "cinder_dart_sparks": {"mode": "burst", "texture": "vfx/kenney_trace_spark.png", "amount": 17, "lifetime": 0.6, "size": [0.025, 0.08], "size_curve": [0.3, 1, 0.0], "velocity": [0.5, 1.7], "spread": 145, "gravity": [0, -2.8, 0], "blend": "add", "energy": 1, "color": ["#ffe7b1ff", "#ffae46bb", "#bb411000"], "billboard": "velocity"},
+    "shiver_spike_core": {"mode": "stream", "texture": "vfx/cos_ns1_flake_2x2.png", "amount": 12, "lifetime": 0.16, "size": [0.05, 0.13], "size_curve": [0.3, 1, 0.0], "velocity": [0, 0.08], "spread": 180, "gravity": [0, 0, 0], "blend": "add", "energy": 1, "color": ["#edffffff", "#a6dae7bb", "#85c5d500"], "grid": [2, 2], "frames": 4, "fps": 0},
+    "shiver_spike_wake": {"mode": "stream", "texture": "vfx/cos_ns1_smoke_8x8.png", "amount": 15, "lifetime": 0.32, "size": [0.08, 0.18], "size_curve": [0.3, 1.4, 0], "velocity": [0, 0.2], "spread": 180, "gravity": [0, 0, 0], "blend": "mix", "energy": 1, "color": ["#d4e9ec00", "#d4e9ec65", "#aecfd800"], "grid": [8, 8], "frames": 64, "fps": 64, "lit": true},
+    "shiver_spike_splinters": {"mode": "burst", "texture": "vfx/cos_ns1_flake_2x2.png", "amount": 23, "lifetime": 0.75, "size": [0.035, 0.12], "size_curve": [0.3, 1, 0.0], "velocity": [0.5, 1.8], "spread": 145, "gravity": [0, -3.5, 0], "blend": "add", "energy": 1, "color": ["#e9ffffff", "#b4e1e6cc", "#8fb7c600"], "grid": [2, 2], "frames": 4, "fps": 0, "spin": [-160, 160]},
+    "shiver_spike_mist": {"mode": "burst", "texture": "vfx/cos_ns1_smoke_8x8.png", "amount": 9, "lifetime": 0.85, "size": [0.2, 0.48], "size_curve": [0.2, 1.5, 0], "velocity": [0.1, 0.6], "spread": 180, "gravity": [0, 0, 0], "blend": "mix", "energy": 1, "color": ["#d8eff000", "#d8eff080", "#b4d2d800"], "grid": [8, 8], "frames": 64, "fps": 48, "lit": true},
+    "holdfast_grit": {"mode": "burst", "texture": "vfx/cos_ns1_point.png", "amount": 22, "lifetime": 0.55, "size": [0.012, 0.028], "size_curve": [0.3, 1, 0.0], "velocity": [0.08, 0.25], "spread": 100, "gravity": [0, -0.35, 0], "blend": "add", "energy": 1, "color": ["#eee3b5dd", "#cfc69788", "#ad9d6700"], "ring": [0.58, 0.02]},
+    "hush_purge_bloom": {"mode": "burst", "texture": "vfx/unity_discsmoke01_16x4.png", "amount": 5, "lifetime": 0.55, "size": [0.14, 0.28], "size_curve": [0.2, 1.2, 0], "velocity": [0.1, 0.35], "spread": 180, "gravity": [0, 0, 0], "blend": "add", "energy": 0.9, "color": ["#eff6d4aa", "#dbe9bc88", "#b5c8a000"], "grid": [16, 4], "frames": 64, "fps": 80},
+    "hush_purge_sparks": {"mode": "burst", "texture": "vfx/cos_ns1_point.png", "amount": 13, "lifetime": 0.6, "size": [0.012, 0.025], "size_curve": [0.3, 1, 0.0], "velocity": [0.3, 0.65], "spread": 180, "gravity": [0, 0.1, 0], "blend": "add", "energy": 1, "color": ["#f3f5cfff", "#d5e4b5aa", "#a7c19a00"]},
+    "ember_mend_motes": {"mode": "stream", "texture": "vfx/cos_ns1_point.png", "amount": 22, "lifetime": 1.3, "size": [0.018, 0.04], "size_curve": [0, 1, 0.65, 0], "velocity": [0.25, 0.5], "spread": 14, "gravity": [0, 0.04, 0], "blend": "add", "energy": 1.15, "color": ["#ffdb9a00", "#ffe2a8cc", "#edb966a0", "#c98c4000"], "ring": [0.28, 0.65]},
+    "dead_weight_flakes": {"mode": "burst", "texture": "vfx/cos_ns1_flake_2x2.png", "amount": 16, "lifetime": 1.05, "size": [0.025, 0.065], "size_curve": [1, 1, 0.4, 0], "velocity": [0.12, 0.4], "spread": 50, "gravity": [0, -2.4, 0], "blend": "mix", "energy": 1, "color": ["#5a5347ee", "#766c5bd0", "#8f806a00"], "grid": [2, 2], "frames": 4, "fps": 0, "box": [0.18, 0.06, 0.14], "direction": [0, -1, 0], "spin": [-90, 90], "lit": true},
+    "dead_weight_dust": {"mode": "burst", "texture": "vfx/cos_ns1_smoke_8x8.png", "amount": 5, "lifetime": 0.85, "size": [0.1, 0.2], "size_curve": [0.25, 1.2, 0], "velocity": [0.15, 0.3], "spread": 40, "gravity": [0, -0.45, 0], "blend": "mix", "energy": 1, "color": ["#8f816a00", "#8f816a70", "#8f816a00"], "grid": [8, 8], "frames": 64, "fps": 48, "direction": [0, -1, 0], "lit": true},
     "force_bolt_trail": {
       "note": "Impulse Bolt in flight: cold displaced air, never a flame colour (magic_vfx.json). Unity Labs FireBall01 (CC0) through a cold ramp. Unchanged; no longer bound (force_bolt_wake replaces it).",
       "mode": "stream", "texture": "vfx/ext_unity_fireball01_energy.png", "grid": [8, 8], "frames": 64, "fps": 30,

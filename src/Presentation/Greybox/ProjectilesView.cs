@@ -34,6 +34,7 @@ public partial class ProjectilesView : Node3D
         public required bool Working { get; init; }
         public required bool Struck { get; init; }
         public string? EffectStem { get; init; }
+        public float? GroundY { get; init; }
         public double Elapsed { get; set; }
     }
 
@@ -123,7 +124,7 @@ public partial class ProjectilesView : Node3D
     /// A shot from <paramref name="from"/> to <paramref name="to"/>: an arrow, or a working (<paramref name="effectStem"/> names its
     /// flipbooks). <paramref name="struck"/>: it ended on a creature.
     /// </summary>
-    public void Loose(Vector3 from, Vector3 to, bool working, bool struck, string? effectStem)
+    public void Loose(Vector3 from, Vector3 to, bool working, bool struck, string? effectStem, float? groundY = null)
     {
         var node = working ? Working(effectStem) : Arrow();
         AddChild(node);
@@ -134,7 +135,7 @@ public partial class ProjectilesView : Node3D
         _flying.Add(new Flight
         {
             Node = node, From = from, To = to, Duration = Math.Max(0.05, length / (working ? WorkingSpeed : ArrowSpeed)),
-            Working = working, Struck = struck, EffectStem = effectStem,
+            Working = working, Struck = struck, EffectStem = effectStem, GroundY = groundY,
         });
     }
 
@@ -197,7 +198,7 @@ public partial class ProjectilesView : Node3D
             flight.Node.QueueFree();
             // A little short of where it stopped, so the burst, which faces the camera, is not half inside the wall it struck.
             var along = (flight.To - flight.From).Normalized();
-            Burst(flight.To - along * 0.4f, flight.EffectStem, along);
+            Burst(flight.To - along * 0.4f, flight.EffectStem, along, flight.GroundY);
             if (flight.Node.HasMeta("streak"))
                 _fadingStreaks.Add((WorkingTail(flight, flight.To), flight.To - along * 0.4f, _clock + TrailFade));
             return;
@@ -341,6 +342,10 @@ public partial class ProjectilesView : Node3D
             }
             node.SetMeta("streak", true);
         }
+        else if (stem is not null && Recipes($"{stem}_travel") is { Count: > 0 } travel)
+        {
+            foreach (var particles in travel) node.AddChild(particles);
+        }
         else if (Book(stem, "travel", "a glowing sphere") is { } book)
         {
             var trail = Recipes($"{stem}_travel");
@@ -360,7 +365,7 @@ public partial class ProjectilesView : Node3D
                 MaterialOverride = new StandardMaterial3D { EmissionEnabled = true, Emission = new Color(0.55f, 0.75f, 1f), EmissionEnergyMultiplier = 3, AlbedoColor = new Color(0.7f, 0.85f, 1f) },
             });
         }
-        node.AddChild(new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = 1.6f, OmniRange = 4.5f });
+        node.AddChild(new OmniLight3D { LightColor = WorkingInk(stem), LightEnergy = stem is ("vfx.force.cinder_dart" or "vfx.force.shiver_spike") ? 1.2f : 1.6f, OmniRange = 4.5f });
         return node;
     }
 
@@ -368,14 +373,17 @@ public partial class ProjectilesView : Node3D
     /// The working bursts where it stopped (<paramref name="along"/>: the way it flew): the recipes' pressure front and particles, the
     /// impact flipbook played once, or a swelling flash - and its light, fading.
     /// </summary>
-    private void Burst(Vector3 at, string? stem, Vector3 along)
+    private Color WorkingInk(string? stem) => stem is ("vfx.force.cinder_dart" or "vfx.force.shiver_spike") && _recipes is not null
+        ? _recipes.Formula("spell." + stem[4..]).Ink : new Color(0.6f, 0.78f, 1f);
+
+    private void Burst(Vector3 at, string? stem, Vector3 along, float? groundY)
     {
         _lastBurst = _clock;
         var node = new Node3D { Position = at };
         AddChild(node);
         // Settings' flash reduction (PJ03 §6.3) holds the burst's light to a third.
         float peak = Settings.SettingsStore.Current.Profile.Camera.ReduceFlashes ? 1f : 3f;
-        var light = new OmniLight3D { LightColor = new Color(0.6f, 0.78f, 1f), LightEnergy = peak, OmniRange = 6f };
+        var light = new OmniLight3D { LightColor = WorkingInk(stem), LightEnergy = peak, OmniRange = 6f };
         node.AddChild(light);
         var forms = stem is null ? new List<Art.FormulaForm>() : Forms($"{stem}_impact");
         var bursts = stem is null ? new List<GpuParticles3D>() : Recipes($"{stem}_impact");
@@ -384,6 +392,8 @@ public partial class ProjectilesView : Node3D
             foreach (var form in forms)
             {
                 node.AddChild(form);
+                if (form is Art.SpellGroundMark && groundY is { } floor)
+                    form.GlobalPosition = (at + along * 0.4f) with { Y = floor + 0.035f };
                 if (form is Art.BoltShock shock)
                     shock.Along = along;
             }
@@ -392,7 +402,7 @@ public partial class ProjectilesView : Node3D
                 node.AddChild(burst);
                 Art.ParticleRecipes.Fire(burst);
             }
-            double life = Math.Max(_recipes!.Lifetime(_recipes.For($"{stem}_impact")), forms.Count > 0 ? Art.BoltShock.Seconds : 0) + 0.2;
+            double life = Math.Max(_recipes!.Lifetime(_recipes.For($"{stem}_impact")), forms.Any(f => f is Art.SpellGroundMark) ? Art.SpellGroundMark.Seconds : forms.Count > 0 ? Art.BoltShock.Seconds : 0) + 0.2;
             // The light: a hard flash that falls away fast, not a glow that lingers.
             _lingering.Add((node, _clock + life, left => light.LightEnergy = (float)(peak * Math.Pow(Math.Max(0, left / life), 3))));
             return;

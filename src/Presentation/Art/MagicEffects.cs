@@ -92,6 +92,37 @@ public partial class MagicEffects : Node3D
         }
     }
 
+    /// <summary>One release tell from the simulation's completed cast; purges need no status effect to have been present.</summary>
+    public void Resolve(Figure body, string formula)
+    {
+        if (_recipes is null) return;
+        var names = _recipes.For(formula + "_release");
+        if (names.Count == 0) return;
+        IEnumerable<Vector3> points = formula switch
+        {
+            "spell.warding.hush_the_sting" => new[] { body.Hand("L"), body.Hand("R") }.OfType<Vector3>(),
+            "spell.vital.clear_the_dead_weight" => new[] { body.Shoulder("L"), body.Shoulder("R") }.OfType<Vector3>(),
+            _ => new[] { body.GlobalPosition + Vector3.Up * 0.035f },
+        };
+        foreach (var point in points)
+        {
+            var holder = new Node3D();
+            AddChild(holder);
+            holder.GlobalPosition = point;
+            foreach (string name in names)
+            {
+                if (FormulaForm.Create(name) is { } form) holder.AddChild(form);
+                else if (_recipes.Build(name) is { } particles)
+                {
+                    holder.AddChild(particles);
+                    ParticleRecipes.Fire(particles);
+                }
+            }
+            Release(holder, Math.Max(1.1, _recipes.Lifetime(names)) + 0.1);
+        }
+        _coverage?.Resolved("effect_recipe", formula + "_release", string.Join(" + ", names));
+    }
+
     private void DrawCharge(Figure body, string? casting, bool gathering)
     {
         if (_glyphForm)
@@ -157,7 +188,7 @@ public partial class MagicEffects : Node3D
 
     private void DrawOnBody(Figure body, IReadOnlyList<(string Id, double Left)> effects)
     {
-        var active = effects.Where(e => _bindings.Effects.ContainsKey(e.Id)).Select(e => e.Id).ToHashSet(StringComparer.Ordinal);
+        var active = effects.Where(e => _bindings.Effects.ContainsKey(e.Id) || _recipes?.For(e.Id).Count > 0).Select(e => e.Id).ToHashSet(StringComparer.Ordinal);
         foreach (string gone in _onBody.Keys.Where(k => !active.Contains(k)).ToList())
         {
             _onBody[gone].Quad.QueueFree();
@@ -178,7 +209,7 @@ public partial class MagicEffects : Node3D
         {
             if (RecipesOnBody(effect) is { } recipes)
             {
-                recipes.GlobalPosition = body.GlobalPosition;
+                recipes.GlobalPosition = body.GlobalPosition + (effect == "effect.ember_mending" ? Vector3.Up * 0.85f : Vector3.Zero);
                 foreach (var form in recipes.GetChildren().OfType<FormulaForm>())
                     form.SecondsLeft = left;
                 continue;
@@ -211,7 +242,7 @@ public partial class MagicEffects : Node3D
     {
         if (_recipesOnBody.TryGetValue(effect, out var shown))
             return shown.Holder;
-        if (_recipes is null || !_bindings.Effects.TryGetValue(effect, out string? id) || _recipes.For(id) is not { Count: > 0 } names)
+        if (_recipes is null || _recipes.For(_bindings.Effects.GetValueOrDefault(effect) ?? effect) is not { Count: > 0 } names)
             return null;
         var holder = new Node3D { Name = effect.Replace('.', '_') + "_recipes" };
         foreach (string name in names)

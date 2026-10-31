@@ -97,6 +97,10 @@ public abstract partial class Figure : Node3D
     /// <summary>Where a working gathers in the casting hand, in world space, or null when this figure has no casting hand to show.</summary>
     public virtual Vector3? CastPoint => null;
 
+    /// <summary>Rig anchors for a working released from both hands or shed off the shoulders.</summary>
+    public virtual Vector3? Hand(string side) => side == "R" ? CastPoint : null;
+    public virtual Vector3? Shoulder(string side) => null;
+
     /// <summary>A blow of theirs just landed (a companion's, which the simulation reports only as it lands).</summary>
     public virtual void Strike()
     {

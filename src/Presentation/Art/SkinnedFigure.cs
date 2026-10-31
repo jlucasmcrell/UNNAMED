@@ -312,6 +312,13 @@ public sealed partial class SkinnedFigure : Figure
     public override void Work() => _working = 0.001;
     public override Vector3? CastPoint => _hand is { } hand && hand.IsInsideTree() ? hand.GlobalPosition : null;
 
+    public override Vector3? Hand(string side) => WorkingAnchor("hand." + side);
+    public override Vector3? Shoulder(string side) => WorkingAnchor("upper_arm." + side);
+
+    private Vector3? WorkingAnchor(string name) => BoneNames.Find(_model.Skeleton, name) is int bone and >= 0
+        ? _model.Skeleton.GlobalTransform * _model.Skeleton.GetBoneGlobalPose(bone).Origin
+        : null;
+
     public override void LightInOffHand(long radiusMm) => HandLight.Show(_offHand, radiusMm);
 
     private FaceDriver? _face;
