@@ -12884,12 +12884,12 @@
       "note": "Claude steps-visual: a stall's wares."
     },
     "oh_nq_store_00": {
-      "model": "bld_fab_ah_forge_shed",
+      "model": "bld_fab_cw_house_04",
       "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
     "oh_nq_store_01": {
-      "model": "bld_fab_cw_granary",
+      "model": "bld_fab_cw_house_03",
       "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
@@ -12899,17 +12899,17 @@
       "note": "Claude steps-visual: the north quay's working dress."
     },
     "oh_nq_store_03": {
-      "model": "cw_granary_staddled",
-      "material": "wood",
+      "model": "bld_fab_cw_house_07",
+      "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
     "oh_nq_store_04": {
-      "model": "bld_fab_ah_forge_shed",
+      "model": "bld_fab_cw_house_02",
       "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
     "oh_nq_store_05": {
-      "model": "bld_fab_cw_granary",
+      "model": "bld_fab_cw_house_03",
       "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
@@ -12919,12 +12919,12 @@
       "note": "Claude steps-visual: the north quay's working dress."
     },
     "oh_nq_store_07": {
-      "model": "cw_granary_staddled",
-      "material": "wood",
+      "model": "bld_fab_cw_house_03",
+      "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
     "oh_nq_store_08": {
-      "model": "bld_fab_cw_granary",
+      "model": "bld_fab_cw_house_07",
       "material": "stone",
       "note": "Claude steps-visual: the north quay's working dress."
     },
