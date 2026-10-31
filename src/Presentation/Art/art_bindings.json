@@ -1,4 +1,4 @@
-﻿{
+{
  "comment": [
   "What the game draws and plays for each thing the simulation has: game IDs on the left, the asset pipeline's stable semantic IDs on the right.",
   "Presentation data, not game content: nothing here changes a rule, a save or the content hash. An asset that is missing or will not load",
@@ -6586,7 +6586,13 @@
   "formulas": {
    "spell.force.impulse_bolt": "impulse_bolt",
    "spell.warding.brace_ward": "brace_ward",
-   "spell.vital.mending_thread": "mending_thread"
+   "spell.vital.mending_thread": "mending_thread",
+   "spell.force.cinder_dart": "cinder_dart",
+   "spell.force.shiver_spike": "shiver_spike",
+   "spell.warding.holdfast": "holdfast",
+   "spell.warding.hush_the_sting": "hush_the_sting",
+   "spell.vital.ember_mend": "ember_mend",
+   "spell.vital.clear_the_dead_weight": "clear_the_dead_weight"
   },
   "switches": {
    "switch.stone_north": "sfx.amb.foldscar.stone_resonance.01",
