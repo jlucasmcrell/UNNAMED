@@ -640,7 +640,7 @@ public sealed class SaveStore
             RngContractVersion = document.Worldgen.RngContractVersion,
             WorldTick = document.WorldTick,
             WorldTimeAdvancedTicks = document.WorldTimeAdvancedTicks,
-            CommandLogSha256 = null,
+            CommandLogSha256 = document.CommandLogSha256,
             BuildTimestamp = at.UtcDateTime.ToString("yyyy-MM-ddTHH:mm:ssZ", CultureInfo.InvariantCulture),
             SavedUtc = SaveManifest.FormatSavedUtc(document.SavedUtc ?? at),
             PlaytimeSeconds = document.PlaytimeSeconds,

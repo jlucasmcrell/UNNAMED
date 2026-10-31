@@ -156,6 +156,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
     private readonly SaveStore _profileStore;
     private readonly Dictionary<string, SaveStore> _characterStores = new(StringComparer.Ordinal);
     private SaveStore _store;
+    private ReplayLogWriter? _replay;
     private string? _character;
     private CharacterCard? _card;
     private readonly ProfileLock? _lock;
@@ -448,6 +449,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _store = StoreFor(id.Value);
         _card = new CharacterCard(id.Value, player.Name, spec.PeopleId, spec.CallId);
         Begin(simulation, playtime: 0, worldTimeAdvanced: 0, ImmutableArray<AdvanceLine>.Empty);
+        OpenReplayLog(new ReplayLogStart(seed, spec, Content.Hash, WorldgenIdentity.Of(simulation.World.Generator).Fingerprint), resume: false);
         // The story begins before the first tick: the journal's first entries are there when the character first looks (WP4).
         if (_simulation!.HasOpeningQuests)
         {
@@ -502,6 +504,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             : CharacterFolders.ReadCard(store.Root) ?? new CharacterCard(character, result.Player.Name, result.Player.Identity.PeopleId, result.Player.Identity.CallId);
         Begin(Simulation.Start(Setup, result.Player, result.World, result.Manifest.WorldTick, _bus, restoreAttempt: true), result.Manifest.PlaytimeSeconds,
             result.Manifest.WorldTimeAdvancedTicks, result.Manifest.AwayLog.Select(e => e.ToLine()).ToImmutableArray());
+        OpenReplayLog(new ReplayLogStart(result.World.WorldSeed, null, Content.Hash, WorldgenIdentity.Of(result.World.Generator).Fingerprint, slot),
+            resume: true);
         if (_simulation!.Player.Body.XMm != result.Player.XMm || _simulation.Player.Body.ZMm != result.Player.ZMm)
             NoteAway(_simulation.WorldTick, new[] { "Active boss encounters restart when loaded. You return outside the court with your saved resources." });
         return result;
@@ -639,8 +643,23 @@ public sealed class GameSession : IDomainEvents, IDisposable
     {
         var simulation = _simulation ?? throw new InvalidOperationException("There is no running world to save");
         var now = Now();
+        _replay?.Sync(simulation.CommandLog);
         return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds, _worldTimeAdvanced)
-            with { CapturedAt = now, SavedUtc = now, AwayLog = _away };
+            with
+            {
+                CapturedAt = now, SavedUtc = now, AwayLog = _away,
+                CommandLogSha256 = _store is null ? null : ReplayLog.Digest(_store.Root, simulation.WorldTick),
+            };
+    }
+
+    /// <summary>
+    /// Begins the session's command log (PERSISTENCE.md §5.7): the inputs a replay needs, kept beside the character's saves. A load
+    /// begins a new session in a folder that already holds one, so the part it finds is rotated aside rather than appended to.
+    /// </summary>
+    private void OpenReplayLog(ReplayLogStart start, bool resume)
+    {
+        _replay?.Dispose();
+        _replay = new ReplayLogWriter(_store.Root, start, _simulation?.PlayerId, resume);
     }
 
     private void Queue(string slot, bool auto)
@@ -735,6 +754,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             simulation.DrainCommands();   // anything an event handler queued applies at the next boundary
         }
 
+        _replay?.Sync(simulation.CommandLog);
         var saves = Finished();
         // An autosave is taken at this boundary and written in the background (P-01) - but not while the last is still being written: the
         // next is counted from that one's capture. A failure never stops the frame (M-02); it comes back as an outcome.
