@@ -147,6 +147,12 @@ public sealed record SaveDocument(
     public DateTimeOffset? CapturedAt { get; init; }
 
     /// <summary>
+    /// The digest of the command log as of this capture (PERSISTENCE.md §5.7; <see cref="ReplayLog.Digest"/>): the commands dispatched
+    /// before this save's tick, over the bytes the log holds. Null when no log was kept, which is what makes replay unavailable.
+    /// </summary>
+    public string? CommandLogSha256 { get; init; }
+
+    /// <summary>
     /// <c>saved_utc</c> (schema 18): the real moment the world was captured. Null: <see cref="CapturedAt"/>, or when it is written. A
     /// migration passes the source's on, so migrating a save never shortens the absence a login measures.
     /// </summary>
