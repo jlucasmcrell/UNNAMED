@@ -219,6 +219,10 @@ public sealed record CharacterProgression
                 foreach (long tick in ticks)
                     h.Add(tick);
             }
+            h.Add(DesignatedSkill ?? "");
+            h.Add(Masteries.Count);
+            foreach (var id in Masteries)
+                h.Add(id);
             return h.Finish();
         }
     }
