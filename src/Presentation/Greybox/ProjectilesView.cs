@@ -200,7 +200,7 @@ public partial class ProjectilesView : Node3D
             var along = (flight.To - flight.From).Normalized();
             Burst(flight.To - along * 0.4f, flight.EffectStem, along, flight.GroundY);
             if (flight.Node.HasMeta("streak"))
-                _fadingStreaks.Add((WorkingTail(flight, flight.To), flight.To - along * 0.4f, _clock + TrailFade));
+                _fadingStreaks.Add((WorkingTail(flight, flight.To), flight.To - along * 0.4f, _clock + TrailFade, flight.EffectStem));
             return;
         }
         _fadingTrails.Add((Tail(flight, flight.To), flight.To, _clock + TrailFade));
@@ -223,7 +223,7 @@ public partial class ProjectilesView : Node3D
     private static readonly Color WorkingStreak = new(0.9f, 0.95f, 1f);
     // The wash round it a deeper blue than the day, so the white core reads against bright ground and sky.
     private static readonly Color WorkingWash = new(0.36f, 0.52f, 0.92f);
-    private readonly List<(Vector3 Tail, Vector3 Head, double Until)> _fadingStreaks = new();
+    private readonly List<(Vector3 Tail, Vector3 Head, double Until, string? Stem)> _fadingStreaks = new();
 
     private static Vector3 WorkingTail(Flight flight, Vector3 head) =>
         head - (flight.To - flight.From).Normalized() * Math.Min(WorkingStreakLength, flight.From.DistanceTo(head));
@@ -245,16 +245,19 @@ public partial class ProjectilesView : Node3D
             streaks.Add((tail, head, (float)((until - _clock) / TrailFade), TrailWidth, arrow));
         // A working's streak (Phase B VFX lane): wider, cold, longer - its path through the air, drawn to where it burst.
         // A fine bright core inside a wide faint wash.
-        void Streak(Vector3 tail, Vector3 head, float alpha)
+        void Streak(Vector3 tail, Vector3 head, float alpha, string? stem)
         {
-            streaks.Add((tail, head, 0.3f * alpha, WorkingStreakWidth * 2.2f, WorkingWash));
-            streaks.Add((tail, head, 0.95f * alpha, WorkingStreakWidth * 0.55f, WorkingStreak));
+            bool fire = stem == "vfx.force.cinder_dart";
+            var wash = fire ? new Color("#f77b24") : WorkingWash;
+            var core = fire ? new Color("#ffe1a0") : WorkingStreak;
+            streaks.Add((tail, head, 0.3f * alpha, WorkingStreakWidth * 2.2f, wash));
+            streaks.Add((tail, head, 0.95f * alpha, WorkingStreakWidth * 0.55f, core));
         }
         foreach (var flight in _flying.Where(f => f.Working && f.Node.HasMeta("streak")))
-            Streak(WorkingTail(flight, flight.Node.Position), flight.Node.Position, 1f);
+            Streak(WorkingTail(flight, flight.Node.Position), flight.Node.Position, 1f, flight.EffectStem);
         _fadingStreaks.RemoveAll(t => t.Until <= _clock);
-        foreach (var (tail, head, until) in _fadingStreaks)
-            Streak(tail, head, (float)((until - _clock) / TrailFade));
+        foreach (var (tail, head, until, stem) in _fadingStreaks)
+            Streak(tail, head, (float)((until - _clock) / TrailFade), stem);
         if (GetViewport().GetCamera3D() is not { } camera)
             return;
         var eye = ToLocal(camera.GlobalPosition);
@@ -345,6 +348,8 @@ public partial class ProjectilesView : Node3D
         else if (stem is not null && Recipes($"{stem}_travel") is { Count: > 0 } travel)
         {
             foreach (var particles in travel) node.AddChild(particles);
+            // Keep the fast fire dart's path legible between frames; its flame and embers still come from the native atlases.
+            if (stem == "vfx.force.cinder_dart") node.SetMeta("streak", true);
         }
         else if (Book(stem, "travel", "a glowing sphere") is { } book)
         {
