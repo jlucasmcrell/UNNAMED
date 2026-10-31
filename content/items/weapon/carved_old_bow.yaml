@@ -14,7 +14,9 @@ damage: [8, 10]
 damage_type: physical_pierce
 hands: two
 requirements: { attribute.might: 9 }
-draw_time: 1.0
+draw_time: 0.95
+sneak_multiplier: 2.25   # an arrow into a target that has not noticed the archer (STEALTH §7.1); a little over the hunting bow's double, to keep its lighter draw-for-damage trade level
+shot_noise_m: 6          # the twang, heard at the shooter (STEALTH §7.8)
 ammo_item_ref: item.ammo.arrow_rough
 skill_ref: skill.bow
 durability_max: 200

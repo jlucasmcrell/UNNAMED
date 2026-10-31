@@ -11,7 +11,7 @@ Two layers, kept apart (owner ruling, M3d): a **creature archetype** is a body a
 | Ash Ember Hound | fast predator: movement, timing, pursuit | 3 | 35 | 1 / 1 | 6 | 720 | Ember Lunge: fire 5-7, reach 1.2 m + 2.2 m lunge, tell 0.4 s | Rush: 7 m/s from 2-6 m, fire 6-9, knocks down, stunned 1.1 s by what it runs into; bites on the run | 30 / 160 / 35 |
 | Bone Walker Husk | basic humanoid: readable melee and reach | 3 | 55 | 4 / 2 | 2.2 | 180 | Rusted Cleave: physical_slash 6-9, reach 2.4 m, tell 0.8 s | physical_pierce resisted 60%; immune to Bleeding, Sleep, Venom | 18 / 120 / 20 |
 | Animated Armour | armored heavy: armor and weak-point logic | 5 | 90 | 45 / 0 | 1.8 | 90 | Gauntlet Slam: physical_blunt 10-14, reach 1.8 m, tell 1.0 s | Rush: 7 m/s from 2-6 m, physical_blunt 13-18, knocks down, stunned 1.1 s by what it runs into; open head from behind; physical_pierce resisted 50%; immune to Bleeding, Sleep, Venom | 15 / 100 / 18 |
-| Bristleback Boar | charging brute: lateral movement and terrain | 4 | 70 | 8 / 4 | 4 | 240 | Gore: physical_pierce 6-9, reach 1.3 m, tell 0.5 s | Charge: 9 m/s from 5-14 m, physical_blunt 12-16, knocks down, stunned 2.0 s by what it runs into | 20 / 150 / 25 |
+| Bristleback Boar | charging brute: lateral movement and terrain | 4 | 70 | 8 / 4 | 4 | 240 | Gore: physical_pierce 6-9, reach 1.3 m, tell 0.5 s | Charge: 9 m/s from 5-18 m, physical_blunt 12-16, knocks down, stunned 2.0 s by what it runs into | 20 / 150 / 25 |
 | Cave Hunting Spider | ambush, nonhuman: perception and avoidance | 3 | 40 | 3 / 2 | 5.5 | 720 | Venom Bite: physical_pierce 4-6, reach 1.2 m, tell 0.4 s, Venom 60% | Rush: 7 m/s from 2-6 m, physical_pierce 5-8, knocks down, stunned 1.1 s by what it runs into | 6 / 360 / 14 |
 | Grey Wolf | the M3c proof archetype (pack beast) | 2 | 50 | 2 / 1 | 4.5 | 720 | Bite: physical_pierce 4-6, reach 1.4 m, tell 0.5 s, Bleeding 30% | Rush: 7 m/s from 2-6 m, physical_pierce 5-8, knocks down, stunned 1.1 s by what it runs into | 25 / 140 / 30 |
 
@@ -30,7 +30,7 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | Ash Ember Hound | Rush | 5.9 | 0.7 | 2.5 | yes, 6.4 s (Ember Lunge) | 3.4 (0/8) | 12.5 | 31.2 | 17.0 |
 | Bone Walker Husk | Rush | 3.8 | 2.6 | 5.1 | no | 6.4 (0/8) | 11.6 | 19.6 | 17.1 |
 | Animated Armour | Rush | 6.0 | 0.8 | 4.9 | no | no kill (8/8) | 4.3 | 16.1 | 17.1 |
-| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | no | 10.3 (0/8) | 7.3 | 21.8 | 17.1 |
+| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 2.3 s (Charge) | 10.3 (0/8) | 7.3 | 21.8 | 17.1 |
 | Cave Hunting Spider | Rush | 5.3 | 1.1 | 3.0 | no | 4.5 (0/8) | 12.8 | 6.0 | 13.7 |
 | Grey Wolf | Rush | 5.8 | 0.9 | 3.0 | no | 4.9 (0/8) | 18.8 | 27.6 | 17.0 |
 
@@ -62,7 +62,7 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 |---|---|---|---|
 | spawn.boss.ashen_hollow.wayholder_trial | (472, 738) | The Gate Tender as sentinel | after 3.0 min |
 | spawn.boss.cairnwold.the_unpaid | (430, 770) | Barrowback as territorial | after 10.0 min |
-| spawn.boss.den_gorge.matriarch | (541, 785) | Hunting Spider Matriarch as sentinel | no |
+| spawn.boss.den_gorge.matriarch | (518, 765) | Hunting Spider Matriarch as sentinel | no |
 | spawn.boss.field_ruins.gate_warden.deep | (866, 762) | The Gate Warden as sentinel | no |
 | spawn.boss.foldscar.doubled_hart | (541, 636) | The Doubled Hart as sentinel | no |
 | spawn.boss.old_late.the_breath_late | (521, 767) | The Breath Late as sentinel | after 4.0 min |
