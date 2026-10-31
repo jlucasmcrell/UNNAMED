@@ -668,7 +668,7 @@ public partial class SpellGroundMark(bool frost) : FormulaForm
     protected override void Animate()
     {
         float fade = Smooth(Age / 0.12) * (1 - Smooth((Age - 0.48) / (Seconds - 0.48)));
-        _material.SetShaderParameter("energy", fade * 0.9f);
+        _material.SetShaderParameter("energy", fade * (frost ? 1.25f : 1.5f));
         _material.SetShaderParameter("drawn", Smooth(Age / 0.2));
     }
 

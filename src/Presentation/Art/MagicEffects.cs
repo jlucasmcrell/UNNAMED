@@ -98,12 +98,19 @@ public partial class MagicEffects : Node3D
         if (_recipes is null) return;
         var names = _recipes.For(formula + "_release");
         if (names.Count == 0) return;
-        IEnumerable<Vector3> points = formula switch
+        Vector3[] points = formula switch
         {
-            "spell.warding.hush_the_sting" => new[] { body.Hand("L"), body.Hand("R") }.OfType<Vector3>(),
-            "spell.vital.clear_the_dead_weight" => new[] { body.Shoulder("L"), body.Shoulder("R") }.OfType<Vector3>(),
+            "spell.warding.hush_the_sting" => new[] { body.Hand("L"), body.Hand("R") }.OfType<Vector3>().ToArray(),
+            "spell.vital.clear_the_dead_weight" => new[] { body.Shoulder("L"), body.Shoulder("R") }.OfType<Vector3>().ToArray(),
             _ => new[] { body.GlobalPosition + Vector3.Up * 0.035f },
         };
+        // Bone pivots lie inside the shoulder cap. Shed off the garment's outer surface, along the actual rig's shoulder span.
+        if (formula == "spell.vital.clear_the_dead_weight" && points.Length == 2)
+        {
+            var outward = (points[1] - points[0]).Normalized() * 0.075f;
+            points[0] += Vector3.Up * 0.06f - outward;
+            points[1] += Vector3.Up * 0.06f + outward;
+        }
         foreach (var point in points)
         {
             var holder = new Node3D();
