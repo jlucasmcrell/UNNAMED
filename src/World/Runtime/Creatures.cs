@@ -1583,7 +1583,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private IEnumerable<Blocker> Walls(CreatureState c) => Obstacles(c.Site.Space).Walls;
 
-    private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) => Walls(c).Any(b => b.Crosses(x0, z0, x1, z1));
+    private bool Walled(CreatureState c, double x0, double z0, double x1, double z1) =>
+        Walls(c).Any(b => b.StandsBetween && b.Crosses(x0, z0, x1, z1));
 
     private SimulationTier TierOf(CreatureState c) =>
         State.Tiers.GetValueOrDefault(_context.CellOfSite(c.Site.Space, c.Body.XMm, c.Body.ZMm).ToString(), SimulationTier.D);

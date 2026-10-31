@@ -149,7 +149,7 @@ public static class Perception
         }
         foreach (var wall in walls)
         {
-            if (wall.Crosses(eye.XMm, eye.ZMm, targetXMm, targetZMm))
+            if (wall.StandsBetween && wall.Crosses(eye.XMm, eye.ZMm, targetXMm, targetZMm))
                 return null;
         }
         return distance;

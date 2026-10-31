@@ -965,7 +965,8 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
     }
 
     private bool Walled(double x0, double z0, double x1, double z1) =>
-        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors()).Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(x0, z0, x1, z1));
+        _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors())
+            .Where(b => b.StandsBetween && (State.Space.IsExterior || b.ClearanceMm < 1800)).Any(b => b.Crosses(x0, z0, x1, z1));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as NPCs turn.</summary>
     private Body Turn(Body body, int towardMdeg)

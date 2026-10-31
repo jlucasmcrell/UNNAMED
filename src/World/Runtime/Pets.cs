@@ -900,7 +900,7 @@ internal sealed partial class PetSystem : IAbstractAdvance
 
     private bool Walled(Body from, Body to) =>
         _context.Setup.SpaceFor(State.Space).Blockers.Concat(_context.ClosedDoors())
-            .Where(b => State.Space.IsExterior || b.ClearanceMm < 1800).Any(b => b.Crosses(from.XMm, from.ZMm, to.XMm, to.ZMm));
+            .Where(b => b.StandsBetween && (State.Space.IsExterior || b.ClearanceMm < 1800)).Any(b => b.Crosses(from.XMm, from.ZMm, to.XMm, to.ZMm));
 
     /// <summary>The body turned towards a facing by at most 360 degrees a second, as every body turns here.</summary>
     private Body Turn(Body body, int towardMdeg)
