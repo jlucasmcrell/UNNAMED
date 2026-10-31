@@ -588,10 +588,19 @@ public class NpcTests
         // Authored stock lines may split into several stacks (e.g. sixty arrows).
         Assert.Equal(session.Setup.Items.Merchants[Wares].Stock.Sum(s =>
             (s.Count + session.Setup.Items.Catalog.Get(s.ItemId).StackMax - 1) / session.Setup.Items.Catalog.Get(s.ItemId).StackMax), stacks);
+        // Bags first, each put on as it is bought, so what she sells after them has somewhere to go: her shelf outgrew a bare pack when the
+        // quieter weapons and the lure stones joined it.
+        int bagSlot = 1;
         for (int i = 0; i < stacks; i++)
         {
-            var ware = arena.Simulation.Wares(Kera)!.Wares[0];
+            var shelf = arena.Simulation.Wares(Kera)!.Wares;
+            var ware = shelf.FirstOrDefault(w => w.ItemId.StartsWith("item.bag.", StringComparison.Ordinal)) ?? shelf[0];
             Assert.Null(arena.Submit(new BuyCommand(arena.Player, Kera, ware.Ref, ware.Count)));
+            if (ware.ItemId.StartsWith("item.bag.", StringComparison.Ordinal))
+            {
+                var bag = arena.Simulation.Player.Inventory.Last(e => e.DefId == ware.ItemId);
+                Assert.Null(arena.Submit(new EquipBagCommand(arena.Player, bag.ItemId, bagSlot++)));
+            }
         }
         Assert.Empty(arena.Simulation.Wares(Kera)!.Wares);
         Assert.Empty(arena.Simulation.World.Container(Wares)!.Items);
