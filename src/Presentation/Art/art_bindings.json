@@ -910,6 +910,8 @@
   }
  },
  "creatures": {
+  "creature.grazer.fellhorn": {"voice": "fellhorn", "flesh": "fur", "blow": "gore", "steps": {"walk": "walk", "run": "run"}, "note": "Voiced from the delivered fellhorn recordings."},
+  "creature.grazer.barrowback": {"voice": "barrowback", "flesh": "hide", "blow": "gore", "steps": {"walk": "walk", "run": "run"}, "note": "Voiced from the delivered barrowback recordings."},
   "creature.beast.ash_ember_hound": {
    "model": "creature_ash_ember_hound",
    "clips": "creature.ash_ember_hound",
