@@ -19,6 +19,19 @@ public abstract record Blocker(string Id, long HeightMm)
     public bool Climbable { get; init; }
 
     /// <summary>
+    /// The height a footprint must stand to lie between two bodies: a structure top within a body's step (<c>config.base_speeds</c>
+    /// <c>step_up_m</c>, 0.5 m) is walked onto without breaking stride, so nothing is kept from anything across it. The prepared circles are
+    /// drawn 12 cm up and were stopping arrows, blows, charges and every creature's sight of a character standing on one.
+    /// </summary>
+    public const long StepOverHeightMm = 500;
+
+    /// <summary>
+    /// Whether it stands tall enough to lie between two bodies - a blow, an arrow, a charge or a line of sight stops here. A height of 0 is
+    /// unknown, and an unknown height is a wall, as it is everywhere a body walks (<see cref="Kinematics.Blocks"/>).
+    /// </summary>
+    public bool StandsBetween => HeightMm <= 0 || HeightMm > StepOverHeightMm;
+
+    /// <summary>
     /// If a circle at <paramref name="x"/>,<paramref name="z"/> overlaps this footprint, the smallest move
     /// that separates them; otherwise null.
     /// </summary>
@@ -27,7 +40,10 @@ public abstract record Blocker(string Id, long HeightMm)
     /// <summary>The distance from a point to the footprint's edge, 0 inside it.</summary>
     public abstract double DistanceTo(double x, double z);
 
-    /// <summary>True when the straight line between two points passes through the footprint: a blow or an arrow stops here.</summary>
+    /// <summary>
+    /// True when the straight line between two points passes through the footprint. On its own this is geometry: ask
+    /// <see cref="StandsBetween"/> too before calling it a wall, or a ground ring stops an arrow.
+    /// </summary>
     public abstract bool Crosses(double x0, double z0, double x1, double z1);
 }
 

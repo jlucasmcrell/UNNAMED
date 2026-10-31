@@ -249,7 +249,7 @@ internal sealed class SystemContext
     /// <summary>A wall, a structure or a closed door lies across the line between two points.</summary>
     public bool Walled(long x0, long z0, long x1, long z1)
     {
-        bool Blocks(Blocker b) => (State.Space.IsExterior || b.ClearanceMm < 1800) && b.Crosses(x0, z0, x1, z1);
+        bool Blocks(Blocker b) => b.StandsBetween && (State.Space.IsExterior || b.ClearanceMm < 1800) && b.Crosses(x0, z0, x1, z1);
         foreach (var blocker in Setup.SpaceFor(State.Space).Blockers)
             if (Blocks(blocker)) return true;
         var layout = Setup.LayoutFor(State.Space);
