@@ -21,7 +21,9 @@ masterwork:
 # the world and the station, so a reload changes nothing.
 experiments:
   workbench: 2
-  forge: 1
+  # Both things a forge hearth can be worked out at since D21's assembled sword joined the torch: the set holds every candidate, so each
+  # is still found by carrying its inputs (with one, the seed dealt a station the sword and the torch could not be found at all).
+  forge: 2
 # Drop quality by the creature's level (WP3a; DCP:662): from each level up, this share of a body's stacks is crude and this share fine.
 # Never masterwork.
 drop_quality:

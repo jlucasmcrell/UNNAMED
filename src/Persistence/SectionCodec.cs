@@ -1023,6 +1023,9 @@ public sealed class ContainerItemDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 40: the parts and maker an assembled piece was built from (D21), or null for a plain item.</summary>
+    [Key("built")] public BuiltDto? Built { get; set; }
 }
 
 [MessagePackObject]
@@ -1045,6 +1048,9 @@ public sealed class CreatedDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 40: the parts and maker an assembled piece was built from (D21), or null for a plain item.</summary>
+    [Key("built")] public BuiltDto? Built { get; set; }
 }
 
 [MessagePackObject]
@@ -1637,6 +1643,7 @@ public static class SectionCodec
                 Quality = c.Quality,
                 Notable = NotableToDto(c.Notable),
                 Wear = WearToDto(c.Wear),
+                Built = BuiltToDto(c.Built),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -1644,7 +1651,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear) }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear), Built = BuiltToDto(i.Built) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -1788,12 +1795,13 @@ public static class SectionCodec
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
                 Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
                 Wear = WearOf(c.Wear, $"created instance {c.InstanceId}"),
+                Built = BuiltOf(c.Built, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}"), Built = BuiltOf(i.Built, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();

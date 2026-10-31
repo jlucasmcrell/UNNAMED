@@ -68,6 +68,9 @@ public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, stri
 
     /// <summary>Its wear (WP3b): a worn piece dropped is as worn where it lies.</summary>
     public ItemWear? Wear { get; init; }
+
+    /// <summary>How it was assembled (D21): a rolled piece dropped on the ground lies there with its parts, maker and material.</summary>
+    public UNNAMED.Domain.Items.GearBuild? Built { get; init; }
 }
 
 /// <summary>An item inside a world container.</summary>
@@ -414,13 +417,13 @@ public sealed class WorldDelta
     /// registered, and its count.
     /// </summary>
     internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0, NotableRecord? notable = null,
-        ItemWear? wear = null)
+        ItemWear? wear = null, UNNAMED.Domain.Items.GearBuild? built = null)
     {
         if (!InCell(xCm) || !InCell(zCm))
             throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
         if (count <= 0)
             throw new ArgumentOutOfRangeException(nameof(count), count, "A placed stack holds at least one");
-        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable, Wear = wear };
+        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable, Wear = wear, Built = built };
     }
 
     /// <summary>Take a placed item out of the world (a pick-up); its identity lives on in whatever holds it next.</summary>

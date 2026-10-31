@@ -8,4 +8,7 @@ rolls: 0
 entries:
   - { item_ref: item.material.raw_meat, chance: 0.70, count_range: [1, 1] }
   - { item_ref: item.material.wolf_hide, chance: 0.45, count_range: [1, 1] }
+  # The whole pelt a tanning rack works into leather (D18's tanning recipe had no source for it, so the pelt and its leather were
+  # unreachable in a fresh session; ReachabilityTests.EveryItem_CanBeGotInAFreshSession caught it).
+  - { item_ref: item.material.pelt_grey_wolf, chance: 0.35, count_range: [1, 1] }
   - { item_ref: item.trinket.wolf_fang, chance: 0.15, count_range: [1, 1] }
