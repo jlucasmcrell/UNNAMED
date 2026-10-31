@@ -44,6 +44,15 @@ perception:
   fov_deg: 120
 tier_hint: A
 tameable: false
+stand_down:
+  condition: know.read_the_gauge
+  reward_xp: 120
+  keeps_loot: true
+  stinger: encounter.stinger.custodian.standdown
+stingers:
+  closed: encounter.stinger.custodian.closed
+  measuring: encounter.stinger.custodian.measuring
+  open: encounter.stinger.custodian.open
 phases:
 - name: closed
   health_below: 0.66
@@ -53,18 +62,9 @@ phases:
   health_below: 0.33
   moves:
   - ability.creature.index_grasp
+  - ability.creature.gauge_sweep
 - name: open
   moves:
   - ability.creature.gauge_sweep
   - ability.creature.index_grasp
   - ability.creature.measure_fall
-parts:
-- name: gauge face
-  region: head
-  structure: 60
-- name: measure arm
-  region: torso
-  structure: 140
-- name: footing
-  region: limbs
-  structure: 90
