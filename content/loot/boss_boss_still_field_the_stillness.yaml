@@ -5,7 +5,7 @@ display_key: loot.boss.still_field.the_stillness.name
 notes: 'D19: what boss.still_field.the_stillness leaves. No legendary: canon names none for this one.'
 rolls: 0
 entries:
-- item_ref: item.material.iron_ore
+- item_ref: item.material.iron_ingot
   chance: 1.0
   count_range:
   - 1

@@ -32,7 +32,8 @@ public sealed class SedgeEncounterTests
         var layout = WorldContent.BuildLayout(loader, "region.sedge_levels");
         var definitions = CombatContent.BuildCreatures(loader, WorldContent.TickMilliseconds(loader));
         var sites = CombatContent.BuildSpawns(loader, "region.sedge_levels");
-        Assert.Equal(5, sites.Length);
+        // D19 added two bosses to Sedge - Old Channel at the causeway and the keeping-house custodian at the drowned house
+        Assert.Equal(7, sites.Length);
         using var route = JsonDocument.Parse(File.ReadAllText(Path.Combine(TestWorlds.RepoRoot(), "content/sedge_gate2_route.json")));
         var points = route.RootElement.GetProperty("points").EnumerateArray()
             .Select(p => new NavPoint((long)(p[0].GetDouble()*1000), (long)(p[1].GetDouble()*1000))).ToArray();
