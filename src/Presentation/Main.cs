@@ -536,8 +536,9 @@ public partial class Main : Node3D
         // order file with --load-order, which is how the two are measured against each other.
         string? loadOrder = _options.GetValueOrDefault("--load-order") is { } order ? Path.GetFullPath(order)
             : harness ? null : ProjectSettings.GlobalizePath(LoadOrderPath);
+        // A player's first boot has no order of its own yet: the package's, recorded when it was built (tools/release), stands in.
         if (loadOrder is not null)
-            Prefetch(loadOrder);
+            Prefetch(File.Exists(loadOrder) || harness ? loadOrder : Path.Combine(Home(), ShippedLoadOrder));
         _loading?.Stage("Building the world", 0.12);
         int before = GetChildCount();
         ulong building = Time.GetTicksMsec();
@@ -835,6 +836,8 @@ public partial class Main : Node3D
 
     /// <summary>The model files the last boot loaded, in its order, one path a line: the next boot's prefetch (machine-local, rebuilt each boot).</summary>
     private const string LoadOrderPath = "user://model_load_order.txt";
+    /// <summary>The order a package ships beside the exe, for a player's first boot.</summary>
+    private const string ShippedLoadOrder = "model_load_order.txt";
 
     private void Prefetch(string path)
     {
@@ -847,12 +850,12 @@ public partial class Main : Node3D
         {
             var roots = new[] { _assets.Root, Art.ArtLibrary.FallbackRoot }.Where(r => !string.IsNullOrWhiteSpace(r))
                 .Select(r => Path.GetFullPath(r!).TrimEnd('\\', '/') + Path.DirectorySeparatorChar).ToArray();
-            order = order.Where(p => roots.Any(r => p.StartsWith(r, StringComparison.OrdinalIgnoreCase))
-                && !p.Replace('\\', '/').Contains("/rigged/", StringComparison.OrdinalIgnoreCase)).ToArray();
+            order = order.Where(p => (!Path.IsPathRooted(p) || roots.Any(r => p.StartsWith(r, StringComparison.OrdinalIgnoreCase)))
+                && !("/" + p.Replace('\\', '/')).Contains("/rigged/", StringComparison.OrdinalIgnoreCase)).ToArray();
         }
         int ahead = Math.Clamp(System.Environment.ProcessorCount / 2, 2, 8);
         _art.Prefetch(order, ahead);
-        GD.Print($"UNNAMED load: {order.Length} model files parsed ahead on {ahead} workers, in the last boot's order");
+        GD.Print($"UNNAMED load: {order.Length} model files parsed ahead on {ahead} workers, in the order of {path}");
     }
 
     private void KeepLoadOrder(string path)
