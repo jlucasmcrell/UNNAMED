@@ -47,8 +47,24 @@ public class MagicContentTests
     {
         var magic = MagicContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
 
-        Assert.Equal(new[] { "spell.force.impulse_bolt", "spell.vital.mending_thread", "spell.warding.brace_ward" }, magic.Formulas.Keys);
-        Assert.Equal(3, magic.Formulas.Values.Select(f => f.DomainSkillId).Distinct().Count());
+        // Playtest 2 (data-only): the three original workings plus six first-hour formulas, two to a school.
+        Assert.Equal(new[]
+        {
+            "spell.force.cinder_dart", "spell.force.impulse_bolt", "spell.force.shiver_spike",
+            "spell.vital.clear_the_dead_weight", "spell.vital.ember_mend", "spell.vital.mending_thread",
+            "spell.warding.brace_ward", "spell.warding.holdfast", "spell.warding.hush_the_sting",
+        }, magic.Formulas.Keys);
+        Assert.Equal(new[] { "skill.force", "skill.vital", "skill.warding" },
+            magic.Formulas.Values.Select(f => f.DomainSkillId).Distinct().OrderBy(d => d, StringComparer.Ordinal));
+
+        // Every first-hour formula sits inside the band a level-appropriate caster can hold.
+        foreach (var early in magic.Formulas.Values.Where(f => f.Id is not ("spell.force.impulse_bolt" or "spell.vital.mending_thread" or "spell.warding.brace_ward")))
+        {
+            Assert.InRange(early.Complexity, 2, 3);
+            Assert.InRange(early.FocusCost, 1, 15);
+            Assert.InRange(early.StrainCost, 1, 12);
+            Assert.True(early.CastTicks > 0);
+        }
 
         var bolt = magic.Formulas["spell.force.impulse_bolt"];
         Assert.Equal(("skill.force", 4, 10, 8, 12, Targeting.Projectile), (bolt.DomainSkillId, bolt.Complexity, bolt.FocusCost, bolt.StrainCost, bolt.CastTicks, bolt.Targeting));
@@ -65,7 +81,25 @@ public class MagicContentTests
         // config.magic in ticks: Focus returns 2 s after a working, Strain ebbs after 3 s; a release takes 0.3 s to recover from.
         Assert.Equal((40, 60, 6, 75), (magic.Constants.FocusRegenDelayTicks, magic.Constants.StrainRecoveryDelayTicks, magic.Constants.RecoveryTicks,
             magic.Constants.StrainedPercent));
-        Assert.Equal(new[] { "spell.force.impulse_bolt", "spell.warding.brace_ward", "spell.vital.mending_thread" }, magic.Teaches["item.tome.resonance_primer"]);
+
+        // The first-hour additions: the schools' own damage types and effects, and one source for all of them - the primer the survey
+        // scholar already hands out, so nothing new has to be found for Playtest 2.
+        Assert.Equal("fire", magic.Formulas["spell.force.cinder_dart"].Blow!.DamageType);
+        Assert.Equal("frost", magic.Formulas["spell.force.shiver_spike"].Blow!.DamageType);
+        Assert.Equal(new[] { "effect.holdfast" }, magic.Formulas["spell.warding.holdfast"].Applies);
+        // In the order the formula lifts them: the venom first, then the wound.
+        Assert.Equal(new[] { "effect.venom", "effect.bleeding" }, magic.Formulas["spell.warding.hush_the_sting"].Removes);
+        Assert.Equal(new[] { "effect.ember_mending" }, magic.Formulas["spell.vital.ember_mend"].Applies);
+        Assert.Equal(new[] { "effect.weakened" }, magic.Formulas["spell.vital.clear_the_dead_weight"].Removes);
+        // The primer teaches all nine, in whatever order the file lists them: what matters is the set, not the line order.
+        Assert.Equal(
+            new[]
+            {
+                "spell.force.cinder_dart", "spell.force.impulse_bolt", "spell.force.shiver_spike",
+                "spell.vital.clear_the_dead_weight", "spell.vital.ember_mend", "spell.vital.mending_thread",
+                "spell.warding.brace_ward", "spell.warding.holdfast", "spell.warding.hush_the_sting",
+            }.OrderBy(id => id, StringComparer.Ordinal),
+            magic.Teaches["item.tome.resonance_primer"].OrderBy(id => id, StringComparer.Ordinal));
     }
 
     [Fact]

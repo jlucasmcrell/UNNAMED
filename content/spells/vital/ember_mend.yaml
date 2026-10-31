@@ -1,0 +1,14 @@
+id: spell.vital.ember_mend
+kind: spell
+schema: 1
+display_key: spell.vital.ember_mend.name
+tags: [spell]
+name: Ember Mend
+notes: "A slow mend (content bible §13 - Vital holds recovery). The ember salve's work done by hand: 36 health over six seconds, and it can be broken by a wound because it is slow. Costs more Focus than the Mending Thread and mends more; the Thread still stops what kills, and this does not. Complexity 3."
+domain: skill.vital
+complexity: 3
+cost: { focus: 12, strain: 8 }
+cast_time_s: 0.9
+targeting: self
+payload:
+  - { type: apply_effect, effect_ref: effect.ember_mending }

@@ -1,0 +1,15 @@
+id: spell.force.cinder_dart
+kind: spell
+schema: 1
+display_key: spell.force.cinder_dart.name
+tags: [spell]
+name: Cinder Dart
+notes: "Heat, small and quick (content bible §13, Force's own domain - kinetic force, heat, cold and concussion). The first thing a body learns to throw that burns: half the Impulse Bolt's cost and twice its speed, with less behind it. Level-appropriate for a first-hour caster (complexity 2); every number provisional."
+domain: skill.force
+complexity: 2
+cost: { focus: 6, strain: 5 }
+cast_time_s: 0.4
+range_m: 16
+targeting: projectile
+payload:
+  - { type: damage, damage_type: fire, amount: [5, 8] }

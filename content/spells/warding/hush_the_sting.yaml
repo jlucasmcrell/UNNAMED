@@ -1,0 +1,15 @@
+id: spell.warding.hush_the_sting
+kind: spell
+schema: 1
+display_key: spell.warding.hush_the_sting.name
+tags: [spell]
+name: Hush the Sting
+notes: "What gets in, pushed out (content bible §13 - Warding's own reading of intrusion: a venom in the blood, a wound that will not close). Lifts the venom and the bleeding without mending anything: the Vital school does the mending, and a first-hour caster can hold this one instead. Complexity 2."
+domain: skill.warding
+complexity: 2
+cost: { focus: 8, strain: 6 }
+cast_time_s: 0.6
+targeting: self
+payload:
+  - { type: remove_effect, effect_ref: effect.venom }
+  - { type: remove_effect, effect_ref: effect.bleeding }
