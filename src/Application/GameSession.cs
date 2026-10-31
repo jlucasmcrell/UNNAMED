@@ -72,6 +72,12 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
 
     /// <summary>Where the session reads the real time: the wall clock unless a test gives another (WP11).</summary>
     public Func<DateTimeOffset>? Clock { get; init; }
+
+    /// <summary>
+    /// A folder that remembers content packs that already passed validation, by a stamp of every file in the pack and the validating
+    /// code; a pack found there is parsed without validating it again. Null (tests, tools) validates every boot.
+    /// </summary>
+    public string? ValidatedContentCache { get; init; }
 }
 
 /// <summary>Content failed validation: the game refuses to start, naming every file and reason (ARCHITECTURE.md §8.1 step 1).</summary>
@@ -233,15 +239,38 @@ public sealed class GameSession : IDomainEvents, IDisposable
         return primary;
     }
 
+    /// <summary>Every file of the pack (its path and bytes) and the build of the code that validates it.</summary>
+    private static string ValidationStamp(string contentRoot)
+    {
+        using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        hash.AppendData(typeof(ContentLoader).Assembly.ManifestModule.ModuleVersionId.ToByteArray());
+        foreach (string file in Directory.EnumerateFiles(contentRoot, "*", SearchOption.AllDirectories)
+                     .Select(f => Path.GetRelativePath(contentRoot, f).Replace('\\', '/')).Order(StringComparer.Ordinal))
+        {
+            hash.AppendData(System.Text.Encoding.UTF8.GetBytes(file + "\n"));
+            hash.AppendData(File.ReadAllBytes(Path.Combine(contentRoot, file)));
+        }
+        return Convert.ToHexString(hash.GetHashAndReset())[..32].ToLowerInvariant();
+    }
+
     /// <summary>The Barrowworks' space: the one interior the run's gate holds back (M8 D10).</summary>
     private static readonly SpaceId BarrowworksSpace = SpaceId.Parse("space.barrowworks");
 
     public static GameSession Boot(GameOptions options)
     {
         var loader = new ContentLoader();
+        // Validation is most of a boot's content read (19.5 of 22 s for the 879-definition pack, 59 s of a packaged Ultra launch), and
+        // it can only ever answer again what it answered for the same files and the same validating code.
+        string? passed = options.ValidatedContentCache is { } cache ? Path.Combine(cache, ValidationStamp(options.ContentRoot) + ".ok") : null;
+        loader.ValidationEnabled = passed is null || !File.Exists(passed);
         loader.LoadAll(options.ContentRoot);
         if (loader.HasErrors)
             throw new ContentBootException(loader.Errors.ToList());
+        if (passed is not null && loader.ValidationEnabled)
+        {
+            Directory.CreateDirectory(options.ValidatedContentCache!);
+            File.WriteAllText(passed, options.ContentRoot);
+        }
 
         var layout = WorldContent.BuildLayout(loader, options.RegionId);
         // The Barrowworks is gated here (M8 D10). Content may declare its entrances whenever they are

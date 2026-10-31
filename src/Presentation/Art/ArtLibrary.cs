@@ -901,7 +901,10 @@ public sealed class ArtLibrary
     {
         var window = _window = new SemaphoreSlim(ahead);
         var ended = _prefetchEnded.Token;
-        var queue = paths.Where(p => File.Exists(p) && !_ahead.ContainsKey(p)).Distinct(StringComparer.OrdinalIgnoreCase)
+        // A line relative to a workspace (a shipped order, see LoadOrder) is found the way the build will find it, so its key is the
+        // build's own path string.
+        var queue = paths.Select(p => Path.IsPathRooted(p) ? p : At(p) ?? "").Where(p => File.Exists(p) && !_ahead.ContainsKey(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .Select(p => (Path: p, Done: _ahead[p] = new TaskCompletionSource<Parsed>(TaskCreationOptions.RunContinuationsAsynchronously))).ToList();
         Task.Run(async () =>
         {
@@ -980,8 +983,11 @@ public sealed class ArtLibrary
         _ahead.Clear();
     }
 
-    /// <summary>Every model file loaded so far, in the order the build asked for them: the next boot's prefetch order.</summary>
-    public IReadOnlyList<string> LoadOrder => _loadOrder;
+    /// <summary>
+    /// Every model file loaded so far, in the order the build asked for them, relative to its workspace: the next boot's prefetch
+    /// order, which a package ships so that a player's first boot has one too.
+    /// </summary>
+    public IEnumerable<string> LoadOrder => _loadOrder.Select(p => Path.GetRelativePath(WorkspaceOf(p), p));
 
     /// <summary>
     /// Every texture of every material in a freshly loaded model, once (the scene is cached and instanced after): mipmaps where the runtime

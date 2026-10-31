@@ -49,6 +49,7 @@ import/use_multiple_threads=false
 [rendering]
 
 limits/global_shader_variables/buffer_size=262144
+rendering_device/pipeline_cache/save_chunk_size_mb=0.25
 
 textures/vram_compression/import_s3tc_bptc=true
 lights_and_shadows/directional_shadow/size=8192

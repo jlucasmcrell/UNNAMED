@@ -110,6 +110,22 @@ foreach ($required in 'Otherreach.exe', 'PLAY.bat', 'PLAY Ultra 4K.bat', 'README
 if (-not (Get-ChildItem $game -Directory -Filter 'data_*')) { throw 'assembled folder lacks the exe data folder' }
 if (Get-ChildItem "$game\content" -Recurse -File | Where-Object { $_.Name -like '*.before_*' -or $_.Name -eq '_forest_patch_probe.json' }) { throw 'a backup or probe file is still in content' }
 
+"--- model load order"
+# A player's first boot parses its models on workers in this order (Main.Prefetch); without it that boot parses them one at a time.
+# One headless boot of the assembled folder with PLAY.bat's options records it, relative to primary\ and fallback\. Every path is
+# quoted: Start-Process does not quote an argument that holds a space.
+$orderArgs = @('--headless', '--quit-after', '30', '--', '--region', 'region.starting_frontier',
+    '--content-root', "`"$game\content`"", '--bindings-overlay', "`"$game\content\_art_bindings.json`"",
+    '--asset-root', "`"$game\primary`"", '--asset-fallback', "`"$game\fallback`"", '--scatter-rules', "`"$game\content\_scatter_rules.json`"",
+    '--profile', "`"$out\load_order_profile`"", '--load-order', "`"$game\model_load_order.txt`"",
+    '--visual', 'terrain=terrain3d,sky=sky3d,people=humgen,foldscar=proof,body=none,textures=cache')
+$orderRun = Start-Process "$game\Otherreach.exe" -ArgumentList $orderArgs -WorkingDirectory $game -PassThru -Wait -NoNewWindow `
+    -RedirectStandardOutput "$logs\load_order.out.log" -RedirectStandardError "$logs\load_order.err.log"
+$orderLines = if (Test-Path "$game\model_load_order.txt") { @(Get-Content "$game\model_load_order.txt").Count } else { 0 }
+if ($orderRun.ExitCode -ne 0 -or $orderLines -lt 100) { throw "the load-order boot exited $($orderRun.ExitCode) with $orderLines models (see logs\load_order.*.log)" }
+Remove-Item -Recurse -Force "$out\load_order_profile" -ErrorAction SilentlyContinue
+"$orderLines models in the shipped load order"
+
 $after = [ordered]@{ total = Size $game; exe = (Get-Item "$game\Otherreach.exe").Length; fallback = Size "$game\fallback"; primary = Size "$game\primary"; content = Size "$game\content" }
 $report = [ordered]@{
     label = $Label; commit = $sha; assetBase = $AssetBase; fileCount = (Get-ChildItem $game -Recurse -File).Count
