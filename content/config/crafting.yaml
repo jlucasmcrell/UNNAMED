@@ -21,7 +21,7 @@ masterwork:
 # the world and the station, so a reload changes nothing.
 experiments:
   workbench: 2
-  forge: 1
+  forge: 2   # the torch and the assembled sword (D21 G3) are both found at a forge
 # Drop quality by the creature's level (WP3a; DCP:662): from each level up, this share of a body's stacks is crude and this share fine.
 # Never masterwork.
 drop_quality:
