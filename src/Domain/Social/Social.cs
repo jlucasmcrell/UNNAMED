@@ -31,6 +31,12 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
     /// <summary>A party member's values (WP15b): the deeds that move what they think of the character, and what they say of them.</summary>
     public ImmutableArray<ValueReaction> Values { get; init; } = ImmutableArray<ValueReaction>.Empty;
 
+    /// <summary>
+    /// Set for a named adventurer who races the character for competitive bounties (R12): their people, their Call, their pace, and what
+    /// they say about the race. Null for everyone who stays at their post.
+    /// </summary>
+    public RivalProfile? Rival { get; init; }
+
     public bool Offers(string service) => Services.Contains(service);
 }
 
