@@ -703,7 +703,7 @@ public partial class AnimationSheet : Node3D
                 && (clip is null || !new[] { "sword_attack", "spear_thrust", "bow_draw" }.Any(prefix => clip.StartsWith(prefix, StringComparison.Ordinal))))
             {
                 GD.PushError($"Gear active pose did not resolve: {_shots[_shot].Name} / {clip}");
-                GetTree().Quit(1);
+                CaptureQuit.At(this, 1);
                 return;
             }
             _notes.Add($"Native pose: {_shots[_shot].Name} / clip={clip}");
