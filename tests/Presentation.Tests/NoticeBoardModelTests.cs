@@ -84,6 +84,26 @@ public class NoticeBoardModelTests
     }
 
     [Fact]
+    public void ARivalCardReadsTheAuthoredIdentityAndCurrentMemory_AndNamesTheirClaim()
+    {
+        var profile = new RivalProfile("npc.jessa_vane", "veth", "call.wayfarer", 1000, 1000,
+            ImmutableArray<string>.Empty, RivalTaunts.Empty);
+        var view = new RivalView(profile.NpcId, "Jessa Vane", profile.People, 0, 2, RivalRegard.Respectful);
+        string Name(string id) => id switch { "people.veth" => "Veth", "call.wayfarer" => "Wayfarer", _ => id };
+        var card = Assert.Single(NoticeBoardModel.Rivals(new[] { view }, _ => profile, Name));
+        Assert.Equal("Jessa Vane", card.Name);
+        Assert.Equal("Veth · Wayfarer", card.Identity);
+        Assert.Equal("Respects your work", card.Regard);
+        Assert.Equal("0 taken before you · 2 you finished first", card.Tally);
+        var claimed = Assert.Single(NoticeBoardModel.Contracts(new[]
+        {
+            Bounty("quest.a", "Wolves on the road", BountyStanding.Claimed, Someone.Value, view.Name),
+        }, Player, _ => null, Name));
+        Assert.Equal("Taken by Jessa Vane", claimed.Taken);
+        Assert.False(claimed.Open);
+    }
+
+    [Fact]
     public void TheLineUnderThePrompt_CountsBothHalves()
     {
         var nothing = NoticeBoardModel.Contracts(Array.Empty<BountyView>(), Player, _ => null, PlaceNames);

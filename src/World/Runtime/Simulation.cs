@@ -250,6 +250,7 @@ public sealed class Simulation
     private readonly TradeSystem _trade;
     private readonly QuestSystem _quests;
     private readonly ContributionSystem _contribution;
+    private readonly RivalSystem _rivals;
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
     private readonly SpaceSystem _spaces;
@@ -363,6 +364,8 @@ public sealed class Simulation
         _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants) { Closed = _npcs.TradeRefusal };
         _markets.Jobs = _npcs;
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
+        _rivals = new RivalSystem(_context, new CellKey(_cells[0].Region, 0, 0), player.Id, Enqueue);
+        bus.Listen<BountyClaimed>(e => _rivals.Claimed(e.QuestId, e.ClaimantId, e.Tick));
         _quests.Listen(bus);
         _contribution = new ContributionSystem(_context, player.Id);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
@@ -791,6 +794,8 @@ public sealed class Simulation
 
     /// <summary>Every live encounter's ledger, in encounter-key order (CMB-45).</summary>
     public ImmutableArray<ContributionLedger> Contributions() => _contribution.Ledgers();
+    /// <summary>The named rivals working the board (R12): who they are, what they remember, and how they regard the character now.</summary>
+    public ImmutableArray<RivalView> Rivals() => _rivals.Views();
 
     public string? TradeRefusal(string npcId) => _state.Npcs.TryGetValue(npcId, out var npc) ? _npcs.TradeRefusal(npc) : null;
 
@@ -1180,6 +1185,7 @@ public sealed class Simulation
             _death.Tick(tick);
             _discovery.Tick(tick);
             _quests.Tick(tick);
+            _rivals.Tick(tick);
             _adventurers.Tick(tick);
             _markets.Tick(tick);
             _quickBar.Tick(tick);

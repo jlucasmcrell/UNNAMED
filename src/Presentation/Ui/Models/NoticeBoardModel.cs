@@ -18,6 +18,8 @@ public sealed record NoticeContract(string Title, string Facts, string? Taken, b
 /// <summary>Someone out of the inn on their day: who, what for, and when the inn expects them back.</summary>
 public sealed record NoticeAway(string Name, string Doing);
 
+public sealed record NoticeRival(string Name, string Identity, string Regard, string Tally);
+
 /// <summary>
 /// One board, as the owner asked for it (finding 15): the contracts and bounties the hamlet is paying for, and who is out - the unmade bed
 /// and the empty seat, written down. Everything here is read from the world's own views and the quests it already holds; nothing is cached
@@ -25,6 +27,22 @@ public sealed record NoticeAway(string Name, string Doing);
 /// </summary>
 public static class NoticeBoardModel
 {
+    /// <summary>The named competitors on this board, with their authored people/Call and remembered regard.</summary>
+    public static ImmutableArray<NoticeRival> Rivals(IEnumerable<RivalView> rivals,
+        Func<string, RivalProfile?> profile, Func<string, string> name) => rivals
+        .OrderBy(r => r.Name, StringComparer.Ordinal)
+        .Select(r => new NoticeRival(r.Name,
+            string.Join(" · ", new[] { name("people." + r.People), profile(r.NpcId)?.Call is { } call ? name(call) : null }.OfType<string>()),
+            r.Regard switch
+            {
+                RivalRegard.Respectful => "Respects your work",
+                RivalRegard.Contemptuous => "Thinks little of your chances",
+                RivalRegard.Wary => "Watching your progress",
+                _ => "Has yet to measure you",
+            },
+            r.Contests == 0 ? "No shared postings yet" : $"{r.Wins} taken before you · {r.Losses} you finished first"))
+        .ToImmutableArray();
+
     /// <summary>
     /// The board's contracts, open ones first, then by title. Each carries the facts a body standing at the board wants: the coin, the place,
     /// who posted it - and who has it, when an adventurer has beaten the character to it.

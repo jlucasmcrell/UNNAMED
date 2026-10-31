@@ -39,6 +39,9 @@ public partial class Main
     /// <summary>A notice of a kind the player may switch off (Settings, Notices): shown unless that kind is hidden.</summary>
     private void Notice(NoticeKind kind, string text, double seconds = 4) => _hud.Toast(text, seconds, kind: kind);
 
+    private void AnnounceRival(NoticeRival card) => _hud.Announce("Rival met", card.Name, HudStyle.Brass,
+        (card.Identity, null), (card.Regard, null));
+
     /// <summary>What a creature out in the world is called, for a notice about it; "the animal" when it has already gone.</summary>
     private string WildName(EntityId creature)
     {
@@ -49,6 +52,18 @@ public partial class Main
     private void Subscribe()
     {
         SubscribeDenGorge();
+        _session.Subscribe<RivalTaunted>(e =>
+        {
+            if (e.Moment == UNNAMED.Domain.Social.RivalMoment.Met
+                && SettingsStore.Current.Profile.Interface.Shows(NoticeKind.World)
+                && _session.Simulation!.Rivals().FirstOrDefault(r => r.NpcId == e.NpcId) is { } rival)
+            {
+                var card = NoticeBoardModel.Rivals(new[] { rival },
+                    id => _session.Setup.Social.Npcs.GetValueOrDefault(id)?.Rival, id => Names.Of(_session, id))[0];
+                AnnounceRival(card);
+            }
+            Notice(NoticeKind.World, $"{e.Name}: {e.Line}", 6);
+        });
         // A wild animal's offer says its odds while it stands, and why it failed when it does: the number here is the one the roll used, so
         // what the meat, the approach and the Handling skill bought the character is visible (spec 43's taming).
         _session.Subscribe<TameAttempted>(e =>

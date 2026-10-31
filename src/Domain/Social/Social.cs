@@ -34,6 +34,11 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
 
     /// <summary>The authored native creator look, constrained by its people when drawn.</summary>
     public CharacterAppearance? Appearance { get; init; }
+    /// <summary>
+    /// Set for a named adventurer who races the character for competitive bounties (R12): their people, their Call, their pace, and what
+    /// they say about the race. Null for everyone who stays at their post.
+    /// </summary>
+    public RivalProfile? Rival { get; init; }
 
     public bool Offers(string service) => Services.Contains(service);
 }

@@ -72,6 +72,8 @@ public static class ContentChecks
         ["handler_ref"] = new[] { "npc" },
         ["dog_ref"] = new[] { "creature" },
         ["holding_ref"] = new[] { "location" },
+        // R12: a rival adventurer names the Call they took; the block is nested, so the key is named in full.
+        ["rival.call_ref"] = new[] { "call" },
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>
