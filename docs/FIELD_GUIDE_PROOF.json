@@ -1,0 +1,31 @@
+{
+  "source_branch": "visual/field-guide",
+  "commit": "ae8599ef17068c35b9e18d5512a06cb15b125971",
+  "public_tree": "",
+  "assemblies": {
+    "UNNAMED.Application.dll": "518123c3d78590db4cff027323cf2a843b2c880ecae78d2da2c8a5cb991ee40e",
+    "UNNAMED.Content.dll": "1a0b5a3b7b6180ae2255cf43314451dbe12b4e165ed6cbe9275bc9b2689b8e61",
+    "UNNAMED.Domain.dll": "9356c1e786adafb7b3f80016fc2f7db0fad6cbaa1320ff911e8f9d317b3a8960",
+    "UNNAMED.EntityRegistry.dll": "88a0e4e95bec7c64ac18c8ca08e64c91c917954e3a1961b56369922c887815d4",
+    "UNNAMED.Persistence.dll": "5f06460b73a6cc4c15dba30bc423642cc9b9bee0df87b53d4124492ccb826684",
+    "UNNAMED.Presentation.dll": "a851541fe7a1c2aff6c7c66af663c933f3b97525df0f117f3fc4469cf3a555b6",
+    "UNNAMED.World.dll": "17e9ae4c2fe8fe5475fe181088b45dbcb1b9a4764f6d6a6a37f943f0c8727dda"
+  },
+  "scope": "Public --ui-shots / --field-guide-only route; native in-game help panel, no private code or mock UI. Isolated profile and old private native host, not package/performance acceptance.",
+  "status": "AWAITING_CLAUDE_VERDICT_NOT_FINISHED",
+  "image_sha256": "317dc43a8d7bf46e8b604ac5f6f7d7a587798ea75237543af119d6b4266fea97",
+  "image": "FIELD_GUIDE_OPEN.png",
+  "dimensions": [
+    1920,
+    1080
+  ],
+  "capture": "Actual native game viewport, ordinary F1 HelpPanel;180 real world frames +60 layout frames. Unaltered PNG, normal population/terrain/HUD; no compositing or image generation.",
+  "exit": {
+    "exit": 3221226356,
+    "lease_seconds": 451.51982119999593
+  },
+  "lifecycle": "Older private native host aborted0xC0000374 after image/normal CaptureQuit; not a packaged-exit/performance acceptance claim.",
+  "host_hashes": {
+    "Otherreach.exe": "45038506b41e2161413d9828a404373696c1b5487e37a52d674ae8213a4b8406"
+  }
+}
