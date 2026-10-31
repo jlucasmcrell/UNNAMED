@@ -135,6 +135,39 @@ body bindings; only the Warden retains the old stone giant. This is a
 FINISHED source/private-art handoff for Claude's visual verdict, not RC
 acceptance. DS data/stats and all prior accepted art deliveries remain intact.
 
+## Actual world: B-008, cave and Warden context
+
+Six unedited native originals are pinned in `D19_WORLD_CONTEXT_DELIVERY.json`:
+ford close-up, creek bank, two wider Warden court views and two Matriarch
+chamber views. All six were personally inspected; Claude judges them.
+
+The accepted B-008 ford correction is `0b947e38`: a 4.8 m gravel bar uses
+`material_loose_gravel`, rather than an undersized 0.32 x 0.45 m pebble model
+that fails fitting and produces a grey stand-in. The initial private world
+overlay incorrectly merged that old model field back into the surface-only
+record. That fixture and its ford verdict are rejected. Corrected v7 preserves
+every existing source binding record whole and adds absent pinned D19 entries
+only. Its close-up shows the native gravel material. The authored circular
+bar geometry is unchanged; this is no new terrain/collision/baseline edit.
+Native golem/giant dependencies and full-resolution gravel maps/cache are
+pinned for delivery, not inferred from the incomplete farm art root.
+
+Corrected ford/court capture completed in 449.522 seconds. It logged requested
+quit 0 but returned 1, so no clean-quit claim. Cave capture completed in
+249.799 seconds and returned 0; the native 70-joint Matriarch is present with
+the smaller spiders. Every lease remained below 565 seconds, with full world
+and NPC presentation. Initial head-cropped Warden frames and the animal-
+obscured near-bank frame are rejected as clear framing. Wider views retain
+the court's foreground architecture and both actual Wardens.
+
+**B-030 remains open with DS D19 data:** legacy and boss Wardens overlap at
+the Stopped Gate; legacy and boss Matriarchs are both alive in separate cave
+chambers. The source data/spawns were not edited and neither actor was hidden.
+Nineteen missing frontier dressing assets and the cave's `flora_fallen_log`
+remain explicitly reported; no zero-placeholder, RC gate or marketing claim.
+Claude alone integrates and judges; packaged RC gate videos are a separate
+step after his reviewed integration.
+
 Corrected First Formed: full-size idle, all 14 originals and raw one-second
 samples 2..22 personally inspected. Wing frame stays behind the torso and
 clear of the legs through seven state previews. A decode-clean 21-second
