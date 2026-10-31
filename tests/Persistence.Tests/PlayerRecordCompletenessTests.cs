@@ -65,7 +65,9 @@ public class PlayerRecordCompletenessTests
                         Membership = PartyMembership.TemporaryAlly,
                         Stance = CompanionStance.Passive,
                         Tactics = new PartyTactics(KeepToLeash: true, ProtectInjured: false, HoldHealing: true),
-                    }))
+                    }),
+                new[] { new UNNAMED.Domain.Housing.HomeState("home.fixture.plot", true,
+                    ImmutableArray.Create(new UNNAMED.Domain.Housing.FurniturePlacement("item.tool.lantern", 500_000, 700_000, 90))) })
             {
                 Posture = new Posture(Stance.Crouched, Airborne: true, AirMs: 120) { Wing = WingState.Glide, FeetMm = 13_500 },   // aloft on its wings (schema 40)
                 // Inside an interior space, come in by its portal (schema 30, the Barrowworks).

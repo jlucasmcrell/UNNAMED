@@ -120,6 +120,8 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.CellOf), nameof(UNNAMED.World.Runtime.Simulation.Enqueue),
             nameof(UNNAMED.World.Runtime.Simulation.DrainCommands), nameof(UNNAMED.World.Runtime.Simulation.Step),
             nameof(UNNAMED.World.Runtime.Simulation.CaptureRecord), nameof(UNNAMED.World.Runtime.Simulation.StateDigest),
+            nameof(UNNAMED.World.Runtime.Simulation.HomeStorage),   // a home's chest, which is a door on the shared stash (HSG-)
+            nameof(UNNAMED.World.Runtime.Simulation.Coins),   // the coin ledger the economy lane added, and its agreement with the purse
             nameof(UNNAMED.World.Runtime.Simulation.Wares), nameof(UNNAMED.World.Runtime.Simulation.Diagnose),
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
@@ -148,6 +150,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.IsHireable),   // whether someone can be hired now, derived from town roles, for the hire prompt (WP12b)
             nameof(UNNAMED.World.Runtime.Simulation.Salvage), // pure disassembly preview; mutation uses SalvageCommand
             nameof(UNNAMED.World.Runtime.Simulation.TameOf), // read-only progress of an active taming offer
+            nameof(UNNAMED.World.Runtime.Simulation.Stash),   // the shared stash itself, which a home chest is a door to
             nameof(UNNAMED.World.Runtime.Simulation.StashesAt),   // the stashes in a crafting station's settlement and what they hold, for the recipe inputs' sources (inventory organisation)
             nameof(UNNAMED.World.Runtime.Simulation.IsLocked),   // read-only lock state for an authored door or container
             nameof(UNNAMED.World.Runtime.Simulation.LeaveCarcass), // the gathering interaction that leaves a harvested carcass
