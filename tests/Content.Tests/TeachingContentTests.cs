@@ -71,7 +71,8 @@ public class TeachingContentTests
         Assert.Equal(new[]
         {
             "npc.ashen_hollow.kera_voss", "npc.ashen_hollow.renn_vale", "npc.ashen_hollow.sel_arien", "npc.ashen_hollow.tavar_orr",
-            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.tam_crowden", "npc.road.rim_keeper",
+            "npc.cairnwold.berrin_garth", "npc.cairnwold.durn_skell", "npc.cairnwold.tam_crowden",
+            "npc.otherhome.assize_sergeant", "npc.otherhome.ferryman", "npc.otherhome.harbour_smith", "npc.otherhome.porter", "npc.road.rim_keeper",
             "npc.sedge.iren_orr", "npc.sedge.nessa_reed", "npc.sedge.oren_pin", "npc.sedge.tess_ferry",
         }, npcs.Values.Where(n => !n.Teaches.IsEmpty).Select(n => n.Id));
         string[] Lessons(string npc, TeachingKind kind) => npcs[npc].Teaches.Where(o => o.Kind == kind).Select(o => o.DefinitionId).ToArray();
@@ -131,7 +132,9 @@ public class TeachingContentTests
         AssertRefused("TCH001", "teaches ability.bow.aimed_shot",
             ("npcs/ashen_hollow/tavar_orr.yaml", "ability_ref: ability.bow.aimed_shot", "ability_ref: ability.blade.power_strike"),
             ("npcs/sedge/tess_ferry.yaml", "  - kind: technique\n    ability_ref: ability.bow.aimed_shot\n    fee: 30\n    by_dialogue: true\n", ""),
-            ("dialogue/sedge/tess_ferry.yaml", "    - id: teach\n      text: \"Show me how you shoot the fen birds.\"\n      consequences:\n      - command: teach\n        refs: [ability.bow.aimed_shot]\n", ""));
+            ("dialogue/sedge/tess_ferry.yaml", "    - id: teach\n      text: \"Show me how you shoot the fen birds.\"\n      consequences:\n      - command: teach\n        refs: [ability.bow.aimed_shot]\n", ""),
+            // the Steps' ferryman teaches it too
+            ("npcs/otherhome/ferryman.yaml", "  - kind: technique\n    ability_ref: ability.bow.aimed_shot\n    fee: 20\n    requires: { skill: { skill_ref: skill.bow, band: familiar } }\n", ""));
 
     [Fact]
     public void ACreaturesAttack_IsNeverTaught() =>

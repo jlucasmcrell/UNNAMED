@@ -77,7 +77,10 @@ public class SocialContentTests
         Assert.Equal(("Kera Voss", "craftsperson", "merchant.ashen_hollow.kera_voss"), (kera.Name, kera.Role, kera.MerchantId));
         Assert.True(kera.Offers(NpcServices.Trade));
         Assert.False(npcs["npc.ashen_hollow.renn_vale"].Offers(NpcServices.Trade));
-        Assert.All(npcs.Values, n => Assert.Contains(n.Id, dialogues[n.DialogueId!].Participants));
+        // The eight each have a conversation; elsewhere a person may have none (the Steps' market crowd is spoken to by nobody), but one
+        // who names a conversation is one of its participants.
+        Assert.All(npcs.Values.Where(n => n.Id.StartsWith("npc.ashen_hollow.") || n.Id.StartsWith("npc.cairnwold.")), n => Assert.NotNull(n.DialogueId));
+        Assert.All(npcs.Values.Where(n => n.DialogueId is not null), n => Assert.Contains(n.Id, dialogues[n.DialogueId!].Participants));
 
         // Kera teaches metalwork and C3 field basics; Sel hands over her field notes (Berrin keeps the primer).
         var teach = dialogues["dialogue.ashen_hollow.kera_voss"].Nodes["greet"].Choices.Single(c => c.Id == "teach");
@@ -197,8 +200,8 @@ public class SocialContentTests
 
     [Fact]
     public void ALoopOfSpentLines_IsRefused() =>
-        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", "    once: true\n    next_if_exhausted: again\n    choices:\n      - id: back\n        text: \"Thank you.\"",
-            "    once: true\n    next_if_exhausted: praised\n    choices:\n      - id: back\n        text: \"Thank you.\"", "spent lines loop");
+        AssertRefused("dialogue/ashen_hollow/kera_voss.yaml", "    once: true\n    next_if_exhausted: again\n    choices:\n      - id: back\n        text: \"Don't thank me. Bring me the next one.\"",
+            "    once: true\n    next_if_exhausted: praised\n    choices:\n      - id: back\n        text: \"Don't thank me. Bring me the next one.\"", "spent lines loop");
 
     /// <summary>
     /// The Phase-1 technical audit, H-01 and L-18: a once line is spent when it is heard, so a reply on it that gives something is lost for

@@ -15,6 +15,6 @@ services: []
 teaches:
   - kind: technique
     ability_ref: ability.polearm.long_thrust
-    fee: 25
+    fee: 30
     by_dialogue: true
     requires: { skill: { skill_ref: skill.polearm, band: familiar } }
