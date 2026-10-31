@@ -1,0 +1,18 @@
+id: item.armor.whispergorget
+kind: item.armor
+schema: 1
+display_key: item.armor.whispergorget.name
+tags: [item]
+name: Whispergorget
+notes: 'A thin collar of layered plates that sits close under the jaw. Made for the wire and the narrow blade, and it says so by making no sound at all when struck. COMBAT §14: working vocabulary, not canon.'
+category: armor
+item_class: notable
+stack_max: 1
+weight: 0.4
+value_base: 120
+slot: head
+armor_value: 3
+material_class: exotic
+durability_max: 300
+gap_cover: [throat]
+repair: { station: workbench, skill_ref: skill.salvage, skill_min: 12, item_ref: item.material.leather }

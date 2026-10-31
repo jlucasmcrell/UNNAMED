@@ -1,0 +1,18 @@
+id: item.armor.gorget
+kind: item.armor
+schema: 1
+display_key: item.armor.gorget.name
+tags: [item]
+name: Gorget
+notes: 'A plate collar that stands the throat and the jaw line clear of the hands. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.7
+value_base: 34
+slot: head
+armor_value: 4
+material_class: plate
+durability_max: 360
+gap_cover: [throat, face]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

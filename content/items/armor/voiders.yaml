@@ -1,0 +1,18 @@
+id: item.armor.voiders
+kind: item.armor
+schema: 1
+display_key: item.armor.voiders.name
+tags: [item]
+name: Voiders
+notes: 'Mail sewn into the armpits of the gown: the seam a spear finds when the arm goes up. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 22
+slot: chest
+armor_value: 3
+material_class: mail
+durability_max: 280
+gap_cover: [armpit]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

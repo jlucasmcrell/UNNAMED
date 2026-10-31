@@ -1,0 +1,18 @@
+id: item.armor.veil_collar
+kind: item.armor
+schema: 1
+display_key: item.armor.veil_collar.name
+tags: [item]
+name: Veil collar
+notes: 'A collar of pale cloth that hangs in front of the face and is never still. It does not stop a blade. It stops what arrives without crossing the space between. COMBAT §14: working vocabulary, not canon.'
+category: armor
+item_class: notable
+stack_max: 1
+weight: 0.2
+value_base: 180
+slot: head
+armor_value: 0
+material_class: exotic
+durability_max: 260
+gap_cover: [phase]
+repair: { station: workbench, skill_ref: skill.salvage, skill_min: 12, item_ref: item.material.leather }

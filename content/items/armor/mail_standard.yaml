@@ -1,0 +1,18 @@
+id: item.armor.mail_standard
+kind: item.armor
+schema: 1
+display_key: item.armor.mail_standard.name
+tags: [item]
+name: Mail standard
+notes: 'The collar of mail under the outer cloth, cut high at the throat. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.8
+value_base: 20
+slot: head
+armor_value: 2
+material_class: mail
+durability_max: 340
+gap_cover: [throat, armpit]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

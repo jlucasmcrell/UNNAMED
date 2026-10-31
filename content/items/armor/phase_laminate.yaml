@@ -1,0 +1,18 @@
+id: item.armor.phase_laminate
+kind: item.armor
+schema: 1
+display_key: item.armor.phase_laminate.name
+tags: [item]
+name: Phase laminate
+notes: 'Laminate of two substances that disagree about where they are. Worn over the chest, it argues with anything that tries to be somewhere else. COMBAT §14: working vocabulary, not canon.'
+category: armor
+item_class: notable
+stack_max: 1
+weight: 1.2
+value_base: 220
+slot: chest
+armor_value: 0
+material_class: exotic
+durability_max: 400
+gap_cover: [phase]
+repair: { station: workbench, skill_ref: skill.salvage, skill_min: 12, item_ref: item.material.leather }

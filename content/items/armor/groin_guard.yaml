@@ -1,0 +1,18 @@
+id: item.armor.groin_guard
+kind: item.armor
+schema: 1
+display_key: item.armor.groin_guard.name
+tags: [item]
+name: Groin guard
+notes: 'The small plate a man who has been hit once buys. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.4
+value_base: 16
+slot: legs
+armor_value: 2
+material_class: plate
+durability_max: 260
+gap_cover: [groin]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

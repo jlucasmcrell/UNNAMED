@@ -1,0 +1,18 @@
+id: item.armor.faulds
+kind: item.armor
+schema: 1
+display_key: item.armor.faulds.name
+tags: [item]
+name: Faulds and tassets
+notes: 'The flared skirt of lames below the breastplate, with the two tassets over the thighs. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.1
+value_base: 40
+slot: legs
+armor_value: 3
+material_class: plate
+durability_max: 380
+gap_cover: [waist, groin]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

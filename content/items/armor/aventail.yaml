@@ -1,0 +1,18 @@
+id: item.armor.aventail
+kind: item.armor
+schema: 1
+display_key: item.armor.aventail.name
+tags: [item]
+name: Aventail
+notes: 'A curtain of mail hung from the helm, over the neck and the jaw. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.9
+value_base: 18
+slot: head
+armor_value: 2
+material_class: mail
+durability_max: 300
+gap_cover: [throat, face]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

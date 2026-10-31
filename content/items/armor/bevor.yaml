@@ -1,0 +1,18 @@
+id: item.armor.bevor
+kind: item.armor
+schema: 1
+display_key: item.armor.bevor.name
+tags: [item]
+name: Bevor
+notes: 'The chin piece, worn under the gorget: it takes the low line the collar does not. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.5
+value_base: 24
+slot: head
+armor_value: 3
+material_class: plate
+durability_max: 320
+gap_cover: [throat]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

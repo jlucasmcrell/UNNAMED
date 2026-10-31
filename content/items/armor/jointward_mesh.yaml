@@ -1,0 +1,18 @@
+id: item.armor.jointward_mesh
+kind: item.armor
+schema: 1
+display_key: item.armor.jointward_mesh.name
+tags: [item]
+name: Jointward mesh
+notes: 'A knitted lattice of dark rings worn at the armpits, elbows and knees. It gives as the joint gives and closes behind the movement. COMBAT §14: working vocabulary, not canon.'
+category: armor
+item_class: notable
+stack_max: 1
+weight: 0.5
+value_base: 140
+slot: hands
+armor_value: 3
+material_class: exotic
+durability_max: 340
+gap_cover: [armpit, elbow, knee]
+repair: { station: workbench, skill_ref: skill.salvage, skill_min: 12, item_ref: item.material.leather }

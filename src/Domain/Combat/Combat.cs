@@ -1,4 +1,4 @@
-﻿// UNNAMED Domain - the one damage pipeline, creature combat definitions and status effects
+// UNNAMED Domain - the one damage pipeline, creature combat definitions and status effects
 // (SYSTEMS.md S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md Â§17-Â§19, Â§32; M3c)
 // No Godot references - pure C#
 
@@ -168,6 +168,19 @@ public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int C
 
     /// <summary>Points of the struck region's armour a physical blow passes, over what a pierce finds (Kal: structural read).</summary>
     public int ArmorIgnoredPercent { get; init; }
+
+    /// <summary>
+    /// How often this blow is placed into a seam rather than onto the plate (CMB-04): the throat, the armpit, the inside of the elbow.
+    /// A gap the body has not covered is where COMBAT §18's armour step has almost nothing to work with. 0 - the default - is every
+    /// blow the game rolls today, and leaves the resolver exactly as it was.
+    /// </summary>
+    public int GapFindPercent { get; init; }
+
+    /// <summary>
+    /// Phase or soul harm: the blow does not cross plate so much as arrive past it, and only a piece made to answer it helps (§14's Veil
+    /// collar and Phase laminate). Takes the gap path whatever <see cref="GapFindPercent"/> says.
+    /// </summary>
+    public bool Phase { get; init; }
     /// <summary>A qualifying dagger ambush executes through this same resolver (owner ruling, RC d5).</summary>
     public bool Execution { get; init; }
 }
@@ -182,10 +195,21 @@ public sealed record DefenseProfile(
 {
     /// <summary>Of the impact it usually takes to stagger the body: a denser body needs more (Kal, Ondrek).</summary>
     public int StaggerThresholdPercent { get; init; } = 100;
+
+    /// <summary>
+    /// What the body's worn pieces put in each seam, keyed by <see cref="ArmourGap.Id"/> (see <see cref="Covers.Armour"/>). A gap absent
+    /// here is a gap with nothing in it.
+    /// </summary>
+    public ImmutableSortedDictionary<string, int> GapArmour { get; init; } =
+        ImmutableSortedDictionary<string, int>.Empty;
 }
 
 /// <summary>What one blow did. <see cref="Final"/> is what the target loses; <see cref="Raw"/> is the impact before armor.</summary>
-public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied);
+public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied)
+{
+    /// <summary>The seam a placed blow found, when it found one; null for a blow that met the plate.</summary>
+    public string? Gap { get; init; }
+}
 
 /// <summary>Attack eligibility supplied by the caller; legal consequences are separate from whether a blow is permitted.</summary>
 public readonly record struct AttackContext(bool AttackerAlive, bool TargetAlive, bool AttacksEnabled);
@@ -241,9 +265,22 @@ public static class CombatRules
         double impact = damage;
 
         bool physical = DamageTypes.IsPhysical(attack.DamageType);
-        if (physical)
+        string? gap = null;
+        if (strike.Phase)
+        {
+            // phase harm does not cross the plate: only a piece made for it stands in the way
+            double answered = defense.GapArmour.GetValueOrDefault("phase");
+            damage *= 1 - answered / (answered + constants.ArmorK);
+        }
+        else if (physical)
         {
             double armor = defense.Armor.GetValueOrDefault(region);
+            if (strike.GapFindPercent > 0 && random(6) * 100 < strike.GapFindPercent
+                && ArmourGaps.Findable(region, attack.DamageType == "physical_pierce", phase: false) is { Length: > 0 } seams)
+            {
+                gap = seams[Math.Min(seams.Length - 1, (int)Math.Floor(random(7) * seams.Length))].Id;
+                armor = defense.GapArmour.GetValueOrDefault(gap);
+            }
             if (attack.DamageType == "physical_pierce")
                 armor *= 1 - constants.PierceArmorIgnored;
             armor *= 1 - strike.ArmorIgnoredPercent / 100.0;
@@ -261,7 +298,10 @@ public static class CombatRules
         if (strike.Execution) final = Math.Max(final, defense.MaxHealth);
         bool staggered = !blocked && (attack.ForcesStagger || impact * strike.StaggerPower * 100 * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent * defense.StaggerThresholdPercent);
         bool effect = attack.OnHitEffect is not null && !blocked && random(3) * 100 < attack.OnHitEffectPercent;
-        return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect);
+        return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect)
+        {
+            Gap = gap,
+        };
     }
 
     private static BodyRegion Region(CombatConstants constants, double roll)

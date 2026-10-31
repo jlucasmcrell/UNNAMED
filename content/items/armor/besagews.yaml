@@ -1,0 +1,18 @@
+id: item.armor.besagews
+kind: item.armor
+schema: 1
+display_key: item.armor.besagews.name
+tags: [item]
+name: Besagews
+notes: 'A round plate over each armpit, hung from the shoulder strap. COMBAT §13.'
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.6
+value_base: 26
+slot: chest
+armor_value: 3
+material_class: plate
+durability_max: 300
+gap_cover: [armpit]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }

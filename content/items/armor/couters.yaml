@@ -1,0 +1,18 @@
+id: item.armor.couters
+kind: item.armor
+schema: 1
+display_key: item.armor.couters.name
+tags: [item]
+name: Couters
+notes: "Elbow plates, inside and out, on the arm's own joint. COMBAT §13."
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.5
+value_base: 28
+slot: hands
+armor_value: 3
+material_class: plate
+durability_max: 320
+gap_cover: [elbow]
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 8, item_ref: item.material.iron_ingot }
