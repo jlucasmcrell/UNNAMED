@@ -745,7 +745,10 @@ public sealed class ArtLibrary
         // Each import uploads its images uncompressed until the cache's copies replace them, and the renderer frees a texture only as
         // frames advance. A boot builds every model inside one frame, so without a frame now and then those uploads pile up to the
         // whole scene's uncompressed size (Barrowworks first entry, packaged: 15.7 GB dedicated peak and 10.9 GB after; with this, 5.0).
-        if (++_importsSinceFlush % 4 == 0)
+        // Only from a frame that has already drawn: forcing a draw before the first one faults natively in a packaged build with a
+        // real renderer (SEHException at godot_icall_2_1259(bool, double), B-003 - the 6900XT farm boot died inside LoadScene every
+        // time while every headless boot, on the dummy renderer, never did).
+        if (++_importsSinceFlush % 4 == 0 && Engine.GetFramesDrawn() > 0)
         {
             ulong flushStarted = Time.GetTicksUsec();
             RenderingServer.ForceDraw(false);
