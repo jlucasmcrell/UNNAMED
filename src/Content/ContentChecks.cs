@@ -59,7 +59,9 @@ public static class ContentChecks
         ["domain"] = new[] { "skill" },   // a formula's magic-domain skill (§4.6)
         ["giver_ref"] = new[] { "npc" },  // a quest's giver (§4.11): a role name, not a kind
         ["discipline"] = new[] { "skill" },   // an active technique's weapon-family skill (§4.7; WP9)
-        ["companion_ref"] = new[] { "npc" },  // a personal quest's companion (WP15b): a role name, not a kind
+        ["companion_ref"] = new[] { "npc" },
+        // R12: a rival adventurer names the Call they took; the block is nested, so the key is named in full.
+        ["rival.call_ref"] = new[] { "call" },  // a personal quest's companion (WP15b): a role name, not a kind
     };
 
     /// <summary>§4.11's closed reward kinds, and the content kind a <c>{kind, ref}</c> entry of each resolves against.</summary>

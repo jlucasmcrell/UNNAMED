@@ -162,9 +162,45 @@ public static class SocialContent
                 PeopleId = map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null,
                 Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,
                 Teaches = TeachingContent.Offers(id, map, loader),
+                Rival = map.ContainsKey("rival") ? RivalProfileOf(id, Map(map, "rival"), loader) : null,
                 Values = Rows(map, "values", id).Select((row, i) => Value($"{id} values[{i}]", row, loader)).ToImmutableArray(),
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
+
+    /// <summary>
+    /// A named adventurer's <c>rival</c> block (R12): the people whose voice they speak in, the Call they took, how fast they work the board,
+    /// which postings they will race for, and what they say at each moment. Labels are short, because they are read as notices, and a rival
+    /// with no lines to say is refused rather than shipped silent.
+    /// </summary>
+    private static RivalProfile RivalProfileOf(string id, Dictionary<object, object> map, ContentLoader loader)
+    {
+        string people = Text(map, "people");
+        if (!Peoples.Contains(people))
+            throw new FormatException($"{id}: rival people '{people}' is not one of the four peoples ({string.Join(", ", Peoples)})");
+        string call = Defined(loader, Text(map, "call"), "call", id);
+        int pace = map.ContainsKey("pace_permille") ? Int(map, "pace_permille") : 1000;
+        if (pace is < 250 or > 2000)
+            throw new FormatException($"{id}: rival pace_permille {pace} is outside 250 to 2000");
+        int skill = map.ContainsKey("skill_permille") ? Int(map, "skill_permille") : 500;
+        var bounties = (map.GetValueOrDefault("bounties") as List<object> ?? new List<object>()).Select(b => b as string ?? "").ToImmutableArray();
+        var taunts = Map(map, "taunts");
+        return new RivalProfile(id, people, call, pace, skill, bounties, new RivalTaunts(
+            Lines(taunts, "met", id), Lines(taunts, "beaten", id), Lines(taunts, "bested", id)));
+    }
+
+    /// <summary>The four peoples whose voices a rival may speak in (RACES.md): the content's own people definitions, by name.</summary>
+    private static readonly ImmutableArray<string> Peoples = ImmutableArray.Create("veth", "kal", "siann", "orenth");
+
+    /// <summary>A rival's lines at one moment: at least one, each short enough to read as a notice (the chatter ceiling, 140).</summary>
+    private static ImmutableArray<string> Lines(Dictionary<object, object> taunts, string moment, string id)
+    {
+        var lines = (taunts.GetValueOrDefault(moment) as List<object> ?? new List<object>()).Select(l => l as string ?? "").Where(l => l.Length > 0).ToImmutableArray();
+        if (lines.IsEmpty)
+            throw new FormatException($"{id}: a rival needs at least one '{moment}' line to say");
+        if (lines.FirstOrDefault(l => l.Length > 140) is { } long_)
+            throw new FormatException($"{id}: the '{moment}' line {long_[..Math.Min(40, long_.Length)]}... is {long_.Length} characters; a notice is at most 140");
+        return lines;
+    }
 
     /// <summary>
     /// One of a party member's <c>values</c> (WP15b): the <c>deed</c> (killed, crafted, harvested, delivered) on a subject named as a deed

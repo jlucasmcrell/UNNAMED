@@ -1,0 +1,25 @@
+id: npc.road.oren_tass
+kind: npc
+schema: 1
+display_key: npc.road.oren_tass.name
+tags: [npc, rival]
+name: Oren Tass
+notes: "A rival adventurer (R12) - Orenth, a road-surgeon who keeps the ledger of crossings and treats every posting as one more line in it. His comedy is gallows arithmetic: nothing is a loss, everything is a cost, and the ledger is patient. The fastest of the three when a posting is about distance."
+role: villager
+sex: m
+unique: true
+rival:
+  people: orenth
+  call: call.hedge_healer
+  pace_permille: 1120
+  skill_permille: 500
+  taunts:
+    met:
+      - "Oren Tass. I keep a ledger of crossings, and you're a crossing."
+      - "You'll cost me something, but I'll write it down either way. Oren."
+    beaten:
+      - "I took it. An afternoon and a boot. The ledger will like the boot."
+      - "Mine. I didn't hurry. The posting was already over and you hadn't noticed."
+    bested:
+      - "Yours, then. Two lost to you. The ledger says I'm due, and it is patient."
+      - "Beaten. I'll put you down as weather. Wind comes, wind goes, the crossing still costs."

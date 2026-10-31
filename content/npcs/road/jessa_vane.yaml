@@ -1,0 +1,25 @@
+id: npc.road.jessa_vane
+kind: npc
+schema: 1
+display_key: npc.road.jessa_vane.name
+tags: [npc, rival]
+name: Jessa Vane
+notes: "A rival adventurer (R12, CMP-122, CMP-33; SOCIAL 33) - a Veth who works the same board the character does and says so. Her comedy is Veth hospitality used as a weapon - she fed you once, and she will remind you of it. Pace just over an ordinary adventurer's: she is quick because she does not stop to be polite. Lines are notices: short, in her own voice, and none of them longer than a line a player can read while walking."
+role: villager
+sex: f
+unique: true
+rival:
+  people: veth
+  call: call.wayfarer
+  pace_permille: 1050
+  skill_permille: 550
+  taunts:
+    met:
+      - "You'll be the one Renn keeps writing in that book. Jessa. I take the postings you're slow on."
+      - "We've not met and you're already behind. Jessa Vane. Ask anyone who counts."
+    beaten:
+      - "Taken. You were still asking directions; I asked a goat and it was quicker."
+      - "That one's mine. I'd apologise, but I did the walking."
+    bested:
+      - "Yours. I'll tell Renn you did it and I'll tell it worse than it was."
+      - "Beaten to it by a stranger. Sit down, I'll get you something, and then I'll have it back."

@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -224,10 +225,57 @@ public class StoryFrameworkTests
         Assert.Equal(QuestStatus.Completed, Status(rim, journey.Id));
     }
 
+
+    /// <summary>
+    /// R12: a named rival who takes a competitive posting is remembered for it and says so in their own voice. The rivals are ordinary NPCs
+    /// with a rival block in content, so the claim goes through the same command the character and every other NPC use.
+    /// </summary>
+    [Fact]
+    public void ARivalWhoClaimsACompetitiveBounty_IsRememberedForIt_AndSaysSo()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Hollow(session, Competitive(session, AVethRival()), AtRenn);
+        ToTheNotices(arena);
+
+        var rival = arena.Simulation.Rivals().Single();
+        var taunted = arena.Record<RivalTaunted>();
+
+        Assert.Null(arena.Submit(new ClaimBountyCommand(InstanceOf(arena, rival.NpcId), Wolves)));
+
+        var said = Assert.Single(taunted);
+        Assert.Equal(rival.NpcId, said.NpcId);
+        Assert.Equal(RivalMoment.Beaten, said.Moment);
+        Assert.False(string.IsNullOrWhiteSpace(said.Line));
+
+        var after = arena.Simulation.Rivals().Single(r => r.NpcId == rival.NpcId);
+        Assert.Equal(1, after.Wins);
+        Assert.Equal(0, after.Losses);
+        Assert.Equal(RivalRegard.Wary, after.Regard);
+    }
+
     // ── competitive bounties ────────────────────────────────────────────────
 
     private static SimulationSetup Competitive(GameSession session) =>
         With(session, session.Setup.Quests.Quests[Wolves] with { Competitive = true });
+
+    /// <summary>The same competitive setup, with the smith carrying a rival block: her own instantiation is what races.</summary>
+    private static SimulationSetup Competitive(GameSession session, RivalProfile rival) =>
+        Competitive(session) with
+        {
+            Social = session.Setup.Social with
+            {
+                Npcs = session.Setup.Social.Npcs.SetItem(Kera, session.Setup.Social.Npcs[Kera] with { Rival = rival }),
+            },
+        };
+
+    private static RivalProfile AVethRival() => new(
+        Kera, People: "veth", Call: "call.wayfarer", PacePermille: 1000, SkillPermille: 500,
+        Bounties: System.Collections.Immutable.ImmutableArray<string>.Empty,
+        Taunts: new RivalTaunts(
+            System.Collections.Immutable.ImmutableArray.Create("Met. I was here first, which is the whole of my case."),
+            System.Collections.Immutable.ImmutableArray.Create("Taken. You were still asking directions."),
+            System.Collections.Immutable.ImmutableArray.Create("Yours, then. I'll say I let you.")));
 
     [Fact]
     public void ACompetitiveBounty_HeldByTheCharacter_GoesToWhoeverFinishesFirst_AndTheBoardShowsThem()

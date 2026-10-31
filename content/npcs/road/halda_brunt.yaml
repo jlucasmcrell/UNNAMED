@@ -1,0 +1,25 @@
+id: npc.road.halda_brunt
+kind: npc
+schema: 1
+display_key: npc.road.halda_brunt.name
+tags: [npc, rival]
+name: Halda Brunt
+notes: "A rival adventurer (R12) - Kal, dense and unhurried, who does the difficult postings rather than the quick ones. Her comedy is Kal pride in the parts that work: wings for the stairs, not the sky, and a grudge kept in the same pocket as her patience. Slower on the board than Jessa and worth more when she arrives."
+role: craftsperson
+sex: f
+unique: true
+rival:
+  people: kal
+  call: call.smiths_hand
+  pace_permille: 880
+  skill_permille: 700
+  taunts:
+    met:
+      - "Halda. I do the work and not the talking. The wings are for the stairs."
+      - "You're the one with the bright boots. I'll be the one behind you, catching up slowly."
+    beaten:
+      - "Mine. Three wolves. You'd have wanted a fourth and I'd have finished this one first."
+      - "Done. I carried it back. You can carry the story, it's lighter."
+    bested:
+      - "You finished it. Good. I'll say so, once, and not again."
+      - "Beaten. I'll not pretend it was the wings. It was that I stopped to look at the seam."

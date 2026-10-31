@@ -367,6 +367,9 @@ npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
   - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [72, 122], facing_deg: 135 }    # her survey area, looking towards the Foldscar
   - { npc_ref: npc.ashen_hollow.kera_voss, position_m: [61.6, 139.6], facing_deg: 300 }  # the smithy, by the anvil
+  - { npc_ref: npc.road.jessa_vane, position_m: [52, 118], facing_deg: 200 }   # at the board, taking postings (R12)
+  - { npc_ref: npc.road.halda_brunt, position_m: [58, 132], facing_deg: 20 }  # by the smithy door, slow to leave (R12)
+  - { npc_ref: npc.road.oren_tass, position_m: [40, 122], facing_deg: 90 }   # watching the road both ways (R12)
   - { npc_ref: npc.ashen_hollow.tavar_orr, position_m: [145, 42], facing_deg: 53 }     # caught in the Foldscar (bible §8), facing its heart
 # Authored resource nodes (M3f): a node at a place, keyed by name in the world generator's baseline.
 nodes:
