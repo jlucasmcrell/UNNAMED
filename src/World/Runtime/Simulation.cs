@@ -267,6 +267,7 @@ public sealed class Simulation
     private readonly LfgSystem _lfg;
     private readonly ChatSystem _chat;
     private readonly AdventurerSystem _adventurers;
+    private readonly YardSystem _yard;
     private readonly CombinedSettingOuts _trips;
     private readonly CombinedHireability _hiring;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
@@ -398,6 +399,7 @@ public sealed class Simulation
         _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
         _adventurers = new AdventurerSystem(_context, _state.Claim(nameof(AdventurerSystem), StateSlice.Adventurers), player.Id);
+        _yard = new YardSystem(_context, player.Id, () => _adventurers.Views());
         _trips = new CombinedSettingOuts(setup.SettingOuts ?? _npcs, _adventurers);
         _hiring = new CombinedHireability(_adventurers, _npcs);
         _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id, _trips);
@@ -891,6 +893,12 @@ public sealed class Simulation
     /// <summary>The region's NPC adventurers (WP13): level, coin, gear, what they are about today, and whether they are in town or with the party.</summary>
     public ImmutableArray<AdventurerView> Adventurers => _adventurers.Views();
 
+    /// <summary>The bouts a settlement's yard has on offer (GEN-07): what a player watches, backs and steps into.</summary>
+    public ImmutableArray<YardBout> Yard(string settlementId) => _yard.Offer(settlementId);
+
+    /// <summary>Run one of those bouts as the yard would: the same day gives the same bout.</summary>
+    public BoutResult RunBout(YardBout bout, long day) => _yard.Run(bout, day);
+
 
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
@@ -1003,6 +1011,8 @@ public sealed class Simulation
                 LeaveCommand leave => _dialogue.Handle(leave, WorldTick),
                 BuyCommand buy => _trade.Handle(buy, WorldTick),
                 SellCommand sell => _trade.Handle(sell, WorldTick),
+                BetOnBoutCommand bet => _yard.Handle(bet, WorldTick),
+                JoinBoutCommand join => _yard.Handle(join, WorldTick),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
                 TameCommand tame => _pets.Handle(tame, WorldTick),
