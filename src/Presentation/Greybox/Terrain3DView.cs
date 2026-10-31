@@ -166,8 +166,12 @@ public static class Terrain3DView
         }
         // The nine slots this region fills: its asset root may name its own, but the count and order are
         // the contract the blending below depends on. Resolved here and threaded down, never a static.
-        var slots = ResolveLayers(art.Root, out string? layerWhy);
-        var palette = ResolveCellPalette(RegionPaletteRoot(art.Root, regionId), out string? paletteWhy);
+        // A region may also fill the nine slots itself beside its palette (the Steps lay cobble where the moor wears a peat trail);
+        // without its own terrain_layers.json it takes the shared root's.
+        string? regionRoot = RegionPaletteRoot(art.Root, regionId);
+        var slots = ResolveLayers(regionRoot is not null && File.Exists(Path.Combine(regionRoot, "terrain_layers.json")) ? regionRoot : art.Root,
+            out string? layerWhy);
+        var palette = ResolveCellPalette(regionRoot, out string? paletteWhy);
         if (paletteWhy is not null)
             GD.PushWarning($"UNNAMED terrain cells: {paletteWhy}");
         if (palette is not null)

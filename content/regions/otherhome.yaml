@@ -52970,6 +52970,18 @@ structures:
 - id: oh_counter_00
   box_m: [1548.75, 774.30, 1551.25, 775.90]
   height_m: 0.85
+- id: oh_awning_00
+  box_m: [1548.75, 774.30, 1551.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_00_0
+  box_m: [1549.05, 774.80, 1549.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_00_1
+  box_m: [1549.85, 774.80, 1550.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_00_2
+  box_m: [1550.55, 774.80, 1551.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_00_0
   box_m: [1551.50, 772.59, 1552.39, 773.06]
   height_m: 0.35
@@ -52982,6 +52994,18 @@ structures:
 - id: oh_counter_01
   box_m: [1558.75, 774.30, 1561.25, 775.90]
   height_m: 0.85
+- id: oh_awning_01
+  box_m: [1558.75, 774.30, 1561.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_01_0
+  box_m: [1559.05, 774.80, 1559.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_01_1
+  box_m: [1559.85, 774.80, 1560.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_01_2
+  box_m: [1560.55, 774.80, 1561.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_01_0
   box_m: [1561.50, 772.49, 1562.17, 773.16]
   height_m: 0.39
@@ -52997,6 +53021,18 @@ structures:
 - id: oh_counter_02
   box_m: [1598.75, 774.30, 1601.25, 775.90]
   height_m: 0.85
+- id: oh_awning_02
+  box_m: [1598.75, 774.30, 1601.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_02_0
+  box_m: [1599.05, 774.80, 1599.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_02_1
+  box_m: [1599.85, 774.80, 1600.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_02_2
+  box_m: [1600.55, 774.80, 1601.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_02_0
   box_m: [1601.50, 772.59, 1602.39, 773.06]
   height_m: 0.35
@@ -53009,6 +53045,18 @@ structures:
 - id: oh_counter_03
   box_m: [1607.75, 774.30, 1610.25, 775.90]
   height_m: 0.85
+- id: oh_awning_03
+  box_m: [1607.75, 774.30, 1610.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_03_0
+  box_m: [1608.05, 774.80, 1608.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_03_1
+  box_m: [1608.85, 774.80, 1609.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_03_2
+  box_m: [1609.55, 774.80, 1610.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_03_0
   box_m: [1610.50, 772.49, 1611.17, 773.16]
   height_m: 0.39
@@ -53024,6 +53072,18 @@ structures:
 - id: oh_counter_04
   box_m: [1638.75, 774.30, 1641.25, 775.90]
   height_m: 0.85
+- id: oh_awning_04
+  box_m: [1638.75, 774.30, 1641.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_04_0
+  box_m: [1639.05, 774.80, 1639.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_04_1
+  box_m: [1639.85, 774.80, 1640.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_04_2
+  box_m: [1640.55, 774.80, 1641.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_04_0
   box_m: [1641.50, 772.59, 1642.39, 773.06]
   height_m: 0.35
@@ -53036,6 +53096,18 @@ structures:
 - id: oh_counter_05
   box_m: [1648.75, 774.30, 1651.25, 775.90]
   height_m: 0.85
+- id: oh_awning_05
+  box_m: [1648.75, 774.30, 1651.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_05_0
+  box_m: [1649.05, 774.80, 1649.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_05_1
+  box_m: [1649.85, 774.80, 1650.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_05_2
+  box_m: [1650.55, 774.80, 1651.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_05_0
   box_m: [1651.50, 772.49, 1652.17, 773.16]
   height_m: 0.39
@@ -53051,6 +53123,18 @@ structures:
 - id: oh_counter_06
   box_m: [1658.75, 774.30, 1661.25, 775.90]
   height_m: 0.85
+- id: oh_awning_06
+  box_m: [1658.75, 774.30, 1661.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_06_0
+  box_m: [1659.05, 774.80, 1659.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_06_1
+  box_m: [1659.85, 774.80, 1660.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_06_2
+  box_m: [1660.55, 774.80, 1661.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_06_0
   box_m: [1661.50, 772.59, 1662.39, 773.06]
   height_m: 0.35
@@ -53063,6 +53147,18 @@ structures:
 - id: oh_counter_07
   box_m: [1668.75, 774.30, 1671.25, 775.90]
   height_m: 0.85
+- id: oh_awning_07
+  box_m: [1668.75, 774.30, 1671.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_07_0
+  box_m: [1669.05, 774.80, 1669.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_07_1
+  box_m: [1669.85, 774.80, 1670.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_07_2
+  box_m: [1670.55, 774.80, 1671.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_07_0
   box_m: [1671.50, 772.49, 1672.17, 773.16]
   height_m: 0.39
@@ -53078,6 +53174,18 @@ structures:
 - id: oh_counter_08
   box_m: [1678.75, 774.30, 1681.25, 775.90]
   height_m: 0.85
+- id: oh_awning_08
+  box_m: [1678.75, 774.30, 1681.25, 775.90]
+  height_m: 3.1
+- id: oh_counterware_08_0
+  box_m: [1679.05, 774.80, 1679.65, 775.40]
+  height_m: 0.4
+- id: oh_counterware_08_1
+  box_m: [1679.85, 774.80, 1680.40, 775.40]
+  height_m: 0.4
+- id: oh_counterware_08_2
+  box_m: [1680.55, 774.80, 1681.10, 775.40]
+  height_m: 0.4
 - id: oh_ware_08_0
   box_m: [1681.50, 772.59, 1682.39, 773.06]
   height_m: 0.35
@@ -53090,6 +53198,18 @@ structures:
 - id: oh_counter_09
   box_m: [1528.75, 787.30, 1531.25, 788.90]
   height_m: 0.85
+- id: oh_awning_09
+  box_m: [1528.75, 787.30, 1531.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_09_0
+  box_m: [1529.05, 787.80, 1529.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_09_1
+  box_m: [1529.85, 787.80, 1530.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_09_2
+  box_m: [1530.55, 787.80, 1531.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_09_0
   box_m: [1531.50, 790.04, 1532.17, 790.71]
   height_m: 0.39
@@ -53105,6 +53225,18 @@ structures:
 - id: oh_counter_10
   box_m: [1538.75, 787.30, 1541.25, 788.90]
   height_m: 0.85
+- id: oh_awning_10
+  box_m: [1538.75, 787.30, 1541.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_10_0
+  box_m: [1539.05, 787.80, 1539.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_10_1
+  box_m: [1539.85, 787.80, 1540.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_10_2
+  box_m: [1540.55, 787.80, 1541.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_10_0
   box_m: [1541.50, 790.14, 1542.39, 790.61]
   height_m: 0.35
@@ -53117,6 +53249,18 @@ structures:
 - id: oh_counter_11
   box_m: [1548.75, 787.30, 1551.25, 788.90]
   height_m: 0.85
+- id: oh_awning_11
+  box_m: [1548.75, 787.30, 1551.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_11_0
+  box_m: [1549.05, 787.80, 1549.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_11_1
+  box_m: [1549.85, 787.80, 1550.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_11_2
+  box_m: [1550.55, 787.80, 1551.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_11_0
   box_m: [1551.50, 790.04, 1552.17, 790.71]
   height_m: 0.39
@@ -53132,6 +53276,18 @@ structures:
 - id: oh_counter_12
   box_m: [1558.75, 787.30, 1561.25, 788.90]
   height_m: 0.85
+- id: oh_awning_12
+  box_m: [1558.75, 787.30, 1561.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_12_0
+  box_m: [1559.05, 787.80, 1559.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_12_1
+  box_m: [1559.85, 787.80, 1560.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_12_2
+  box_m: [1560.55, 787.80, 1561.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_12_0
   box_m: [1561.50, 790.14, 1562.39, 790.61]
   height_m: 0.35
@@ -53144,6 +53300,18 @@ structures:
 - id: oh_counter_13
   box_m: [1568.75, 787.30, 1571.25, 788.90]
   height_m: 0.85
+- id: oh_awning_13
+  box_m: [1568.75, 787.30, 1571.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_13_0
+  box_m: [1569.05, 787.80, 1569.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_13_1
+  box_m: [1569.85, 787.80, 1570.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_13_2
+  box_m: [1570.55, 787.80, 1571.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_13_0
   box_m: [1571.50, 790.04, 1572.17, 790.71]
   height_m: 0.39
@@ -53159,6 +53327,18 @@ structures:
 - id: oh_counter_14
   box_m: [1578.75, 787.30, 1581.25, 788.90]
   height_m: 0.85
+- id: oh_awning_14
+  box_m: [1578.75, 787.30, 1581.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_14_0
+  box_m: [1579.05, 787.80, 1579.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_14_1
+  box_m: [1579.85, 787.80, 1580.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_14_2
+  box_m: [1580.55, 787.80, 1581.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_14_0
   box_m: [1581.50, 790.14, 1582.39, 790.61]
   height_m: 0.35
@@ -53171,6 +53351,18 @@ structures:
 - id: oh_counter_15
   box_m: [1588.75, 787.30, 1591.25, 788.90]
   height_m: 0.85
+- id: oh_awning_15
+  box_m: [1588.75, 787.30, 1591.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_15_0
+  box_m: [1589.05, 787.80, 1589.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_15_1
+  box_m: [1589.85, 787.80, 1590.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_15_2
+  box_m: [1590.55, 787.80, 1591.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_15_0
   box_m: [1591.50, 790.04, 1592.17, 790.71]
   height_m: 0.39
@@ -53186,6 +53378,18 @@ structures:
 - id: oh_counter_16
   box_m: [1610.75, 787.30, 1613.25, 788.90]
   height_m: 0.85
+- id: oh_awning_16
+  box_m: [1610.75, 787.30, 1613.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_16_0
+  box_m: [1611.05, 787.80, 1611.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_16_1
+  box_m: [1611.85, 787.80, 1612.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_16_2
+  box_m: [1612.55, 787.80, 1613.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_16_0
   box_m: [1613.50, 790.14, 1614.39, 790.61]
   height_m: 0.35
@@ -53198,6 +53402,18 @@ structures:
 - id: oh_counter_17
   box_m: [1620.75, 787.30, 1623.25, 788.90]
   height_m: 0.85
+- id: oh_awning_17
+  box_m: [1620.75, 787.30, 1623.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_17_0
+  box_m: [1621.05, 787.80, 1621.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_17_1
+  box_m: [1621.85, 787.80, 1622.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_17_2
+  box_m: [1622.55, 787.80, 1623.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_17_0
   box_m: [1623.50, 790.04, 1624.17, 790.71]
   height_m: 0.39
@@ -53213,6 +53429,18 @@ structures:
 - id: oh_counter_18
   box_m: [1630.75, 787.30, 1633.25, 788.90]
   height_m: 0.85
+- id: oh_awning_18
+  box_m: [1630.75, 787.30, 1633.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_18_0
+  box_m: [1631.05, 787.80, 1631.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_18_1
+  box_m: [1631.85, 787.80, 1632.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_18_2
+  box_m: [1632.55, 787.80, 1633.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_18_0
   box_m: [1633.50, 790.14, 1634.39, 790.61]
   height_m: 0.35
@@ -53225,6 +53453,18 @@ structures:
 - id: oh_counter_19
   box_m: [1640.75, 787.30, 1643.25, 788.90]
   height_m: 0.85
+- id: oh_awning_19
+  box_m: [1640.75, 787.30, 1643.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_19_0
+  box_m: [1641.05, 787.80, 1641.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_19_1
+  box_m: [1641.85, 787.80, 1642.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_19_2
+  box_m: [1642.55, 787.80, 1643.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_19_0
   box_m: [1643.50, 790.04, 1644.17, 790.71]
   height_m: 0.39
@@ -53240,6 +53480,18 @@ structures:
 - id: oh_counter_20
   box_m: [1650.75, 787.30, 1653.25, 788.90]
   height_m: 0.85
+- id: oh_awning_20
+  box_m: [1650.75, 787.30, 1653.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_20_0
+  box_m: [1651.05, 787.80, 1651.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_20_1
+  box_m: [1651.85, 787.80, 1652.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_20_2
+  box_m: [1652.55, 787.80, 1653.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_20_0
   box_m: [1653.50, 790.14, 1654.39, 790.61]
   height_m: 0.35
@@ -53252,6 +53504,18 @@ structures:
 - id: oh_counter_21
   box_m: [1660.75, 787.30, 1663.25, 788.90]
   height_m: 0.85
+- id: oh_awning_21
+  box_m: [1660.75, 787.30, 1663.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_21_0
+  box_m: [1661.05, 787.80, 1661.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_21_1
+  box_m: [1661.85, 787.80, 1662.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_21_2
+  box_m: [1662.55, 787.80, 1663.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_21_0
   box_m: [1663.50, 790.04, 1664.17, 790.71]
   height_m: 0.39
@@ -53267,6 +53531,18 @@ structures:
 - id: oh_counter_22
   box_m: [1670.75, 787.30, 1673.25, 788.90]
   height_m: 0.85
+- id: oh_awning_22
+  box_m: [1670.75, 787.30, 1673.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_22_0
+  box_m: [1671.05, 787.80, 1671.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_22_1
+  box_m: [1671.85, 787.80, 1672.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_22_2
+  box_m: [1672.55, 787.80, 1673.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_22_0
   box_m: [1673.50, 790.14, 1674.39, 790.61]
   height_m: 0.35
@@ -53279,6 +53555,18 @@ structures:
 - id: oh_counter_23
   box_m: [1680.75, 787.30, 1683.25, 788.90]
   height_m: 0.85
+- id: oh_awning_23
+  box_m: [1680.75, 787.30, 1683.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_23_0
+  box_m: [1681.05, 787.80, 1681.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_23_1
+  box_m: [1681.85, 787.80, 1682.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_23_2
+  box_m: [1682.55, 787.80, 1683.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_23_0
   box_m: [1683.50, 790.04, 1684.17, 790.71]
   height_m: 0.39
@@ -53294,6 +53582,18 @@ structures:
 - id: oh_counter_24
   box_m: [1690.75, 787.30, 1693.25, 788.90]
   height_m: 0.85
+- id: oh_awning_24
+  box_m: [1690.75, 787.30, 1693.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_24_0
+  box_m: [1691.05, 787.80, 1691.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_24_1
+  box_m: [1691.85, 787.80, 1692.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_24_2
+  box_m: [1692.55, 787.80, 1693.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_24_0
   box_m: [1693.50, 790.14, 1694.39, 790.61]
   height_m: 0.35
@@ -53306,6 +53606,18 @@ structures:
 - id: oh_counter_25
   box_m: [1700.75, 787.30, 1703.25, 788.90]
   height_m: 0.85
+- id: oh_awning_25
+  box_m: [1700.75, 787.30, 1703.25, 788.90]
+  height_m: 3.1
+- id: oh_counterware_25_0
+  box_m: [1701.05, 787.80, 1701.65, 788.40]
+  height_m: 0.4
+- id: oh_counterware_25_1
+  box_m: [1701.85, 787.80, 1702.40, 788.40]
+  height_m: 0.4
+- id: oh_counterware_25_2
+  box_m: [1702.55, 787.80, 1703.10, 788.40]
+  height_m: 0.4
 - id: oh_ware_25_0
   box_m: [1703.50, 790.04, 1704.17, 790.71]
   height_m: 0.39
@@ -57359,6 +57671,2163 @@ structures:
 - id: oh_riser_tall_347
   box_m: [1848.00, 746.75, 1860.00, 747.95]
   height_m: 6.45
+- id: oh_westwall_low_000
+  box_m: [1274.75, 580.00, 1275.95, 592.00]
+  height_m: 3.89
+- id: oh_westwall_low_001
+  box_m: [1274.75, 592.00, 1275.95, 604.00]
+  height_m: 3.89
+- id: oh_westwall_tall_002
+  box_m: [1274.75, 604.00, 1275.95, 616.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0000
+  circle_m: [1275.40, 606.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0001
+  circle_m: [1275.40, 611.62, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_003
+  box_m: [1274.75, 616.00, 1275.95, 628.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0002
+  circle_m: [1275.40, 617.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0003
+  circle_m: [1275.40, 623.10, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_004
+  box_m: [1274.75, 628.00, 1275.95, 640.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0004
+  circle_m: [1275.40, 629.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0005
+  circle_m: [1275.40, 632.24, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0006
+  circle_m: [1275.40, 636.22, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0007
+  circle_m: [1275.40, 637.02, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_005
+  box_m: [1274.75, 640.00, 1275.95, 652.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0008
+  circle_m: [1275.40, 641.70, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0009
+  circle_m: [1275.40, 645.20, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0010
+  circle_m: [1275.40, 648.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0011
+  circle_m: [1275.40, 650.25, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_006
+  box_m: [1274.75, 652.00, 1275.95, 664.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0012
+  circle_m: [1275.40, 653.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0013
+  circle_m: [1275.40, 656.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0014
+  circle_m: [1275.40, 660.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0015
+  circle_m: [1275.40, 663.15, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_007
+  box_m: [1274.75, 664.00, 1275.95, 676.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0016
+  circle_m: [1275.40, 666.50, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0017
+  circle_m: [1275.40, 667.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0018
+  circle_m: [1275.40, 666.91, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0019
+  circle_m: [1275.40, 670.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0020
+  circle_m: [1275.40, 673.61, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0021
+  circle_m: [1275.40, 671.15, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_008
+  box_m: [1274.75, 676.00, 1275.95, 688.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0022
+  circle_m: [1275.40, 677.73, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0023
+  circle_m: [1275.40, 679.58, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0024
+  circle_m: [1275.40, 677.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0025
+  circle_m: [1275.40, 684.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0026
+  circle_m: [1275.40, 684.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0027
+  circle_m: [1275.40, 683.24, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_009
+  box_m: [1274.75, 688.00, 1275.95, 700.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0028
+  circle_m: [1275.40, 688.81, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0029
+  circle_m: [1275.40, 692.41, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0030
+  circle_m: [1275.40, 689.01, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0031
+  circle_m: [1275.40, 691.38, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0032
+  circle_m: [1275.40, 696.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0033
+  circle_m: [1275.40, 697.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0034
+  circle_m: [1275.40, 696.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0035
+  circle_m: [1275.40, 697.44, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_010
+  box_m: [1274.75, 700.00, 1275.95, 712.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0036
+  circle_m: [1275.40, 702.72, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0037
+  circle_m: [1275.40, 704.36, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0038
+  circle_m: [1275.40, 702.41, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0039
+  circle_m: [1275.40, 705.64, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0040
+  circle_m: [1275.40, 701.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0041
+  circle_m: [1275.40, 707.81, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0042
+  circle_m: [1275.40, 709.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0043
+  circle_m: [1275.40, 707.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0044
+  circle_m: [1275.40, 709.19, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0045
+  circle_m: [1275.40, 708.14, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_011
+  box_m: [1274.75, 712.00, 1275.95, 724.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0046
+  circle_m: [1275.40, 713.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0047
+  circle_m: [1275.40, 716.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0048
+  circle_m: [1275.40, 712.97, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0049
+  circle_m: [1275.40, 716.43, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0050
+  circle_m: [1275.40, 714.93, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0051
+  circle_m: [1275.40, 720.15, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0052
+  circle_m: [1275.40, 721.94, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0053
+  circle_m: [1275.40, 720.51, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0054
+  circle_m: [1275.40, 721.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0055
+  circle_m: [1275.40, 718.92, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_012
+  box_m: [1274.75, 724.00, 1275.95, 736.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0056
+  circle_m: [1275.40, 725.14, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0057
+  circle_m: [1275.40, 729.26, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0058
+  circle_m: [1275.40, 725.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0059
+  circle_m: [1275.40, 728.86, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0060
+  circle_m: [1275.40, 726.87, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0061
+  circle_m: [1275.40, 727.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0062
+  circle_m: [1275.40, 732.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0063
+  circle_m: [1275.40, 733.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0064
+  circle_m: [1275.40, 730.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0065
+  circle_m: [1275.40, 734.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0066
+  circle_m: [1275.40, 731.34, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0067
+  circle_m: [1275.40, 735.08, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_013
+  box_m: [1274.75, 736.00, 1275.95, 748.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0068
+  circle_m: [1275.40, 739.05, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0069
+  circle_m: [1275.40, 741.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0070
+  circle_m: [1275.40, 738.68, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0071
+  circle_m: [1275.40, 740.94, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0072
+  circle_m: [1275.40, 738.62, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0073
+  circle_m: [1275.40, 740.03, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0074
+  circle_m: [1275.40, 744.60, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0075
+  circle_m: [1275.40, 746.68, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0076
+  circle_m: [1275.40, 744.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0077
+  circle_m: [1275.40, 744.87, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0078
+  circle_m: [1275.40, 742.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0079
+  circle_m: [1275.40, 745.56, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_014
+  box_m: [1274.75, 748.00, 1275.95, 760.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0080
+  circle_m: [1275.40, 750.91, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0081
+  circle_m: [1275.40, 752.63, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0082
+  circle_m: [1275.40, 750.43, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0083
+  circle_m: [1275.40, 752.52, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0084
+  circle_m: [1275.40, 749.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0085
+  circle_m: [1275.40, 752.38, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0086
+  circle_m: [1275.40, 750.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0087
+  circle_m: [1275.40, 756.38, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0088
+  circle_m: [1275.40, 758.82, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0089
+  circle_m: [1275.40, 756.55, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0090
+  circle_m: [1275.40, 758.72, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0091
+  circle_m: [1275.40, 754.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0092
+  circle_m: [1275.40, 757.48, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0093
+  circle_m: [1275.40, 755.03, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_015
+  box_m: [1274.75, 760.00, 1275.95, 772.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0094
+  circle_m: [1275.40, 761.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0095
+  circle_m: [1275.40, 765.62, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0096
+  circle_m: [1275.40, 762.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0097
+  circle_m: [1275.40, 764.34, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0098
+  circle_m: [1275.40, 760.99, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0099
+  circle_m: [1275.40, 764.24, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0100
+  circle_m: [1275.40, 761.29, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0101
+  circle_m: [1275.40, 767.22, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0102
+  circle_m: [1275.40, 769.90, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0103
+  circle_m: [1275.40, 768.68, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0104
+  circle_m: [1275.40, 769.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0105
+  circle_m: [1275.40, 766.46, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0106
+  circle_m: [1275.40, 769.67, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0107
+  circle_m: [1275.40, 767.42, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_016
+  box_m: [1274.75, 772.00, 1275.95, 784.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0108
+  circle_m: [1275.40, 773.55, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0109
+  circle_m: [1275.40, 775.53, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0110
+  circle_m: [1275.40, 775.17, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0111
+  circle_m: [1275.40, 775.49, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0112
+  circle_m: [1275.40, 774.55, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0113
+  circle_m: [1275.40, 776.61, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0114
+  circle_m: [1275.40, 774.80, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0115
+  circle_m: [1275.40, 779.93, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0116
+  circle_m: [1275.40, 780.96, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0117
+  circle_m: [1275.40, 778.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0118
+  circle_m: [1275.40, 781.01, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0119
+  circle_m: [1275.40, 779.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0120
+  circle_m: [1275.40, 781.17, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0121
+  circle_m: [1275.40, 778.68, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_017
+  box_m: [1274.75, 784.00, 1275.95, 796.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0122
+  circle_m: [1275.40, 785.70, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0123
+  circle_m: [1275.40, 787.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0124
+  circle_m: [1275.40, 787.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0125
+  circle_m: [1275.40, 789.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0126
+  circle_m: [1275.40, 786.33, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0127
+  circle_m: [1275.40, 789.19, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0128
+  circle_m: [1275.40, 787.20, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0129
+  circle_m: [1275.40, 790.60, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0130
+  circle_m: [1275.40, 794.72, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0131
+  circle_m: [1275.40, 792.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0132
+  circle_m: [1275.40, 794.04, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0133
+  circle_m: [1275.40, 790.96, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0134
+  circle_m: [1275.40, 794.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0135
+  circle_m: [1275.40, 790.68, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_018
+  box_m: [1274.75, 796.00, 1275.95, 808.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0136
+  circle_m: [1275.40, 799.17, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0137
+  circle_m: [1275.40, 799.91, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0138
+  circle_m: [1275.40, 798.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0139
+  circle_m: [1275.40, 800.90, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0140
+  circle_m: [1275.40, 798.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0141
+  circle_m: [1275.40, 800.96, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0142
+  circle_m: [1275.40, 796.91, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0143
+  circle_m: [1275.40, 802.49, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0144
+  circle_m: [1275.40, 806.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0145
+  circle_m: [1275.40, 803.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0146
+  circle_m: [1275.40, 805.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0147
+  circle_m: [1275.40, 804.40, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0148
+  circle_m: [1275.40, 806.86, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0149
+  circle_m: [1275.40, 804.20, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_019
+  box_m: [1274.75, 808.00, 1275.95, 820.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0150
+  circle_m: [1275.40, 809.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0151
+  circle_m: [1275.40, 813.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0152
+  circle_m: [1275.40, 809.73, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0153
+  circle_m: [1275.40, 813.24, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0154
+  circle_m: [1275.40, 810.61, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0155
+  circle_m: [1275.40, 812.80, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0156
+  circle_m: [1275.40, 810.17, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0157
+  circle_m: [1275.40, 815.53, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0158
+  circle_m: [1275.40, 818.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0159
+  circle_m: [1275.40, 815.67, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0160
+  circle_m: [1275.40, 819.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0161
+  circle_m: [1275.40, 814.38, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0162
+  circle_m: [1275.40, 818.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0163
+  circle_m: [1275.40, 816.51, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_020
+  box_m: [1274.75, 820.00, 1275.95, 832.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0164
+  circle_m: [1275.40, 822.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0165
+  circle_m: [1275.40, 825.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0166
+  circle_m: [1275.40, 821.85, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0167
+  circle_m: [1275.40, 824.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0168
+  circle_m: [1275.40, 822.13, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0169
+  circle_m: [1275.40, 824.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0170
+  circle_m: [1275.40, 821.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0171
+  circle_m: [1275.40, 828.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0172
+  circle_m: [1275.40, 829.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0173
+  circle_m: [1275.40, 828.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0174
+  circle_m: [1275.40, 831.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0175
+  circle_m: [1275.40, 827.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0176
+  circle_m: [1275.40, 829.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0177
+  circle_m: [1275.40, 827.72, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_021
+  box_m: [1274.75, 832.00, 1275.95, 844.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0178
+  circle_m: [1275.40, 834.26, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0179
+  circle_m: [1275.40, 836.29, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0180
+  circle_m: [1275.40, 834.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0181
+  circle_m: [1275.40, 837.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0182
+  circle_m: [1275.40, 834.60, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0183
+  circle_m: [1275.40, 835.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0184
+  circle_m: [1275.40, 835.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0185
+  circle_m: [1275.40, 839.03, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0186
+  circle_m: [1275.40, 842.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0187
+  circle_m: [1275.40, 839.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0188
+  circle_m: [1275.40, 842.46, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0189
+  circle_m: [1275.40, 839.28, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0190
+  circle_m: [1275.40, 842.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0191
+  circle_m: [1275.40, 840.12, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_022
+  box_m: [1274.75, 844.00, 1275.95, 856.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0192
+  circle_m: [1275.40, 846.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0193
+  circle_m: [1275.40, 848.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0194
+  circle_m: [1275.40, 846.21, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0195
+  circle_m: [1275.40, 848.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0196
+  circle_m: [1275.40, 846.40, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0197
+  circle_m: [1275.40, 849.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0198
+  circle_m: [1275.40, 844.93, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0199
+  circle_m: [1275.40, 850.94, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0200
+  circle_m: [1275.40, 853.23, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0201
+  circle_m: [1275.40, 851.24, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0202
+  circle_m: [1275.40, 853.52, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0203
+  circle_m: [1275.40, 851.27, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0204
+  circle_m: [1275.40, 853.59, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0205
+  circle_m: [1275.40, 852.52, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_023
+  box_m: [1274.75, 856.00, 1275.95, 868.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0206
+  circle_m: [1275.40, 857.48, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0207
+  circle_m: [1275.40, 860.99, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0208
+  circle_m: [1275.40, 857.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0209
+  circle_m: [1275.40, 859.81, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0210
+  circle_m: [1275.40, 858.01, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0211
+  circle_m: [1275.40, 861.21, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0212
+  circle_m: [1275.40, 857.18, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0213
+  circle_m: [1275.40, 864.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0214
+  circle_m: [1275.40, 864.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0215
+  circle_m: [1275.40, 864.05, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0216
+  circle_m: [1275.40, 866.64, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0217
+  circle_m: [1275.40, 864.54, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0218
+  circle_m: [1275.40, 866.29, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0219
+  circle_m: [1275.40, 863.68, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_024
+  box_m: [1274.75, 868.00, 1275.95, 880.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0220
+  circle_m: [1275.40, 869.40, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0221
+  circle_m: [1275.40, 873.43, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0222
+  circle_m: [1275.40, 870.51, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0223
+  circle_m: [1275.40, 871.58, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0224
+  circle_m: [1275.40, 870.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0225
+  circle_m: [1275.40, 872.67, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0226
+  circle_m: [1275.40, 870.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0227
+  circle_m: [1275.40, 874.77, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0228
+  circle_m: [1275.40, 877.73, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0229
+  circle_m: [1275.40, 876.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0230
+  circle_m: [1275.40, 879.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0231
+  circle_m: [1275.40, 874.54, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0232
+  circle_m: [1275.40, 878.77, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0233
+  circle_m: [1275.40, 874.52, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_025
+  box_m: [1274.75, 880.00, 1275.95, 892.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0234
+  circle_m: [1275.40, 881.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0235
+  circle_m: [1275.40, 885.28, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0236
+  circle_m: [1275.40, 882.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0237
+  circle_m: [1275.40, 883.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0238
+  circle_m: [1275.40, 882.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0239
+  circle_m: [1275.40, 884.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0240
+  circle_m: [1275.40, 880.81, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0241
+  circle_m: [1275.40, 886.93, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0242
+  circle_m: [1275.40, 890.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0243
+  circle_m: [1275.40, 887.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0244
+  circle_m: [1275.40, 889.59, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0245
+  circle_m: [1275.40, 886.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0246
+  circle_m: [1275.40, 890.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0247
+  circle_m: [1275.40, 888.26, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_026
+  box_m: [1274.75, 892.00, 1275.95, 904.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0248
+  circle_m: [1275.40, 894.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0249
+  circle_m: [1275.40, 895.51, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0250
+  circle_m: [1275.40, 893.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0251
+  circle_m: [1275.40, 896.36, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0252
+  circle_m: [1275.40, 893.80, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0253
+  circle_m: [1275.40, 896.31, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0254
+  circle_m: [1275.40, 893.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0255
+  circle_m: [1275.40, 900.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0256
+  circle_m: [1275.40, 902.61, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0257
+  circle_m: [1275.40, 899.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0258
+  circle_m: [1275.40, 901.94, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0259
+  circle_m: [1275.40, 900.07, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0260
+  circle_m: [1275.40, 902.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0261
+  circle_m: [1275.40, 898.56, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_027
+  box_m: [1274.75, 904.00, 1275.95, 916.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0262
+  circle_m: [1275.40, 904.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0263
+  circle_m: [1275.40, 909.43, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0264
+  circle_m: [1275.40, 905.27, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0265
+  circle_m: [1275.40, 907.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0266
+  circle_m: [1275.40, 906.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0267
+  circle_m: [1275.40, 909.70, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0268
+  circle_m: [1275.40, 905.14, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0269
+  circle_m: [1275.40, 912.23, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0270
+  circle_m: [1275.40, 913.02, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0271
+  circle_m: [1275.40, 910.49, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0272
+  circle_m: [1275.40, 913.73, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0273
+  circle_m: [1275.40, 912.01, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0274
+  circle_m: [1275.40, 914.99, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0275
+  circle_m: [1275.40, 910.33, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_028
+  box_m: [1274.75, 916.00, 1275.95, 928.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0276
+  circle_m: [1275.40, 917.71, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0277
+  circle_m: [1275.40, 920.04, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0278
+  circle_m: [1275.40, 917.43, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0279
+  circle_m: [1275.40, 919.48, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0280
+  circle_m: [1275.40, 918.76, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0281
+  circle_m: [1275.40, 921.68, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0282
+  circle_m: [1275.40, 917.02, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0283
+  circle_m: [1275.40, 922.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0284
+  circle_m: [1275.40, 926.77, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0285
+  circle_m: [1275.40, 922.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0286
+  circle_m: [1275.40, 927.02, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0287
+  circle_m: [1275.40, 923.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0288
+  circle_m: [1275.40, 925.53, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0289
+  circle_m: [1275.40, 923.29, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_029
+  box_m: [1274.75, 928.00, 1275.95, 940.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0290
+  circle_m: [1275.40, 928.83, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0291
+  circle_m: [1275.40, 932.15, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0292
+  circle_m: [1275.40, 929.72, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0293
+  circle_m: [1275.40, 932.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0294
+  circle_m: [1275.40, 929.36, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0295
+  circle_m: [1275.40, 931.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0296
+  circle_m: [1275.40, 930.97, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0297
+  circle_m: [1275.40, 935.18, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0298
+  circle_m: [1275.40, 937.47, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0299
+  circle_m: [1275.40, 935.50, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0300
+  circle_m: [1275.40, 939.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0301
+  circle_m: [1275.40, 936.29, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0302
+  circle_m: [1275.40, 937.89, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0303
+  circle_m: [1275.40, 934.52, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_030
+  box_m: [1274.75, 940.00, 1275.95, 952.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0304
+  circle_m: [1275.40, 940.94, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0305
+  circle_m: [1275.40, 945.48, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0306
+  circle_m: [1275.40, 941.81, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0307
+  circle_m: [1275.40, 944.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0308
+  circle_m: [1275.40, 941.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0309
+  circle_m: [1275.40, 944.69, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0310
+  circle_m: [1275.40, 942.79, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0311
+  circle_m: [1275.40, 948.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0312
+  circle_m: [1275.40, 951.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0313
+  circle_m: [1275.40, 947.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0314
+  circle_m: [1275.40, 949.61, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0315
+  circle_m: [1275.40, 947.96, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0316
+  circle_m: [1275.40, 949.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0317
+  circle_m: [1275.40, 947.01, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_031
+  box_m: [1274.75, 952.00, 1275.95, 964.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0318
+  circle_m: [1275.40, 953.82, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0319
+  circle_m: [1275.40, 957.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0320
+  circle_m: [1275.40, 955.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0321
+  circle_m: [1275.40, 956.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0322
+  circle_m: [1275.40, 954.66, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0323
+  circle_m: [1275.40, 955.82, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0324
+  circle_m: [1275.40, 954.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0325
+  circle_m: [1275.40, 959.02, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0326
+  circle_m: [1275.40, 963.13, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0327
+  circle_m: [1275.40, 959.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0328
+  circle_m: [1275.40, 961.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0329
+  circle_m: [1275.40, 959.21, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0330
+  circle_m: [1275.40, 962.60, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0331
+  circle_m: [1275.40, 958.50, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_032
+  box_m: [1274.75, 964.00, 1275.95, 976.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0332
+  circle_m: [1275.40, 966.44, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0333
+  circle_m: [1275.40, 967.33, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0334
+  circle_m: [1275.40, 964.85, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0335
+  circle_m: [1275.40, 968.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0336
+  circle_m: [1275.40, 966.31, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0337
+  circle_m: [1275.40, 967.54, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0338
+  circle_m: [1275.40, 965.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0339
+  circle_m: [1275.40, 972.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0340
+  circle_m: [1275.40, 975.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0341
+  circle_m: [1275.40, 970.85, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0342
+  circle_m: [1275.40, 974.79, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0343
+  circle_m: [1275.40, 971.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0344
+  circle_m: [1275.40, 972.93, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0345
+  circle_m: [1275.40, 970.52, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_033
+  box_m: [1274.75, 976.00, 1275.95, 988.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0346
+  circle_m: [1275.40, 978.20, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0347
+  circle_m: [1275.40, 980.96, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0348
+  circle_m: [1275.40, 977.26, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0349
+  circle_m: [1275.40, 980.97, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0350
+  circle_m: [1275.40, 978.70, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0351
+  circle_m: [1275.40, 980.52, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0352
+  circle_m: [1275.40, 978.03, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0353
+  circle_m: [1275.40, 983.21, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0354
+  circle_m: [1275.40, 985.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0355
+  circle_m: [1275.40, 984.04, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0356
+  circle_m: [1275.40, 985.03, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0357
+  circle_m: [1275.40, 983.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0358
+  circle_m: [1275.40, 986.38, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0359
+  circle_m: [1275.40, 982.68, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_034
+  box_m: [1274.75, 988.00, 1275.95, 1000.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0360
+  circle_m: [1275.40, 989.85, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0361
+  circle_m: [1275.40, 992.13, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0362
+  circle_m: [1275.40, 989.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0363
+  circle_m: [1275.40, 993.23, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0364
+  circle_m: [1275.40, 989.28, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0365
+  circle_m: [1275.40, 993.65, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0366
+  circle_m: [1275.40, 989.53, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0367
+  circle_m: [1275.40, 996.38, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0368
+  circle_m: [1275.40, 997.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0369
+  circle_m: [1275.40, 994.67, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0370
+  circle_m: [1275.40, 997.40, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0371
+  circle_m: [1275.40, 996.64, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0372
+  circle_m: [1275.40, 997.49, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0373
+  circle_m: [1275.40, 996.22, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_035
+  box_m: [1274.75, 1000.00, 1275.95, 1012.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0374
+  circle_m: [1275.40, 1001.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0375
+  circle_m: [1275.40, 1003.51, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0376
+  circle_m: [1275.40, 1003.18, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0377
+  circle_m: [1275.40, 1005.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0378
+  circle_m: [1275.40, 1001.50, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0379
+  circle_m: [1275.40, 1004.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0380
+  circle_m: [1275.40, 1002.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0381
+  circle_m: [1275.40, 1007.16, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0382
+  circle_m: [1275.40, 1009.96, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0383
+  circle_m: [1275.40, 1008.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0384
+  circle_m: [1275.40, 1010.94, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0385
+  circle_m: [1275.40, 1006.87, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0386
+  circle_m: [1275.40, 1010.64, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0387
+  circle_m: [1275.40, 1007.17, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_036
+  box_m: [1274.75, 1012.00, 1275.95, 1024.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0388
+  circle_m: [1275.40, 1014.81, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0389
+  circle_m: [1275.40, 1017.31, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0390
+  circle_m: [1275.40, 1014.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0391
+  circle_m: [1275.40, 1016.27, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0392
+  circle_m: [1275.40, 1014.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0393
+  circle_m: [1275.40, 1017.55, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0394
+  circle_m: [1275.40, 1014.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0395
+  circle_m: [1275.40, 1018.53, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0396
+  circle_m: [1275.40, 1022.78, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0397
+  circle_m: [1275.40, 1019.77, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0398
+  circle_m: [1275.40, 1021.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0399
+  circle_m: [1275.40, 1018.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0400
+  circle_m: [1275.40, 1021.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0401
+  circle_m: [1275.40, 1019.19, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_037
+  box_m: [1274.75, 1024.00, 1275.95, 1036.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0402
+  circle_m: [1275.40, 1024.91, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0403
+  circle_m: [1275.40, 1029.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0404
+  circle_m: [1275.40, 1025.05, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0405
+  circle_m: [1275.40, 1028.51, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0406
+  circle_m: [1275.40, 1026.63, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0407
+  circle_m: [1275.40, 1029.36, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0408
+  circle_m: [1275.40, 1027.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0409
+  circle_m: [1275.40, 1031.72, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0410
+  circle_m: [1275.40, 1033.90, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0411
+  circle_m: [1275.40, 1030.76, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0412
+  circle_m: [1275.40, 1033.97, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0413
+  circle_m: [1275.40, 1031.41, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0414
+  circle_m: [1275.40, 1032.95, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0415
+  circle_m: [1275.40, 1030.58, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_038
+  box_m: [1274.75, 1036.00, 1275.95, 1048.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0416
+  circle_m: [1275.40, 1038.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0417
+  circle_m: [1275.40, 1041.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0418
+  circle_m: [1275.40, 1036.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0419
+  circle_m: [1275.40, 1040.86, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0420
+  circle_m: [1275.40, 1037.23, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0421
+  circle_m: [1275.40, 1040.07, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0422
+  circle_m: [1275.40, 1038.58, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0423
+  circle_m: [1275.40, 1043.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0424
+  circle_m: [1275.40, 1045.82, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0425
+  circle_m: [1275.40, 1042.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0426
+  circle_m: [1275.40, 1044.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0427
+  circle_m: [1275.40, 1043.77, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0428
+  circle_m: [1275.40, 1045.79, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0429
+  circle_m: [1275.40, 1044.21, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_039
+  box_m: [1274.75, 1048.00, 1275.95, 1060.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0430
+  circle_m: [1275.40, 1049.86, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0431
+  circle_m: [1275.40, 1053.41, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0432
+  circle_m: [1275.40, 1051.00, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0433
+  circle_m: [1275.40, 1051.46, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0434
+  circle_m: [1275.40, 1049.55, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0435
+  circle_m: [1275.40, 1051.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0436
+  circle_m: [1275.40, 1049.28, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0437
+  circle_m: [1275.40, 1055.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0438
+  circle_m: [1275.40, 1056.84, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0439
+  circle_m: [1275.40, 1055.72, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0440
+  circle_m: [1275.40, 1057.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0441
+  circle_m: [1275.40, 1056.04, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0442
+  circle_m: [1275.40, 1057.53, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0443
+  circle_m: [1275.40, 1055.09, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_040
+  box_m: [1274.75, 1060.00, 1275.95, 1072.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0444
+  circle_m: [1275.40, 1060.93, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0445
+  circle_m: [1275.40, 1065.41, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0446
+  circle_m: [1275.40, 1061.90, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0447
+  circle_m: [1275.40, 1063.68, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0448
+  circle_m: [1275.40, 1061.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0449
+  circle_m: [1275.40, 1065.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0450
+  circle_m: [1275.40, 1061.26, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0451
+  circle_m: [1275.40, 1068.37, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0452
+  circle_m: [1275.40, 1069.06, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0453
+  circle_m: [1275.40, 1068.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0454
+  circle_m: [1275.40, 1070.83, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0455
+  circle_m: [1275.40, 1066.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0456
+  circle_m: [1275.40, 1069.89, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0457
+  circle_m: [1275.40, 1068.20, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_041
+  box_m: [1274.75, 1072.00, 1275.95, 1084.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0458
+  circle_m: [1275.40, 1073.63, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0459
+  circle_m: [1275.40, 1077.36, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0460
+  circle_m: [1275.40, 1074.50, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0461
+  circle_m: [1275.40, 1075.58, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0462
+  circle_m: [1275.40, 1074.82, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0463
+  circle_m: [1275.40, 1075.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0464
+  circle_m: [1275.40, 1073.13, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0465
+  circle_m: [1275.40, 1079.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0466
+  circle_m: [1275.40, 1082.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0467
+  circle_m: [1275.40, 1079.54, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0468
+  circle_m: [1275.40, 1082.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0469
+  circle_m: [1275.40, 1080.14, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0470
+  circle_m: [1275.40, 1081.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0471
+  circle_m: [1275.40, 1078.92, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_042
+  box_m: [1274.75, 1084.00, 1275.95, 1096.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0472
+  circle_m: [1275.40, 1086.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0473
+  circle_m: [1275.40, 1087.89, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0474
+  circle_m: [1275.40, 1085.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0475
+  circle_m: [1275.40, 1088.74, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0476
+  circle_m: [1275.40, 1085.09, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0477
+  circle_m: [1275.40, 1088.57, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0478
+  circle_m: [1275.40, 1086.17, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0479
+  circle_m: [1275.40, 1092.33, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0480
+  circle_m: [1275.40, 1094.76, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0481
+  circle_m: [1275.40, 1091.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0482
+  circle_m: [1275.40, 1094.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0483
+  circle_m: [1275.40, 1092.30, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0484
+  circle_m: [1275.40, 1094.99, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0485
+  circle_m: [1275.40, 1090.43, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_043
+  box_m: [1274.75, 1096.00, 1275.95, 1108.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0486
+  circle_m: [1275.40, 1097.48, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0487
+  circle_m: [1275.40, 1101.28, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0488
+  circle_m: [1275.40, 1096.92, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0489
+  circle_m: [1275.40, 1100.20, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0490
+  circle_m: [1275.40, 1099.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0491
+  circle_m: [1275.40, 1099.80, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0492
+  circle_m: [1275.40, 1096.99, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0493
+  circle_m: [1275.40, 1103.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0494
+  circle_m: [1275.40, 1106.13, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0495
+  circle_m: [1275.40, 1102.88, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0496
+  circle_m: [1275.40, 1105.12, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0497
+  circle_m: [1275.40, 1104.35, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0498
+  circle_m: [1275.40, 1104.82, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0499
+  circle_m: [1275.40, 1104.11, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_044
+  box_m: [1274.75, 1108.00, 1275.95, 1120.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0500
+  circle_m: [1275.40, 1109.27, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0501
+  circle_m: [1275.40, 1111.70, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0502
+  circle_m: [1275.40, 1109.97, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0503
+  circle_m: [1275.40, 1111.36, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0504
+  circle_m: [1275.40, 1110.60, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0505
+  circle_m: [1275.40, 1113.67, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0506
+  circle_m: [1275.40, 1109.45, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0507
+  circle_m: [1275.40, 1116.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0508
+  circle_m: [1275.40, 1117.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0509
+  circle_m: [1275.40, 1115.68, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0510
+  circle_m: [1275.40, 1117.07, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0511
+  circle_m: [1275.40, 1115.47, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0512
+  circle_m: [1275.40, 1117.33, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0513
+  circle_m: [1275.40, 1116.08, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_045
+  box_m: [1274.75, 1120.00, 1275.95, 1132.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0514
+  circle_m: [1275.40, 1122.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0515
+  circle_m: [1275.40, 1124.05, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0516
+  circle_m: [1275.40, 1122.02, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0517
+  circle_m: [1275.40, 1125.31, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0518
+  circle_m: [1275.40, 1123.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0519
+  circle_m: [1275.40, 1124.62, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0520
+  circle_m: [1275.40, 1123.10, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0521
+  circle_m: [1275.40, 1127.75, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0522
+  circle_m: [1275.40, 1129.23, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0523
+  circle_m: [1275.40, 1127.90, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0524
+  circle_m: [1275.40, 1129.91, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0525
+  circle_m: [1275.40, 1126.79, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0526
+  circle_m: [1275.40, 1129.14, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0527
+  circle_m: [1275.40, 1127.64, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_046
+  box_m: [1274.75, 1132.00, 1275.95, 1144.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0528
+  circle_m: [1275.40, 1133.21, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0529
+  circle_m: [1275.40, 1135.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0530
+  circle_m: [1275.40, 1133.90, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0531
+  circle_m: [1275.40, 1136.46, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0532
+  circle_m: [1275.40, 1133.56, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0533
+  circle_m: [1275.40, 1137.34, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0534
+  circle_m: [1275.40, 1134.24, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0535
+  circle_m: [1275.40, 1139.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0536
+  circle_m: [1275.40, 1141.39, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0537
+  circle_m: [1275.40, 1139.27, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0538
+  circle_m: [1275.40, 1142.95, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0539
+  circle_m: [1275.40, 1140.08, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0540
+  circle_m: [1275.40, 1142.76, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0541
+  circle_m: [1275.40, 1138.46, 0.35]
+  height_m: 4.0
+- id: oh_westwall_tall_047
+  box_m: [1274.75, 1144.00, 1275.95, 1156.00]
+  height_m: 6.45
+- id: oh_westcrag_0_0542
+  circle_m: [1275.40, 1145.11, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0543
+  circle_m: [1275.40, 1149.31, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0544
+  circle_m: [1275.40, 1146.42, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0545
+  circle_m: [1275.40, 1147.63, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0546
+  circle_m: [1275.40, 1146.32, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0547
+  circle_m: [1275.40, 1147.62, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0548
+  circle_m: [1275.40, 1145.54, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_0_0549
+  circle_m: [1275.40, 1152.18, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_1_0550
+  circle_m: [1275.40, 1153.25, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_2_0551
+  circle_m: [1275.40, 1152.29, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_3_0552
+  circle_m: [1275.40, 1154.58, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_4_0553
+  circle_m: [1275.40, 1151.23, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_5_0554
+  circle_m: [1275.40, 1154.98, 0.35]
+  height_m: 4.0
+- id: oh_westcrag_6_0555
+  circle_m: [1275.40, 1151.76, 0.35]
+  height_m: 4.0
+- id: oh_quaypost_000
+  box_m: [1262.84, 604.00, 1263.16, 604.32]
+  height_m: 3.2
+- id: oh_quaygoods_001_0
+  box_m: [1272.20, 610.00, 1272.90, 610.70]
+  height_m: 0.62
+- id: oh_quaygoods_001_1
+  box_m: [1272.20, 611.00, 1272.90, 611.70]
+  height_m: 0.62
+- id: oh_quaygoods_001_2
+  box_m: [1272.20, 610.40, 1273.10, 611.30]
+  height_m: 0.62
+- id: oh_quaygoods_001_3
+  box_m: [1272.20, 617.00, 1272.90, 617.70]
+  height_m: 0.62
+- id: oh_quaypost_001
+  box_m: [1262.84, 628.00, 1263.16, 628.32]
+  height_m: 3.2
+- id: oh_quaygoods_002_0
+  box_m: [1272.20, 634.00, 1272.90, 634.70]
+  height_m: 0.62
+- id: oh_quaygoods_002_1
+  box_m: [1272.20, 635.00, 1272.90, 635.70]
+  height_m: 0.62
+- id: oh_quaygoods_002_2
+  box_m: [1272.20, 634.40, 1273.10, 635.30]
+  height_m: 0.62
+- id: oh_quaygoods_002_3
+  box_m: [1272.20, 641.00, 1272.90, 641.70]
+  height_m: 0.62
+- id: oh_quaypost_002
+  box_m: [1262.84, 652.00, 1263.16, 652.32]
+  height_m: 3.2
+- id: oh_quaygoods_003_0
+  box_m: [1272.20, 658.00, 1272.90, 658.70]
+  height_m: 0.62
+- id: oh_quaygoods_003_1
+  box_m: [1272.20, 659.00, 1272.90, 659.70]
+  height_m: 0.62
+- id: oh_quaygoods_003_2
+  box_m: [1272.20, 658.40, 1273.10, 659.30]
+  height_m: 0.62
+- id: oh_quaygoods_003_3
+  box_m: [1272.20, 665.00, 1272.90, 665.70]
+  height_m: 0.62
+- id: oh_quaypost_003
+  box_m: [1262.84, 676.00, 1263.16, 676.32]
+  height_m: 3.2
+- id: oh_quaygoods_004_0
+  box_m: [1272.20, 682.00, 1272.90, 682.70]
+  height_m: 0.62
+- id: oh_quaygoods_004_1
+  box_m: [1272.20, 683.00, 1272.90, 683.70]
+  height_m: 0.62
+- id: oh_quaygoods_004_2
+  box_m: [1272.20, 682.40, 1273.10, 683.30]
+  height_m: 0.62
+- id: oh_quaygoods_004_3
+  box_m: [1272.20, 689.00, 1272.90, 689.70]
+  height_m: 0.62
+- id: oh_quaypost_004
+  box_m: [1262.84, 700.00, 1263.16, 700.32]
+  height_m: 3.2
+- id: oh_quaygoods_005_0
+  box_m: [1272.20, 706.00, 1272.90, 706.70]
+  height_m: 0.62
+- id: oh_quaygoods_005_1
+  box_m: [1272.20, 707.00, 1272.90, 707.70]
+  height_m: 0.62
+- id: oh_quaygoods_005_2
+  box_m: [1272.20, 706.40, 1273.10, 707.30]
+  height_m: 0.62
+- id: oh_quaygoods_005_3
+  box_m: [1272.20, 713.00, 1272.90, 713.70]
+  height_m: 0.62
+- id: oh_quaypost_005
+  box_m: [1262.84, 724.00, 1263.16, 724.32]
+  height_m: 3.2
+- id: oh_quaygoods_006_0
+  box_m: [1272.20, 730.00, 1272.90, 730.70]
+  height_m: 0.62
+- id: oh_quaygoods_006_1
+  box_m: [1272.20, 731.00, 1272.90, 731.70]
+  height_m: 0.62
+- id: oh_quaygoods_006_2
+  box_m: [1272.20, 730.40, 1273.10, 731.30]
+  height_m: 0.62
+- id: oh_quaygoods_006_3
+  box_m: [1272.20, 737.00, 1272.90, 737.70]
+  height_m: 0.62
+- id: oh_quaypost_006
+  box_m: [1262.84, 748.00, 1263.16, 748.32]
+  height_m: 3.2
+- id: oh_quaygoods_007_0
+  box_m: [1272.20, 754.00, 1272.90, 754.70]
+  height_m: 0.62
+- id: oh_quaygoods_007_1
+  box_m: [1272.20, 755.00, 1272.90, 755.70]
+  height_m: 0.62
+- id: oh_quaygoods_007_2
+  box_m: [1272.20, 754.40, 1273.10, 755.30]
+  height_m: 0.62
+- id: oh_quaygoods_007_3
+  box_m: [1272.20, 761.00, 1272.90, 761.70]
+  height_m: 0.62
+- id: oh_quaypost_007
+  box_m: [1262.84, 772.00, 1263.16, 772.32]
+  height_m: 3.2
+- id: oh_quaygoods_008_0
+  box_m: [1272.20, 778.00, 1272.90, 778.70]
+  height_m: 0.62
+- id: oh_quaygoods_008_1
+  box_m: [1272.20, 779.00, 1272.90, 779.70]
+  height_m: 0.62
+- id: oh_quaygoods_008_2
+  box_m: [1272.20, 778.40, 1273.10, 779.30]
+  height_m: 0.62
+- id: oh_quaygoods_008_3
+  box_m: [1272.20, 785.00, 1272.90, 785.70]
+  height_m: 0.62
+- id: oh_quaypost_008
+  box_m: [1262.84, 796.00, 1263.16, 796.32]
+  height_m: 3.2
+- id: oh_quaygoods_009_0
+  box_m: [1272.20, 802.00, 1272.90, 802.70]
+  height_m: 0.62
+- id: oh_quaygoods_009_1
+  box_m: [1272.20, 803.00, 1272.90, 803.70]
+  height_m: 0.62
+- id: oh_quaygoods_009_2
+  box_m: [1272.20, 802.40, 1273.10, 803.30]
+  height_m: 0.62
+- id: oh_quaygoods_009_3
+  box_m: [1272.20, 809.00, 1272.90, 809.70]
+  height_m: 0.62
+- id: oh_quaypost_009
+  box_m: [1262.84, 820.00, 1263.16, 820.32]
+  height_m: 3.2
+- id: oh_quaygoods_010_0
+  box_m: [1272.20, 826.00, 1272.90, 826.70]
+  height_m: 0.62
+- id: oh_quaygoods_010_1
+  box_m: [1272.20, 827.00, 1272.90, 827.70]
+  height_m: 0.62
+- id: oh_quaygoods_010_2
+  box_m: [1272.20, 826.40, 1273.10, 827.30]
+  height_m: 0.62
+- id: oh_quaygoods_010_3
+  box_m: [1272.20, 833.00, 1272.90, 833.70]
+  height_m: 0.62
+- id: oh_quaypost_010
+  box_m: [1262.84, 844.00, 1263.16, 844.32]
+  height_m: 3.2
+- id: oh_quaygoods_011_0
+  box_m: [1272.20, 850.00, 1272.90, 850.70]
+  height_m: 0.62
+- id: oh_quaygoods_011_1
+  box_m: [1272.20, 851.00, 1272.90, 851.70]
+  height_m: 0.62
+- id: oh_quaygoods_011_2
+  box_m: [1272.20, 850.40, 1273.10, 851.30]
+  height_m: 0.62
+- id: oh_quaygoods_011_3
+  box_m: [1272.20, 857.00, 1272.90, 857.70]
+  height_m: 0.62
+- id: oh_quaypost_011
+  box_m: [1262.84, 868.00, 1263.16, 868.32]
+  height_m: 3.2
+- id: oh_quaygoods_012_0
+  box_m: [1272.20, 874.00, 1272.90, 874.70]
+  height_m: 0.62
+- id: oh_quaygoods_012_1
+  box_m: [1272.20, 875.00, 1272.90, 875.70]
+  height_m: 0.62
+- id: oh_quaygoods_012_2
+  box_m: [1272.20, 874.40, 1273.10, 875.30]
+  height_m: 0.62
+- id: oh_quaygoods_012_3
+  box_m: [1272.20, 881.00, 1272.90, 881.70]
+  height_m: 0.62
+- id: oh_quaypost_012
+  box_m: [1262.84, 892.00, 1263.16, 892.32]
+  height_m: 3.2
+- id: oh_quaygoods_013_0
+  box_m: [1272.20, 898.00, 1272.90, 898.70]
+  height_m: 0.62
+- id: oh_quaygoods_013_1
+  box_m: [1272.20, 899.00, 1272.90, 899.70]
+  height_m: 0.62
+- id: oh_quaygoods_013_2
+  box_m: [1272.20, 898.40, 1273.10, 899.30]
+  height_m: 0.62
+- id: oh_quaygoods_013_3
+  box_m: [1272.20, 905.00, 1272.90, 905.70]
+  height_m: 0.62
+- id: oh_quaypost_013
+  box_m: [1262.84, 916.00, 1263.16, 916.32]
+  height_m: 3.2
+- id: oh_quaygoods_014_0
+  box_m: [1272.20, 922.00, 1272.90, 922.70]
+  height_m: 0.62
+- id: oh_quaygoods_014_1
+  box_m: [1272.20, 923.00, 1272.90, 923.70]
+  height_m: 0.62
+- id: oh_quaygoods_014_2
+  box_m: [1272.20, 922.40, 1273.10, 923.30]
+  height_m: 0.62
+- id: oh_quaygoods_014_3
+  box_m: [1272.20, 929.00, 1272.90, 929.70]
+  height_m: 0.62
+- id: oh_quaypost_014
+  box_m: [1262.84, 940.00, 1263.16, 940.32]
+  height_m: 3.2
+- id: oh_quaygoods_015_0
+  box_m: [1272.20, 946.00, 1272.90, 946.70]
+  height_m: 0.62
+- id: oh_quaygoods_015_1
+  box_m: [1272.20, 947.00, 1272.90, 947.70]
+  height_m: 0.62
+- id: oh_quaygoods_015_2
+  box_m: [1272.20, 946.40, 1273.10, 947.30]
+  height_m: 0.62
+- id: oh_quaygoods_015_3
+  box_m: [1272.20, 953.00, 1272.90, 953.70]
+  height_m: 0.62
+- id: oh_quaypost_015
+  box_m: [1262.84, 964.00, 1263.16, 964.32]
+  height_m: 3.2
+- id: oh_quaygoods_016_0
+  box_m: [1272.20, 970.00, 1272.90, 970.70]
+  height_m: 0.62
+- id: oh_quaygoods_016_1
+  box_m: [1272.20, 971.00, 1272.90, 971.70]
+  height_m: 0.62
+- id: oh_quaygoods_016_2
+  box_m: [1272.20, 970.40, 1273.10, 971.30]
+  height_m: 0.62
+- id: oh_quaygoods_016_3
+  box_m: [1272.20, 977.00, 1272.90, 977.70]
+  height_m: 0.62
+- id: oh_quaypost_016
+  box_m: [1262.84, 988.00, 1263.16, 988.32]
+  height_m: 3.2
+- id: oh_quaygoods_017_0
+  box_m: [1272.20, 994.00, 1272.90, 994.70]
+  height_m: 0.62
+- id: oh_quaygoods_017_1
+  box_m: [1272.20, 995.00, 1272.90, 995.70]
+  height_m: 0.62
+- id: oh_quaygoods_017_2
+  box_m: [1272.20, 994.40, 1273.10, 995.30]
+  height_m: 0.62
+- id: oh_quaygoods_017_3
+  box_m: [1272.20, 1001.00, 1272.90, 1001.70]
+  height_m: 0.62
+- id: oh_quaypost_017
+  box_m: [1262.84, 1012.00, 1263.16, 1012.32]
+  height_m: 3.2
+- id: oh_quaygoods_018_0
+  box_m: [1272.20, 1018.00, 1272.90, 1018.70]
+  height_m: 0.62
+- id: oh_quaygoods_018_1
+  box_m: [1272.20, 1019.00, 1272.90, 1019.70]
+  height_m: 0.62
+- id: oh_quaygoods_018_2
+  box_m: [1272.20, 1018.40, 1273.10, 1019.30]
+  height_m: 0.62
+- id: oh_quaygoods_018_3
+  box_m: [1272.20, 1025.00, 1272.90, 1025.70]
+  height_m: 0.62
+- id: oh_quaypost_018
+  box_m: [1262.84, 1036.00, 1263.16, 1036.32]
+  height_m: 3.2
+- id: oh_quaygoods_019_0
+  box_m: [1272.20, 1042.00, 1272.90, 1042.70]
+  height_m: 0.62
+- id: oh_quaygoods_019_1
+  box_m: [1272.20, 1043.00, 1272.90, 1043.70]
+  height_m: 0.62
+- id: oh_quaygoods_019_2
+  box_m: [1272.20, 1042.40, 1273.10, 1043.30]
+  height_m: 0.62
+- id: oh_quaygoods_019_3
+  box_m: [1272.20, 1049.00, 1272.90, 1049.70]
+  height_m: 0.62
+- id: oh_quaypost_019
+  box_m: [1262.84, 1060.00, 1263.16, 1060.32]
+  height_m: 3.2
+- id: oh_quaygoods_020_0
+  box_m: [1272.20, 1066.00, 1272.90, 1066.70]
+  height_m: 0.62
+- id: oh_quaygoods_020_1
+  box_m: [1272.20, 1067.00, 1272.90, 1067.70]
+  height_m: 0.62
+- id: oh_quaygoods_020_2
+  box_m: [1272.20, 1066.40, 1273.10, 1067.30]
+  height_m: 0.62
+- id: oh_quaygoods_020_3
+  box_m: [1272.20, 1073.00, 1272.90, 1073.70]
+  height_m: 0.62
+- id: oh_quaypost_020
+  box_m: [1262.84, 1084.00, 1263.16, 1084.32]
+  height_m: 3.2
+- id: oh_quaygoods_021_0
+  box_m: [1272.20, 1090.00, 1272.90, 1090.70]
+  height_m: 0.62
+- id: oh_quaygoods_021_1
+  box_m: [1272.20, 1091.00, 1272.90, 1091.70]
+  height_m: 0.62
+- id: oh_quaygoods_021_2
+  box_m: [1272.20, 1090.40, 1273.10, 1091.30]
+  height_m: 0.62
+- id: oh_quaygoods_021_3
+  box_m: [1272.20, 1097.00, 1272.90, 1097.70]
+  height_m: 0.62
+- id: oh_quaypost_021
+  box_m: [1262.84, 1108.00, 1263.16, 1108.32]
+  height_m: 3.2
+- id: oh_quaygoods_022_0
+  box_m: [1272.20, 1114.00, 1272.90, 1114.70]
+  height_m: 0.62
+- id: oh_quaygoods_022_1
+  box_m: [1272.20, 1115.00, 1272.90, 1115.70]
+  height_m: 0.62
+- id: oh_quaygoods_022_2
+  box_m: [1272.20, 1114.40, 1273.10, 1115.30]
+  height_m: 0.62
+- id: oh_quaygoods_022_3
+  box_m: [1272.20, 1121.00, 1272.90, 1121.70]
+  height_m: 0.62
+- id: oh_quaypost_022
+  box_m: [1262.84, 1132.00, 1263.16, 1132.32]
+  height_m: 3.2
+- id: oh_quaygoods_023_0
+  box_m: [1272.20, 1138.00, 1272.90, 1138.70]
+  height_m: 0.62
+- id: oh_quaygoods_023_1
+  box_m: [1272.20, 1139.00, 1272.90, 1139.70]
+  height_m: 0.62
+- id: oh_quaygoods_023_2
+  box_m: [1272.20, 1138.40, 1273.10, 1139.30]
+  height_m: 0.62
+- id: oh_quaygoods_023_3
+  box_m: [1272.20, 1145.00, 1272.90, 1145.70]
+  height_m: 0.62
 - id: oh_quaywall_000
   box_m: [1248.10, 400.00, 1249.30, 404.00]
   height_m: 1.4
@@ -61466,6 +63935,54 @@ roads:
   name: The Causeway Road
   points_m: [[1160, 392], [1212, 474], [1272, 534], [1342, 579], [1414, 599], [1420, 634]]
 npcs:
+- npc_ref: npc.otherhome.mkt_seller_00
+  position_m: [1558.0, 775.1]
+  facing_deg: 180
+- npc_ref: npc.otherhome.mkt_seller_01
+  position_m: [1598.0, 775.1]
+  facing_deg: 180
+- npc_ref: npc.otherhome.mkt_seller_02
+  position_m: [1648.0, 775.1]
+  facing_deg: 180
+- npc_ref: npc.otherhome.mkt_seller_03
+  position_m: [1668.0, 775.1]
+  facing_deg: 180
+- npc_ref: npc.otherhome.mkt_seller_04
+  position_m: [1538.0, 788.1]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_seller_05
+  position_m: [1558.0, 788.1]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_seller_06
+  position_m: [1588.0, 788.1]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_seller_07
+  position_m: [1630.0, 788.1]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_seller_08
+  position_m: [1660.0, 788.1]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_seller_09
+  position_m: [1690.0, 788.1]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_buyer_00
+  position_m: [1549.0, 777.6]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_buyer_01
+  position_m: [1641.0, 777.6]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_buyer_02
+  position_m: [1681.0, 777.6]
+  facing_deg: 0
+- npc_ref: npc.otherhome.mkt_buyer_03
+  position_m: [1551.0, 785.6]
+  facing_deg: 180
+- npc_ref: npc.otherhome.mkt_buyer_04
+  position_m: [1653.0, 785.6]
+  facing_deg: 180
+- npc_ref: npc.otherhome.mkt_buyer_05
+  position_m: [1673.0, 785.6]
+  facing_deg: 180
 - npc_ref: npc.otherhome.market_vendor
   position_m: [1612.0, 782.0]
   facing_deg: 180

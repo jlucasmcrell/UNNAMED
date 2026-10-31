@@ -1,0 +1,17 @@
+id: routine.otherhome.mkt_seller_05
+kind: routine
+schema: 1
+display_key: routine.otherhome.mkt_seller_05.name
+tags: [routine]
+notes: "Keeps a stall on the square from first light to dusk."
+region_ref: region.otherhome
+people_ref: people.veth
+settlement: otherhome
+role: vendor
+roles: [vendor]
+work_hours: [5, 21]
+anchors:
+  home: {position_m: [1558.0, 788.1], facing_deg: 0}
+  work: {position_m: [1558.0, 788.1], facing_deg: 0}
+schedule:
+  - {hours: [5, 21], at: work}

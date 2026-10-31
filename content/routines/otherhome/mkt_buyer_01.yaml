@@ -1,0 +1,17 @@
+id: routine.otherhome.mkt_buyer_01
+kind: routine
+schema: 1
+display_key: routine.otherhome.mkt_buyer_01.name
+tags: [routine]
+notes: "Comes up to the square to buy and to talk."
+region_ref: region.otherhome
+people_ref: people.siann
+settlement: otherhome
+role: steward
+roles: [steward]
+work_hours: [5, 21]
+anchors:
+  home: {position_m: [1641.0, 777.6], facing_deg: 0}
+  work: {position_m: [1641.0, 777.6], facing_deg: 0}
+schedule:
+  - {hours: [5, 21], at: work}

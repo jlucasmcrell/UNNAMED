@@ -209,7 +209,8 @@
     },
     "oh_stand_": {
       "models": [
-        "prop_cos_market_stand_mvv_01"
+        "prop_cos_market_stand_mvv_01",
+        "prop_cos_market_stand_mvv_02"
       ],
       "material": "wood",
       "note": "Claude steps-visual: the market's stands, Cosmos MVV market stand (timber frame, cloth awning)."
@@ -271,6 +272,178 @@
       "material": "stone",
       "fit": "tile",
       "note": "Claude steps-visual: the quay's retaining wall up to the first terrace, three courses (3.89 m)."
+    },
+    "oh_counterware_": {
+      "models": [
+        "prop_cos_basket_mvv_03",
+        "prop_ph_wooden_bucket_02",
+        "prop_cos_copper_jug_met_01",
+        "prop_ph_wooden_crate_01",
+        "prop_cos_basket_met_03",
+        "prop_cos_amphora_mvv_01"
+      ],
+      "material": "wood",
+      "offset": [
+        0.0,
+        0.8,
+        0.0
+      ],
+      "yaw_spread": 40.0,
+      "note": "Claude steps-visual: goods on the stall counters (the counter top is 0.80 m)."
+    },
+    "oh_westcrag_0_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        6.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 1 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_1_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        11.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 2 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_2_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        16.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 3 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_3_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        21.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 4 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_4_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        26.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 5 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_5_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        31.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 6 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_6_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        36.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 7 of limestone crags above the quay wall."
+    },
+    "oh_westcrag_7_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "offset": [
+        0.6,
+        41.0,
+        0.0
+      ],
+      "note": "Claude steps-visual: the headland's west face, course 8 of limestone crags above the quay wall."
+    },
+    "oh_westwall_tall_": {
+      "models": [
+        "wall_cos_drystone_02_l400_c5"
+      ],
+      "material": "stone",
+      "fit": "tile",
+      "note": "Claude steps-visual: the quay wall at the foot of the headland."
+    },
+    "oh_westwall_low_": {
+      "models": [
+        "wall_cos_drystone_02_l400_c3"
+      ],
+      "material": "stone",
+      "fit": "tile",
+      "note": "Claude steps-visual: the quay wall at the foot of the headland."
+    },
+    "oh_quaypost_": {
+      "models": [
+        "prop_bp_lantern_post"
+      ],
+      "material": "wood",
+      "note": "Claude steps-visual: lamps along the long quay's edge."
+    },
+    "oh_quaygoods_": {
+      "models": [
+        "prop_cos_barrel_met_01",
+        "prop_ph_wooden_crate_01",
+        "prop_cos_barrel_met_01",
+        "prop_ph_wooden_crate_02",
+        "prop_cos_basket_mvv_03"
+      ],
+      "material": "wood",
+      "yaw_spread": 60.0,
+      "note": "Claude steps-visual: the harbour's goods against the quay wall."
+    },
+    "oh_awning_": {
+      "models": [
+        "prop_cos_awning_poor_met_01"
+      ],
+      "material": "wood",
+      "note": "Claude steps-visual: a cloth awning on poles over each counter, Cosmos MET poor wooden awning."
     },
     "oh_hill_crag_": {
       "models": [
