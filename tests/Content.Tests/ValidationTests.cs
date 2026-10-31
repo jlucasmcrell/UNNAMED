@@ -515,8 +515,12 @@ public class ContentLoaderTests
         Assert.Empty(loader.Errors);        Assert.Equal(
             new[]
         {
+            "ability.blade.guarded_cut",
+            "ability.blade.hamstring",
             "ability.blade.power_strike",
             "ability.bow.aimed_shot",
+            "ability.bow.parting_shot",
+            "ability.bow.steady_aim",
             "ability.creature.animated_armour_heavy",
             "ability.creature.animated_armour_rush",
             "ability.creature.armour_slam",
@@ -600,7 +604,9 @@ public class ContentLoaderTests
             "ability.people.vaskaal.thermal_read",
             "ability.people.veth.quick_study",
             "ability.people.veth.supple",
+            "ability.polearm.hooked_pull",
             "ability.polearm.long_thrust",
+            "ability.polearm.set_against_the_charge",
             "ambience.den_gorge",
             "ambience.foldscar",
             "ambience.otherhome",

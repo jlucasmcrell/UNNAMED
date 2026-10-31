@@ -29,3 +29,11 @@ teaches:
     ability_ref: ability.polearm.long_thrust
     fee: 25
     requires: { skill: { skill_ref: skill.polearm, band: familiar } }
+  - kind: technique
+    ability_ref: ability.polearm.set_against_the_charge
+    fee: 20
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }
+  - kind: technique
+    ability_ref: ability.polearm.hooked_pull
+    fee: 20
+    requires: { skill: { skill_ref: skill.polearm, band: familiar } }

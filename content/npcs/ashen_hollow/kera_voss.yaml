@@ -38,3 +38,19 @@ teaches:
     ability_ref: ability.blade.power_strike
     fee: 25
     requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.blade.guarded_cut
+    fee: 20
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.blade.hamstring
+    fee: 20
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.bow.steady_aim
+    fee: 20
+    requires: { skill: { skill_ref: skill.bow, band: familiar } }
+  - kind: technique
+    ability_ref: ability.bow.parting_shot
+    fee: 20
+    requires: { skill: { skill_ref: skill.bow, band: familiar } }

@@ -1,0 +1,14 @@
+id: ability.polearm.set_against_the_charge
+kind: ability
+schema: 1
+display_key: ability.polearm.set_against_the_charge.name
+tags: [ability]
+name: Set Against the Charge
+notes: "Butt planted, point braced, the weight behind it - the answer a spear has to something that means to close the distance."
+class: active
+discipline: skill.polearm
+cost: { stamina: 18 }
+cooldown_s: 6
+windup_multiplier: 1.4
+payload:
+  - { type: damage, multiplier_of_weapon: 2.4 }

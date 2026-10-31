@@ -1,0 +1,14 @@
+id: ability.bow.parting_shot
+kind: ability
+schema: 1
+display_key: ability.bow.parting_shot.name
+tags: [ability]
+name: Parting Shot
+notes: "The arrow that goes out as everything else goes elsewhere: shot on the move, at what is following."
+class: active
+discipline: skill.bow
+cost: { stamina: 22 }
+cooldown_s: 8
+windup_multiplier: 1.4
+payload:
+  - { type: damage, multiplier_of_weapon: 3.0 }

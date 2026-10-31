@@ -1,0 +1,14 @@
+id: ability.polearm.hooked_pull
+kind: ability
+schema: 1
+display_key: ability.polearm.hooked_pull.name
+tags: [ability]
+name: Hooked Pull
+notes: "The hook behind a shield edge or a knee, and a pull. The first thing the haft is for that the point is not."
+class: active
+discipline: skill.polearm
+cost: { stamina: 16 }
+cooldown_s: 6
+windup_multiplier: 1.4
+payload:
+  - { type: damage, multiplier_of_weapon: 2.2 }

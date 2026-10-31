@@ -1,0 +1,14 @@
+id: ability.blade.hamstring
+kind: ability
+schema: 1
+display_key: ability.blade.hamstring.name
+tags: [ability]
+name: Hamstring
+notes: "A low draw across the back of the leg. It does little to a standing body and a great deal to a running one."
+class: active
+discipline: skill.one_hand_blade
+cost: { stamina: 20 }
+cooldown_s: 6
+windup_multiplier: 1.4
+payload:
+  - { type: damage, multiplier_of_weapon: 2.6 }
