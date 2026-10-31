@@ -10,11 +10,11 @@ namespace UNNAMED.Application.Tests.Acceptance;
 
 public partial class AcceptanceWalkthroughTests
 {
-    private static PlayerRecord Wielding(PlayerRecord r, string weapon, int arrows)
+    private static PlayerRecord Wielding(PlayerRecord r, string weapon, int arrows, string ammo = Arrows)
     {
         var item = Arena.Stack(weapon, 1);
         var equipment = r.Equipment.Where(kv => kv.Key != EquipSlot.MainHand).Append(KeyValuePair.Create(EquipSlot.MainHand, item.ItemId));
-        return new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Concat(new[] { item, Arena.Stack(Arrows, arrows) }), r.Progression,
+        return new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Concat(new[] { item, Arena.Stack(ammo, arrows) }), r.Progression,
             r.FacingMdeg, r.Discoveries, equipment, r.Currency, r.Effects);
     }
 
@@ -34,7 +34,9 @@ public partial class AcceptanceWalkthroughTests
             That(weapons.Count >= 4, $"{weapons.Count} weapons in the catalogue");
             foreach (string weapon in weapons)
             {
-                var arena = Open(session, wolfAhead, r => Wielding(r, weapon, 40));
+                // Each weapon is fed what it shoots: arrows for a bow, bolts for a crossbow, knives for a brace.
+                string ammo = session.Setup.Items.Catalog.Get(weapon).Weapon?.AmmoDefId ?? Arrows;
+                var arena = Open(session, wolfAhead, r => Wielding(r, weapon, 40, ammo));
                 var held = arena.Simulation.Player.Inventory.Single(e => e.ItemId == arena.Simulation.Player.Equipment[EquipSlot.MainHand]);
                 Equal(weapon, held.DefId, "the weapon in hand");
                 var (_, landed) = FightAWolf(arena, 1500);

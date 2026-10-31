@@ -20,7 +20,7 @@ The fighter is the review route's: it closes, circles toward the Custodian's slo
 | Level | Kit | Blows |
 |---|---|---|
 | 1 | none | 2 |
-| 5 | hide vest, cap, boots | 6 |
+| 5 | hide vest, cap, boots | 5 |
 
 ## The ring's ordinary creatures, one at a time (rusted sword, hide kit)
 

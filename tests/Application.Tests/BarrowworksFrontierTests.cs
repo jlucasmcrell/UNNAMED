@@ -19,7 +19,11 @@ public class BarrowworksFrontierTests
         var simulation = arena.Simulation;
         var layout = simulation.ActiveLayout;
         var closed = layout.ClosedDoors(d => simulation.Doors.Single(v => v.Site == d).Open,
-            b => !simulation.Barriers.Single(v => v.Site == b).Standing).ToArray();
+            b => !simulation.Barriers.Single(v => v.Site == b).Standing)
+            // The people standing in this space are walked round, as a player walks round the watch at her post.
+            .Concat(simulation.Npcs.Where(n => n.Space == layout.SpaceId)
+                .Select(n => (Blocker)new CircleBlocker(n.Id, n.Body.XMm, n.Body.ZMm, simulation.Setup.Movement.BodyRadiusMm, 0)))
+            .ToArray();
         var body = simulation.Player.Body;
         var start = ((int)Math.Round(body.XMm / 1000.0), (int)Math.Round(body.ZMm / 1000.0));
         var parents = new Dictionary<(int X, int Z), (int X, int Z)?> { [start] = null };
