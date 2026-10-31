@@ -191,7 +191,8 @@ vec3 or_arc(vec3 d, out float a) {
 	float face = sunSide * eyeSide > 0.0 ? abs(sunSide) * 1.1 + 0.06 : (abs(sunSide) + 0.05) * (1.0 - p.a) * (0.35 + p.a * 2.0) * forward;
 	// The world's shadow falls across the ring at night: is the sun hidden behind the world from this point?
 	float shadow = or_sphere_shadow(h, centre, or_arc_world, 0.02);
-	return p.rgb / 0.6 * face * shadow * 0.85;
+	// Profile density (including the Cassini gaps and filtered edges) also covers emitted light.
+	return p.rgb / 0.6 * face * shadow * 0.85 * a;
 }
 
 vec3 or_star(vec3 d, out float a) {
