@@ -1,0 +1,28 @@
+id: spawn.boss.steppe.glassantler
+kind: spawn
+schema: 1
+display_key: spawn.boss.steppe.glassantler.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the walked steppe boss, ROAMING. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.grazer.doubled_hart, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.walked_steppe
+creatures:
+- creature_ref: creature.boss.steppe.glassantler
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 31000.0
+  - 1000.0
+  radius_m: 2
+level_band:
+- 6
+- 6
+respawn:
+  kind: timer
+  window_ticks: 900000
+tier_hint: A
+encounter_recovery: { min_x_m: 30980.0, min_z_m: 980.0, max_x_m: 31020.0, max_z_m: 1020.0, safe_x_m: 31000.0, safe_z_m: 972.0 }

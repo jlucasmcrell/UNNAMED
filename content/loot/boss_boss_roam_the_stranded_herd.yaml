@@ -1,0 +1,17 @@
+id: loot.boss.roam.the_stranded_herd
+kind: loot
+schema: 1
+display_key: loot.boss.roam.the_stranded_herd.name
+notes: 'D19: what boss.roam.the_stranded_herd leaves. No legendary: canon names none for this one.'
+rolls: 0
+entries:
+- item_ref: item.material.fellhorn_hide
+  chance: 1.0
+  count_range:
+  - 1
+  - 2
+- item_ref: item.material.meat_raw
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

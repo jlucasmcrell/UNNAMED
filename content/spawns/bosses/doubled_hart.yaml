@@ -1,0 +1,23 @@
+id: spawn.boss.foldscar.doubled_hart
+kind: spawn
+schema: 1
+display_key: spawn.boss.foldscar.doubled_hart.name
+tags:
+- spawn
+notes: "D19 (canon/BOSSES.md 3.1): the Doubled Hart in the basin inside the three Quiet Stones. P1 the two shapes move in near-step - hit the late one and it staggers, hit the early one and it turns on you. P2 when one falls the other is real and fast. Violet cues throughout: the frontier's Other, seen close. FIELD, band 6."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.boss.foldscar.doubled_hart
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 541.0
+  - 636.0
+  radius_m: 18
+level_band:
+- 6
+- 6
+encounter_recovery: { min_x_m: 531, min_z_m: 626, max_x_m: 551, max_z_m: 646, safe_x_m: 541, safe_z_m: 650 }

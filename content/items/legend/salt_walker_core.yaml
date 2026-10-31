@@ -1,0 +1,12 @@
+id: item.legend.salt_walker_core
+kind: item
+schema: 1
+display_key: item.legend.salt_walker_core.name
+tags: [item, legendary]
+name: Salt Walker Core
+notes: "The Keelward walker's core, crusted white. It walks the salt flats because the salt is what it is made of."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 5.0
+value_base: 700

@@ -1,0 +1,21 @@
+id: creature.grazer.doubled_hart
+kind: creature
+schema: 1
+display_key: creature.grazer.doubled_hart.name
+tags: [creature, grazer]
+name: The Doubled Hart
+notes: "D19 (canon/BOSSES.md 3.1): the Foldscar's field boss - a red deer the fold has drawn twice, at boss scale with a second antler crown fitted to its head. P1 the two shapes move in near-step; P2 when one falls the other is real and fast. Violet cues throughout: this is the frontier's Other, seen close."
+family: grazer
+archetype: apex
+level_band: [6, 6]
+pools: { health: 420 }
+attack_set: [ability.creature.tusk_sweep, ability.creature.grazer_charge]
+armor: { head: 4, torso: 5, limbs: 3 }
+move_speed_m_s: 7.2
+turn_deg_s: 260
+body_radius_m: 1.1
+xp_value: 160
+loot_table: loot.doubled_hart
+perception: { sight_m: 36, hearing_m: 40, fov_deg: 260 }
+tier_hint: A
+tameable: false

@@ -1,0 +1,68 @@
+id: creature.boss.gorge.the_reading
+kind: creature
+schema: 1
+display_key: creature.boss.gorge.the_reading.name
+tags:
+- creature
+- construct
+name: The Reading
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 85
+attack_set:
+- ability.creature.armour_slam
+- ability.creature.gauge_sweep
+- ability.creature.animated_armour_rush
+armor:
+  head: 0
+  torso: 40
+  limbs: 30
+resistances:
+  physical_pierce: 0.45
+weak_point:
+  region: limbs
+  from_behind: true
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
+move_speed_m_s: 2.0
+turn_deg_s: 65
+body_radius_m: 1.3
+xp_value: 60
+loot_table: loot.boss.gorge.the_reading
+perception:
+  sight_m: 26
+  hearing_m: 22
+  fov_deg: 130
+tier_hint: A
+tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.armour_slam
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.gauge_sweep
+- name: open
+  moves:
+  - ability.creature.armour_slam
+  - ability.creature.gauge_sweep
+  - ability.creature.animated_armour_rush
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

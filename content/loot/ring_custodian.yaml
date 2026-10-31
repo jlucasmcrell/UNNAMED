@@ -3,8 +3,9 @@ kind: loot
 schema: 1
 display_key: loot.ring_custodian.name
 tags: [loot]
-notes: "What comes out of the Custodian when it comes apart - the index mechanism's own metal, and the reading it was still holding. The wedge the quest asks for is NOT here: that is crafted at the anvil from an ash haft, and putting one in the loot would let a character skip the design's craft step."
+notes: "D19 legendary: D19 (canon/BOSSES.md 3.1): the Custodian of the Measure's own gauge rod, which is the rod the unfinished machine was fitted to. What comes out of the Custodian when it comes apart - the index mechanism's own metal, and the reading it was still holding. The wedge the quest asks for is NOT here: that is crafted at the anvil from an ash haft, and putting one in the loot would let a character skip the design's craft step."
 rolls: 0
 entries:
   - { item_ref: item.material.iron_ingot, chance: 1.0, count_range: [2, 3] }
   - { item_ref: item.material.iron_ore, chance: 0.5, count_range: [1, 2] }
+  - { item_ref: item.legend.measure_rod, chance: 1.0, count_range: [1, 1] }

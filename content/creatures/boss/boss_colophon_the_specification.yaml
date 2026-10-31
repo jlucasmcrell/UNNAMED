@@ -1,0 +1,70 @@
+id: creature.boss.colophon.the_specification
+kind: creature
+schema: 1
+display_key: creature.boss.colophon.the_specification.name
+tags:
+- creature
+- construct
+- boss
+name: The Specification
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 110
+attack_set:
+- ability.creature.index_grasp
+- ability.creature.warden_sweep
+- ability.creature.warden_fall
+armor:
+  head: 34
+  torso: 54
+  limbs: 44
+resistances:
+  physical_pierce: 0.65
+  physical_slash: 0.4
+weak_point:
+  region: head
+  from_behind: true
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
+move_speed_m_s: 1.4
+turn_deg_s: 45
+body_radius_m: 1.6
+xp_value: 165
+loot_table: loot.boss.colophon.the_specification
+perception:
+  sight_m: 30
+  hearing_m: 20
+  fov_deg: 90
+tier_hint: A
+tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.index_grasp
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.warden_sweep
+- name: open
+  moves:
+  - ability.creature.index_grasp
+  - ability.creature.warden_sweep
+  - ability.creature.warden_fall
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

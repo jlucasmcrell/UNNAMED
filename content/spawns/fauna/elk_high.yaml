@@ -1,0 +1,25 @@
+id: spawn.fauna.elk_high
+kind: spawn
+schema: 1
+display_key: spawn.fauna.elk_high.name
+tags:
+- spawn
+notes: "D19 fauna: elk on the higher ground above the road - the biggest ordinary deer, and the one that makes the hunting curve read."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.grazer.elk
+  count:
+  - 1
+  - 1
+  role: wildlife
+at:
+  position_m:
+  - 520.0
+  - 700.0
+  radius_m: 18
+level_band:
+- 3
+- 3
+respawn:
+  kind: timer
+  window_ticks: 1080000

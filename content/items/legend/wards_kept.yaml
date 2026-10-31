@@ -1,0 +1,13 @@
+id: item.legend.wards_kept
+kind: item
+schema: 1
+display_key: item.legend.wards_kept.name
+tags: [item, legendary]
+name: Wards Kept
+notes: "D19 (canon/BOSSES.md §6): the Wayholder's Trial's first win. A plain iron ring Renn had made, for people who came back - no setting, no mark, and the plainness is the whole point of it."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 0.02
+value_base: 180
+equip_slot: ring

@@ -1,0 +1,70 @@
+id: creature.boss.plumb.the_ring_builder
+kind: creature
+schema: 1
+display_key: creature.boss.plumb.the_ring_builder.name
+tags:
+- creature
+- construct
+- boss
+name: The Ring-Builder
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 155
+attack_set:
+- ability.creature.gauge_sweep
+- ability.creature.armour_slam
+- ability.creature.index_grasp
+armor:
+  head: 22
+  torso: 44
+  limbs: 34
+resistances:
+  physical_pierce: 0.4
+  physical_blunt: 0.3
+weak_point:
+  region: limbs
+  from_behind: false
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
+move_speed_m_s: 2.2
+turn_deg_s: 65
+body_radius_m: 1.5
+xp_value: 150
+loot_table: loot.boss.plumb.the_ring_builder
+perception:
+  sight_m: 26
+  hearing_m: 24
+  fov_deg: 130
+tier_hint: A
+tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.gauge_sweep
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.armour_slam
+- name: open
+  moves:
+  - ability.creature.gauge_sweep
+  - ability.creature.armour_slam
+  - ability.creature.index_grasp
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

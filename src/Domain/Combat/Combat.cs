@@ -305,7 +305,128 @@ public static class CombatRules
 }
 
 /// <summary>A weak point (COMBAT_DAMAGE_ARMOR_AND_DEATH.md Â§19): a region a blow reaches only from the right side.</summary>
-public sealed record WeakPoint(BodyRegion Region, bool FromBehind);
+/// <summary>
+/// CMB-40: when a weak point is open. A point with no windows is always open as its <see cref="WeakPoint.FromBehind"/> says;
+/// a timed one is guarded except inside a window, which is what makes an opening a thing to wait for rather than a place to
+/// stand.
+/// </summary>
+public sealed record WeakPointWindow(string Phase, int EveryTicks, int OpenTicks)
+{
+    /// <summary>The window has no period: from its phase on, the point is open.</summary>
+    public bool Standing => EveryTicks <= 0;
+
+    /// <summary>Whether this window is open at <paramref name="ticksIntoPhase"/> ticks into its phase.</summary>
+    public bool OpenAt(int ticksIntoPhase) =>
+        Standing || (OpenTicks > 0 && ticksIntoPhase % EveryTicks < OpenTicks);
+}
+
+/// <summary>
+/// CMB-38 and CMB-40: the encounter's own arithmetic. A phase machine is a function of the fight so far - the health left and
+/// the tick - so it is computed where it is needed rather than stored, and a creature with no phases is a one-phase fight.
+/// </summary>
+public static class BossEncounter
+{
+    /// <summary>Which phase the fight is in at <paramref name="tick"/> with <paramref name="health"/> left.</summary>
+    public static (int Index, string Name, int TicksIntoPhase) PhaseAt(CreatureDefinition definition, int health, long tick)
+    {
+        if (definition.Phases.IsDefaultOrEmpty)
+            return (0, "", 0);
+        int index = 0;
+        long enteredAt = 0;
+        while (index + 1 < definition.Phases.Length)
+        {
+            var phase = definition.Phases[index];
+            bool over = phase.HealthBelow is { } fraction && health <= definition.MaxHealth * fraction
+                || phase.AfterTicks is { } ticks && tick - enteredAt >= ticks;
+            if (!over)
+                break;
+            index++;
+            enteredAt = tick;
+        }
+        return (index, definition.Phases[index].Name, (int)Math.Max(0, tick - enteredAt));
+    }
+
+    /// <summary>Whether the weak point the definition names is open at this moment.</summary>
+    public static bool WeakPointOpen(CreatureDefinition definition, int health, long tick)
+    {
+        if (definition.WeakPoint is not { } weak)
+            return false;
+        if (weak.Windows.IsDefaultOrEmpty)
+            return true;
+        var (index, name, ticksInto) = PhaseAt(definition, health, tick);
+        int reached = definition.Phases.IsDefaultOrEmpty ? -1 : index;
+        foreach (var window in weak.Windows)
+        {
+            int required = definition.Phases.IsDefaultOrEmpty
+                ? 0
+                : definition.Phases.IndexOf(definition.Phases.FirstOrDefault(phase => phase.Name == window.Phase) ?? BossPhase.Named(""));
+            if (required < 0)
+                required = 0;
+            if (reached < required)
+                continue;
+            // a window that opens in an earlier phase stays periodic; one that opens in this exact phase counts from here
+            int offset = reached == required ? ticksInto : 0;
+            if (window.OpenAt(offset))
+                return true;
+        }
+        return false;
+    }
+
+    /// <summary>The moves the fight offers in its current phase, falling back to the whole attack set.</summary>
+    public static ImmutableArray<AttackProfile> MovesAt(CreatureDefinition definition, int health, long tick)
+    {
+        var (index, _, _) = PhaseAt(definition, health, tick);
+        if (definition.Phases.IsDefaultOrEmpty)
+            return definition.Moves;
+        var named = definition.Phases[index].Moves;
+        if (named.IsDefaultOrEmpty)
+            return definition.Moves;
+        var chosen = definition.Moves.Where(move => named.Contains(move.Source)).ToImmutableArray();
+        return chosen.IsDefaultOrEmpty ? definition.Moves : chosen;
+    }
+}
+
+/// <summary>
+/// CMB-39: one part of a multi-part creature. Parts share the creature's controller and its one health pool; each holds its own
+/// structure, answers for one region of the body, and says what breaking it does - a pipe that falls, a pillar that drops its
+/// crown, a face that comes unsealed.
+/// </summary>
+public sealed record CreaturePart(string Name, BodyRegion Region, int Structure, string? BrokenEffect = null)
+{
+    /// <summary>The part is spent.</summary>
+    public bool Broken(int structureLeft) => structureLeft <= 0;
+}
+
+public sealed record WeakPoint(BodyRegion Region, bool FromBehind)
+{
+    /// <summary>The windows that gate it, by phase name. Empty means always open.</summary>
+    public ImmutableArray<WeakPointWindow> Windows { get; init; } = ImmutableArray<WeakPointWindow>.Empty;
+
+    // A record's generated equality would compare the windows' backing array by reference; two points with the same ground and
+    // the same windows are the same point.
+    public bool Equals(WeakPoint? other) =>
+        other is not null && Region == other.Region && FromBehind == other.FromBehind
+        && (Windows.IsDefault ? ImmutableArray<WeakPointWindow>.Empty : Windows)
+            .SequenceEqual(other.Windows.IsDefault ? ImmutableArray<WeakPointWindow>.Empty : other.Windows);
+
+    public override int GetHashCode() => HashCode.Combine(Region, FromBehind, Windows.IsDefault ? 0 : Windows.Length);
+}
+
+/// <summary>
+/// CMB-38: one named phase of an encounter. A phase ends when the boss falls to <see cref="HealthBelow"/> of its maximum, or
+/// when it has stood in the phase for <see cref="AfterTicks"/> ticks - whichever it names, and neither for the last phase.
+/// </summary>
+public sealed record BossPhase(string Name, double? HealthBelow, int? AfterTicks, ImmutableArray<string> Moves)
+{
+    public static BossPhase Named(string name) => new(name, null, null, ImmutableArray<string>.Empty);
+
+    public bool Equals(BossPhase? other) =>
+        other is not null && Name == other.Name && HealthBelow == other.HealthBelow && AfterTicks == other.AfterTicks
+        && (Moves.IsDefault ? ImmutableArray<string>.Empty : Moves)
+            .SequenceEqual(other.Moves.IsDefault ? ImmutableArray<string>.Empty : other.Moves);
+
+    public override int GetHashCode() => HashCode.Combine(Name, HealthBelow, AfterTicks, Moves.IsDefault ? 0 : Moves.Length);
+}
 
 /// <summary>
 /// A creature as combat knows it (DATA_MODEL.md Â§4.4): an authored level and stat block that nothing scales to the
@@ -349,8 +470,60 @@ public sealed record CreatureDefinition(
 
     public WeakPoint? WeakPoint { get; init; }
 
+    /// <summary>
+    /// CMB-38: the named phases of an encounter, in order, phase 0 first. Empty for an ordinary creature, which is a fight of
+    /// one phase and behaves exactly as it did before phases existed.
+    /// </summary>
+    public ImmutableArray<BossPhase> Phases { get; init; } = ImmutableArray<BossPhase>.Empty;
+
+    /// <summary>
+    /// CMB-39: the parts of a multi-part creature, empty for a body that is one piece. A part's region is where a blow must
+    /// land to reach it; the creature keeps one health pool whatever its parts do.
+    /// </summary>
+    public ImmutableArray<CreaturePart> Parts { get; init; } = ImmutableArray<CreaturePart>.Empty;
+
     /// <summary>Its content tags (<c>undead</c>, <c>construct</c>): effects whose immunity tags meet them do not take.</summary>
     public ImmutableSortedSet<string> Tags { get; init; } = ImmutableSortedSet<string>.Empty;
+}
+
+/// <summary>
+/// CMB-41: an arena hazard - a region entity, not a creature. Two shapes cover the checklist's first need: a
+/// <c>damage_zone</c> that hurts whatever stands in it while its period is open, and a <c>rising_floor</c> that lifts its
+/// surface a little every tick until it caps - the Undermeasure's rising water, where leaving is the answer.
+/// </summary>
+public sealed record ArenaHazard(
+    string Id,
+    string Kind,
+    long XMm,
+    long ZMm,
+    long RadiusMm,
+    int DamagePerTick,
+    int EveryTicks,
+    int OpenTicks,
+    int RiseMmPerTick,
+    int MaxRiseMm,
+    long StartTick)
+{
+    public bool IsRising => Kind == "rising_floor";
+
+    /// <summary>Inside its footprint (a circle, in millimetres).</summary>
+    public bool Holds(long xMm, long zMm)
+    {
+        long dx = xMm - XMm, dz = zMm - ZMm;
+        return dx * dx + dz * dz <= RadiusMm * RadiusMm;
+    }
+
+    /// <summary>Its period is open at this tick - always, for a hazard with no period.</summary>
+    public bool ActiveAt(long tick) =>
+        EveryTicks <= 0 || OpenTicks <= 0 || (tick - StartTick) % EveryTicks < OpenTicks;
+
+    /// <summary>How high its surface stands at this tick, in millimetres above where it started.</summary>
+    public int LevelAt(long tick) =>
+        !IsRising || RiseMmPerTick <= 0 ? 0 : (int)Math.Min(MaxRiseMm, Math.Max(0, tick - StartTick) * RiseMmPerTick);
+
+    /// <summary>The tick at which a rising floor reaches <paramref name="heightMm"/>: the escape deadline.</summary>
+    public long ReachesAt(int heightMm) =>
+        !IsRising || RiseMmPerTick <= 0 ? long.MaxValue : StartTick + (heightMm + RiseMmPerTick - 1) / RiseMmPerTick;
 }
 
 public enum StackPolicy

@@ -1,0 +1,51 @@
+id: creature.boss.old_late.the_breath_late
+kind: creature
+schema: 1
+display_key: creature.boss.old_late.the_breath_late.name
+tags:
+- creature
+- construct
+name: The Breath Late
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 4
+- 4
+pools:
+  health: 65
+attack_set:
+- ability.creature.tender_strike
+- ability.creature.gate_tender_heavy
+- ability.creature.grazer_charge
+armor:
+  head: 4
+  torso: 10
+  limbs: 4
+resistances:
+  physical_blunt: 0.3
+  frost: 0.4
+weak_point:
+  region: head
+  from_behind: true
+move_speed_m_s: 3.0
+turn_deg_s: 70
+body_radius_m: 1.0
+xp_value: 55
+loot_table: loot.boss.old_late.the_breath_late
+perception:
+  sight_m: 20
+  hearing_m: 30
+  fov_deg: 160
+tier_hint: A
+tameable: false
+phases:
+- name: keeping the gate
+  after_ticks: 600
+  moves:
+  - ability.creature.tender_strike
+- name: the ledger open
+  moves:
+  - ability.creature.tender_strike
+  - ability.creature.gate_tender_heavy
+  - ability.creature.grazer_charge

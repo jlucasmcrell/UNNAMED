@@ -1,0 +1,17 @@
+id: loot.boss.ashen_hollow.wayholder_trial
+kind: loot
+schema: 1
+display_key: loot.boss.ashen_hollow.wayholder_trial.name
+notes: 'D19: what boss.ashen_hollow.wayholder_trial leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.wards_kept
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.ash_haft
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

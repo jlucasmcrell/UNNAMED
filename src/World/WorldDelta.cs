@@ -191,6 +191,12 @@ public sealed record CreatureRecord(
     string? BaselineHash = null)
 {
     public int ScalePercent { get; init; } = 100;
+
+    /// <summary>
+    /// CMB-39: structure left in each part, in the definition's order. Absent in a save written before parts existed, which reads
+    /// as a body whose parts are whole - the same body that save was made of.
+    /// </summary>
+    public ImmutableArray<int> PartStructure { get; init; } = ImmutableArray<int>.Empty;
     public int LevelBonus { get; init; }
     public CreatureMind Mind { get; init; }
     public int Awareness { get; init; }

@@ -1,0 +1,17 @@
+id: loot.boss.tenantless.crown_vault_keeper.deep
+kind: loot
+schema: 1
+display_key: loot.boss.tenantless.crown_vault_keeper.deep.name
+notes: 'D19: what boss.tenantless.crown_vault_keeper.deep leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.record_stone
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.timber
+  chance: 1.0
+  count_range:
+  - 2
+  - 3

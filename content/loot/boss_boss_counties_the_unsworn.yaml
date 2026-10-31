@@ -1,0 +1,17 @@
+id: loot.boss.counties.the_unsworn
+kind: loot
+schema: 1
+display_key: loot.boss.counties.the_unsworn.name
+notes: 'D19: what boss.counties.the_unsworn leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.oathbroken
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.legend.unsworn_aegis
+  chance: 1.0
+  count_range:
+  - 1
+  - 1

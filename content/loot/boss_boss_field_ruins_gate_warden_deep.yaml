@@ -1,0 +1,17 @@
+id: loot.boss.field_ruins.gate_warden.deep
+kind: loot
+schema: 1
+display_key: loot.boss.field_ruins.gate_warden.deep.name
+notes: 'D19: what boss.field_ruins.gate_warden.deep leaves. The legendary canon names for it, then the body''s own materials.'
+rolls: 0
+entries:
+- item_ref: item.legend.still_half
+  chance: 1.0
+  count_range:
+  - 1
+  - 1
+- item_ref: item.material.timber
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

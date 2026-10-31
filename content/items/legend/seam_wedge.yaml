@@ -1,0 +1,15 @@
+id: item.legend.seam_wedge
+kind: item
+schema: 1
+display_key: item.legend.seam_wedge.name
+tags:
+- item
+- legendary
+name: The Seam Wedge
+notes: Vessmere's seam wedge, driven between the sealed thing and the water it keeps
+  out.
+category: misc
+item_class: notable
+stack_max: 1
+weight: 3.2
+value_base: 700

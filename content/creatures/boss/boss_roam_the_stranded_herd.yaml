@@ -1,0 +1,45 @@
+id: creature.boss.roam.the_stranded_herd
+kind: creature
+schema: 1
+display_key: creature.boss.roam.the_stranded_herd.name
+tags:
+- creature
+- grazer
+name: Fellhorn
+notes: 'D19 boss variant of creature.boss.roam.the_stranded_herd (canon/BOSSES.md: boss.roam.the_stranded_herd). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: grazer
+archetype: prey
+level_band:
+- 3
+- 3
+pools:
+  health: 90
+attack_set:
+- ability.creature.horn_butt
+- ability.creature.grazer_charge
+- ability.creature.fellhorn_heavy
+armor:
+  head: 5
+  torso: 4
+  limbs: 2
+move_speed_m_s: 4.0
+turn_deg_s: 160
+body_radius_m: 1.1
+xp_value: 40
+loot_table: loot.boss.roam.the_stranded_herd
+perception:
+  sight_m: 26
+  hearing_m: 30
+  fov_deg: 240
+tier_hint: A
+tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.horn_butt
+- name: spent
+  moves:
+  - ability.creature.horn_butt
+  - ability.creature.grazer_charge
+  - ability.creature.fellhorn_heavy

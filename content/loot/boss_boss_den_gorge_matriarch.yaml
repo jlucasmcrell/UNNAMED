@@ -1,0 +1,17 @@
+id: loot.boss.den_gorge.matriarch
+kind: loot
+schema: 1
+display_key: loot.boss.den_gorge.matriarch.name
+notes: 'D19: what boss.den_gorge.matriarch leaves. No legendary: canon names none for this one.'
+rolls: 0
+entries:
+- item_ref: item.material.spider_silk
+  chance: 1.0
+  count_range:
+  - 2
+  - 4
+- item_ref: item.material.meat_raw
+  chance: 1.0
+  count_range:
+  - 1
+  - 2

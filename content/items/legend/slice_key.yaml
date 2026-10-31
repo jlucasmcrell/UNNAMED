@@ -1,0 +1,12 @@
+id: item.legend.slice_key
+kind: item
+schema: 1
+display_key: item.legend.slice_key.name
+tags: [item, legendary]
+name: The Slice Key
+notes: "Manyside's knot-keeper key: it opens one of the ruin's own cuts, and the cut closes behind you."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 1.6
+value_base: 720

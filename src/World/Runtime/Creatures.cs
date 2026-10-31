@@ -37,7 +37,14 @@ public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, Im
     public ImmutableArray<(long XMm, long ZMm)> Route { get; init; } = ImmutableArray<(long XMm, long ZMm)>.Empty;
 }
 
-public sealed record EncounterRecovery(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long SafeXMm, long SafeZMm);
+public sealed record EncounterRecovery(long MinXMm, long MinZMm, long MaxXMm, long MaxZMm, long SafeXMm, long SafeZMm)
+{
+    /// <summary>
+    /// The arena's rule (D19): a <em>forfeit</em> court ends the attempt the moment the mark is left - the Wayholder's
+    /// chalked circle, the Custodian's marked floor - where an ordinary court waits out the outside-the-court grace.
+    /// </summary>
+    public bool Forfeit { get; init; }
+}
 public sealed record EncounterRestarted(string SpawnKey, bool Loaded, long Tick);
 
 public sealed record CreatureView(EntityId Id, string Key, string DefId, string RoleId, Body Body, int Health, int MaxHealth,
@@ -81,6 +88,15 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>How it reads against the character's own level (finding 24): the nameplate's colour and word.</summary>
     public Threat Threat { get; init; }
+
+    /// <summary>CMB-38: the named phase the fight is in, empty for a creature with no phases.</summary>
+    public string BossPhase { get; init; } = "";
+
+    /// <summary>How long it has stood in that phase.</summary>
+    public int BossPhaseTicks { get; init; }
+
+    /// <summary>CMB-40: a timed weak point is open at this moment; always true for an untimed one.</summary>
+    public bool WeakPointOpen { get; init; } = true;
 }
 
 public sealed record CreatureNoticed(EntityId Creature, string Key, CreatureMind Mind, long Tick);
@@ -94,6 +110,9 @@ public sealed record CreatureRespawned(EntityId Creature, string Key, int Genera
 public sealed record SpawnerSaturated(string SpawnKey, long Tick);
 
 public sealed record CorpseGone(string CorpseKey, long Tick);
+
+/// <summary>CMB-39: a part of a multi-part creature is spent - the pipe comes off, the pillar drops its crown.</summary>
+public sealed record CreaturePartBroken(EntityId Creature, string Key, string Part, long Tick);
 
 /// <summary>A charge ran into something solid, and the charger is stunned by it.</summary>
 public sealed record CreatureStunned(EntityId Creature, string Key, long Tick);
@@ -135,6 +154,9 @@ internal sealed record CreatureState(
         GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
         && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
             long.MaxValue / 4, constants.BlockArcMdeg);
+    /// <summary>CMB-39: structure left in each of the definition's parts, in the definition's order.</summary>
+    public ImmutableArray<int> PartStructure { get; init; } = ImmutableArray<int>.Empty;
+
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
@@ -387,6 +409,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                         Condition = record.Condition,
                         Body = new Body(record.XMm, space.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
                         Health = record.Health,
+                        // CMB-39: a save written before parts existed carries none, and an empty array is read as "not yet
+                        // touched", which the spending rule fills from the definition - so old saves load whole.
+                        PartStructure = record.PartStructure,
                         ScalePercent = record.ScalePercent,
                         LevelBonus = record.LevelBonus,
                         DiedTick = record.DiedTick,
@@ -511,7 +536,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
                                || player.ZMm < court.MinZMm || player.ZMm > court.MaxZMm || State.PlayerCombat.Defeated;
                 int count = outside ? _outsideAttemptTicks.GetValueOrDefault(key) + 1 : 0;
                 _outsideAttemptTicks[key] = count;
-                if (count >= 20)
+                // A forfeit court (D19) ends the attempt on the first tick outside its mark: stepping out of the
+                // chalked circle or off the scored floor is the loss, not a wait.
+                int grace = court.Forfeit ? 1 : 20;
+                if (count >= grace)
                 {
                     Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
                     var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
@@ -872,9 +900,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // The character is gone after where they were last perceived; a companion or an animal that stands nearer is simply there (M6).
         long targetX = atCharacter && c.Knows ? c.KnownXMm : player.XMm, targetZ = atCharacter && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        if (!c.Definition.Moves.IsDefaultOrEmpty)
+        var offered = BossEncounter.MovesAt(c.Definition, c.Health, tick);
+        if (!offered.IsDefaultOrEmpty)
         {
-            var choices = c.Definition.Moves.Where(a => !a.IsCharge
+            var choices = offered.Where(a => !a.IsCharge
                 && distance <= a.ReachMm + a.LungeMm + _context.Setup.Movement.BodyRadiusMm - 100).ToArray();
             if (choices.Length > 0)
             {
@@ -1104,9 +1133,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (command.Attacker is null)
             (_focusKey, _focusTick) = (c.Key, tick);
         var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
+        var (partStructure, brokenPart) = SpendPart(c, hit, tick);
         var wounded = c with
         {
             Health = health,
+            PartStructure = partStructure,
             Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
             GuardUntil = staggered ? 0 : c.GuardUntil,
             ComboStep = staggered ? 0 : c.ComboStep,
@@ -1133,7 +1164,36 @@ internal sealed class CreatureSystem : IAbstractAdvance
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
+        if (brokenPart.Length > 0)
+            _context.Events.Publish(new CreaturePartBroken(c.Id, c.Key, brokenPart, tick));
         return null;
+    }
+
+    /// <summary>
+    /// CMB-39: the blow spends the part whose region it landed on, and the part breaks the first time its structure is gone.
+    /// Returns the structure left and the name of a part that just broke (empty when none did).
+    /// </summary>
+    private (ImmutableArray<int> Structure, string Broken) SpendPart(CreatureState creature, HitResult hit, long tick)
+    {
+        var parts = creature.Definition.Parts;
+        if (parts.IsDefaultOrEmpty)
+            return (creature.PartStructure, "");
+        var structure = creature.PartStructure.IsDefaultOrEmpty
+            ? parts.Select(part => part.Structure).ToImmutableArray()
+            : creature.PartStructure;
+        int index = -1;
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (parts[i].Region != hit.Region)
+                continue;
+            index = i;
+            break;
+        }
+        if (index < 0 || structure[index] <= 0)
+            return (structure, "");
+        int before = structure[index];
+        var spent = structure.SetItem(index, Math.Max(0, before - Math.Max(1, hit.Final)));
+        return (spent, spent[index] == 0 ? parts[index].Name : "");
     }
 
     public string? Handle(HarmCreature command, long tick)
@@ -1422,6 +1482,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
             // What its carcass has given up is the gatherer's to count (CarcassHarvestedCommand): the same body keeps it, a new generation starts at none.
             CarcassTaken = existing is not null && existing.InstanceId == c.Id ? existing.CarcassTaken : 0,
+            PartStructure = c.PartStructure,
         };
         if (existing is null || existing with { BaselineHash = null } != record)
             State.SetCreatureRecord(_owner, record);
@@ -1623,6 +1684,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 AttackVariant = c.Definition.CloseAttack is not null && c.Action.Attack is not null
                     ? RngChannel.Open(State.World.WorldSeed, _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm), "creature_motion",
                         $"{c.Key}@{c.Action.StartTick}/{c.Action.Attack.Source}").Int(0, 0, int.MaxValue) : 0,
+                BossPhase = BossEncounter.PhaseAt(c.Definition, c.Health, tick).Name,
+                BossPhaseTicks = BossEncounter.PhaseAt(c.Definition, c.Health, tick).TicksIntoPhase,
+                WeakPointOpen = BossEncounter.WeakPointOpen(c.Definition, c.Health, tick),
                 AttackTick = c.Action.StartTick,
                 Guarding = c.GuardUntil > tick,
                 Enraged = Enraged(c),

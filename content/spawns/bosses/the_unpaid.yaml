@@ -1,0 +1,28 @@
+id: spawn.boss.cairnwold.the_unpaid
+kind: spawn
+schema: 1
+display_key: spawn.boss.cairnwold.the_unpaid.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md 3.1): the Barrowback bull that has been in the bog since before the village's oldest wall - a beast with a grudge and a long memory. P1 charge-and-wheel, a charge that stops dead then turns; P2 it goes into the moss, and the ground becomes the mechanic: the bog pulls, and the drystone causeway is the only safe ground. FIELD, band 7."
+region_ref: region.starting_frontier
+creatures:
+- creature_ref: creature.boss.cairnwold.the_unpaid
+  count:
+  - 1
+  - 1
+  role: territorial
+at:
+  position_m:
+  - 430.0
+  - 770.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: timer
+  window_ticks: 12000
+tier_hint: A
+encounter_recovery: { min_x_m: 420.0, min_z_m: 760.0, max_x_m: 440.0, max_z_m: 780.0, safe_x_m: 430.0, safe_z_m: 754.0 }

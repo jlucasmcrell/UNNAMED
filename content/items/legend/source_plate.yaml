@@ -1,0 +1,12 @@
+id: item.legend.source_plate
+kind: item
+schema: 1
+display_key: item.legend.source_plate.name
+tags: [item, legendary]
+name: The Source Plate
+notes: "The Colophon's proof plate. It is the document the specification was copied from, and the copy is what people obey."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 2.4
+value_base: 500

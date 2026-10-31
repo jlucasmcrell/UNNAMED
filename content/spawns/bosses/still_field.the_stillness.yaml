@@ -1,0 +1,28 @@
+id: spawn.boss.still_field.the_stillness
+kind: spawn
+schema: 1
+display_key: spawn.boss.still_field.the_stillness.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the still field boss, RAID. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.construct.animated_armour, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.still_field
+creatures:
+- creature_ref: creature.boss.still_field.the_stillness
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 25240.0
+  - 1160.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: timer
+  window_ticks: 900000
+tier_hint: A
+encounter_recovery: { min_x_m: 25216.0, min_z_m: 1136.0, max_x_m: 25264.0, max_z_m: 1184.0, safe_x_m: 25240.0, safe_z_m: 1128.0 }

@@ -1,0 +1,70 @@
+id: creature.boss.sounding.drowned_custodian.deep
+kind: creature
+schema: 1
+display_key: creature.boss.sounding.drowned_custodian.deep.name
+tags:
+- creature
+- construct
+- boss
+name: The Drowned Custodian
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 165
+attack_set:
+- ability.creature.gauge_sweep
+- ability.creature.sedge_drowned_rush
+- ability.creature.measure_fall
+armor:
+  head: 14
+  torso: 36
+  limbs: 26
+resistances:
+  physical_slash: 0.3
+  fire: 0.5
+weak_point:
+  region: head
+  from_behind: false
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
+move_speed_m_s: 2.0
+turn_deg_s: 50
+body_radius_m: 1.6
+xp_value: 150
+loot_table: loot.boss.sounding.drowned_custodian.deep
+perception:
+  sight_m: 22
+  hearing_m: 30
+  fov_deg: 120
+tier_hint: A
+tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.gauge_sweep
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.sedge_drowned_rush
+- name: open
+  moves:
+  - ability.creature.gauge_sweep
+  - ability.creature.sedge_drowned_rush
+  - ability.creature.measure_fall
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

@@ -390,6 +390,11 @@ public partial class Main : Node3D
         // --region: which region the run plays. Content is chosen by id, so a new region needs no code
         // change - its region file, its cells and its bindings are the whole of it.
         string region = _options.GetValueOrDefault("--region") ?? "region.starting_frontier";
+        // Owner decision 2026-10-30: a region tagged dev_scaffold is flat ground standing in for an area that is not built
+        // yet, so no player build loads one - no boss on placeholder ground in a playtest. A capture or a content check
+        // opens it with --dev-scaffold (or UNNAMED_DEV_SCAFFOLD=1) and says so in the log.
+        if (region != "region.starting_frontier" && (IsScaffoldRegion(region) && !DevScaffoldAllowed()))
+            throw new InvalidOperationException($"{region} is a dev scaffold: its area is not built, so it does not load in a player build (--dev-scaffold opens it for a capture)");
         // A --shot stands the character where a capture needs him; the pets' pass needs the same, at the den rather than the yard.
         var shotStart = (VisualOptions.Barrowworks && region == BarrowworksRegion) || _options.ContainsKey("--pet-shots") || _options.ContainsKey("--shot")
             || _options.ContainsKey("--stand") ? ShotStart() : null;
@@ -708,6 +713,16 @@ public partial class Main : Node3D
             Started();
         }
 
+        // A session that starts inside a space (a cave region, a ring region) never crosses a threshold, so the space
+        // switch below would never run: its creature view would stay the exterior one and the space's own creatures would
+        // have no figures. Show the space the session booted into, once.
+        if (_session.Simulation is { } booted)
+        {
+            bool bootOutside = booted.ActiveLayout.SpaceId == UNNAMED.Domain.Spatial.SpaceId.Exterior;
+            _wasOutside = bootOutside;
+            ShowSpace(bootOutside);
+        }
+
         if (_flags.Contains("--smoke"))
         {
             _smoke = new Smoke(_session, _controller, _camera, profile, region);
@@ -731,6 +746,7 @@ public partial class Main : Node3D
         }        else if (_options.TryGetValue("--ui-shots", out string? shots))
         {
             SizeForCapture();
+            HoldCaptureFocus();
             _shots = new UiShots(_session, _controller, _camera, _inventory, _dialogue, _journal, _questDebug, shots, ScreenByName);
         }
         else if (playthrough is not null)
@@ -755,18 +771,21 @@ public partial class Main : Node3D
             // The D2 evidence pass (notes 16 and 18): walk to the stone and attune, or walk a lap of the yard in the rain, recorded by the
             // movie writer so the master audio is in the clip.
             SizeForCapture();
+            HoldCaptureFocus();
             RunD2Review(Path.GetFullPath(d2Review), OS.GetEnvironment("OTHERREACH_D2_ROUTE") is { Length: > 0 } route ? route : "waystone");
         }
         else if (_options.TryGetValue("--barrowworks-review", out string? review) && (VisualOptions.Barrowworks
             || OS.GetEnvironment("BARROWWORKS_REVIEW_RETURN_BASELINE") == "1"))
         {
             SizeForCapture();
+            HoldCaptureFocus();
             _realtime = _flags.Contains("--realtime");
             _barrowworksReview = new BarrowworksReview(_session, _controller, _camera, Path.GetFullPath(review), _realtime);
         }
         else if (_options.TryGetValue("--frontier-perf", out string? frontierPerf))
         {
             SizeForCapture();
+            HoldCaptureFocus();
             Engine.MaxFps = 0;
             DisplayServer.WindowSetVsyncMode(DisplayServer.VSyncMode.Disabled);
             _frontierPerf = new FrontierPerf(_session, _controller, _camera, GetViewport(), Path.GetFullPath(frontierPerf),
@@ -907,6 +926,7 @@ public partial class Main : Node3D
         _interior.Bind(_art, bindings, new GroundField(ring, bindings, _scatterRules));
         AddChild(_interior);
         _interior.Build(ring);
+        Greybox.ArenaMarks.Build(_interior, _art, _session.Setup.Combat.Spawns, ring);
         _interior.SetFlags(_session.Simulation!.Switches, _session.Simulation.Barriers, inPlay: false);
         foreach (var site in ring.Doors)
         {
@@ -949,7 +969,9 @@ public partial class Main : Node3D
         }
         foreach (var held in _interiors.Values)
             held.View?.SetSpaceActive(false);
-        if (!outside) LoadInterior();
+        // A region that IS an interior space (the rope cave) has no entry in _interiors - that table is built for the
+        // portals a region declares - so there is no interior view to load and the region's own view already stands.
+        if (!outside && _interiors.ContainsKey(_session.Simulation!.ActiveLayout.SpaceId)) LoadInterior();
         Step("interior load");
         // Under the open sky (the gorge's ledge and hollow) the frontier stays drawn round the interior; UpdateOpenAir picks whose air.
         bool openAir = !outside && OpenAir(_session.Simulation!.ActiveLayout.SpaceId);
@@ -989,9 +1011,15 @@ public partial class Main : Node3D
         {
             // First entry: the ring's figures, its sound beds and its pipelines, once for the session.
             _creatures = _interiorCreatures = new CreaturesView { Name = "InteriorCreatures" };
-            _interiors[_session.Simulation!.ActiveLayout.SpaceId].Creatures = _creatures;
+            if (_interiors.TryGetValue(_session.Simulation!.ActiveLayout.SpaceId, out var bootedRoom))
+                bootedRoom.Creatures = _creatures;
             _creatures.Bind(_art, bindings);
-            _interior!.AddChild(_creatures);
+            // A region that IS its own interior space has no interior view (LoadInterior returns early), so the
+            // figures hang off the scene root instead of a ring view that does not exist.
+            (_interior ?? (Node3D)this).AddChild(_creatures);
+            // The ring's figures exist from the moment the interior does: a frozen capture (and the audit's target
+            // finder) must not have to wait for a frame to pass before a creature of this space is a node.
+            _creatures.Draw(_session.Simulation!, 0, 0);
             if (_sounds is not null && IsInstanceValid(_sounds))
             {
                 ulong audioStarted = Time.GetTicksUsec();
@@ -1084,7 +1112,9 @@ public partial class Main : Node3D
             _interior.Visible = true;
             _avatar.Position = new Vector3(50, 0, 106);
             _creatures.Draw(_session.Simulation!, 0, 0);
-            foreach (var room in _interiors[BarrowworksSpace].Layout.Space.Blockers.OfType<BoxBlocker>()
+            if (!_interiors.TryGetValue(BarrowworksSpace, out var ringRoom))
+            return;
+        foreach (var room in ringRoom.Layout.Space.Blockers.OfType<BoxBlocker>()
                          .Where(b => b.Id.Length > 4 && b.Id[0] == 'r' && b.Id.Contains("_wall", StringComparison.Ordinal))
                          .GroupBy(b => b.Id[..3]))
             {
@@ -1137,6 +1167,7 @@ public partial class Main : Node3D
         AddChild(_hollow);
         _loading?.Stage("Raising the terrain and buildings", 0.2);
         _hollow.Build(layout);
+        Greybox.ArenaMarks.Build(_hollow, _art, _session.Setup.Combat.Spawns, layout);
         _loading?.Stage("Building the interiors", 0.6);
         BuildInterior();
         // What grows and lies on the ground (Phase A, the visual audit's V3): placed once a world, and so its seed, is known (Resync).
@@ -2026,6 +2057,23 @@ public partial class Main : Node3D
     /// fits the window to the screen once it is shown (and the engine keeps <c>--resolution</c> to itself), so a second after the start
     /// the window is sized to it, and the screenshots read the whole viewport.
     /// </summary>
+    /// <summary>
+    /// <c>--capture-unfocused</c>: keep this window focused and on top for the run. A capture started from a background job
+    /// loses the foreground to whatever window is active next, and the render loop stops advancing while the window is
+    /// unfocused - the audit then waits for settle frames that never come (the "focus out at frame 0" line in its log).
+    /// </summary>
+    private void HoldCaptureFocus()
+    {
+        if (!_flags.Contains("--capture-unfocused"))
+            return;
+        GetTree().CreateTimer(0.5).Timeout += () =>
+        {
+            DisplayServer.WindowSetFlag(DisplayServer.WindowFlags.AlwaysOnTop, true);
+            GetWindow().GrabFocus();
+            GD.Print($"UNNAMED capture: holding the window focused and on top ({DisplayServer.WindowGetSize().X} x {DisplayServer.WindowGetSize().Y})");
+        };
+    }
+
     private void SizeForCapture()
     {
         if (_options.GetValueOrDefault("--capture-size")?.Split('x') is not [var w, var h] || !int.TryParse(w, out int width) || !int.TryParse(h, out int height))
@@ -2046,6 +2094,26 @@ public partial class Main : Node3D
     private CompanionView? DownedCompanion(string npcId) =>
         _session.Simulation!.Companions.FirstOrDefault(c => c.NpcId == npcId && c.Condition == CompanionCondition.Downed);
 
+    /// <summary>Whether a region file says it is one of the flat patches that stand in for an unbuilt area.</summary>
+    private bool IsScaffoldRegion(string regionId)
+    {
+        string path = Path.Combine(_options.GetValueOrDefault("--content-root") ?? Home() + "/content", "regions",
+            regionId["region.".Length..] + ".yaml");
+        if (!File.Exists(path))
+            return false;
+        foreach (string line in File.ReadLines(path))
+        {
+            if (line.TrimStart().StartsWith("dev_scaffold", StringComparison.Ordinal) || line.Contains("- dev_scaffold", StringComparison.Ordinal))
+                return true;
+            if (line.StartsWith("bounds_m:", StringComparison.Ordinal))
+                break;
+        }
+        return false;
+    }
+
+    private bool DevScaffoldAllowed() =>
+        _flags.Contains("--dev-scaffold") || OS.GetEnvironment("UNNAMED_DEV_SCAFFOLD") == "1";
+
     private void ParseArguments(string[] arguments)
     {
         for (int i = 0; i < arguments.Length; i++)
@@ -2056,7 +2124,7 @@ public partial class Main : Node3D
                     or "--showcase" or "--showcase-scene" or "--state-log" or "--region" or "--survey" or "--grass" or "--shot" or "--shot-actions" or "--shot-beat" or "--d2-review" or "--stand" or "--purse" or "--start-items" or "--start-level" or "--pet-review" or "--pet-shots" or "--shot-out" or "--watch-shots" or "--watch-every"
                     or "--tide-tick" or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
-                    or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
+                    or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--enter" or "--settle" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

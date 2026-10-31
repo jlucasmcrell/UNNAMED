@@ -1,0 +1,69 @@
+id: creature.boss.shear.the_residue
+kind: creature
+schema: 1
+display_key: creature.boss.shear.the_residue.name
+tags:
+- creature
+- undead
+name: The Residue
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: undead
+archetype: undead
+level_band:
+- 12
+- 12
+pools:
+  health: 70
+attack_set:
+- ability.creature.sedge_drowned_light
+- ability.creature.gauge_sweep
+- ability.creature.sedge_drowned_rush
+armor:
+  head: 1
+  torso: 2
+  limbs: 1
+resistances:
+  frost: 0.6
+  physical_pierce: 0.2
+weak_point:
+  region: torso
+  from_behind: false
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
+move_speed_m_s: 2.6
+turn_deg_s: 70
+body_radius_m: 1.2
+xp_value: 65
+loot_table: loot.boss.shear.the_residue
+perception:
+  sight_m: 24
+  hearing_m: 28
+  fov_deg: 120
+tier_hint: A
+tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.sedge_drowned_light
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.gauge_sweep
+- name: open
+  moves:
+  - ability.creature.sedge_drowned_light
+  - ability.creature.gauge_sweep
+  - ability.creature.sedge_drowned_rush
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

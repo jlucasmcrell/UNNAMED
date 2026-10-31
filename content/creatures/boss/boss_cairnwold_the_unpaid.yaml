@@ -1,0 +1,45 @@
+id: creature.boss.cairnwold.the_unpaid
+kind: creature
+schema: 1
+display_key: creature.boss.cairnwold.the_unpaid.name
+tags:
+- creature
+- grazer
+name: Barrowback
+notes: 'D19 boss variant of creature.grazer.barrowback (canon/BOSSES.md: boss.cairnwold.the_unpaid). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: grazer
+archetype: prey
+level_band:
+- 5
+- 5
+pools:
+  health: 220
+attack_set:
+- ability.creature.tusk_sweep
+- ability.creature.grazer_charge
+- ability.creature.barrowback_heavy
+armor:
+  head: 6
+  torso: 8
+  limbs: 4
+move_speed_m_s: 3.7
+turn_deg_s: 90
+body_radius_m: 1.4
+xp_value: 90
+loot_table: loot.boss.cairnwold.the_unpaid
+perception:
+  sight_m: 24
+  hearing_m: 30
+  fov_deg: 220
+tier_hint: A
+tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.tusk_sweep
+- name: spent
+  moves:
+  - ability.creature.tusk_sweep
+  - ability.creature.grazer_charge
+  - ability.creature.barrowback_heavy

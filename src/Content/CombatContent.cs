@@ -1,4 +1,4 @@
-﻿// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
+// UNNAMED Content - combat from content: the damage constants, status effects, creatures and their attacks, spawners,
 // behaviour roles, skill passives and item uses (DATA_MODEL.md Â§4.4, Â§4.7, Â§4.8, Â§4.17, Â§4.19, Â§4.21; PROTOTYPE.md Â§4.1,
 // Â§4.4; M3c, M3d)
 // No Godot references - pure C#
@@ -348,7 +348,17 @@ public static class CombatContent
                 TurnMdegPerSecond = map.ContainsKey("turn_deg_s") ? (long)Math.Round(Number(map, "turn_deg_s") * 1000) : 720_000,
                 WeakPoint = map.GetValueOrDefault("weak_point") is Dictionary<object, object> weak
                     ? new WeakPoint(BodyRegions.Parse(Text(weak, "region")), weak.GetValueOrDefault("from_behind") as string == "true")
+                    {
+                        Windows = (weak.GetValueOrDefault("windows") is List<object> windowRows
+                                ? windowRows
+                                : new List<object>()).OfType<Dictionary<object, object>>().Select(window => new WeakPointWindow(
+                            window.GetValueOrDefault("phase") as string ?? "",
+                            window.ContainsKey("every_ticks") ? Int(window, "every_ticks") : 0,
+                            window.ContainsKey("open_ticks") ? Int(window, "open_ticks") : 0)).ToImmutableArray(),
+                    }
                     : null,
+                Phases = Phases(map, id, abilities, tickMs),
+                Parts = Parts(map, id),
                 Tags = Tags(map, "tags"),
             };
             if (creature.Attack.IsCharge)
@@ -359,6 +369,71 @@ public static class CombatContent
                 throw new FormatException($"{id}: pools.health, move_speed_m_s and body_radius_m are positive, xp_value is not negative");
             return creature;
         }).ToImmutableSortedDictionary(c => c.Id, c => c, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// CMB-39: the parts of a multi-part creature. A part answers for one body region, holds its own structure, and may say
+    /// what breaking it does; two parts may not answer for the same region, because a blow must land on the part it hit.
+    /// </summary>
+    private static ImmutableArray<CreaturePart> Parts(Dictionary<object, object> map, string id)
+    {
+        if (map.GetValueOrDefault("parts") is not List<object> rows)
+            return ImmutableArray<CreaturePart>.Empty;
+        var parts = new List<CreaturePart>(rows.Count);
+        foreach (var row in rows.OfType<Dictionary<object, object>>())
+        {
+            string name = row.GetValueOrDefault("name") as string ?? throw new FormatException($"{id}: a part needs a name");
+            if (parts.Any(part => part.Name == name))
+                throw new FormatException($"{id}: part '{name}' is named twice");
+            var region = BodyRegions.Parse(Text(row, "region"));
+            if (parts.Any(part => part.Region == region))
+                throw new FormatException($"{id}: part '{name}' claims {region}, which another part already holds");
+            int structure = row.ContainsKey("structure") ? Int(row, "structure") : 1;
+            if (structure <= 0)
+                throw new FormatException($"{id}: part '{name}' needs structure above zero");
+            parts.Add(new CreaturePart(name, region, structure, row.GetValueOrDefault("broken_effect") as string));
+        }
+        return parts.ToImmutableArray();
+    }
+
+    /// <summary>
+    /// CMB-38: the named phases of an encounter. The first is where the fight starts; each later one is entered when the one
+    /// before it ends, and a phase ends on health or on ticks - never on neither, except the last.
+    /// </summary>
+    private static ImmutableArray<BossPhase> Phases(Dictionary<object, object> map, string id,
+        IReadOnlyDictionary<string, ContentEnvelope> abilities, int tickMs)
+    {
+        var rows = map.GetValueOrDefault("phases") is List<object> list
+            ? list.OfType<Dictionary<object, object>>().ToList()
+            : new List<Dictionary<object, object>>();
+        if (rows.Count == 0)
+            return ImmutableArray<BossPhase>.Empty;
+        var phases = new List<BossPhase>(rows.Count);
+        for (int index = 0; index < rows.Count; index++)
+        {
+            var row = rows[index];
+            string name = row.GetValueOrDefault("name") as string ?? throw new FormatException($"{id}: phase {index} needs a name");
+            if (phases.Any(phase => phase.Name == name))
+                throw new FormatException($"{id}: phase '{name}' is named twice");
+            bool last = index == rows.Count - 1;
+            double? health = row.ContainsKey("health_below") ? Number(row, "health_below") : null;
+            int? ticks = row.ContainsKey("after_ticks") ? Int(row, "after_ticks") : null;
+            if (health is { } fraction && (fraction <= 0 || fraction > 1))
+                throw new FormatException($"{id}: phase '{name}' health_below is a fraction above 0 and at most 1");
+            if (ticks is { } count && count <= 0)
+                throw new FormatException($"{id}: phase '{name}' after_ticks is at least one tick");
+            if (!last && health is null && ticks is null)
+                throw new FormatException($"{id}: phase '{name}' says what ends it - health_below or after_ticks");
+            var moves = (row.GetValueOrDefault("moves") is List<object> moveList
+                    ? moveList.OfType<string>().ToList()
+                    : new List<string>())
+                .Select(key => (key, ability: abilities.GetValueOrDefault(key)
+                        ?? throw new FormatException($"{id}: phase '{name}' names {key}, which is not an ability")))
+                .Select(pair => Attack(pair.ability, tickMs).Source)
+                .ToImmutableArray();
+            phases.Add(new BossPhase(name, health, ticks, moves));
+        }
+        return phases.ToImmutableArray();
     }
 
     private static AttackProfile Attack(ContentEnvelope ability, int tickMs)
@@ -449,7 +524,12 @@ public static class CombatContent
                     Space = space,
                     Recovery = s.Map.GetValueOrDefault("encounter_recovery") is Dictionary<object, object> recovery
                         ? new EncounterRecovery(Mm(recovery, "min_x_m"), Mm(recovery, "min_z_m"), Mm(recovery, "max_x_m"),
-                            Mm(recovery, "max_z_m"), Mm(recovery, "safe_x_m"), Mm(recovery, "safe_z_m")) : null,
+                            Mm(recovery, "max_z_m"), Mm(recovery, "safe_x_m"), Mm(recovery, "safe_z_m"))
+                        {
+                            // D19: a forfeit court ends the attempt the moment the mark is left rather than after the
+                            // general grace - the Wayholder's chalked circle and the Custodian's marked floor both say so.
+                            Forfeit = (s.Map.GetValueOrDefault("encounter_rule") as string) == "forfeit",
+                        } : null,
                 };
             }).ToImmutableArray();
     }

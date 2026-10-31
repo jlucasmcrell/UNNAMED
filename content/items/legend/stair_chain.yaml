@@ -1,0 +1,15 @@
+id: item.legend.stair_chain
+kind: item
+schema: 1
+display_key: item.legend.stair_chain.name
+tags:
+- item
+- legendary
+name: Stair Chain
+notes: One length of the chain the Salt Steps' tide gate runs on. It still carries
+  the gate's weight.
+category: misc
+item_class: notable
+stack_max: 1
+weight: 5.5
+value_base: 600

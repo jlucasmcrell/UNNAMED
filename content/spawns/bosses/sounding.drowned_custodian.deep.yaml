@@ -1,0 +1,27 @@
+id: spawn.boss.sounding.drowned_custodian.deep
+kind: spawn
+schema: 1
+display_key: spawn.boss.sounding.drowned_custodian.deep.name
+tags:
+- spawn
+- boss
+notes: "D19 (canon/BOSSES.md): the the sounding boss, RAID. Its phases are its body's own moves - a tell is a move, not a health bar. Body: creature.construct.ring_custodian, the closest the catalog has; the area's own art replaces it in the art lane's pass."
+region_ref: region.the_sounding
+creatures:
+- creature_ref: creature.boss.sounding.drowned_custodian.deep
+  count:
+  - 1
+  - 1
+  role: sentinel
+at:
+  position_m:
+  - 29000.0
+  - 1000.0
+  radius_m: 2
+level_band:
+- 5
+- 5
+respawn:
+  kind: none
+tier_hint: A
+encounter_recovery: { min_x_m: 28984.0, min_z_m: 984.0, max_x_m: 29016.0, max_z_m: 1016.0, safe_x_m: 29000.0, safe_z_m: 976.0 }

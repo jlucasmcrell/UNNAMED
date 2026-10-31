@@ -1,0 +1,12 @@
+id: item.legend.quiet_folk_hand
+kind: item
+schema: 1
+display_key: item.legend.quiet_folk_hand.name
+tags: [item, legendary]
+name: The Quiet-folk Hand
+notes: "D19 (canon/BOSSES.md §6): what the late breath leaves. A carved hand, open, cut from the same pale stone as Old Late's crown - and the page it comes with names the Quiet folk, which is the drop's real weight."
+category: misc
+item_class: notable
+stack_max: 1
+weight: 0.6
+value_base: 300

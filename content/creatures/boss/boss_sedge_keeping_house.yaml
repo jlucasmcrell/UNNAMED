@@ -1,0 +1,70 @@
+id: creature.boss.sedge.keeping_house
+kind: creature
+schema: 1
+display_key: creature.boss.sedge.keeping_house.name
+tags:
+- creature
+- construct
+- boss
+name: The Keeping-House Custodian
+notes: 'D19 differentiation: its own name, numbers and move set, so it is its own fight rather than one of a block of identical bosses (B-009). Same body as canon gives it; the moves are drawn from the ability library as it stands.'
+family: construct
+archetype: construct
+level_band:
+- 5
+- 5
+pools:
+  health: 145
+attack_set:
+- ability.creature.sedge_drowned_heavy
+- ability.creature.index_grasp
+- ability.creature.measure_fall
+armor:
+  head: 18
+  torso: 40
+  limbs: 30
+resistances:
+  physical_slash: 0.4
+  physical_pierce: 0.3
+weak_point:
+  region: torso
+  from_behind: true
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
+move_speed_m_s: 1.7
+turn_deg_s: 45
+body_radius_m: 1.6
+xp_value: 140
+loot_table: loot.boss.sedge.keeping_house
+perception:
+  sight_m: 20
+  hearing_m: 28
+  fov_deg: 110
+tier_hint: A
+tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.sedge_drowned_heavy
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.index_grasp
+- name: open
+  moves:
+  - ability.creature.sedge_drowned_heavy
+  - ability.creature.index_grasp
+  - ability.creature.measure_fall
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

@@ -681,6 +681,7 @@ public static class WorldContent
                 locations.ToImmutable(), new Body(spawnX, space.HeightAtMm(spawnX, spawnZ), spawnZ, (int)facingMdeg), regionGeneration)
             {
                 Tide = map.ContainsKey("tidal_water") ? BuildTide(Map(map, "tidal_water")) : null,
+                Hazards = Hazards(map, regionId),
                 Containers = containers.ToImmutable(),
                 Nodes = nodes.ToImmutable(),
                 Stations = stations.ToImmutable(),
@@ -727,6 +728,40 @@ public static class WorldContent
     {
         var (x, z) = Footprints.Center(blocker);
         return CellKey.OfInterior(space, x / 1000.0, z / 1000.0);
+    }
+
+    /// <summary>
+    /// CMB-41: the arena's hazards. A damage zone hurts whatever stands in it while its period is open; a rising floor lifts its
+    /// surface until it caps, which is the Undermeasure's rising water - the escape the owner ruled comes before any serpent.
+    /// </summary>
+    private static ImmutableArray<UNNAMED.Domain.Combat.ArenaHazard> Hazards(Dictionary<object, object> map, string regionId)
+    {
+        if (map.GetValueOrDefault("hazards") is not List<object> rows)
+            return ImmutableArray<UNNAMED.Domain.Combat.ArenaHazard>.Empty;
+        var hazards = new List<UNNAMED.Domain.Combat.ArenaHazard>(rows.Count);
+        foreach (var row in rows.OfType<Dictionary<object, object>>())
+        {
+            string id = row.GetValueOrDefault("id") as string ?? throw new FormatException($"{regionId}: a hazard needs an id");
+            string kind = row.GetValueOrDefault("kind") as string ?? throw new FormatException($"{id}: a hazard needs a kind");
+            if (kind is not ("damage_zone" or "rising_floor"))
+                throw new FormatException($"{id}: kind is damage_zone or rising_floor, not '{kind}'");
+            var (hazardX, hazardZ) = Pair(row, "at_m");
+            long radius = row.ContainsKey("radius_m") ? Mm(row, "radius_m") : 0;
+            if (radius <= 0)
+                throw new FormatException($"{id}: a hazard needs radius_m above zero");
+            int damage = row.ContainsKey("damage_per_tick") ? Int(row, "damage_per_tick") : 0;
+            int every = row.ContainsKey("every_ticks") ? Int(row, "every_ticks") : 0;
+            int open = row.ContainsKey("open_ticks") ? Int(row, "open_ticks") : 0;
+            int rise = row.ContainsKey("rise_mm_per_tick") ? Int(row, "rise_mm_per_tick") : 0;
+            int ceiling = row.ContainsKey("max_rise_mm") ? Int(row, "max_rise_mm") : 0;
+            if (kind == "damage_zone" && (damage <= 0 || every <= 0 || open <= 0))
+                throw new FormatException($"{id}: a damage zone needs damage_per_tick, every_ticks and open_ticks");
+            if (kind == "rising_floor" && (rise <= 0 || ceiling <= 0))
+                throw new FormatException($"{id}: a rising floor needs rise_mm_per_tick and max_rise_mm");
+            hazards.Add(new UNNAMED.Domain.Combat.ArenaHazard(id, kind, hazardX, hazardZ,
+                radius, damage, every, open, rise, ceiling, row.ContainsKey("start_tick") ? Int(row, "start_tick") : 0));
+        }
+        return hazards.ToImmutableArray();
     }
 
     private static TidalWater BuildTide(Dictionary<object, object> map)

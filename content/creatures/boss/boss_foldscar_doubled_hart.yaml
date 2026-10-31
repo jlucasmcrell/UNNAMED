@@ -1,0 +1,43 @@
+id: creature.boss.foldscar.doubled_hart
+kind: creature
+schema: 1
+display_key: creature.boss.foldscar.doubled_hart.name
+tags:
+- creature
+- grazer
+name: The Doubled Hart
+notes: 'D19 boss variant of creature.grazer.doubled_hart (canon/BOSSES.md: boss.foldscar.doubled_hart). Same body and the same attack set - a boss here is its moves, and its tell is one of them - with its own loot table so it drops the legendary canon names for it and nothing another boss shares.'
+family: grazer
+archetype: apex
+level_band:
+- 6
+- 6
+pools:
+  health: 420
+attack_set:
+- ability.creature.tusk_sweep
+- ability.creature.grazer_charge
+armor:
+  head: 4
+  torso: 5
+  limbs: 3
+move_speed_m_s: 7.2
+turn_deg_s: 260
+body_radius_m: 1.1
+xp_value: 160
+loot_table: loot.boss.foldscar.doubled_hart
+perception:
+  sight_m: 36
+  hearing_m: 40
+  fov_deg: 260
+tier_hint: A
+tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.tusk_sweep
+- name: spent
+  moves:
+  - ability.creature.tusk_sweep
+  - ability.creature.grazer_charge

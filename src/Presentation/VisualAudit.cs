@@ -115,6 +115,10 @@ public sealed class VisualAudit
     // left exactly as they are, which is sound only because the splice kept the shipped skeleton and the
     // groom's JOINTS_0 indices were verified to address the same bones in the same order.
     private static readonly string[] HairArms = { "A", "A2", "B", "A3", "B2" };
+    private readonly int _settleExtra;
+    private bool _entered;
+    private bool _pumped;
+    private readonly string? _enter;
     private readonly string? _hairGlb;
     private readonly string _hairFrom;
     private readonly string _hairTo;
@@ -172,7 +176,9 @@ public sealed class VisualAudit
         var userArgs = OS.GetCmdlineUserArgs();
         string? UserArg(string name) => Array.IndexOf(userArgs, name) is var i and >= 0 && i + 1 < userArgs.Length
             ? userArgs[i + 1] : null;
-        _hairGlb = UserArg("--hair-glb");
+        _enter = UserArg("--enter");
+    _settleExtra = int.TryParse(UserArg("--settle"), out int settle) ? Math.Max(0, settle) : 0;
+    _hairGlb = UserArg("--hair-glb");
         _hairFrom = UserArg("--hair-material-from") ?? "Human.elvs_hazel_hair";
         _hairTo = UserArg("--hair-material-to") ?? "Human.o4saken_long01";
         _hairSubject = UserArg("--hair-subject") ?? "Player";
@@ -359,6 +365,27 @@ public sealed class VisualAudit
         _camera.LookAtFromPosition(eye, target, Vector3.Up);
         if (_wait == 0)
         {
+            // A session that booted inside a space has its creature view built but not yet drawn - the figures are made on
+            // the frame that runs, and a frozen capture can reach this line first. Draw them here, once per view, so a
+            // near shot of a cave or a ring finds the boss instead of nothing.
+            if (_pumped == false && _session.Simulation is { } live)
+            {
+                _pumped = true;
+                // By node, not by type: Godot's FindChildren matches the NODE'S NATIVE CLASS, which for a C#-drawn view is
+                // the plain Node3D it derives from - so a type filter finds nothing and the pump silently does nothing.
+                foreach (var name in new[] { "Creatures", "InteriorCreatures" })
+                    _root.GetNodeOrNull<Greybox.CreaturesView>(name)?.Draw(live, 0, 0);
+            }
+            // A capture that must stand inside a space (the Barrowworks ring) asks for the portal once, and then waits
+            // longer than the settle so the interior has been built and lit before the picture is taken.
+            if (_enter is { Length: > 0 } portal && _entered == false && _session.Simulation is { } running)
+            {
+                _entered = true;
+                _session.Submit(new UNNAMED.World.Runtime.EnterSpaceCommand(running.PlayerId, portal));
+                GD.Print($"UNNAMED audit: stepped through {portal} before {shot.Name}");
+                _wait = -240;
+                return;
+            }
             if (SkyFor.TryGetValue(shot.Name, out var sky))
             {
                 if (sky.Hour is { } hour)
@@ -370,10 +397,10 @@ public sealed class VisualAudit
             if (_scatterAb) scatter?.SetResidencyModeForCapture(ScatterArms[_scatterStep] is "B" or "B2");
             scatter?.PrepareResidencyForCapture(eye);
         }
-        if (++_wait < SettleFrames)
+        if (++_wait < SettleFrames + _settleExtra)
             return;
         var viewportRid = _root.GetViewport().GetViewportRid();
-        if (_wait == SettleFrames)
+        if (_wait == SettleFrames + _settleExtra)
         {
             RenderingServer.ViewportSetMeasureRenderTime(viewportRid, true);
             // A motion shot keeps the first frame too, so what moves on its own (the wind) shows against the last.
@@ -1025,7 +1052,7 @@ public sealed class VisualAudit
             return;
         }
         Pose();
-        if (++_wait < SettleFrames)
+        if (++_wait < SettleFrames + _settleExtra)
             return;
         _wait = 0;
         _index++;
