@@ -25,6 +25,7 @@ route_m:
 level_band:
 - 3
 - 3
+bodies_persist: true   # a guarded site: its dead lie until it restocks (owner ruling 2026-10-31)
 respawn:
   kind: none
 tier_hint: A
