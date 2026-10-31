@@ -26,7 +26,13 @@ public static class ArenaMarks
             if (spawn.Recovery is not { } court || spawn.Space != layout.SpaceId)
                 continue;
             bool measured = spawn.Key.Contains("custodian", StringComparison.Ordinal);
-            var mark = art.Model(measured ? Measure : Chalk);
+            string asset = measured ? Measure : Chalk;
+            string relative = Path.Combine("ready", asset, asset + ".glb");
+            // Paint is a complete first-party alternative, not withheld art.
+            // Still let the library report a native mesh that exists but fails to load.
+            bool delivered = new[] { art.Root, ArtLibrary.FallbackRoot }
+                .Any(root => root is not null && File.Exists(Path.Combine(root, relative)));
+            var mark = delivered ? art.Model(asset) : null;
             // The ring is authored 19.2 m across and the floor 26 x 20 m; a wider court is drawn wider, never below a
             // third of the authored size, so a small court still reads as a ring rather than a disc.
             float width = (court.MaxXMm - court.MinXMm) / 1000f;
