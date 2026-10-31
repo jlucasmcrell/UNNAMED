@@ -188,6 +188,12 @@ public partial class HollowView : Node3D
             var (placed, skipped) = Dressing.Place(this, _art, DrawnGround(terrain),
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
+            if (layout.Id == "region.starting_frontier"
+                && Godot.FileAccess.FileExists("res://Art/hollow_day_dressing.json"))
+            {
+                var festival = Dressing.Place(this, _art, DrawnGround(terrain), "res://Art/hollow_day_dressing.json");
+                GD.Print($"UNNAMED Hollow Day dressing: {festival.Placed} props placed, {festival.Skipped} skipped");
+            }
         }
         var ravine = BuildRavine(layout.Space, terrain);
         AddChild(ravine);

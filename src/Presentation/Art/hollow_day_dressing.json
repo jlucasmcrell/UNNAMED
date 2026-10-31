@@ -1,0 +1,10 @@
+{
+  "comment": "Hollow Day frontier yard. Gathering at434,744 and the east road remain clear. Native authored scale; no collision. Shown only for festival.frontier.hollow_day by Simulation.Festivals.",
+  "places": [
+    { "model": "festival_hollow_bunting", "at": [432, 737], "yaw": 0, "festival": "festival.frontier.hollow_day" },
+    { "model": "festival_hollow_bunting", "at": [425, 744], "yaw": 90, "festival": "festival.frontier.hollow_day" },
+    { "model": "festival_hollow_market_stall", "at": [429, 739.5], "yaw": 180, "festival": "festival.frontier.hollow_day" },
+    { "model": "festival_hollow_market_stall", "at": [429, 748.5], "yaw": 0, "festival": "festival.frontier.hollow_day" },
+    { "model": "festival_hollow_tally_tower", "at": [438, 737], "yaw": 180, "festival": "festival.frontier.hollow_day" }
+  ]
+}

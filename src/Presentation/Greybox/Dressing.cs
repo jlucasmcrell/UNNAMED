@@ -32,8 +32,12 @@ public static class Dressing
             return (0, 0);
         int placed = 0, skipped = 0;
         using var document = JsonDocument.Parse(Godot.FileAccess.GetFileAsString(path));
-        var root = new Node3D { Name = "Dressing" };
-        parent.AddChild(root);
+        var root = parent.GetNodeOrNull<Node3D>("Dressing");
+        if (root is null)
+        {
+            root = new Node3D { Name = "Dressing" };
+            parent.AddChild(root);
+        }
         foreach (var entry in document.RootElement.GetProperty("places").EnumerateArray())
         {
             string? id = entry.TryGetProperty("model", out var m) ? m.GetString() : null;
