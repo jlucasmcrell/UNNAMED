@@ -18,6 +18,16 @@ namespace UNNAMED.World.Runtime;
 internal abstract record InternalCommand;
 
 /// <summary>To <see cref="WorldFlagSystem"/>: set a cell's world flag.</summary>
+/// <summary>
+/// A blow landed on a creature and the accounting should know it (CMB-45): dispatched where the blow is resolved, the way a death dispatches
+/// the carcass it leaves. The encounter key is the creature's own spawn key, so two bodies are two ledgers.
+/// </summary>
+internal sealed record RecordContribution(string ActorId, string EncounterKey, BodyRegion Region, int Damage, bool WeakPoint, long Tick)
+    : InternalCommand;
+
+/// <summary>A creature's encounter ended (CMB-45): dispatched where the creature fell, so the credit divides as the world learns it is gone.</summary>
+internal sealed record ConcludeEncounter(string EncounterKey, string CreatureDefId, string KillerId, long Tick) : InternalCommand;
+
 internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : InternalCommand
 {
     public bool Quiet { get; init; }
