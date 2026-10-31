@@ -1,0 +1,290 @@
+{
+  "status": "IN_PROGRESS_NOT_FOR_PRODUCTION_INSTALL",
+  "visual_verdict": null,
+  "current_native_source_review": {
+    "status": "IN_PROGRESS_SOURCE_CRITIQUE_NOT_FINISHED",
+    "source": {
+      "status": "NATIVE_SOURCE_REVIEW_ONLY",
+      "body": "humgen_player_ada_f",
+      "bones": 59,
+      "evidence": [
+        {
+          "clip": "shove",
+          "length": 2.6666667461395264,
+          "frames": 111
+        },
+        {
+          "clip": "prone_idle",
+          "length": 1,
+          "frames": 52
+        },
+        {
+          "clip": "prone_hit",
+          "length": 0.5,
+          "frames": 33
+        }
+      ],
+      "art_problems": {},
+      "scope": "Native59-bone Ada and original frontier wardrobe/materials. Neutral floor, direct source clips; no held prop, creature, ordinary control or 1-second footing-clock acceptance."
+    },
+    "exit": {
+      "exit": 0,
+      "lease_seconds": 21.72186919998785
+    },
+    "inputs": {
+      "private_source_sha256": "c9b8cfc62cef0949ccb3199433d1f4b366dd1d601d4f6dd0242ce18c889114f4",
+      "assemblies": {
+        "UNNAMED.Application.dll": "8bb25548f81347da4df5b6fb368b6312af793ca67e6dbcf545352a3c28574079",
+        "UNNAMED.Content.dll": "1d7ff03740fe0c62172f48083551e01bd5f8397aba4a1cdf08d01c9749037195",
+        "UNNAMED.Domain.dll": "0f310ad58a37663d584cab85a6ae0033cf1e5e7e42a23f8ee9b9c2ef8a954fc9",
+        "UNNAMED.EntityRegistry.dll": "f4921f81d7b293da638c341a2d1f4b1111587616c566c93f372eb8040d34ed1c",
+        "UNNAMED.Persistence.dll": "1e1eb2e62c7e9eafd98bcf980aa8c615f4fbe06bc81581720d7e2dba69e6d1b7",
+        "UNNAMED.Presentation.dll": "20f8588993b955bebb137dbb3978827ac40815eeb740aa10336be1067e1719ee",
+        "UNNAMED.World.dll": "ae8034cce90e432d3262caf76160c269ad00ec84a715fdf354f9a6e0b3d8eb15"
+      },
+      "scope": "Native source/clothing fixture with floor grid/shadows and actual bone readback; no per-frame idle request."
+    },
+    "rejected": "Source02 shove was shader-stalled; source01/02 prone_hit rolled face-up. Replaced with bounded upper-body recoil over the native face-down prone_idle; native59 bones and anatomy unchanged.",
+    "outstanding": [
+      "Tunic hem/contact against floor",
+      "Held weapon drop and pickup contact",
+      "Ordinary shove/trip/disarm hooks and one-second footing recovery",
+      "All family/current body source coverage"
+    ],
+    "files": {
+      "CMB16_SOURCE03_CONTACT.jpg": "7e6168f4f4c4e17bba248ecd0602d6b0b62ca43727030c67a7246377a5f1f0e5",
+      "prone_hit.mp4": "b8716c66e3dc6a864c28a479eb764651998c7166ba1e304ace5f44b68431ab45",
+      "prone_idle.mp4": "6782e97396acac4fc4ecf2fe4e29ed92c417895f6a2abeb1e55ebe553cb2ad43",
+      "shove.mp4": "2d714349b899d0213a24cb796ef8c41d7c4cfdebc530cbbaeef36d4077f5e84f"
+    }
+  },
+  "drop_boundary": {
+    "status": "PASS",
+    "scope": "Headless actual GameSession inventory commands, production DrawGroundItemMove and actual native held mesh transfer/settlement; no rendered/landed-disarm/pickup acceptance",
+    "held_instance": 218003148866,
+    "ground_item": "itm_01M69NZDKVCY5SKEH8FA8F9VMC",
+    "art_problems": {}
+  },
+  "drop_exit": {
+    "exit": 0,
+    "seconds": 59.85453709999274
+  },
+  "payloads": [
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_creator_female_motion.res",
+      "bytes": 2418298,
+      "sha256": "e20f3c2a12f269434070f13e299d4c64c83a2c79d2a89f4005239b5fddfb5435"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_creator_male_motion.res",
+      "bytes": 2434482,
+      "sha256": "95cbb522c70d6cf7e03cee49c7fc7e3603e11bb2b0ae5bfeee7200c240f47092"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_kal_f_motion.res",
+      "bytes": 2238776,
+      "sha256": "6f6d60172c0089cc4cf02560b58c62ff7befbd4c7ec83ad77a8b1774c8d1dc00"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_kal_m_motion.res",
+      "bytes": 2177828,
+      "sha256": "7b27b5e1e84adb2732cb3bac633d91fa506a073133786bb6cd10462b5926e394"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_mob_drowned_motion.res",
+      "bytes": 2483182,
+      "sha256": "a4d1ff1563719d8dde57768ffdf1e0ea9a891e7cbf5f0b9933926d131e13bd0e"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_mob_raider_motion.res",
+      "bytes": 2551097,
+      "sha256": "c1f6afe7957fc6da885cec6dbbb57a0969495fa3ba44f019aa5591545aa053e9"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_berrin_garth_motion.res",
+      "bytes": 2367875,
+      "sha256": "7288f4a08345ef1b4bcf67ed6bd30693e66b05ae8b30f21fd75742dc355f2513"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_durn_skell_motion.res",
+      "bytes": 2365998,
+      "sha256": "cea03d17d4bf000ef9d39065552f6bceddf259be6575e3ec7a4283ca5103e19e"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_kera_voss_motion.res",
+      "bytes": 2257399,
+      "sha256": "f143acfe6f7855d75d723bc8cb8c2a4644961304e4aba7182a7e678402c91d69"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_mara_ling_motion.res",
+      "bytes": 2297914,
+      "sha256": "bafafdd4c84fb144b018df6b822806f5a7be9016fb1e8b63f93b5e2ccca743b0"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_renn_vale_motion.res",
+      "bytes": 2335107,
+      "sha256": "5efcc229fd7d1d093551b7e7ced8a8dc7165e4b1836946e9be1e78c3fa50e887"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_sel_arien_motion.res",
+      "bytes": 2201191,
+      "sha256": "862fc94df6c317c1468323feea22a30ab3d6feaa4761cce438e023a91f2df71f"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_tam_crowden_motion.res",
+      "bytes": 2099353,
+      "sha256": "c84d516ca21dc64c8f95669aff983bff7cc2852e422668ad83addf6627c1416a"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_named_tavar_orr_motion.res",
+      "bytes": 2459140,
+      "sha256": "fb61c2963c8d29554143f39226fe2b6a8c7cc571d0f1704b5d01d15e405a8e9b"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_npc_kera_voss_rb_motion.res",
+      "bytes": 2238776,
+      "sha256": "79e9a62604d7638b3f757365a37144a10aea90fd280f1db6e71cedb86936b9e1"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_npc_sel_arien_rb_motion.res",
+      "bytes": 2005838,
+      "sha256": "daf1c8f48e85a33aa705a658ecac55245f30c77a30fb380463a84627de9d50c4"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_npc_tavar_orr_rb_motion.res",
+      "bytes": 2098930,
+      "sha256": "85e4d4fddc0cc4bc61268576e6535ebfd7a8c61416ec6719b424306f9f529d57"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_orenth_f_motion.res",
+      "bytes": 2222379,
+      "sha256": "ede4da7796cffff7c4dee7bba2b8a2c9fdb2daaca9e635faeae50f5c187ab691"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_orenth_m_motion.res",
+      "bytes": 2337883,
+      "sha256": "3483a754f02d7d55884628763d14b9cd23d962bed7c91f998c5e9cc6c96ffc52"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_player_ada_f_motion.res",
+      "bytes": 2667455,
+      "sha256": "2acca980f0a3048d3c0f10da379df284306ec66491d26c1c69e52c904608b21b"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_player_mateo_m_motion.res",
+      "bytes": 2428292,
+      "sha256": "711464528bea1fe0641d19d289af0a5e774ece1d19d15c0b0c40fb6761954473"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_pool_00_motion.res",
+      "bytes": 2179923,
+      "sha256": "956f8ee216ef8792cd09a5155026c56b42546968c07be9a6ff44cb0b6aaab53d"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_pool_01_motion.res",
+      "bytes": 2365620,
+      "sha256": "fcf030f1c439eaf61d955b043c4178b69cd3f4651200c5f4f9a6e14be831ae4d"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_pool_02_motion.res",
+      "bytes": 2241631,
+      "sha256": "456ab5cd8a167c318396edfa362db6d1dd08692de3b3c5959a6f95db025d9a9d"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_pool_03_motion.res",
+      "bytes": 2403243,
+      "sha256": "19b2d0f9cdbe1abdc0551f17fd845394875bff907ebb9961aedf6cd0a67b73de"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_pool_04_motion.res",
+      "bytes": 2272436,
+      "sha256": "aa9da36d6487be2fc1991ee9ead5efa3f4b78651aee492b79bdb0707fe760ae5"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_pool_05_motion.res",
+      "bytes": 2005697,
+      "sha256": "2f8f9a3504ddd3f841a38ba27fd1843e5da3638f65b00339cc023421676a9eef"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_kal_f_compact_motion.res",
+      "bytes": 2239174,
+      "sha256": "46ffc78dc922e1767dec5cc93da08b9f5e3a89dc598365fe756bc1bf74748e79"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_kal_f_frontier_motion.res",
+      "bytes": 2288384,
+      "sha256": "0d7675510c2395031c278c25653a9514147c768e961ea07673c446f575d099a7"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_kal_m_compact_motion.res",
+      "bytes": 2257393,
+      "sha256": "bf77f5d845f725d4f506ab6a854184ade545bf7d11345a89a9d87d43df8bd49a"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_kal_m_frontier_motion.res",
+      "bytes": 2490125,
+      "sha256": "28220db57779df3565acf462dd5e24f6a11a212665fa594fe5778e0a087f886b"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_orenth_f_frontier_motion.res",
+      "bytes": 2288384,
+      "sha256": "6769e5869172ade649e3336dd1c986537c5f9a6ff42d8abd3845a60cca1cfb79"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_orenth_m_frontier_motion.res",
+      "bytes": 2490125,
+      "sha256": "3affb561796919bc1c1da613fd41421a6a715a8fec7d214458ce75f7ab17222c"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_siann_f_long_motion.res",
+      "bytes": 2201349,
+      "sha256": "fec9e2bc9ca13ceec69624eeea7526ace6610c9afb55ae3963dbed7ee61f2adc"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_race_siann_m_long_motion.res",
+      "bytes": 2428449,
+      "sha256": "007f8fc07b454f3dae606df0e6a90567e509401e78cad7484f65cdbc26c07f27"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_siann_f_motion.res",
+      "bytes": 2005970,
+      "sha256": "7bdd488b1427962973ff941a50f5989ad4ce63166d4573cd65200b2c3fe28859"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_siann_m_motion.res",
+      "bytes": 1986538,
+      "sha256": "8122ce7c2863291432da522f9860dc1b63dfc2173e39794ed80a8163629f810a"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_veth_f_face_holt_motion.res",
+      "bytes": 2241696,
+      "sha256": "5e08bb5561306fda14e1eb9420d6dfe61423a43dd54ddf312a396e7ab30512f0"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_veth_f_face_marsh_motion.res",
+      "bytes": 2241696,
+      "sha256": "5a1a48d53169e3f10a44bba4d72ada0f2dc98f012a7e4b9b9c085ba915207f89"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_veth_f_face_tarr_motion.res",
+      "bytes": 2216382,
+      "sha256": "60a2f6a8f2e75fb82ed2f07328b0e64c97125ef5cda5e2b2c1360b8d55cbe204"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_veth_m_face_holt_motion.res",
+      "bytes": 2428111,
+      "sha256": "dc2cac3624e9984d1d9216165b09fbe01d888a079c224e931cfffe50af7f4b9a"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_veth_m_face_marsh_motion.res",
+      "bytes": 2428111,
+      "sha256": "021f052f3d9262d8950266eddb7c51421a651d8d55b13e1c4ea4500009dc0531"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload03\\mocap_motion\\humgen_veth_m_face_tarr_motion.res",
+      "bytes": 2428111,
+      "sha256": "172953df982f6210c7a4e785bf00686d47d93212ac94ff032ec50e61b13574e7"
+    }
+  ],
+  "scope": "Current exact-target49 baseline plus7 supplementary candidates, only Ada source reviewed in native stage. Target Mat/family bindings, dedicated drop/pickup contact, ordinary control/timing, garment floor contact remain outstanding. No direct install or finished claim."
+}

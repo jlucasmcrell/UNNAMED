@@ -1,5 +1,5 @@
 {
-  "status": "IN_PROGRESS_SOURCE_CANDIDATES",
+  "status": "SUPERSEDED_SOURCE_INVENTORY_DO_NOT_INSTALL",
   "production_install": false,
   "visual_verdict": null,
   "files": [
@@ -83,5 +83,7 @@
       "bytes": 478,
       "sha256": "9286e4c6c5c1cb9a54a8a69b1d63bb409dec648acf6caac0af14420285862aa1"
     }
-  ]
+  ],
+  "superseded_by": "CMB16_CURRENT_SOURCE_REVIEW.json",
+  "warning": "This original inventory retained pre-native candidates. It is historical, unbound and not the active reviewed payload."
 }
