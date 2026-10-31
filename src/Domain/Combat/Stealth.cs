@@ -65,3 +65,44 @@ public static class TakedownRules
         return new TakedownResult(hit, region, hit.Final > 0 && hit.Final >= health);
     }
 }
+
+/// <summary>
+/// A placed strike: a blow or a shot aimed at a vital, rather than swung at whatever is nearest. COMBAT §19 (if an
+/// appropriate weapon reaches an unprotected critical structure the result can be lethal regardless of level) and §32
+/// (level never grants categorical immunity); STEALTH's unaware states decide when a strike can be placed at all. The
+/// dagger takedown (<see cref="TakedownRules"/>) is the same idea at knife range - this is what the other classes have.
+/// </summary>
+public static class PlacedStrikeRules
+{
+    /// <summary>A body must be within a knife's reach to have its neck opened.</summary>
+    public const long NeckMm = 700;
+
+    /// <summary>A fist or a boot can reach the torso but never the head: the canon's vitals need a weapon that gets there.</summary>
+    public const long TorsoMm = 500;
+
+    /// <summary>A vital struck on a body that has noticed you is a grave wound, not a kill: the canon's x3.</summary>
+    public const double AwareVitalMultiplier = 3.0;
+
+    /// <summary>The vitals this game's three body regions can express: the head (brain, neck vessel) and the torso (heart).</summary>
+    public static bool IsVital(BodyRegion region) => region is BodyRegion.Head or BodyRegion.Torso;
+
+    /// <summary>Whether the weapon can actually reach that vital: a bow reaches a head across a field, a knife needs the neck, a fist reaches nothing vital.</summary>
+    public static bool Reaches(AttackProfile attack, BodyRegion region) => region switch
+    {
+        BodyRegion.Head => attack.Ranged || attack.ReachMm >= NeckMm,
+        BodyRegion.Torso => attack.Ranged || attack.ReachMm >= TorsoMm,
+        _ => false,
+    };
+
+    /// <summary>
+    /// A placed strike kills outright when the body has not noticed the striker, the vital is bare (armour on that region
+    /// stops it - COMBAT's armour layers), the weapon reaches, and it is not a keeper (a boss is never taken by surprise,
+    /// the same ruling <see cref="TakedownRules.Executes"/> encodes for the dagger).
+    /// </summary>
+    public static bool Lethal(AttackProfile attack, bool unaware, BodyRegion region, bool armouredRegion, bool boss) =>
+        unaware && !boss && !armouredRegion && IsVital(region) && Reaches(attack, region);
+
+    /// <summary>The damage multiplier a placed strike earns: the x3 only on a vital, and only once the body is aware.</summary>
+    public static double Multiplier(bool unaware, BodyRegion region) =>
+        unaware || !IsVital(region) ? 1.0 : AwareVitalMultiplier;
+}
