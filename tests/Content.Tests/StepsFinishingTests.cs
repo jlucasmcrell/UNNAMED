@@ -1,9 +1,24 @@
 using UNNAMED.Domain.Spatial;
+using System.Text.Json;
 
 namespace UNNAMED.Content.Tests;
 
 public class StepsFinishingTests
 {
+    [Fact]
+    public void StairTreadsAreSolidStoneRatherThanTimberPads()
+    {
+        using var json = JsonDocument.Parse(File.ReadAllText(Path.Combine(RepoPaths.Root(), "content", "_art_bindings.json")));
+        var treads = json.RootElement.GetProperty("structures").EnumerateObject()
+            .Where(p => p.Name.StartsWith("oh_stair_t", StringComparison.Ordinal)).ToArray();
+        Assert.Equal(96, treads.Length);
+        foreach (var tread in treads)
+        {
+            Assert.False(tread.Value.TryGetProperty("model", out _));
+            Assert.Equal("ter_ph_lichen_rock", tread.Value.GetProperty("surface").GetString());
+        }
+    }
+
     [Fact]
     public void TerraceFillsMeetTheirWallsAndEveryStairKeepsItsCentreClear()
     {
