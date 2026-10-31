@@ -165,7 +165,7 @@ public partial class HollowView : Node3D
                 Position=new Vector3(surface.OriginXMm/1000f,0,surface.OriginZMm/1000f) };
             collider.AddChild(new CollisionShape3D { Shape=shape });AddChild(collider);
         }
-        if (StepsTerraces.Build(layout, _art) is { } terraceFill) AddChild(terraceFill);
+        if (StepsTerraces.Build(layout, _art, _ground?.TerrainMaterial(_art)) is { } terraceFill) AddChild(terraceFill);
         BuildInnWing(layout);
         // Old Late (grand scale, GS-3): the stone giant in weathered carved stone, its crown on the top of its weathered head (gs_old_late's
         // own metres); the Dwarven Citadel statue's material raised its colour to the power 0.5, which the lift restores.

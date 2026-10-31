@@ -7,7 +7,7 @@ namespace UNNAMED.Presentation.Greybox;
 /// <summary>The supported cobbled backfill between the native retaining walls and the coarse terrain edge.</summary>
 internal static class StepsTerraces
 {
-    public static MeshInstance3D? Build(RegionLayout layout, ArtLibrary art)
+    public static MeshInstance3D? Build(RegionLayout layout, ArtLibrary art, Material? groundMaterial = null)
     {
         if (layout.Id != "region.otherhome") return null;
         // The authored support fields start 10 cm inside the retaining wall's back.
@@ -23,7 +23,7 @@ internal static class StepsTerraces
         var albedo = art.Texture(Path.Combine(folder, id + "_albedo_height.png"), "color");
         var normal = art.Texture(Path.Combine(folder, id + "_normal_rough.png"), "normal");
         if (albedo is null || normal is null) return null;
-        const float tileSizeM = 5f;
+        const float tileSizeM = 1f / .75f; // The district's authored cobble UV scale.
         var surface = new SurfaceTool(); surface.Begin(Mesh.PrimitiveType.Triangles);
         foreach (var fill in fills)
         {
@@ -42,6 +42,9 @@ internal static class StepsTerraces
                 Vertex(x,z); Vertex(x+1,z+1); Vertex(x,z+1);
             }
         }
+        surface.Index(); surface.GenerateTangents();
+        var mesh = surface.Commit();
+        surface.Clear(); surface.Begin(Mesh.PrimitiveType.Triangles);
         // The coarse terrain slopes from each 6 m cut into the narrower native
         // boards. Face those exposed banks in the same native cobble, rather
         // than leaving raw stretched terrain between the boards and cheek stone.
@@ -77,11 +80,15 @@ internal static class StepsTerraces
         surface.Index(); surface.GenerateTangents();
         var material = new StandardMaterial3D
         {
-            AlbedoTexture = albedo, NormalEnabled = true, NormalTexture = normal, NormalScale = 1,
+            AlbedoTexture = albedo, AlbedoColor = new Color(.66f,.62f,.56f), NormalEnabled = true, NormalTexture = normal, NormalScale = 1,
             Roughness = 1, RoughnessTexture = normal, RoughnessTextureChannel = BaseMaterial3D.TextureChannel.Alpha,
             TextureFilter = BaseMaterial3D.TextureFilterEnum.LinearWithMipmapsAnisotropic,
         };
         art.Coverage.Resolved("terrace_backfill", "region.otherhome", "Supported cobble continuous with the native retaining walls");
-        return new MeshInstance3D { Name = "StepsTerraceBackfill", Mesh = surface.Commit(), MaterialOverride = material };
+        surface.Commit(mesh);
+        var result = new MeshInstance3D { Name = "StepsTerraceBackfill", Mesh = mesh };
+        result.SetSurfaceOverrideMaterial(0, groundMaterial ?? material);
+        result.SetSurfaceOverrideMaterial(1, material);
+        return result;
     }
 }
