@@ -1,0 +1,32 @@
+{
+  "status": "IN_PROGRESS_SOURCE_CANDIDATES",
+  "production_install": false,
+  "visual_verdict": null,
+  "files": [
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\HollowDay_Source.blend",
+      "bytes": 46364378,
+      "sha256": "0f9c29533e485267baee0d6b65a61405d00a2a59bf0b27801fcc2d36f809e7d9"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\HOLLOW_DAY_ART_RECEIPT.json",
+      "bytes": 2893,
+      "sha256": "993d0cab7fe623e70ef5df1784b7c441a5b852f8c0c017a29160636273f0ac61"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\ready\\festival_hollow_bunting\\festival_hollow_bunting.glb",
+      "bytes": 42188948,
+      "sha256": "a484a26d78fcb6f5bd57c6732bb6c949f0d100da6845604a9bdc34d137b69fb9"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\ready\\festival_hollow_market_stall\\festival_hollow_market_stall.glb",
+      "bytes": 4917192,
+      "sha256": "d72c7e68cd062a86fcc6f0e2deb86dfafc61e7d43bb3e63fd57db9fbac95b7fb"
+    },
+    {
+      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\ready\\festival_hollow_tally_tower\\festival_hollow_tally_tower.glb",
+      "bytes": 43362668,
+      "sha256": "a6f7fed838adf0e24fa8cd0aca1b4b6e70c979928bdfcee2d987ee5a7b2e37c1"
+    }
+  ]
+}

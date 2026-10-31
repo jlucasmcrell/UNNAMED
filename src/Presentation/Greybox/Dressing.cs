@@ -76,7 +76,13 @@ public static class Dressing
                 holder.SetMeta("tidal_visible_above_m", crest.GetSingle());
             if (entry.TryGetProperty("tidal_float_offset_m", out var floating))
                 holder.SetMeta("tidal_float_offset_m", floating.GetSingle());
+            if (entry.TryGetProperty("festival", out var festival) && festival.GetString() is { Length: > 0 } festivalId)
+            {
+                holder.SetMeta("festival", festivalId);
+                holder.Visible = false;
+            }
             holder.AddChild(model);
+            if (holder.HasMeta("festival")) holder.AddChild(new FestivalWind { Name = "FestivalWind" });
             root.AddChild(holder);
             art.Coverage.Resolved("dressing", $"{id}@{x:0.#},{z:0.#}", id);
             placed++;

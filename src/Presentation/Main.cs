@@ -1732,6 +1732,8 @@ public partial class Main : Node3D
 
         var simulation = _session.Simulation!;
         _interior?.DrawWorld(simulation.ActiveSpaceTick, _session.TickSeconds);
+        _hollow.SetFestivals(simulation.Festivals);
+        _interior?.SetFestivals(simulation.Festivals);
         var combat = simulation.Combat;
         _avatar.SetStance(Stance(combat, alpha));
         // The timed activity the simulation says the body is in (fishing): its own key in the bindings, its own state on the body.

@@ -336,6 +336,16 @@ public partial class HollowView : Node3D
         }
     }
 
+    /// <summary>Festival scenery follows the simulation views, including immediately after a load or an absence.</summary>
+    public void SetFestivals(IEnumerable<UNNAMED.World.Runtime.FestivalView> festivals)
+    {
+        var active = festivals.Select(f => f.Id).ToHashSet(StringComparer.Ordinal);
+        if (GetNodeOrNull<Node3D>("Dressing") is not { } dressing) return;
+        foreach (var holder in dressing.GetChildren().OfType<Node3D>())
+            if (holder.HasMeta("festival"))
+                holder.Visible = active.Contains(holder.GetMeta("festival").AsString());
+    }
+
     private FoldscarRegister? _register;
     private FoldWard? _ward;
     public void SetWardPlayer(Vector3 feet) { if (_ward is not null) _ward.PlayerFeet = feet; }

@@ -119,6 +119,10 @@ sections:
       - ledger: [A-C01, A-C02]
         binds: [weapon_real_arming_sword, prop_cos_, rock_cos_, flora_cos_, container_cos_, fence_cos_, wall_cos_, landmark_cos_]
         text: "Photographed props, trees, rocks, the arming sword and materials: Cosmos Premium by Leartes (cosmos.leartesstudios.com)."
+      - binds: [festival_hollow_market_stall]
+        text: "Hollow Day market stall: Free CC0 Medieval Props by 3DModelsCC0 (https://3dmodelscc0.itch.io/free-cc0-medieval-props), CC0. Original mesh and PBR maps retained."
+      - binds: [festival_hollow_bunting, festival_hollow_tally_tower]
+        text: "Hollow Day linen and wood: Poly Haven rough_linen and rough_wood (polyhaven.com), CC0. Bunting and hanging-stave geometry authored for Otherreach."
       - ledger: [A-P01]
         binds: [cw_boulder_, cw_rock_face_, cw_gravel_stone_, cw_dandelion, cw_sorrel, cw_fern_, cw_nettle_, prop_ph_, rock_ph_, flora_ph_, landmark_ph_, env_ph_, veg_ph_, flora_ashbloom, flora_woundmoss, flora_woundmoss_bare, flora_bog_cotton, flora_bog_cotton_spent, flora_young_ash_stand, item_water_flask, item_salve_minor, item_salve_ember, item_tome_set]
         text: "Rocks, plants, terrain textures and sky HDRIs: Poly Haven (polyhaven.com), CC0."
