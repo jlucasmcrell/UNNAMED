@@ -26,7 +26,11 @@ public class ProgressionContentTests : IDisposable
 
     public void Dispose() => Directory.Delete(_root, recursive: true);
 
-    private static ContentLoader Load(string root)
+    private static ContentLoader Load(string root) =>
+        root == Path.Combine(RepoPaths.Root(), "content") ? GameContentFixture.Of() : Fresh(root);
+
+    /// <summary>A tree that is not the game's own - a fixture, or content a test has edited - is loaded as it stands.</summary>
+    private static ContentLoader Fresh(string root)
     {
         var loader = new ContentLoader();
         loader.LoadAll(root);

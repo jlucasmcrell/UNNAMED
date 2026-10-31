@@ -5,7 +5,11 @@ namespace UNNAMED.Content.Tests;
 /// <summary>Hints from content (WP10, §2.10 O1): the game's hints build, cover the new systems' moments, and HNT001 refuses what cannot show.</summary>
 public class HintContentTests
 {
-    private static ContentLoader Load(string root)
+    private static ContentLoader Load(string root) =>
+        root == Path.Combine(RepoPaths.Root(), "content") ? GameContentFixture.Of() : Fresh(root);
+
+    /// <summary>A tree that is not the game's own - a fixture, or content a test has edited - is loaded as it stands.</summary>
+    private static ContentLoader Fresh(string root)
     {
         var loader = new ContentLoader();
         loader.LoadAll(root);

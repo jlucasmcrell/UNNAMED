@@ -10,7 +10,11 @@ namespace UNNAMED.Content.Tests;
 /// </summary>
 public class CharacterContentTests
 {
-    private static ContentLoader Load(string root)
+    private static ContentLoader Load(string root) =>
+        root == Path.Combine(RepoPaths.Root(), "content") ? GameContentFixture.Of() : Fresh(root);
+
+    /// <summary>A tree that is not the game's own - a fixture, or content a test has edited - is loaded as it stands.</summary>
+    private static ContentLoader Fresh(string root)
     {
         var loader = new ContentLoader();
         loader.LoadAll(root);
@@ -27,7 +31,9 @@ public class CharacterContentTests
             {
                 string target = Path.Combine(Root, Path.GetRelativePath(source, file));
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                File.Copy(file, target);
+                // A link, not a copy: the tree is read-only here and the edit below rewrites its one file.
+                if (!CreateHardLink(target, file, IntPtr.Zero))
+                    File.Copy(file, target);
             }
             string path = Path.Combine(Root, relativePath);
             string text = File.ReadAllText(path).Replace("\r\n", "\n");
@@ -36,6 +42,13 @@ public class CharacterContentTests
         }
 
         public string Root { get; } = Path.Combine(Path.GetTempPath(), "unnamed-chr-" + Guid.NewGuid().ToString("N"));
+
+            [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode,
+
+                SetLastError = true)]
+
+            private static extern bool CreateHardLink(string newName, string existingName, IntPtr security);
+
 
         public void Dispose() => Directory.Delete(Root, recursive: true);
     }

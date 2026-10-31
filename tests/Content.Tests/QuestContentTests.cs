@@ -28,7 +28,9 @@ public class QuestContentTests
             {
                 string target = Path.Combine(Root, Path.GetRelativePath(source, file));
                 Directory.CreateDirectory(Path.GetDirectoryName(target)!);
-                File.Copy(file, target);
+                // A link, not a copy: the tree is read-only here and the edit below rewrites its one file.
+                if (!CreateHardLink(target, file, IntPtr.Zero))
+                    File.Copy(file, target);
             }
             foreach (var (relative, from, to) in more.Prepend((relativePath, find, replace)))
             {
@@ -42,6 +44,13 @@ public class QuestContentTests
         }
 
         public string Root { get; } = Path.Combine(Path.GetTempPath(), "unnamed-qst-" + Guid.NewGuid().ToString("N"));
+
+            [System.Runtime.InteropServices.DllImport("kernel32.dll", CharSet = System.Runtime.InteropServices.CharSet.Unicode,
+
+                SetLastError = true)]
+
+            private static extern bool CreateHardLink(string newName, string existingName, IntPtr security);
+
 
         public void Dispose() => Directory.Delete(Root, recursive: true);
     }

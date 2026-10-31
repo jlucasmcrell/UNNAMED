@@ -21,12 +21,7 @@ public class ProgressionBalanceTests
     private static readonly ProgressionRules Rules =
         ProgressionContent.BuildRules(LoadGameContent());
 
-    private static ContentLoader LoadGameContent()
-    {
-        var loader = new ContentLoader();
-        loader.LoadAll(Path.Combine(RepoPaths.Root(), "content"));
-        return loader;
-    }
+    private static ContentLoader LoadGameContent() => GameContentFixture.Of();
 
     // Novice-tier reference awards (see remarks).
     private const long NewCell = 40, NewLocation = 150, QuestObjective = 300, FirstCraft = 120, SocialMilestone = 150;

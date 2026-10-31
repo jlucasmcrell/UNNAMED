@@ -12,13 +12,7 @@ namespace UNNAMED.Content.Tests;
 /// </summary>
 public class LoreRevealTests
 {
-    private static ContentLoader Load()
-    {
-        var loader = new ContentLoader();
-        loader.LoadAll(System.IO.Path.Combine(RepoPaths.Root(), "content"));
-        Assert.Empty(loader.Errors);
-        return loader;
-    }
+    private static ContentLoader Load() => GameContentFixture.Of();
 
     [Fact]
     public void EveryPageThatTellsOfAPlace_NamesAPlaceThatExists()

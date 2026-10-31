@@ -12,13 +12,7 @@ namespace UNNAMED.Content.Tests;
 /// </summary>
 public class LoreCoverageTests
 {
-    private static ContentLoader Load()
-    {
-        var loader = new ContentLoader();
-        loader.LoadAll(Path.Combine(RepoPaths.Root(), "content"));
-        Assert.Empty(loader.Errors);
-        return loader;
-    }
+    private static ContentLoader Load() => GameContentFixture.Of();
 
     [Fact]
     public void EveryLoreReference_Resolves()
