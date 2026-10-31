@@ -110,7 +110,8 @@ public sealed class UiShots
     /// The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them. Then a screen
     /// chosen on the System Menu, and Escape pressed on it: back to play, or back to the menu with <c>--menu-escape back</c>.
     /// </summary>
-    private static readonly string[] Screens = (System.Environment.GetCommandLineArgs().Contains("--pack-shots") ? PackScreens : Array.Empty<string>()).Concat(new[]
+    private static readonly bool FieldGuideOnly = System.Environment.GetCommandLineArgs().Contains("--field-guide-only");
+    private static readonly string[] Screens = FieldGuideOnly ? new[] { "help" } : (System.Environment.GetCommandLineArgs().Contains("--pack-shots") ? PackScreens : Array.Empty<string>()).Concat(new[]
     {
         "hud_stack", "scale_hud_stack", "large_hud_stack", "bars", "scale_hud_stack_bars", "large_hud_stack_bars", "subtitles", "large_subtitles", "compass", "", "bars_side", "", "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "party", "chat", "chat_groups", "reputation", "away", "map",
         "large_menu", "large_reputation", "large_away", "large_map", "large_party", "large_chat", "text_menu", "text_reputation", "text_away", "text_map", "text_party", "text_chat", "help", "saves",
@@ -208,6 +209,8 @@ public sealed class UiShots
             }
             return null;
         }
+        if (FieldGuideOnly && _screens == Screens.Length)
+            return "done";
         var simulation = _session.Simulation!;
         var magic = _session.Setup.Magic;
         if (_step == 5 && _screen is not null && _people < 2 * PeopleShots)
