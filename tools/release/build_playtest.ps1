@@ -8,7 +8,7 @@
 param(
     [Parameter(Mandatory)][ValidatePattern('^\d{8}[a-z]$')][string]$Label,
     [string]$Commit = 'release/pipeline',
-    [string]$AssetBase = 'C:\Otherreach_Recovery\Otherreach_Playtest_RESTORE_20261015b',
+    [string]$AssetBase = 'E:\Otherreach_Scratch\build2_test02_codex_20261029\package_stage',   # the owner-tested Test 02 folder; a release overlays its accepted art deltas on a copy
     [string]$OutRoot = 'D:\Otherreach_Scratch\release',
     [string]$ExportWorktree = 'C:\Otherreach_Build\release_export_wt'
 )
@@ -34,6 +34,7 @@ $floors[$exportDrive] = 190GB
 foreach ($drive in $floors.Keys) {
     if ((Get-PSDrive $drive).Free -lt $floors[$drive]) { throw "${drive}: is below the $($floors[$drive] / 1GB) GB floor" }
 }
+if (-not (Test-Path "$AssetBase\primary") -or -not (Test-Path "$AssetBase\fallback")) { throw "-AssetBase $AssetBase holds no primary\ and fallback\ asset workspaces" }
 if (Test-Path $out) { throw "$out already exists; pick a new label" }
 New-Item -ItemType Directory -Force $game, $logs | Out-Null
 $sha = (cmd /c "git -C `"$repo`" rev-parse $Commit^^{commit} 2>nul")
