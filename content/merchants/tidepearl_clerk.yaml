@@ -19,3 +19,12 @@ stock:
 - item_ref: item.material.iron_ingot
   count: 3
   price_bias: 1.1
+# A buyer as well as a seller: the Steps market needs one purse (EconomyHarnessTests), a town buyer's working figures.
+buys_tags:
+- material
+- consumable
+- misc
+gold_reserve:
+- 80
+- 400
+restock_min: 1   # game days between restocks, as the frontier's traders: the Exchange is a busy counter

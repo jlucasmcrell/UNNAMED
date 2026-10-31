@@ -13,6 +13,6 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [949, 652], facing_deg: 0 }
   work: { position_m: [941, 681.5], facing_deg: 180 }
-  well: { position_m: [969.59, 660.74], facing_deg: 180 }
+  well: { position_m: [966.4, 660.0], facing_deg: 90 }   # the well's west side, beside Durn at its north (NpcSpacingTests)
 schedule:
   - { hours: [19, 21], at: well }
