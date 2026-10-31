@@ -24,4 +24,4 @@ level_band:
 respawn:
   kind: none
 tier_hint: A
-encounter_recovery: { min_x_m: 5485, min_z_m: 1385, max_x_m: 5515, max_z_m: 1415, safe_x_m: 5500, safe_z_m: 1378 }
+encounter_recovery: { min_x_m: 5425, min_z_m: 1265, max_x_m: 5455, max_z_m: 1295, safe_x_m: 5440, safe_z_m: 1258 }
