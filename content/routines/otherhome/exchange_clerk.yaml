@@ -13,6 +13,6 @@ work_hours: [7, 18]
 anchors:
   home: {position_m: [1622.0, 772.0], facing_deg: 180}
   work: {position_m: [1622.0, 778.0], facing_deg: 180}
-  stalls: {position_m: [1649.0, 774.0], facing_deg: 270}
+  stalls: {position_m: [1645.0, 778.0], facing_deg: 270}
 schedule:
   - {hours: [18, 21], at: stalls}

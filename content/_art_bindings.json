@@ -206,6 +206,80 @@
       "material": "wood",
       "wind": 1.0,
       "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Replaces the procedural oak/pine/dead set; all >= 11.9 m, trunk within 0.53 m of box centre."
+    },
+    "oh_stand_": {
+      "models": [
+        "prop_cos_market_stand_mvv_01"
+      ],
+      "material": "wood",
+      "note": "Claude steps-visual: the market's stands, Cosmos MVV market stand (timber frame, cloth awning)."
+    },
+    "oh_counter_": {
+      "models": [
+        "prop_cos_market_stall_met_01"
+      ],
+      "material": "wood",
+      "note": "Claude steps-visual: each stand's counter on the aisle, Cosmos MET market stall."
+    },
+    "oh_sq_parapet_": {
+      "models": [
+        "wall_cos_drystone_02_l400"
+      ],
+      "material": "stone",
+      "fit": "tile",
+      "note": "Claude steps-visual: the parapet on the square's edge above the terraces."
+    },
+    "oh_sq_endwall_": {
+      "models": [
+        "wall_cos_drystone_02_l400"
+      ],
+      "material": "stone",
+      "fit": "tile",
+      "note": "Claude steps-visual: the square's end walls in whole 4 m runs."
+    },
+    "oh_quaywall_": {
+      "models": [
+        "wall_cos_drystone_02_l400"
+      ],
+      "material": "stone",
+      "note": "Claude steps-visual: the quay's parapet, every run on land at quay level."
+    },
+    "oh_hill_tree_": {
+      "models": [
+        "flora_cos_pine_a",
+        "flora_cos_pine_b",
+        "flora_cos_pine_a",
+        "flora_cos_green_ash_tree_a",
+        "flora_cos_green_ash_tree_b"
+      ],
+      "material": "wood",
+      "wind": 0.4,
+      "note": "Claude steps-visual: the wooded headland above the town, so the square backs onto a hill and not a plateau to the horizon."
+    },
+    "oh_riser_tall_": {
+      "models": [
+        "wall_cos_drystone_02_l400_c5"
+      ],
+      "material": "stone",
+      "fit": "tile",
+      "note": "Claude steps-visual: a terrace's retaining wall, five courses of the quay's drystone run (6.45 m)."
+    },
+    "oh_riser_low_": {
+      "models": [
+        "wall_cos_drystone_02_l400_c3"
+      ],
+      "material": "stone",
+      "fit": "tile",
+      "note": "Claude steps-visual: the quay's retaining wall up to the first terrace, three courses (3.89 m)."
+    },
+    "oh_hill_crag_": {
+      "models": [
+        "rock_cos_crag_a",
+        "rock_cos_crag_b"
+      ],
+      "material": "stone",
+      "yaw_spread": 360.0,
+      "note": "Claude steps-visual: limestone breaking through the headland's bank."
     }
   },
   "building_walls": {
@@ -10034,228 +10108,6 @@
       "material": "stone",
       "note": "The cistern court's worn lip."
     },
-    "oh_seawall_000": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_001": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_002": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_003": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_004": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_005": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_006": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_007": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_008": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_009": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_010": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_011": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_012": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_013": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_014": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_015": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_016": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_017": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_018": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_019": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_020": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_021": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_022": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_023": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_024": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_025": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_026": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_027": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_028": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_029": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_030": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_031": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_032": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_033": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_034": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_035": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
-    "oh_seawall_036": {
-      "model": "piece_bp_timber_pad",
-      "material": "wood",
-      "scale": 1.0,
-      "note": "The sea wall's deck; Gate 2 replaces it with masonry where the district is built."
-    },
     "oh_seawall_037": {
       "model": "piece_bp_timber_pad",
       "material": "wood",
@@ -12369,1041 +12221,6 @@
       "material": "stone",
       "note": "Gate 2: the terrace's retaining wall."
     },
-    "oh_quaywall_000": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_001": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_002": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_003": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_004": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_005": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_006": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_007": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_008": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_009": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_010": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_011": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_012": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_013": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_014": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_015": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_016": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_017": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_018": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_019": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_020": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_021": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_022": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_023": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_024": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_025": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_026": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_027": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_028": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_029": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_030": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_031": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_032": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_033": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_034": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_035": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_036": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_037": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_038": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_039": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_040": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_041": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_042": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_043": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_044": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_045": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_046": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_047": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_048": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_049": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_050": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_051": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_052": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_053": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_054": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_055": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_056": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_057": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_058": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_059": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_060": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_061": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_062": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_063": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_064": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_065": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_066": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_067": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_068": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_069": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_070": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_071": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_072": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_073": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_074": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_075": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_076": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_077": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_078": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_079": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_080": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_081": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_082": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_083": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_084": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_085": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_086": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_087": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_088": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_089": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_090": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_091": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_092": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_093": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_094": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_095": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_096": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_097": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_098": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_099": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_100": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_101": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_102": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_103": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_104": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_105": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_106": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_107": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_108": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_109": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_110": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_111": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_112": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_113": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_114": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_115": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_116": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_117": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_118": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_119": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_120": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_121": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_122": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_123": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_124": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_125": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_126": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_127": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_128": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_129": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_130": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_131": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_132": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_133": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_134": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_135": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_136": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_137": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_138": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_139": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_140": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_141": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_142": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_143": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_144": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_145": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_146": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_147": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_148": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_149": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_150": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_151": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_152": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_153": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_154": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_155": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_156": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_157": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_158": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_159": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_160": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_161": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_162": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_163": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_164": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_165": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_166": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_167": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_168": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_169": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_170": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_171": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_172": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_173": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_174": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_175": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_176": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_177": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_178": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_179": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_180": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_181": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_182": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_183": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_184": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_quaywall_185": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the quay wall along the waterline - thin, four metres long, the shape the drystone art is authored for."
-    },
-    "oh_stall_0_hurdle_0": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_0_hurdle_1": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_0_hurdle_2": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_0_hurdle_3": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_0_hurdle_4": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_0_hurdle_5": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_0_thatch": {
-      "model": "piece_bp_timber_roof",
-      "material": "wood",
-      "note": "Gate 2: the stall's thatch over its counter."
-    },
-    "oh_stall_1_hurdle_0": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_1_hurdle_1": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_1_hurdle_2": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_1_hurdle_3": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_1_hurdle_4": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_1_hurdle_5": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_1_thatch": {
-      "model": "piece_bp_timber_roof",
-      "material": "wood",
-      "note": "Gate 2: the stall's thatch over its counter."
-    },
-    "oh_stall_2_hurdle_0": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_2_hurdle_1": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_2_hurdle_2": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_2_hurdle_3": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_2_hurdle_4": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_2_hurdle_5": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
-    },
-    "oh_stall_2_thatch": {
-      "model": "piece_bp_timber_roof",
-      "material": "wood",
-      "note": "Gate 2: the stall's thatch over its counter."
-    },
     "oh_lane_post_000": {
       "model": "prop_bp_lantern_post",
       "material": "wood",
@@ -14400,611 +13217,6 @@
       "material": "stone",
       "note": "Gate 2: the Drowned Gate's third course, on the seaward stones."
     },
-    "oh_plaza_crate_000": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crateb_001": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrel_002": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrelw_003": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_basket_004": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crate_005": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crateb_006": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrel_007": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrelw_008": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_basket_009": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crate_010": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crateb_011": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrel_012": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrelw_013": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_basket_014": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crate_015": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crateb_016": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrel_017": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrelw_018": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_basket_019": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crate_020": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_crateb_021": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrel_022": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_barrelw_023": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 3: market traffic on the plaza's apron."
-    },
-    "oh_plaza_cart": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 3: a cart left at the square's edge."
-    },
-    "oh_kerb_000": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_001": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_002": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_003": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_004": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_005": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_006": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_007": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_008": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_009": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_010": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_011": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_012": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_013": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_014": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_015": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_016": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_017": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_018": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_019": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_020": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_021": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_022": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_023": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_024": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_025": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_026": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_027": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_028": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_029": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_030": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_031": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_032": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_033": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_034": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_035": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_036": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_037": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_038": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_039": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_040": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_041": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_042": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_043": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_044": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_045": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_046": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_047": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_048": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_049": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_050": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_051": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_052": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_053": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_054": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_055": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_056": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_057": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_058": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_059": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_060": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_061": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_062": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_063": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_064": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_065": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_066": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_067": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_068": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_069": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_070": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_071": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_072": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_073": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_074": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_075": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_076": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_077": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_078": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_079": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_080": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_081": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_082": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_083": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_084": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_085": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_086": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_087": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_088": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_089": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_090": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_091": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_092": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_093": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_094": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_095": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
     "oh_kerb_096": {
       "model": "cw_gravel_stone_a",
       "material": "stone",
@@ -15021,546 +13233,6 @@
       "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
     },
     "oh_kerb_099": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_100": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_101": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_102": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_103": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_104": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_105": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_106": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_107": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_108": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_109": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_110": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_111": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_112": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_113": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_114": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_115": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_116": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_117": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_118": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_119": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_120": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_121": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_122": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_123": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_124": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_125": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_126": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_127": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_128": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_129": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_130": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_131": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_132": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_133": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_134": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_135": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_136": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_137": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_138": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_139": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_140": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_141": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_142": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_143": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_144": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_145": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_146": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_147": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_148": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_149": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_150": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_151": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_152": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_153": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_154": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_155": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_156": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_157": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_158": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_159": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_160": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_161": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_162": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_163": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_164": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_165": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_166": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_167": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_168": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_169": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_170": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_171": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_172": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_173": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_174": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_175": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_176": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_177": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_178": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_179": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_180": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_181": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_182": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_183": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_184": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_185": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_186": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_187": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_188": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_189": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_190": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_191": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_192": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_193": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_194": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_195": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_196": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_197": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_198": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_199": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_200": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_201": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_202": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_203": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_204": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_205": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_206": {
-      "model": "cw_gravel_stone_a",
-      "material": "stone",
-      "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
-    },
-    "oh_kerb_207": {
       "model": "cw_gravel_stone_a",
       "material": "stone",
       "note": "Gate 2: a kerb stone along the house fronts, so the lane ends at an edge."
@@ -15619,196 +13291,6 @@
       "model": "cw_cart_two_wheel",
       "material": "wood",
       "note": "Gate 2: traffic standing on the lane between the rows."
-    },
-    "oh_mkt_000_side": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's hurdle side."
-    },
-    "oh_mkt_001_post": {
-      "model": "prop_bp_lantern_post",
-      "material": "timber",
-      "note": "Gate 2: the stall's corner post."
-    },
-    "oh_mkt_002_side": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's hurdle side."
-    },
-    "oh_mkt_003_post": {
-      "model": "prop_bp_lantern_post",
-      "material": "timber",
-      "note": "Gate 2: the stall's corner post."
-    },
-    "oh_mkt_004_side": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's hurdle side."
-    },
-    "oh_mkt_005_post": {
-      "model": "prop_bp_lantern_post",
-      "material": "timber",
-      "note": "Gate 2: the stall's corner post."
-    },
-    "oh_mkt_006_side": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's hurdle side."
-    },
-    "oh_mkt_007_post": {
-      "model": "prop_bp_lantern_post",
-      "material": "timber",
-      "note": "Gate 2: the stall's corner post."
-    },
-    "oh_mkt_008_side": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's hurdle side."
-    },
-    "oh_mkt_009_post": {
-      "model": "prop_bp_lantern_post",
-      "material": "timber",
-      "note": "Gate 2: the stall's corner post."
-    },
-    "oh_mkt_010_side": {
-      "model": "cw_hurdle_fence",
-      "material": "wood",
-      "note": "Gate 2: a market stall's hurdle side."
-    },
-    "oh_mkt_011_post": {
-      "model": "prop_bp_lantern_post",
-      "material": "timber",
-      "note": "Gate 2: the stall's corner post."
-    },
-    "oh_mkt_cart_00": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 2: a cart brought in to the market."
-    },
-    "oh_mkt_cart_01": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 2: a cart brought in to the market."
-    },
-    "oh_mkt_cart_02": {
-      "model": "cw_cart_two_wheel",
-      "material": "wood",
-      "note": "Gate 2: a cart brought in to the market."
-    },
-    "oh_mkt_goods_000": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_001": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_002": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_003": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_004": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_005": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_006": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_007": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_008": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_009": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_010": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_011": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_012": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_013": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_014": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_015": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_016": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_017": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_018": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_019": {
-      "model": "prop_ph_wooden_crate_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_020": {
-      "model": "prop_ph_wooden_crate_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_021": {
-      "model": "prop_cos_barrel_met_01",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
-    },
-    "oh_mkt_goods_022": {
-      "model": "prop_ph_wooden_bucket_02",
-      "material": "wood",
-      "note": "Gate 2: goods at the stalls."
     },
     "oh_sq_north_000": {
       "model": "bld_fab_cw_house_01",
@@ -15925,215 +13407,330 @@
       "material": "stone",
       "note": "Gate 2: the square's south side."
     },
-    "oh_sq_wall_023": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_00_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_024": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_00_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_025": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_01_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_026": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_01_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_027": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_01_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_028": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_02_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_029": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_02_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_030": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_03_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_031": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_03_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_032": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_03_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_033": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_04_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_034": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_04_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_035": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_05_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_036": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_05_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_037": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_05_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_038": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_06_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_039": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_06_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_040": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_07_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_041": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_07_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_042": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_07_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_043": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_08_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_044": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_08_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_045": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_09_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_046": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_09_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_047": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_09_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_048": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_10_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_049": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_10_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_050": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_11_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_051": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_11_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_052": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_11_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_053": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_12_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_054": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_12_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_055": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_13_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_056": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_13_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     },
-    "oh_sq_wall_057": {
-      "model": "wall_cos_drystone_02_l400",
-      "material": "stone",
-      "note": "Gate 2: the square's enclosure.",
-      "fit": "tile"
+    "oh_ware_13_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_14_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_14_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_15_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_15_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_15_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_16_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_16_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_17_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_17_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_17_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_18_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_18_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_19_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_19_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_19_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_20_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_20_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_21_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_21_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_21_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_22_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_22_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_23_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_23_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_23_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_24_0": {
+      "model": "prop_ph_wooden_crate_01",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_24_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_25_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_25_1": {
+      "model": "prop_ph_wooden_bucket_02",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_ware_25_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: a stall's wares."
     }
   },
   "doors": {

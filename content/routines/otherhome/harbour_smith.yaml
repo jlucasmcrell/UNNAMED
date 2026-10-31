@@ -11,7 +11,7 @@ role: smith
 roles: [smith]
 work_hours: [6, 18]
 anchors:
-  home: {position_m: [1532.0, 772.0], facing_deg: 180}
+  home: {position_m: [1538.6, 775.0], facing_deg: 180}
   work: {position_m: [1529.0, 764.0], facing_deg: 180}
   quay: {position_m: [1320.0, 520.0], facing_deg: 270}
 schedule:
