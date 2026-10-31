@@ -1,0 +1,14 @@
+id: spell.vital.clear_the_dead_weight
+kind: spell
+schema: 1
+display_key: spell.vital.clear_the_dead_weight.name
+tags: [spell]
+name: Clear the Dead Weight
+notes: "What dying leaves (content bible §13 - Vital's recovery, and PROGRESSION/PROTOTYPE §5's weakness after a fall). Lifts the Weakened state - the 60 seconds of three-quarter blows and half-speed stamina a death costs. The first working a body has any use for after coming back, and the reason the school teaches it before it teaches anything grander. Complexity 2."
+domain: skill.vital
+complexity: 2
+cost: { focus: 10, strain: 7 }
+cast_time_s: 0.8
+targeting: self
+payload:
+  - { type: remove_effect, effect_ref: effect.weakened }

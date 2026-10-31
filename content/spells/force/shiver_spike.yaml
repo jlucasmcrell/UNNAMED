@@ -1,0 +1,15 @@
+id: spell.force.shiver_spike
+kind: spell
+schema: 1
+display_key: spell.force.shiver_spike.name
+tags: [spell]
+name: Shiver Spike
+notes: "Cold, thrown (content bible §13 - Force holds frost as surely as heat). A short spike of cold that lands harder than the Cinder Dart and costs a little more; slow enough that a body can see it coming. Complexity 3, the second working of the school."
+domain: skill.force
+complexity: 3
+cost: { focus: 8, strain: 6 }
+cast_time_s: 0.5
+range_m: 18
+targeting: projectile
+payload:
+  - { type: damage, damage_type: frost, amount: [6, 9] }

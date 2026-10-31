@@ -1,0 +1,14 @@
+id: spell.warding.holdfast
+kind: spell
+schema: 1
+display_key: spell.warding.holdfast.name
+tags: [spell]
+name: Holdfast
+notes: "The body kept, cheaply (content bible §13 - Warding is protection against intrusion and impact). Less armor than the Brace Ward and for twice as long: the working a traveller keeps up on the road rather than the one a fighter brings to a charge. Complexity 2."
+domain: skill.warding
+complexity: 2
+cost: { focus: 9, strain: 7 }
+cast_time_s: 0.5
+targeting: self
+payload:
+  - { type: apply_effect, effect_ref: effect.holdfast }
