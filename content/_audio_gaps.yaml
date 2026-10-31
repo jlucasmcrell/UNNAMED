@@ -1,0 +1,29 @@
+id: content.audio_gaps
+kind: audio_gaps
+schema: 1
+display_key: content.audio_gaps.name
+tags: [audio]
+name: Sound ids with no delivered recording
+notes: >-
+  Every id the game asks for that has no file under the audio root, with what it is. The audio coverage test fails on any id that is
+  missing and NOT listed here, so this list can only shrink by recording the sound, and cannot quietly grow. Music is the largest gap:
+  Music was delivered on 2026-10-31: eight cues (title, opening, combat, explore, tension, settlement day and night, and the discovery
+  stinger) are in the canonical audio root and its manifest, so its lines came off this list.
+sfx:
+  - { id: sfx.party.downed, why: "party member went down: no recording" }
+  - { id: sfx.party.hurt, why: "party member hurt: no recording" }
+  - { id: sfx.party.revived, why: "party member revived: no recording" }
+  - { id: sfx.player.respawn, why: "player respawn: no recording" }
+  - { id: sfx.player.revived, why: "player revived: no recording" }
+  - { id: sfx.ui.party.fell, why: "UI: party member fell, no recording" }
+  - { id: sfx.ui.party.join, why: "UI: party joined, no recording" }
+  - { id: sfx.ui.party.order, why: "UI: companion order, no recording" }
+  - { id: sfx.ui.quest_start, why: "UI: quest accepted, no recording" }
+  - { id: sfx.ui.skill_up, why: "UI: skill up, no recording" }
+creature_voices:
+  - { id: creature.beast.buck, why: "no deer recordings owned" }
+  - { id: creature.beast.doe, why: "no deer recordings owned" }
+  - { id: creature.beast.chicken, why: "no poultry recordings owned" }
+  - { id: creature.beast.rooster, why: "no poultry recordings owned" }
+  - { id: creature.beast.red_fox, why: "no fox recordings owned" }
+  - { id: creature.beast.hound_pup, why: "no puppy recordings owned (the ash ember hound adult set exists)" }
