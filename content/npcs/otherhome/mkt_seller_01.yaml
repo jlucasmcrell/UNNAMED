@@ -1,0 +1,13 @@
+id: npc.otherhome.mkt_seller_01
+kind: npc
+schema: 1
+display_key: npc.otherhome.mkt_seller_01.name
+tags: [npc]
+name: the salt-seller
+notes: "Claude steps-visual: one of the market's own, at the stalls on the square. Scenery with a day, not a quest."
+role: merchant
+sex: f
+unique: true
+level_band: [1, 1]
+position_m: [1598.0, 775.1]
+facing_deg: 180

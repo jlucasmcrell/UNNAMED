@@ -1,0 +1,18 @@
+id: routine.otherhome.exchange_clerk
+kind: routine
+schema: 1
+display_key: routine.otherhome.exchange_clerk.name
+tags: [routine]
+notes: "Gate 3: the Exchange's clerk's day in the harbour district - home, post, and the third place the post actually takes them."
+region_ref: region.otherhome
+people_ref: people.veth
+settlement: otherhome
+role: vendor
+roles: [vendor]
+work_hours: [7, 18]
+anchors:
+  home: {position_m: [1622.0, 772.0], facing_deg: 180}
+  work: {position_m: [1622.0, 778.0], facing_deg: 180}
+  stalls: {position_m: [1645.0, 778.0], facing_deg: 270}
+schedule:
+  - {hours: [18, 21], at: stalls}

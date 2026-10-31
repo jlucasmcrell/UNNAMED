@@ -1,0 +1,19 @@
+id: spawn.otherhome.boars_north_waste
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.boars_north_waste.name
+tags: [spawn]
+notes: "Bristlebacks on the plateau's north waste, past the last wall. Nothing there to break their habit."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.bristleback_boar
+  count:
+  - 3
+  - 3
+  role: roamer
+at:
+  position_m: [1700.0, 1050.0]
+  radius_m: 14
+level_band:
+- 4
+- 4

@@ -1,0 +1,17 @@
+id: ambience.otherhome
+kind: ambience
+schema: 1
+display_key: ambience.otherhome.name
+tags: [ambience]
+name: Salt Steps
+notes: "The harbour district's own air: the sound working under the quay wall, wind coming up the terraces, and the Exchange's trade over both."
+location_ref: location.salt_steps
+at_m: [1482.0, 614.0]
+radius_m: 170.0
+gain: 0.7
+bed: amb.water.river_gorge.01
+details:
+  - amb.weather.wind.01
+  - sfx.amb.ashen_hollow.settlement_activity.01
+  - sfx.amb.ashen_hollow.timber_creak.01
+surface: stone

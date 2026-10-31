@@ -1,0 +1,19 @@
+id: spawn.otherhome.oh_wolves_shore_north
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.oh_wolves_shore_north.name
+tags: [spawn]
+notes: "The shore rocks north of the steps: a harbour's scavengers."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.wolf_grey
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m: [1300.0, 700.0]
+  radius_m: 8
+level_band:
+- 2
+- 2

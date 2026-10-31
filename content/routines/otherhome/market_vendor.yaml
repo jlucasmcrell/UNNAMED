@@ -1,0 +1,19 @@
+id: routine.otherhome.market_vendor
+kind: routine
+schema: 1
+display_key: routine.otherhome.market_vendor.name
+tags: [routine]
+notes: "Her stall from the first light, the quay when the boats come in, and home at dusk."
+region_ref: region.otherhome
+people_ref: people.veth
+settlement: otherhome
+role: vendor
+roles: [vendor]
+work_hours: [6, 18]
+anchors:
+  home: {position_m: [1612.0, 782.0], facing_deg: 180}
+  work: {position_m: [1612.0, 780.0], facing_deg: 180}
+  quay: {position_m: [1348.0, 476.0], facing_deg: 270}
+schedule:
+  - {hours: [6, 9], at: quay}
+  - {hours: [9, 18], at: work}

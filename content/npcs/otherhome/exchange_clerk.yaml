@@ -1,0 +1,12 @@
+id: npc.otherhome.exchange_clerk
+kind: npc
+sex: f
+schema: 1
+display_key: npc.otherhome.exchange_clerk.name
+tags: [npc]
+name: Sena Varr
+notes: "The Tidepearl Exchange's clerk at the Salt Steps: buys what the harbour brings in, sells what it needs, and keeps the district's prices honest enough that the Assize has no cause to visit."
+unique: true
+role: merchant
+services: [trade]
+merchant_ref: merchant.otherhome.tidepearl_clerk

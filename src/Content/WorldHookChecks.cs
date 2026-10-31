@@ -82,6 +82,12 @@ public static class WorldHookChecks
     /// <summary>How far from an area's anchor a placement may sit and still count as that area's.</summary>
     private const double AssignmentRadiusM = 220.0;
 
+    /// <summary>The sections a hook can read; anything else has no hook to be invisible to.</summary>
+    private static readonly HashSet<string> HookSections = new(StringComparer.Ordinal)
+    {
+        "nodes", "spawns", "npcs", "containers", "readables", "portals", "waystones", "stations", "waters", "structures",
+    };
+
     private static readonly string[] PositionFields = { "position_m", "arrival_m", "exterior_m", "circle_m", "box_m", "world" };
 
     public static WorldHookReport Audit(string contentRoot, ContentLoader loader)
@@ -278,12 +284,16 @@ public static class WorldHookChecks
                     continue;
                 }
                 var nearest = anchors
-                    .Select(candidate => (candidate.Area, Distance: Distance(candidate.Anchor, placement)))
-                    .Where(candidate => candidate.Distance <= AssignmentRadiusM)
+                    .Select(candidate => (candidate.Area, Distance: Distance(candidate.Anchor, placement),
+                                          candidate.Anchor.ReachM))
+                    .Where(candidate => candidate.Distance <= candidate.ReachM)
                     .OrderBy(candidate => candidate.Distance)
                     .FirstOrDefault();
                 if (nearest.Area.Slug is not null)
                     shares[nearest.Area.Slug].Add(placement);
+                else if (HookSections.Contains(placement.Section))
+                    problems.Add($"{regionRef}: a {placement.Section} entry at {placement.X:0}, {placement.Y:0} is not "
+                                 + "within any of the region's area anchors, so no hook can see it");
             }
         }
 
@@ -354,20 +364,29 @@ public static class WorldHookChecks
         return structures;
     }
 
-    private static List<(double X, double Y)> Anchors(AuditArea area, ContentLoader loader)
+    /// <summary>
+    /// An area's location anchors, each with the reach its own location declares: a district is one location several
+    /// hundred metres across, and a fixed radius would leave most of its content unassigned (see `AssignmentRadiusM`).
+    /// </summary>
+    private static List<(double X, double Y, double ReachM)> Anchors(AuditArea area, ContentLoader loader)
     {
-        var anchors = new List<(double, double)>();
+        var anchors = new List<(double, double, double)>();
         foreach (string id in area.Locations)
         {
             if (!loader.Definitions.TryGetValue(id, out var definition) || ContentChecks.Parse(definition) is not { } root)
                 continue;
-            if (Map(root, "anchor") is { } anchor && TryPosition(anchor, out double x, out double y))
-                anchors.Add((x, y));
+            if (Map(root, "anchor") is not { } anchor || !TryPosition(anchor, out double x, out double y))
+                continue;
+            double reach = Map(root, "discovery") is { } discovery && Scalar(discovery, "radius_m") is { } text
+                           && double.TryParse(text, out double declared) && declared > AssignmentRadiusM
+                ? declared
+                : AssignmentRadiusM;
+            anchors.Add((x, y, reach));
         }
         return anchors;
     }
 
-    private static double Distance((double X, double Y) anchor, Placement placement) =>
+    private static double Distance((double X, double Y, double ReachM) anchor, Placement placement) =>
         Math.Sqrt(Math.Pow(anchor.X - placement.X, 2) + Math.Pow(anchor.Y - placement.Y, 2));
 
     private static bool TryPosition(YamlMappingNode node, out double x, out double y)

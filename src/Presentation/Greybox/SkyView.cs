@@ -343,6 +343,16 @@ public static class SkyView
             else
                 GD.PushWarning("UNNAMED clouds: " + cloudsWhy);
         }
+        else if (VisualOptions.Clouds == "none")
+        {
+            // No cloud layer at all: Sky3D would otherwise draw its cumulus disc, whose rim reads as a hard arc across
+            // the sky from anywhere near the ground.
+            sky.Set("clouds_enabled", false);
+        }
+        // Sky3D's screen-space fog is a 2 x 2 quad pinned at the world origin; from anywhere but the origin its geometry
+        // shows as a hard wedge across the sky (the owner's "diagonal seam", Gate 2 verdict). The world's haze is
+        // Godot's own, from atmosphere.json, so this layer goes.
+        sky.Set("fog_enabled", false);
         // The weather (B5) last, over the clouds too: the run's state, which the world's own weather then moves on from (Main).
         WeatherStates.Apply(sky, VisualOptions.Weather ?? "fair");
         GD.Print($"UNNAMED sky: Sky3D {sky.Get("version")} at {Hour:0.00} h, its clock DRIVEN FROM THE WORLD CLOCK " +

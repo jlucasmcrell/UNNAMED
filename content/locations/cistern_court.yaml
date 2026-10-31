@@ -1,0 +1,21 @@
+anchor:
+  world: [1532.0, 13.0, 684.0]
+discovery:
+  methods: [visited]
+  radius_m: 30
+  xp: 45
+display_key: location.cistern_court.name
+fast_travel:
+  node: false
+id: location.cistern_court
+kind: location
+kind_of_place: landmark
+map:
+  marker: none
+  reveals_radius_m: 30
+name: The Cistern Court
+notes: "Old cisterns under the fourth terrace - the undercity's edge, and the one water in the district that is not
+  safe. Canon: world map 257."
+region_ref: region.otherhome
+schema: 1
+tags: [location]

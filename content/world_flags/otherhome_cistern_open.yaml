@@ -1,0 +1,9 @@
+id: world.otherhome.cistern_open
+kind: world_flag
+schema: 1
+display_key: world.otherhome.cistern_open.name
+tags: [world_flag]
+notes: "The cistern court's threshold is open: the Staith's own stair, and the district's way down into the undercity."
+type: bool
+default: false
+true_text: The stair goes down, and the air goes down with it.

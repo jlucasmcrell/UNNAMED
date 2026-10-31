@@ -1,0 +1,26 @@
+id: dialogue.otherhome.ferryman
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.ferryman.name
+tags: [dialogue]
+notes: Sarn Vellick, the ferryman - the tide's timetable, the sound's crossings, and the birds that take the cargo if nobody's watching. He teaches the bow and the fletching bench from the hours the crossing leaves him.
+participants: [npc.otherhome.ferryman]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Tide's out past the second mole.\" He nods at the water without looking away from it. \"You wanting across, or wanting the timetable? Most want the timetable and then blame me for the tide.\""
+    choices:
+      - id: teach
+        text: "Teach me to shoot."
+        consequences:
+          - { command: teach, refs: [recipe.fletching.arrows, recipe.fletching.hunting_bow] }
+          - { command: record_relationship_event, npc_ref: npc.otherhome.ferryman, dimension: trust, delta: 4, event: asked_to_learn }
+        next: lesson
+      - id: tide
+        text: "When does the sound let a boat out?"
+        next: again
+  lesson:
+    text: "\"A gull will take your bread and then your hand. So: lead it.\" He pulls a shaft from the locker, checks the fletching with his thumb. \"And make your own arrows. A bought shaft never flies true past thirty paces.\""
+    next: again
+  again:
+    text: "\"Wind's turning. If you're going, go now; if you're staying, sit and mind the line.\""

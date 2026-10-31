@@ -1,0 +1,26 @@
+id: dialogue.otherhome.porter
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.porter.name
+tags: [dialogue]
+notes: Corrin Ballast, the harbour porter - carries the Exchange's crates and the galley's kettle both, and hands out the tea at a shift's end.
+participants: [npc.otherhome.porter]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Mind your boots, the fish water's knee-deep at the slip.\" He sets a crate down like it weighs nothing and doesn't straighten. \"You'll want the kettle before the tide, not after.\""
+    choices:
+      - id: teach
+        text: "Show me the kettle, then."
+        consequences:
+          - { command: teach, refs: [recipe.cooking.herb_tea, recipe.cooking.boil_water] }
+          - { command: record_relationship_event, npc_ref: npc.otherhome.porter, dimension: trust, delta: 3, event: asked_to_learn }
+        next: lesson
+      - id: work
+        text: "Need a hand with the crates?"
+        next: again
+  lesson:
+    text: "\"Boil it until it argues, then let it sit. Herbs go in off the heat or you've made soup of them.\" He hands you the tin. \"That's the whole trade. The rest is carrying.\""
+    next: again
+  again:
+    text: "\"Crates don't carry themselves and neither does the tea.\""

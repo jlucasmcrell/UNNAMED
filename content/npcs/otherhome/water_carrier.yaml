@@ -1,0 +1,13 @@
+id: npc.otherhome.water_carrier
+kind: npc
+schema: 1
+display_key: npc.otherhome.water_carrier.name
+tags: [npc]
+name: the water-carrier
+notes: "Gate 2: one of the Steps' own, coming up the flights with a yoke of water. She is scenery with a day, not a quest - the district needs people on its street, not more names with dialogue."
+role: villager
+sex: f
+unique: true
+level_band: [1, 1]
+position_m: [1402.0, 604.0]
+facing_deg: 180

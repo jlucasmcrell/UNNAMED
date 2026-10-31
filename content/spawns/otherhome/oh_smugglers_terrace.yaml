@@ -1,0 +1,19 @@
+id: spawn.otherhome.smugglers_terrace
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.smugglers_terrace.name
+tags: [spawn]
+notes: "A smuggler gang on the fourth terrace, where the cistern court's stairs come up out of the undercity."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.humanoid.back_ledger_raider
+  count:
+  - 3
+  - 3
+  role: hunter
+at:
+  position_m: [1520.0, 690.0]
+  radius_m: 8
+level_band:
+- 12
+- 12

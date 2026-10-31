@@ -197,6 +197,10 @@ public sealed class WaterShore
     /// </summary>
     public float Carve(float x, float z, float existing)
     {
+        // A sea lies over the land the region authored and never cuts what stands above its surface: the Steps' sound is 150 m
+        // wide, and carving its whole ribbon to the bed drowned the quay, so its walls stood as strips over open water (B-021).
+        if (_water.Kind == "sea" && existing >= Level)
+            return existing;
         var (inside, along) = Find(x, z);
         // The bank is a distance in from the authored edge, never the whole body: a 2 m spring would otherwise have no bed at all.
         float bank = MathF.Min(Bank, _half);

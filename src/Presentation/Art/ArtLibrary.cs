@@ -1157,13 +1157,13 @@ public sealed class ArtLibrary
                                 ?? (assetId.StartsWith("bw_codex_", StringComparison.Ordinal)
                                     ? _interiorBuildCache?.For(TextureCache.Key(relative, index), path, texture.GetImage, Role(material, param)) : null)) is { } cached)
                         {
+                            TextureCache.RequireCompressed(cached, path);   // the cache's copy is what the audit is about
                             swapped[texture.GetInstanceId()] = cached;
                             material.SetTexture(param, cached);
                             texture.Dispose();  // the uncompressed upload, now unreferenced
                             continue;
                         }
                         var image = texture.GetImage();
-                        TextureCache.RequireCompressed(texture, path);
                         if (image is null || image.IsEmpty() || image.IsCompressed())
                             continue;
                         long pixels = (long)image.GetWidth() * image.GetHeight();
@@ -1450,7 +1450,6 @@ public sealed class ArtLibrary
             _vramWithMips += pixels * 4 * 4 / 3;
             image.GenerateMipmaps();
             texture = ImageTexture.CreateFromImage(image);
-            TextureCache.RequireCompressed(texture, path);
             _mapCount++;
         }
         _mapMs += (Time.GetTicksUsec() - started) / 1000.0;

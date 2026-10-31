@@ -1,0 +1,28 @@
+id: lore.cistern_scale
+kind: lore
+schema: 1
+display_key: lore.cistern_scale.name
+tags: [lore]
+category: places
+title: The tally of the water
+text: "The tally of the water: how deep, how often drawn, and the dates when the drawing stopped. The last line is in a
+  different hand, and it does not give a depth."
+pages:
+- page: 1
+  text: "The tally of the water, in the Staith's own hand: the depth of the court, how often it was drawn, and the dates
+    when the drawing stopped. A ruled line ends every month and every line carries the name of whoever drew it, and the
+    names repeat in a rhythm as regular as the lines themselves, two families and a third name that appears only in the
+    winter. The last month is short: the entries stop eleven days in, and the eleven days are all one hand, and the hand
+    is not the same as the winter's."
+  sources:
+  - how: inspected
+    ref: readable.cistern_scale
+- page: 2
+  text: "The last line is not the Staith's hand and it is not written with the Staith's pen: the strokes are wider, the
+    ink is not iron-gall, and the writer pressed hard enough to score the board. It does not give a depth. It gives a
+    direction, and the direction is down, and beneath the direction there is a shape that is drawn four times along the
+    rim of the court, small, patient, and the same. Anyone who has seen the court by daylight knows the marks are not
+    there; and the board has not been moved."
+  sources:
+  - how: inspected
+    ref: readable.cistern_scale

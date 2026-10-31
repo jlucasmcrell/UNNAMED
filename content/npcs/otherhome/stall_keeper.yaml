@@ -1,0 +1,13 @@
+id: npc.otherhome.stall_keeper
+kind: npc
+schema: 1
+display_key: npc.otherhome.stall_keeper.name
+tags: [npc]
+name: the stall-keeper
+notes: "Gate 2: the second vendor on the square, on the north row. Scenery with a day."
+role: merchant
+sex: m
+unique: true
+level_band: [1, 1]
+position_m: [1580.0, 782.0]
+facing_deg: 0

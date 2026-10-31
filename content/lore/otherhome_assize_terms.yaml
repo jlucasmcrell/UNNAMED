@@ -1,0 +1,19 @@
+id: lore.otherhome_assize_terms
+kind: lore
+schema: 1
+display_key: lore.otherhome_assize_terms.name
+tags: [lore]
+title: The Gate Assizes terms
+category: places
+pages:
+- page: 1
+  sources:
+  - how: inspected
+    ref: readable.otherhome.assize_terms
+  text: >-
+    The Gate Assize's terms, posted at the ring's edge where anyone may read them and nobody may argue with them in writing.
+    The Assize licenses all gate use in the city's waters; it does not own the Gate, and the terms are careful to say so twice.
+    What they set out is a schedule: who may approach the ring, at what draft, with what cargo declared and to whom, and what is
+    forfeit if a hull crosses the line drawn between the two buoys without a licence. The last clause is the one the harbour
+    quotes: that the Gate is dormant, that dormancy is not licence, and that the licensing of a dormant thing is the whole of
+    the Assize's work and the reason it exists.

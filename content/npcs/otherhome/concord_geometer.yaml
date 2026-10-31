@@ -1,0 +1,12 @@
+id: npc.otherhome.concord_geometer
+kind: npc
+sex: f
+schema: 1
+display_key: npc.otherhome.concord_geometer.name
+tags: [npc]
+name: Itha Meren
+notes: "A licensed gate-geometer of the Concord: the city's own tradition of gate work, and the one person in the district who will speak about the ring in the harbour mouth as a measuring problem."
+dialogue_ref: dialogue.otherhome.concord_geometer
+unique: true
+role: scholar
+services: []

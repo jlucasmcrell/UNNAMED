@@ -1,0 +1,13 @@
+id: npc.otherhome.row_child
+kind: npc
+schema: 1
+display_key: npc.otherhome.row_child.name
+tags: [npc]
+name: a child of the row
+notes: "Gate 2: a child of the terrace row, on the lane between the fronts. Scenery with a day; no dialogue, no quest."
+role: villager
+sex: m
+unique: true
+level_band: [1, 1]
+position_m: [1428.0, 614.0]
+facing_deg: 240

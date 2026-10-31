@@ -44,6 +44,13 @@ band_scales:
 # Cairnwold, the Foldscar, Old Late and the Field). The lint reports any location no area claims, so
 # nothing goes quietly unowned.
 areas:
+  - slug: the-steps
+    name: The Salt Steps, Otherhome's harbour district
+    region_ref: region.otherhome
+    locations: [location.salt_steps, location.drowned_gate, location.cistern_court]
+    type: water
+    status: development      # released | development | planned
+    band: "16+"
   - slug: ashen-hollow
     name: Ashen Hollow and the waystation
     region_ref: region.starting_frontier

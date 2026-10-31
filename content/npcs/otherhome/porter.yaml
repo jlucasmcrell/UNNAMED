@@ -1,0 +1,17 @@
+id: npc.otherhome.porter
+kind: npc
+sex: f
+schema: 1
+display_key: npc.otherhome.porter.name
+tags: [npc]
+name: Tess Anwar
+notes: "A quay porter: hired by the load, and the district's own index of what arrived and what did not."
+dialogue_ref: dialogue.otherhome.porter
+unique: true
+role: villager
+services: []
+
+# What he teaches: the galley's tea, and the two recipes every shift on the quay ends with. By his own lines.
+teaches:
+  - { kind: recipe, recipe_ref: recipe.cooking.herb_tea, by_dialogue: true }
+  - { kind: recipe, recipe_ref: recipe.cooking.boil_water, by_dialogue: true }

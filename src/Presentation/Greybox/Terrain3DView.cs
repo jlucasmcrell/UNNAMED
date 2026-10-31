@@ -47,6 +47,21 @@ public static class Terrain3DView
     /// Resolved per call and threaded through the methods that need it, never held in a static field: the
     /// architecture rules forbid static mutable state, and two worlds in one process must not share it.
     /// </summary>
+
+    /// <summary>
+    /// The folder a region's own art files live in, when it has one: <c>&lt;asset root&gt;/regions/&lt;slug&gt;</c>.
+    /// A region's ground palette belongs to the region - the terrain is what a place looks like underfoot - and the
+    /// shared root's <c>terrain_cells.json</c> is one region's answer that every other region was inheriting.
+    /// </summary>
+    private static string? RegionPaletteRoot(string? assetRoot, string regionId)
+    {
+        if (assetRoot is null || regionId.Length == 0)
+            return assetRoot;
+        string slug = regionId.StartsWith("region.", StringComparison.Ordinal) ? regionId["region.".Length..] : regionId;
+        string candidate = Path.Combine(assetRoot, "regions", slug);
+        return Directory.Exists(candidate) ? candidate : assetRoot;
+    }
+
     private static (string Id, float UvScale, Color Tint)[] ResolveLayers(string? assetRoot, out string? why)
     {
         why = null;
@@ -141,7 +156,7 @@ public static class Terrain3DView
     private static readonly int[] SlotLayer = { 3, 0, 2, 1 };
 
     /// <summary>Terrain3D under <paramref name="parent"/>, or null (and why) when the extension or a layer is unavailable.</summary>
-    public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, ArtLibrary art, out string? why, Detail? detail = null)
+    public static Node3D? Build(Node3D parent, TerrainGrid grid, GroundField ground, ArtLibrary art, out string? why, Detail? detail = null, string? regionId = null)
     {
         why = null;
         if (!ClassDB.ClassExists("Terrain3D"))
@@ -151,8 +166,12 @@ public static class Terrain3DView
         }
         // The nine slots this region fills: its asset root may name its own, but the count and order are
         // the contract the blending below depends on. Resolved here and threaded down, never a static.
-        var slots = ResolveLayers(art.Root, out string? layerWhy);
-        var palette = ResolveCellPalette(art.Root, out string? paletteWhy);
+        // A region may also fill the nine slots itself beside its palette (the Steps lay cobble where the moor wears a peat trail);
+        // without its own terrain_layers.json it takes the shared root's.
+        string? regionRoot = RegionPaletteRoot(art.Root, regionId);
+        var slots = ResolveLayers(regionRoot is not null && File.Exists(Path.Combine(regionRoot, "terrain_layers.json")) ? regionRoot : art.Root,
+            out string? layerWhy);
+        var palette = ResolveCellPalette(regionRoot, out string? paletteWhy);
         if (paletteWhy is not null)
             GD.PushWarning($"UNNAMED terrain cells: {paletteWhy}");
         if (palette is not null)
@@ -260,8 +279,13 @@ public static class Terrain3DView
         data.Call("import_images", new Godot.Collections.Array { height, control, colour }, new Vector3(origin.X, 0, origin.Y), 0.0f, 1.0f);
         GD.Print($"UNNAMED terrain3d: {regions}x{regions} regions of {RegionSize} m from {origin}; " + Check(data, grid, ground));
         // B0.2: real rock over the north ravine, on the same scenery surface this renderer draws (never read back from it).
-        int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
-        GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        // The ravine and the south cliff are the frontier's own edges. Another region's edge is sea or headland, and the
+        // cliff shells hung in the sky over the Steps' quay (B-022), so only the frontier is dressed with them.
+        if (regionId is null or "region.starting_frontier")
+        {
+            int rocks = RavineDressing.Dress(parent, art, ground.Region, (x, z) => SceneryHeight(ground, x, z), art.Coverage);
+            GD.Print($"UNNAMED terrain3d: {rocks} rock pieces dress the north ravine");
+        }
         if (DenGorge.On(ground.Region))
         {
             int gorge = DenGorge.Dress(parent, art, (x, z) => SceneryHeight(ground, x, z), art.Coverage);

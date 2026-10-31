@@ -1,0 +1,26 @@
+id: dialogue.otherhome.harbour_smith
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.harbour_smith.name
+tags: [dialogue]
+notes: Dema Orsk, the harbour's smith - the quay's ironwork, the boats' fittings, and the Assize's chain, all mended in the same hour. She teaches the blade and the forge by her own lines; her voice is a working harbour's, short and exact.
+participants: [npc.otherhome.harbour_smith]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Mind the iron - it's still deciding what shape it wants.\" She doesn't look up. \"You're the one the clerk wrote down. Good. Somebody's been bending my boat-hooks out of true and I'd like to know who.\""
+    choices:
+      - id: teach
+        text: "Teach me the forge."
+        consequences:
+          - { command: teach, refs: [recipe.smithing.iron_billet, recipe.smithing.march_spear, recipe.smithing.lame_coif] }
+          - { command: record_relationship_event, npc_ref: npc.otherhome.harbour_smith, dimension: trust, delta: 4, event: asked_to_learn }
+        next: lesson
+      - id: trade
+        text: "What have you got that's finished?"
+        next: again
+  lesson:
+    text: "\"Billet first. You don't make a spear out of impatience.\" She sets the tongs in your hand and closes your fingers round them, hard. \"That's the whole of it. The rest is how long you're willing to be wrong about the heat.\""
+    next: again
+  again:
+    text: "\"Still here? Then here - hold this while I lace the coffin.\""

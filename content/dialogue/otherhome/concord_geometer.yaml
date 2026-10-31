@@ -1,0 +1,25 @@
+id: dialogue.otherhome.concord_geometer
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.concord_geometer.name
+tags: [dialogue]
+notes: Auro Sennick, the Concord's geometer - measures the terraces, reads load, and will not put her name to a wall she has not stood on. She teaches the Ondrek stance a body needs on ground it has read.
+participants: [npc.otherhome.concord_geometer]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Stand there, not there.\" She points at the terrace's lip with two fingers. \"Stone tells you where it will let you stand. Most people argue with it.\""
+    choices:
+      - id: read
+        text: "Show me what the stone is telling you."
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.concord_geometer, dimension: trust, delta: 3, event: asked_to_learn }
+        next: lesson
+      - id: survey
+        text: "How long will these terraces hold?"
+        next: again
+  lesson:
+    text: "\"Feet apart to your shoulders' measure. Weight in the heels, not the toes - the toes are for lying to you.\" She settles her own stance as if it costs her nothing. \"There. Now the ground answers.\""
+    next: again
+  again:
+    text: "\"Mind the wet course. It reads dry and it is not.\""

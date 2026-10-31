@@ -1,0 +1,19 @@
+id: spawn.otherhome.boars_headland
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.boars_headland.name
+tags: [spawn]
+notes: "Bristlebacks rooting the open headland above the top terrace - the quiet way round is the long one."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.beast.bristleback_boar
+  count:
+  - 3
+  - 3
+  role: roamer
+at:
+  position_m: [1600.0, 900.0]
+  radius_m: 14
+level_band:
+- 4
+- 4

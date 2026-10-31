@@ -1,0 +1,13 @@
+id: loot.otherhome.port_ledger
+kind: loot
+schema: 1
+display_key: loot.otherhome.port_ledger.name
+tags: [loot]
+name: The Exchange's strongbox
+notes: "The tallies, the seals, and the book that says what the tallies are for. Static contents."
+rolls: 0
+guaranteed:
+- item_ref: item.otherhome.port_ledger
+  count_range:
+  - 1
+  - 1

@@ -1,0 +1,21 @@
+id: merchant.otherhome.tidepearl_clerk
+kind: merchant
+schema: 1
+display_key: merchant.otherhome.tidepearl_clerk.name
+tags: [merchant]
+notes: "The Tidepearl Exchange's counter at the Salt Steps: a public buyer and seller of harbour goods. Salt, rope,
+  tar and the salvaged iron of a working port - and the news that travels with them."
+stock_mode: fixed
+stock:
+- item_ref: item.tool.torch
+  count: 6
+  price_bias: 0.9
+- item_ref: item.tool.camp_kit
+  count: 2
+  price_bias: 1.0
+- item_ref: item.consumable.salve_minor
+  count: 4
+  price_bias: 1.0
+- item_ref: item.material.iron_ingot
+  count: 3
+  price_bias: 1.1

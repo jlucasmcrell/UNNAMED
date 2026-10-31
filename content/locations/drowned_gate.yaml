@@ -1,0 +1,21 @@
+anchor:
+  world: [1312.0, 0.0, 594.0]
+discovery:
+  methods: [visited]
+  radius_m: 70
+  xp: 80
+display_key: location.drowned_gate.name
+fast_travel:
+  node: false
+id: location.drowned_gate
+kind: location
+kind_of_place: landmark
+map:
+  marker: landmark
+  reveals_radius_m: 90
+name: The Drowned Gate
+notes: "A colossal dark ring standing half-submerged in the harbour mouth, dormant, with ships passing beside it.
+  A barrier and its flags - not a portal menu (atlas 85)."
+region_ref: region.otherhome
+schema: 1
+tags: [location]

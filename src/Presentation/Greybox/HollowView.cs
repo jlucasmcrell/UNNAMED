@@ -207,7 +207,7 @@ public partial class HollowView : Node3D
                 _tidalWater = WaterView.BuildTidal(this, layout.Space);
                 _tide = tide;
             }
-            else AddChild(BuildWater(layout.Space));
+            else AddChild(BuildWater(layout.Space, withRavineFloor: layout.Id == FrontierRegion));
         // Phase B demo: the authored set dressing (Art/dressing.json) - scenery only, grounded on the domain's terrain.
         if (VisualOptions.Tier != "phase_a")
         {
@@ -215,10 +215,22 @@ public partial class HollowView : Node3D
                 _art.Root is { } artRoot ? Path.Combine(artRoot, "dressing.json") : null);
             GD.Print($"UNNAMED dressing: {placed} props placed, {skipped} skipped");
         }
-        var ravine = layout.Tide is null ? BuildRavine(layout.Space, terrain) : new Node3D { Name = "OpenFenHorizon" };
-        AddChild(ravine);
+        // The ravine, its floor plane and its dressing rocks are Ashen Hollow's own scenery: a district must not inherit
+        // them (Gate 1 of the Steps framed a grassy rise where its stair-street should be). A tidal region (the Sedge) has
+        // its open fen horizon instead, and no Terrain3D ground.
+        Node3D ravine;
+        if (layout.Id == FrontierRegion)
+        {
+            ravine = BuildRavine(layout.Space, terrain);
+            AddChild(ravine);
+        }
+        else
+        {
+            ravine = new Node3D { Name = layout.Tide is null ? "Ravine" : "OpenFenHorizon" };
+            AddChild(ravine);
+        }
         if (VisualOptions.Terrain == "terrain3d" && layout.Tide is null)
-            DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout));
+            DrawWithTerrain3D(terrain, ground, ravine, TerrainDetail(layout), layout.Id);
         // The air (B11): ash, pollen, rain and mist by rule, with the particle recipes.
         if (VisualOptions.Recipes && _ground is { } field)
         {
@@ -272,14 +284,14 @@ public partial class HollowView : Node3D
         return new Terrain3DView.Detail(crowns, buildings, new[] { Terrain3DView.CharwoodStream });
     }
 
-    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine, Terrain3DView.Detail detail)
+    private void DrawWithTerrain3D(TerrainGrid terrain, Node3D ground, Node3D ravine, Terrain3DView.Detail detail, string regionId)
     {
         if (_ground is null)
         {
             Coverage.Fallback("terrain", "terrain3d", "no ground field to take the layers from: the Phase-A ground stands");
             return;
         }
-        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why, detail);
+        var drawn = Terrain3DView.Build(this, terrain, _ground, _art, out string? why, detail, regionId: regionId);
         if (drawn is null)
         {
             Coverage.Fallback("terrain", "terrain3d", why ?? "Terrain3D did not build: the Phase-A ground stands");
@@ -947,11 +959,15 @@ public partial class HollowView : Node3D
     /// into the ground, its edge a shoreline rather than a sheet's corner, its colour from its own depth, and the small ones drawn as
     /// pools with stones round the rim and reeds at the edge.
     /// </summary>
-    private Node3D BuildWater(WalkSpace space)
+    /// <summary>The only region the ravine scenery belongs to: the view was built for this one.</summary>
+    private const string FrontierRegion = "region.starting_frontier";
+
+    private Node3D BuildWater(WalkSpace space, bool withRavineFloor)
     {
         Coverage.Resolved("water", "stream", "a ripple/depth-tint/fresnel water shader (Palette.StreamWater); an effect, not a model");
         var node = new Node3D { Name = "Water" };
-        node.AddChild(new MeshInstance3D
+        if (withRavineFloor)
+            node.AddChild(new MeshInstance3D
         {
             Name = "RavineFloor",
             Mesh = new PlaneMesh { Size = new Vector2((space.MaxXMm - space.MinXMm) / 1000f, (space.MaxZMm - space.MinZMm) / 1000f) },

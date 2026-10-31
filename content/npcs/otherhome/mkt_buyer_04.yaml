@@ -1,0 +1,13 @@
+id: npc.otherhome.mkt_buyer_04
+kind: npc
+schema: 1
+display_key: npc.otherhome.mkt_buyer_04.name
+tags: [npc]
+name: a buyer at the stalls
+notes: "Claude steps-visual: one of the market's own, at the stalls on the square. Scenery with a day, not a quest."
+role: villager
+sex: f
+unique: true
+level_band: [1, 1]
+position_m: [1653.0, 785.6]
+facing_deg: 180

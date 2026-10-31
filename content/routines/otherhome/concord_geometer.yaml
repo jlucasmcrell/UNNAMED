@@ -1,0 +1,18 @@
+id: routine.otherhome.concord_geometer
+kind: routine
+schema: 1
+display_key: routine.otherhome.concord_geometer.name
+tags: [routine]
+notes: "Gate 3: the Concord's geometer's day in the harbour district - home, post, and the third place the post actually takes them."
+region_ref: region.otherhome
+people_ref: people.ondrek
+settlement: otherhome
+role: scholar
+roles: [scholar]
+work_hours: [8, 17]
+anchors:
+  home: {position_m: [1692.0, 770.0], facing_deg: 180}
+  work: {position_m: [1692.0, 776.0], facing_deg: 180}
+  bench: {position_m: [1712.0, 771.0], facing_deg: 180}
+schedule:
+  - {hours: [17, 20], at: bench}

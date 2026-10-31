@@ -1,0 +1,19 @@
+id: spawn.otherhome.smugglers_quay
+kind: spawn
+schema: 1
+display_key: spawn.otherhome.smugglers_quay.name
+tags: [spawn]
+notes: "Smugglers working the quay's thin water at night - the district's own danger, at the band's tier."
+region_ref: region.otherhome
+creatures:
+- creature_ref: creature.humanoid.back_ledger_raider
+  count:
+  - 2
+  - 2
+  role: roamer
+at:
+  position_m: [1320.0, 470.0]
+  radius_m: 6
+level_band:
+- 12
+- 12
