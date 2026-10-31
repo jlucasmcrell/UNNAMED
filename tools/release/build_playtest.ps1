@@ -25,8 +25,15 @@ function Robo($from, $to, $extra = '') {
     if ($LASTEXITCODE -ge 8) { throw "robocopy $from -> $to exit $LASTEXITCODE (see $logs\robocopy.log)" }
 }
 
-if ((Get-PSDrive C).Free -lt 190GB) { throw 'C: is below the 190 GB floor' }
-if ((Get-PSDrive D).Free -lt 100GB) { throw 'D: has under 100 GB free' }
+# The floors belong to the drives the build writes to: 190 GB where the export worktree goes, 100 GB where the output goes (190 when one
+# drive holds both), so a build that exports to D: does not need C: to have room it never uses.
+$exportDrive = (Split-Path -Qualifier ([IO.Path]::GetFullPath($ExportWorktree))).TrimEnd(':')
+$outDrive = (Split-Path -Qualifier ([IO.Path]::GetFullPath($OutRoot))).TrimEnd(':')
+$floors = @{ $outDrive = 100GB }
+$floors[$exportDrive] = 190GB
+foreach ($drive in $floors.Keys) {
+    if ((Get-PSDrive $drive).Free -lt $floors[$drive]) { throw "${drive}: is below the $($floors[$drive] / 1GB) GB floor" }
+}
 if (Test-Path $out) { throw "$out already exists; pick a new label" }
 New-Item -ItemType Directory -Force $game, $logs | Out-Null
 $sha = (cmd /c "git -C `"$repo`" rev-parse $Commit^^{commit} 2>nul")
