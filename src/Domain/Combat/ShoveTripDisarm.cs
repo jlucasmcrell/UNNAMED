@@ -34,6 +34,16 @@ public readonly record struct Footing(bool Prone, int ProneRiseTicksRemaining, i
         int immunity = Math.Max(0, ImmunityTicksRemaining - 1);
         return new Footing(Prone && rise > 0, rise, immunity);
     }
+
+    /// <summary>
+    /// The two deadlines a save keeps, as absolute world ticks - the form every other deadline in a save takes, so a save between ticks
+    /// loses nothing (SYSTEMS.md S-04). Standing, both are the current tick.
+    /// </summary>
+    public (long ProneUntil, long ImmuneUntil) Until(long now) => (now + ProneRiseTicksRemaining, now + ImmunityTicksRemaining);
+
+    /// <summary>The footing those deadlines mean at <paramref name="now"/>: a character who was prone when they saved is still prone.</summary>
+    public static Footing Restore(long proneUntilTick, long immuneUntilTick, long now) =>
+        new(proneUntilTick > now, (int)Math.Max(0, proneUntilTick - now), (int)Math.Max(0, immuneUntilTick - now));
 }
 
 /// <summary>
@@ -73,6 +83,56 @@ public static class ControlRules
     /// <summary>Shove reach is arm's length plus the weapon's own; a target further than this cannot be shoved at all.</summary>
     public const double ShoveReachM = 1.6;
 
+    /// <summary>A trip is thrown at the feet, so it needs less than a shove does - and no more than a step and a half.</summary>
+    public const double TripReachM = 1.4;
+
+    /// <summary>A disarm meets the weapon itself: the shortest of the three, which is why the reach penalty bites hardest here.</summary>
+    public const double DisarmReachM = 1.2;
+
+    /// <summary>A person's own footprint, from <c>config.base_speeds</c>: the size a body's weight is measured against.</summary>
+    public const long PersonRadiusMm = 350;
+
+    /// <summary>
+    /// What a body with no pool of its own brings to a move. An animal has no stamina to spend, so the rule's own stamina gate is the
+    /// character's; a creature's control move is paid for by the windup and recovery it takes out of the creature's own attack cycle.
+    /// </summary>
+    public const int UnspentStamina = 1_000;
+
+    /// <summary>
+    /// How far a move reaches: arm's length for the move, plus the weapon's own. A body further away than this is not in the move at
+    /// all, which is the distance a command resolves against.
+    /// </summary>
+    public static double ReachM(ControlMove move, ControlProfile actor) => move switch
+    {
+        ControlMove.Shove => ShoveReachM + 0.4 * actor.ReachM,
+        ControlMove.Trip => TripReachM + 0.4 * actor.ReachM,
+        _ => DisarmReachM + 0.4 * actor.ReachM,
+    };
+
+    /// <summary>
+    /// What a body weighs, from the size it fights at (its footprint against a person's own and a person's 80 kg): a wolf can be tripped
+    /// and a boar is too heavy to bring down by hand, which is the weight CMB-16 gives the trip as a counter.
+    /// </summary>
+    public static double WeightOf(long radiusMm) => Math.Round(80.0 * Math.Max(1, radiusMm) / PersonRadiusMm, 1);
+
+    /// <summary>
+    /// How a move times, in the combat phase machine's terms: a tell, a moment of contact, then the recovery. It is shaped as an
+    /// <see cref="AttackProfile"/> so a command obeys <c>CombatPhase.Windup</c>/<c>Active</c>/<c>Recovery</c> exactly as a blow does, and
+    /// presentation can time its clip to the same phases. It carries no damage: a control move wounds nothing.
+    /// </summary>
+    public static AttackProfile Timing(ControlMove move, ControlProfile actor)
+    {
+        int stamina = move switch { ControlMove.Shove => ShoveStamina, ControlMove.Trip => TripStamina, _ => DisarmStamina };
+        (int Windup, int Active, int Recovery) ticks = move switch
+        {
+            ControlMove.Shove => (4, 2, 8),
+            ControlMove.Trip => (6, 2, 10),
+            _ => (5, 2, 9),
+        };
+        return new AttackProfile($"control.{move.ToString().ToLowerInvariant()}", 0, 0, "physical_blunt",
+            (long)Math.Round(ReachM(move, actor) * 1000), ticks.Windup, ticks.Active, ticks.Recovery, stamina);
+    }
+
     /// <summary>
     /// A shove: pushes, costs stamina, and knocks prone only when the target is neither guarding nor already down-and-immune.
     /// A guarded target is moved but keeps its feet, which is what makes guarding worth holding against a shover.
@@ -81,7 +141,7 @@ public static class ControlRules
     {
         if (actor.Stamina < ShoveStamina)
             return ControlOutcome.Refused(ControlMove.Shove, "not enough stamina");
-        if (distanceM > ShoveReachM + 0.4 * actor.ReachM)
+        if (distanceM > ReachM(ControlMove.Shove, actor))
             return new ControlOutcome(ControlMove.Shove, false, ShoveStamina, target, false, "out of reach");
 
         bool knocked = !targetGuarding && target.CanBeKnockedDown;

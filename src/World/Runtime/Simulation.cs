@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -977,6 +977,7 @@ public sealed class Simulation
                 TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
+                ControlCommand control => _combat.Handle(control, WorldTick),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
                 TechniqueCommand technique => _combat.Handle(technique, WorldTick),
                 LearnFromTeacherCommand learn => _teaching.Handle(learn, WorldTick),
@@ -1211,6 +1212,8 @@ public sealed class Simulation
             Bags = _state.Bags,
             PartySheets = _sheets.Records(),
             Attack = _combat.AttackUnderWay(),
+            ProneUntilTick = _combat.FootingUntil().ProneUntil,
+            KnockdownImmuneUntilTick = _combat.FootingUntil().ImmuneUntil,
             Findings = _state.Findings,
             Lore = _state.Lore,
             Pets = _pets.Records(),
@@ -1293,6 +1296,10 @@ public sealed class Simulation
         AwaitRespawn await => _combat.Handle(await),
         LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
+        CreatureControl control => _combat.Handle(control, Now),
+        SetFooting footing => _creatures.Handle(footing, Now),
+        KnockFromHands knock => _equipment.Handle(knock, Now),
+        DropCarried drop => _inventory.Handle(drop, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),

@@ -39,6 +39,14 @@ public partial class Main
     /// <summary>A notice of a kind the player may switch off (Settings, Notices): shown unless that kind is hidden.</summary>
     private void Notice(NoticeKind kind, string text, double seconds = 4) => _hud.Toast(text, seconds, kind: kind);
 
+    /// <summary>A control move as a log line reads it (CMB-16).</summary>
+    private static string ControlWord(ControlMove move) => move switch
+    {
+        ControlMove.Shove => "shove",
+        ControlMove.Trip => "trip",
+        _ => "disarm",
+    };
+
     /// <summary>What a creature out in the world is called, for a notice about it; "the animal" when it has already gone.</summary>
     private string WildName(EntityId creature)
     {
@@ -510,6 +518,19 @@ public partial class Main
                 _hud.Log($"You are {Name(e.EffectId).ToLowerInvariant()}{(e.Stacks > 1 ? $" (x{e.Stacks})" : "")}");
         });
         _session.Subscribe<GuardBroken>(_ => _hud.Toast("Guard broken - no stamina behind it", 2));
+        // A shove, a trip or a disarm (CMB-16): what it did to whom, and the line the rule gives for what the body reads of it.
+        _session.Subscribe<ControlResolved>(e =>
+        {
+            var player = _session.Simulation!.PlayerId;
+            if (e.Actor == player)
+                _hud.Log(e.Landed || e.Disarmed
+                    ? $"You {ControlWord(e.Move)} {WildName(e.Target).ToLowerInvariant()}"
+                    : $"You {ControlWord(e.Move)} - {e.Reason}");
+            else if (e.Disarmed)
+                _hud.Toast($"{WildName(e.Actor)} takes your weapon - it is on the ground", 4);
+            else if (e.Prone)
+                _hud.Toast("You are off your feet", 2);
+        });
         _session.Subscribe<CreatureKilled>(e => _hud.Log($"The {Name(e.DefId)} dies"));
         _session.Subscribe<SkillPracticed>(e =>
         {

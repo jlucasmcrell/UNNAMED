@@ -2,6 +2,7 @@
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.Presentation.Player;
@@ -271,6 +272,13 @@ public partial class Main
         }
         if (captured && Input.IsActionJustPressed("takedown"))
             _controller.Takedown();
+        // Shove, trip and disarm (CMB-16): the three control moves, each its own key, each through the combat phase machine.
+        if (captured && Input.IsActionJustPressed("shove"))
+            _controller.Control(ControlMove.Shove);
+        if (captured && Input.IsActionJustPressed("trip"))
+            _controller.Control(ControlMove.Trip);
+        if (captured && Input.IsActionJustPressed("disarm"))
+            _controller.Control(ControlMove.Disarm);
         if (Input.IsActionJustPressed("use") && !_controller.UseConsumable())
             _hud.Toast("Nothing to use", 2);
 
@@ -458,6 +466,10 @@ public partial class Main
         Bind("inventory", Key.Tab, Key.I);
         Bind("dodge", Key.C);
         Bind("takedown", Key.F);          // a knife into a body that has not noticed the character (STEALTH Â§12)
+        // The three control moves (CMB-16): U shoves; the two keys beside each other sweep the legs and take the weapon.
+        Bind("shove", Key.U);
+        Bind("trip", Key.Comma);
+        Bind("disarm", Key.Period);
         Bind("use", Key.H);
         Bind("companion_order", Key.G);   // follow or wait (content bible §9: no radial menu)
         Bind("pet_orders", Key.Y);        // the animals' six orders, with the ground marker the ground-named ones use (spec 43 ruling 4)

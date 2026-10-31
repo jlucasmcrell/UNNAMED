@@ -61,6 +61,12 @@ public sealed record BlockCommand(EntityId Actor, bool Raised) : GameCommand(Act
 /// <summary>Dodge along a world-space direction (per mille, like <see cref="MoveIntent"/>); no direction dodges backwards.</summary>
 public sealed record DodgeCommand(EntityId Actor, int DirXPermille, int DirZPermille) : GameCommand(Actor);
 
+/// <summary>
+/// Shove, trip or disarm what is in front of the character (CMB-16, COMBAT §368-381, OD-C17(f)). A control move is a deliberate act, not a
+/// hit: it costs its stamina whether or not it lands, and it runs through the same windup, contact and recovery a blow does.
+/// </summary>
+public sealed record ControlCommand(EntityId Actor, ControlMove Move) : GameCommand(Actor);
+
 /// <summary>Use a carried consumable (the salve).</summary>
 public sealed record UseItemCommand(EntityId Actor, EntityId Item) : GameCommand(Actor);
 
@@ -68,6 +74,14 @@ public sealed record UseItemCommand(EntityId Actor, EntityId Item) : GameCommand
 
 /// <summary>An attack began. Presentation times its clip to these phases; the simulation never reads a clip.</summary>
 public sealed record AttackStarted(EntityId Attacker, string Source, int WindupTicks, int ActiveTicks, int RecoveryTicks, long Tick);
+
+/// <summary>
+/// A control move resolved: whether it landed, what it cost, what footing it left the target in, and - for a disarm - that the
+/// weapon left their hands. <see cref="Awareness"/> is the line the target reads it as (CMB-16's AI awareness), the same channel a
+/// charge's awareness uses; <see cref="Reason"/> is the rule's own words for what happened, landed or refused, for the log.
+/// </summary>
+public sealed record ControlResolved(EntityId Actor, EntityId Target, ControlMove Move, bool Landed, int StaminaSpent,
+    bool Prone, bool Disarmed, string Awareness, string Reason, long Tick);
 
 /// <summary>An attack's window closed without touching anything: out of reach, out of the arc, or stopped by a wall.</summary>
 public sealed record AttackMissed(EntityId Attacker, string Source, long Tick);
@@ -171,6 +185,12 @@ public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? A
 
     /// <summary>While downed: ticks until the hand near them helps them up.</summary>
     public int DownedTicksLeft { get; init; }
+
+    /// <summary>Off their feet (CMB-16): prone is a stumble of one second, not a defeat, and it locks the character's actions while it lasts.</summary>
+    public bool Prone { get; init; }
+
+    /// <summary>While prone: ticks until they are on their feet again.</summary>
+    public int ProneTicksLeft { get; init; }
 }
 
 // ── state (internal) ────────────────────────────────────────────────────────
@@ -187,6 +207,9 @@ internal enum ActionKind
 
     /// <summary>A working (M3e): the cast time is its tell, then it is released, then the body recovers.</summary>
     Cast,
+
+    /// <summary>A control move (CMB-16): a shove, a trip or a disarm, timed as a blow and resolved once at its moment of contact.</summary>
+    Control,
 }
 
 /// <summary>What a body is doing, from which tick. The phases follow from the start tick; nothing counts down.</summary>
@@ -203,6 +226,9 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
     /// <summary>A stagger that lasts longer than the usual (a charger stunned against a wall); 0 takes the usual.</summary>
     public int LastsTicks { get; init; }
 
+    /// <summary>The control move an <see cref="ActionKind.Control"/> action is making; null for every other action.</summary>
+    public ControlMove? Control { get; init; }
+
     /// <summary>The formula a cast is working.</summary>
     public FormulaDefinition? Formula { get; init; }
 
@@ -217,6 +243,7 @@ internal sealed record ActionState(ActionKind Kind, long StartTick, AttackProfil
         switch (Kind)
         {
             case ActionKind.Attack:
+            case ActionKind.Control:
             {
                 var a = Attack!;
                 if (elapsed <= a.WindupTicks)
@@ -308,6 +335,12 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     /// <summary>The tick each technique used comes ready again (WP9). Transient, as cooldowns are (SYSTEMS.md S-10): a load starts them ready.</summary>
     public ImmutableSortedDictionary<string, long> TechniquesReadyAt { get; init; } = ImmutableSortedDictionary.Create<string, long>(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The character's footing (CMB-16): prone for its one second of rise, then immune to being knocked down for three. Separate from
+    /// <see cref="Defeated"/> and <see cref="DownedUntil"/>: being prone is a stumble, never a defeat.
+    /// </summary>
+    public Footing Footing { get; init; } = Footing.Standing;
 }
 
 // ── internal commands ───────────────────────────────────────────────────────
@@ -349,6 +382,12 @@ internal sealed record AwaitRespawn(long At) : InternalCommand;
 
 /// <summary>To <see cref="CombatSystem"/>: the player lies downed until <see cref="Until"/>; zero helps them up.</summary>
 internal sealed record LieDowned(long Until) : InternalCommand;
+
+/// <summary>
+/// To <see cref="CombatSystem"/>: a creature's control move reached the character (CMB-16) - a shove, a trip or a disarm. The player's
+/// footing and their weapon are the combat system's, so it resolves here as a creature's blow does.
+/// </summary>
+internal sealed record CreatureControl(EntityId Attacker, ControlMove Move) : InternalCommand;
 
 /// <summary>To <see cref="InventorySystem"/>: spend carried items by definition (an arrow at release).</summary>
 internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
@@ -461,9 +500,42 @@ internal sealed partial class CombatSystem
         return null;
     }
 
+    /// <summary>
+    /// A shove, a trip or a disarm (CMB-16). It costs its stamina now and begins; what it reaches is read again at its moment of contact, so
+    /// a target that has stepped away is not in it, exactly as a blow's arc is read at its own active tick.
+    /// </summary>
+    public string? Handle(ControlCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var combat = State.PlayerCombat;
+        if (Busy(combat.Action, tick) is { } busy)
+            return busy;
+        if (_context.ControlOn(_player) == ControlKind.Incapacitates)
+            return "you cannot move";
+        var actor = ControlActor();
+        var timing = ControlRules.Timing(command.Move, actor);
+        if (Stamina() < timing.StaminaCost)
+            return $"too tired to {command.Move.ToString().ToLowerInvariant()}";
+        Exert(timing.StaminaCost, tick);
+        State.SetPlayerCombat(_owner, State.PlayerCombat with
+        {
+            Action = ActionState.Begin(ActionKind.Control, tick, timing) with { Control = command.Move },
+            Blocking = false,
+        });
+        // The move's timing is the phase machine's, and its source - "control.shove" and its sisters - is what CombatView.AttackSource reads
+        // while it runs, so presentation times a clip to the same phases it times a swing to.
+        return null;
+    }
+
+    /// <summary>What the character brings to a control move: the stamina they have, the reach of what they hold, and their own weight.</summary>
+    private ControlProfile ControlActor() => new(Stamina(), Math.Max(1, (int)Math.Round(PlayerAttack().ReachMm / 1000.0)),
+        ControlRules.WeightOf(_context.Setup.Movement.BodyRadiusMm));
+
     private string? Busy(ActionState action, long tick) => action.PhaseAt(tick, C).Phase switch
     {
-        CombatPhase.Idle => State.PlayerCombat.DownedUntil > 0 ? "downed" : State.PlayerCombat.Defeated ? "dead" : null,
+        CombatPhase.Idle => State.PlayerCombat.DownedUntil > 0 ? "downed" : State.PlayerCombat.Defeated ? "dead"
+            : State.PlayerCombat.Footing.Prone ? "off your feet" : null,
         CombatPhase.Staggered => "staggered",
         CombatPhase.Dodge => "dodging",
         var phase => $"already {(action.Kind == ActionKind.Cast ? "casting" : "attacking")} ({phase.ToString().ToLowerInvariant()})",
@@ -516,8 +588,18 @@ internal sealed partial class CombatSystem
 
     public void Tick(long tick)
     {
+        FootingTick();
         PlayerTick(tick);
         Vitals(tick);
+    }
+
+    /// <summary>Rise on the tick the second is up, and count the immunity down: nothing has to be pressed to get up (CMB-16).</summary>
+    private void FootingTick()
+    {
+        var footing = State.PlayerCombat.Footing;
+        if (!footing.Prone && footing.ImmunityTicksRemaining <= 0)
+            return;
+        State.SetPlayerCombat(_owner, State.PlayerCombat with { Footing = footing.Tick() });
     }
 
     private void PlayerTick(long tick)
@@ -536,6 +618,13 @@ internal sealed partial class CombatSystem
         {
             if (phase == CombatPhase.Active)
                 Release(action.Formula!, tick);
+            return;
+        }
+        if (action.Kind == ActionKind.Control)
+        {
+            // Once, on the first tick of contact, as a drawn shot is loosed once.
+            if (phase == CombatPhase.Active && tick - action.StartTick == action.Attack!.WindupTicks + 1)
+                ResolveControl(action, tick);
             return;
         }
         if (action.Kind != ActionKind.Attack || phase != CombatPhase.Active)
@@ -573,6 +662,49 @@ internal sealed partial class CombatSystem
         State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = State.PlayerCombat.Action with { Struck = struck } });
         if (struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
             _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+    }
+
+    /// <summary>
+    /// The moment of contact of a control move: the nearest body in front, inside the move's own reach, takes it. A control move wounds
+    /// nothing, so it does not go through the damage pipeline - the rule decides, and the footing it leaves is written to the body that owns it.
+    /// </summary>
+    private void ResolveControl(ActionState action, long tick)
+    {
+        var move = action.Control!.Value;
+        var actor = ControlActor();
+        double reachM = ControlRules.ReachM(move, actor);
+        var body = State.Body;
+        var inReach = State.Creatures.Values
+            .Where(c => c.Alive && c.Site.Space == State.Space)
+            .Select(c => (Creature: c, DistanceM: Math.Sqrt(Math.Pow(c.Body.XMm - body.XMm, 2) + Math.Pow(c.Body.ZMm - body.ZMm, 2)) / 1000.0))
+            .Where(t => t.DistanceM <= reachM + t.Creature.Definition.RadiusMm / 1000.0
+                && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, t.Creature.Body.XMm, t.Creature.Body.ZMm, long.MaxValue / 4, C.MeleeArcMdeg)
+                && !Walled(body.XMm, body.ZMm, t.Creature.Body.XMm, t.Creature.Body.ZMm))
+            .OrderBy(t => t.DistanceM)
+            .Select(t => ((CreatureState Creature, double DistanceM)?)t)
+            .FirstOrDefault();
+        if (inReach is not { } target)
+        {
+            _context.Events.Publish(new ControlResolved(_player, _player, move, false, 0, false, false, "nothing within reach",
+                "nothing within reach", tick));
+            return;
+        }
+        var creature = target.Creature;
+        // A guard is what a shover meets: the same raised guard a blow meets, read from the same arc.
+        bool guarding = creature.Blocks(body, action.Attack!, tick, C);
+        var outcome = move switch
+        {
+            ControlMove.Shove => ControlRules.Shove(actor, creature.Footing, guarding, target.DistanceM),
+            ControlMove.Trip => ControlRules.Trip(actor, creature.Footing, guarding, ControlRules.WeightOf(creature.Definition.RadiusMm)),
+            // No creature this build places holds a weapon to take (content/creatures names no weapon): the rule says so, and the stamina is
+            // still spent. CMB-17's clinch and any armed content extend this one line.
+            _ => ControlRules.Disarm(actor, (int)Math.Max(1, Math.Round(creature.Definition.Attack.ReachMm / 1000.0)), targetHoldingWeapon: false),
+        };
+        if (outcome.Target != creature.Footing)
+            _context.Dispatch(new SetFooting(creature.Id, outcome));
+        State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
+        _context.Events.Publish(new ControlResolved(_player, creature.Id, move, outcome.Landed, outcome.StaminaSpent, outcome.Target.Prone,
+            outcome.Disarmed, ControlRules.AwarenessFor(outcome), outcome.Reason, tick));
     }
 
     /// <summary>A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned.</summary>
@@ -787,8 +919,7 @@ internal sealed partial class CombatSystem
         var attack = command.Attack;
         var body = State.Body;
         // A guard takes only what it can take - a physical blow - so only such a blow can break it (the Phase-1 technical audit, L-21).
-        bool guarding = combat.Blocking && DamageTypes.IsPhysical(attack.DamageType)
-            && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
+        bool guarding = DamageTypes.IsPhysical(attack.DamageType) && GuardedAgainst(State, C, creature.Body.XMm, creature.Body.ZMm);
         if (guarding && Stamina() < C.BlockStaminaPerHit)
         {
             guarding = false;
@@ -825,6 +956,64 @@ internal sealed partial class CombatSystem
         if (result.EffectApplied && attack.OnHitEffect is { } effect && health > 0)
             _context.Dispatch(new ApplyEffect(_player, effect));
         return null;
+    }
+
+    /// <summary>
+    /// A creature's control move reached the character (CMB-16). The guard is read as it is for a blow - only from the front - so a raised
+    /// guard is what a shover or a tripper meets, and a disarm takes the weapon out of the hand and puts it on the ground.
+    /// </summary>
+    public string? Handle(CreatureControl command, long tick)
+    {
+        if (State.Creatures.Values.FirstOrDefault(c => c.Id == command.Attacker) is not { Alive: true } creature)
+            return "no such attacker";
+        if (creature.Site.Space != State.Space)
+            return "attacker is in another space";
+        var combat = State.PlayerCombat;
+        if (combat.Defeated)
+            return "dead";
+        var body = State.Body;
+        var (x, z) = (creature.Body.XMm, creature.Body.ZMm);
+        double distanceM = Math.Sqrt(Math.Pow(x - body.XMm, 2) + Math.Pow(z - body.ZMm, 2)) / 1000.0;
+        var actor = new ControlProfile(ControlRules.UnspentStamina, Math.Max(1, (int)Math.Round(creature.Definition.Attack.ReachMm / 1000.0)),
+            ControlRules.WeightOf(creature.Definition.RadiusMm));
+        bool guarding = combat.Blocking && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, x, z, long.MaxValue / 4, C.BlockArcMdeg);
+        var outcome = command.Move switch
+        {
+            ControlMove.Shove => ControlRules.Shove(actor, combat.Footing, guarding, distanceM),
+            ControlMove.Trip => ControlRules.Trip(actor, combat.Footing, guarding, ControlRules.WeightOf(_context.Setup.Movement.BodyRadiusMm)),
+            // The character's own weapon is what is taken: a longer weapon is harder to keep, which is the reach penalty from their side.
+            _ => ControlRules.Disarm(actor, Math.Max(1, (int)Math.Round(PlayerAttack().ReachMm / 1000.0)), State.Equipment.ContainsKey(EquipSlot.MainHand)),
+        };
+        State.SetPlayerCombat(_owner, State.PlayerCombat with
+        {
+            Footing = outcome.Target,
+            LastCombat = tick,
+            // Off their feet or disarmed: the guard that was up comes down, and the blow that was begun does not land.
+            Blocking = outcome.Target.Prone || outcome.Disarmed ? false : combat.Blocking,
+            Action = outcome.Target.Prone || outcome.Disarmed ? ActionState.Idle : combat.Action,
+        });
+        if (outcome.Disarmed)
+            DropWeapon();
+        _context.Events.Publish(new ControlResolved(creature.Id, _player, command.Move, outcome.Landed, outcome.StaminaSpent, outcome.Target.Prone,
+            outcome.Disarmed, ControlRules.AwarenessFor(outcome), outcome.Reason, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// A disarm takes the weapon out of the character's hand and puts it on the ground where it fell (CMB-16): the inventory system does it
+    /// through the same move a drop makes, so it is the same ground item a loot drop is and the existing pick-up path collects it with no new code.
+    /// </summary>
+    private void DropWeapon() => _context.Dispatch(new KnockFromHands(EquipSlot.MainHand));
+
+    /// <summary>
+    /// Whether the character's raised guard covers a body standing at that spot: only what is in front of it, and only with the guard up. The
+    /// combat system asks it of a blow coming in; a creature asks it of its own blow to know that what it does is being turned aside (CMB-16).
+    /// </summary>
+    internal static bool GuardedAgainst(RuntimeState state, CombatConstants constants, long xMm, long zMm)
+    {
+        var body = state.Body;
+        return state.PlayerCombat.Blocking
+            && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, xMm, zMm, long.MaxValue / 4, constants.BlockArcMdeg);
     }
 
     private bool StaggerPlayer(long tick, bool force)
@@ -919,6 +1108,13 @@ internal sealed partial class CombatSystem
             {
                 Action = ActionState.Begin(ActionKind.Attack, saved.StartTick, attack) with { Struck = saved.Struck.ToImmutableHashSet() },
             });
+        // Prone survives a save (CMB-16): a character who saved while off their feet loads off their feet, with the immunity they had left.
+        if (player.ProneUntilTick <= 0 && player.KnockdownImmuneUntilTick <= 0)
+            return;
+        State.SetPlayerCombat(_owner, State.PlayerCombat with
+        {
+            Footing = Footing.Restore(player.ProneUntilTick, player.KnockdownImmuneUntilTick, State.WorldTick),
+        });
     }
 
     /// <summary>The attack under way as a save keeps it (schema 27), so a save mid-windup loads mid-windup; null when there is none.</summary>
@@ -928,6 +1124,16 @@ internal sealed partial class CombatSystem
         return action.Kind == ActionKind.Attack && action.PhaseAt(State.WorldTick, C).Phase != CombatPhase.Idle
             ? new AttackRecord(action.Attack!.Source, action.StartTick, action.Struck.ToImmutableArray())
             : null;
+    }
+
+    /// <summary>
+    /// The footing as a save keeps it (CMB-16): the two deadlines, written only while they still matter, so a character on their feet is
+    /// recorded as one who never left them (and digests as before).
+    /// </summary>
+    public (long ProneUntil, long ImmuneUntil) FootingUntil()
+    {
+        var footing = State.PlayerCombat.Footing;
+        return footing.Prone || footing.ImmunityTicksRemaining > 0 ? footing.Until(State.WorldTick) : (0, 0);
     }
 
     /// <summary>The blow a saved attack makes again: the weapon in hand's, or a technique's with it; null when neither makes it now.</summary>
@@ -1082,6 +1288,8 @@ internal sealed partial class CombatSystem
             RespawnTicksLeft = combat.Defeated && combat.RespawnAt > 0 ? (int)Math.Max(0, combat.RespawnAt - State.WorldTick) : 0,
             Downed = combat.DownedUntil > 0,
             DownedTicksLeft = combat.DownedUntil > 0 ? (int)Math.Max(0, combat.DownedUntil - State.WorldTick) : 0,
+            Prone = combat.Footing.Prone,
+            ProneTicksLeft = combat.Footing.ProneRiseTicksRemaining,
         };
     }
 }

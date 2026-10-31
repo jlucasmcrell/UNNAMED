@@ -114,6 +114,9 @@ public class PlayerRecordCompletenessTests
                 Attack = new AttackRecord("item.weapon.iron_sword", 4_200, ImmutableArray.Create(
                     EntityId.Create(EntityKind.Creature, 1_700_000_000_101, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 1 }),
                     EntityId.Create(EntityKind.Creature, 1_700_000_000_102, new byte[] { 7, 7, 7, 7, 7, 7, 7, 7, 7, 2 }))),
+                // Off their feet, and still immune once they are up (CMB-16).
+                ProneUntilTick = 4_218,
+                KnockdownImmuneUntilTick = 4_278,
                 // An experiment that hinted and one that came to nothing (schema 31).
                 Findings = ImmutableArray.Create(
                     new Domain.Crafting.Finding(

@@ -175,6 +175,15 @@ internal sealed record ReceiveStack(InventoryEntry Entry) : InternalCommand
 internal sealed record ReleaseItem(EntityId ItemId) : InternalCommand;
 
 /// <summary>
+/// To <see cref="EquipmentSystem"/>: a weapon knocked out of the hands (CMB-16's disarm). The slot is the equipment's to empty, and what leaves it
+/// is then dropped by the inventory, which owns the ground - so the two owners each do their own half.
+/// </summary>
+internal sealed record KnockFromHands(EquipSlot Slot) : InternalCommand;
+
+/// <summary>To <see cref="InventorySystem"/>: a carried stack left lying where the body stands (a disarmed weapon, CMB-16).</summary>
+internal sealed record DropCarried(EntityId Item) : InternalCommand;
+
+/// <summary>
 /// Owns: <see cref="StateSlice.PlayerInventory"/> and <see cref="StateSlice.WorldItems"/>. Every movement of an item goes
 /// through here, and every check happens before anything changes: a refused move leaves every stack as it was.
 /// An authored container holds its loot table's result until the first change, when it and everything in it get
@@ -232,6 +241,17 @@ internal sealed partial class InventorySystem
         int left = _context.FindContainer(command.ContainerKey) is { } still ? ContentsOf(still).Sum(i => i.Count) : 0;
         _context.Events.Publish(new TookAll(_player, command.ContainerKey, taken, left, left > 0 ? why : null, tick));
         return taken == 0 ? why ?? "nothing could be taken" : null;
+    }
+
+    /// <summary>
+    /// A disarmed weapon, left lying where the body stands (CMB-16): through the one move a drop makes, so it is the same ground record a loot
+    /// drop is and the existing pick-up path collects it with no new code.
+    /// </summary>
+    public string? Handle(DropCarried command, long tick)
+    {
+        if (State.Inventory.FirstOrDefault(e => e.ItemId == command.Item) is not { } entry)
+            return $"{command.Item} is not carried";
+        return Move(new MoveItemCommand(_player, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, entry.Count), tick, trading: false);
     }
 
     /// <summary>How many of a stack the pack has room for and the character can carry, as it is now.</summary>
@@ -1061,6 +1081,21 @@ internal sealed class EquipmentSystem
             return busy;
         state.SetEquipment(_owner, state.Equipment.Remove(held.Key));
         _context.Events.Publish(new ItemUnequipped(_player, held.Key, item, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// A weapon knocked out of the hands (CMB-16): the slot is emptied here, in the system that owns it, and the weapon is then dropped by the
+    /// inventory, which owns the ground. Unlike an unequip it does not ask the hands to be free - a blow that knocks a blade away does not wait for
+    /// the swing to finish; the combat system has already ended what the hands were doing.
+    /// </summary>
+    public string? Handle(KnockFromHands command, long tick)
+    {
+        if (!_context.State.Equipment.TryGetValue(command.Slot, out var item))
+            return $"nothing is equipped in {EquipSlots.Key(command.Slot)}";
+        _context.State.SetEquipment(_owner, _context.State.Equipment.Remove(command.Slot));
+        _context.Events.Publish(new ItemUnequipped(_player, command.Slot, item, tick));
+        _context.Dispatch(new DropCarried(item));
         return null;
     }
 

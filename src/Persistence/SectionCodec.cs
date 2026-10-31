@@ -117,6 +117,14 @@ public sealed class PlayerDto
     [Key("attack")] public AttackDto? Attack { get; set; }
 
     /// <summary>
+    /// Prone from a shove or a trip (CMB-16): the tick the character is on their feet again, and the tick they may be knocked down
+    /// again. Older saves have neither, which is a character standing - and a build before this one reads them as unknown and leaves them.
+    /// </summary>
+    [Key("prone_until_tick")] public long ProneUntilTick { get; set; }
+
+    [Key("knockdown_immune_until")] public long KnockdownImmuneUntilTick { get; set; }
+
+    /// <summary>
     /// Required from schema 30 (the Barrowworks): the space the body stands in, empty for the exterior - where every save before it was
     /// written.
     /// </summary>
@@ -939,6 +947,11 @@ public sealed class CreatureContinuationDto
     [Key("stagger_immune_until")] public long StaggerImmuneUntil { get; set; }
     [Key("staggered_tick")] public long? StaggeredTick { get; set; }
     [Key("stagger_lasts_ticks")] public int StaggerLastsTicks { get; set; }
+
+    /// <summary>Prone from a shove or a trip (CMB-16). Older saves have none, which is a creature on its feet.</summary>
+    [Key("prone_until_tick")] public long ProneUntilTick { get; set; }
+
+    [Key("knockdown_immune_until")] public long KnockdownImmuneUntilTick { get; set; }
 }
 
 [MessagePackObject]
@@ -1183,6 +1196,8 @@ public static class SectionCodec
         }).ToArray(),
         Attack = player.Attack is not { } attack ? null
             : new AttackDto { Source = attack.Source, StartTick = attack.StartTick, Struck = attack.Struck.Select(e => e.Value).ToArray() },
+        ProneUntilTick = player.ProneUntilTick,
+        KnockdownImmuneUntilTick = player.KnockdownImmuneUntilTick,
         SpaceId = player.SpaceId,
         SpaceTraversal = player.SpaceTraversal,
         Pack = new PackDto
@@ -1430,6 +1445,8 @@ public static class SectionCodec
             }).ToImmutableArray(),
             Attack = dto.Attack is not { } attack ? null
                 : new AttackRecord(attack.Source, attack.StartTick, attack.Struck.Select(EntityId.Parse).ToImmutableArray()),
+            ProneUntilTick = dto.ProneUntilTick,
+            KnockdownImmuneUntilTick = dto.KnockdownImmuneUntilTick,
             SpaceId = SpaceId.Parse(spaceId).ToString(),
             SpaceTraversal = dto.SpaceTraversal,
             ExtraBars = extraBars.Select(bar => bar.ToImmutableArray()).ToImmutableArray(),
@@ -1615,6 +1632,8 @@ public static class SectionCodec
                     StaggerImmuneUntil = c.StaggerImmuneUntil,
                     StaggeredTick = c.StaggeredTick,
                     StaggerLastsTicks = c.StaggerLastsTicks,
+                    ProneUntilTick = c.ProneUntilTick,
+                    KnockdownImmuneUntilTick = c.KnockdownImmuneUntilTick,
                 },
             }).ToArray(),
             Noises = snapshot.Noises.Select(n => new NoiseDto { XMm = n.XMm, ZMm = n.ZMm, RadiusMm = n.RadiusMm, Call = n.Call, CallerKind = n.CallerKind })
@@ -1757,6 +1776,8 @@ public static class SectionCodec
                     StaggerImmuneUntil = continuation.StaggerImmuneUntil,
                     StaggeredTick = continuation.StaggeredTick,
                     StaggerLastsTicks = continuation.StaggerLastsTicks,
+                    ProneUntilTick = continuation.ProneUntilTick,
+                    KnockdownImmuneUntilTick = continuation.KnockdownImmuneUntilTick,
                 };
             })
             .ToImmutableArray();

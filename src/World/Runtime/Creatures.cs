@@ -7,6 +7,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Creatures;
+using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Pets;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Quests;
@@ -55,6 +56,13 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     public int PhaseDurationTicks { get; init; }
     public int AttackVariant { get; init; }
     public bool Guarding { get; init; }
+
+    /// <summary>Off its feet from a shove or a trip (CMB-16): it does nothing until it has risen.</summary>
+    public bool Prone { get; init; }
+
+    /// <summary>While prone: ticks until it is on its feet again.</summary>
+    public int ProneTicksLeft { get; init; }
+
     public bool Alive => Condition == CreatureCondition.Alive;
 
     public bool Hostile => Mind == CreatureMind.Engaged;
@@ -134,6 +142,25 @@ internal sealed record CreatureState(
         GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
         && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
             long.MaxValue / 4, constants.BlockArcMdeg);
+    /// <summary>
+    /// Its footing (CMB-16): prone for a second of rise, then immune to another knock-down for three. A prone creature does not act - the
+    /// shove's whole point - and it is not a stagger, so no blow has to have landed for it.
+    /// </summary>
+    public Footing Footing { get; init; } = Footing.Standing;
+
+    /// <summary>
+    /// Shoved, tripped or disarmed, it gives ground until this tick rather than crowd straight back in (CMB-16's awareness). Transient, like a
+    /// lure's attention: a load starts with a body that has not just been put on the floor.
+    /// </summary>
+    public long WaryUntil { get; init; }
+
+    /// <summary>
+    /// It may reach for a control move from this tick (CMB-16), and only because a blow of its own was turned aside - blocked or dodged - which
+    /// is the evidence that what it does is not working. 0 until that happens, and 0 again once it has made the move: it has to earn the next
+    /// one. Transient, like the grudge a pet's bite leaves.
+    /// </summary>
+    public long ControlReadyTick { get; init; }
+
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
@@ -188,6 +215,12 @@ internal sealed record WoundCreature(EntityId Target, HitResult Hit, string Sour
     public long FromXMm { get; init; }
     public long FromZMm { get; init; }
 }
+
+/// <summary>
+/// To <see cref="CreatureSystem"/>: what a control move left this body's footing as (CMB-16). The creature owns its own footing, as it owns
+/// its health and its stagger, and it reads the outcome as something done to it.
+/// </summary>
+internal sealed record SetFooting(EntityId Target, ControlOutcome Outcome) : InternalCommand;
 
 /// <summary>To <see cref="CreatureSystem"/>: harm that is not a blow (an effect's tick).</summary>
 internal sealed record HarmCreature(EntityId Target, string Source, int Amount) : InternalCommand;
@@ -397,6 +430,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                         HasCalled = record.HasCalled,
                         NextChargeTick = record.NextChargeTick,
                         StaggerImmuneUntil = record.StaggerImmuneUntil,
+                        // Prone survives a save (CMB-16): the deadlines are world ticks, so a creature shoved just before a save is still
+                        // off its feet when that save loads, with the rise and the immunity it had left.
+                        Footing = Footing.Restore(record.ProneUntilTick, record.KnockdownImmuneUntilTick, State.WorldTick),
                         Action = record.StaggeredTick is { } staggered
                             ? ActionState.Begin(ActionKind.Staggered, staggered) with { LastsTicks = record.StaggerLastsTicks }
                             : ActionState.Idle,
@@ -578,6 +614,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
     {
         if (TierOf(c) != SimulationTier.A)
             return c;
+        // Its footing comes first (CMB-16): off its feet it does nothing at all until it has risen, and is immune for three seconds after.
+        if (c.Footing.Prone || c.Footing.ImmunityTicksRemaining > 0)
+        {
+            c = c with { Footing = c.Footing.Tick() };
+            if (c.Footing.Prone)
+                return c with { Action = ActionState.Idle };
+        }
         var (phase, _) = c.Action.PhaseAt(tick, C);
         if (c.Action.Kind != ActionKind.Idle && phase == CombatPhase.Idle)
             c = c with { Action = ActionState.Idle };
@@ -593,6 +636,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             CombatPhase.Staggered or CombatPhase.Recovery => c,
             CombatPhase.Windup => Aim(c),
+            // A control move's moment of contact (CMB-16): what the character's footing and weapon are is the combat system's to apply.
+            CombatPhase.Active when c.Action.Kind == ActionKind.Control => Control(c, tick),
             CombatPhase.Active when c.Action.Kind == ActionKind.Charge => Run(c, tick),
             CombatPhase.Active => Strike(c, tick),
             _ => Act(c, tick),
@@ -896,6 +941,30 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
 
+        // Shoved, tripped or disarmed, it gives ground rather than crowd straight back in (CMB-16's awareness), as a wary body does.
+        if (tick < c.WaryUntil && distance < ControlRules.ShoveReachM * 1000 + _context.Setup.Movement.BodyRadiusMm)
+        {
+            double dx = c.Body.XMm - player.XMm, dz = c.Body.ZMm - player.ZMm;
+            double length = Math.Max(1, distance);
+            var backed = Move(c, c.Body.XMm + (long)(dx / length * 2_000), c.Body.ZMm + (long)(dz / length * 2_000), Gait.Walk);
+            return c with { Body = backed with { FacingMdeg = Turn(c, facing).FacingMdeg } };
+        }
+
+        // A control move (CMB-16) comes before the blow it answers: only after one of its own blows was turned aside, only at a target it can
+        // see, and only inside the move's own reach.
+        if (_context.ControlOn(c.Id) != ControlKind.Roots && atCharacter && seesTarget && clear && ControlChoice(c, attack, distance, tick) is { } control)
+        {
+            var actor = new ControlProfile(ControlRules.UnspentStamina, Math.Max(1, (int)Math.Round(attack.ReachMm / 1000.0)),
+                ControlRules.WeightOf(c.Definition.RadiusMm));
+            var timing = ControlRules.Timing(control, actor);
+            return c with
+            {
+                Body = Turn(c, facing),
+                Action = ActionState.Begin(ActionKind.Control, tick, timing) with { Control = control },
+                ControlReadyTick = 0,   // the next one is earned by another blow being turned aside
+            };
+        }
+
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
@@ -935,6 +1004,51 @@ internal sealed class CreatureSystem : IAbstractAdvance
             toZ += (long)(dx / toKnown * c.Role.FlankMm * side);
         }
         return c with { Body = Move(c, toX, toZ, Gait.Run) };
+    }
+
+    /// <summary>
+    /// The moment of contact of a creature's control move (CMB-16). It reaches the character once, inside the move's own reach; the combat
+    /// system owns the character's footing and weapon, so it resolves there.
+    /// </summary>
+    private CreatureState Control(CreatureState c, long tick)
+    {
+        if (c.Action.Struck.Contains(_player))
+            return c;
+        var body = State.Body;
+        double coverMm = c.Action.Attack!.ReachMm + _context.Setup.Movement.BodyRadiusMm;
+        if (Distance(c.Body.XMm, c.Body.ZMm, body.XMm, body.ZMm) > coverMm)
+            return c;
+        Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+        _context.Dispatch(new CreatureControl(c.Id, c.Action.Control!.Value));
+        return c with { Action = c.Action with { Struck = c.Action.Struck.Add(_player) } };
+    }
+
+    /// <summary>
+    /// Which control move it wants, or null when a blow is the better answer (CMB-16): a guard it cannot get through is shoved, and a weapon
+    /// that outranges its own is taken off the character - the same decision shape its charge takes, and only after a blow of its own has been
+    /// turned aside.
+    /// </summary>
+    private ControlMove? ControlChoice(CreatureState c, AttackProfile attack, double distanceMm, long tick)
+    {
+        if (c.ControlReadyTick == 0 || tick < c.ControlReadyTick)
+            return null;
+        ControlMove? wanted = State.PlayerCombat.Blocking ? ControlMove.Shove
+            : State.Equipment.ContainsKey(EquipSlot.MainHand) && PlayerReachMm() > attack.ReachMm ? ControlMove.Disarm
+            : null;
+        if (wanted is not { } move)
+            return null;
+        var actor = new ControlProfile(ControlRules.UnspentStamina, Math.Max(1, (int)Math.Round(attack.ReachMm / 1000.0)),
+            ControlRules.WeightOf(c.Definition.RadiusMm));
+        return distanceMm <= ControlRules.ReachM(move, actor) * 1000 + _context.Setup.Movement.BodyRadiusMm ? wanted : null;
+    }
+
+    /// <summary>The reach the character fights at now: their weapon's (a bow's range among them), or their bare hands'.</summary>
+    private long PlayerReachMm()
+    {
+        if (State.Equipment.TryGetValue(EquipSlot.MainHand, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+            && _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon is { } weapon)
+            return CombatSystem.AttackOf(entry.DefId, weapon, C, TickMs).ReachMm;
+        return C.Unarmed.ReachMm;
     }
 
     /// <summary>
@@ -1039,7 +1153,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (blow is not null && reaches && _context.Dispatch(blow) is null)
         {
             Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
-            return c with { Action = action with { Struck = action.Struck.Add(foe.Id) } };
+            // Its blow went into a guard that covers the side it is on: it takes the answer, and comes back with a shove or a disarm rather
+            // than the same blow again (CMB-16). Read here because the creature owns this fact, and the guard's own test is the shared one.
+            return c with
+            {
+                Action = action with { Struck = action.Struck.Add(foe.Id) },
+                ControlReadyTick = CombatSystem.GuardedAgainst(State, C, c.Body.XMm, c.Body.ZMm) ? tick + 1 : c.ControlReadyTick,
+            };
         }
         if (action.Struck.IsEmpty && elapsed == attack.WindupTicks + attack.ActiveTicks)
             _context.Events.Publish(new AttackMissed(c.Id, attack.Source, tick));
@@ -1101,6 +1221,35 @@ internal sealed class CreatureSystem : IAbstractAdvance
         int health = Math.Max(0, c.Health - command.Amount);
         _context.Events.Publish(new HealthChanged(c.Id, command.Source, health - c.Health, health, tick));
         Save(health == 0 ? Die(c with { Health = 0 }, tick, _player) : c with { Health = health });
+        return null;
+    }
+
+    /// <summary>
+    /// What a control move left its footing as (CMB-16), and what it reads of that: hands on it are felt as a blow is, so it turns on the
+    /// character it can now place - and for the few seconds afterwards it gives ground rather than crowd back in, which is what the rule's
+    /// own line says a shoved or disarmed body does.
+    /// </summary>
+    public string? Handle(SetFooting command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } c)
+            return null;
+        // Nothing landed: there is nothing for it to read, and nothing to write.
+        if (command.Outcome.Target == c.Footing)
+            return null;
+        var footing = c with { Footing = command.Outcome.Target, WaryUntil = tick + ControlRules.ProneImmunityTicks };
+        bool flees = Frightened(footing);
+        var mind = flees ? CreatureMind.Fleeing : CreatureMind.Engaged;
+        if (mind != c.Mind)
+            _context.Events.Publish(new CreatureNoticed(c.Id, c.Key, mind, tick));
+        Save(footing with
+        {
+            Mind = mind,
+            Awareness = Perception.Full,
+            Knows = true,
+            KnownXMm = State.Body.XMm,
+            KnownZMm = State.Body.ZMm,
+            LastSeenTick = tick,
+        });
         return null;
     }
 
@@ -1330,10 +1479,14 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool alive = c.Condition == CreatureCondition.Alive;
         long charge = alive && c.NextChargeTick > next ? c.NextChargeTick : 0;
         long immune = alive && c.StaggerImmuneUntil > next ? c.StaggerImmuneUntil : 0;
+        // Off its feet, or the three seconds after it rose, is written as the deadline it ends on - and as none once it has (CMB-16).
+        long proneUntil = alive && c.Footing.Prone ? State.WorldTick + c.Footing.ProneRiseTicksRemaining : 0;
+        long knockdownImmuneUntil = alive && c.Footing.ImmunityTicksRemaining > 0 ? State.WorldTick + c.Footing.ImmunityTicksRemaining : 0;
         bool staggered = alive && c.Action.Kind == ActionKind.Staggered && c.Action.PhaseAt(next, C).Phase == CombatPhase.Staggered;
         bool baseline = Scale is null && c.Condition == CreatureCondition.Alive && c.Generation == 0 && c.Health == c.ScaledMaxHealth
                         && c.Body.XMm == c.HomeXMm && c.Body.ZMm == c.HomeZMm && c.Body.FacingMdeg == c.HomeFacingMdeg
-                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0 && !staggered;
+                        && c.Mind == CreatureMind.Unaware && c.Awareness == 0 && !c.Knows && !c.HasCalled && charge == 0 && immune == 0
+                        && proneUntil == 0 && knockdownImmuneUntil == 0 && !staggered;
         var existing = State.World.Creature(c.Key);
         if (baseline)
         {
@@ -1356,6 +1509,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             HasCalled = c.HasCalled,
             NextChargeTick = charge,
             StaggerImmuneUntil = immune,
+            ProneUntilTick = proneUntil,
+            KnockdownImmuneUntilTick = knockdownImmuneUntil,
             StaggeredTick = staggered ? c.Action.StartTick : null,
             StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
         };
@@ -1558,6 +1713,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 AttackVariant = 0,
                 AttackTick = c.Action.StartTick,
                 Guarding = c.GuardUntil > tick,
+                Prone = c.Footing.Prone,
+                ProneTicksLeft = c.Footing.ProneRiseTicksRemaining,
                 Enraged = Enraged(c),
                 PhaseDurationTicks = c.Action.Attack is { } attack ? phase switch
                 {

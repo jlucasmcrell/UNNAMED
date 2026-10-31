@@ -210,6 +210,15 @@ public sealed record CreatureRecord(
     /// <summary>The first tick a blow may stagger it again; 0 when one already may.</summary>
     public long StaggerImmuneUntil { get; init; }
 
+    /// <summary>
+    /// Off its feet from a shove or a trip (CMB-16): the tick it has risen by, and the tick it may be knocked down again, both absolute.
+    /// Written only while it is still off its feet, so an upright creature has the record of one never knocked down.
+    /// </summary>
+    public long ProneUntilTick { get; init; }
+
+    /// <summary>The tick the three seconds of immunity to another knock-down end (CMB-16); 0 when there is none to run.</summary>
+    public long KnockdownImmuneUntilTick { get; init; }
+
     /// <summary>The tick the stagger it is in began - a charger's stun among them - or null.</summary>
     public long? StaggeredTick { get; init; }
 

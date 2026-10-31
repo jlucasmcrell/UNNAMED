@@ -35,6 +35,9 @@ public partial class HelpPanel : CanvasLayer
             {
                 ("Open, take, talk, work, help up", new[] { "interact" }), ("Attack, or shoot the bow", new[] { "attack" }),
                 ("Guard, or aim the bow", new[] { "guard" }), ("Dodge", new[] { "dodge" }), ("Use a salve", new[] { "use" }),
+                ("Shove, and knock a body off its feet", new[] { "shove" }),
+                ("Trip: one second down, three immune after", new[] { "trip" }),
+                ("Disarm: take the weapon out of reach", new[] { "disarm" }),
                 ("Use a quick slot: an item, a formula", new[] { "quick_1", "quick_12" }),
                 ("Take all, from a container", new[] { "take_all" }),
                 ("Page the main bar (hold, then 1 to 6)", new[] { "bar_modifier" }),

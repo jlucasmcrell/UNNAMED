@@ -4,6 +4,7 @@
 using Godot;
 using UNNAMED.Application;
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World.Runtime;
 
@@ -109,6 +110,12 @@ public sealed class PlayerController
 
     /// <summary>A knife into a creature that has not noticed the character (STEALTH §12): the simulation decides reach and whether it lives.</summary>
     public void Takedown() => _session.Submit(new TakedownCommand(_session.Simulation!.PlayerId));
+
+    /// <summary>
+    /// A shove, a trip or a disarm (CMB-16): the simulation decides whether there is stamina for it, what it reaches, and what the body it
+    /// lands on is left with. It runs through the combat phase machine, so the clip has a windup to be timed to.
+    /// </summary>
+    public void Control(ControlMove move) => _session.Submit(new ControlCommand(_session.Simulation!.PlayerId, move));
 
     /// <summary>Jump (the owner's M6 playtest): the simulation decides whether there is room, and the arc.</summary>
     public void Jump() => _session.Submit(new JumpCommand(_session.Simulation!.PlayerId));
