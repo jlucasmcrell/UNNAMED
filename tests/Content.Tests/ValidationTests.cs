@@ -737,6 +737,24 @@ public class ContentLoaderTests
                 "world.old_late.steadied", "world.ritual.blackvein_cut_drawn", "world.ritual.cairnwold_village_drawn", "world.ritual.den_listening_drawn",
                 "world.ritual.field_the_spill_drawn", "world.ritual.foldscar_watch_drawn", "world.ritual.old_late_drawn", "world.ritual.outpost_drawn",
                 "world.ritual.road_basin_rim_drawn", "world.sedge.crossing_account",
+                // D21's gear generator and GEN-09's accessories (2026-10-31): seven makers, their parts and material classes, the
+                // assembled sword's recipe, and the three items that carry the ring, belt and shoulder slots.
+                "item.armor.hide_shoulder_guards", "item.armor.leather_belt", "item.trinket.iron_band_ring",
+                "maker.constructed.annex_hall", "maker.kal.vossgar_forge", "maker.mor.quiet_keeping",
+                "maker.ondrek.deep_works", "maker.orenth.road_armoury", "maker.siann.wardhouse",
+                "maker.veth.waystation_smithy", "mat.bone.boneleaf", "mat.hide.deer",
+                "mat.hide.wolf", "mat.iron.charcoal_steel", "mat.iron.kal_folded",
+                "mat.iron.plain", "mat.wood.ash", "part.axe.binding.band",
+                "part.axe.haft.long", "part.axe.haft.short", "part.axe.head.bearded",
+                "part.axe.head.broad", "part.bow.grip.wrapped", "part.bow.limbs.recurve",
+                "part.bow.limbs.self", "part.bow.string.linen", "part.bow.string.sinew",
+                "part.shield.boss.dome", "part.shield.face.kite", "part.shield.face.round",
+                "part.shield.rim.iron", "part.spear.binding.band", "part.spear.haft.long",
+                "part.spear.head.leaf", "part.spear.head.pike", "part.staff.binding.band",
+                "part.staff.cap.iron", "part.staff.shaft.ash", "part.sword.blade.arming_straight",
+                "part.sword.blade.broad_two_hand", "part.sword.blade.leaf_long", "part.sword.grip.waisted",
+                "part.sword.grip.wrapped", "part.sword.guard.cross", "part.sword.guard.swept",
+                "part.sword.pommel.disc", "part.sword.pommel.faceted", "recipe.smithing.assembled_sword",
             }).OrderBy(k => k, StringComparer.Ordinal),
             loader.Definitions.Keys.OrderBy(k => k, StringComparer.Ordinal));
     }

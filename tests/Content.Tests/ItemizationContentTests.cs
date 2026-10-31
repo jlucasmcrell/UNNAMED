@@ -126,9 +126,11 @@ public class ItemizationContentTests
     public void Crafting_HoldsItsExperiments_MasterworkFlags_AndDropBands()
     {
         var crafting = CraftingContent.Build(Game());
-        Assert.Equal(new[] { "recipe.leatherwork.cloak", "recipe.leatherwork.timber_shield", "recipe.smithing.torch", "recipe.tanning.wolf_hide" },
+        Assert.Equal(new[] { "recipe.leatherwork.cloak", "recipe.leatherwork.timber_shield", "recipe.smithing.assembled_sword", "recipe.smithing.torch", "recipe.tanning.wolf_hide" },
             crafting.Recipes.Values.Where(r => r.Experiment).Select(r => r.Id));
-        Assert.Equal((2, 1), (crafting.Constants.ExperimentsPerStation["workbench"], crafting.Constants.ExperimentsPerStation["forge"]));
+        // A forge holds both of its candidates since D21's assembled sword joined the torch there (with one, the seed could deal a hearth
+        // the sword alone and the torch was not to be found at all).
+        Assert.Equal((2, 2), (crafting.Constants.ExperimentsPerStation["workbench"], crafting.Constants.ExperimentsPerStation["forge"]));
         Assert.True(crafting.Recipes["recipe.leatherwork.smith_gloves"].MasterworkPossible);
         Assert.False(crafting.Recipes["recipe.smithing.torch"].MasterworkPossible);
         Assert.Equal((25, 1, 1), (crafting.Constants.MasterworkPercentOfFine, crafting.Constants.MasterworkStationGrade, crafting.Constants.ArmorPerStep));
@@ -137,7 +139,7 @@ public class ItemizationContentTests
 
     [Fact]
     public void MoreExperimentsThanCandidates_AreRefused() =>
-        AssertRefused("config/crafting.yaml", "  forge: 1", "  forge: 2", "CRF001", "experiments.forge is 2");
+        AssertRefused("config/crafting.yaml", "  forge: 2", "  forge: 3", "CRF001", "experiments.forge is 3");
 
     [Fact]
     public void MasterworkOnAStackingOutput_IsRefused() =>
