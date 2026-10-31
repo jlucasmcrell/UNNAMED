@@ -246,6 +246,7 @@ public sealed class Simulation
     private readonly DialogueSystem _dialogue;
     private readonly TradeSystem _trade;
     private readonly QuestSystem _quests;
+    private readonly ContributionSystem _contribution;
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
     private readonly SpaceSystem _spaces;
@@ -358,6 +359,9 @@ public sealed class Simulation
         _markets.Jobs = _npcs;
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
+        _contribution = new ContributionSystem(_context, player.Id);
+        bus.Listen<HitResolved>(_contribution.Landed);
+        bus.Listen<CreatureKilled>(e => _contribution.Concluded(e.Creature, e.DefId, e.Killer, e.Tick));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
             new NpcPartyLife(Dispatch, _npcs.Lives, life))
         {
@@ -707,6 +711,12 @@ public sealed class Simulation
     public bool AtWork(string npcId) => _npcs.AtWork(npcId);
 
     /// <summary>Why a merchant will not trade now (WP12: only at work, in trading hours); null when they will, or there is no such merchant.</summary>
+    /// <summary>The contribution ledger of one encounter, while it is still being fought (CMB-45).</summary>
+    public ContributionLedger? Contributions(string encounterKey) => _contribution.Ledger(encounterKey);
+
+    /// <summary>Every live encounter's ledger, in encounter-key order (CMB-45).</summary>
+    public ImmutableArray<ContributionLedger> Contributions() => _contribution.Ledgers();
+
     public string? TradeRefusal(string npcId) => _state.Npcs.TryGetValue(npcId, out var npc) ? _npcs.TradeRefusal(npc) : null;
 
     /// <summary>
