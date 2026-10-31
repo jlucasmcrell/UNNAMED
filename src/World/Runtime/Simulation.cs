@@ -128,6 +128,12 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     public CalendarRules Calendar { get; init; } = CalendarRules.Default;
 
     /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
+
+    /// <summary>
+    /// Where armour leaves a gap, read by a gap thrust (CMB-24). CMB-04 owns the real reader - coverage per region, and the pieces that
+    /// close a gap; until it lands the canon-shaped stub stands in, so a gap technique is real now and true the day the reader is swapped.
+    /// </summary>
+    public UNNAMED.Domain.Combat.IArmourGapReader ArmourGaps { get; init; } = UNNAMED.Domain.Combat.StubArmourGaps.Instance;
     public WeatherRules Weather { get; init; } = WeatherRules.Default;
 
     /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
@@ -1293,6 +1299,7 @@ public sealed class Simulation
         AwaitRespawn await => _combat.Handle(await),
         LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
+        PressCreature press => _creatures.Handle(press, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),

@@ -1,4 +1,5 @@
-// UNNAMED World - techniques at run time: a known active technique, used with a weapon of its family (WP9; D11; SYSTEMS.md S-10)
+// UNNAMED World - techniques at run time: a known active technique, used with a weapon of its family (WP9; D11; SYSTEMS.md S-10;
+// the slice's set - parry, guard beat, giving ground, set against the charge, gap thrust, quiet blade, steady draw - CMB-24)
 // No Godot references - pure C#
 
 using UNNAMED.Domain;
@@ -9,7 +10,8 @@ namespace UNNAMED.World.Runtime;
 
 /// <summary>
 /// Use a known technique (D11: one active technique per weapon family): the weapon in hand makes the technique's blow, if it is of the
-/// technique's family. What triggers it - a quick-bar slot - is presentation's (WP9, local).
+/// technique's family, or does what the other kinds do - waits for a blow, retreats behind a live point, plants against a charge. What
+/// triggers it - a quick-bar slot - is presentation's (WP9, local).
 /// </summary>
 public sealed record TechniqueCommand(EntityId Actor, string TechniqueId) : GameCommand(Actor);
 
@@ -22,8 +24,9 @@ internal sealed partial class CombatSystem
 {
     /// <summary>
     /// Begin a technique: the weapon's attack as the technique changes it, then the blow runs as any attack does - the same phases, the
-    /// same pipeline, the same skill trained by what it wounds. Refused unknown, with no weapon of its family in hand, before its cooldown
-    /// is out, without the stamina (or a bow's arrow), and while busy.
+    /// same pipeline, the same skill trained by what it wounds; or, for the kinds that are not a blow, the state the technique sets
+    /// (<see cref="PlayerCombat.ParryUntil"/>, <see cref="PlayerCombat.PointLiveUntil"/>, <see cref="PlayerCombat.BraceUntil"/>). Refused
+    /// unknown, with no weapon of its family in hand, before its cooldown is out, without the stamina (or a bow's arrow), and while busy.
     /// </summary>
     public string? Handle(TechniqueCommand command, long tick)
     {
@@ -36,27 +39,60 @@ internal sealed partial class CombatSystem
         var combat = State.PlayerCombat;
         if (Busy(combat.Action, tick) is { } busy)
             return busy;
-        var weapon = PlayerAttack();
+        var weapon = PlayerAttackNow(tick);
         if (weapon.SkillId != technique.SkillId)
             return $"{technique.Id} needs a {technique.SkillId} weapon in hand";
         if (combat.TechniquesReadyAt.TryGetValue(technique.Id, out long ready) && tick < ready)
             return $"{technique.Id} is not ready ({ready - tick} ticks)";
-        var attack = TechniqueRules.Profile(weapon, technique);
-        if (attack.Ranged && attack.AmmoDefId is { } ammo && !State.Inventory.Any(e => e.DefId == ammo))
+        if (technique.Kind is TechniqueKind.Parry or TechniqueKind.GivingGround or TechniqueKind.SetAgainstCharge && weapon.Ranged)
+            return $"{technique.Id} is no work for a bow";
+        if (technique.IsBlow && weapon.Ranged && weapon.AmmoDefId is { } ammo && !State.Inventory.Any(e => e.DefId == ammo))
             return $"no {ammo} to shoot";
-        if (Stamina() < attack.StaminaCost)
+        if (Stamina() < technique.StaminaCost)
             return $"too tired for {technique.Id}";
-        Exert(attack.StaminaCost, tick);
+        Exert(technique.StaminaCost, tick);
         long readyAt = tick + technique.CooldownTicks;
-        State.SetPlayerCombat(_owner, State.PlayerCombat with
+        var used = State.PlayerCombat with { TechniquesReadyAt = State.PlayerCombat.TechniquesReadyAt.SetItem(technique.Id, readyAt) };
+        switch (technique.Kind)
         {
-            Action = ActionState.Begin(ActionKind.Attack, tick, attack),
-            Blocking = false,
-            TechniquesReadyAt = State.PlayerCombat.TechniquesReadyAt.SetItem(technique.Id, readyAt),
-        });
-        _context.Events.Publish(new TechniqueUsed(_player, technique.Id, weapon.Source, readyAt, tick));
-        _context.Events.Publish(new AttackStarted(_player, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
-        return null;
+            case TechniqueKind.Parry:
+                // The window opens now: a blow that reaches the character inside it is gone (Handle(CreatureStrike)).
+                State.SetPlayerCombat(_owner, used with { ParryUntil = tick + technique.ParryTicks, Blocking = false });
+                _context.Events.Publish(new TechniqueUsed(_player, technique.Id, weapon.Source, readyAt, tick));
+                return null;
+            case TechniqueKind.GivingGround:
+                // Ground is the character's to give; what the technique keeps is the point, live, and the guard costs nothing while it is.
+                State.SetPlayerCombat(_owner, used with
+                {
+                    PointLiveUntil = tick + technique.PointLiveTicks,
+                    PointLiveTechnique = technique.Id,
+                    Blocking = true,
+                });
+                _context.Events.Publish(new TechniqueUsed(_player, technique.Id, weapon.Source, readyAt, tick));
+                return null;
+            case TechniqueKind.SetAgainstCharge:
+                // Planted, and still: the charge meets the point (Handle(CreatureStrike)).
+                State.SetPlayerCombat(_owner, used with
+                {
+                    BraceUntil = tick + technique.BraceTicks,
+                    BraceTechnique = technique.Id,
+                    Blocking = true,
+                });
+                _context.Events.Publish(new TechniqueUsed(_player, technique.Id, weapon.Source, readyAt, tick));
+                return null;
+            default:
+                if (!technique.IsBlow)
+                    return $"{technique.Id} is not a technique the hand can use";
+                var attack = TechniqueRules.Profile(weapon, technique);
+                State.SetPlayerCombat(_owner, used with
+                {
+                    Action = ActionState.Begin(ActionKind.Attack, tick, attack),
+                    Blocking = false,
+                });
+                _context.Events.Publish(new TechniqueUsed(_player, technique.Id, weapon.Source, readyAt, tick));
+                _context.Events.Publish(new AttackStarted(_player, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
+                return null;
+        }
     }
 
     /// <summary>Ticks until a technique is ready again; 0 when it is ready now (the quick bar's cooldown sweep).</summary>

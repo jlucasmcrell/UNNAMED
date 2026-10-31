@@ -21,6 +21,18 @@ teaches:
     ability_ref: ability.bow.aimed_shot
     fee: 25
     requires: { skill: { skill_ref: skill.bow, band: familiar } }
+  - kind: technique
+    ability_ref: ability.bow.steady_draw
+    fee: 25
+    requires: { skill: { skill_ref: skill.bow, band: familiar } }
+  - kind: technique
+    ability_ref: ability.dagger.quiet_blade
+    fee: 25
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.dagger.gap_thrust
+    fee: 25
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
 # What he values (WP15b; provisional, and only what his established part already shows - Sel's guide, who keeps the Orenth ledger of what each
 # crossing cost): helping the survey he guides, and putting down what should already have stayed dead.
 values:

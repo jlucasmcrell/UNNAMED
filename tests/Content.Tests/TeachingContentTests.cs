@@ -1,5 +1,7 @@
 using UNNAMED.Domain.Social;
 
+using UNNAMED.Domain.Combat;
+
 namespace UNNAMED.Content.Tests;
 
 /// <summary>
@@ -76,9 +78,13 @@ public class TeachingContentTests
         }, npcs.Values.Where(n => !n.Teaches.IsEmpty).Select(n => n.Id));
         string[] Lessons(string npc, TeachingKind kind) => npcs[npc].Teaches.Where(o => o.Kind == kind).Select(o => o.DefinitionId).ToArray();
 
-        Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.ashen_hollow.kera_voss", TeachingKind.Technique));
-        Assert.Equal(new[] { "ability.polearm.long_thrust" }, Lessons("npc.cairnwold.durn_skell", TeachingKind.Technique));
-        Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.ashen_hollow.tavar_orr", TeachingKind.Technique));
+        // The slice's seven are taught by the teachers canon names for them (CMB-24): the smith behind power_strike, the spear, the guide.
+        Assert.Equal(new[] { "ability.blade.power_strike", "ability.blade.parry", "ability.blade.beat_the_guard" },
+            Lessons("npc.ashen_hollow.kera_voss", TeachingKind.Technique));
+        Assert.Equal(new[] { "ability.polearm.long_thrust", "ability.polearm.giving_ground", "ability.polearm.set_against_the_charge" },
+            Lessons("npc.cairnwold.durn_skell", TeachingKind.Technique));
+        Assert.Equal(new[] { "ability.bow.aimed_shot", "ability.bow.steady_draw", "ability.dagger.quiet_blade", "ability.dagger.gap_thrust" },
+            Lessons("npc.ashen_hollow.tavar_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.sedge.iren_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.sedge.tess_ferry", TeachingKind.Technique));
         Assert.Equal(new[] { "recipe.herbal.salve_minor", "recipe.herbal.salve_ember" }, Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Recipe));
@@ -93,31 +99,66 @@ public class TeachingContentTests
             o => Assert.True(o.ByDialogue && o.Fee == 0 && (o.Requirements.IsEmpty || o.DefinitionId == "recipe.smithing.fitting_wedge")));
         var wedge = npcs["npc.ashen_hollow.kera_voss"].Teaches.Single(o => o.DefinitionId == "recipe.smithing.fitting_wedge");
         Assert.Equal("world.barrowworks.ring_accessible", Assert.IsType<FlagRequirement>(Assert.Single(wedge.Requirements)).Condition.FlagId);
-        // Techniques are asked for, for a fee, once familiar with the family's weapon.
+        // Techniques are asked for, for a fee, once familiar with the family's weapon - except where canon puts the technique at a higher band
+        // (Set Against the Charge is a spear's 30, SKILLS_AND_TECHNIQUES §3.1) - and a lesson may add its own gate beside the band (Brace).
         var paidTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
-            .Where(o => o.Kind == TeachingKind.Technique && !o.ByDialogue);
+            .Where(o => o.Kind == TeachingKind.Technique && !o.ByDialogue)
+            .ToArray();
         Assert.All(paidTechniqueLessons, o =>
         {
             Assert.True(o.Fee > 0);
-            Assert.Equal(15, Assert.IsType<SkillBandRequirement>(Assert.Single(o.Requirements)).MinLevel);
+            var band = Assert.Single(o.Requirements.OfType<SkillBandRequirement>());
+            int canon = o.DefinitionId == "ability.polearm.set_against_the_charge" ? 30 : 15;
+            Assert.Equal(canon, band.MinLevel);
         });
+        Assert.Contains(paidTechniqueLessons, o => o.Requirements.OfType<PrerequisiteRequirement>().Any());
         var dialogueTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
             .Where(o => o.Kind == TeachingKind.Technique && o.ByDialogue);
         Assert.All(dialogueTechniqueLessons, o => Assert.Equal(30, o.Fee));
     }
 
     [Fact]
-    public void EachWeaponFamily_HasOneActiveTechnique()
+    public void EachWeaponFamily_HasTheTechniquesOfItsOwnArt_AndTheSliceHasSevenMore()
     {
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         var techniques = TeachingContent.BuildTechniques(loader);
 
-        Assert.Equal(new[] { ("ability.blade.power_strike", "skill.one_hand_blade"), ("ability.bow.aimed_shot", "skill.bow"),
-            ("ability.polearm.long_thrust", "skill.polearm") }, techniques.Values.Select(t => (t.Id, t.SkillId)));
+        // The three the build has had since WP9, and the slice's seven (CMB-24: CAP05 §4-5, §8; SKILLS_AND_TECHNIQUES §3.1).
+        Assert.Equal(new[]
+        {
+            ("ability.blade.beat_the_guard", "skill.one_hand_blade"), ("ability.blade.parry", "skill.one_hand_blade"),
+            ("ability.blade.power_strike", "skill.one_hand_blade"), ("ability.bow.aimed_shot", "skill.bow"),
+            ("ability.bow.steady_draw", "skill.bow"), ("ability.dagger.gap_thrust", "skill.one_hand_blade"),
+            ("ability.dagger.quiet_blade", "skill.one_hand_blade"), ("ability.polearm.giving_ground", "skill.polearm"),
+            ("ability.polearm.long_thrust", "skill.polearm"), ("ability.polearm.set_against_the_charge", "skill.polearm"),
+        }, techniques.Values.Select(t => (t.Id, t.SkillId)));
+        // Every one of them is a technique of its own discipline's family, and the seven say what they do.
+        Assert.All(techniques.Values, t => Assert.Equal(t.SkillId, loader.Definitions[t.Id].Id.Split('.')[1] switch
+        {
+            "blade" => "skill.one_hand_blade",
+            "dagger" => "skill.one_hand_blade",
+            "bow" => "skill.bow",
+            "polearm" => "skill.polearm",
+            var other => throw new FormatException(other),
+        }));
+        Assert.Equal(new[]
+        {
+            TechniqueKind.Blow, TechniqueKind.GuardBeat, TechniqueKind.Parry, TechniqueKind.Blow, TechniqueKind.SteadyDraw,
+            TechniqueKind.GapThrust, TechniqueKind.QuietBlade, TechniqueKind.GivingGround, TechniqueKind.Blow, TechniqueKind.SetAgainstCharge,
+        }, techniques.Values.Select(t => t.Kind));
         var strike = techniques["ability.blade.power_strike"];
         Assert.Equal((1.6, 1.5, 0L, 22, 120, "effect.bleeding", 50), (strike.DamageMultiplier, strike.WindupMultiplier, strike.ReachBonusMm,
             strike.StaminaCost, strike.CooldownTicks, strike.OnHitEffect, strike.OnHitEffectPercent));
         Assert.Equal(800, techniques["ability.polearm.long_thrust"].ReachBonusMm);
+        // The dagger's techniques are made with a dagger: the family trains them, the weapon is the art.
+        var gaps = techniques["ability.dagger.gap_thrust"];
+        Assert.Equal(ArmourGap.Throat, gaps.Gap);
+        Assert.Equal(new[] { "item.weapon.haldas_knife", "item.weapon.iron_dagger" }, gaps.Weapons.OrderBy(w => w, StringComparer.Ordinal));
+        Assert.False(gaps.MadeWith("item.weapon.rusted_sword", "skill.one_hand_blade"));
+        // The kinds that are not a blow carry no damage multiplier of their own.
+        Assert.Equal(1.0, techniques["ability.blade.parry"].DamageMultiplier);
+        Assert.Equal((8, 10), (techniques["ability.blade.parry"].ParryTicks, techniques["ability.blade.parry"].OpeningTicks));
+        Assert.Equal(60, techniques["ability.polearm.set_against_the_charge"].BraceTicks);
     }
 
     [Fact]

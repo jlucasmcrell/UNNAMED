@@ -1,0 +1,14 @@
+id: ability.polearm.set_against_the_charge
+kind: ability
+schema: 1
+display_key: ability.polearm.set_against_the_charge.name
+tags: [ability]
+name: Set Against the Charge
+notes: "Brace the butt and take a charge on the point: the charger's own mass does the work, and a braced body is not knocked down (SKILLS_AND_TECHNIQUES 3.1; CMB-24)."
+class: active
+discipline: skill.polearm
+executes: set_against_charge
+cost: { stamina: 12 }
+cooldown_s: 6
+brace_s: 3
+charge_stop_multiplier: 1.8

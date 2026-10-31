@@ -22,7 +22,14 @@ public enum CompanionCondition
 }
 
 /// <summary>What makes a named NPC a possible companion (M6): the body they fight with - their health, their weapon, their armor.</summary>
-public sealed record CompanionProfile(int MaxHealth, string WeaponId, ImmutableSortedDictionary<BodyRegion, int> Armor);
+public sealed record CompanionProfile(int MaxHealth, string WeaponId, ImmutableSortedDictionary<BodyRegion, int> Armor)
+{
+    /// <summary>
+    /// The techniques this adventurer knows that a fight can use (CMB-24): their sheet's own known techniques, kept to the ones the build runs
+    /// and to their weapon's family. One who has learned the parry parries, and one who has learned a blow lands it.
+    /// </summary>
+    public ImmutableArray<string> Techniques { get; init; } = ImmutableArray<string>.Empty;
+}
 
 /// <summary>
 /// How a companion behaves (<c>config.companion</c>, M6). Distances are millimetres on the ground plane and times are ticks. The

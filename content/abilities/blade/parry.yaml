@@ -1,0 +1,14 @@
+id: ability.blade.parry
+kind: ability
+schema: 1
+display_key: ability.blade.parry.name
+tags: [ability]
+name: Parry
+notes: "Catch a blow on the flat inside the parry window and it is *gone*, plus the attacker is open for half a second (SKILLS_AND_TECHNIQUES 3.1; CMB-24). The slice's own technique: a reaction, not a blow."
+class: active
+discipline: skill.one_hand_blade
+executes: parry
+cost: { stamina: 5 }
+cooldown_s: 4
+parry_s: 0.4          # the window a blow can be caught in, from the press
+opening_s: 0.5        # what a caught attacker loses: an opening, per canon

@@ -38,3 +38,11 @@ teaches:
     ability_ref: ability.blade.power_strike
     fee: 25
     requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.blade.parry
+    fee: 25
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar } }
+  - kind: technique
+    ability_ref: ability.blade.beat_the_guard
+    fee: 25
+    requires: { skill: { skill_ref: skill.one_hand_blade, band: familiar }, prerequisite: ability.blade.parry }

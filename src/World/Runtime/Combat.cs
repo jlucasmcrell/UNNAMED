@@ -89,6 +89,12 @@ public sealed record HealthChanged(EntityId Target, string Source, int Delta, in
 /// <summary>A blow met a raised guard with no stamina behind it: the guard drops and the body staggers.</summary>
 public sealed record GuardBroken(EntityId Actor, long Tick);
 
+/// <summary>A blow was caught on the flat inside its windup: it is gone, and its attacker is open (Parry; CMB-24).</summary>
+public sealed record Parried(EntityId Attacker, string TechniqueId, long OpenUntilTick, long Tick);
+
+/// <summary>A charge met a planted point and stopped on it, taking the point's blow the way a charger takes a wall (Set Against the Charge).</summary>
+public sealed record ChargeStopped(EntityId Charger, string TechniqueId, int Damage, long Tick);
+
 public sealed record EffectApplied(EntityId Target, string EffectId, int Stacks, long ExpiresTick, long Tick);
 
 public sealed record EffectExpired(EntityId Target, string EffectId, long Tick);
@@ -156,6 +162,15 @@ public sealed record CombatView(CombatPhase Phase, int PhaseTicksLeft, string? A
 
     /// <summary>Strain at or past the Strained share of tolerance: the next working may cost health.</summary>
     public bool Strained { get; init; }
+
+    /// <summary>Ticks left on a parry waiting for a blow, 0 when none is (CMB-24).</summary>
+    public int ParryTicksLeft { get; init; }
+
+    /// <summary>Ticks left with the point live after giving ground, 0 when none is (CMB-24).</summary>
+    public int PointLiveTicksLeft { get; init; }
+
+    /// <summary>Ticks left planted against a charge, 0 when not planted (CMB-24).</summary>
+    public int BraceTicksLeft { get; init; }
 
     /// <summary>The formula being cast, while the working runs.</summary>
     public string? Casting { get; init; }
@@ -308,6 +323,21 @@ internal sealed record PlayerCombat(ActionState Action, bool Blocking, long Stag
 
     /// <summary>The tick each technique used comes ready again (WP9). Transient, as cooldowns are (SYSTEMS.md S-10): a load starts them ready.</summary>
     public ImmutableSortedDictionary<string, long> TechniquesReadyAt { get; init; } = ImmutableSortedDictionary.Create<string, long>(StringComparer.Ordinal);
+
+    /// <summary>Until this tick a blow can be caught on the flat and taken out of the fight (Parry; SKILLS_AND_TECHNIQUES §3.1).</summary>
+    public long ParryUntil { get; init; }
+
+    /// <summary>Until this tick the point is live: the guard costs nothing and the next blow goes in longer and harder (Giving Ground).</summary>
+    public long PointLiveUntil { get; init; }
+
+    /// <summary>The giving-ground technique keeping the point live, for what it adds to the next blow.</summary>
+    public string? PointLiveTechnique { get; init; }
+
+    /// <summary>Until this tick the butt is planted and a charge meets the point (Set Against the Charge).</summary>
+    public long BraceUntil { get; init; }
+
+    /// <summary>The set-against-charge technique planted, for what a stopped charge takes.</summary>
+    public string? BraceTechnique { get; init; }
 }
 
 // ── internal commands ───────────────────────────────────────────────────────
@@ -483,6 +513,17 @@ internal sealed partial class CombatSystem
         return C.Unarmed;
     }
 
+    /// <summary>
+    /// The blow the character makes now, with the point a giving ground kept live: longer by its reach and harder by its multiplier, because
+    /// the enemy walked onto it (SKILLS_AND_TECHNIQUES §3.1, polearm).
+    /// </summary>
+    private AttackProfile PlayerAttackNow(long tick) =>
+        State.PlayerCombat.PointLiveUntil > tick
+        && State.PlayerCombat.PointLiveTechnique is { } keeping
+        && _context.Setup.Techniques.TryGetValue(keeping, out var givingGround)
+            ? TechniqueRules.PointLive(PlayerAttack(), givingGround)
+            : PlayerAttack();
+
     private AttackProfile WeaponAttack(string defId, WeaponStats weapon) => AttackOf(defId, weapon, C, TickMs);
 
     /// <summary>
@@ -643,9 +684,26 @@ internal sealed partial class CombatSystem
         if (!CombatRules.CanAttemptAttack(_player, creature.Id,
                 new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;
+        // The guard a creature holds turns the blow, unless the blow was made to beat the guard (SKILLS_AND_TECHNIQUES §3.1, sword).
+        bool guarded = creature.Blocks(State.Body, attack, tick, C);
+        if (guarded && attack.BreaksGuard)
+        {
+            _context.Dispatch(new PressCreature(creature.Id, GuardDownTicks: 0, OpenTicks: 0, Effect: "guard beaten"));
+            guarded = false;
+        }
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
-            definition.Resistances, Blocking: false, Dodging: false);
+            definition.Resistances, Blocking: guarded, Dodging: false);
         var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
+        // A gap thrust sends the point into whatever is not covered: the reader of gaps says how open it is on the body in front of it.
+        if (attack.Gap is { } gap)
+        {
+            int open = _context.Setup.ArmourGaps.OpenPermille(creature.Id, gap);
+            if (open > 0)
+                strike = strike with { ArmorIgnoredPercent = Math.Max(strike.ArmorIgnoredPercent, open * 100 / 1000) };
+        }
+        // A held aim is truer than a hope (Steady Draw).
+        if (attack.Steady && _context.Setup.Techniques.TryGetValue(attack.Source, out var steady))
+            strike = strike with { CritPercent = strike.CritPercent + steady.SteadyCritPercent };
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
             strike = strike with { ForcedRegion = weak.Region };
@@ -786,6 +844,29 @@ internal sealed partial class CombatSystem
                 new(creature.Alive, !combat.Defeated, creature.Site.Space == State.Space))) return "attack is not permitted";
         var attack = command.Attack;
         var body = State.Body;
+        bool frontal = CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
+        // A blow caught on the flat inside the parry window is gone, and its attacker is open for the opening the catch makes (Parry).
+        if (combat.ParryUntil >= tick && frontal && DamageTypes.IsPhysical(attack.DamageType))
+        {
+            _context.Dispatch(new PressCreature(creature.Id, GuardDownTicks: 0, OpenTicks: OpeningTicks(), Effect: "parried"));
+            _context.Events.Publish(new Parried(creature.Id, ParryTechnique() ?? "", tick + OpeningTicks(), tick));
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick, ParryUntil = 0 });
+            return null;
+        }
+        // A planted point meets a charge: the charger's own mass does the work, and it does not knock the braced body down.
+        if (combat.BraceUntil >= tick && frontal && attack.IsCharge)
+        {
+            var polearm = PlayerAttackNow(tick);
+            var plant = combat.BraceTechnique is { } braceId && _context.Setup.Techniques.TryGetValue(braceId, out var brace) ? brace : null;
+            int counter = Math.Max(1, (int)Math.Round(
+                (polearm.DamageMin + polearm.DamageMax) / 2.0 * (plant?.ChargeStopMultiplier ?? 1.0), MidpointRounding.AwayFromZero));
+            _context.Dispatch(new WoundCreature(creature.Id, new HitResult(BodyRegion.Torso, counter, counter, false, false, false, false, false),
+                polearm.Source) { Attacker = _player });
+            _context.Dispatch(new PressCreature(creature.Id, GuardDownTicks: 0, OpenTicks: OpeningTicks(), Effect: "stopped on the point"));
+            _context.Events.Publish(new ChargeStopped(creature.Id, plant?.Id ?? polearm.Source, counter, tick));
+            attack = attack with { ForcesStagger = false, DamageMin = Math.Max(1, attack.DamageMin / 2), DamageMax = Math.Max(1, attack.DamageMax / 2) };
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { BraceUntil = 0 });
+        }
         // A guard takes only what it can take - a physical blow - so only such a blow can break it (the Phase-1 technical audit, L-21).
         bool guarding = combat.Blocking && DamageTypes.IsPhysical(attack.DamageType)
             && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
@@ -808,7 +889,7 @@ internal sealed partial class CombatSystem
         var strike = CombatRules.LevelGap(new Strike(attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), Setup.Effects), C.BaseCritPercent, 1.0), creature.Definition.Level + creature.LevelBonus, State.Progression.Level);
         var result = CombatRules.Resolve(strike, defense, C, Random(creature.Key, "player", body, tick));
 
-        if (result.Blocked)
+        if (result.Blocked && State.PlayerCombat.PointLiveUntil <= tick)
             Exert(C.BlockStaminaPerHit, tick);
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         int health = result.Final > 0 ? LosePlayerHealth(result.Final, creature.Definition.Id, attack.Source, tick) : Health();
@@ -826,6 +907,16 @@ internal sealed partial class CombatSystem
             _context.Dispatch(new ApplyEffect(_player, effect));
         return null;
     }
+
+    /// <summary>How long a caught blow leaves its attacker open: the parry's own opening, or half a second when none is written.</summary>
+    private int OpeningTicks() => ParryTechnique() is { } id && _context.Setup.Techniques.TryGetValue(id, out var parry) ? parry.OpeningTicks : 10;
+
+    /// <summary>The parry technique that is waiting, or null: the parry this character has used and its window is still open on.</summary>
+    private string? ParryTechnique() =>
+        State.PlayerCombat.ParryUntil > 0
+            ? _context.Setup.Techniques.Values
+                .FirstOrDefault(t => t.Kind == TechniqueKind.Parry && State.PlayerCombat.TechniquesReadyAt.ContainsKey(t.Id))?.Id
+            : null;
 
     private bool StaggerPlayer(long tick, bool force)
     {
@@ -1080,6 +1171,9 @@ internal sealed partial class CombatSystem
             Casting = combat.Action.Kind == ActionKind.Cast && phase != CombatPhase.Idle ? combat.Action.Formula!.Id : null,
             Defeated = combat.Defeated,
             RespawnTicksLeft = combat.Defeated && combat.RespawnAt > 0 ? (int)Math.Max(0, combat.RespawnAt - State.WorldTick) : 0,
+            ParryTicksLeft = combat.ParryUntil > State.WorldTick ? (int)(combat.ParryUntil - State.WorldTick) : 0,
+            PointLiveTicksLeft = combat.PointLiveUntil > State.WorldTick ? (int)(combat.PointLiveUntil - State.WorldTick) : 0,
+            BraceTicksLeft = combat.BraceUntil > State.WorldTick ? (int)(combat.BraceUntil - State.WorldTick) : 0,
             Downed = combat.DownedUntil > 0,
             DownedTicksLeft = combat.DownedUntil > 0 ? (int)Math.Max(0, combat.DownedUntil - State.WorldTick) : 0,
         };

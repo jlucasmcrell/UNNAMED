@@ -1,0 +1,17 @@
+id: ability.bow.steady_draw
+kind: ability
+schema: 1
+display_key: ability.bow.steady_draw.name
+tags: [ability]
+name: Steady Draw
+notes: "Hold a draw without your aim failing: the difference between a shot and a hope (SKILLS_AND_TECHNIQUES 3.1; CMB-24). A held shot, and while the aim holds it is truer than a hope."
+class: active
+discipline: skill.bow
+executes: steady_draw
+cost: { stamina: 6 }
+cooldown_s: 3
+windup_multiplier: 1.4
+steady_s: 3
+steady_crit_percent: 10
+payload:
+  - { type: damage, multiplier_of_weapon: 1.15 }

@@ -98,6 +98,9 @@ public sealed record CorpseGone(string CorpseKey, long Tick);
 /// <summary>A charge ran into something solid, and the charger is stunned by it.</summary>
 public sealed record CreatureStunned(EntityId Creature, string Key, long Tick);
 
+/// <summary>A body lost the exchange: its guard was beaten away, a blow of its own was parried, or its charge stopped on a point (CMB-24).</summary>
+public sealed record CreaturePressed(EntityId Creature, string DefinitionId, string Effect, long Tick);
+
 internal sealed record CreatureState(
     EntityId Id,
     string Key,
@@ -181,6 +184,12 @@ internal sealed record CreatureState(
 /// To <see cref="CreatureSystem"/>: a resolved blow lands on a creature. Its owner applies it. The character struck it unless an
 /// <see cref="Attacker"/> is named - a companion (M6), standing at <see cref="FromXMm"/>, <see cref="FromZMm"/>.
 /// </summary>
+/// <summary>
+/// To <see cref="CreatureSystem"/>: the exchange went against this body - a guard beaten away, a blow parried, a charge stopped on a
+/// point (CMB-24). <see cref="GuardDownTicks"/> of 0 takes the guard away now; <see cref="OpenTicks"/> leaves it staggered and open.
+/// </summary>
+internal sealed record PressCreature(EntityId Target, int GuardDownTicks, int OpenTicks, string Effect) : InternalCommand;
+
 internal sealed record WoundCreature(EntityId Target, HitResult Hit, string Source) : InternalCommand
 {
     public EntityId? Attacker { get; init; }
@@ -538,7 +547,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             _ => sound.RunMm,
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
-        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active)
+        // A quiet blade spends nothing noisy: no shout, no clatter, no swing for anything to hear.
+        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active && combat.Action.Attack is { Silent: false })
             radius = Math.Max(radius, sound.SwingMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         if (radius > 0)
@@ -896,6 +906,19 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
 
+        // A human-like body holds its guard while it is within reach of the character and not committed to a blow of its own: the stance
+        // canon calls human-like defence, and the guard a guard beat exists to take away (CMB-24). It answers a tell, and answers a body
+        // standing in front of it.
+        var character = State.PlayerCombat.Action;
+        if (c.Definition.Family is "humanoid" or "construct" && c.Knows && clear
+            && distance <= attack.ReachMm + _context.Setup.Movement.BodyRadiusMm + 1_500)
+        {
+            int guardFor = character.Kind == ActionKind.Attack && character.PhaseAt(tick, C).Phase == CombatPhase.Windup
+                ? Math.Max(1, character.PhaseAt(tick, C).TicksLeft) + 2
+                : 20;
+            return c with { Body = Turn(c, facing), GuardUntil = tick + guardFor };
+        }
+
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
@@ -1049,6 +1072,20 @@ internal sealed class CreatureSystem : IAbstractAdvance
     // ── wounds and death ────────────────────────────────────────────────────
 
     /// <summary>A blow lands. Whatever the creature was doing, it now knows where its attacker stands.</summary>
+    public string? Handle(PressCreature command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } creature)
+            return "no such creature";
+        State.SetCreature(_owner, creature with
+        {
+            GuardUntil = command.GuardDownTicks > 0 ? tick + command.GuardDownTicks : 0,
+            Action = command.OpenTicks > 0 ? ActionState.Begin(ActionKind.Staggered, tick) with { LastsTicks = command.OpenTicks } : creature.Action,
+            StaggerImmuneUntil = command.OpenTicks > 0 ? tick + command.OpenTicks + C.StaggerImmunityTicks : creature.StaggerImmuneUntil,
+        });
+        _context.Events.Publish(new CreaturePressed(creature.Id, creature.Definition.Id, command.Effect, tick));
+        return null;
+    }
+
     public string? Handle(WoundCreature command, long tick)
     {
         if (Find(command.Target) is not { Alive: true } c)

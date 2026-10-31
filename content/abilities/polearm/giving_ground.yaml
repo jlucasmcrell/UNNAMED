@@ -1,0 +1,16 @@
+id: ability.polearm.giving_ground
+kind: ability
+schema: 1
+display_key: ability.polearm.giving_ground.name
+tags: [ability]
+name: Giving Ground
+notes: "Retreat while keeping the point live; the enemy advances into a decision (SKILLS_AND_TECHNIQUES 3.1; CMB-24). The retreat is the character's own feet - the technique keeps the point live, and while it is, the guard costs nothing and the next blow goes in longer and harder."
+class: active
+discipline: skill.polearm
+executes: giving_ground
+cost: { stamina: 6 }
+cooldown_s: 3
+retreat_m: 0.3              # the line the point gives, for the fiction and the quick bar's description
+point_live_s: 3
+point_live_reach_m: 0.4
+point_live_damage: 1.25

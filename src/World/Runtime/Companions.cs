@@ -76,6 +76,7 @@ public sealed record CompanionView(string NpcId, EntityId InstanceId, string Nam
 
     /// <summary>Their armour on each region: their own plus what they wear (WP15b).</summary>
     public ImmutableSortedDictionary<BodyRegion, int> Armor { get; init; } = ImmutableSortedDictionary<BodyRegion, int>.Empty;
+
 }
 
 // ── state and internal commands ─────────────────────────────────────────────
@@ -97,6 +98,10 @@ internal sealed record CompanionState(string NpcId, CompanionProfile Profile, At
     public long DefenseReadyTick { get; init; }
     public long SidestepUntilTick { get; init; }
     public long SidestepXMm { get; init; }
+
+    /// <summary>When each of their techniques is ready again: transient, as the character's are (CMB-24).</summary>
+    public ImmutableSortedDictionary<string, long> TechniquesReadyAt { get; init; } =
+        ImmutableSortedDictionary.Create<string, long>(StringComparer.Ordinal);
     public long SidestepZMm { get; init; }
     public string? TargetKey { get; init; }
     public PartyMembership Membership { get; init; } = PartyMembership.Companion;
@@ -358,6 +363,15 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
             Leave(c.NpcId, npc.InstanceId, npc.Body, tick);
         }
         bool phased = EffectRules.Phased(EffectsOf(npc.InstanceId), _context.Setup.Combat.Effects);
+        // A parry an adventurer knows takes the blow out of the fight and opens its attacker (CMB-24).
+        if (ParryReady(c, tick) is { } parry && CombatRules.InFront(npc.Body.XMm, npc.Body.ZMm, npc.Body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm,
+                long.MaxValue / 4, C.BlockArcMdeg))
+        {
+            State.SetCompanion(_owner, c with { LastCombatTick = tick, TechniquesReadyAt = c.TechniquesReadyAt.SetItem(parry.Id, tick + parry.CooldownTicks) });
+            _context.Dispatch(new PressCreature(creature.Id, GuardDownTicks: 0, OpenTicks: parry.OpeningTicks, Effect: "parried"));
+            _context.Events.Publish(new Parried(creature.Id, parry.Id, tick + parry.OpeningTicks, tick));
+            return null;
+        }
         var defense = new DefenseProfile(c.Profile.MaxHealth, c.Profile.Armor, PeopleRules.Resistances(traits), Blocking: tick < c.GuardUntilTick && CombatRules.InFront(npc.Body.XMm,npc.Body.ZMm,npc.Body.FacingMdeg,creature.Body.XMm,creature.Body.ZMm,long.MaxValue/4,C.BlockArcMdeg),
             Dodging: phased && DamageTypes.IsPhysical(command.Attack.DamageType))
         {
@@ -648,6 +662,12 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
                 return c;
             var moveRandom = RngChannel.Open(State.World.WorldSeed, _context.CellOf(turned), "combat.npc.move", $"{npc.InstanceId}@{tick}");
             var move = CombatRules.ArmedMove(c.Attack, (int)(moveRandom.UInt64(0) % 3));
+            // An adventurer's own technique, when it is ready and its family is the weapon in their hands (CMB-24).
+            if (BlowReady(c, tick) is { } technique)
+            {
+                move = TechniqueRules.Profile(c.Attack, technique);
+                c = c with { TechniquesReadyAt = c.TechniquesReadyAt.SetItem(technique.Id, tick + technique.CooldownTicks) };
+            }
             _context.Events.Publish(new AttackStarted(npc.InstanceId, move.Source, move.WindupTicks, move.ActiveTicks, move.RecoveryTicks, tick));
             return c with { Action = ActionState.Begin(ActionKind.Attack, tick, move), GuardUntilTick = 0 };
         }
@@ -861,10 +881,32 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         var armor = Enum.GetValues<BodyRegion>().Where(r => body.Armor.ContainsKey(r) || worn.GetValueOrDefault(r) > 0)
             .ToImmutableSortedDictionary(r => r, r => body.Armor.GetValueOrDefault(r) + worn.GetValueOrDefault(r));
         int health = Approval.MaxHealth(body.MaxHealth, sheet.Progression, _context.Setup.Progression) * TraitsOf(sheet.NpcId).HealthPercent / 100;
-        return new CompanionProfile(Math.Max(1, health), weapon, armor);
+        // The techniques their own sheet has learned and this build can run, kept to their weapon's family (CMB-24).
+        var known = sheet.Progression.Known.Keys
+            .Where(id => _context.Setup.Techniques.TryGetValue(id, out TechniqueDefinition? t)
+                         && catalog.Find(weapon)?.Weapon is { } held && t.SkillId == held.SkillId)
+            .ToImmutableArray();
+        return new CompanionProfile(Math.Max(1, health), weapon, armor) { Techniques = known };
     }
 
     /// <summary>A party member's people's traits (RACE_ABILITIES_PROPOSAL.md §0.4: an NPC of a people has the same biology as a player of it).</summary>
+    /// <summary>The parry this companion knows and has ready, or null.</summary>
+    private TechniqueDefinition? ParryReady(CompanionState c, long tick) =>
+        c.Profile.Techniques
+            .Select(id => _context.Setup.Techniques.GetValueOrDefault(id))
+            .FirstOrDefault(t => t is { Kind: TechniqueKind.Parry }
+                                 && (!c.TechniquesReadyAt.TryGetValue(t.Id, out long ready) || tick >= ready));
+
+    /// <summary>The blow technique this companion knows and has ready, or null: the strongest of them by damage.</summary>
+    private TechniqueDefinition? BlowReady(CompanionState c, long tick) =>
+        c.Profile.Techniques
+            .Select(id => _context.Setup.Techniques.GetValueOrDefault(id))
+            .Where(t => t is { Kind: TechniqueKind.Blow or TechniqueKind.GuardBeat or TechniqueKind.GapThrust or TechniqueKind.QuietBlade })
+            .Where(t => t!.SkillId == c.Attack.SkillId)
+            .Where(t => !c.TechniquesReadyAt.TryGetValue(t!.Id, out long ready) || tick >= ready)
+            .OrderByDescending(t => t!.DamageMultiplier)
+            .FirstOrDefault();
+
     private PeopleTraits TraitsOf(string npcId) => _context.Setup.Character.TraitsOf(_context.PeopleOf(npcId));
 
     /// <summary>A member's gear or attributes changed: their body is fitted again, their health kept within it.</summary>

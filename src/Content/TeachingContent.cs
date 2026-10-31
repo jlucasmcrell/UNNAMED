@@ -72,36 +72,91 @@ public static class TeachingContent
                 throw new FormatException($"{id}: class '{kind}' is not built ({string.Join(", ", AbilityClasses)})");
             if (kind != "active")
                 continue;
-            string skill = Text(map, "discipline");
-            if (!loader.Definitions.TryGetValue(skill, out var skillDefinition) || skillDefinition.Kind != "skill"
-                || Read(skillDefinition.YamlSource).GetValueOrDefault("family") as string != "combat")
-                throw new FormatException($"{id}: discipline {skill} is not a combat skill - an active technique is a weapon family's");
-            var payload = Rows(map, "payload", id).ToList();
-            var damage = payload.Where(p => p.GetValueOrDefault("type") as string == "damage").ToList();
-            if (damage.Count != 1)
-                throw new FormatException($"{id}: payload has exactly one damage entry (multiplier_of_weapon)");
-            var effects = payload.Where(p => p.GetValueOrDefault("type") as string == "apply_effect").ToList();
-            if (effects.Count > 1 || payload.Count != damage.Count + effects.Count)
-                throw new FormatException($"{id}: payload is one damage entry and at most one apply_effect");
-            var effect = effects.FirstOrDefault();
-            var cost = map.GetValueOrDefault("cost") as Dictionary<object, object> ?? throw new FormatException($"{id}: cost.stamina is required");
-            if (cost.Keys.Any(k => k as string != "stamina"))
-                throw new FormatException($"{id}: a technique costs stamina and nothing else");
-            var technique = new TechniqueDefinition(id, skill, Number(damage[0], "multiplier_of_weapon"),
-                map.ContainsKey("windup_multiplier") ? Number(map, "windup_multiplier") : 1.0,
-                map.ContainsKey("reach_bonus_m") ? Mm(map, "reach_bonus_m") : 0, Int(cost, "stamina"), ToTicks(Number(map, "cooldown_s"), tickMs))
-            {
-                OnHitEffect = effect is null ? null : Text(effect, "effect_ref"),
-                OnHitEffectPercent = effect is null ? 0 : (int)Math.Round(Number(effect, "chance") * 100, MidpointRounding.AwayFromZero),
-            };
-            if (technique.OnHitEffect is { } applied && !loader.GetByKind("effect").ContainsKey(applied))
-                throw new FormatException($"{id}: {applied} is not an effect");
-            if (technique.Problem() is { } problem)
-                throw new FormatException($"{id}: {problem}");
-            techniques.Add(id, technique);
+            techniques.Add(id, Running(id, map, loader, tickMs));
         }
         return techniques.ToImmutable();
     }
+
+    /// <summary>
+    /// A technique as a fight uses it: what it does (<c>executes:</c>, or a plain blow when it names none), the family it works, the weapons it
+    /// is made with (<c>weapons:</c>, empty for any of the family), what it costs and how long until it is ready again, and the numbers its own
+    /// kind needs. A blow names its damage; the kinds that are not a blow do not damage at all.
+    /// </summary>
+    private static TechniqueDefinition Running(string id, Dictionary<object, object> map, ContentLoader loader, int tickMs)
+    {
+        string skill = Text(map, "discipline");
+        if (!loader.Definitions.TryGetValue(skill, out var skillDefinition) || skillDefinition.Kind != "skill"
+            || Read(skillDefinition.YamlSource).GetValueOrDefault("family") as string != "combat")
+            throw new FormatException($"{id}: discipline {skill} is not a combat skill - an active technique is a weapon family's");
+        TechniqueKind kind = map.ContainsKey("executes")
+            ? TechniqueKinds.Parse(Text(map, "executes"))
+              ?? throw new FormatException($"{id}: executes '{map["executes"]}' is not one of {string.Join(", ", Enum.GetValues<TechniqueKind>().Select(TechniqueKinds.Key))}")
+            : TechniqueKind.Blow;
+        var payload = Rows(map, "payload", id).ToList();
+        var damage = payload.Where(p => p.GetValueOrDefault("type") as string == "damage").ToList();
+        var effects = payload.Where(p => p.GetValueOrDefault("type") as string == "apply_effect").ToList();
+        if (TechniqueKinds.IsBlow(kind))
+        {
+            if (damage.Count != 1)
+                throw new FormatException($"{id}: payload has exactly one damage entry (multiplier_of_weapon)");
+            if (effects.Count > 1 || payload.Count != damage.Count + effects.Count)
+                throw new FormatException($"{id}: payload is one damage entry and at most one apply_effect");
+        }
+        else if (payload.Count != 0)
+        {
+            throw new FormatException($"{id}: a {TechniqueKinds.Key(kind)} makes no blow, so it has no payload");
+        }
+        var effect = effects.FirstOrDefault();
+        var cost = map.GetValueOrDefault("cost") as Dictionary<object, object> ?? throw new FormatException($"{id}: cost.stamina is required");
+        if (cost.Keys.Any(k => k as string != "stamina"))
+            throw new FormatException($"{id}: a technique costs stamina and nothing else");
+        var weapons = map.ContainsKey("weapons")
+            ? Rows(map, "weapons", id).Select(row => row.GetValueOrDefault("item_ref") as string
+                ?? throw new FormatException($"{id}: a weapons entry names item_ref")).ToImmutableArray()
+            : ImmutableArray<string>.Empty;
+        foreach (string weaponDef in weapons)
+        {
+            if (!loader.Definitions.TryGetValue(weaponDef, out var item) || item.Kind is not ("item.weapon" or "item"))
+                throw new FormatException($"{id}: {weaponDef} is not a weapon");
+        }
+        var technique = new TechniqueDefinition(id, skill, damage.Count == 1 ? Number(damage[0], "multiplier_of_weapon") : 1.0,
+            map.ContainsKey("windup_multiplier") ? Number(map, "windup_multiplier") : 1.0,
+            map.ContainsKey("reach_bonus_m") ? Mm(map, "reach_bonus_m") : 0, Int(cost, "stamina"),
+            ToTicks(Number(map, "cooldown_s"), tickMs))
+        {
+            OnHitEffect = effect is null ? null : Text(effect, "effect_ref"),
+            OnHitEffectPercent = effect is null ? 0 : (int)Math.Round(Number(effect, "chance") * 100, MidpointRounding.AwayFromZero),
+            Kind = kind,
+            Weapons = weapons,
+            ParryTicks = map.ContainsKey("parry_s") ? ToTicks(Number(map, "parry_s"), tickMs) : 0,
+            OpeningTicks = map.ContainsKey("opening_s") ? ToTicks(Number(map, "opening_s"), tickMs) : 0,
+            GuardBreakTicks = map.ContainsKey("guard_break_s") ? ToTicks(Number(map, "guard_break_s"), tickMs) : 0,
+            RetreatMm = map.ContainsKey("retreat_m") ? Mm(map, "retreat_m") : 0,
+            PointLiveTicks = map.ContainsKey("point_live_s") ? ToTicks(Number(map, "point_live_s"), tickMs) : 0,
+            PointLiveReachMm = map.ContainsKey("point_live_reach_m") ? Mm(map, "point_live_reach_m") : 0,
+            PointLiveDamageMultiplier = map.ContainsKey("point_live_damage") ? Number(map, "point_live_damage") : 1.0,
+            BraceTicks = map.ContainsKey("brace_s") ? ToTicks(Number(map, "brace_s"), tickMs) : 0,
+            ChargeStopMultiplier = map.ContainsKey("charge_stop_multiplier") ? Number(map, "charge_stop_multiplier") : 1.0,
+            Gap = map.ContainsKey("gap")
+                ? Enum.TryParse<ArmourGap>(Text(map, "gap"), ignoreCase: true, out var gap)
+                    ? gap
+                    : throw new FormatException($"{id}: gap '{map["gap"]}' is not a gap ({string.Join(", ", Enum.GetNames<ArmourGap>())})")
+                : null,
+            Silent = map.ContainsKey("silent") && Truth(map, "silent"),
+            SteadyTicks = map.ContainsKey("steady_s") ? ToTicks(Number(map, "steady_s"), tickMs) : 0,
+            SteadyCritPercent = map.ContainsKey("steady_crit_percent") ? Int(map, "steady_crit_percent") : 0,
+        };
+        if (technique.OnHitEffect is { } applied && !loader.GetByKind("effect").ContainsKey(applied))
+            throw new FormatException($"{id}: {applied} is not an effect");
+        if (technique.Problem() is { } problem)
+            throw new FormatException($"{id}: {problem}");
+        return technique;
+    }
+
+    /// <summary>A YAML scalar arrives as text, so a flag is read as either a bool or the word.</summary>
+    private static bool Truth(Dictionary<object, object> map, string key) =>
+        map.TryGetValue(key, out var value) && value is not null
+        && (value is true || string.Equals(value.ToString(), "true", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// An NPC's <c>teaches</c> block (C10): entries of <c>kind</c> (recipe, technique, spell, building_piece) naming their definition by

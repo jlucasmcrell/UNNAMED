@@ -1,0 +1,15 @@
+id: ability.blade.beat_the_guard
+kind: ability
+schema: 1
+display_key: ability.blade.beat_the_guard.name
+tags: [ability]
+name: Beat the Guard
+notes: "Strike the *guard* instead of the body: the guard goes, and what it was guarding does not (SKILLS_AND_TECHNIQUES 3.1; CMB-24). Human-like bodies hold a guard in reach; this is the answer to it."
+class: active
+discipline: skill.one_hand_blade
+executes: guard_beat
+cost: { stamina: 8 }
+cooldown_s: 4
+guard_break_s: 3      # how long the beaten guard stays down
+payload:
+  - { type: damage, multiplier_of_weapon: 0.6 }   # it spends itself on the guard, not the body

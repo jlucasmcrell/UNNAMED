@@ -106,6 +106,23 @@ public sealed record AttackProfile(
     /// </summary>
     public double SneakMultiplier { get; init; } = 1.0;
 
+    /// <summary>
+    /// The blow strikes the guard rather than the body (a guard beat): a target that blocks it loses the guard instead of only turning the
+    /// blow (SKILLS_AND_TECHNIQUES §3.1, sword; CMB-24).
+    /// </summary>
+    public bool BreaksGuard { get; init; }
+
+    /// <summary>
+    /// The blow spends nothing noisy (a quiet blade): no shout, no clatter, no swing for anything to hear (SKILLS_AND_TECHNIQUES §3.1, dagger).
+    /// </summary>
+    public bool Silent { get; init; }
+
+    /// <summary>The gap the blow aims at (a gap thrust): the reader of armour gaps says how open it is on the body in front of it.</summary>
+    public ArmourGap? Gap { get; init; }
+
+    /// <summary>The aim holds (a steady draw): the shot keeps its aim while it is drawn, so its windup costs it nothing.</summary>
+    public bool Steady { get; init; }
+
     public bool IsCharge => ChargeSpeedMmPerSecond > 0;
 
     public int TotalTicks => WindupTicks + ActiveTicks + RecoveryTicks;

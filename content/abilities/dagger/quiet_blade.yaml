@@ -1,0 +1,18 @@
+id: ability.dagger.quiet_blade
+kind: ability
+schema: 1
+display_key: ability.dagger.quiet_blade.name
+tags: [ability]
+name: Quiet Blade
+notes: "A strike that spends nothing noisy: no shout, no clatter, no alarm (SKILLS_AND_TECHNIQUES 3.1; CMB-24). The swing itself makes no sound for anything to hear."
+class: active
+discipline: skill.one_hand_blade   # the dagger is trained by the one-handed blade until it has a family of its own
+executes: quiet_blade
+weapons:
+  - { item_ref: item.weapon.iron_dagger }
+  - { item_ref: item.weapon.haldas_knife }
+cost: { stamina: 10 }
+cooldown_s: 4
+silent: true
+payload:
+  - { type: damage, multiplier_of_weapon: 1.1 }
