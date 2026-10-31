@@ -117,7 +117,8 @@ public class EncounterScalingTests
         var hit = arena.Record<HitResolved>();
         var weapon = arena.Simulation.Combat.Weapon;
 
-        arena.Fight(wolf, 12);
+        // Long enough to walk to it: a wolf in the creek does not smell the party at once since the nose builds slowly (D23 S3).
+        arena.Fight(wolf, 120);
 
         // The character's sword is the sword: the authored range, not a party's percent of it.
         var mine = hit.Where(h => h.Attacker == arena.Player && h.Damage > 0).ToList();
