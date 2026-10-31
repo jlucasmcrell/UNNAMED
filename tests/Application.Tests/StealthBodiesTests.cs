@@ -38,16 +38,16 @@ public class StealthBodiesTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // The wolf's own facing decides where the character has to stand to be behind it, and a blade from behind is an execution.
-        double wolfFacing = Arena.OpenCreatures(session, session.Setup, (452, 720), 0,
-            new[] { (Arena.Wolf, 452.0, 721.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
+        double wolfFacing = Arena.OpenCreatures(session, session.Setup, (470, 744), 0,
+            new[] { (Arena.Wolf, 470.0, 745.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
             .Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
-        var behind = (452.0 - Math.Sin(wolfFacing) * 1.2, 721.0 - Math.Cos(wolfFacing) * 1.2);
+        var behind = (470.0 - Math.Sin(wolfFacing) * 1.2, 745.0 - Math.Cos(wolfFacing) * 1.2);
         var arena = Arena.OpenCreatures(session, session.Setup, behind, (int)Math.Round(wolfFacing * 180 / Math.PI),
             new[]
             {
-                (Arena.Wolf, 452.0, 721.0, "pack_hunter"),
+                (Arena.Wolf, 470.0, 745.0, "pack_hunter"),
                 // Out of the blade's reach and out of the player's way, but near enough to hear what happens next.
-                (Watch, 452.0 + Math.Sin(wolfFacing) * 3.5, 721.0 + Math.Cos(wolfFacing) * 3.5, "sentinel"),
+                (Watch, 470.0 + Math.Sin(wolfFacing) * 3.5, 745.0 + Math.Cos(wolfFacing) * 3.5, "sentinel"),
             }, Quiet, startTick: Day, origin: (0, 0));
 
         // During the login grace, before the wolf can be watching: this is what a takedown is for.

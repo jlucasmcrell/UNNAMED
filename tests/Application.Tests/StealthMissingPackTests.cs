@@ -32,16 +32,16 @@ public class StealthMissingPackTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        double wolfFacing = Arena.OpenCreatures(session, session.Setup, (452, 720), 0,
-            new[] { (Wolf, 452.0, 721.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
+        double wolfFacing = Arena.OpenCreatures(session, session.Setup, (470, 744), 0,
+            new[] { (Wolf, 470.0, 745.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
             .Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
-        var behind = (452.0 - Math.Sin(wolfFacing) * 1.2, 721.0 - Math.Cos(wolfFacing) * 1.2);
+        var behind = (470.0 - Math.Sin(wolfFacing) * 1.2, 745.0 - Math.Cos(wolfFacing) * 1.2);
         // The packmate stands twenty metres off, well out of sight of the kill and out of the strike's reach.
         var arena = Arena.OpenCreatures(session, session.Setup, behind, (int)Math.Round(wolfFacing * 180 / Math.PI),
             new[]
             {
-                (Wolf, 452.0, 721.0, "pack_hunter"),
-                (Wolf, 452.0 + Math.Sin(wolfFacing) * 20, 721.0 + Math.Cos(wolfFacing) * 20, "pack_hunter"),
+                (Wolf, 470.0, 745.0, "pack_hunter"),
+                (Wolf, 470.0 + Math.Sin(wolfFacing) * 20, 745.0 + Math.Cos(wolfFacing) * 20, "pack_hunter"),
             }, Quiet, startTick: Day, origin: (0, 0));
         arena.Tick(10);
         Assert.Null(arena.Submit(new TakedownCommand(arena.Player)));
