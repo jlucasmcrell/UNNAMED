@@ -976,7 +976,10 @@ public partial class Main : Node3D
         // Under the open sky (the gorge's ledge and hollow) the frontier stays drawn round the interior; UpdateOpenAir picks whose air.
         bool openAir = !outside && OpenAir(_session.Simulation!.ActiveLayout.SpaceId);
         Greybox.WeatherStates.UnderSky = outside || openAir;
-        _hollow.SetSpaceActive(outside || openAir);
+        // A direct closed-region boot builds its own rooms in _hollow, without
+        // a second held interior. Keep those rooms and their interior air drawn.
+        bool ownInterior = !outside && _session.Simulation!.ActiveLayout.SpaceId == _session.Setup.Layout.SpaceId;
+        _hollow.SetSpaceActive(outside || openAir || ownInterior);
         if (_scatter is not null)
             _scatter.Visible = outside || openAir;
         if (!outside && _interior is { } ring)
