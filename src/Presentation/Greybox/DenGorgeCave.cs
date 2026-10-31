@@ -153,7 +153,9 @@ public static class DenGorgeCave
         collider.AddChild(new CollisionShape3D { Shape = shape });
         root.AddChild(collider);
         Light(root, Height);
-        Dress(root, art, Height, Inside);
+        Dress(root, art, Height, Inside, (x, z) => roofY[
+            Math.Clamp((int)MathF.Round((x - x0) / Step), 0, nx - 1),
+            Math.Clamp((int)MathF.Round((z - z0) / Step), 0, nz - 1)]);
         Line(root, art, Height, rockEdge, floorEdge);
         return root;
     }
@@ -248,7 +250,7 @@ public static class DenGorgeCave
     private static readonly string[] Stones = { "rock_ph_moss_boulder_l", "rock_ph_moss_boulder_m", "env_ph_boulder_01", "gorge_rock_face", "env_ph_namaqualand_boulder_02" };
 
     /// <summary>Broken stone along the walls, roots come through the antechamber's roof from the Charwood above, and what the crack lets fall.</summary>
-    private static void Dress(Node3D root, ArtLibrary art, Func<float, float, float> height, Func<float, float, float> inside)
+    private static void Dress(Node3D root, ArtLibrary art, Func<float, float, float> height, Func<float, float, float> inside, Func<float, float, float> ceiling)
     {
         var random = new RandomNumberGenerator { Seed = 0x5EED_D02C };
         void Put(string id, Vector3 at, Vector3 turn, float scale)
@@ -272,9 +274,12 @@ public static class DenGorgeCave
             Put(Stones[random.RandiRange(0, Stones.Length - 1)], new Vector3(jx, height(jx, jz) - 0.2f, jz),
                 new Vector3(random.RandfRange(-15, 15), random.RandfRange(0, 360), random.RandfRange(-15, 15)), random.RandfRange(0.5f, 1.2f));
         }
+        // Hang from the actual drawn vault. A fixed floor+4.6 placed the root's
+        // earth cap mid-air in the high antechamber, through the Matriarch's body.
+        // Keep the native roots and their scale, seated into the same roof mesh.
         // Roots hanging through the antechamber's roof and the passage's.
         foreach (var (x, z) in new[] { (537.5f, 788f), (542.5f, 784.5f), (539f, 795f), (544f, 788.5f), (535.5f, 783.5f) })
-            Put("gorge_root_cluster", new Vector3(x, height(x, z) + 4.6f, z), new Vector3(180f + random.RandfRange(-12, 12), random.RandfRange(0, 360), 0), random.RandfRange(0.9f, 1.3f));
+            Put("gorge_root_cluster", new Vector3(x, ceiling(x, z) + 0.05f, z), new Vector3(180f + random.RandfRange(-12, 12), random.RandfRange(0, 360), 0), random.RandfRange(0.9f, 1.3f));
         // Under the crack: a fallen limb and the stones that came with it.
         Put("flora_ph_fallen_log", new Vector3(Crack.X + 1.2f, height(Crack.X, Crack.Y) - 0.1f, Crack.Y + 0.5f), new Vector3(4, 35, 6), 0.8f);
         for (int i = 0; i < 6; i++)
