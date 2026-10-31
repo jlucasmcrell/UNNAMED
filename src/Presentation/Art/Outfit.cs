@@ -146,6 +146,12 @@ public static partial class Outfit
         ("pelvis", "spine_03", 0.165f), ("spine_03", "spine_05", 0.165f),
         ("upperarm_l", "lowerarm_l", 0.055f), ("upperarm_r", "lowerarm_r", 0.055f),
         ("lowerarm_l", "hand_l", 0.045f), ("lowerarm_r", "hand_r", 0.045f),
+        // The current native HumGen body keeps its own joint vocabulary.
+        ("LeftUpperLeg", "LeftLowerLeg", 0.10f), ("RightUpperLeg", "RightLowerLeg", 0.10f),
+        ("LeftLowerLeg", "LeftFoot", 0.075f), ("RightLowerLeg", "RightFoot", 0.075f),
+        ("Hips", "Chest", 0.165f), ("Chest", "UpperChest", 0.165f),
+        ("LeftUpperArm", "LeftLowerArm", 0.055f), ("RightUpperArm", "RightLowerArm", 0.055f),
+        ("LeftLowerArm", "LeftHand", 0.045f), ("RightLowerArm", "RightHand", 0.045f),
     };
 
 
@@ -228,6 +234,8 @@ public static partial class Outfit
             _done = true;
             var skeleton = (Skeleton3D)GetParent().GetParent();
             int pelvis = skeleton.FindBone("pelvis");
+            if (pelvis < 0) pelvis = skeleton.FindBone("Hips");
+            if (pelvis < 0) throw new InvalidDataException("Spring probe body has no pelvis joint");
             var moved = Chains.Select(c => skeleton.FindBone(c)).Where(b => b >= 0)
                 .Select(b => ((skeleton.GetBoneGlobalPose(pelvis).AffineInverse() * skeleton.GetBoneGlobalPose(b)).Origin
                               - (skeleton.GetBoneGlobalRest(pelvis).AffineInverse() * skeleton.GetBoneGlobalRest(b)).Origin).Length());
