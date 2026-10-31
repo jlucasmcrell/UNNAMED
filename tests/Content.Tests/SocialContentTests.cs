@@ -334,7 +334,8 @@ public class SocialContentTests
         Assert.False(sel.Matches(Domain.Quests.DeedKind.Delivered, "item.material.boneleaf", "npc.ashen_hollow.kera_voss"));
         Assert.Equal(new[] { ("respect", 1), ("trust", 2) }, sel.Changes.Select(c => (c.Key, c.Value)));
         var undead = tavar.Values[1];
-        Assert.Equal(new[] { "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned" }, undead.Subjects);
+        // Every creature tagged undead, the D19 bosses among them.
+        Assert.Equal(new[] { "creature.boss.roam.the_othertide_walker", "creature.boss.shear.the_residue", "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned" }, undead.Subjects);
         Assert.NotNull(undead.Remark);
 
         var banter = SocialContent.BuildDialogues(loader)["dialogue.ashen_hollow.tavar_orr"].Banter;

@@ -17,7 +17,12 @@ public class ValidatedContentCacheTests
         try
         {
             CopyTree(Path.Combine(Harness.RepoRoot(), "content"), pack);
-            GameSession Boot(string? checkedCache) => GameSession.Boot(new GameOptions(pack, profile.Root) { ValidatedContentCache = checkedCache });
+            // Each boot reads the pack from disk: the per-run content cache would answer from the first read whatever the files now say.
+            GameSession Boot(string? checkedCache)
+            {
+                ContentBootCache.Clear();
+                return GameSession.Boot(new GameOptions(pack, profile.Root) { ValidatedContentCache = checkedCache });
+            }
 
             Boot(cache);
             Assert.Single(Directory.GetFiles(cache, "*.ok"));

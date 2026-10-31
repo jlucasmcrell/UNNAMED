@@ -81,9 +81,12 @@ public class MagicTests
         var primer = arena.Simulation.Player.Inventory.Single(e => e.DefId == Primer);
         Assert.Null(arena.Submit(new UseItemCommand(arena.Player, primer.ItemId)));
 
-        Assert.Equal(new[] { Bolt, Ward, Thread }, learned.Select(l => l.DefinitionId));
+        // The first three, then Playtest 2's first-hour workings of the same schools (ea6fd978), in the book's order.
+        var taught = new[] { Bolt, Ward, Thread, "spell.force.cinder_dart", "spell.force.shiver_spike", "spell.warding.holdfast", "spell.warding.hush_the_sting",
+            "spell.vital.ember_mend", "spell.vital.clear_the_dead_weight" };
+        Assert.Equal(taught, learned.Select(l => l.DefinitionId));
         Assert.All(learned, l => Assert.Equal("book", l.Source));
-        Assert.All(new[] { Bolt, Ward, Thread }, f => Assert.Equal(Primer, arena.Simulation.Player.Progression.Known[f].SourceRef));
+        Assert.All(taught, f => Assert.Equal(Primer, arena.Simulation.Player.Progression.Known[f].SourceRef));
         Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.DefId == Primer);   // read once
         Assert.Empty(cast);
         Assert.Empty(arena.Simulation.Player.Progression.Skills);                         // study teaches formulas, never skill

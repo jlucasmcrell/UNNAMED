@@ -52,7 +52,8 @@ public class TravelTests
         var session = Harness.Boot(profile);
         var layout = session.Setup.Layout;
 
-        Assert.Equal(new[] { Ashen, Rim }, layout.Waystones.Select(w => w.Key));
+        // And the stones the grand-scale areas and Cairnwold's gate brought (Den gorge, Foldscar, Old Late, Cairnwold), awake from the start.
+        Assert.Equal(new[] { Ashen, Rim, "waystone.den_gorge", "waystone.foldscar", "waystone.old_late", "waystone.cairnwold" }, layout.Waystones.Select(w => w.Key));
         Assert.Null(layout.FindWaystone(Ashen)!.Dormant);
         Assert.Equal(("world.road.rim_stone_woken", BerrinsTalk, "rim_stone"),
             (layout.FindWaystone(Rim)!.Dormant!.FlagId, layout.FindWaystone(Rim)!.Dormant!.RiteDialogueId, layout.FindWaystone(Rim)!.Dormant!.RiteNodeId));

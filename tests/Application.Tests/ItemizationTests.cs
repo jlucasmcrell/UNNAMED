@@ -42,8 +42,23 @@ public class ItemizationTests
     private static PlayerRecord Skilled(PlayerRecord r, string skill, int level) =>
         r.WithProgression(r.Progression with { Skills = r.Progression.Skills.SetItem(skill, new SkillState(level, 0)) });
 
+    /// <summary>
+    /// The bench draws two of its kind's experiment candidates by the world's seed. Playtest 2's recipes (p2-recipes) made three more
+    /// workbench recipes experiment candidates, so the draw is no longer the cloak and the shield these tests are about: they keep the
+    /// bench's first two, and the draw itself is ExperimentSet's to test.
+    /// </summary>
+    private static SimulationSetup TheFirstBench(SimulationSetup setup) => setup with
+    {
+        Crafting = setup.Crafting with
+        {
+            Recipes = setup.Crafting.Recipes.SetItems(setup.Crafting.Recipes.Values
+                .Where(r => r.Experiment && r.StationKind == "workbench" && r.Id is not (Cloak or Shield))
+                .Select(r => KeyValuePair.Create(r.Id, r with { Experiment = false }))),
+        },
+    };
+
     private static Arena At(GameSession session, (double X, double Z) place, Func<PlayerRecord, PlayerRecord> change, SimulationSetup? setup = null) =>
-        Arena.OpenCreatures(session, setup ?? session.Setup, place, 0, Array.Empty<(string, double, double, string)>(), change);
+        Arena.OpenCreatures(session, TheFirstBench(setup ?? session.Setup), place, 0, Array.Empty<(string, double, double, string)>(), change);
 
     private static bool Knows(Arena arena, string id) => ProgressionEngine.Knows(arena.Simulation.Player.Progression, id);
 

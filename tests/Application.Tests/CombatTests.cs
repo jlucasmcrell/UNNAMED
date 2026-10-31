@@ -232,11 +232,11 @@ public class CombatTests
         var session = Harness.Boot(profile);
         var none = Array.Empty<(string, double, double, string)>();
 
-        // South from the waystation's yard into the lodge's north wall, whose outer face is at z 132.
-        var walled = Arena.OpenCreatures(session, session.Setup, (44, 137), 180, none, Archer);
+        // South from the waystation's yard into the lodge's north wall, whose outer face is at z 132 - east of the square's well (43.6, 134.8, 77b661b9).
+        var walled = Arena.OpenCreatures(session, session.Setup, (47, 137), 180, none, Archer);
         var atWall = Loose(walled);
         Assert.Null(atWall.Target);
-        var (wallX, wallZ) = Harness.InRegion(44, 132);
+        var (wallX, wallZ) = Harness.InRegion(47, 132);
         Assert.InRange(atWall.ToXMm, wallX - 1, wallX + 1);
         Assert.InRange(atWall.ToZMm, wallZ, wallZ + 10);
         Assert.Equal((atWall.ToXMm, atWall.ToZMm, false), walled.Simulation.Aim(180_000, walled.Simulation.Combat.Weapon.ReachMm));

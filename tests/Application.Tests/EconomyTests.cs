@@ -80,7 +80,8 @@ public class EconomyTests
     {
         using var profile = new TempProfile();
         var arena = At(Harness.Boot(profile));
-        Assert.Equal(new[] { Hollow, Cairnwold }.OrderBy(m => m, StringComparer.Ordinal), arena.Simulation.Markets.Select(m => m.MarketId));
+        // And the Steps' Exchange (04fa2469) and the Sedge tollpiles (42eb1ca7).
+        Assert.Equal(new[] { Hollow, Cairnwold, "market.otherhome", "market.sedge_tollpiles" }.OrderBy(m => m, StringComparer.Ordinal), arena.Simulation.Markets.Select(m => m.MarketId));
         Assert.All(arena.Simulation.Markets.SelectMany(m => m.Goods), g => Assert.Equal((g.Target, 1000, 0), (g.Stock, g.PriceFactorPermille, g.Trend)));
         var wares = arena.Simulation.Wares(Kera)!;
         Assert.Equal(400L, wares.Purse);

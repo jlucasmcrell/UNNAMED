@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Quests;
 using UNNAMED.Domain.Social;
@@ -16,6 +17,30 @@ namespace UNNAMED.Application.Tests;
 public class ReachabilityTests
 {
     private const string Sedge = "region.sedge_levels";
+
+    /// <summary>
+    /// The creatures held for a region not yet open: every spawn of theirs names a region tagged <c>dev_scaffold</c>, which the owner keeps
+    /// out of a player build until the area is built (2026-10-30) - the D19 bosses of the areas to come. Like the Ondrek heritage, they wait
+    /// for their region; a creature with no spawn at all, or with one in an open region, is not held.
+    /// </summary>
+    private static HashSet<string> HeldForUnopenedRegions()
+    {
+        string content = Path.Combine(Harness.RepoRoot(), "content");
+        var scaffolds = Directory.EnumerateFiles(Path.Combine(content, "regions"), "*.yaml")
+            .Select(f => File.ReadLines(f).TakeWhile(l => !l.StartsWith("notes:", StringComparison.Ordinal)).ToList())
+            .Where(head => head.Contains("- dev_scaffold"))
+            .Select(head => head.First(l => l.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim())
+            .ToHashSet(StringComparer.Ordinal);
+        var regions = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(content, "spawns"), "*.yaml", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file);
+            string region = Regex.Match(text, @"^region_ref:\s*(\S+)", RegexOptions.Multiline).Groups[1].Value;
+            foreach (Match creature in Regex.Matches(text, @"creature_ref:\s*([\w.]+)"))
+                (regions.TryGetValue(creature.Groups[1].Value, out var named) ? named : regions[creature.Groups[1].Value] = new(StringComparer.Ordinal)).Add(region);
+        }
+        return regions.Where(r => r.Value.All(scaffolds.Contains)).Select(r => r.Key).ToHashSet(StringComparer.Ordinal);
+    }
 
     /// <remarks>
     /// Every region a run can stand in, for the same reason <see cref="EveryQuestStep_PointsAtSomethingInTheRegion"/>
@@ -44,7 +69,8 @@ public class ReachabilityTests
             spawned.Add(item.PetCreature!);
         spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         spawned.UnionWith(sedge.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
-        Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c)));
+        var held = HeldForUnopenedRegions();
+        Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c) && !held.Contains(c)));
         var placed = setup.Layout.Nodes.Select(n => n.NodeDefId).ToHashSet(StringComparer.Ordinal);
         placed.UnionWith(ring.Layout.Nodes.Select(n => n.NodeDefId));
         placed.UnionWith(sedge.Layout.Nodes.Select(n => n.NodeDefId));
@@ -63,6 +89,9 @@ public class ReachabilityTests
         var reachable = Reachable(setup);
         // The heritage of a people nobody can play yet (the Ondrek's Record Stone) waits for them to be playable (owner, 2026-10-23).
         var held = setup.Character.Peoples.Values.Where(p => !p.Playable).SelectMany(p => p.Heritage).Select(k => k.ItemId).ToHashSet(StringComparer.Ordinal);
+        // And what only the creatures held for a region not yet open would drop waits for that region.
+        var waiting = HeldForUnopenedRegions().Select(c => setup.Combat.Creatures[c].LootTableId).OfType<string>();
+        held.UnionWith(Reachable(setup, waiting).Except(reachable));
         Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id) && !held.Contains(id)));
     }
 
@@ -141,14 +170,15 @@ public class ReachabilityTests
     }
 
     /// <summary>Every item a fresh character can get, by the routes the class summary lists.</summary>
-    private static HashSet<string> Reachable(SimulationSetup setup)
+    private static HashSet<string> Reachable(SimulationSetup setup, IEnumerable<string>? moreTables = null)
     {
         var items = setup.Items;
         // Loot a fresh character can reach: the region's containers, the corpses of the creatures that spawn, and the catch of every
         // water a bank can be fished from (fishing is a route to an item like a node is).
         var tables = new Queue<string>(setup.AllLayouts.SelectMany(l => l.Containers).Select(c => c.LootTableId)
             .Concat(setup.AllLayouts.SelectMany(l => l.Space.Waters).Select(w => w.CatchTableId).OfType<string>())
-            .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>()));
+            .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].LootTableId).OfType<string>())
+            .Concat(moreTables ?? Enumerable.Empty<string>()));
         var seenTables = new HashSet<string>(StringComparer.Ordinal);
         var reachable = new HashSet<string>(items.StartingKit.Select(k => k.ItemId), StringComparer.Ordinal);
         reachable.UnionWith(setup.Character.PlayablePeoples.SelectMany(p => p.Heritage).Select(k => k.ItemId));

@@ -259,8 +259,8 @@ public class AudioCoverageTests
         }
         var defined = Directory.EnumerateFiles(Repository.File("content", "creatures"), "*.yaml", SearchOption.AllDirectories)
             .Select(f => File.ReadLines(f).First(l => l.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim()).ToList();
-        Assert.Equal(58, defined.Count);   // the frontier's and the Sedge's, and the boss roster
-        Assert.Contains("creature.beast.hunting_spider_matriarch", defined);
+        Assert.Equal(55, defined.Count);   // the frontier's and the Sedge's, and the boss roster (whose Matriarch, Gate Warden and Doubled Hart replaced the plain defs)
+        Assert.Contains("creature.boss.den_gorge.matriarch", defined);
         Assert.All(defined, id =>
         {
             Assert.True(bound.TryGetValue(id, out var fields), $"{id} has no binding");

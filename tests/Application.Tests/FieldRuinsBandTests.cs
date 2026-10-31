@@ -21,7 +21,7 @@ namespace UNNAMED.Application.Tests;
 public class FieldRuinsBandTests(ITestOutputHelper output)
 {
     private const string Tender = "creature.construct.gate_tender";
-    private const string Warden = "creature.construct.gate_warden";
+    private const string Warden = "creature.boss.field_ruins.gate_warden.deep";   // the D19 encounter replaced the construct (3971fb6f)
     private const int Worlds = 12;
     private const double TickSeconds = 0.05;
     private static readonly (double X, double Z) Ground = (120, 60);
@@ -32,7 +32,8 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
         var creatures = setup.Combat.Creatures;
-        var field = setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.field.", StringComparison.Ordinal)).ToList();
+        // The court's Gate Warden is a D19 boss encounter now (3971fb6f), spawned as spawn.boss.field_ruins.*: still one of the nine.
+        var field = setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.field.", StringComparison.Ordinal) || s.Key.StartsWith("spawn.boss.field_ruins.", StringComparison.Ordinal)).ToList();
         Assert.Equal(9, field.Count);
         Assert.All(field.Where(s => s.Key.Contains("tenders", StringComparison.Ordinal)).SelectMany(s => s.Members),
             m => Assert.Equal(4, creatures[m.CreatureId].Level));

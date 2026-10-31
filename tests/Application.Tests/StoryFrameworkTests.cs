@@ -149,7 +149,8 @@ public class StoryFrameworkTests
         arena.Fight(arena.Creature(), 1_200);
         Assert.False(arena.Creature().Alive);
         Assert.Equal(1, FlagAt(arena, Flag, Outpost));
-        Assert.Equal(Flag, Assert.Single(flags).FlagId);
+        // The contribution ledger (boss systems) records every kill under its own world.contribution.* flags; of the story's, only this one.
+        Assert.Equal(Flag, Assert.Single(flags, f => !f.FlagId.StartsWith("world.contribution.", StringComparison.Ordinal)).FlagId);
         Assert.Null(Status(arena, hunt.Id));   // the quest was never started; the defeat is on record all the same
 
         Assert.Null(arena.Submit(new BeginStoryCommand(arena.Player)));
