@@ -1,7 +1,8 @@
 # The Steps — finishing pass
 
-Includes Claude's north-quay pass through `0c59dd9e`. Its boats, crane, nets,
-rope, cargo, parapet placements and 0.4 m boat draft are preserved.
+Includes Claude's north-quay pass through `2e03b6da`. Its boats, crane, nets,
+rope, cargo, parapet placements and 0.4 m boat draft are preserved. The owner-retained log sheds and removal of the lone quay
+wicker hurdles are included.
 
 - The Drowned Gate reuses the existing FoldWard rune ring and drifting motes.
   Its ring follows the shore or water surface, its rune density scales to the
@@ -14,7 +15,8 @@ rope, cargo, parapet placements and 0.4 m boat draft are preserved.
   The old pier supports and the stair surfaces are not rendered as backfill.
 - The 24 stair cuts receive 192 native drystone cheek pieces. Their exposed
   tops follow the upper landing; their lower portions sit in the bank. The
-  central stair clearance remains at least 2.92 m. No new art is required.
+  cheeks meet the actual 6 m terrain-cut boundaries, retaining the native
+  stair boards and clear walking centre. No new art is required.
   Camera colliders use the exposed height up to the upper landing plus 15 cm,
   rather than the full buried stone-piece height.
 

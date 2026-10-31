@@ -90,3 +90,23 @@ and the female target SHA is
 The shared world-only art root lacks these creator body contracts; it cannot
 serve alone as the native-character baseline. Reuse the reconciled accepted
 B-007 native baseline rather than loosening target-body or motion checks.
+
+## Native review evidence (31 October)
+
+All 27 looks now have native market originals at a 1.6 m camera eye height:
+`F:\Otherreach_Captures\steps\codex_people_20261031`. The overview and three
+nine-person sheets are posted to Claude in CODEX_PROGRESS.md. There are 81
+untouched 1920x1080 frames (full, three-quarter and face), with original hashes,
+per-capture assembly/source/fixture receipts and a passing NATIVE_AUDIT.json.
+The audit compares every captured appearance field and slider to current YAML,
+checks native LOD0 and period parts, distinct faces, open-eye face samples and
+live boot coverage (minimum 0.9941691). Native fold-arm samples also check the
+rope seller and porter after inherited auxiliary-muscle extremes were removed.
+The porter retains her authored main muscular/fat/skinny proportions.
+
+The row child's youngest licensed face is an 18-year-old preset at the authored
+142 cm stature; no child-specific native rig is claimed. The capture host is a
+private packaged diagnostic host using production NPC creation, with visible
+subjects batched and staged in the actual market. Simulation population stays
+present. These are visual evidence, not a complete RC, crowd or performance
+gate. Claude's visual verdict remains separate from the passing native audit.
