@@ -21,6 +21,7 @@ using V10 = UNNAMED.Persistence.Sections.V10;
 using V11 = UNNAMED.Persistence.Sections.V11;
 using V12 = UNNAMED.Persistence.Sections.V12;
 using V13 = UNNAMED.Persistence.Sections.V13;
+using V41 = UNNAMED.Persistence.Sections.V41;
 using V14 = UNNAMED.Persistence.Sections.V14;
 using V15 = UNNAMED.Persistence.Sections.V15;
 using V16 = UNNAMED.Persistence.Sections.V16;
@@ -128,7 +129,8 @@ public static class SchemaMigrations
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
         new SchemaV39ToV40(),
-        new SchemaV40ToV41());
+        new SchemaV40ToV41(),
+        new SchemaV41ToV42());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -1325,7 +1327,7 @@ public sealed class SchemaV23ToV24 : SchemaMigration
                 YMm = old.YMm,
                 ZMm = old.ZMm,
                 AppearanceSeed = old.AppearanceSeed,
-                Inventory = old.Inventory.Select(i => new InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = i.Notable })
+                Inventory = old.Inventory.Select(i => new V41.InventoryDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = i.Notable })
                     .ToArray(),
                 Progression = old.Progression,
                 FacingMdeg = old.FacingMdeg,
@@ -1359,12 +1361,12 @@ public sealed class SchemaV23ToV24 : SchemaMigration
                     InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = c.Quality, Notable = c.Notable,
                 }).ToArray(),
                 Baselines = old.Baselines,
-                Containers = old.Containers?.Select(c => new ContainerDto
+                Containers = old.Containers?.Select(c => new V41.ContainerDto
                 {
                     Key = c.Key,
                     InstanceId = c.InstanceId,
                     HostCell = c.HostCell,
-                    Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = i.Notable })
+                    Items = c.Items.Select(i => new V41.ContainerItemDto { ItemId = i.ItemId, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = i.Notable })
                         .ToArray(),
                 }).ToArray(),
                 Creatures = old.Creatures,
@@ -2136,10 +2138,31 @@ public sealed class SchemaV40ToV41 : SchemaMigration
         {
             var old = MessagePackSerializer.Deserialize<Sections.V40.EntitySection>(bytes, SectionCodec.MessagePackOptions);
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(
-                MessagePackSerializer.Deserialize<EntitiesSectionDto>(
+                MessagePackSerializer.Deserialize<V41.EntitySection>(
                     MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions),
                 SectionCodec.MessagePackOptions);
         }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 41 -> 42: a carried stack and a stack in a container keep their gear build (D21). Schema 41 had no field for it, so a crafted or rolled
+/// piece came back from a load as the plain template; nothing in an older save was ever written with one, which is what the field's null says.
+/// </summary>
+public sealed class SchemaV41ToV42 : SchemaMigration
+{
+    public override int From => 41;
+
+    public override string Summary => "schema 41 -> 42: stacks keep their gear build (none in an older save)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        var options = SectionCodec.MessagePackOptions;
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(MessagePackSerializer.Deserialize<EntitiesSectionDto>(
+                MessagePackSerializer.Serialize(MessagePackSerializer.Deserialize<V41.EntitySection>(entities, options), options), options), options);
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

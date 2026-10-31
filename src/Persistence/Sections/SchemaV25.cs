@@ -10,6 +10,8 @@ using MessagePack;
 
 namespace UNNAMED.Persistence.Sections.V25;
 
+using ContainerDto = UNNAMED.Persistence.Sections.V41.ContainerDto;
+
 [MessagePackObject]
 public sealed class EntitiesSection
 {

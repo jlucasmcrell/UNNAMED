@@ -9,6 +9,8 @@ using MessagePack;
 
 namespace UNNAMED.Persistence.Sections.V35;
 
+using InventoryDto = UNNAMED.Persistence.Sections.V41.InventoryDto;
+
 [MessagePackObject]
 public sealed class Player
 {

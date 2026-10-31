@@ -31,6 +31,12 @@ public class PlayerRecordCompletenessTests
     /// piece worn beside the main hand, a second attribute raised, a stamina pool part spent, a guard's day past the first, a second
     /// companion downed with a trail of its own, and the character in the air.
     /// </summary>
+    /// <summary>A gear build in every field (schema 42; D21): parts per slot, a material per part, an affix, a socket and a name.</summary>
+    private static readonly Domain.Items.GearBuild Build = new("sword", "maker.fixture.smith", 2,
+        ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("blade", "part.fixture.blade"), KeyValuePair.Create("grip", "part.fixture.grip") }),
+        ImmutableSortedDictionary.CreateRange(StringComparer.Ordinal, new[] { KeyValuePair.Create("blade", "mat.fixture.steel") }),
+        ImmutableArray.Create("affix.fixture.keen"), 1) { Name = "Fixture Blade" };
+
     private static PlayerRecord Full()
     {
         var player = M2Fixtures.Historical.Player();
@@ -42,6 +48,8 @@ public class PlayerRecordCompletenessTests
             Notable = new Domain.Items.NotableRecord("Fixture Vest", Domain.Items.ProvenanceKind.Crafted, "recipe.fixture.vest", 4_200) { Maker = "Aelin", Uses = 2 },
             // Worn a little (schema 24).
             Wear = new Domain.Items.ItemWear(12, 2),
+            // Assembled from parts (schema 42).
+            Built = Build,
         };
         var progression = player.Progression with
         {
@@ -104,10 +112,10 @@ public class PlayerRecordCompletenessTests
                 PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.scout", progression)
                 {
                     Gear = ImmutableSortedDictionary.Create<EquipSlot, PartyGear>()
-                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1) }, Loaned: true))
+                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1), Built = Build }, Loaned: true))
                         .Add(EquipSlot.Head, new PartyGear(new InventoryEntry(Item(8), "item.armor.fixture_cap", 1) { Quality = -1, Notable = vest.Notable }, Loaned: false)),
                     Belongings = ImmutableArray.Create(new InventoryEntry(Item(9), "item.potion.minor_healing", 2) { Quality = 1 },
-                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1) },
+                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1), Built = Build with { Name = "Fixture Knife" } },
                         new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
                 }),
                 // A swing under way that has struck two creatures (schema 27).
@@ -259,10 +267,13 @@ public class PlayerRecordCompletenessTests
     {
         ["player.companions[].condition"] = "up or downed decides the health (0 when downed) and the downed tick (0 when up)",
         ["player.companions[].contract"] = "a whole contract, present exactly on a hireling (schema 21); each of its fields is perturbed where one is present",
+        ["player.inventory[].built"] = "a whole build, absent on a plain item; each of its fields is perturbed where one is present (schema 42)",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.inventory[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].belongings[].built"] = "a whole build, absent on a plain item; each of its fields is perturbed where one is present (schema 42)",
         ["player.party_sheets[].belongings[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].gear[].item.built"] = "a whole build, absent on a plain item; each of its fields is perturbed where one is present (schema 42)",
         ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.posture.airborne"] = "in the air or not decides the air time (0 on the ground)",
         ["player.crossing.costs[].tier"] = "one cost for each tier, numbered from 1 in order, so no tier changes alone (schema 40)",

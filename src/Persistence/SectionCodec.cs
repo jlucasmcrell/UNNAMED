@@ -628,6 +628,26 @@ public sealed class InventoryDto
 
     /// <summary>From schema 24: its wear, or null when it is unworn at its made quality.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 42: how it was assembled (D21), or null for a plain item.</summary>
+    [Key("built")] public GearBuildDto? Built { get; set; }
+}
+
+/// <summary>
+/// A built piece's assembly (schema 42; D21 G3-G4): its family, maker and part tier, the part per slot, the material per part, the affixes and sockets
+/// the roll gave it, and the name it reads as.
+/// </summary>
+[MessagePackObject]
+public sealed class GearBuildDto
+{
+    [Key("family")] public string Family { get; set; } = "";
+    [Key("maker")] public string Maker { get; set; } = "";
+    [Key("part_tier")] public int PartTier { get; set; }
+    [Key("parts")] public Dictionary<string, string> Parts { get; set; } = new();
+    [Key("materials")] public Dictionary<string, string> Materials { get; set; } = new();
+    [Key("affixes")] public string[] Affixes { get; set; } = Array.Empty<string>();
+    [Key("sockets")] public int Sockets { get; set; }
+    [Key("name")] public string? Name { get; set; }
 }
 
 /// <summary>A stack's wear (schema 24; WP3b): the points taken, and the quality it was made at.</summary>
@@ -998,6 +1018,9 @@ public sealed class ContainerItemDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 42: how a rolled piece in a chest was assembled (D21 G4), or null.</summary>
+    [Key("built")] public GearBuildDto? Built { get; set; }
 }
 
 [MessagePackObject]
@@ -1077,7 +1100,7 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Built = BuildToDto(e.Built) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -1276,6 +1299,23 @@ public static class SectionCodec
 
     private static WearDto? WearToDto(ItemWear? wear) => wear is null ? null : new WearDto { Points = wear.Points, MadeQuality = wear.MadeQuality };
 
+    private static GearBuildDto? BuildToDto(GearBuild? built) => built is null ? null : new GearBuildDto
+    {
+        Family = built.Family, Maker = built.MakerId, PartTier = built.PartTier, Parts = new Dictionary<string, string>(built.Parts),
+        Materials = new Dictionary<string, string>(built.Materials), Affixes = built.Affixes.ToArray(), Sockets = built.Sockets, Name = built.Name,
+    };
+
+    /// <summary>A stack's saved assembly (schema 42), or null for a plain item.</summary>
+    private static GearBuild? BuildOf(GearBuildDto? dto, string what)
+    {
+        if (dto is null)
+            return null;
+        if (dto.Family.Length == 0 || dto.Maker.Length == 0 || dto.PartTier < 1 || dto.Sockets < 0)
+            throw new FormatException($"{what} has an invalid build ({dto.Family}, {dto.Maker}, tier {dto.PartTier}, {dto.Sockets} sockets)");
+        return new GearBuild(dto.Family, dto.Maker, dto.PartTier, dto.Parts.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            dto.Materials.ToImmutableSortedDictionary(StringComparer.Ordinal), dto.Affixes.ToImmutableArray(), dto.Sockets) { Name = dto.Name };
+    }
+
     /// <summary>A stack's saved wear (schema 24), in range, or null for an unworn stack.</summary>
     private static ItemWear? WearOf(WearDto? dto, string what)
     {
@@ -1393,6 +1433,7 @@ public static class SectionCodec
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)
             {
                 Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"),
+                Built = BuildOf(e.Built, $"carried {e.ItemId}"),
                 Bag = placed[e.ItemId].Bag, Slot = placed[e.ItemId].Slot, Locked = placed[e.ItemId].Locked, Junk = placed[e.ItemId].Junk,
             }),
             ProgressionCodec.FromDto(progression), facing,
@@ -1472,10 +1513,10 @@ public static class SectionCodec
     }
 
     private static InventoryDto StackToDto(InventoryEntry e) =>
-        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) };
+        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear), Built = BuildToDto(e.Built) };
 
     private static InventoryEntry StackOf(InventoryDto e, string what) =>
-        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what) };
+        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what), Built = BuildOf(e.Built, what) };
 
     private static CompanionRecord Companion(CompanionDto c)
     {
@@ -1586,7 +1627,7 @@ public static class SectionCodec
                 Key = c.Key,
                 InstanceId = c.InstanceId.Value,
                 HostCell = c.HostCell,
-                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear) }).ToArray(),
+                Items = c.Items.Select(i => new ContainerItemDto { ItemId = i.ItemId.Value, DefId = i.DefId, Count = i.Count, Quality = i.Quality, Notable = NotableToDto(i.Notable), Wear = WearToDto(i.Wear), Built = BuildToDto(i.Built) }).ToArray(),
             }).ToArray(),
             Creatures = snapshot.Creatures.Select(c => new CreatureDto
             {
@@ -1736,7 +1777,7 @@ public static class SectionCodec
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
             .Select(c => new ContainerRecord(
                 c.Key, EntityId.Parse(c.InstanceId), c.HostCell,
-                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}") })
+                c.Items.Select(i => new ContainerItem(EntityId.Parse(i.ItemId), i.DefId, i.Count) { Quality = QualityOf(i.Quality, $"{c.Key} item {i.ItemId}"), Notable = NotableOf(i.Notable, $"{c.Key} item {i.ItemId}"), Wear = WearOf(i.Wear, $"{c.Key} item {i.ItemId}"), Built = BuildOf(i.Built, $"{c.Key} item {i.ItemId}") })
                     .ToImmutableArray(),
                 baselines.GetValueOrDefault(c.HostCell)))
             .ToImmutableArray();
