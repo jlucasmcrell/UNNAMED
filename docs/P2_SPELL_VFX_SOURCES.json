@@ -1,0 +1,102 @@
+{
+  "scope": "Existing native-source VFX atlases only; no raster generation, image-model input, resampling or new art payload.",
+  "textures": [
+    {
+      "texture": "vfx/cos_ns1_flake_2x2.png",
+      "sha256": "748a337af9beb5ba4ddae41d74ab8d2d29260a87c3a4aaa0897e38b24b9cbf4b",
+      "provenance": {
+        "provider": "Cosmos (cosmos.so) Premium",
+        "pack": "NS1 Niagara Systems",
+        "license": "UNVERIFIED - Cosmos Premium account download; the zip ships no licence text. Fill from the Cosmos terms before promotion.",
+        "note": "texture only, exported from the .uasset source art (mip 0) by asset_work/vfx/_scripts/ue_export_textures.py; no Niagara logic used",
+        "source_file": "T_NS1_Snow.png",
+        "source_sha256": "f203629d8f18e3618ecaa7ab263f05116f982c9ebad7bbb5b708b48cbfe0e6de"
+      }
+    },
+    {
+      "texture": "vfx/cos_ns1_point.png",
+      "sha256": "0291a05363a5e00fcfc9392b485a3db11f6439aa5d917e169e54bbac89828b86",
+      "provenance": {
+        "provider": "Cosmos (cosmos.so) Premium",
+        "pack": "NS1 Niagara Systems",
+        "license": "UNVERIFIED - Cosmos Premium account download; the zip ships no licence text. Fill from the Cosmos terms before promotion.",
+        "note": "texture only, exported from the .uasset source art (mip 0) by asset_work/vfx/_scripts/ue_export_textures.py; no Niagara logic used",
+        "source_file": "T_NS1_Spark.png",
+        "source_sha256": "7bbd52a3f26e4362db9931628d70e16f741e6d8348701d24a88392e28ec733b3"
+      }
+    },
+    {
+      "texture": "vfx/cos_ns1_smoke_8x8.png",
+      "sha256": "7ba2784dcfdd1219b56f269b71b76909ec74dfe039efa9f8e04ea00327e48518",
+      "provenance": {
+        "provider": "Cosmos (cosmos.so) Premium",
+        "pack": "NS1 Niagara Systems",
+        "license": "UNVERIFIED - Cosmos Premium account download; the zip ships no licence text. Fill from the Cosmos terms before promotion.",
+        "note": "texture only, exported from the .uasset source art (mip 0) by asset_work/vfx/_scripts/ue_export_textures.py; no Niagara logic used",
+        "source_file": "T_NS1_Smoke_8x8.png",
+        "source_sha256": "f7d839f89d0b454fc429125b72eae88efed6e64362c789c105a22094596723bf"
+      }
+    },
+    {
+      "texture": "vfx/ext_unity_fireball01_energy.png",
+      "sha256": "b35cd0e684eb11d54c04c98500cc95e25f66813340904152c705333b88cc0720",
+      "provenance": {
+        "provider": "Unity Technologies (Unity Labs blog)",
+        "pack": "Free VFX Image Sequences and Flipbooks (curated subset: Explosion02HD, FireBall01, Flame02, WispySmoke01, Cloud01, DiscSmoke01, CandleSmoke01)",
+        "author": "Unity Technologies / Unity Labs",
+        "source_url": "https://unity.com/blog/engine-platform/free-vfx-image-sequences-flipbooks",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution_required": "no",
+        "depot_folder": "F:\\Otherreach_External_Assets\\vfx\\unity__unity-labs__vfx-image-sequences-flipbooks",
+        "archive": "FireBall01-flipbooks.zip",
+        "archive_sha256": "f60de3f2ce56f941d6f089ea4ea93e3ae51c63fac84c1aa0d6615022f8647010",
+        "source_file": "FireBall01-temperature_8x8.exr",
+        "source_sha256": "0defb7bcb1d04edbc8efb6d476b8dc73deb3cadcc0a43acbed2cb73cb1e59636",
+        "source_layout": "1024x1024 float EXR temperature pass, 8x8 cells of 128x128"
+      }
+    },
+    {
+      "texture": "vfx/ext_unity_flame02.png",
+      "sha256": "8774ad6bc8a19362b2336e598852d11ff51136c91dd4c83850e4ca352618f35d",
+      "provenance": {
+        "provider": "Unity Technologies (Unity Labs blog)",
+        "pack": "Free VFX Image Sequences and Flipbooks (curated subset: Explosion02HD, FireBall01, Flame02, WispySmoke01, Cloud01, DiscSmoke01, CandleSmoke01)",
+        "author": "Unity Technologies / Unity Labs",
+        "source_url": "https://unity.com/blog/engine-platform/free-vfx-image-sequences-flipbooks",
+        "license": "CC0-1.0",
+        "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "attribution_required": "no",
+        "depot_folder": "F:\\Otherreach_External_Assets\\vfx\\unity__unity-labs__vfx-image-sequences-flipbooks",
+        "archive": "Flame02-flipbooks.zip",
+        "archive_sha256": "f37b12cdae090591d537ed3bb50396f03833a49864362bf665d6817b7282c954",
+        "source_file": "Flame02_16x4.tga",
+        "source_sha256": "6ae2158bc06e0b035196db2695c19e7cb29a23f59b345d4c5c2764c6c10ce3a6",
+        "source_layout": "2048x1024 RGBA, 16x4 cells of 128x256"
+      }
+    },
+    {
+      "texture": "vfx/kenney_trace_spark.png",
+      "sha256": "4c9b2aeae3e3dff38bea9affa67caadfb6b0b28580dffef6c754691d1db492c9",
+      "provenance": {
+        "provider": "Kenney (kenney.nl)",
+        "pack": "Particle Pack 1.1",
+        "license": "CC0-1.0",
+        "source_file": "trace_06.png",
+        "source_sha256": "22c61c0e280db28b6cb6033c015dde4360a124b3488302ea708566b7f36fd900"
+      }
+    },
+    {
+      "texture": "vfx/unity_discsmoke01_16x4.png",
+      "sha256": "f7125ab848736885ec3caad0318bfb6e981da851232586ad166ade04ec588e98",
+      "provenance": {
+        "provider": "Unity Technologies (Unity Labs blog)",
+        "pack": "Free VFX Image Sequences and Flipbooks",
+        "source_url": "https://unity.com/blog/engine-platform/free-vfx-image-sequences-flipbooks",
+        "license": "CC0-1.0",
+        "source_file": "DiscSmoke01_16x4.tga",
+        "source_sha256": "b902b1091bc1e73f290eccc3690956bc12d377412f01376c283f38cd09f689c5"
+      }
+    }
+  ]
+}

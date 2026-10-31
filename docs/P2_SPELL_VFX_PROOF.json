@@ -1,0 +1,94 @@
+{
+  "status": "AWAITING_CLAUDE_VERDICT_NOT_FINISHED",
+  "branch": "visual/p2-spell-vfx",
+  "runtime_source_commit": "da6521c7c91b47776da51df59de7bc7a64a6d7ae",
+  "review_directory": "C:\\Otherreach_External_Assets\\PLAYTEST2_SPELL_VFX\\20261031\\final_review_v1",
+  "clips": [
+    {
+      "spell": "force.cinder_dart",
+      "video": "force.cinder_dart.realtime.mp4",
+      "sha256": "bd47ba0ac23f4119dd61df5c48a265a9260f97f560e7145c40f761a523771683",
+      "frames": 36,
+      "wall_duration": 6.3219259999999995,
+      "median_fps": 6.148057521226167,
+      "max_frame_gap": 0.326735,
+      "scope": "Real wall-time viewport recording of a normal live cast; source JPEGs and timestamps retained. No artificial simulation rate, MovieMaker, speed change, interpolation or generated art. Silent VFX review clip.",
+      "native_run": "native08",
+      "encoded_seconds": 6.323,
+      "clock_error_seconds": 0.0010740000000009076
+    },
+    {
+      "spell": "force.shiver_spike",
+      "video": "force.shiver_spike.realtime.mp4",
+      "sha256": "0d7cdd9a9df8932bb391ce62c8cfda4ad928d34ec91f6b4dfa39ebc17fa96ed8",
+      "frames": 57,
+      "wall_duration": 6.4889600000000005,
+      "median_fps": 8.960693916136835,
+      "max_frame_gap": 0.20105000000000017,
+      "scope": "Real wall-time viewport recording of a normal live cast; source JPEGs and timestamps retained. No artificial simulation rate, MovieMaker, speed change, interpolation or generated art. Silent VFX review clip.",
+      "native_run": "native07",
+      "encoded_seconds": 6.49,
+      "clock_error_seconds": 0.0010399999999997078
+    },
+    {
+      "spell": "warding.holdfast",
+      "video": "warding.holdfast.realtime.mp4",
+      "sha256": "0b41f8f45fd1ec1c0e8648867c018d5caf7a7a30e7062b3f6f9e0ed68dd4d34f",
+      "frames": 55,
+      "wall_duration": 6.517371,
+      "median_fps": 8.694782695643475,
+      "max_frame_gap": 0.20596000000000014,
+      "scope": "Real wall-time viewport recording of a normal live cast; source JPEGs and timestamps retained. No artificial simulation rate, MovieMaker, speed change, interpolation or generated art. Silent VFX review clip.",
+      "native_run": "native07",
+      "encoded_seconds": 6.518,
+      "clock_error_seconds": 0.0006289999999999907
+    },
+    {
+      "spell": "warding.hush_the_sting",
+      "video": "warding.hush_the_sting.realtime.mp4",
+      "sha256": "479a52f529239e257768a21dfc3b74b9c8ef935a94407a68f9c8de7e546feec2",
+      "frames": 60,
+      "wall_duration": 6.401739,
+      "median_fps": 9.4595745083386,
+      "max_frame_gap": 0.16604600000000014,
+      "scope": "Real wall-time viewport recording of a normal live cast; source JPEGs and timestamps retained. No artificial simulation rate, MovieMaker, speed change, interpolation or generated art. Silent VFX review clip.",
+      "native_run": "native07",
+      "encoded_seconds": 6.403,
+      "clock_error_seconds": 0.0012609999999995125
+    },
+    {
+      "spell": "vital.ember_mend",
+      "video": "vital.ember_mend.realtime.mp4",
+      "sha256": "ddd0254f543e89357ae4fedff68219eb8bb1b1167e2bdd66f5b44164564b1755",
+      "frames": 87,
+      "wall_duration": 10.487427,
+      "median_fps": 8.267776753492141,
+      "max_frame_gap": 0.14825,
+      "scope": "Real wall-time viewport recording of a normal live cast; source JPEGs and timestamps retained. No artificial simulation rate, MovieMaker, speed change, interpolation or generated art. Silent VFX review clip.",
+      "native_run": "native07",
+      "encoded_seconds": 10.488,
+      "clock_error_seconds": 0.0005729999999992685
+    },
+    {
+      "spell": "vital.clear_the_dead_weight",
+      "video": "vital.clear_the_dead_weight.realtime.mp4",
+      "sha256": "9a367bd2b8c793d50a0bf5f796086754bb8cc19a2e0852f611405792832996e4",
+      "frames": 55,
+      "wall_duration": 6.444855,
+      "median_fps": 8.522315683617547,
+      "max_frame_gap": 0.14756400000000003,
+      "scope": "Real wall-time viewport recording of a normal live cast; source JPEGs and timestamps retained. No artificial simulation rate, MovieMaker, speed change, interpolation or generated art. Silent VFX review clip.",
+      "native_run": "native07",
+      "encoded_seconds": 6.446,
+      "clock_error_seconds": 0.0011450000000001737
+    }
+  ],
+  "validation": {
+    "public_presentation_release": "0 errors /23 existing warnings",
+    "MagicContentTests": "7/7 PASS",
+    "release_atlases": "7/7 byte-identical in pinned Test02 base; no art delta",
+    "native_rig": "59 native bones / original garment and material pipeline / EXIT0 /47.34sec lease",
+    "native_world_teardown": "native07 required565sec watchdog; native08 aborted0xC0000374 after capture,483.40sec lease; not a clean-exit/package gate"
+  },
+  "scope": "Normal primer/use/controller casts and actual native-world1920x1080 viewport. Nearby low plants withheld/HUD hidden for presentation art review. Actual monotonic VFR; silent, no speed change/interpolation/MovieMaker/generated art or source resampling. Capture6-9fps and clocks disclosed; not played-world/performance acceptance. Native07 five effects unchanged by the Cinder-only runtime diff in da6521c7."
+}
