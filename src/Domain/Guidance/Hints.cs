@@ -84,6 +84,13 @@ public static partial class HintRules
     public const int MaxLength = 160;
 
     /// <summary>
+    /// Whether the dark space's torch hint is due now: only inside a dark space, only once in a visit, and never while a lit torch is already in
+    /// the off hand - a hint that tells a player to do what they have just done is a nag, and it should go the moment they do it.
+    /// </summary>
+    public static bool DarkSpaceHintDue(bool inDarkSpace, bool shownThisVisit, bool torchLitInOffHand) =>
+        inDarkSpace && !shownThisVisit && !torchLitInOffHand;
+
+    /// <summary>
     /// The hint a moment shows: of the hints waiting on <paramref name="trigger"/> and not yet <paramref name="seen"/>, the first by
     /// order then ID - unless guidance is off, or is Light and a hint of that hint's category has been seen already. Null when none.
     /// </summary>

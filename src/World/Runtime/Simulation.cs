@@ -619,6 +619,24 @@ public sealed class Simulation
 
     public bool PlayerInExterior => _state.Space.IsExterior;
 
+    /// <summary>
+    /// Whether a light is burning in the off hand: a torch or lantern equipped there that still has fuel. A spent torch is still carried and is
+    /// not light, which is what makes the difference worth asking about (Items.LitRadius).
+    /// </summary>
+    public bool TorchLitInOffHand
+    {
+        get
+        {
+            if (!_state.Equipment.TryGetValue(EquipSlot.OffHand, out var held))
+                return false;
+            if (_state.Inventory.FirstOrDefault(e => e.ItemId == held) is not { } carried)
+                return false;
+            if (Setup.Items.Catalog.Find(carried.DefId) is not { } definition)
+                return false;
+            return UNNAMED.Domain.Items.Durability.LitRadius(definition.LightRadiusMm, definition.DurabilityMax, carried.Wear) > 0;
+        }
+    }
+
     public RegionLayout ActiveLayout => Setup.LayoutFor(_state.Space);
     public long ActiveSpaceTick => _context.SpaceTick(_state.Space, _state.WorldTick);
 

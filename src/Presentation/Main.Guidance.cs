@@ -17,6 +17,10 @@ public partial class Main
     private const float ProgressMetres = 1.5f;
 
     private HintLine? _hintLine;
+
+    /// <summary>Whether this visit to a dark space has already had its torch hint, and whether that hint is still the line on screen.</summary>
+    private bool _darkSpaceHintShown;
+    private bool _darkSpaceHintOnScreen;
     private bool _chatWas, _reputationWas, _trainerWas;
 
     /// <summary>When hints showed, oldest first: the budget they are paced by (1I).</summary>
@@ -150,7 +154,28 @@ public partial class Main
     {
         if (_hintLine is null)
             return;
-        if(!simulation.PlayerInExterior) Hint(HintTriggers.DarkSpaceEntered);
+        // The torch hint, once a visit and never while a lit torch is already in the off hand (B-035's follow-up): lighting one ends it at once,
+        // and leaving the dark arms it again for the next visit.
+        bool dark = !simulation.PlayerInExterior;
+        if (!dark)
+        {
+            _darkSpaceHintShown = false;
+            _darkSpaceHintOnScreen = false;
+        }
+        else if (HintRules.DarkSpaceHintDue(dark, _darkSpaceHintShown, simulation.TorchLitInOffHand))
+        {
+            if (Hint(HintTriggers.DarkSpaceEntered))
+            {
+                _darkSpaceHintShown = true;
+                _darkSpaceHintOnScreen = true;
+            }
+        }
+        else if (simulation.TorchLitInOffHand && _darkSpaceHintOnScreen)
+        {
+            // The player has done the thing the hint asked for: it does not linger.
+            _hintLine.Clear();
+            _darkSpaceHintOnScreen = false;
+        }
         if(simulation.Player.Inventory.Any(i=>i.DefId=="item.material.raw_meat")) Hint(HintTriggers.RawMeatTaken);
         if(_inventory.OpenStation?.Kind=="forge") Hint(HintTriggers.ForgeOpened);
         if (prompting)
