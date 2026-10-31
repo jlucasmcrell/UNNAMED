@@ -50,9 +50,9 @@ public sealed class P2SkillUnlockTests
         arena.Simulation.Player.Progression.Known.ContainsKey(ability);
 
     [Theory]
-    [InlineData(Kera, "ability.blade.guarded_cut", null, 0)]
-    [InlineData(Kera, "ability.bow.steady_aim", null, 0)]
-    [InlineData(Durn, "ability.polearm.set_against_the_charge", null, 0)]
+    [InlineData(Kera, "ability.blade.guarded_cut", "skill.one_hand_blade", 15)]
+    [InlineData(Kera, "ability.bow.steady_aim", "skill.bow", 15)]
+    [InlineData(Durn, "ability.polearm.set_against_the_charge", "skill.polearm", 15)]
     public void TheFirstRungOfEachDiscipline_IsLearnedInAFreshSession(string npc, string ability, string? skill, int level)
     {
         using var profile = new TempProfile();
@@ -68,7 +68,7 @@ public sealed class P2SkillUnlockTests
     [InlineData(Kera, "ability.blade.hamstring", "skill.one_hand_blade")]
     [InlineData(Kera, "ability.bow.parting_shot", "skill.bow")]
     [InlineData(Durn, "ability.polearm.hooked_pull", "skill.polearm")]
-    public void TheSecondRung_AsksForTheProficientBand(string npc, string ability, string skill)
+    public void TheSecondRung_AsksForTheFamiliarBand(string npc, string ability, string skill)
     {
         using var profile = new TempProfile();
         var at = npc == Kera ? AtKera : AtDurn;
@@ -79,11 +79,11 @@ public sealed class P2SkillUnlockTests
         Assert.NotNull(refusal);
         Assert.False(Known(raw, ability));
 
-        // and one at the proficient band takes it
+        // and one at the familiar band takes it
         using var experienced = new TempProfile();
-        var arena = At(Harness.Boot(experienced), at, skill, 30);
+        var arena = At(Harness.Boot(experienced), at, skill, 15);
         string? learned = Learn(arena, npc, ability);
-        Assert.True(learned is null, $"{ability} refused at the proficient band: {learned}");
-        Assert.True(Known(arena, ability), $"{ability} was not learned at the proficient band");
+        Assert.True(learned is null, $"{ability} refused at the familiar band: {learned}");
+        Assert.True(Known(arena, ability), $"{ability} was not learned at the familiar band");
     }
 }
