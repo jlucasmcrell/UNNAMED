@@ -1,0 +1,55 @@
+{
+  "status": "FINISHED_REQUESTED_VISUAL_HANDOFF_CLAUDE_VERDICT_PENDING",
+  "branch": "visual/rivals",
+  "runtime_public_source": "89c4a2e1",
+  "scope": "Two actual unaltered1920x1080 viewport PNGs over the native populated world, normal art/quality/HUD. Private fixture warms180 actual main frames to initialize camera/HUD, then pauses Main and clears startup quest/announcement queues. Native meeting card calls production AnnounceRival; board uses actual NoticeBoardModel and NoticeBoardPanel with the existing Jessa fixture and projected actual bounty view. No played race, canon rival installation, fresh RC, performance or clean-exit acceptance.",
+  "private_inputs": {
+    "private_source_sha256": "df67104875ded261d5a107263f37c0269a2b9b4462e525e79c442a9cbe6530dc",
+    "assemblies": {
+      "UNNAMED.Application.dll": "64cfd4527842b02d4c16fed917ea299f47cd5baa43b4f5619a807920a09048ac",
+      "UNNAMED.Content.dll": "4bf780ded3b4758a55b6ee3ea348faeef61476bca2ab6360068756f7464f34f2",
+      "UNNAMED.Domain.dll": "85a64cb50dba58615719f774521f69d9a164b3a0c79b646fb4f09f3871f9b2ec",
+      "UNNAMED.EntityRegistry.dll": "f6e76e942db90cf71ec65389997f8ed4fafece6a0524e555f772ad66946b9f3d",
+      "UNNAMED.Persistence.dll": "12f8571acef2c686175471852b5c7f6166114b52c4dd5a4ac9682927e6d476f9",
+      "UNNAMED.Presentation.dll": "d6d581130fcf3e473ad9a25dd480f07033e2816190a1d34e96544f975f0d8888",
+      "UNNAMED.World.dll": "9c90ac4400a3f03b749995baa8dea5eddac9b44e91319c91345d80d85801de6b"
+    },
+    "scope": "Native UI gallery after180 actual world frames initialize camera and HUD. Main simulation clock then paused, startup quest/announcement queues cleared. Same production AnnounceRival method and NoticeBoardPanel; deterministic Jessa fixture, not a played bounty claim."
+  },
+  "gallery": {
+    "status": "NATIVE_UI_GALLERY_REQUIRES_REVIEW",
+    "rival": {
+      "Name": "Jessa Vane",
+      "Identity": "Veth \u00b7 Wayfarer",
+      "Regard": "Respects your work",
+      "Tally": "0 taken before you \u00b7 2 you finished first"
+    },
+    "contract": {
+      "Title": "Iron off the Shelf",
+      "Facts": "10 coin - posted by Kera Voss",
+      "Taken": "Taken by Jessa Vane",
+      "Open": false
+    },
+    "scope": "Actual runtime HUD announcement and NoticeBoardPanel over the native world. Deterministic Jessa fixture matches NoticeBoardModelTests; no simulation race/claim or canon NPC installation is asserted. No composite/generated art; isolated profile, normal source art and population."
+  },
+  "exit": {
+    "exit": 3221226356,
+    "lease_seconds": 450.4427502000035
+  },
+  "rejected": [
+    "native01 arrival: startup quest card obscured it; board was valid preliminary proof",
+    "native02: Main paused before camera/HUD initialized and stale private announcement text; rejected"
+  ],
+  "sha256": {
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\native03\\RIVAL_NOTICE.png": "1a8f0029f4d4e6691e8b03141f3966ec726c318ccf28689d96cf84ba36a59aa4",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\native03\\RIVAL_BOARD_TAKEN.png": "eb58b67c158c35d1243b2416e9385b76ffa1fdfbb0211f37fed92d4d79767a37",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\host03\\Otherreach.exe": "45038506b41e2161413d9828a404373696c1b5487e37a52d674ae8213a4b8406",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.Application.dll": "64cfd4527842b02d4c16fed917ea299f47cd5baa43b4f5619a807920a09048ac",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.Content.dll": "4bf780ded3b4758a55b6ee3ea348faeef61476bca2ab6360068756f7464f34f2",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.Domain.dll": "85a64cb50dba58615719f774521f69d9a164b3a0c79b646fb4f09f3871f9b2ec",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.EntityRegistry.dll": "f6e76e942db90cf71ec65389997f8ed4fafece6a0524e555f772ad66946b9f3d",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.Persistence.dll": "12f8571acef2c686175471852b5c7f6166114b52c4dd5a4ac9682927e6d476f9",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.Presentation.dll": "d6d581130fcf3e473ad9a25dd480f07033e2816190a1d34e96544f975f0d8888",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\rivals\\assembly03\\UNNAMED.World.dll": "9c90ac4400a3f03b749995baa8dea5eddac9b44e91319c91345d80d85801de6b"
+  }
+}
