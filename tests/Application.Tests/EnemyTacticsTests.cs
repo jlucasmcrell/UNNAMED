@@ -87,15 +87,18 @@ public class EnemyTacticsTests
         var session = Harness.Boot(profile);
         // The animal bites the wolf, and what the wolf does about it is its role's: a pack hunter goes for the handler behind the animal, a
         // guardian that does not read the fight turns on the animal itself (spec 43 ruling 5, "attacking handlers").
-        double hunter = DistanceToHandler(session, "pack_hunter");
-        double guardian = DistanceToHandler(session, "den_guardian");
-        Assert.True(hunter < guardian - 2_000,
-            $"the pack hunter ended {hunter / 1000:0.0} m from the character and the guardian {guardian / 1000:0.0} m: no handler hunting");
+        // Measured against both: a pulled animal runs back to its handler, so the guardian chasing it ends near the character too - what tells
+        // them apart is which of the two each wolf is on.
+        var (hunter, hunterToPet) = DistanceToHandler(session, "pack_hunter");
+        var (guardian, guardianToPet) = DistanceToHandler(session, "den_guardian");
         Assert.True(hunter < 4_000, $"the pack hunter stayed {hunter / 1000:0.0} m off the handler it went after");
+        Assert.True(hunter < hunterToPet, $"the pack hunter ended {hunter / 1000:0.0} m from the character and {hunterToPet / 1000:0.0} m from the animal: no handler hunting");
+        Assert.True(guardianToPet < 1_500 && guardianToPet < guardian,
+            $"the guardian ended {guardianToPet / 1000:0.0} m from the animal and {guardian / 1000:0.0} m from the character: it did not fight the animal");
     }
 
     /// <summary>Provoke a wolf with an animal's bite, let it answer, and measure what it did: how far it ended from the character.</summary>
-    private static double DistanceToHandler(GameSession session, string role)
+    private static (double ToCharacter, double ToAnimal) DistanceToHandler(GameSession session, string role)
     {
         // On the bank, not in the creek at (76, 152): water masks half of a swing's ten metres (STEALTH §3.4) and the wolf would not hear it.
         var arena = Roused(session, (Wolf, 76.0, 150.0, role),
@@ -108,7 +111,9 @@ public class EnemyTacticsTests
         Assert.Contains(started, a => a.Attacker == pet.Id);
         // Now what does it go for: the animal at its heels, or the character six metres back?
         arena.Tick(120);
-        return To(At(70.0, 152), arena.Creature().Body);
+        var wolf = arena.Creature().Body;
+        var animal = arena.Simulation.Pets.Single().Body;
+        return (To(At(70.0, 152), wolf), Math.Sqrt(Math.Pow(wolf.XMm - animal.XMm, 2) + Math.Pow(wolf.ZMm - animal.ZMm, 2)));
     }
 
     [Fact]

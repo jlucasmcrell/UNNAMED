@@ -336,7 +336,28 @@ public class CreatureTests
         using var profile = new TempProfile();
         var arena = Armed(Harness.Boot(profile), (120, 72), 0, "item.weapon.hunting_bow", (Hound, 120, 80, "hunter"));
         var hits = arena.Record<HitResolved>();
-        Shoot(arena, Local(arena, Only(arena).Body));
+        // Let it see who it is racing first: an arrow into a hound that never knew the archer was there is a sneak shot (S0, twice the wound) and
+        // leaves it too hurt to chase. A run on the spot is heard; the hound turns, sees, and engages.
+        for (int t = 0; t < 200 && Only(arena).Mind != CreatureMind.Engaged; t++)
+        {
+            arena.Simulation.Enqueue(new MoveCommand(arena.Player, new MoveIntent(0, t % 2 == 0 ? 1000 : -1000, Gait.Run, 0)));
+            arena.Tick();
+        }
+        Assert.Equal(CreatureMind.Engaged, Only(arena).Mind);
+        // Shoot until an arrow lands, keeping the bow on the hound while it is drawn: a hound that is coming shifts before the string is
+        // loosed, and a shot only aimed once goes past it. The race is from the wound.
+        for (int shot = 0; shot < 4 && !hits.Any(h => h.Target == Only(arena).Id); shot++)
+        {
+            Assert.Null(arena.Submit(new AttackCommand(arena.Player)));
+            for (int t = 0; t <= arena.Simulation.Combat.Weapon.TotalTicks; t++)
+            {
+                var me = arena.Simulation.Player.Body;
+                var hound = Only(arena).Body;
+                arena.Simulation.Enqueue(new MoveCommand(arena.Player, MoveIntent.Idle(CombatRules.FacingTowards(me.XMm, me.ZMm, hound.XMm, hound.ZMm))));
+                arena.Tick();
+            }
+        }
+        Assert.Contains(hits, h => h.Target == Only(arena).Id);
         // Run for it: south at a sprint.
         long fastest = 0;
         var last = Only(arena).Body;
@@ -566,9 +587,10 @@ public class CreatureTests
         Walk(walker, (158, 80), Gait.Walk);   // 8 m past it: out of its 6 m sight, and a walk carries 3 m
         Assert.Equal(CreatureMind.Unaware, Only(walker).Mind);
 
-        var runner = Place(session, (158, 40), 0, (Spider, 150, 60, "ambusher"));
+        // The run passes five metres off: a run carries 8 m, and the road's mud takes it to 5.6 m (STEALTH §3.1) - it feels it and goes for it.
+        var runner = Place(session, (155, 40), 0, (Spider, 150, 60, "ambusher"));
         var noticed = runner.Record<CreatureNoticed>();
-        Walk(runner, (158, 62), Gait.Run);   // a run carries 8 m: it feels it and goes for it
+        Walk(runner, (155, 62), Gait.Run);
         Assert.Contains(noticed, n => n.Mind == CreatureMind.Engaged);
         double furthest = 0;
         for (int i = 0; i < 400; i++)

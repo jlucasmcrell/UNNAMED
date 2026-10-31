@@ -2,6 +2,7 @@
 using MessagePack;
 namespace UNNAMED.Persistence.Sections.V37;
 
+using CreatedDto = UNNAMED.Persistence.Sections.V41.CreatedDto;
 using ContainerDto = UNNAMED.Persistence.Sections.V41.ContainerDto;
 
 [MessagePackObject]

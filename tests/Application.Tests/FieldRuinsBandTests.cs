@@ -166,6 +166,19 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
             }
             double dx = creature.Body.XMm - body.XMm, dz = creature.Body.ZMm - body.ZMm;
             double gx = goalX - body.XMm, gz = goalZ - body.ZMm;
+            if (behind)
+            {
+                // The way behind it must go round it, not through it: when the creature stands on the straight line to the goal (it faces the
+                // character square on), head for its flank first - otherwise the character walks into its body and stands there in front of it.
+                double toCreature = Math.Sqrt(dx * dx + dz * dz), toGoalNow = Math.Sqrt(gx * gx + gz * gz);
+                double across = toGoalNow > 0 ? Math.Abs(dx * gz - dz * gx) / toGoalNow : 0;
+                if (toGoalNow > toCreature && across < reach * 0.8)
+                {
+                    double side = dx * gz - dz * gx >= 0 ? 1 : -1;
+                    gx = creature.Body.XMm + -dz / toCreature * reach * side - body.XMm;
+                    gz = creature.Body.ZMm + dx / toCreature * reach * side - body.ZMm;
+                }
+            }
             double distance = Math.Sqrt(dx * dx + dz * dz), toGoal = Math.Sqrt(gx * gx + gz * gz);
             int facing = CombatRules.FacingTowards(body.XMm, body.ZMm, creature.Body.XMm, creature.Body.ZMm);
             bool inReach = distance <= reach;

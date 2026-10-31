@@ -8,3 +8,4 @@ notes: D18. The archivist's case on the gallery landing - the ledger the burial 
 rolls: 0
 entries:
   - { item_ref: item.tome.field_notes, chance: 1.00, count_range: [1, 1] }
+  - { item_ref: item.tool.rune_key_archive, chance: 1.00, count_range: [1, 1] }   # D23 S7: the archivist kept the key to the gauge ward

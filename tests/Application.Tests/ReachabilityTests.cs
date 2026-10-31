@@ -92,6 +92,10 @@ public class ReachabilityTests
         // And what only the creatures held for a region not yet open would drop waits for that region.
         var waiting = HeldForUnopenedRegions().Select(c => setup.Combat.Creatures[c].LootTableId).OfType<string>();
         held.UnionWith(Reachable(setup, waiting).Except(reachable));
+        // And items tagged held_unopened_region: kit the coordinator keeps for a region not yet open (the Keelward rifles and laser).
+        held.UnionWith(Directory.EnumerateFiles(Path.Combine(Harness.RepoRoot(), "content", "items"), "*.yaml", SearchOption.AllDirectories)
+            .Select(File.ReadAllLines).Where(l => l.Any(t => t.StartsWith("tags:", StringComparison.Ordinal) && t.Contains("held_unopened_region", StringComparison.Ordinal)))
+            .Select(l => l.First(t => t.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim()));
         Assert.Empty(setup.Items.Catalog.Definitions.Keys.Where(id => !reachable.Contains(id) && !held.Contains(id)));
     }
 

@@ -2,7 +2,7 @@
 kind: item.weapon
 schema: 1
 display_key: item.weapon.marksman_rifle.name
-tags: [item]
+tags: [item, held_unopened_region]   # held for a region not yet open: no first-hour source (coordinator)
 name: Marksman Rifle
 notes: A long-barrelled windlass piece with a brass scope (STEALTH 7.4; D23 S5). Slow to draw, heavy to carry, and it carries further and hits harder than any bow in the starting frontier - at the price of a nine-metre crack that a whole street hears.
 category: weapon

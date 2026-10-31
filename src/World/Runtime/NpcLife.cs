@@ -193,18 +193,25 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
     /// </summary>
     public void Advance(long fromTick, long toTick, AdvanceLog log)
     {
-        if (State.World.NpcLife is not { } life || Clock.Hour(toTick) <= life.Hour)
+        if (State.World.NpcLife is not { } life)
             return;
-        LiveTo(Clock.Hour(toTick), toTick, publish: false, log);
+        // A patrol's round is a function of the tick, not of the hour (STEALTH §8.2): a watch on her round is where the round has her at the end of
+        // the absence however it was split, so she is settled even when no hour turned.
+        bool hourTurned = Clock.Hour(toTick) > life.Hour;
+        if (hourTurned)
+            LiveTo(Clock.Hour(toTick), toTick, publish: false, log);
         foreach (var npc in State.World.NpcLife!.Npcs.Values)
         {
             // The party's, or let go by it and not yet back to their life: their body stays where the party left it.
             if (State.Companions.ContainsKey(npc.Key) || npc.Condition == NpcCondition.Hired)
                 continue;
-            var (x, z, facing) = Goal(npc);
+            if (!hourTurned && !Patrolling(npc, toTick))
+                continue;
+            var (x, z, facing) = Goal(npc, toTick);
             Settle(npc, x, z, facing);
         }
-        Rehire(toTick);
+        if (hourTurned)
+            Rehire(toTick);
     }
 
     /// <summary>Put a body down at a pose, standing, its route forgotten: only ever out of sight (C or D, or during the catch-up).</summary>

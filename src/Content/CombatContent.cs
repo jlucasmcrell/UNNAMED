@@ -613,6 +613,8 @@ public static class CombatContent
                 return new SpawnSite(id, ToMm(position[0], "position_m"), ToMm(position[1], "position_m"), Mm(at, "radius_m"), members)
                 {
                     RespawnTicks = respawn,
+                    BodiesPersist = s.Map.GetValueOrDefault("bodies_persist") is bool persist ? persist
+                        : s.Map.GetValueOrDefault("bodies_persist") is string word && word.Equals("true", StringComparison.OrdinalIgnoreCase),
                     Route = route,
                     Space = space,
                     Recovery = s.Map.GetValueOrDefault("encounter_recovery") is Dictionary<object, object> recovery

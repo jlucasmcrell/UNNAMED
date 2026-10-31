@@ -146,6 +146,15 @@ public class BarrowworksFrontierTests
         Assert.Equal(Of(build), Of(resumed.Simulation.Player.Inventory.Single(i => i.ItemId == rolled.ItemId).Built));
         Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, rolled.ItemId.Value, ItemPlace.Carried, ItemPlace.In(crate.Key), 1)));
         Assert.Equal(Of(build), Of(arena.Simulation.World.Container(crate.Key)!.Items.Single(i => i.ItemId == rolled.ItemId).Built));
+        // Dropped on the floor it lies there as itself, through a save, and comes back up as itself.
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, rolled.ItemId.Value, ItemPlace.In(crate.Key), ItemPlace.Carried, 1)));
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, rolled.ItemId.Value, ItemPlace.Carried, ItemPlace.Ground, 1)));
+        Assert.Equal(Of(build), Of(arena.Simulation.World.FindCreated(rolled.ItemId)!.Built));
+        store.Save(SaveSlots.Manual("dropped"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var reloaded = store.Load(SaveSlots.Manual("dropped"), new LoadContext(session.Generator, session.Content, new Registry()));
+        Assert.Equal(Of(build), Of(reloaded.World.FindCreated(rolled.ItemId)!.Built));
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, rolled.ItemId.Value, ItemPlace.Ground, ItemPlace.Carried, 1)));
+        Assert.Equal(Of(build), Of(arena.Simulation.Player.Inventory.Single(i => i.ItemId == rolled.ItemId).Built));
     }
 
     [Fact]

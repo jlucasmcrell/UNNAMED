@@ -42,12 +42,27 @@ public class StealthBodiesTests
             new[] { (Arena.Wolf, 470.0, 745.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
             .Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
         var behind = (470.0 - Math.Sin(wolfFacing) * 1.2, 745.0 - Math.Cos(wolfFacing) * 1.2);
+        // The watchman's facing is rolled where he stands too: of the places three and a half metres round the wolf, take the one whose roll
+        // has him looking at it, so the body is in front of him rather than behind him by chance.
+        (double X, double Z) post = (0, 0);
+        double best = double.MaxValue;
+        for (int step = 0; step < 16; step++)
+        {
+            double around = step * Math.PI / 8;
+            var at = (X: 470.0 + Math.Sin(around) * 3.5, Z: 745.0 + Math.Cos(around) * 3.5);
+            double facing = Arena.OpenCreatures(session, session.Setup, (470, 760), 0, new[] { (Watch, at.X, at.Z, "sentinel") },
+                Quiet, startTick: Day, origin: (0, 0)).Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
+            double toWolf = Math.Atan2(470.0 - at.X, 745.0 - at.Z);
+            double off = Math.Abs(Math.IEEERemainder(facing - toWolf, 2 * Math.PI));
+            if (off < best)
+                (best, post) = (off, at);
+        }
         var arena = Arena.OpenCreatures(session, session.Setup, behind, (int)Math.Round(wolfFacing * 180 / Math.PI),
             new[]
             {
                 (Arena.Wolf, 470.0, 745.0, "pack_hunter"),
-                // Out of the blade's reach and out of the player's way, but near enough to hear what happens next.
-                (Watch, 470.0 + Math.Sin(wolfFacing) * 3.5, 745.0 + Math.Cos(wolfFacing) * 3.5, "sentinel"),
+                // Out of the blade's reach and looking at the wolf, near enough to hear and to see what happens next.
+                (Watch, post.X, post.Z, "sentinel"),
             }, Quiet, startTick: Day, origin: (0, 0));
 
         // During the login grace, before the wolf can be watching: this is what a takedown is for.

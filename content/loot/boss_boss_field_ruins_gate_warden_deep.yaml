@@ -15,3 +15,44 @@ entries:
   count_range:
   - 1
   - 2
+# The court's older dead came down armed with the works' own projectors (D21 high-tech families): rarely, one lies with them.
+- item_ref: item.weapon.air_projector
+  chance: 0.05
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.water_projector
+  chance: 0.05
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.fire_projector
+  chance: 0.05
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.ice_projector
+  chance: 0.05
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.laser_projector
+  chance: 0.05
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.tractor_projector
+  chance: 0.05
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.cosmic_projector
+  chance: 0.02
+  count_range:
+  - 1
+  - 1
+- item_ref: item.weapon.reality_projector
+  chance: 0.02
+  count_range:
+  - 1
+  - 1
