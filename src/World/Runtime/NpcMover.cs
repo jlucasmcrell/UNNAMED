@@ -174,7 +174,10 @@ internal sealed partial class NpcSystem
     /// Where an NPC is headed now, and how they will face there: a trip's meeting place or destination, else the anchor their schedule's
     /// activity puts them at this hour. Derived, never stored.
     /// </summary>
-    private (long X, long Z, int Facing) Goal(NpcLifeRecord npc)
+    private (long X, long Z, int Facing) Goal(NpcLifeRecord npc) => Goal(npc, State.WorldTick);
+
+    /// <summary>Where a body is headed at <paramref name="tick"/>: a patrol's round is a function of the tick, the rest of the day of the hour.</summary>
+    private (long X, long Z, int Facing) Goal(NpcLifeRecord npc, long tick)
     {
         var routine = Life.Routines[npc.RoutineId];
         // Captives keep their original site until the existing quest barrier is lifted.
@@ -204,7 +207,7 @@ internal sealed partial class NpcSystem
         }
         // A patrol (STEALTH §8.2): while she is on duty the round is her goal, so she walks stop to stop and stands at each one. Off duty she
         // goes back to her routine - the round is the post, not the day.
-        if (PatrolLegFor(npc, routine, hourOfDay) is { } round)
+        if (PatrolLegFor(npc, routine, hourOfDay, tick) is { } round)
             return (round.XMm, round.ZMm, (int)round.FacingMdeg);
         var own = routine.AnchorFor(npc.Activity, hourOfDay);
         return (own.XMm, own.ZMm, own.FacingMdeg);
@@ -215,7 +218,12 @@ internal sealed partial class NpcSystem
     /// routine's work hours are open, and she stands at each stop for the rest of its share of the period. A body with no patrol - everyone in
     /// the game so far - never enters this.
     /// </summary>
-    private PatrolLeg? PatrolLegFor(NpcLifeRecord life, RoutineDefinition routine, int hourOfDay)
+    /// <summary>Whether a body is on its patrol round at <paramref name="tick"/>.</summary>
+    private bool Patrolling(NpcLifeRecord npc, long tick) =>
+        Life.Routines.TryGetValue(npc.RoutineId, out var routine)
+        && PatrolLegFor(npc, routine, (int)(((State.World.NpcLife!.Hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay), tick) is not null;
+
+    private PatrolLeg? PatrolLegFor(NpcLifeRecord life, RoutineDefinition routine, int hourOfDay, long tick)
     {
         var layout = _context.Layout;
         if (layout.Patrols.IsDefaultOrEmpty)
@@ -232,7 +240,7 @@ internal sealed partial class NpcSystem
             int tickMs = TickMs;
             long walkMmPerSecond = Math.Max(1, _context.Setup.Movement.BaseSpeedMmPerSecond * _context.Setup.Movement.WalkPercent / 100);
             long step = Math.Max(1, walkMmPerSecond * tickMs / 1000);
-            return PatrolRules.At(patrol, State.WorldTick, step);
+            return PatrolRules.At(patrol, tick, step);
         }
         return null;
     }
