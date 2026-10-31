@@ -10,4 +10,8 @@ stack_max: 1
 weight: 1.4
 value_base: 180
 item_class: ordinary
+slot: feet
+material_class: leather
+durability_max: 150
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }
 use: { effect_ref: effect.muffled, consume: false }

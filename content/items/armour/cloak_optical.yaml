@@ -10,4 +10,8 @@ stack_max: 1
 weight: 2.5
 value_base: 420
 item_class: ordinary
+slot: cloak
+material_class: cloth
+durability_max: 150
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }
 use: { effect_ref: effect.cloaked, consume: false }
