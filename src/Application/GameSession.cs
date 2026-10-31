@@ -230,6 +230,22 @@ public sealed class GameSession : IDomainEvents, IDisposable
 
     public static GameSession Boot(GameOptions options)
     {
+        // The content half of a boot - read, validate, build every setup - is the same answer for the same request, and it is most of the
+        // cost: shared per process, never shared state (content-boot cache; the setups are immutable records).
+        var content = ContentBootCache.Get(options, () => ReadContent(options));
+        return new GameSession(options, content.Setup, content.Content, content.Generator, content.DisplayNames, content.Transitions)
+        {
+            ClockAtWorldStartHours = content.ClockAtWorldStartHours,
+            Hints = content.Hints,
+        };
+    }
+
+    /// <summary>
+    /// Read the pack and build every immutable setup a world needs, without starting one. Runs once per distinct request behind
+    /// <see cref="ContentBootCache"/>, so it is cheap to ask for; a tool that wants the content and not a session asks for this.
+    /// </summary>
+    public static ContentBoot ReadContent(GameOptions options)
+    {
         var loader = new ContentLoader();
         loader.LoadAll(options.ContentRoot);
         if (loader.HasErrors)
@@ -327,11 +343,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
         if (generator.Fingerprint != M3LayoutFingerprint)
             transitions = transitions.Add(new BaselineTransition("M6: the content bible's four cells", M3LayoutFingerprint, generator.Fingerprint,
                 DropVanishedTargets: true));
-        return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions)
-        {
-            ClockAtWorldStartHours = WorldContent.ClockAtWorldStartHours(loader),
-            Hints = HintContent.Build(loader),
-        };
+        return new ContentBoot(setup, content, generator, transitions, WorldContent.DisplayNames(loader),
+            WorldContent.ClockAtWorldStartHours(loader), HintContent.Build(loader));
     }
 
     public GameOptions Options { get; }
@@ -521,8 +534,11 @@ public sealed class GameSession : IDomainEvents, IDisposable
     public StartChoice StartChoice()
     {
         var saves = Folders().SelectMany(folder => Summaries(folder))
-            .OrderByDescending(s => s.WrittenAt).ThenByDescending(s => s.PlaytimeSeconds).ThenBy(s => s.Slot, StringComparer.Ordinal)
-            .ThenBy(s => s.Character, StringComparer.Ordinal)
+            // Newest first, and total: two saves written inside the same millisecond are broken by the character's id, a ULID, so the later
+            // creation sorts higher - the order a player expects and the order the start screen had when boots were slow enough to space
+            // saves out. Playtime and slot only decide between saves of the same character.
+            .OrderByDescending(s => s.WrittenAt).ThenByDescending(s => s.Character, StringComparer.Ordinal)
+            .ThenByDescending(s => s.PlaytimeSeconds).ThenBy(s => s.Slot, StringComparer.Ordinal)
             .ToImmutableArray();
         return new StartChoice(saves.FirstOrDefault(s => s.Problem is null), saves);
     }
