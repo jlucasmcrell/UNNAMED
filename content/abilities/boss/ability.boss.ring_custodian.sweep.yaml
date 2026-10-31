@@ -1,0 +1,16 @@
+id: ability.boss.ring_custodian.sweep
+kind: ability
+schema: 1
+display_key: ability.boss.ring_custodian.sweep.name
+tags: [ability]
+name: Ring Sweep
+notes: "The measuring arm through its wide arc: the longest reach the keeper has and the widest telegraph, so it is the swing a visitor learns to step out of rather than the one that kills them."
+class: creature
+range_m: 2.6
+windup_s: 1.4
+active_s: 0.25
+recovery_s: 2.4
+commit_facing: true
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [12, 15] }
