@@ -19,6 +19,37 @@ public class QuestWalkthroughTests
     private const string WhatWasKept = "quest.heritage.what_was_kept";
     private const string LodgeSupplies = "quest.bounty.lodge_supplies";
 
+    private const string Mara = "npc.cairnwold.mara_ling";
+    private const string Kera = "npc.ashen_hollow.kera_voss";
+    private const string BogKept = "quest.cairnwold.what_the_bog_kept";
+    private const string IronUnderAsh = "quest.ashen_hollow.iron_under_ash";
+    private const string Ashbloom = "item.material.herb_ashbloom";
+    private const string IronOre = "item.material.iron_ore";
+
+    private static readonly (double X, double Z) AtMara = (975.8, 666);
+
+    /// <summary>Mara's well to the Sinking Moss and back, as `CairnwoldQuestTests` walks it.</summary>
+    private static readonly (double X, double Z)[] ToTheMoss =
+    {
+        (985, 677.2), (987.5, 678.5), (1004.2, 703.5), (1004.5, 706.2), (1036.8, 748.5), (1037, 750.5), (1042.8, 751.8), (1044, 755.5),
+    };
+
+    private static readonly (double X, double Z)[] BackToMara =
+    {
+        (1042.5, 751.5), (1037, 750.5), (1032.8, 743.2), (988, 684.2), (987.8, 678.8), (985.2, 677), (984.5, 676.8), (976.2, 666.2),
+    };
+
+    /// <summary>Kera's forge to the hollow's own iron seam, in the hollow's metres.</summary>
+    private static readonly (double X, double Z)[] ToTheSeam =
+    {
+        (60.3, 138), (56, 128), (52, 110), (46, 90), (40, 72), (34, 60), (29, 50),
+    };
+
+    private static readonly (double X, double Z)[] BackToTheForge =
+    {
+        (29, 50), (34, 60), (40, 72), (46, 90), (52, 110), (56, 128), (58, 139), (60.5, 141),
+    };
+
     private const string Timber = "item.material.timber";
     private const string RawMeat = "item.material.raw_meat";
 
@@ -267,5 +298,135 @@ public class QuestWalkthroughTests
         var work = InHollow(Harness.Boot(workProfile), AtRenn);
         Take(work, Renn, "quest.bounty.crossing_timber");
         Assert.Equal(QuestStatus.Active, Quest(work, "quest.bounty.crossing_timber")!.Status);
+    }
+
+    [Fact]
+    public void MarasWell_GathersAshbloomAtTheMoss_AndPaysWhenItComesBack()
+    {
+        using var profile = new TempProfile();
+        var arena = InRegion(Harness.Boot(profile), AtMara);
+
+        Take(arena, Mara, BogKept);
+        Assert.Equal(QuestStatus.Active, Quest(arena, BogKept)!.Status);
+
+        // the Sinking Moss, and three ashbloom where the ground is wettest
+        foreach (var (x, z) in ToTheMoss)
+            Assert.True(arena.WalkTo(x, z, maxTicks: 40000), $"never reached ({x}, {z}) on the way to the moss: at {arena.At}");
+        foreach (string node in new[] { "bog_ashbloom_1", "bog_ashbloom_3", "bog_ashbloom_2" })
+        {
+            var site = arena.Simulation.Nodes.Single(n => n.Name == node);
+            Assert.True(arena.WalkTo(site.XMm / 1000.0 - arena.Origin.X, site.ZMm / 1000.0 - arena.Origin.Z, maxTicks: 40000), $"never reached {node}: at {arena.At}");
+            Assert.Null(arena.Submit(new GatherCommand(arena.Player, site.Key)));
+            arena.Tick();
+        }
+        Assert.Equal(3, Carried(arena, Ashbloom));
+
+        foreach (var (x, z) in BackToMara)
+            Assert.True(arena.WalkTo(x, z, maxTicks: 40000), $"never reached ({x}, {z}) on the way home: at {arena.At}");
+        Advance(arena, BogKept, "o_return", Mara);
+
+        Assert.Equal(QuestStatus.Completed, Quest(arena, BogKept)!.Status);
+        Assert.Equal(0, Carried(arena, Ashbloom));   // given to her
+    }
+
+    [Fact]
+    public void KerasSpear_FromHerLessonToTheQuarryAndAPraisedSpear()
+    {
+        using var profile = new TempProfile();
+        var arena = InHollow(Harness.Boot(profile), (60.3, 140.3));
+
+        Take(arena, Kera, IronUnderAsh);
+
+        // the quarry south of the waystation, and the hollow's own seam
+        foreach (var (x, z) in ToTheSeam)
+            Assert.True(arena.WalkTo(x, z, maxTicks: 40000), $"never reached ({x}, {z}) on the way to the seam: at {arena.At}");
+        var ore = arena.Simulation.Nodes.Single(n => n.Name == "iron_seam");
+        Assert.True(arena.WalkTo(ore.XMm / 1000.0 - arena.Origin.X, ore.ZMm / 1000.0 - arena.Origin.Z, maxTicks: 40000), $"never reached the seam: at {arena.At}");
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, ore.Key)));
+        arena.Tick();
+        Assert.True(Carried(arena, IronOre) > 0, "the hollow's seam gave no ore");
+
+        // home to the waystation, the billet at the hearth, the spear at the anvil
+        foreach (var (x, z) in BackToTheForge)
+            Assert.True(arena.WalkTo(x, z, maxTicks: 40000), $"never reached ({x}, {z}) on the way back: at {arena.At}");
+        Assert.True(arena.WalkTo(60.5, 143.5, maxTicks: 40000), $"never reached the hearth: at {arena.At}");
+        string? noForge = arena.Submit(new CraftCommand(arena.Player, "recipe.smithing.iron_billet"));
+        Assert.True(noForge is null, $"the billet was refused at the hearth: {noForge}, at {arena.At}");
+        arena.Tick();
+        // the shaft comes off the hollow's own ash stand
+        var stand = arena.Simulation.Nodes.Single(n => n.Name == "ash_stand");
+        Assert.True(arena.WalkTo(stand.XMm / 1000.0 - arena.Origin.X, stand.ZMm / 1000.0 - arena.Origin.Z, maxTicks: 40000),
+            $"never reached the ash stand: at {arena.At}");
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, stand.Key)));
+        arena.Tick();
+
+        Assert.True(arena.WalkTo(57.5, 140.5, maxTicks: 40000), $"never reached the anvil: at {arena.At}");
+        string? noAnvil = arena.Submit(new CraftCommand(arena.Player, "recipe.smithing.march_spear"));
+        Assert.True(noAnvil is null, $"the spear was refused at the anvil: {noAnvil}, at {arena.At}");
+        arena.Tick();
+
+        // and Kera sees what was made: the quest's last step is o_show, "show Kera the finished spear"
+        Take(arena, Kera, IronUnderAsh);
+        Advance(arena, IronUnderAsh, "o_show", Kera);
+        Assert.Equal(QuestStatus.Completed, Quest(arena, IronUnderAsh)!.Status);
+    }
+
+
+    /// <summary>
+    /// The hunting starter: a wolf, its carcass, the pelt off it, and the hide tanned into leather. Expected to fail until the pelt yield
+    /// fix on `claude/bug-gate` merges (B-031), so it is skipped with that id rather than left red in every run.
+    /// </summary>
+    [Fact(Skip = "B-031: skinning a wolf carcass yields no pelt (fix in progress on claude/bug-gate) - unskip when it merges")]
+    public void SkinningAndTanning_FromAWolfToLeather()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        // open ground north-east of the hollow, so the walk to the carcass is not through a building
+        var arena = Arena.OpenCreatures(session, session.Setup, (120, 175), 0,
+            new[] { (Arena.Wolf, 126.0, 175.0, "pack_hunter") }, OfPeople("people.veth"));
+        arena.Tick(20);
+
+        var wolf = arena.Simulation.Creatures.First(c => c.DefId == Arena.Wolf);
+        arena.Fight(wolf, maxTicks: 4000);
+        arena.Tick(40);
+
+        var carcass = arena.Simulation.Nodes.FirstOrDefault(n => n.Name.Contains("carcass", StringComparison.OrdinalIgnoreCase));
+        Assert.True(carcass is not null, "no carcass node after the kill");
+        Assert.True(arena.WalkTo(carcass!.XMm / 1000.0 - arena.Origin.X, carcass.ZMm / 1000.0 - arena.Origin.Z, maxTicks: 40000),
+            $"never reached the carcass: at {arena.At}");
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, carcass.Key)));
+        arena.Tick(4);
+
+        int pelts = Carried(arena, "item.material.small_hide");
+        Assert.True(pelts > 0, $"skinning the carcass yielded no pelt: carried {pelts}");
+
+        Assert.Null(arena.Submit(new CraftCommand(arena.Player, "recipe.tanning.wolf_hide")));
+        arena.Tick(4);
+        Assert.True(Carried(arena, "item.material.leather") > 0, "tanning the pelt yielded no leather");
+    }
+
+    [Fact]
+    public void TheOtherFirstHourGivers_AllOfferTheirWorkFromWhereTheyStand()
+    {
+        (string Giver, string Quest, double X, double Z, bool Region)[] posts =
+        {
+            ("npc.ashen_hollow.sel_arien", "quest.bounty.survey_herbs", 71, 123, false),
+            ("npc.cairnwold.tam_crowden", "quest.bounty.winter_hides", 941, 679.8, true),
+            ("npc.cairnwold.berrin_garth", "quest.bounty.rim_road", 957.5, 643.5, true),
+            ("npc.cairnwold.durn_skell", "quest.cairnwold.iron_from_the_moor", 980.7, 674.4, true),
+            ("npc.ashen_hollow.kera_voss", "quest.ashen_hollow.iron_under_ash", 60.3, 140.3, false),
+        };
+
+        foreach (var post in posts)
+        {
+            using var profile = new TempProfile();
+            var arena = post.Region
+                ? InRegion(Harness.Boot(profile), (post.X, post.Z))
+                : InHollow(Harness.Boot(profile), (post.X, post.Z));
+
+            Take(arena, post.Giver, post.Quest);
+            Assert.True(Quest(arena, post.Quest) is { Status: QuestStatus.Active },
+                $"{post.Giver} did not offer {post.Quest}: {State(arena, post.Quest)}");
+        }
     }
 }
