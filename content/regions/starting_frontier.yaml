@@ -151312,7 +151312,7 @@ stations:
   - 647
   - 745.2
 - key: station.foldscar_tanning
-  kind: tanning
+  kind: tanning_rack
   position_m:
   - 556.7
   - 652.7

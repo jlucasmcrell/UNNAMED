@@ -4,7 +4,7 @@ schema: 1
 display_key: item.material.pelt_grey_wolf.name
 tags: [item]
 name: Grey Wolf Pelt
-notes: "D18 SYSTEMS (needed-2): a wolf's hide off a carcass, whole enough to work. No leatherworking recipe spends it yet."
+notes: "D18 SYSTEMS (needed-2): a wolf's hide off a carcass, whole enough to work. The second harvest of a wolf carcass; tanned into leather at a tanning rack."
 category: material
 stack_max: 10
 weight: 1.0

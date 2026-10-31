@@ -91,6 +91,11 @@ internal sealed class GatheringSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly List<(string Key, CellKey Cell, NodeSite Site)> _nodes;
 
+    // A carcass is no node of the world's baseline, so the world delta - which proves every harvest record against the baseline - cannot
+    // hold its harvests; they are kept here for as long as the carcass lies. TODO: persist them with the corpse (a CreatureRecord field,
+    // a schema step), so a load does not give a part-skinned carcass back whole.
+    private readonly Dictionary<string, NodeHarvest?> _carcasses = new(StringComparer.Ordinal);
+
     public GatheringSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
         _context = context;
@@ -118,6 +123,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
         var space = State.Space;
         var cell = _context.CellOfSite(space, xMm, zMm);
         _nodes.Add((key, cell, new NodeSite(key, nodeDefId, xMm, zMm)));
+        _carcasses[key] = null;
         return true;
     }
 
@@ -141,6 +147,7 @@ internal sealed class GatheringSystem : IAbstractAdvance
     public string? Handle(ClearCarcassCommand command, long tick)
     {
         _nodes.RemoveAll(n => n.Key == command.Key);
+        _carcasses.Remove(command.Key);
         return null;
     }
 
@@ -154,22 +161,26 @@ internal sealed class GatheringSystem : IAbstractAdvance
         if (definition is null)
             return refusal!;
         var node = _nodes.First(n => n.Key == command.NodeKey);
-        var record = State.World.NodeRecord(node.Cell, node.Key);
+        var record = Record(node.Cell, node.Key);
         long localTick = _context.SpaceTick(node.Cell.Space, tick);
         int harvests = record?.HarvestSeq ?? 0;
 
         // The yield is rolled from the node and its harvest, and a skilled hand takes more.
         var channel = RngChannel.Open(State.World.WorldSeed, node.Cell, "gather", $"{node.Key}@{harvests + 1}");
-        int count = channel.Int(0, definition.YieldMin, definition.YieldMax + 1) + Bonus(definition.SkillId);
-        if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, definition.ItemId, count, Quality.Standard)) is { } refused)
+        var yield = definition.YieldAt(harvests);
+        int count = channel.Int(0, yield.Min, yield.Max + 1) + Bonus(definition.SkillId);
+        if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, yield.ItemId, count, Quality.Standard)) is { } refused)
             return refused;
-        State.HarvestNode(_owner, node.Cell, node.Key, localTick);
+        if (_carcasses.ContainsKey(node.Key))
+            _carcasses[node.Key] = new NodeHarvest(node.Key, localTick, harvests + 1);
+        else
+            State.HarvestNode(_owner, node.Cell, node.Key, localTick);
         _context.Dispatch(new PracticeSkill(new SkillPractice(definition.SkillId, definition.Difficulty, PracticeOutcome.Success, tick)
         {
             NoveltyKey = definition.Id,
         }));
-        _context.Events.Publish(new NodeGathered(node.Key, definition.Id, definition.ItemId, count,
-            !Ready(definition, State.World.NodeRecord(node.Cell, node.Key), localTick), tick));
+        _context.Events.Publish(new NodeGathered(node.Key, definition.Id, yield.ItemId, count,
+            !Ready(definition, Record(node.Cell, node.Key), localTick), tick));
         if (definition.ResourceId is { } resource)
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Harvested, resource, count, Quality.Standard, null, tick)));
         return null;
@@ -190,10 +201,12 @@ internal sealed class GatheringSystem : IAbstractAdvance
         var body = State.Body;
         if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
             return (null, "that is out of reach");
-        if (!Ready(definition, State.World.NodeRecord(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
+        if (!Ready(definition, Record(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
             return (null, definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back");
         return (definition, null);
     }
+
+    private NodeHarvest? Record(CellKey cell, string key) => _carcasses.TryGetValue(key, out var carcass) ? carcass : State.World.NodeRecord(cell, key);
 
     private bool Ready(NodeDefinition definition, NodeHarvest? record, long tick) =>
         CraftingRules.Ready(definition, record?.LastHarvestTick, record?.HarvestSeq ?? 0, tick, _context.Setup.Progression.TicksPerWorldDay);
@@ -208,8 +221,9 @@ internal sealed class GatheringSystem : IAbstractAdvance
         _nodes.Where(n => Setup.Nodes.ContainsKey(n.Site.NodeDefId)).Select(n =>
         {
             var definition = Setup.Nodes[n.Site.NodeDefId];
-            return new NodeView(n.Key, n.Site.Name, definition.Id, definition.ItemId, n.Site.XMm, n.Site.ZMm,
-                Ready(definition, State.World.NodeRecord(n.Cell, n.Key), _context.SpaceTick(n.Cell.Space, State.WorldTick))) { Space = n.Cell.Space };
+            var record = Record(n.Cell, n.Key);
+            return new NodeView(n.Key, n.Site.Name, definition.Id, definition.YieldAt(record?.HarvestSeq ?? 0).ItemId, n.Site.XMm, n.Site.ZMm,
+                Ready(definition, record, _context.SpaceTick(n.Cell.Space, State.WorldTick))) { Space = n.Cell.Space };
         }).ToImmutableArray();
 }
 

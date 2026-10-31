@@ -111,6 +111,38 @@ public sealed class CarcassTests
         Assert.DoesNotContain(carcass, CarcassKeys(arena.Simulation));
     }
 
+    /// <summary>
+    /// The whole hide chain in a fresh session: the kill leaves a carcass, its first harvest is the meat and its second the pelt, and the
+    /// pelt, carried to the Foldscar's tanning rack, teaches the tanning by experiment and is worked into leather there.
+    /// </summary>
+    [Fact]
+    public void AWolfKill_GivesItsMeat_ThenItsPelt_AndThePeltTansIntoLeather()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = Killed(session, session.Setup);
+        arena.Tick(40);   // the last blow's recovery done, so the hands are free for the rack
+        void StandAt(long x, long z) =>
+            Assert.Null(arena.Simulation.Submit(new Relocate(new Body(x, arena.Simulation.Setup.Layout.Space.HeightAtMm(x, z), z, 0))));
+        int Carried(string item) => arena.Simulation.Player.Inventory.Where(e => e.DefId == item).Sum(e => e.Count);
+
+        var carcass = arena.Simulation.Nodes.Single(n => n.Key == key);
+        StandAt(carcass.XMm, carcass.ZMm - 500);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, key)));
+        Assert.True(Carried("item.material.meat_raw") >= 1);
+        Assert.Equal(0, Carried("item.material.pelt_grey_wolf"));
+        Assert.Equal("item.material.pelt_grey_wolf", arena.Simulation.Nodes.Single(n => n.Key == key).ItemId);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, key)));
+        Assert.True(Carried("item.material.pelt_grey_wolf") >= 1);
+        Assert.False(arena.Simulation.Nodes.Single(n => n.Key == key).Ready);
+
+        var rack = arena.Simulation.Setup.Layout.Stations.Single(s => s.Key == "station.foldscar_tanning");
+        StandAt(rack.XMm, rack.ZMm - 1000);
+        Assert.Null(arena.Submit(new ExperimentCommand(arena.Player, rack.Key)));
+        Assert.Null(arena.Submit(new CraftCommand(arena.Player, "recipe.tanning.wolf_hide")));
+        Assert.Equal(1, Carried("item.material.leather"));
+    }
+
     [Fact]
     public void ACreatureWhoseKindNamesNoCarcass_LeavesNothing()
     {

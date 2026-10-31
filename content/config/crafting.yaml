@@ -22,6 +22,7 @@ masterwork:
 experiments:
   workbench: 2
   forge: 1
+  tanning_rack: 1
 # Drop quality by the creature's level (WP3a; DCP:662): from each level up, this share of a body's stacks is crude and this share fine.
 # Never masterwork.
 drop_quality:
