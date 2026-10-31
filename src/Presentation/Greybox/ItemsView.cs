@@ -98,6 +98,7 @@ public partial class ItemsView : Node3D
                 && GroundWeapon(weapon.Model) is { } grounded)
             {
                 grounded.Name = item.Id.Value;
+                grounded.SetMeta("item_def", item.DefId);
                 grounded.Position = feet;
                 float Height(float dx, float dz) => terrain.HeightAtMm(item.XMm + (long)(dx * 1000), item.ZMm + (long)(dz * 1000)) / 1000f;
                 var normal = new Vector3(Height(-.5f, 0) - Height(.5f, 0), 1,
@@ -154,6 +155,7 @@ public partial class ItemsView : Node3D
         _falling[id] = model;
         float seconds = Mathf.Clamp(Mathf.Sqrt(2 * MathF.Max(.1f, start.Origin.Y - landing.Origin.Y) / 9.8f), .18f, .7f);
         var tween = model.CreateTween();
+        model.SetMeta("ground_fall", tween);
         tween.TweenMethod(Callable.From<float>(through =>
         {
             var pose = start.InterpolateWith(landing, through);
@@ -166,6 +168,28 @@ public partial class ItemsView : Node3D
             if (_items.TryGetValue(id, out var settled)) settled.Visible = true;
             model.QueueFree();
         }));
+    }
+
+    /// <summary>The native prop removed by the authoritative pickup, before Refresh retires its old holder.</summary>
+    public Node3D? TakeWeapon(Simulation simulation, string definition)
+    {
+        var present = simulation.WorldItems.Select(item => item.Id.Value).ToHashSet(StringComparer.Ordinal);
+        var removed = _items.FirstOrDefault(pair => !present.Contains(pair.Key)
+            && pair.Value.GetMeta("item_def", "").AsString() == definition);
+        if (removed.Value is null) return null;
+        var prop = _falling.Remove(removed.Key, out var falling)
+            ? falling : removed.Value.GetNodeOrNull<Node3D>("Turn/Weapon");
+        if (prop is null) return null;
+        if (falling is not null && removed.Value.GetNodeOrNull<Node3D>("Turn/Weapon") is { } resting)
+            prop.SetMeta("pickup_rest", resting.GlobalTransform);
+        if (prop.HasMeta("ground_fall") && prop.GetMeta("ground_fall").AsGodotObject() is Tween tween)
+        {
+            tween.Kill();
+            prop.RemoveMeta("ground_fall");
+        }
+        prop.Reparent(this, keepGlobalTransform: true);
+        _items.Remove(removed.Key);
+        return prop;
     }
 
     private Node3D? GroundWeapon(string id)

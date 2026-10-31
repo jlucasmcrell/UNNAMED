@@ -18,6 +18,23 @@ public sealed partial class SkinnedModel : Node3D
     private Node? _locomotion;
     public IReadOnlyDictionary<string, float>? MotionPaces { get; private set; }
     public IReadOnlyDictionary<string, float[]>? MotionActionPhases { get; private set; }
+    internal (float Fraction, Vector3 Hand)? PickupContact { get; private set; }
+    private Animation? _proneHit, _proneReference;
+    private IReadOnlySet<string>? _proneUpperBody;
+    private ProneHitPulse? _pronePulse;
+
+    internal bool ProneRecoil(float seconds)
+    {
+        if (_proneHit is null || _proneReference is null || _proneUpperBody is null) return false;
+        if (_pronePulse is null && float.IsFinite(seconds))
+        {
+            _pronePulse = new ProneHitPulse { Name = "ProneHitRecoil" };
+            Skeleton.AddChild(_pronePulse);
+            _pronePulse.Bind(Skeleton, _proneHit, _proneReference, _proneUpperBody);
+        }
+        if (_pronePulse is not null) _pronePulse.Age = seconds;
+        return true;
+    }
     public IReadOnlyDictionary<int, Quaternion>? WeaponGrip { get; private set; }
     public bool HasFootPlantEvents { get; private set; }
     public event Action<string,string,double>? FootPlanted;
@@ -221,6 +238,21 @@ public sealed partial class SkinnedModel : Node3D
         MotionPaces = motion.GetMeta("motion_paces").AsGodotDictionary().ToDictionary(p => p.Key.AsString(), p => p.Value.AsSingle());
         MotionActionPhases = motion.GetMeta("action_phases", new Godot.Collections.Dictionary()).AsGodotDictionary()
             .ToDictionary(p => p.Key.AsString(), p => p.Value.AsGodotArray().Select(v => v.AsSingle()).ToArray());
+        if (motion.HasMeta("weapon_pickup_contact"))
+        {
+            var contact = motion.GetMeta("weapon_pickup_contact").AsGodotDictionary();
+            float fraction = contact["fraction"].AsSingle();
+            var hand = contact["hand"].AsVector3();
+            if (contact["schema"].AsInt32() == 1 && fraction > 0 && fraction < 1 && hand.IsFinite())
+                PickupContact = (fraction, hand);
+        }
+        if (motion.HasMeta("prone_recoil_edit") && motion.HasAnimation("prone_hit") && motion.HasAnimation("prone_idle"))
+        {
+            _proneHit = motion.GetAnimation("prone_hit");
+            _proneReference = motion.GetAnimation("prone_idle");
+            _proneUpperBody = motion.GetMeta("prone_recoil_edit").AsGodotDictionary()["bones"].AsGodotArray()
+                .Select(bone => bone.AsString()).ToHashSet(StringComparer.Ordinal);
+        }
         library.SetMeta("foot_plants_schema",motion.GetMeta("foot_plants_schema",0));
         library.SetMeta("foot_plants",motion.GetMeta("foot_plants",new Godot.Collections.Dictionary()));
         _contacts = motion.GetMeta("motion_phases").AsGodotDictionary();

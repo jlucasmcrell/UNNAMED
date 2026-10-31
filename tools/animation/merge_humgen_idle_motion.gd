@@ -20,6 +20,8 @@ func _initialize():
   merged.add_animation(name_,extra.get_animation(name_))
   sources[name_]=additions[name_]
  merged.set_meta("animation_sources",sources)
+ if extra.has_meta("weapon_pickup_contact"):
+  merged.set_meta("weapon_pickup_contact",extra.get_meta("weapon_pickup_contact"))
  DirAccess.make_dir_recursive_absolute(m.output.get_base_dir())
  # Replace the directory entry, never the contents of a potentially shared hardlink.
  var pending=m.output+".pending.res"

@@ -92,6 +92,9 @@ public abstract partial class Figure : Node3D
     /// <summary>The actual held mesh, handed to the ground view after an authoritative drop.</summary>
     public virtual Node3D? ReleaseWeapon(string itemDefId) => null;
 
+    /// <summary>Take ownership of an already-collected ground weapon for its hand-contact animation.</summary>
+    public virtual bool PickUpWeapon(Node3D model, string itemDefId) => false;
+
     /// <summary>
     /// The light carried in the off hand, by its radius in millimetres, or 0 for none: a lit torch lights the ground it is carried over
     /// (finding 25). A figure that cannot hang a light from a hand bone shows nothing.

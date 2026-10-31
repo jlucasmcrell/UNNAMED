@@ -5,6 +5,7 @@ func _initialize():call_deferred("build")
 
 func build():
  var args=OS.get_cmdline_user_args()
+ assert(args[0].simplify_path()!=args[1].simplify_path(),"Never overwrite the recorded input library")
  var library: AnimationLibrary=load(args[0])
  var base=library.get_animation("prone_idle")
  var ground=library.get_animation("prone_hit")
@@ -49,6 +50,8 @@ func build():
  sources["prone_hit"]="offline additive edit: "+str(sources["prone_idle"])+" + ground recoil delta from "+str(recorded)
  library.set_meta("animation_sources",sources)
  library.set_meta("prone_recoil_edit",{"base":"prone_idle","recorded_ground":"prone_hit crop 4.25-4.75s","seconds":.5,"max_delta_degrees":maximum,"bones":selected,"root_and_lower_body":"unchanged prone base","input_sha256":FileAccess.get_sha256(args[0])})
- assert(ResourceSaver.save(library,args[1])==OK)
+ var pending=args[1]+".pending.res"
+ assert(ResourceSaver.save(library,pending)==OK)
+ assert(DirAccess.rename_absolute(pending,args[1])==OK)
  print("PRONE_RECOIL_EDIT_CANDIDATE max_delta_degrees=",maximum)
  quit()

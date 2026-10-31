@@ -40,6 +40,8 @@ public sealed partial class SkinnedFigure : Figure
     private BoneAttachment3D? _offHand;
     private Node3D? _held;
     private string? _heldId;
+    private WeaponPickup? _pickup;
+    internal WeaponPickup? ActivePickup => _pickup;
     private WeaponArt? _equipped;
     private CombatStance _stance = CombatStance.AtRest;
     private bool _crouched;
@@ -353,6 +355,7 @@ public sealed partial class SkinnedFigure : Figure
     {
         if (itemDefId == _heldId)
             return;
+        if (_pickup is { } pickup) { _reaction = null; pickup.Finish(); }
         _heldId = itemDefId;
         Equip(itemDefId is null ? null : _bindings.Weapons.GetValueOrDefault(itemDefId));
     }
@@ -367,6 +370,28 @@ public sealed partial class SkinnedFigure : Figure
         _haft = null;
         Relax();
         return model;
+    }
+
+    public override bool PickUpWeapon(Node3D model, string itemDefId)
+    {
+        if (_held is not null || _hand is null || _grip is null || _model.PickupContact is not { } contact
+            || !_bindings.Weapons.ContainsKey(itemDefId) || !_model.Has("weapon_pickup")
+            || model.FindChild(HeldWeapon.GripSocket, true, false) is not Node3D socket
+            || model.GlobalPosition.DistanceTo(GlobalPosition) > 1.6f)
+            return false;
+        _pickup?.Finish();
+        PlayReaction("weapon_pickup");
+        var pickup = new WeaponPickup { Name = "WeaponPickup", TopLevel = true };
+        AddChild(pickup);
+        _pickup = pickup;
+        bool started = pickup.Start(this, _model.Skeleton, _hand, _grip.Value, model,
+            ArtLibrary.Relative(model, socket), _fingers, 1 / _uniformScale, contact, () =>
+            {
+                if (_pickup == pickup) _pickup = null;
+                Relax();
+            });
+        if (!started) { _pickup = null; pickup.QueueFree(); }
+        return started;
     }
 
     /// <summary>A weapon by its binding (a companion's own, which is no item of the character's), or empty hands. The same one again is kept.</summary>
@@ -468,6 +493,7 @@ public sealed partial class SkinnedFigure : Figure
     private CrouchHeadLift _crouchHead=null!;
     public override void Pose(Vector3 feet, float facingRadians, float speedMetresPerSecond, double delta)
     {
+        if (_pickup is { } pickup) facingRadians = pickup.Facing;
         if (!_hasDirection && _posed && delta > 0) _moveDirection = (feet - _previousPosition).Normalized();
         _previousPosition = feet;
         if (!_posed) _yaw = facingRadians;
@@ -487,6 +513,8 @@ public sealed partial class SkinnedFigure : Figure
         Animate(speedMetresPerSecond, delta);
         _crouchHead.Crouched=_crouched && _model.Current is "crouch_idle" or "crouch_walk" or "crouch_move";
         HoldTheHaft(delta);
+        _pickup?.Step((float)(_reactionSeconds / _model.Length("weapon_pickup")),
+            _reaction == "weapon_pickup" && _model.Current == "weapon_pickup" && speedMetresPerSecond < .25f);
         if (_posture is not null)
         {
             // A crouch clip already holds the head under the crouch height; the bend is for what has none (a body without
@@ -568,6 +596,8 @@ public sealed partial class SkinnedFigure : Figure
         var m = _model;
         _reactionSeconds += delta;
         if (_reaction is { } reaction && _reactionSeconds >= m.Length(reaction)) _reaction = null;
+        bool layeredProneHit = m.ProneRecoil(_reaction == "prone_hit" && !_downed && _waking is null
+            ? (float)_reactionSeconds : float.PositiveInfinity);
         if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_waking is { } waking)
         {
@@ -585,7 +615,7 @@ public sealed partial class SkinnedFigure : Figure
         if (_stance.Prone is { } prone && m.Has(prone.Clip))
         {
             _idles.Interrupt();
-            if (_reaction == "prone_hit" && prone.Clip != "prone_rise")
+            if (_reaction == "prone_hit" && !layeredProneHit && prone.Clip != "prone_rise")
                 m.Hold(_reaction, (float)(_reactionSeconds / m.Length(_reaction)), .05f);
             else
                 m.Hold(prone.Clip, prone.Through, .05f);

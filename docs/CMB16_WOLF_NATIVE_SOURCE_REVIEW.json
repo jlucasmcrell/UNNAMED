@@ -1,0 +1,192 @@
+{
+  "status": "IN_PROGRESS_SOURCE_VERDICT_REQUEST_NOT_BOUND",
+  "gallery": {
+    "status": "NATIVE_WOLF_SOURCE_REQUIRES_REVIEW",
+    "target_joints": 42,
+    "evidence": [
+      {
+        "clip": "stumble_left",
+        "length": 1.5833333730697632,
+        "frames": 77
+      },
+      {
+        "clip": "stumble_right",
+        "length": 1.5833333730697632,
+        "frames": 76
+      },
+      {
+        "clip": "prone_hit",
+        "length": 1.25,
+        "frames": 62
+      },
+      {
+        "clip": "prone_idle",
+        "length": 6.25,
+        "frames": 205
+      },
+      {
+        "clip": "prone_fall",
+        "length": 2.3333332538604736,
+        "frames": 84
+      },
+      {
+        "clip": "prone_rise",
+        "length": 2.875,
+        "frames": 103
+      }
+    ],
+    "art_problems": {},
+    "scope": "Original native wolf body/materials, owned native vendor clips through the existing ArtLibrary.Retarget route. Native target rest unchanged. Neutral source stage; not bound, not gameplay, not asserted to be a trip fall or one-second recovery."
+  },
+  "exit": {
+    "exit": 0,
+    "lease_seconds": 26.88726499999757
+  },
+  "inputs": {
+    "private_source_sha256": "426f5531055a11551599a812f73e62d0e4733faeaadddcba340acb9cb74c36c0",
+    "assemblies": {
+      "UNNAMED.Application.dll": "8788ecf783068bf25fda02b6b70f13cd794f2e8eb5b71116507b3853a0224045",
+      "UNNAMED.Content.dll": "f481b017a702966703bd3f15a11da67719a652d30442aa6b934dc2bbfbc3543e",
+      "UNNAMED.Domain.dll": "2b02ef26d4d162b795c32bec2db12a48d7341ef9d175a53da1b2b7c414b272fa",
+      "UNNAMED.EntityRegistry.dll": "5002fb8b1f19e9c604b0ab080b47e14715bd1eda325ab824efd64c8a699d903f",
+      "UNNAMED.Persistence.dll": "9ef07d0da1aa93e163c0b3e97ccd8c637c84f20f5e25b106a6ea0b2d3d189231",
+      "UNNAMED.Presentation.dll": "b39027c4b2e741f6cc54c8bf7ae14df9da7a8ad3b33622dcbce94b545cb22f5e",
+      "UNNAMED.World.dll": "0b5fa35cf8eba77305948b17a36cba7fd938393ccb39f20b43eb65ba490fafcf"
+    },
+    "scope": "Native wolf source candidates; not bound or gameplay"
+  },
+  "source": {
+    "status": "UNIT_NORMALIZED_SOURCE_CANDIDATES_NOT_BOUND",
+    "source": "D:\\Otherreach_Scratch\\c1_combat_20261027\\vendor_native\\SK_Wolf 1.fbx",
+    "source_sha256": "37791915026629d3fb834a0e1ea9e88ef01c0798e5a25777ca4a3c813f48f0b1",
+    "blender": "5.2.2 LTS",
+    "scope": "Existing native wolf rig/actions only, exported through the existing C1 FBX/glTF route. No body/texture export or skeleton rest edits. Standing side-hit takes require native stumble review; controlled lie/rise are not asserted to be trip falls. Native lying hit is never a standing-hit rename. Target-rest conversion/contact/render verdict still required.",
+    "clips": [
+      {
+        "state": "stumble_left",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\animation\\ready\\creatures\\anim.creature.cmb16_wolf.stumble_left.glb",
+        "sha256": "952d0e0c7bc05ee85c13c4183a7d7a403bf2284295874a64cd803e1954e131a4",
+        "source_action": "SK-Wolf|SK-Wolf|Hit_Stand_L01",
+        "frames": [
+          1,
+          39
+        ],
+        "seconds": 1.5833333333333333,
+        "unit_normalization": {
+          "factor": 0.009999999776482582,
+          "raw_source_clip": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\raw_centimetre_transports\\anim.creature.cmb16_wolf.stumble_left.glb",
+          "raw_sha256": "b3caa04a670fcc8121643878f35efc75e4643de0eb8217ade3e5df161c5a9b25",
+          "normalized_sha256": "952d0e0c7bc05ee85c13c4183a7d7a403bf2284295874a64cd803e1954e131a4",
+          "max_world_bone_position_error_m": 3.464687711729475e-08,
+          "max_world_orientation_error": 5.551115123125783e-16
+        }
+      },
+      {
+        "state": "stumble_right",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\animation\\ready\\creatures\\anim.creature.cmb16_wolf.stumble_right.glb",
+        "sha256": "1c2987ff62ae2f0eb043c1b8f80080c57b5c7c0fbd85fde01afe20abf97c9d6c",
+        "source_action": "SK-Wolf|SK-Wolf|Hit_Stand_R01",
+        "frames": [
+          1,
+          39
+        ],
+        "seconds": 1.5833333333333333,
+        "unit_normalization": {
+          "factor": 0.009999999776482582,
+          "raw_source_clip": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\raw_centimetre_transports\\anim.creature.cmb16_wolf.stumble_right.glb",
+          "raw_sha256": "80529de727d1ea22c9c29afb5dbdb97e47adbc60686b58a15642c239d8198f7a",
+          "normalized_sha256": "1c2987ff62ae2f0eb043c1b8f80080c57b5c7c0fbd85fde01afe20abf97c9d6c",
+          "max_world_bone_position_error_m": 3.7074012946419765e-08,
+          "max_world_orientation_error": 4.996003610813204e-16
+        }
+      },
+      {
+        "state": "prone_hit",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\animation\\ready\\creatures\\anim.creature.cmb16_wolf.prone_hit.glb",
+        "sha256": "6289f376a9e9c4e1719839a79d5ca27c077b44f6868317a73e9b47ba079a7e9c",
+        "source_action": "SK-Wolf|SK-Wolf|Hit_Lying_R01",
+        "frames": [
+          1,
+          31
+        ],
+        "seconds": 1.25,
+        "unit_normalization": {
+          "factor": 0.009999999776482582,
+          "raw_source_clip": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\raw_centimetre_transports\\anim.creature.cmb16_wolf.prone_hit.glb",
+          "raw_sha256": "ed71f1ad94fc36795e843c5e5a73a50386fdd0c3560ec437abd297e382372a87",
+          "normalized_sha256": "6289f376a9e9c4e1719839a79d5ca27c077b44f6868317a73e9b47ba079a7e9c",
+          "max_world_bone_position_error_m": 2.209974075961796e-08,
+          "max_world_orientation_error": 5.551115123125783e-16
+        }
+      },
+      {
+        "state": "prone_idle",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\animation\\ready\\creatures\\anim.creature.cmb16_wolf.prone_idle.glb",
+        "sha256": "d65032a5928a04cddafbbbad4c45016228d088062d16345d4f3bf69760e80181",
+        "source_action": "SK-Wolf|SK-Wolf|Lying_Breathing_01",
+        "frames": [
+          1,
+          151
+        ],
+        "seconds": 6.25,
+        "unit_normalization": {
+          "factor": 0.009999999776482582,
+          "raw_source_clip": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\raw_centimetre_transports\\anim.creature.cmb16_wolf.prone_idle.glb",
+          "raw_sha256": "1bd55dacb54c611d37094887f13f17148d015724b6c0aeb988cc1c79bc386071",
+          "normalized_sha256": "d65032a5928a04cddafbbbad4c45016228d088062d16345d4f3bf69760e80181",
+          "max_world_bone_position_error_m": 2.7862662288491435e-08,
+          "max_world_orientation_error": 4.996003610813204e-16
+        }
+      },
+      {
+        "state": "prone_fall",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\animation\\ready\\creatures\\anim.creature.cmb16_wolf.prone_fall.glb",
+        "sha256": "db681969282b19c1d2927686cb464f87e3210ff230ee6568b57855e94eb2dc90",
+        "source_action": "SK-Wolf|SK-Wolf|Trans_Stand_to_Lying",
+        "frames": [
+          1,
+          57
+        ],
+        "seconds": 2.3333333333333335,
+        "unit_normalization": {
+          "factor": 0.009999999776482582,
+          "raw_source_clip": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\raw_centimetre_transports\\anim.creature.cmb16_wolf.prone_fall.glb",
+          "raw_sha256": "79e5658b30a64d299df221391fb17a1d278c5fbdb8693e3bdea2c7d428f3325b",
+          "normalized_sha256": "db681969282b19c1d2927686cb464f87e3210ff230ee6568b57855e94eb2dc90",
+          "max_world_bone_position_error_m": 3.956905792953935e-08,
+          "max_world_orientation_error": 5.551115123125783e-16
+        }
+      },
+      {
+        "state": "prone_rise",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\animation\\ready\\creatures\\anim.creature.cmb16_wolf.prone_rise.glb",
+        "sha256": "06d2f4d3d29c1df4f35cb87bd620c1e9aafb3d96e4cc31436349d8386e9e68fd",
+        "source_action": "SK-Wolf|SK-Wolf|Trans_Lying_to_Stand",
+        "frames": [
+          1,
+          70
+        ],
+        "seconds": 2.875,
+        "unit_normalization": {
+          "factor": 0.009999999776482582,
+          "raw_source_clip": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\wolf_control01\\raw_centimetre_transports\\anim.creature.cmb16_wolf.prone_rise.glb",
+          "raw_sha256": "5b003a4ea722e621dbeb7134df15d88bd04c226ed8214f72edc7165b8f394b5c",
+          "normalized_sha256": "06d2f4d3d29c1df4f35cb87bd620c1e9aafb3d96e4cc31436349d8386e9e68fd",
+          "max_world_bone_position_error_m": 3.2062894964046684e-08,
+          "max_world_orientation_error": 5.828670879282072e-16
+        }
+      }
+    ],
+    "unit_scope": "Mesh-free source scale baked into joint/key translations and source binds; measured world-space bone origins/orientations preserved at rest and13 timestamps. Original vendor FBX, target body and target rig unchanged. Native target gate/render review still required."
+  },
+  "scope": "Actual native unchanged42-joint wolf body, real original materials, existing native ArtLibrary.Retarget from52-joint owned vendor takes. Two stand-hit source takes submitted as stumble candidates; lying extras are not asserted to be trip falls or one-second recovery. Not ordinary command/hook acceptance. Native source26.887sec exclusive lease, clean exit0, no art problems.",
+  "sha256": {
+    "prone_fall.mp4": "46a3bcde2cd0a1e720eb1cbf88546afb76aea40ded9d9735e8026853e66869cc",
+    "prone_hit.mp4": "a3da5a6b440bd5f891518a3f8e36e81141307f9575c7c08c9889f7f3cfada0ed",
+    "prone_idle.mp4": "a0bf70aa4add95e222e66181a3530577b78e9fbf1fb6cc90bc4c5e5ca3283cf7",
+    "prone_rise.mp4": "abe2db5597303d1ce7e3977b67c42ef59bd67441b0bd9437f7da5e57afe9c0bf",
+    "stumble_left.mp4": "bf355e93e585146b498ab63c1a181dd8e6cba044deede634bb07a5aeb8de0cc0",
+    "stumble_right.mp4": "ac211781bad1c9c33d2239b95cce4fc3662da3f1847efa61bbc9cd68730a2466",
+    "WOLF_NATIVE_SOURCE_CONTACT.jpg": "22b8d22b47396b79d129520d63efe44ba71e687d9344df61de91117ea27286c8"
+  }
+}

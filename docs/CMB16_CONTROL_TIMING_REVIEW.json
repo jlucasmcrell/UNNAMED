@@ -1,0 +1,79 @@
+{
+  "status": "IN_PROGRESS_NATIVE_TIMING_VERDICT_REQUEST",
+  "native": {
+    "status": "NATIVE_TIMING_REQUIRES_REVIEW",
+    "evidence": [
+      {
+        "scenario": "early_hit",
+        "risingDuringHit": true,
+        "stoodOnTime": true,
+        "modifierObserved": true,
+        "frames": 67
+      },
+      {
+        "scenario": "rising_hit",
+        "risingDuringHit": true,
+        "stoodOnTime": true,
+        "modifierObserved": true,
+        "frames": 58
+      },
+      {
+        "scenario": "weapon_drop",
+        "risingDuringHit": false,
+        "stoodOnTime": false,
+        "modifierObserved": false,
+        "frames": 67
+      }
+    ],
+    "art_problems": {},
+    "scope": "Actual Footing.Tick and production figure stance/reaction. Native source stage, not landed combat or accepted cloth fit."
+  },
+  "exit": {
+    "exit": 0,
+    "lease_seconds": 17.433564200007822
+  },
+  "inputs": {
+    "private_source_sha256": "cd8070014962b973366133a8e9f08aad89ce8a6fd174ef6bb1268ec077cf3fbf",
+    "assemblies": {
+      "UNNAMED.Application.dll": "847b2261e5a74c5b9e33691e33e963f5b04c44ff241bf176d28fc08843ad3ebe",
+      "UNNAMED.Content.dll": "8420c8fd397a344589f59c73eefb1fc9f8abbefe0c4b96caf005cc8eedd13ec3",
+      "UNNAMED.Domain.dll": "761c162ee068700794edd27b3e5ae250f7cad8f98d4fc51e96b66940f3e9dbaa",
+      "UNNAMED.EntityRegistry.dll": "235bce3cdf3065d909d1e2d037d2edd1845f5ce263e856adf8223d674afb640b",
+      "UNNAMED.Persistence.dll": "c599f85b679e8fdc55f83fac6ea71257be04991a00c05e878947f59349f811b9",
+      "UNNAMED.Presentation.dll": "a463b4d174fd024835b4265d9d236173befe59f811fdc3ec9e66be4cb27e24c5",
+      "UNNAMED.World.dll": "569344aa654a74c21e971deb2db03b4706cc57a428bdb9d2d51470409e5ae8a2"
+    },
+    "scope": "Native source/clothing fixture with floor grid/shadows and actual bone readback; no per-frame idle request."
+  },
+  "preserved": {
+    "reports": [
+      {
+        "body": "humgen_player_ada_f",
+        "new_clips": 8,
+        "payload_sha256": "46be7d249966d00f9004143d16408147e249820dc417742ec2dba5b0f426e401",
+        "preserved_clips": 49,
+        "preserved_keys": 98429
+      },
+      {
+        "body": "humgen_player_mateo_m",
+        "new_clips": 8,
+        "payload_sha256": "815f38d3667485a2fbd68e4afc5de55be10cb2de3a4017978886b92f662362ab",
+        "preserved_clips": 49,
+        "preserved_keys": 106941
+      }
+    ],
+    "status": "PASS"
+  },
+  "limitations": [
+    "Actual Footing.Tick and production figure reaction/stance on native Ada, flat neutral floor. No landed combat acceptance.",
+    "Native wardrobe floor penetration is visible and remains unfinished; no clothing or body hidden.",
+    "Weapon drop in this timing clip is the skeletal cue only, without a held prop; pickup_contact02 proves the separate actual prop continuity.",
+    "Original continuous timestamps, including stalls; no interpolation/speed adjustment."
+  ],
+  "files": {
+    "CONTROL_TIMING_CONTACT.jpg": "904f4e6924933507e332efd126bf7699c6c22ad0062aee70868044c82bdd9fd8",
+    "early_hit.mp4": "eb8af1ead91fcdc063865a717e6c0f55a75be2ab89766b4148556bd629aa392c",
+    "rising_hit.mp4": "6e03379fdc90d5291cfd8499b92b28cc5ba2dc643407fb2cb39958ec525c3b84",
+    "weapon_drop.mp4": "832cb203b9087d94db59bfa087ec74d9ba7b5a8012dae89f4de6c8c47d5f6464"
+  }
+}

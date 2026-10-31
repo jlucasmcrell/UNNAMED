@@ -1,0 +1,70 @@
+{
+  "status": "CLAUDE_REVIEW_REQUEST_CMB16_IN_PROGRESS",
+  "native": {
+    "status": "NATIVE_PICKUP_CONTACT_REQUIRES_REVIEW",
+    "pickedInstance": 264459260529,
+    "everGrasped": true,
+    "contactError": 0.0005719574,
+    "art_problems": {},
+    "scope": "Actual GameSession inventory commands and production DrawGroundItemMove; native prop stays on the ground until measured hand contact, then the same native object attaches by its authored grip socket. Neutral floor and native Ada/clothes, no landed disarm/full-world acceptance."
+  },
+  "exit": {
+    "exit": 0,
+    "lease_seconds": 31.727322500009905
+  },
+  "private_build": {
+    "private_source_sha256": "a08f203b50a267b0b28c1141df14f3d4c0a949c87931726ba3e81334092a3770",
+    "public_diff_sha256": "7da19c27c6669f2498cc1684450a38df9d121bc796ed26f1bee311378105120f",
+    "assemblies": {
+      "UNNAMED.Application.dll": "847b2261e5a74c5b9e33691e33e963f5b04c44ff241bf176d28fc08843ad3ebe",
+      "UNNAMED.Content.dll": "8420c8fd397a344589f59c73eefb1fc9f8abbefe0c4b96caf005cc8eedd13ec3",
+      "UNNAMED.Domain.dll": "761c162ee068700794edd27b3e5ae250f7cad8f98d4fc51e96b66940f3e9dbaa",
+      "UNNAMED.EntityRegistry.dll": "235bce3cdf3065d909d1e2d037d2edd1845f5ce263e856adf8223d674afb640b",
+      "UNNAMED.Persistence.dll": "c599f85b679e8fdc55f83fac6ea71257be04991a00c05e878947f59349f811b9",
+      "UNNAMED.Presentation.dll": "7fbd04bb90d7b0abc1869cb86e985ee877af5c0fb3cf8c379dd9b1b0a09adfb3",
+      "UNNAMED.World.dll": "569344aa654a74c21e971deb2db03b4706cc57a428bdb9d2d51470409e5ae8a2"
+    },
+    "scope": "Native item-move visual boundary; not a landed disarm or pickup"
+  },
+  "launch": {
+    "pid": 45240,
+    "parent_pid": 36160,
+    "args": [
+      "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\pickup_continuity01\\host02\\Otherreach.exe",
+      "--resolution",
+      "1920x1080",
+      "--windowed"
+    ],
+    "character_root": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\current_candidate01\\character_payload05",
+    "scope": "Actual GameSession inventory drop/pickup, production DrawGroundItemMove, native prop and grip contact on a neutral native source stage. Not a landed disarm or full-world route."
+  },
+  "cpu": {
+    "cpu_native02": {
+      "status": "PASS",
+      "pickedInstance": 218389025484,
+      "everGrasped": true,
+      "contactError": 6.353397e-05,
+      "art_problems": {},
+      "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+    },
+    "cpu_native_falling02": {
+      "status": "PASS",
+      "pickedInstance": 218238029902,
+      "everGrasped": true,
+      "contactError": 8.6316744e-05,
+      "art_problems": {},
+      "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+    }
+  },
+  "rejected": "native_source01 used the old 49-state baseline motion root, correctly refused unsupported physical pickup and exited 2. Excluded from this evidence.",
+  "limitations": [
+    "Ordinary inventory commands exercise the production ItemMoved path; this is not a landed combat disarm.",
+    "Native Ada/current frontier clothing and flat neutral floor only.",
+    "Later prone recoil layering is not part of these frozen assemblies.",
+    "Camera partly occludes the exact contact; native measured wrist/grip error and original continuous frames retained."
+  ],
+  "files": {
+    "DROP_AND_PICKUP.mp4": "43022e61b5cf3f690de0ce4ddd6f502d136883e0060d2e0db3e6ade03709ef17",
+    "DROP_AND_PICKUP_CONTACT.jpg": "878ac8d41ac5404f36cda76ff6ba63dd5a86c400dc7364311811ed7396525c54"
+  }
+}

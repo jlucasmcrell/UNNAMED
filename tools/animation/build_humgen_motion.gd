@@ -242,6 +242,15 @@ func build() -> void:
   single.add_animation(entry.state,animation)
   measurement.add_animation_library("",single)
   var measured := contacts(measurement,rig,entry.state)
+  if entry.state=="weapon_pickup" and entry.has("contact_fraction"):
+   var contact_fraction=float(entry.contact_fraction)
+   assert(contact_fraction>0 and contact_fraction<1)
+   measurement.play(entry.state)
+   measurement.seek(animation.length*contact_fraction,true)
+   measurement.advance(0)
+   var hand=rig.global_transform*rig.get_bone_global_pose(rig.find_bone("RightHand")).origin
+   library.set_meta("weapon_pickup_contact",{"schema":1,"fraction":contact_fraction,"hand":hand,"source":entry.source})
+   report["weapon_pickup_contact"]={"fraction":contact_fraction,"hand":[hand.x,hand.y,hand.z]}
   if entry.state in gaits:
    assert(measured.pace>.05,"No measurable native gait "+entry.state)
    assert(absf(measured.shoulder_heading_degrees)<38,"Gait faces sideways: "+entry.state+" "+str(measured.shoulder_heading_degrees))

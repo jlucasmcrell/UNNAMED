@@ -50,6 +50,9 @@ public partial class Main
             && !simulation.Player.Equipment.Values.Any(id =>
                 simulation.Player.Inventory.Any(item => item.ItemId == id && item.DefId == moved.DefId))
             ? _avatar.ReleaseWeapon(moved.DefId) : null;
+        if (moved.Actor == simulation.PlayerId && moved.From.Kind == PlaceKind.Ground
+            && moved.To.Kind == PlaceKind.Inventory && _items.TakeWeapon(simulation, moved.DefId) is { } picked)
+            if (!_avatar.PickUpWeapon(picked, moved.DefId)) picked.QueueFree();
         _items.Refresh(simulation, released, moved.DefId);
     }
 
