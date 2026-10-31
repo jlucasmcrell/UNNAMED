@@ -150980,6 +150980,14 @@ nodes:
   position_m:
   - 1062
   - 755
+# The bog's own seeped iron, among the ashbloom: found only by prospecting (node.ore.hidden_bog_iron).
+- name: bog_seeped_iron
+  node_ref: node.ore.hidden_bog_iron
+  position_m:
+  - 1053.0
+  - 768.0
+  tier: 3
+  hidden: true
 - name: halda_pelt_snare_west
   node_ref: node.trap.pelt_snare
   position_m:
