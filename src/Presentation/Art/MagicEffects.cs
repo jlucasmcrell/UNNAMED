@@ -113,9 +113,9 @@ public partial class MagicEffects : Node3D
         }
         foreach (var point in points)
         {
-            var holder = new Node3D();
+            // World-space one-shots must enter the tree at their emission point, before the GPU emitter starts.
+            var holder = new Node3D { Position = ToLocal(point) };
             AddChild(holder);
-            holder.GlobalPosition = point;
             foreach (string name in names)
             {
                 if (FormulaForm.Create(name) is { } form) holder.AddChild(form);
@@ -214,9 +214,10 @@ public partial class MagicEffects : Node3D
         }
         foreach (var (effect, left) in effects.Where(e => active.Contains(e.Id)))
         {
-            if (RecipesOnBody(effect) is { } recipes)
+            var at = body.GlobalPosition + (effect == "effect.ember_mending" ? Vector3.Up * 0.85f : Vector3.Zero);
+            if (RecipesOnBody(effect, at) is { } recipes)
             {
-                recipes.GlobalPosition = body.GlobalPosition + (effect == "effect.ember_mending" ? Vector3.Up * 0.85f : Vector3.Zero);
+                recipes.GlobalPosition = at;
                 foreach (var form in recipes.GetChildren().OfType<FormulaForm>())
                     form.SecondsLeft = left;
                 continue;
@@ -245,13 +246,13 @@ public partial class MagicEffects : Node3D
     }
 
     /// <summary>The recipes and forms standing in for a body effect's flipbook (at the body's feet), built the first time; null when none do.</summary>
-    private Node3D? RecipesOnBody(string effect)
+    private Node3D? RecipesOnBody(string effect, Vector3 at)
     {
         if (_recipesOnBody.TryGetValue(effect, out var shown))
             return shown.Holder;
         if (_recipes is null || _recipes.For(_bindings.Effects.GetValueOrDefault(effect) ?? effect) is not { Count: > 0 } names)
             return null;
-        var holder = new Node3D { Name = effect.Replace('.', '_') + "_recipes" };
+        var holder = new Node3D { Name = effect.Replace('.', '_') + "_recipes", Position = ToLocal(at) };
         foreach (string name in names)
         {
             if (FormulaForm.Create(name) is { } form)
