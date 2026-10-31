@@ -330,7 +330,9 @@ public partial class CreatorScreen : CanvasLayer
     {
         var body = OfferedBodies().FirstOrDefault(o => o.Id == Draft.BodyPresetId);
         var worn = Outfit(Draft.CallId);
-        string tones = Draft.Appearance is { } look ? $"{look.Face}|{look.StatureMm}|{string.Join(",", look.Sliders)}" : "";
+        // Modular choices must invalidate the preview as well as sliders; a card can change only its part ID.
+        string tones = Draft.Appearance is { } look
+            ? $"{look.Face}|{look.StatureMm}|{look.Hair}|{look.FacialHair}|{look.Outfit}|{look.Footwear}|{string.Join(",", look.Sliders)}" : "";
         string? model = _catalogue.DrawnModel(body?.Model, Draft.Appearance?.Face);
         string shown = $"{model}|{body?.Body.ArmSplayDegrees}|{worn}|{Draft.PeopleId}|{tones}";
         if (shown == _shownBody)

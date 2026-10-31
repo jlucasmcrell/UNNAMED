@@ -487,23 +487,31 @@ public partial class Main
             }, 6000));
             faceShot = $"face_{face.Body.Split('.')[1]}_{face.Index}";
         }
+        bool NativeCreator() => _art.RiggedFile(_creator.Draft.BodyPresetId.Contains("_f.", StringComparison.Ordinal)
+            ? "humgen_creator_female" : "humgen_creator_male", "creator_ready.json") is not null;
         list.Add(($"{list.Count + 1:00}_{faceShot}", () =>
         {
             if (faceShots.Count > 0)
                 _creator.UseFace("body.veth_f.average", null);
             _creator.Frame(CreatorPreview.Framings[0].Zoom);
             _creator.Go(CreatorStep.Hair);
+            if (NativeCreator())
+                _creator.Use(_creator.Draft with { Appearance = _creator.Draft.Appearance! with { Hair = "hair.long.ponytail" } });
         }, 1500));
-        // A skin tone and a hair colour other than the baked ones (Tan, Blond), kept to the road so the game draws them too.
+        // Native bodies use native hair IDs and colour controls; legacy style/swatches apply only to baked bodies.
         list.Add(($"{list.Count + 1:00}_hair", () => _creator.Use(_creator.Draft with
         {
             Appearance = (_creator.Draft.Appearance ?? new CharacterAppearance(1750, null, null, null, null, null)) is var look
-                ? look with { Sliders = look.Sliders.SetItem(LookSwatches.SkinSlider, 6).SetItem(LookSwatches.HairSlider, 7) } : null,
+                ? look with { Sliders = NativeCreator()
+                    ? look.Sliders.SetItem("hair.lightness", 400).SetItem("hair.redness", 100)
+                    : look.Sliders.SetItem(LookSwatches.SkinSlider, 6).SetItem(LookSwatches.HairSlider, 7) } : null,
         }), 2500));
-        list.Add(($"{list.Count + 1:00}_hair_tan_blond", () => _creator.Use(_creator.Draft with
+        list.Add(($"{list.Count + 1:00}_hair_{(NativeCreator() ? "native_colour" : "tan_blond")}", () =>
         {
-            Appearance = _creator.Draft.Appearance! with { Sliders = _creator.Draft.Appearance!.Sliders.SetItem(LookSwatches.StyleSlider, 1) },
-        }), 3000));
+            var look = _creator.Draft.Appearance!;
+            _creator.Use(_creator.Draft with { Appearance = NativeCreator() ? look with { Hair = "hair.long.bun" }
+                : look with { Sliders = look.Sliders.SetItem(LookSwatches.StyleSlider, 1) } });
+        }, 3000));
         // Every style at the face framing from the front three-quarter and from behind, so a style that looks worse up close than the
         // body's own can be dropped. The body walk leaves the body facing the camera; Turn is relative.
         float yaw = 0;
@@ -512,7 +520,9 @@ public partial class Main
             _creator.Frame(CreatorPreview.Framings[2].Zoom);
             _creator.Turn(to - yaw);
             yaw = to;
-            _creator.Use(_creator.Draft with { Appearance = _creator.Draft.Appearance! with { Sliders = _creator.Draft.Appearance!.Sliders.SetItem(LookSwatches.StyleSlider, style) } });
+            var look = _creator.Draft.Appearance!;
+            _creator.Use(_creator.Draft with { Appearance = NativeCreator() ? look with { Hair = style == 1 ? "hair.long.bun" : "hair.long.ponytail" }
+                : look with { Sliders = look.Sliders.SetItem(LookSwatches.StyleSlider, style) } });
         }
         list.Add(($"{list.Count + 1:00}_hair_bun", () => Style(1, -0.96f), 3500));
         foreach (var (name, style) in new[] { ("bun", 1), ("ponytail", 0) })
