@@ -97,6 +97,9 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>CMB-40: a timed weak point is open at this moment; always true for an untimed one.</summary>
     public bool WeakPointOpen { get; init; } = true;
+
+    /// <summary>The committed charge travel bearing; it can differ from the body's facing.</summary>
+    public int? ChargeFacingMdeg { get; init; }
 }
 
 public sealed record CreatureNoticed(EntityId Creature, string Key, CreatureMind Mind, long Tick);
@@ -1050,7 +1053,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         long step = charge.ChargeSpeedMmPerSecond * TickMs / 1000;
         long runTicks = Math.Max(1, charge.ReachMm / Math.Max(1, step));
         long playerRadius = _context.Setup.Movement.BodyRadiusMm;
-        if (!action.Struck.Contains(_player) && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= c.Definition.RadiusMm + playerRadius + 300
+        if (!action.Struck.Contains(_player) && Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm) <= CombatRules.ChargeContactRadiusMm(c.Definition.RadiusMm, playerRadius)
             && _context.Dispatch(new CreatureStrike(c.Id, charge)) is null)
         {
             Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
@@ -1799,6 +1802,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
                 AttackSource = c.Action.Attack?.Source,
+                ChargeFacingMdeg = c.Action.Kind == ActionKind.Charge
+                    ? CombatRules.FacingTowards(0, 0, c.Action.DirXPermille, c.Action.DirZPermille) : null,
                 AttackVariant = c.Definition.CloseAttack is not null && c.Action.Attack is not null
                     ? RngChannel.Open(State.World.WorldSeed, _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm), "creature_motion",
                         $"{c.Key}@{c.Action.StartTick}/{c.Action.Attack.Source}").Int(0, 0, int.MaxValue) : 0,

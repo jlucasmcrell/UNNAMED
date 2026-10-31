@@ -128,7 +128,8 @@ public partial class CreaturesView : Node3D
                     _bossEffects[creature.Id] = effects;
                 }
                 effects.Draw(creature, simulation.Setup.Combat.Constants, simulation.Setup.Movement.BodyRadiusMm,
-                    simulation.WorldTick, delta, (x, z) => simulation.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
+                    simulation.WorldTick, delta, simulation.Setup.TickMilliseconds,
+                    (x, z) => simulation.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
             }
         }
         // A creature that came back is a new body; the old one's figure goes.

@@ -61,7 +61,7 @@ public partial class BossEffects : Node3D
     }
 
     public void Draw(CreatureView view, CombatConstants constants, long targetRadiusMm,
-        long tick, double delta, Func<float, float, float> ground)
+        long tick, double delta, int tickMilliseconds, Func<float, float, float> ground)
     {
         Visible = view.Alive && _figure.Visible;
         if (!Visible) return;
@@ -75,7 +75,7 @@ public partial class BossEffects : Node3D
         }
         _fighting = fighting;
         _phase = view.BossPhase;
-        var tell = BossTelegraphModel.Of(view, _definition, constants, targetRadiusMm);
+        var tell = BossTelegraphModel.Of(view, _definition, constants, targetRadiusMm, tick, tickMilliseconds);
         _floor.Visible = tell is not null;
         _wave.Visible = _pulseAge < 2.2f;
         _weak.Visible = fighting && view.WeakPointOpen && _definition.WeakPoint is not null;
@@ -85,6 +85,7 @@ public partial class BossEffects : Node3D
         {
             _tell.SetShaderParameter("progress", tell.Progress);
             _tell.SetShaderParameter("pattern", (int)tell.Pattern);
+            _tell.SetShaderParameter("lane", tell.Lane);
             _tell.SetShaderParameter("ink", tell.Active ? new Vector3(1f, .24f, .08f) : new Vector3(1f, .65f, .16f));
         }
         _pulse.SetShaderParameter("age", _pulseAge / 2.2f);
@@ -94,7 +95,7 @@ public partial class BossEffects : Node3D
         if (_tick == tick) return;
         _tick = tick;
         Vector3 feet = _figure.GlobalPosition;
-        float yaw = view.Body.FacingMdeg / 1000f * Mathf.Pi / 180;
+        float yaw = (tell?.FacingMdeg ?? view.Body.FacingMdeg) / 1000f * Mathf.Pi / 180;
         if (tell is not null)
             _floor.Mesh = Ground(feet, yaw, tell.ReachM, tell.ArcDegrees, tell.Lane ? tell.HalfWidthM : 0, .12f, ground);
         if (_wave.Visible)
@@ -112,18 +113,34 @@ public partial class BossEffects : Node3D
     {
         var surface = new SurfaceTool();
         surface.Begin(Mesh.PrimitiveType.Triangles);
-        const int along = 24, across = 4;
+        int along = laneWidth > 0 ? 64 : 24;
+        const int across = 4;
         void Vertex(int x, int y)
         {
             float u = x / (float)along, v = y / (float)across;
             float angle = yaw + (u - .5f) * Mathf.DegToRad(arc);
-            Vector3 offset = laneWidth > 0
-                ? new Basis(Vector3.Up, yaw) * new Vector3((u * 2 - 1) * laneWidth, 0, v * reach)
-                : new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * v * reach;
+            Vector3 offset;
+            Vector2 uv = new(u, v);
+            if (laneWidth > 0)
+            {
+                // Sweep the actual contact disk along only the remaining travel.
+                // Rounded ends include bodies beside/behind the charger, rather
+                // than drawing a fresh full-length rectangle ahead every tick.
+                float travel = Math.Max(0, reach - laneWidth);
+                float theta = u * Mathf.Tau;
+                var middle = new Vector3(0, 0, travel / 2);
+                var edge = new Vector3(Mathf.Sin(theta) * laneWidth, 0,
+                    Mathf.Cos(theta) * laneWidth + (Mathf.Cos(theta) >= 0 ? travel : 0));
+                var local = middle.Lerp(edge, v);
+                uv = new Vector2((local.X / laneWidth + 1) / 2, (local.Z + laneWidth) / (travel + 2 * laneWidth));
+                offset = new Basis(Vector3.Up, yaw) * local;
+            }
+            else offset = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * v * reach;
             Vector3 p = feet + offset;
             p.Y = ground(p.X, p.Z) + lift;
             surface.SetNormal(Vector3.Up);
-            surface.SetUV(new Vector2(u, v));
+            surface.SetUV(uv);
+            surface.SetUV2(new Vector2(u, v));
             surface.AddVertex(p);
         }
         for (int x = 0; x < along; x++)
@@ -141,8 +158,10 @@ public partial class BossEffects : Node3D
         uniform vec3 ink = vec3(1.0,.65,.16);
         uniform float progress = 0.0;
         uniform int pattern = 0;
+        uniform bool lane = false;
         void fragment() {
-            float border = max(smoothstep(.93,.98,UV.y), 1.0-smoothstep(.018,.04,min(UV.x,1.0-UV.x)));
+            float border = smoothstep(.93,.98,UV2.y);
+            if (!lane) border = max(border,1.0-smoothstep(.018,.04,min(UV2.x,1.0-UV2.x)));
             float mark = 0.0;
             if (pattern == 0) mark = step(.82,fract(UV.x*12.0))*step(.78,UV.y);
             else if (pattern == 1) mark = step(.91,fract(UV.y*4.0))*step(.3,UV.x)*step(UV.x,.7);
