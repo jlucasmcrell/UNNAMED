@@ -146,6 +146,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Teaching),   // what a teacher offers and on what terms, for the Learn column (WP9)
             nameof(UNNAMED.World.Runtime.Simulation.TechniqueCooldown),   // ticks until a technique is ready, for the quick bar (WP9)
             nameof(UNNAMED.World.Runtime.Simulation.RepairQuote),   // what a trader would charge to mend a piece, for the repair button (WP3b)
+            nameof(UNNAMED.World.Runtime.Simulation.FormulaCooldown),   // ticks until a formula can be worked again, for the action bar (p2-magic)
             nameof(UNNAMED.World.Runtime.Simulation.Rivals),   // the named rivals working the board, for the notice board (R12)
             nameof(UNNAMED.World.Runtime.Simulation.PartySheet),   // a party member's level, gear and regard, for the party card (WP15b)
             nameof(UNNAMED.World.Runtime.Simulation.PortalGone),   // whether a way that gives under its first crossing has given (spec 28)
