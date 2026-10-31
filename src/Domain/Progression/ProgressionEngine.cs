@@ -173,8 +173,9 @@ public static class ProgressionEngine
             }
         }
 
-        // the designated discipline may rise past the common ceiling; every other skill stops at it (section 4.3)
-        int ceiling = Math.Min(aptitude.Ceiling(model), model.CapOf(practice.SkillId, progression.DesignatedSkill));
+        // The body's own ceiling, and the designation's, whichever is higher: a designation is what raises the cap for that one discipline past
+        // the common ceiling (section 4.3), so it can never be the thing that lowers it.
+        int ceiling = Math.Max(aptitude.Ceiling(model), model.CapOf(practice.SkillId, progression.DesignatedSkill));
         int level = state.Level;
         long progress = state.ProgressXp + xp;
         int gained = 0;
