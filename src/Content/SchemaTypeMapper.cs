@@ -46,6 +46,7 @@ public static class SchemaTypeMapper
             "anchor" => typeof(ContentEnvelope),
             "fact" => typeof(ContentEnvelope),
             "world_flag" => typeof(ContentEnvelope),
+            "festival" => typeof(ContentEnvelope),
             
             // Sub-kinds with specialized schemas
             "item.weapon" => typeof(ItemWeaponSchema),
@@ -90,6 +91,7 @@ public static class SchemaTypeMapper
             "anchor" => true,
             "fact" => true,
             "world_flag" => true,
+            "festival" => true,
             _ => false
         };
     }

@@ -378,6 +378,15 @@ public static class ContentKindRegistry
             IdPrefix: "ambience"
         );
 
+        // 39. festival - a day the living world keeps: its date on the calendar, its site, its hours, whose people gather
+        // (WLD-58, WLD-89; SYSTEMS_CHECKLIST R13).
+        kinds["festival"] = new ContentKindDefinition(
+            Kind: "festival",
+            FullKind: "festival",
+            Directory: "festivals",
+            IdPrefix: "festival"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

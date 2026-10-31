@@ -36,15 +36,18 @@ public readonly record struct CalendarDate(long Reckoning, int Tally, int Day, i
 public static class Calendar
 {
     /// <summary>The date a tick falls on. The world's first day is the 1st day of the 1st tally of the first Reckoning.</summary>
-    public static CalendarDate Of(long tick, WorldClock clock, CalendarRules rules)
+    public static CalendarDate Of(long tick, WorldClock clock, CalendarRules rules) =>
+        OfDay(clock.Day(tick), clock.MinuteOfDay(tick), rules);
+
+    /// <summary>The date a day falls on, at a minute of that day (0 is midnight): the day's date without a tick to read it from.</summary>
+    public static CalendarDate OfDay(long day, int minuteOfDay, CalendarRules rules)
     {
-        long day = clock.Day(tick);
         long reckoning = day / rules.DaysPerReckoning;
         int ofReckoning = (int)(day % rules.DaysPerReckoning);
-        int minute = clock.MinuteOfDay(tick);
         int tallied = rules.DaysPerTally * rules.TalliesPerReckoning;
+        int hour = minuteOfDay / 60, minute = minuteOfDay % 60;
         return ofReckoning < tallied
-            ? new CalendarDate(reckoning + 1, ofReckoning / rules.DaysPerTally + 1, ofReckoning % rules.DaysPerTally + 1, minute / 60, minute % 60)
-            : new CalendarDate(reckoning + 1, 0, ofReckoning - tallied + 1, minute / 60, minute % 60);
+            ? new CalendarDate(reckoning + 1, ofReckoning / rules.DaysPerTally + 1, ofReckoning % rules.DaysPerTally + 1, hour, minute)
+            : new CalendarDate(reckoning + 1, 0, ofReckoning - tallied + 1, hour, minute);
     }
 }

@@ -1,0 +1,16 @@
+id: festival.frontier.bloom_window
+kind: festival
+schema: 1
+display_key: festival.frontier.bloom_window.name
+tags: [festival]
+notes: >
+  A seasonal content window rather than a single day (WLD-58's "bloom period"): the whole of tallies 3 and 4, mornings into the
+  afternoon, the hollow working out of doors at the guard's post on the gate road. Any quest, spawn or trade band that wants a
+  season can read the same dates.
+name: The Bloom Window
+region_ref: region.starting_frontier
+when: {tallies: [3, 4]}
+hours: [8, 18]
+site: {position_m: [465.5, 750.0], facing_deg: 90}
+settlements: [ashen_hollow]
+gathers: true

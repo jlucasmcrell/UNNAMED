@@ -178,6 +178,18 @@ internal sealed partial class NpcSystem
             return (at.XMm, at.ZMm, at.FacingMdeg);
         }
         int hourOfDay = (int)(((State.World.NpcLife!.Hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay);
+        // A festival gathers the town (WLD-58): on a kept day, in its hours, its people go to its site instead of to their work. A
+        // sleeper stays asleep - the day is kept by the awake.
+        if (!_context.Setup.Festivals.All.IsDefaultOrEmpty && npc.Activity != NpcActivities.Sleep)
+        {
+            long absoluteHour = State.World.NpcLife!.Hour;
+            long day = absoluteHour / Clock.HoursPerDay;
+            if (absoluteHour % Clock.HoursPerDay < 0)
+                day--;
+            var date = Runtime.Calendar.OfDay(day, hourOfDay * 60, _context.Setup.Calendar);
+            if (Festivals.Gathering(_context.Setup.Festivals, _context.Setup.Layout.Id, date, routine.Settlement, routine.PeopleId) is { } kept)
+                return (kept.SiteXMm, kept.SiteZMm, kept.SiteFacingMdeg);
+        }
         var own = routine.AnchorFor(npc.Activity, hourOfDay);
         return (own.XMm, own.ZMm, own.FacingMdeg);
     }

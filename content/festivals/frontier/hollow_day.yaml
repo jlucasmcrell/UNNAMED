@@ -1,0 +1,16 @@
+id: festival.frontier.hollow_day
+kind: festival
+schema: 1
+display_key: festival.frontier.hollow_day.name
+tags: [festival]
+notes: >
+  The Hollow Day, the canon's big festival (the Sworn Counties' Hollow Day: the city renews its oaths aloud at noon and the
+  tally-towers are restrung). Here it is the frontier's day: no tally owns it, so the hollow keeps it at the waystation's yard, and
+  everyone who is awake comes. The hour band holds noon inside it.
+name: Hollow Day
+region_ref: region.starting_frontier
+when: {hollow_day: true}
+hours: [10, 16]
+site: {position_m: [434.0, 744.0], facing_deg: 180}
+settlements: [ashen_hollow]
+gathers: true

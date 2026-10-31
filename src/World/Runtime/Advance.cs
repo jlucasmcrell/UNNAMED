@@ -44,6 +44,13 @@ public static class AdvanceKinds
 
     /// <summary>The weather at the end of the absence (WP7); <see cref="AdvanceLine.Ref"/> is its state's key.</summary>
     public const string WeatherNow = "weather.now";
+
+    /// <summary>A festival's day came round while the character was away (WLD-58); <see cref="AdvanceLine.Ref"/> is its id and
+    /// <see cref="AdvanceLine.Amount"/> how many of its days passed.</summary>
+    public const string FestivalPassed = "festival.passed";
+
+    /// <summary>The festival kept at the end of the absence, if any (WLD-58); <see cref="AdvanceLine.Ref"/> is its id, or empty.</summary>
+    public const string FestivalNow = "festival.now";
 }
 
 /// <summary>What one advance did that the character could know, in the order the systems wrote it (§2.12 item 7).</summary>
@@ -96,6 +103,9 @@ public sealed record WorldClock(long TicksPerDay, long StartTicks)
 
     /// <summary>The minute of the day a tick falls in, from midnight.</summary>
     public int MinuteOfDay(long tick) => (int)((tick + StartTicks) % TicksPerDay * HoursPerDay * 60 / TicksPerDay);
+
+    /// <summary>The first tick of a calendar day: the earliest tick whose <see cref="Day"/> it is. Before the world began for a day before it.</summary>
+    public long TickOfDay(long day) => day * TicksPerDay - StartTicks;
 
     /// <summary>Midnights passed going from one tick to a later one.</summary>
     public long DaysCrossed(long fromTick, long toTick) => Day(toTick) - Day(fromTick);

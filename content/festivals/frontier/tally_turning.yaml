@@ -1,0 +1,15 @@
+id: festival.frontier.tally_turning
+kind: festival
+schema: 1
+display_key: festival.frontier.tally_turning.name
+tags: [festival]
+notes: >
+  The tally's turning: the first day of every tally, a market morning at the waystation yard. Fourteen days is one tally
+  (config.time), so this is the fortnight's rhythm rather than a season - the smallest true calendar event a settlement keeps.
+name: The Tally's Turning
+region_ref: region.starting_frontier
+when: {every_tally_day: 1}
+hours: [9, 13]
+site: {position_m: [438.0, 725.85], facing_deg: 0}
+settlements: [ashen_hollow]
+gathers: true

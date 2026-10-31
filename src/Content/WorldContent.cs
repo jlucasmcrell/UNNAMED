@@ -45,6 +45,7 @@ public static class WorldContent
             TryBuild(() => BuildOffline(loader), "config.time", loader, errors);
             TryBuild(() => BuildCalendar(loader), "config.time", loader, errors);
             TryBuild(() => BuildWeather(loader), "config.weather", loader, errors);
+            TryBuild(() => BuildFestivals(loader), "config.festivals", loader, errors);
         }
         return errors;
     }
@@ -225,6 +226,95 @@ public static class WorldContent
         return new WeatherRules(Int(map, "front_hours_min"), Int(map, "front_hours_max"), Int(map, "span_hours"),
             weights.ToImmutableSortedDictionary()).Validated();
     }
+
+    /// <summary>
+    /// The festivals a pack declares, and the cap on how many a region keeps at once (<c>kind: festival</c>, <c>config.festivals</c>;
+    /// WLD-58, WLD-89). A pack that declares none keeps no days. Each festival must be keepable in this pack's own calendar, which is
+    /// what makes a tally or a Hollow Day in content mean something.
+    /// </summary>
+    public static FestivalRules BuildFestivals(ContentLoader loader)
+    {
+        int cap = FestivalRules.CanonMaxConcurrent;
+        if (loader.Definitions.ContainsKey("config.festivals"))
+        {
+            var config = Config(loader, "config.festivals");
+            cap = config.ContainsKey("max_concurrent") ? Int(config, "max_concurrent") : FestivalRules.CanonMaxConcurrent;
+        }
+        var calendar = BuildCalendar(loader);
+        var festivals = ImmutableArray.CreateBuilder<FestivalDefinition>();
+        foreach (var definition in loader.GetByKind("festival").Values.OrderBy(d => d.Id, StringComparer.Ordinal))
+        {
+            var map = Read(definition.YamlSource);
+            string What() => definition.Id;
+            try
+            {
+                var when = ReadWhen(Map(map, "when"), What);
+                var hours = List(map, "hours");
+                if (hours.Count != 2)
+                    throw new FormatException("hours are [from, to], the end after the beginning");
+                var site = ReadSite(Map(map, "site"), What);
+                festivals.Add(new FestivalDefinition(
+                    definition.Id,
+                    Text(map, "name"),
+                    Text(map, "region_ref"),
+                    when,
+                    Ints(hours)[0],
+                    Ints(hours)[1],
+                    site,
+                    Strings(map, "settlements"),
+                    Strings(map, "people"),
+                    map.ContainsKey("gathers") && Truth(map, "gathers")));
+            }
+            catch (Exception error) when (error is FormatException or KeyNotFoundException or InvalidCastException)
+            {
+                throw new FormatException($"{What()}: {error.Message}", error);
+            }
+        }
+        return new FestivalRules(festivals.ToImmutable(), cap).Validated(calendar);
+    }
+
+    private static FestivalWhen ReadWhen(Dictionary<object, object> when, Func<string> what)
+    {
+        if (when.ContainsKey("hollow_day") && Truth(when, "hollow_day"))
+            return FestivalWhen.Hollow;
+        if (when.ContainsKey("tally") && when.ContainsKey("day"))
+            return FestivalWhen.On(Int(when, "tally"), Int(when, "day"));
+        if (when.ContainsKey("every_tally_day"))
+            return FestivalWhen.EveryTallyDay(Int(when, "every_tally_day"));
+        if (when.ContainsKey("tallies"))
+        {
+            var tallies = List(when, "tallies");
+            if (tallies.Count != 2)
+                throw new FormatException($"{what()}: when.tallies is [from, to]");
+            var ends = Ints(tallies);
+            return FestivalWhen.Tallies(ends[0], ends[1]);
+        }
+        throw new FormatException($"{what()}: when names one of hollow_day, tally and day, every_tally_day, or tallies");
+    }
+
+    private static FestivalSite ReadSite(Dictionary<object, object> site, Func<string> what)
+    {
+        var at = List(site, "position_m");
+        if (at.Count != 2)
+            throw new FormatException($"{what()}: site.position_m is [x, z]");
+        long Metres(int i) => (long)Math.Round(double.Parse(at[i] as string ?? throw new FormatException($"{what()}: site.position_m holds numbers"),
+            NumberStyles.Float, CultureInfo.InvariantCulture) * 1000, MidpointRounding.AwayFromZero);
+        int facing = (int)Math.Round(Number(site, "facing_deg"), MidpointRounding.AwayFromZero);
+        return new FestivalSite(Metres(0), Metres(1), ((facing % 360) + 360) % 360);
+    }
+
+    private static int[] Ints(List<object> values) =>
+        values.Select(v => int.Parse(v as string ?? throw new FormatException("a number is expected"), NumberStyles.Integer, CultureInfo.InvariantCulture)).ToArray();
+
+    /// <summary>A YAML scalar arrives as text here, so a flag is read as either a bool or the word.</summary>
+    private static bool Truth(Dictionary<object, object> map, string key) =>
+        map.TryGetValue(key, out var value) && value is not null
+        && (value is true || string.Equals(value.ToString(), "true", StringComparison.OrdinalIgnoreCase));
+
+    private static ImmutableArray<string> Strings(Dictionary<object, object> map, string key) =>
+        map.ContainsKey(key) && map[key] is List<object> list
+            ? list.Select(v => v as string ?? throw new FormatException($"'{key}' holds names")).ToImmutableArray()
+            : ImmutableArray<string>.Empty;
 
     /// <summary>
     /// The catch-up cap and the login grace (<c>config.time</c>'s <c>offline_cap_game_days</c> and <c>login_grace_seconds</c>; WP11). A pack

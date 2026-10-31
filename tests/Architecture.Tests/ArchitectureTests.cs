@@ -131,6 +131,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Advance),   // the offline catch-up, the session's at login like Step (WP11)
             nameof(UNNAMED.World.Runtime.Simulation.BeginLoginGrace),   // the login grace, the session's at login (WP11)
             nameof(UNNAMED.World.Runtime.Simulation.Experiments),   // how much of a station's experiment set is found, for its panel (WP3a)
+              nameof(UNNAMED.World.Runtime.Simulation.FestivalOf),   // the festival a settlement gathers at now, if any (WLD-58)
             nameof(UNNAMED.World.Runtime.Simulation.HireTerms),   // what a hire would mean - wage, cost, that they can die - for the hiring sheet (WP15a)
             nameof(UNNAMED.World.Runtime.Simulation.Offer),   // what a trader would pay for one of an item now, for the sell buttons (WP14)
             nameof(UNNAMED.World.Runtime.Simulation.HeritageRefusal),   // why a trader will not trade a heritage item, for the disabled Sell

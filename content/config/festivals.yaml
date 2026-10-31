@@ -1,0 +1,9 @@
+id: config.festivals
+kind: config
+schema: 1
+display_key: config.festivals.name
+tags: [config]
+notes: >
+  The festivals the living world keeps (WLD-58, WLD-89; SYSTEMS_CHECKLIST R13). WLD-89 caps world events at eight in a region at
+  once, festivals among them; a pack that authors more on one day still keeps eight. A pack without this file keeps the canon cap.
+max_concurrent: 8

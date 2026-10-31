@@ -230,6 +230,38 @@ public class WorldContentTests
         Assert.Equal(24, WorldContent.BuildClock(loader).HoursPerDay);
     }
 
+    // ── the festivals (WLD-58, WLD-89; R13) ──────────────────────────────────────────────────────
+
+    [Fact]
+    public void TheGamesFestivals_BuildFromItsContent_OnItsOwnCalendar()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var festivals = WorldContent.BuildFestivals(loader);
+        Assert.Equal(FestivalRules.CanonMaxConcurrent, festivals.MaxConcurrent);
+        var frontier = festivals.Of("region.starting_frontier");
+        Assert.Equal(3, frontier.Length);
+        Assert.All(frontier, f => Assert.StartsWith("festival.frontier.", f.Id, StringComparison.Ordinal));
+        // The Hollow Day belongs to no tally, the turning to the first day of every tally, the bloom to tallies 3 and 4.
+        Assert.Equal(FestivalDates.HollowDay, frontier.Single(f => f.Id == "festival.frontier.hollow_day").When.Kind);
+        Assert.Equal((FestivalDates.EveryTally, 1), (frontier.Single(f => f.Id == "festival.frontier.tally_turning").When.Kind,
+            frontier.Single(f => f.Id == "festival.frontier.tally_turning").When.Day));
+        Assert.Equal((3, 4), (frontier.Single(f => f.Id == "festival.frontier.bloom_window").When.TallyFrom,
+            frontier.Single(f => f.Id == "festival.frontier.bloom_window").When.TallyTo));
+        Assert.All(frontier, f => Assert.True(f.Gathers));
+    }
+
+    [Fact]
+    public void AFestivalOnADayTheCalendarHasNot_IsRefused() =>
+        AssertRefused("WLD008", "festivals/frontier/bloom_window.yaml", "when: {tallies: [3, 4]}", "when: {tallies: [3, 19]}", "no day for");
+
+    [Fact]
+    public void AFestivalWithNoName_IsRefused() =>
+        AssertRefused("WLD008", "festivals/frontier/hollow_day.yaml", "name: Hollow Day", "named: Hollow Day", "'name' is missing");
+
+    [Fact]
+    public void AnEventCapAboveTheCanons_IsRefused() =>
+        AssertRefused("WLD008", "config/festivals.yaml", "max_concurrent: 8", "max_concurrent: 12", "at most 8");
+
     [Fact]
     public void AWeatherStateTheSimulationDoesNotKnow_IsRefused() =>
         AssertRefused("WLD008", "config/weather.yaml", "  fog: 1", "  storm: 1", "storm");
