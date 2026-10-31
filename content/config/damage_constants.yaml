@@ -14,7 +14,7 @@ regions:                           # COMBAT_DAMAGE_ARMOR_AND_DEATH.md §17: wher
   torso: { weight: 60, multiplier: 1.0 }
   limbs: { weight: 30, multiplier: 0.75 }
 stagger: { threshold_percent: 14.5, duration_s: 0.6, immunity_s: 2.0 }   # impact of 14.5% of max health staggers; never a stun-lock
-block: { mitigation_percent: 70, stamina_per_hit: 10, arc_deg: 120 }  # a guard holds only to the front, and only with stamina
+block: { mitigation_percent: 70, stamina_per_hit: 10, arc_deg: 120, reference_impact: 10 }  # a guard holds only to the front, and only with stamina; a shield's price rises with the blow's weight (CMB-06)
 dodge: { stamina: 20, iframes_s: 0.25, recovery_s: 0.25, distance_m: 2.5 }
 stamina: { regen_per_s: 20, regen_delay_s: 1.0, sprint_per_s: 10, attack_default: 8 }
 health: { regen_per_s: 1, out_of_combat_s: 8 }

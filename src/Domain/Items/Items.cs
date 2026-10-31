@@ -341,6 +341,12 @@ public sealed record ItemDefinition(
 {
     public bool Stacks => StackMax > 1;
 
+    /// <summary>
+    /// The shield this piece is, when it is one held in the off hand (CMB-06): the arc it covers, what it turns, what holding it against a blow
+    /// costs, and the weight of blow that drives it aside. Null for everything that is not a shield.
+    /// </summary>
+    public UNNAMED.Domain.Combat.ShieldProfile? Shield { get; init; }
+
     /// <summary>Its authored <c>name</c>: what a notable instance is called when its record is made (WP3a). Null when content gives none.</summary>
     public string? Name { get; init; }
 

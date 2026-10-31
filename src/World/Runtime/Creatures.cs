@@ -96,6 +96,9 @@ public sealed record SpawnerSaturated(string SpawnKey, long Tick);
 public sealed record CorpseGone(string CorpseKey, long Tick);
 
 /// <summary>A charge ran into something solid, and the charger is stunned by it.</summary>
+/// <summary>A body lost the exchange: its shield was driven aside by a blow heavier than it could take (CMB-06; the press CMB-24 introduced).</summary>
+public sealed record CreaturePressed(EntityId Creature, string DefinitionId, string Effect, long Tick);
+
 public sealed record CreatureStunned(EntityId Creature, string Key, long Tick);
 
 internal sealed record CreatureState(
@@ -133,7 +136,10 @@ internal sealed record CreatureState(
     public bool Blocks(Body attacker, AttackProfile attack, long tick, CombatConstants constants) =>
         GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
         && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
-            long.MaxValue / 4, constants.BlockArcMdeg);
+            long.MaxValue / 4, Definition.Shield?.ArcMdeg ?? constants.BlockArcMdeg);
+
+    /// <summary>The arc its guard covers: its shield's, when it carries one, or the plain guard's (CMB-06).</summary>
+    public long GuardArcMdeg(CombatConstants constants) => Definition.Shield?.ArcMdeg ?? constants.BlockArcMdeg;
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
@@ -181,6 +187,12 @@ internal sealed record CreatureState(
 /// To <see cref="CreatureSystem"/>: a resolved blow lands on a creature. Its owner applies it. The character struck it unless an
 /// <see cref="Attacker"/> is named - a companion (M6), standing at <see cref="FromXMm"/>, <see cref="FromZMm"/>.
 /// </summary>
+/// <summary>
+/// To <see cref="CreatureSystem"/>: the exchange went against this body - a shield driven aside by a blow heavier than it can take (CMB-06;
+/// the press CMB-24 introduced). <see cref="GuardDownTicks"/> of 0 takes the guard away now; <see cref="OpenTicks"/> leaves it staggered and open.
+/// </summary>
+internal sealed record PressCreature(EntityId Target, int GuardDownTicks, int OpenTicks, string Effect) : InternalCommand;
+
 internal sealed record WoundCreature(EntityId Target, HitResult Hit, string Source) : InternalCommand
 {
     public EntityId? Attacker { get; init; }
@@ -896,6 +908,21 @@ internal sealed class CreatureSystem : IAbstractAdvance
         bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
 
+        // A human-like body holds its guard - its shield, if it carries one - while it is within reach of the character and not committed to a
+        // blow of its own: the stance canon calls human-like defence (Sedge D18), and the guard a heavy blow can drive aside (CMB-06, CMB-24).
+        // It raises the shield against a body in reach, and against a blow or a shot being made at it by a body it can see (a tell).
+        var character = State.PlayerCombat.Action;
+        bool answeringTell = character.Kind == ActionKind.Attack && character.PhaseAt(tick, C).Phase == CombatPhase.Windup;
+        if (c.Definition.Family is "humanoid" && c.Knows && clear
+            && (distance <= attack.ReachMm + _context.Setup.Movement.BodyRadiusMm + 1_500
+                || answeringTell && distance <= c.Definition.Senses.SightMm))
+        {
+            int guardFor = character.Kind == ActionKind.Attack && character.PhaseAt(tick, C).Phase == CombatPhase.Windup
+                ? Math.Max(1, character.PhaseAt(tick, C).TicksLeft) + 2
+                : 20;
+            return c with { Body = Turn(c, facing), GuardUntil = tick + guardFor };
+        }
+
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
             && distance >= charge.ChargeMinRangeMm && distance <= charge.ReachMm)
@@ -1049,6 +1076,20 @@ internal sealed class CreatureSystem : IAbstractAdvance
     // ── wounds and death ────────────────────────────────────────────────────
 
     /// <summary>A blow lands. Whatever the creature was doing, it now knows where its attacker stands.</summary>
+    public string? Handle(PressCreature command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } creature)
+            return "no such creature";
+        State.SetCreature(_owner, creature with
+        {
+            GuardUntil = command.GuardDownTicks > 0 ? tick + command.GuardDownTicks : 0,
+            Action = command.OpenTicks > 0 ? ActionState.Begin(ActionKind.Staggered, tick) with { LastsTicks = command.OpenTicks } : creature.Action,
+            StaggerImmuneUntil = command.OpenTicks > 0 ? tick + command.OpenTicks + C.StaggerImmunityTicks : creature.StaggerImmuneUntil,
+        });
+        _context.Events.Publish(new CreaturePressed(creature.Id, creature.Definition.Id, command.Effect, tick));
+        return null;
+    }
+
     public string? Handle(WoundCreature command, long tick)
     {
         if (Find(command.Target) is not { Alive: true } c)

@@ -12,5 +12,10 @@ weight: 3.0
 value_base: 15
 slot: off_hand
 armor_value: 2
+shield:                            # CMB-06: what the raised shield does to a blow
+  arc_deg: 150                     # a shield covers more of the front than a weapon's guard (120)
+  mitigation_percent: 85          # what it turns, where a weapon's guard turns 70
+  stamina_percent: 60             # the share of the guard's price a blow against it takes
+  break_power: 26                 # a blow this heavy drives it aside (the armoured constructs' own blows)
 durability_max: 120       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
 repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.timber }

@@ -125,6 +125,9 @@ public sealed record CombatConstants
     public int StaggerImmunityTicks { get; init; } = 40;
     public int BlockMitigationPercent { get; init; } = 70;
     public int BlockStaminaPerHit { get; init; } = 10;
+
+    /// <summary>The blow's weight that a guard's own price is measured against: heavier blows cost more to hold, lighter ones less (CMB-06).</summary>
+    public int BlockWeightReference { get; init; } = 10;
     public long BlockArcMdeg { get; init; } = 120_000;
     public int DodgeStaminaCost { get; init; } = 20;
     public int DodgeTicks { get; init; } = 5;
@@ -172,7 +175,21 @@ public sealed record Strike(AttackProfile Attack, double DamageMultiplier, int C
     public bool Execution { get; init; }
 }
 
-/// <summary>What stands between the blow and the body. Armor is coverage: each region has its own (COMBAT Â§11).</summary>
+/// <summary>
+/// A shield (or a shield's worth of guard) as the one damage pipeline reads it (CMB-06; COMBAT §17): the front arc it covers, the share of a
+/// blow it turns, the share of the guard's cost a blow against it takes, and the weight of blow that drives it aside rather than being turned.
+/// A body without a shield blocks with its weapon, which is the plain guard.
+/// </summary>
+public sealed record ShieldProfile(int ArcMdeg, int MitigationPercent, int StaminaPercent, int BreakPower)
+{
+    public string? Problem() =>
+        ArcMdeg is <= 0 or > 360_000 ? "arc_deg is from 1 to 360"
+        : MitigationPercent is < 0 or > 100 ? "mitigation_percent is from 0 to 100"
+        : StaminaPercent is < 0 or > 500 ? "stamina_percent is from 0 to 500"
+        : BreakPower < 1 ? "break_power is positive (a blow's weight, in the pipeline's own points)"
+        : null;
+}
+
 public sealed record DefenseProfile(
     int MaxHealth,
     ImmutableSortedDictionary<BodyRegion, int> Armor,
@@ -182,10 +199,23 @@ public sealed record DefenseProfile(
 {
     /// <summary>Of the impact it usually takes to stagger the body: a denser body needs more (Kal, Ondrek).</summary>
     public int StaggerThresholdPercent { get; init; } = 100;
+
+    /// <summary>
+    /// The shield in front of the body when it has one up: armour is coverage, each region its own, and a raised shield is what turns a blow
+    /// before the armour is asked (CMB-06).
+    /// </summary>
+    public ShieldProfile? Shield { get; init; }
 }
 
 /// <summary>What one blow did. <see cref="Final"/> is what the target loses; <see cref="Raw"/> is the impact before armor.</summary>
-public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied);
+public sealed record HitResult(BodyRegion Region, int Raw, int Final, bool Critical, bool Blocked, bool Dodged, bool Staggered, bool EffectApplied)
+{
+    /// <summary>A raised shield was driven aside by this blow instead of turning it: the guard is gone and its holder is staggered (CMB-06).</summary>
+    public bool GuardBroken { get; init; }
+
+    /// <summary>What holding the guard against this blow cost: the plain guard's price, or a shield's, scaled by the blow's weight (CMB-06).</summary>
+    public int BlockStamina { get; init; }
+}
 
 /// <summary>Attack eligibility supplied by the caller; legal consequences are separate from whether a blow is permitted.</summary>
 public readonly record struct AttackContext(bool AttackerAlive, bool TargetAlive, bool AttacksEnabled);
@@ -250,9 +280,29 @@ public static class CombatRules
             damage *= 1 - armor / (armor + constants.ArmorK);
         }
         damage *= 1 - Math.Clamp(defense.Resistances.GetValueOrDefault(attack.DamageType), -1.0, 0.9);
+        // The guard: a shield turns more of a blow than a weapon does and costs the arm less, and a blow heavy enough drives it aside instead
+        // of being turned on it (CMB-06, COMBAT §17). A raised guard takes only what it can take - a physical blow.
         bool blocked = defense.Blocking && physical;
+        bool guardBroken = false;
+        int blockStamina = 0;
         if (blocked)
-            damage *= 1 - constants.BlockMitigationPercent / 100.0;
+        {
+            int mitigation = defense.Shield?.MitigationPercent ?? constants.BlockMitigationPercent;
+            if (defense.Shield is { } shield && impact >= shield.BreakPower)
+            {
+                blocked = false;
+                guardBroken = true;
+                blockStamina = constants.BlockStaminaPerHit;
+            }
+            else
+            {
+                damage *= 1 - mitigation / 100.0;
+                blockStamina = defense.Shield is { } held
+                    ? Math.Max(1, (int)Math.Round(constants.BlockStaminaPerHit * held.StaminaPercent / 100.0
+                        * Math.Max(1, impact) / Math.Max(1, constants.BlockWeightReference), MidpointRounding.AwayFromZero))
+                    : constants.BlockStaminaPerHit;
+            }
+        }
 
         // Whole points, with the fraction kept as a chance of one more, so a few points of armor matter on average
         // instead of rounding away. A blow that lands always wounds: there is no immunity by numbers (COMBAT Â§32).
@@ -261,7 +311,11 @@ public static class CombatRules
         if (strike.Execution) final = Math.Max(final, defense.MaxHealth);
         bool staggered = !blocked && (attack.ForcesStagger || impact * strike.StaggerPower * 100 * 100 >= (double)defense.MaxHealth * constants.StaggerThresholdPercent * defense.StaggerThresholdPercent);
         bool effect = attack.OnHitEffect is not null && !blocked && random(3) * 100 < attack.OnHitEffectPercent;
-        return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect);
+        return new HitResult(region, (int)Math.Round(impact, MidpointRounding.AwayFromZero), final, critical, blocked, false, staggered, effect)
+        {
+            GuardBroken = guardBroken,
+            BlockStamina = blockStamina,
+        };
     }
 
     private static BodyRegion Region(CombatConstants constants, double roll)
@@ -334,6 +388,9 @@ public sealed record CreatureDefinition(
 
     /// <summary>What it perceives with (M3d; DATA_MODEL.md Â§4.4 <c>perception</c>).</summary>
     public Senses Senses { get; init; } = new(25_000, 140_000, 30_000);
+
+    /// <summary>The shield it carries, when it carries one: its guard covers the shield's arc and is driven aside by a heavy blow (CMB-06).</summary>
+    public ShieldProfile? Shield { get; init; }
 
     /// <summary>A charge it can open with (the boar's), or null.</summary>
     public AttackProfile? Charge { get; init; }

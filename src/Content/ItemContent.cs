@@ -4,6 +4,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Progression;
 using YamlDotNet.Serialization;
@@ -17,6 +18,24 @@ namespace UNNAMED.Content;
 /// </summary>
 public static class ItemContent
 {
+    /// <summary>
+    /// A shield's block, when this piece is one (CMB-06): what arc it covers, what share of a blow it turns, what share of the guard's price a
+    /// blow against it takes, and the weight of blow that drives it aside. Absent for everything that is not a shield.
+    /// </summary>
+    private static ShieldProfile? Shield(string id, Dictionary<object, object> map)
+    {
+        if (map.GetValueOrDefault("shield") is not Dictionary<object, object> shield)
+            return null;
+        var profile = new ShieldProfile(
+            (int)(Number(shield, "arc_deg") * 1000),
+            Int(shield, "mitigation_percent"),
+            Int(shield, "stamina_percent"),
+            Int(shield, "break_power"));
+        if (profile.Problem() is { } problem)
+            throw new FormatException($"{id}: shield.{problem} (a number in that range, and arc_deg in degrees)");
+        return profile;
+    }
+
     private static readonly IDeserializer Yaml = new DeserializerBuilder().Build();
     private static readonly string[] ItemKinds = { "item", "item.weapon", "item.armor" };
 
@@ -205,6 +224,7 @@ public static class ItemContent
             rarity, Flag(map, "no_drop"), Flag(map, "no_sell"), slot, Requirements(id, map), weapon,
             map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0)
         {
+            Shield = Shield(id, map),
             Name = map.GetValueOrDefault("name") as string,
             Class = itemClass,
             LightRadiusMm = light,

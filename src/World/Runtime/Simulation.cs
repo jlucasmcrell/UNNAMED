@@ -1293,6 +1293,7 @@ public sealed class Simulation
         AwaitRespawn await => _combat.Handle(await),
         LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
+        PressCreature press => _creatures.Handle(press, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),

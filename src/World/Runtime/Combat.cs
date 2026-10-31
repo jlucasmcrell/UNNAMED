@@ -643,13 +643,20 @@ internal sealed partial class CombatSystem
         if (!CombatRules.CanAttemptAttack(_player, creature.Id,
                 new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;
+        bool guarded = creature.Blocks(State.Body, attack, tick, C);
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
-            definition.Resistances, Blocking: false, Dodging: false);
+            definition.Resistances, Blocking: guarded, Dodging: false)
+        {
+            Shield = guarded ? definition.Shield : null,
+        };
         var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
             strike = strike with { ForcedRegion = weak.Region };
         var result = CombatRules.Resolve(strike, defense, C, Random("player", creature.Key, creature.Body, tick));
+        // A blow heavy enough for its guard takes the guard away rather than being turned: the body is open and staggering (CMB-06).
+        if (result.GuardBroken)
+            _context.Dispatch(new PressCreature(creature.Id, GuardDownTicks: 0, OpenTicks: 0, Effect: "shield driven aside"));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         _context.Dispatch(new WoundCreature(creature.Id, result, attack.Source));
         bool alive = State.Creatures.Values.Any(c => c.Id == creature.Id && c.Alive);
@@ -786,9 +793,12 @@ internal sealed partial class CombatSystem
                 new(creature.Alive, !combat.Defeated, creature.Site.Space == State.Space))) return "attack is not permitted";
         var attack = command.Attack;
         var body = State.Body;
-        // A guard takes only what it can take - a physical blow - so only such a blow can break it (the Phase-1 technical audit, L-21).
+        // What is up in front of the character: a shield when the off hand holds one - wider than a weapon's guard, and its own cost and
+        // breaking weight - or the weapon's plain guard (CMB-06). A guard takes only what it can take: a physical blow.
+        var shield = PlayerShield();
+        long guardArc = shield?.ArcMdeg ?? C.BlockArcMdeg;
         bool guarding = combat.Blocking && DamageTypes.IsPhysical(attack.DamageType)
-            && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, C.BlockArcMdeg);
+            && CombatRules.InFront(body.XMm, body.ZMm, body.FacingMdeg, creature.Body.XMm, creature.Body.ZMm, long.MaxValue / 4, guardArc);
         if (guarding && Stamina() < C.BlockStaminaPerHit)
         {
             guarding = false;
@@ -804,12 +814,22 @@ internal sealed partial class CombatSystem
             dodging || phased && DamageTypes.IsPhysical(attack.DamageType))
         {
             StaggerThresholdPercent = _context.PlayerTraits.StaggerThresholdPercent,
+            Shield = shield,
         };
         var strike = CombatRules.LevelGap(new Strike(attack, EffectRules.DamageDealtMultiplier(EffectsOf(creature.Id), Setup.Effects), C.BaseCritPercent, 1.0), creature.Definition.Level + creature.LevelBonus, State.Progression.Level);
         var result = CombatRules.Resolve(strike, defense, C, Random(creature.Key, "player", body, tick));
 
         if (result.Blocked)
-            Exert(C.BlockStaminaPerHit, tick);
+            Exert(result.BlockStamina, tick);
+        // A blow heavy enough to drive the shield aside does not stop at turning it: the guard is gone, its arm is spent, and the body
+        // staggers (CMB-06).
+        if (result.GuardBroken)
+        {
+            Exert(result.BlockStamina, tick);
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { Blocking = false, LastCombat = tick });
+            _context.Events.Publish(new GuardBroken(_player, tick));
+            StaggerPlayer(tick, force: true);
+        }
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         int health = result.Final > 0 ? LosePlayerHealth(result.Final, creature.Definition.Id, attack.Source, tick) : Health();
         // Concentration under damage: a wound breaks a working still in its tell.
@@ -840,6 +860,15 @@ internal sealed partial class CombatSystem
         });
         return true;
     }
+
+    /// <summary>
+    /// The shield the character holds up, when the off hand holds one (CMB-06): the guard the one damage pipeline reads, in place of the
+    /// weapon's plain guard. Null when the off hand is empty or holds something that is not a shield.
+    /// </summary>
+    private ShieldProfile? PlayerShield() =>
+        State.Equipment.TryGetValue(EquipSlot.OffHand, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+            ? _context.Setup.Items.Catalog.Find(entry.DefId)?.Shield
+            : null;
 
     /// <summary>The player's armor on each region, from what is worn there (coverage, COMBAT §11), plus effects such as oakskin.</summary>
     private ImmutableSortedDictionary<BodyRegion, int> PlayerArmor()

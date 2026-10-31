@@ -218,6 +218,7 @@ public static class CombatContent
             StaggerImmunityTicks = Ticks(stagger, "immunity_s"),
             BlockMitigationPercent = Int(block, "mitigation_percent"),
             BlockStaminaPerHit = Int(block, "stamina_per_hit"),
+            BlockWeightReference = block.ContainsKey("reference_impact") ? Int(block, "reference_impact") : 10,
             BlockArcMdeg = (long)Math.Round(Number(block, "arc_deg") * 1000),
             DodgeStaminaCost = Int(dodge, "stamina"),
             DodgeTicks = Ticks(dodge, "iframes_s"),
@@ -342,6 +343,7 @@ public static class CombatContent
                 LootTableId = map.GetValueOrDefault("loot_table") as string,
                 CarcassRef = map.GetValueOrDefault("carcass_ref") as string,
                 Senses = Senses(id, map),
+                Shield = Shield(id, map),
                 Moves = moves,
                 Charge = charge,
                 CloseAttack = close,
@@ -359,6 +361,21 @@ public static class CombatContent
                 throw new FormatException($"{id}: pools.health, move_speed_m_s and body_radius_m are positive, xp_value is not negative");
             return creature;
         }).ToImmutableSortedDictionary(c => c.Id, c => c, StringComparer.Ordinal);
+    }
+
+    /// <summary>The shield a creature holds, when its record gives one (CMB-06): read exactly as an item's shield is.</summary>
+    private static ShieldProfile? Shield(string id, Dictionary<object, object> map)
+    {
+        if (map.GetValueOrDefault("shield") is not Dictionary<object, object> shield)
+            return null;
+        var profile = new ShieldProfile(
+            (int)(Number(shield, "arc_deg") * 1000),
+            Int(shield, "mitigation_percent"),
+            Int(shield, "stamina_percent"),
+            Int(shield, "break_power"));
+        if (profile.Problem() is { } problem)
+            throw new FormatException($"{id}: shield.{problem} (a number in that range, and arc_deg in degrees)");
+        return profile;
     }
 
     private static AttackProfile Attack(ContentEnvelope ability, int tickMs)
