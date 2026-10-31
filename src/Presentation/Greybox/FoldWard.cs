@@ -15,12 +15,12 @@ public sealed partial class FoldWard : Node3D
     private bool _near, _touch;
     public Vector3 PlayerFeet { get; set; }
 
-    public static FoldWard Build(MeshInstance3D wall, CircleBlocker circle, TerrainGrid terrain)
+    public static FoldWard Build(MeshInstance3D wall, CircleBlocker circle, TerrainGrid terrain, float? waterSurface = null)
     {
         var ward = new FoldWard { Name = "WardRunes", _wall = (ShaderMaterial)wall.MaterialOverride,
             _radius = circle.RadiusMm / 1000f, PlayerFeet = new Vector3(float.MaxValue, 0, 0) };
         ward._ring = new ShaderMaterial { Shader = new Shader { Code = RingCode } };
-        var runes = RuneTexture();
+        var runes = RuneTexture(waterSurface is null ? 3f : ward._radius);
         ward._ring.SetShaderParameter("runes", runes);
         float extent = ward._radius + .6f;
         ward._decal = new Decal { Name="EmissiveRuneDecal", Size=new Vector3(extent*2,1.2f,extent*2),
@@ -36,7 +36,8 @@ public sealed partial class FoldWard : Node3D
             float z = circle.CenterZMm / 1000f + Mathf.Sin(angle) * radius;
             surface.SetUV(new Vector2(Mathf.Cos(angle)*radius,Mathf.Sin(angle)*radius)/(extent*2)+Vector2.One*.5f);
             surface.SetNormal(Vector3.Up);
-            surface.AddVertex(new Vector3(x, terrain.HeightAtMm((long)(x*1000),(long)(z*1000))/1000f+.09f,z)-wall.Position);
+            float ground = terrain.HeightAtMm((long)(x*1000),(long)(z*1000))/1000f;
+            surface.AddVertex(new Vector3(x, Mathf.Max(ground, waterSurface ?? float.NegativeInfinity)+.09f,z)-wall.Position);
         }
         for (int i=0;i<segments;i++)
         {
@@ -62,12 +63,13 @@ public sealed partial class FoldWard : Node3D
             BillboardMode=BaseMaterial3D.BillboardModeEnum.Particles,AlbedoTexture=moteTexture,EmissionTexture=moteTexture,
             AlbedoColor=new Color(3,3,3,1),VertexColorUseAsAlbedo=true,EmissionEnabled=true,
             Emission=new Color(.6f,.32f,1),EmissionEnergyMultiplier=3 };
-        ward._motes=new GpuParticles3D { Name="DriftingWardMotes", Amount=80,Lifetime=7,Preprocess=7,
-            LocalCoords=true,Position=Vector3.Down*(circle.HeightMm/2000f-.15f),
-            VisibilityAabb=new Aabb(new Vector3(-4,-1,-4),new Vector3(8,6,8)),
+        ward._motes=new GpuParticles3D { Name="DriftingWardMotes", Amount=waterSurface is null ? 80 : 400,Lifetime=7,Preprocess=7,
+            LocalCoords=true,Position=waterSurface is null ? Vector3.Down*(circle.HeightMm/2000f-.15f) : Vector3.Zero,
+            VisibilityAabb=waterSurface is null ? new Aabb(new Vector3(-4,-1,-4),new Vector3(8,6,8))
+                : new Aabb(new Vector3(-extent,-circle.HeightMm/2000f-1,-extent),new Vector3(extent*2,circle.HeightMm/1000f+8,extent*2)),
             ProcessMaterial=new ParticleProcessMaterial { EmissionShape=ParticleProcessMaterial.EmissionShapeEnum.Ring,
                 EmissionRingAxis=Vector3.Up,EmissionRingRadius=ward._radius,EmissionRingInnerRadius=ward._radius-.4f,
-                EmissionRingHeight=.4f,Direction=Vector3.Up,Spread=18,Gravity=Vector3.Zero,
+                EmissionRingHeight=waterSurface is null ? .4f : circle.HeightMm/1000f*.9f,Direction=Vector3.Up,Spread=18,Gravity=Vector3.Zero,
                 InitialVelocityMin=.18f,InitialVelocityMax=.42f,ScaleMin=.45f,ScaleMax=1,
                 ColorRamp=new GradientTexture1D { Gradient=new Gradient { Colors=new[] {
                     new Color(1,1,1,0),Colors.White,Colors.White,new Color(1,1,1,0) },Offsets=new[]{0f,.15f,.7f,1f} } } },
@@ -98,16 +100,18 @@ public sealed partial class FoldWard : Node3D
         _moteMaterial.AlbedoColor=new Color(3,3,3,presence);
     }
 
-    private static Texture2D RuneTexture()
+    private static Texture2D RuneTexture(float ringRadius)
     {
-        const int size=512;
+        int size=Math.Clamp((int)(512*ringRadius/3),512,2048);
+        float extent=ringRadius+.6f,inner=ringRadius-.45f,outer=ringRadius+.45f;
+        int runes=Math.Max(24,(int)MathF.Round(24*ringRadius/3));
         var image=Image.CreateEmpty(size,size,true,Image.Format.Rgba8);
         for(int y=0;y<size;y++) for(int x=0;x<size;x++)
         {
-            var p=new Vector2((x+.5f)/size-.5f,(y+.5f)/size-.5f)*7.2f;
+            var p=new Vector2((x+.5f)/size-.5f,(y+.5f)/size-.5f)*(extent*2);
             float radius=p.Length(),angle=Mathf.PosMod(Mathf.Atan2(p.Y,p.X),Mathf.Tau);
-            float lines=1-Mathf.SmoothStep(.025f,.065f,Mathf.Min(Mathf.Abs(radius-2.55f),Mathf.Abs(radius-3.45f)));
-            var q=new Vector2(Mathf.PosMod(angle*24/Mathf.Tau,1), (radius-2.55f)/.9f);
+            float lines=1-Mathf.SmoothStep(.025f,.065f,Mathf.Min(Mathf.Abs(radius-inner),Mathf.Abs(radius-outer)));
+            var q=new Vector2(Mathf.PosMod(angle*runes/Mathf.Tau,1), (radius-inner)/.9f);
             float stem=(1-Mathf.SmoothStep(.035f,.08f,Mathf.Abs(q.X-.5f)))*(q.Y>.2f&&q.Y<.8f?1:0);
             float slash=(1-Mathf.SmoothStep(.035f,.08f,Mathf.Abs(q.Y-(q.X*.7f+.18f))))*(q.X>.2f&&q.X<.8f?1:0);
             float rune=Mathf.Max(stem,slash)*(q.Y>.12f&&q.Y<.88f?1:0);

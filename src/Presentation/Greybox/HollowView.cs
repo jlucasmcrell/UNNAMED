@@ -165,6 +165,7 @@ public partial class HollowView : Node3D
                 Position=new Vector3(surface.OriginXMm/1000f,0,surface.OriginZMm/1000f) };
             collider.AddChild(new CollisionShape3D { Shape=shape });AddChild(collider);
         }
+        if (StepsTerraces.Build(layout, _art) is { } terraceFill) AddChild(terraceFill);
         BuildInnWing(layout);
         // Old Late (grand scale, GS-3): the stone giant in weathered carved stone, its crown on the top of its weathered head (gs_old_late's
         // own metres); the Dwarven Citadel statue's material raised its colour to the power 0.5, which the lift restores.
@@ -920,6 +921,9 @@ public partial class HollowView : Node3D
         Coverage.Resolved("barrier", barrier.Key, "a refractive violet shimmer shader with drifting motes (Palette.FoldscarBarrier); an effect, not a model");
         var (x, z) = Footprints.Center(barrier.Footprint);
         float height = barrier.Footprint.HeightMm / 1000f;
+        bool drownedGate = barrier.Key == "barrier.oh_drowned_gate";
+        float baseHeight = terrain.HeightAtMm(x, z) / 1000f;
+        if (drownedGate) baseHeight = Mathf.Max(0, baseHeight);
         Mesh mesh = barrier.Footprint switch
         {
             CircleBlocker circle => new CylinderMesh { TopRadius = circle.RadiusMm / 1000f, BottomRadius = circle.RadiusMm / 1000f,
@@ -931,17 +935,18 @@ public partial class HollowView : Node3D
         {
             Name = barrier.Key,
             Mesh = mesh,
-            MaterialOverride = barrier.Key == FoldEcho.Barrier || VisualOptions.Foldscar == "proof" ? Palette.FoldscarFold : Palette.FoldscarBarrier,
-            Position = new Vector3(x / 1000f, terrain.HeightAtMm(x, z) / 1000f + height / 2, z / 1000f),
+            MaterialOverride = drownedGate ? (ShaderMaterial)Palette.FoldscarFold.Duplicate()
+                : barrier.Key == FoldEcho.Barrier || VisualOptions.Foldscar == "proof" ? Palette.FoldscarFold : Palette.FoldscarBarrier,
+            Position = new Vector3(x / 1000f, baseHeight + height / 2, z / 1000f),
             CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
             GIMode = GeometryInstance3D.GIModeEnum.Disabled,
         };
         _barriers[barrier.Key] = node;
         _register?.AddFold(barrier, node);
         ((ShaderMaterial)node.MaterialOverride).SetShaderParameter("height_m", height);
-        if (barrier.Key == FoldEcho.Barrier && barrier.Footprint is CircleBlocker wardCircle)
+        if ((barrier.Key == FoldEcho.Barrier || drownedGate) && barrier.Footprint is CircleBlocker wardCircle)
         {
-            _ward = FoldWard.Build(node, wardCircle, terrain);
+            _ward = FoldWard.Build(node, wardCircle, terrain, drownedGate ? 0f : null);
             node.AddChild(_ward);
         }
         return node;
