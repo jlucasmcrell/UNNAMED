@@ -13,3 +13,7 @@ windup_multiplier: 1.5
 payload:
   - { type: damage, multiplier_of_weapon: 1.6 }
   - { type: apply_effect, effect_ref: effect.bleeding, chance: 0.5 }
+# PRG-29: the record every acquisition reads. A blade technique wants the arm to swing it; the bar is the lowest the game can give, so no
+# starting character is refused, and a character built without an arm is refused in words ("Short of Might: 0 of 1").
+requires:
+  - { kind: attribute, attribute: Might, min: 1 }

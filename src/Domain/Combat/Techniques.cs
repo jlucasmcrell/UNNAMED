@@ -2,6 +2,8 @@
 // (SYSTEMS_COMPLETENESS_PLAN_20261017.md §2.3 C5, D11; DATA_MODEL.md §4.7; SYSTEMS.md S-10)
 // No Godot references - pure C#
 
+using System.Collections.Immutable;
+
 namespace UNNAMED.Domain.Combat;
 
 /// <summary>
@@ -15,6 +17,12 @@ public sealed record TechniqueDefinition(string Id, string SkillId, double Damag
     int StaminaCost, int CooldownTicks)
 {
     public string? OnHitEffect { get; init; }
+
+    /// <summary>
+    /// What the technique asks of a character before it can be learned at all (PRG-29): the same record whatever path it arrives by - a
+    /// teacher, a book, a quest or a discovery - so none of them can hand out what the character cannot hold.
+    /// </summary>
+    public ImmutableArray<TechniqueRequirement> Requirements { get; init; } = ImmutableArray<TechniqueRequirement>.Empty;
     public int OnHitEffectPercent { get; init; }
 
     public string? Problem() =>

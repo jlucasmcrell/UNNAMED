@@ -865,12 +865,46 @@ internal sealed class ProgressionSystem
     /// <summary>A learning event (PROGRESSION.md Â§4.4): the only way a formula becomes known.</summary>
     public string? Handle(LearnTechnique command)
     {
+        // PRG-29: a technique's own requirements are checked here, where every path arrives - a teacher, a book, a quest or a discovery - so
+        // none of them can hand out what the character cannot hold, and the refusal says which requirement and in what words.
+        if (_context.Setup.Techniques.TryGetValue(command.Learning.DefinitionId, out var technique)
+            && TechniqueRequirements.FirstUnmet(technique.Requirements, TechniqueCandidateNow()) is { } unmet)
+            return $"{command.Learning.DefinitionId} is not learnt yet: {unmet.Why}";
         var result = ProgressionEngine.Learn(_context.State.Progression, command.Learning);
         if (!result.Learned)
             return $"{command.Learning.DefinitionId} is already known";
         _context.State.SetProgression(_owner, result.Progression);
         _context.Events.Publish(new TechniqueLearned(command.Learning.DefinitionId, ProgressionKeys.Key(command.Learning.Source), command.Learning.Tick));
         return null;
+    }
+
+    /// <summary>What the character is, as the technique requirements read it: the facts, gathered once here (PRG-29).</summary>
+    private TechniqueCandidate TechniqueCandidateNow()
+    {
+        var state = _context.State;
+        var rules = _context.Setup.Progression;
+        var attributes = ImmutableSortedDictionary.CreateBuilder<CharacterAttribute, int>();
+        foreach (CharacterAttribute attribute in Enum.GetValues<CharacterAttribute>())
+            attributes[attribute] = ProgressionEngine.AttributeValue(state.Progression, attribute, rules);
+
+        var skills = ImmutableSortedDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
+        foreach (string skill in state.Progression.Skills.Keys)
+            skills[skill] = ProgressionEngine.SkillLevel(state.Progression, skill);
+
+        return new TechniqueCandidate(
+            Skills: skills.ToImmutable(),
+            Attributes: attributes.ToImmutable(),
+            Known: state.Progression.Known.Keys.ToImmutableSortedSet(StringComparer.Ordinal),
+            // In hand and worn are the equipment slots, which hold item instance ids; the requirement asks about what kind of thing it is.
+            Equipment: state.Equipment.Values
+                .Select(instanceId => state.Inventory.FirstOrDefault(e => e.ItemId == instanceId).DefId)
+                .Where(defId => defId is not null)
+                .Select(defId => defId!)
+                .ToImmutableSortedSet(StringComparer.Ordinal),
+            Body: state.PeopleId,
+            Knowledge: state.Progression.NoveltyFirsts,
+            Standing: state.Relationships
+                .ToImmutableSortedDictionary(e => e.Key, e => e.Value.GetValueOrDefault("trust"), StringComparer.Ordinal));
     }
 
     public string? Handle(PracticeSkill command)
