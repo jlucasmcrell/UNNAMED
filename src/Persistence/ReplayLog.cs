@@ -374,7 +374,6 @@ public sealed class ReplayLogWriter : IDisposable
     private readonly EntityId? _player;
     private readonly int _maxPartBytes;
     private readonly int _maxParts;
-    private string? _open;
     private int _written;
     private bool _disposed;
 
@@ -403,9 +402,6 @@ public sealed class ReplayLogWriter : IDisposable
                 Rotate(current);
         }
     }
-
-    /// <summary>The part commands are appended to now.</summary>
-    public string CurrentPart => _open ?? ReplayLog.PathOf(_root);
 
     /// <summary>How many of the commands handed over are on disk.</summary>
     public int Written => _written;
@@ -453,7 +449,6 @@ public sealed class ReplayLogWriter : IDisposable
         }
         writer.Write(line);
         writer.Write('\n');
-        _open = path;
     }
 
     private void Rotate(string path)
@@ -462,7 +457,6 @@ public sealed class ReplayLogWriter : IDisposable
         string rotated = System.IO.Path.Combine(_root,
             $"command_log.{fromTick.ToString(CultureInfo.InvariantCulture)}_{fromSequence.ToString(CultureInfo.InvariantCulture)}.jsonl");
         File.Move(path, rotated, overwrite: true);
-        _open = null;
         // The cap counts the part about to begin too, so keep one fewer than the folder may hold.
         var parts = ReplayLog.Parts(_root);
         foreach (string stale in parts.Take(Math.Max(0, parts.Length - (_maxParts - 1))))

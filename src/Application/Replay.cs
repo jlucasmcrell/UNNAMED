@@ -13,7 +13,7 @@ namespace UNNAMED.Application;
 /// (<see cref="Refusal"/>). A completed replay can be compared with the saved state leaf by leaf
 /// (<see cref="StateDump.Compare"/>), which is what makes the replay tuple true rather than aspirational.
 /// </summary>
-public sealed record ReplayResult(string? Refusal, string Dump, ImmutableArray<LoggedCommand> Replayed, long Tick, string? LogFolder = null)
+public sealed record ReplayResult(string? Refusal, string Dump, ImmutableArray<LoggedCommand> Replayed, long Tick)
 {
     public bool Complete => Refusal is null;
 
@@ -145,8 +145,7 @@ public static class Replay
                 break;
             simulation.Step();
         }
-        return new ReplayResult(null, StateDump.Render(simulation, replayable: true), simulation.CommandLog.ToImmutableArray(),
-            simulation.WorldTick, session.SaveFolder);
+        return new ReplayResult(null, StateDump.Render(simulation, replayable: true), simulation.CommandLog.ToImmutableArray(), simulation.WorldTick);
     }
 
     private static ReplayResult Refused(string reason, long tick) => new(reason, "", ImmutableArray<LoggedCommand>.Empty, tick);
