@@ -1,0 +1,16 @@
+id: ability.boss.ring_custodian.grasp
+kind: ability
+schema: 1
+display_key: ability.boss.ring_custodian.grasp.name
+tags: [ability]
+name: Index Grasp
+notes: "A close correction: short reach, quick, and the punishment for standing inside the keeper's guard."
+class: creature
+range_m: 1.6
+windup_s: 1.1
+active_s: 0.2
+recovery_s: 1.8
+commit_facing: true
+cost: { stamina: 0 }
+payload:
+  - { type: damage, damage_type: physical_blunt, amount: [16, 20] }

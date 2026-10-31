@@ -8,10 +8,10 @@ notes: "The service ring's own keeper (M8 I4), and the ring was built to gauge s
 family: construct
 archetype: construct
 level_band: [5, 5]
-pools: { health: 150 }
-attack_set: [ability.creature.gauge_sweep, ability.creature.measure_fall, ability.creature.index_grasp]
-armor: { head: 30, torso: 50, limbs: 40 }
-resistances: { physical_pierce: 0.5, physical_slash: 0.25 }
+pools: { health: 70 }
+attack_set: [ability.boss.ring_custodian.sweep, ability.boss.ring_custodian.fall, ability.boss.ring_custodian.grasp]
+armor: { head: 10, torso: 14, limbs: 12 }
+resistances: {}
 weak_point: { region: torso, from_behind: true }
 move_speed_m_s: 2.0
 turn_deg_s: 75   # slower than the animated armour: the fight is about staying behind it
