@@ -42,12 +42,15 @@ public sealed record AdventurerGear(EntityId ItemId, string DefId, int Quality)
 /// <summary>A full personal item kept while its owner lives outside the party; trade goods remain in Pack.</summary>
 public sealed record AdventurerItem(EntityId ItemId,string DefId,int Count,int Quality,NotableRecord? Notable,ItemWear? Wear,bool Locked=false,bool Junk=false)
 {
+    public ItemWork? Work { get; init; }
+
     public void AddTo(CanonicalHasher h)
     {
         h.Add(ItemId.Value).Add(DefId).Add(Count).Add(Quality).Add(Locked?1:0).Add(Junk?1:0);
         if(Notable is { } n)h.Add("notable").Add(n.Name).Add(ProvenanceKinds.Key(n.Provenance)).Add(n.SourceRef).Add(n.Tick)
             .Add(n.Maker??"-").Add(n.Familiarity).Add(n.Uses);
         if(Wear is { } w)h.Add("wear").Add(w.Points).Add(w.MadeQuality);
+        WorkDigest.Add(h, Work);
     }
 }
 

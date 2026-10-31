@@ -50,8 +50,9 @@ public class AdventurerSaveTests
     {
         using var profile=new TempProfile();var session=Harness.Boot(profile);
         var vest=new InventoryEntry(EntityId.NewId(EntityKind.Item),"item.armor.hide_vest",1) {
-            Quality=1,Wear=new ItemWear(7,1),Notable=new NotableRecord("Roadworn vest",ProvenanceKind.Found,"fixture.vest",0) {Familiarity=2,Uses=3} };
-        var cap=new InventoryEntry(EntityId.NewId(EntityKind.Item),"item.armor.hide_cap",1) {Quality=1};
+            Quality=1,Wear=new ItemWear(7,1),Notable=new NotableRecord("Roadworn vest",ProvenanceKind.Found,"fixture.vest",0) {Familiarity=2,Uses=3},
+            Work=new ItemWork(2,new Inscription("working.warding_weave",3)) };
+        var cap=new InventoryEntry(EntityId.NewId(EntityKind.Item),"item.armor.hide_cap",1) {Quality=1,Work=new ItemWork(1,new Inscription("working.anchored_ward",4))};
         var arena=Arena.OpenCreatures(session,session.Setup,(448.6,727.0),90,Array.Empty<(string,double,double,string)>(),
             r=>new PlayerRecord(r.Id,r.Name,r.XMm,r.YMm,r.ZMm,r.AppearanceSeed,r.Inventory.Concat(new[]{vest,cap}),r.Progression,r.FacingMdeg,r.Discoveries,r.Equipment,500),
             keepSpawns:true,origin:Harness.Region);
@@ -63,6 +64,8 @@ public class AdventurerSaveTests
         Assert.DoesNotContain(arena.Simulation.Player.Inventory,e=>e.ItemId==vest.ItemId || e.ItemId==cap.ItemId);
         var kept=arena.Simulation.World.Adventurers!.Agents[key];
         Assert.Equal(vest.Notable,kept.Gear[EquipSlot.Chest].Item!.Notable);
+        Assert.Equal(vest.Work,kept.Gear[EquipSlot.Chest].Item!.Work);
+        Assert.Equal(cap.Work,Assert.Single(kept.Belongings).Work);
         Assert.Equal(cap.ItemId,Assert.Single(kept.Belongings).ItemId);
         var store=new SaveStore(profile.Root);
         store.Save(SaveSlots.Quick,SaveDocuments.Capture(arena.Simulation.World,arena.Simulation.CaptureRecord(),session.Content,arena.Simulation.WorldTick,0));

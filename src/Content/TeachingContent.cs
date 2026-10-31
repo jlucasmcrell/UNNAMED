@@ -19,8 +19,8 @@ namespace UNNAMED.Content;
 /// </summary>
 public static class TeachingContent
 {
-    /// <summary>The ability classes built: a creature's attack (M3c) and the player's active technique (WP9). The rest of §4.7's arrive with their systems.</summary>
-    private static readonly string[] AbilityClasses = { "creature", "active", "people" };
+    /// <summary>The built ability classes: creature attacks, active combat techniques, peoples' abilities and inscription patterns.</summary>
+    private static readonly string[] AbilityClasses = { "creature", "active", "people", "inscription" };
 
     private static readonly string[] EntryFields = { "kind", "recipe_ref", "ability_ref", "spell_ref", "piece_ref", "fee", "by_dialogue", "requires" };
 
@@ -70,6 +70,8 @@ public static class TeachingContent
             string kind = Text(map, "class");
             if (!AbilityClasses.Contains(kind))
                 throw new FormatException($"{id}: class '{kind}' is not built ({string.Join(", ", AbilityClasses)})");
+            if (kind == "inscription" && !CraftingContent.BuildWorkings(loader).Values.Any(w => w.KnowledgeId == id))
+                throw new FormatException($"{id}: no enchanting working uses this inscription technique");
             if (kind != "active")
                 continue;
             string skill = Text(map, "discipline");
@@ -136,8 +138,8 @@ public static class TeachingContent
         string id = Text(row, field);
         if (!loader.Definitions.TryGetValue(id, out var definition) || definition.Kind != contentKind)
             throw new FormatException($"{at}: {id} is not a defined {contentKind}");
-        if (kind == TeachingKind.Technique && Read(definition.YamlSource).GetValueOrDefault("class") as string != "active")
-            throw new FormatException($"{at}: {id} is not an active technique (class: active) - a creature's attack is never taught");
+        if (kind == TeachingKind.Technique && Read(definition.YamlSource).GetValueOrDefault("class") as string is not ("active" or "inscription"))
+            throw new FormatException($"{at}: {id} is not an active technique (class: active) or inscription - a creature's attack is never taught");
         long fee = row.TryGetValue("fee", out var feeValue)
             ? long.TryParse(feeValue as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed) && parsed >= 0
                 ? parsed
@@ -224,7 +226,7 @@ public static class TeachingContent
         var learnable = loader.GetByKind("recipe").Keys
             .Concat(loader.GetByKind("spell").Keys)
             .Concat(loader.GetByKind("piece").Keys)
-            .Concat(loader.GetByKind("ability").Values.Where(a => Read(a.YamlSource).GetValueOrDefault("class") as string == "active").Select(a => a.Id))
+            .Concat(loader.GetByKind("ability").Values.Where(a => Read(a.YamlSource).GetValueOrDefault("class") as string is "active" or "inscription").Select(a => a.Id))
             .OrderBy(id => id, StringComparer.Ordinal);
         var orphans = learnable.Where(id => !sources.Contains(id)).ToList();
         if (orphans.Count > 0)

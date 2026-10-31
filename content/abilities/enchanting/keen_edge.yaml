@@ -1,0 +1,8 @@
+id: ability.enchanting.keen_edge
+kind: ability
+schema: 1
+display_key: ability.enchanting.keen_edge.name
+tags: [ability, enchanting]
+name: Keen Edge
+notes: Sel Arien teaches this inscription technique. Knowing its pattern and having the hand to cut it are separate requirements; its anchor and effect are in config.crafting.
+class: inscription

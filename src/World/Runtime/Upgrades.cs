@@ -21,8 +21,8 @@ namespace UNNAMED.World.Runtime;
 public sealed record UpgradeCommand(EntityId Actor, EntityId Item) : GameCommand(Actor);
 
 /// <summary>
-/// Cut a working into a carried piece of its kind at an enchanting bench within reach: enchanting at the working's least, its anchor material
-/// carried and spent. A working already on the piece is cut away for it.
+/// Cut a known working into a carried piece of its kind at an enchanting bench within reach: enchanting at the working's least, its anchor
+/// material carried and spent. A working already on the piece is cut away for it.
 /// </summary>
 public sealed record InscribeCommand(EntityId Actor, EntityId Item, string WorkingId) : GameCommand(Actor);
 
@@ -99,6 +99,8 @@ internal sealed class UpgradeSystem
             return $"{working.Name} is cut into {(working.Target == WorkingTarget.Weapon ? "a weapon" : "armour")}, not {entry.DefId}";
         if (Station(Rules.EnchantingStation) is not { } station)
             return $"no {Rules.EnchantingStation} in reach";
+        if (!ProgressionEngine.Knows(State.Progression, working.KnowledgeId))
+            return $"{working.Name} is not known; learn it from a teacher first";
         int skill = ProgressionEngine.SkillLevel(State.Progression, Rules.EnchantingSkill);
         if (skill < working.SkillMin)
             return $"{working.Name} needs {Rules.EnchantingSkill} {working.SkillMin}; you have {skill}";

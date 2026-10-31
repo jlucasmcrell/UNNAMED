@@ -4,6 +4,13 @@
 
 namespace UNNAMED.Domain.Items;
 
+/// <summary>Plain pieces add nothing, preserving historical digests; worked pieces include their tier, pattern and stability.</summary>
+public static class WorkDigest
+{
+    public static CanonicalHasher Add(CanonicalHasher h, ItemWork? work) =>
+        work is null ? h : h.Add("work").Add(work.Tier).Add(work.Inscription?.WorkingId ?? "-").Add(work.Inscription?.Stability ?? 0);
+}
+
 /// <summary>
 /// A working cut into a piece (enchanting: pattern, anchor, effect, stability): which working, and how much stability it has left. Each point
 /// is a tolerance before the pattern drifts; at none the working has faded and the piece is plain again, never harmed (canon 12 §5.4).
@@ -32,6 +39,9 @@ public sealed record ItemWork(int Tier, Inscription? Inscription)
 /// </summary>
 public sealed record WorkingDefinition(string Id, string Name, WorkingTarget Target, int SkillMin, string MaterialId, int MaterialCount, int Stability)
 {
+    /// <summary>The teachable inscription technique in the content catalogue and the character's saved knowledge.</summary>
+    public string KnowledgeId => "ability.enchanting." + Id["working.".Length..];
+
     public int Damage { get; init; }
 
     public string? DamageType { get; init; }

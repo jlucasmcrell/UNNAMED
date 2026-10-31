@@ -96,7 +96,7 @@ public static class CraftingContent
                 "armor" => WorkingTarget.Armor,
                 var other => throw new FormatException($"{id}: target '{other}' is weapon or armor"),
             };
-            var working = new WorkingDefinition(id, Text(row, "name"), target, Int(row, "skill_min"), Text(row, "item_ref"), Int(row, "count"), Int(row, "stability"))
+            var working = new WorkingDefinition(id, Text(row, "name"), target, Int(row, "skill_min"), Text(row, "anchor_material"), Int(row, "count"), Int(row, "stability"))
             {
                 Damage = row.ContainsKey("damage") ? Int(row, "damage") : 0,
                 DamageType = row.ContainsKey("damage_type") ? Damage(Text(row, "damage_type")) : null,
@@ -107,8 +107,12 @@ public static class CraftingContent
                 throw new FormatException($"{id}: a working.* ID, skill_min not below 0, count and stability at least 1, damage and armor not below 0");
             if (target == WorkingTarget.Weapon ? working.Armor != 0 : working.Damage != 0 || working.DamageType is not null)
                 throw new FormatException($"{id}: a weapon working gives damage, an armour working armour");
-            if (items && !loader.Definitions.ContainsKey(working.MaterialId))
-                throw new FormatException($"{id}: item_ref {working.MaterialId} is not an item");
+            if (items && (!loader.Definitions.TryGetValue(working.MaterialId, out var material)
+                || material.Kind is not ("item" or "item.weapon" or "item.armor")))
+                throw new FormatException($"{id}: anchor_material {working.MaterialId} is not an item");
+            if (loader.GetByKind("ability").Count > 0 && (!loader.GetByKind("ability").TryGetValue(working.KnowledgeId, out var technique)
+                || Read(technique.YamlSource).GetValueOrDefault("class") as string != "inscription"))
+                throw new FormatException($"{id}: {working.KnowledgeId} is not a defined inscription technique");
             if (!workings.TryAdd(id, working))
                 throw new FormatException($"{id} is listed twice");
         }

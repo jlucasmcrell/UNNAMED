@@ -151357,6 +151357,10 @@ stations:
   position_m:
   - 466.5
   - 743.2
+# Queue #5: beside Sel Arien's survey table on the archive's open east apron.
+- key: station.ah_enchanting_bench
+  kind: enchanting_bench
+  position_m: [473.8, 721.5]
 - key: station.ah_archive
   kind: archive
   position_m:

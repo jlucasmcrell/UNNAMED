@@ -86,9 +86,9 @@ internal sealed record AdoptSheet(PartySheet Sheet) : InternalCommand;
 
 public static class AdventurerInventory
 {
-    public static AdventurerItem Snapshot(InventoryEntry e)=>new(e.ItemId,e.DefId,e.Count,e.Quality,e.Notable,e.Wear,e.Locked,e.Junk);
+    public static AdventurerItem Snapshot(InventoryEntry e)=>new(e.ItemId,e.DefId,e.Count,e.Quality,e.Notable,e.Wear,e.Locked,e.Junk) { Work=e.Work };
     public static InventoryEntry Entry(AdventurerItem e)=>new(e.ItemId,e.DefId,e.Count) {
-        Quality=e.Quality,Notable=e.Notable,Wear=e.Wear,Locked=e.Locked,Junk=e.Junk };
+        Quality=e.Quality,Notable=e.Notable,Wear=e.Wear,Locked=e.Locked,Junk=e.Junk,Work=e.Work };
 }
 
 /// <summary>To <see cref="PartySheetSystem"/>: someone with a life of their own left the party and took their sheet back into it.</summary>

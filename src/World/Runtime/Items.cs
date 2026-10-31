@@ -78,6 +78,8 @@ public sealed record ItemView(string Ref, string DefId, int Count)
 
     /// <summary>Its wear (WP3b), for the tooltip; null when unworn.</summary>
     public ItemWear? Wear { get; init; }
+
+    public ItemWork? Work { get; init; }
 }
 
 public sealed record ContainerView(ContainerSite Site, EntityId? Id, ImmutableArray<ItemView> Items);
@@ -626,7 +628,7 @@ internal sealed partial class InventorySystem
         foreach (var line in command.Lines)
         {
             var definition = Items.Catalog.Get(line.ItemId);
-            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null && i.Wear is null;
+            bool Plain(ContainerItem i) => i.DefId == line.ItemId && i.Quality == Quality.Standard && i.Notable is null && i.Wear is null && i.Work is null;
             int have = items.Where(Plain).Sum(i => i.Count);
             for (int over = have - line.Count; over > 0;)
             {
@@ -709,7 +711,7 @@ internal sealed partial class InventorySystem
     {
         var record = State.World.Container(site.Key);
         return new ContainerView(site, record?.InstanceId,
-            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable, Wear = i.Wear }).ToImmutableArray());
+            ContentsOf(site).Select(i => new ItemView(i.Ref, i.DefId, i.Count) { Quality = i.Quality, Notable = i.Notable, Wear = i.Wear, Work = i.Work }).ToImmutableArray());
     }
 
     public ImmutableArray<WorldItemView> WorldItems() =>

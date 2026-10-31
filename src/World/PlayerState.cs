@@ -78,13 +78,6 @@ public static class BuildDigest
                 .Add(string.Join(",", built.Affixes)).Add(built.Sockets).Add(built.Name ?? "-");
 }
 
-/// <summary>How a piece's work enters a digest: nothing for a piece as made, so every other stack hashes as it always has (schema 44).</summary>
-public static class WorkDigest
-{
-    public static CanonicalHasher Add(CanonicalHasher h, ItemWork? work) =>
-        work is null ? h : h.Add("work").Add(work.Tier).Add(work.Inscription?.WorkingId ?? "-").Add(work.Inscription?.Stability ?? 0);
-}
-
 /// <summary>How a stack's wear enters a digest: nothing for an unworn stack, so unworn stacks hash as they always have (WP3b).</summary>
 public static class WearDigest
 {

@@ -86,6 +86,8 @@ public class TeachingContentTests
         Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.sedge.iren_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.sedge.tess_ferry", TeachingKind.Technique));
         Assert.Equal(new[] { "recipe.herbal.salve_minor", "recipe.herbal.salve_ember" }, Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Recipe));
+        Assert.Equal(new[] { "ability.enchanting.keen_edge", "ability.enchanting.warding_weave", "ability.enchanting.ember_anchor", "ability.enchanting.anchored_ward" },
+            Lessons("npc.ashen_hollow.sel_arien", TeachingKind.Technique));
         Assert.Equal(new[] { "recipe.cooking.roast_meat" }, Lessons("npc.cairnwold.tam_crowden", TeachingKind.Recipe));
         // Berrin teaches every building piece (owner decision); Renn teaches the seven pieces that built the Wayhold.
         Assert.Equal(loader.GetByKind("piece").Keys.OrderBy(k => k, StringComparer.Ordinal),
@@ -98,8 +100,9 @@ public class TeachingContentTests
         var wedge = npcs["npc.ashen_hollow.kera_voss"].Teaches.Single(o => o.DefinitionId == "recipe.smithing.fitting_wedge");
         Assert.Equal("world.barrowworks.ring_accessible", Assert.IsType<FlagRequirement>(Assert.Single(wedge.Requirements)).Condition.FlagId);
         // Techniques are asked for, for a fee, once familiar with the family's weapon.
+        var combatTechniques = TeachingContent.BuildTechniques(loader);
         var paidTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
-            .Where(o => o.Kind == TeachingKind.Technique && !o.ByDialogue);
+            .Where(o => o.Kind == TeachingKind.Technique && combatTechniques.ContainsKey(o.DefinitionId) && !o.ByDialogue);
         Assert.All(paidTechniqueLessons, o =>
         {
             Assert.True(o.Fee > 0);
@@ -111,6 +114,21 @@ public class TeachingContentTests
         var dialogueTechniqueLessons = npcs.Values.SelectMany(n => n.Teaches)
             .Where(o => o.Kind == TeachingKind.Technique && o.ByDialogue);
         Assert.All(dialogueTechniqueLessons, o => Assert.Equal(30, o.Fee));
+        var patterns = CraftingContent.BuildWorkings(loader);
+        Assert.All(patterns.Values, pattern =>
+        {
+            var lesson = npcs["npc.ashen_hollow.sel_arien"].Teaches.Single(o => o.DefinitionId == pattern.KnowledgeId);
+            Assert.Equal(TeachingKind.Technique, lesson.Kind);
+            Assert.False(lesson.ByDialogue);
+            Assert.Equal(0, lesson.Fee);
+            if (pattern.SkillMin == 0)
+                Assert.Empty(lesson.Requirements);
+            else
+            {
+                var skill = Assert.IsType<SkillBandRequirement>(Assert.Single(lesson.Requirements));
+                Assert.Equal(("skill.enchanting", pattern.SkillMin), (skill.SkillId, skill.MinLevel));
+            }
+        });
     }
 
     [Fact]
@@ -176,6 +194,16 @@ public class TeachingContentTests
     public void GiveRecipe_IsRefused_ForTeach() =>
         AssertRefused("SOC001", "dialogue/cairnwold/tam_crowden.yaml", "{ command: teach, refs: [recipe.cooking.roast_meat] }",
             "{ command: give_recipe, recipe_ref: recipe.cooking.roast_meat }", "give_recipe is replaced by teach");
+
+    [Fact]
+    public void AnInscriptionWithoutATeacherOrOtherSource_IsRefused() =>
+        AssertRefused("TCH001", "npcs/ashen_hollow/sel_arien.yaml", "  - { kind: technique, ability_ref: ability.enchanting.keen_edge }\n", "",
+            "no findable source");
+
+    [Fact]
+    public void AnInscriptionTechniqueWithTheWrongIdentity_IsRefused() =>
+        AssertRefused("TCH001", "abilities/enchanting/keen_edge.yaml", "ability.enchanting.keen_edge", "ability.enchanting.unknown_pattern",
+            "is not a defined inscription technique");
 
     [Fact]
     public void ALineTeachingWhatItsSpeakerDoesNotGiveByConversation_IsRefused() =>

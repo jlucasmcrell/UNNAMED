@@ -50,6 +50,8 @@ public sealed record WareView(string Ref, string ItemId, int Count, int Quality,
 
     /// <summary>Its wear (WP3b): a worn piece sold to a trader is as worn on their shelf.</summary>
     public ItemWear? Wear { get; init; }
+
+    public ItemWork? Work { get; init; }
 }
 
 /// <summary>
@@ -213,7 +215,7 @@ internal sealed class TradeSystem
         string? market = MarketOf(merchant);
         return new WaresView(npcId, merchant.Id, _contents(site).Items
             .Where(i => Heritage(npc, i.DefId) is null)
-            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, ShelfAsk(merchant, i.DefId, i.Wear, i.Quality, i.Notable)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear })
+            .Select(i => new WareView(i.Ref, i.DefId, i.Count, i.Quality, ShelfAsk(merchant, i.DefId, i.Wear, i.Quality, i.Notable)) { Trend = Math.Sign(_markets.Factor(market, i.DefId) - 1000), Wear = i.Wear, Work = i.Work })
             .ToImmutableArray())
         {
             Purse = _merchants.Purse(merchant.Id),

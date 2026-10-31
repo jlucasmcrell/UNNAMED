@@ -42,6 +42,11 @@ public class UpgradeEnchantingTests
             var equipment = r.Equipment.Where(kv => kv.Key != EquipSlot.MainHand && inventory.Any(e => e.ItemId == kv.Value))
                 .Concat(inventory.Where(e => e.DefId == Sword).Take(1).Select(e => KeyValuePair.Create(EquipSlot.MainHand, e.ItemId)));
             var progression = skills.Aggregate(r.Progression, (p, s) => p with { Skills = p.Skills.SetItem(s.Skill, new SkillState(s.Level, 0)) });
+            progression = progression with
+            {
+                Known = session.Setup.Crafting.Workings.Values.Aggregate(progression.Known,
+                    (known, w) => known.SetItem(w.KnowledgeId, new KnownTechnique(LearningSource.Teacher, "npc.ashen_hollow.sel_arien", 0))),
+            };
             return new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, inventory, progression, r.FacingMdeg, r.Discoveries,
                 equipment, 0, r.Effects, r.Relationships, r.Conversations);
         }, origin: (0, 0));
@@ -55,10 +60,92 @@ public class UpgradeEnchantingTests
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
-        Assert.Contains(setup.Layout.Stations, s => s.Kind == setup.Crafting.Upgrades.EnchantingStation);
+        Assert.Contains(setup.Layout.Stations, s => s.Key == "station.ah_enchanting_bench" && s.Kind == setup.Crafting.Upgrades.EnchantingStation);
+        Assert.Contains(setup.Layout.Stations, s => s.Key == "station.cairnwold.enchanting_bench" && s.Kind == setup.Crafting.Upgrades.EnchantingStation);
         Assert.Contains(setup.Crafting.Workings.Values, w => w.Target == WorkingTarget.Weapon && w.SkillMin == 0);
         Assert.Contains(setup.Crafting.Workings.Values, w => w.Target == WorkingTarget.Armor && w.SkillMin == 0);
         Assert.All(setup.Crafting.Workings.Values, w => Assert.NotNull(setup.Items.Catalog.Find(w.MaterialId)));
+    }
+
+    [Fact]
+    public void SelTeachesThePatterns_SeparateFromSkill_AndTheLessonSurvivesASave()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string sel = "npc.ashen_hollow.sel_arien";
+        var sword = Stack(Sword);
+        var arena = Arena.OpenCreatures(session, session.Setup, (473.1, 722), 270, Array.Empty<(string, double, double, string)>(), r =>
+            r.WithInventory(r.Inventory.Where(e => e.DefId != Sword).Concat(new[] { sword, Stack(Fang, 2), Stack(Vest), Stack(Silk, 2) })), origin: Harness.Region);
+        var refused = arena.Submit(new InscribeCommand(arena.Player, sword.ItemId, "working.keen_edge"));
+        Assert.Equal("Keen Edge is not known; learn it from a teacher first", refused);
+        Assert.Equal(2, Count(arena, Fang));
+        Assert.Null(Carried(arena, Sword).Work);
+        Assert.False(arena.Simulation.Teaching(sel)!.Lessons.Single(l => l.DefinitionId == "ability.enchanting.ember_anchor").Met);
+
+        var skills = arena.Simulation.Player.Progression.Skills;
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, sel)));
+        Assert.Null(arena.Submit(new LearnFromTeacherCommand(arena.Player, sel, "ability.enchanting.keen_edge")));
+        Assert.Equal(skills, arena.Simulation.Player.Progression.Skills);
+        var learned = arena.Simulation.Player.Progression.Known["ability.enchanting.keen_edge"];
+        Assert.Equal((LearningSource.Teacher, sel), (learned.Source, learned.SourceRef));
+        Assert.Null(arena.Submit(new InscribeCommand(arena.Player, sword.ItemId, "working.keen_edge")));
+        Assert.Equal(1, Count(arena, Fang));
+        Assert.Equal("Warding Weave is not known; learn it from a teacher first",
+            arena.Submit(new InscribeCommand(arena.Player, Carried(arena, Vest).ItemId, "working.warding_weave")));
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Quick, SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Quick, new LoadContext(session.Generator, session.Content, new Registry()));
+        Assert.True(loaded.IsComplete);
+        Assert.Equal(learned, loaded.Player.Progression.Known["ability.enchanting.keen_edge"]);
+        var resumed = Arena.Resume(arena.Simulation.Setup, loaded);
+        Assert.Null(resumed.Submit(new InscribeCommand(resumed.Player, sword.ItemId, "working.keen_edge")));
+        Assert.Equal(0, Count(resumed, Fang));
+        Assert.Equal(new ItemWork(0, new Inscription("working.keen_edge", 3)), Carried(resumed, Sword).Work);
+    }
+
+    [Fact]
+    public void SkillAloneDoesNotTeachAPattern()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var sword = Stack(Sword);
+        var arena = Arena.OpenCreatures(session, session.Setup, AtBench, 0, Array.Empty<(string, double, double, string)>(), r =>
+            r.WithInventory(r.Inventory.Where(e => e.DefId != Sword).Concat(new[] { sword, Stack(Fang) }))
+                .WithProgression(r.Progression with { Skills = r.Progression.Skills.SetItem(Enchanting, new SkillState(60, 0)) }), origin: Harness.Region);
+        Assert.Equal("Keen Edge is not known; learn it from a teacher first", arena.Submit(new InscribeCommand(arena.Player, sword.ItemId, "working.keen_edge")));
+        Assert.Equal(1, Count(arena, Fang));
+        Assert.Null(Carried(arena, Sword).Work);
+    }
+
+    [Fact]
+    public void ATraderKeepsTheWorkedPiece_ThroughARestockAndASave_AndSellsItBackWhole()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        const string trader = "npc.cairnwold.durn_skell";
+        // A standard, unworn, unrecorded stock item exercises the restock's distinction between plain and worked wares.
+        var piece = Stack(Vest, work: new ItemWork(2, new Inscription("working.warding_weave", 3)));
+        var arena = Arena.OpenCreatures(session, session.Setup, (982.0, 675.5), 90, Array.Empty<(string, double, double, string)>(), r =>
+            new PlayerRecord(r.Id, r.Name, r.XMm, r.YMm, r.ZMm, r.AppearanceSeed, r.Inventory.Append(piece), r.Progression,
+                r.FacingMdeg, r.Discoveries, r.Equipment, 500), origin: Harness.Region);
+        Assert.Null(arena.Submit(new SellCommand(arena.Player, trader, piece.ItemId, 1)));
+        Assert.Equal(piece.Work, arena.Simulation.Wares(trader)!.Wares.Single(w => w.Ref == piece.ItemId.Value).Work);
+        arena.Simulation.Advance(session.Setup.Clock.TicksPerDay);
+        var restocked = arena.Record<WaresRestocked>();
+        Assert.Null(arena.Submit(new TalkCommand(arena.Player, trader)));
+        Assert.Null(arena.Submit(new ChooseCommand(arena.Player, "trade")));
+        Assert.Contains(restocked, e => e.NpcId == trader);
+        Assert.Equal(2, arena.Simulation.Wares(trader)!.Wares.Count(w => w.ItemId == Vest));
+        Assert.Equal(piece.Work, arena.Simulation.Wares(trader)!.Wares.Single(w => w.Ref == piece.ItemId.Value).Work);
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Quick, SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = store.Load(SaveSlots.Quick, new LoadContext(session.Generator, session.Content, new Registry()));
+        Assert.True(loaded.IsComplete);
+        var resumed = Arena.Resume(arena.Simulation.Setup, loaded);
+        Assert.Equal(piece.Work, resumed.Simulation.Wares(trader)!.Wares.Single(w => w.Ref == piece.ItemId.Value).Work);
+        Assert.Null(resumed.Submit(new BuyCommand(resumed.Player, trader, piece.ItemId.Value, 1)));
+        Assert.Equal(piece.Work, resumed.Simulation.Player.Inventory.Single(e => e.ItemId == piece.ItemId).Work);
     }
 
     [Fact]

@@ -55,6 +55,12 @@ public class CraftingContentTests
     public void AnOverpricedOutputIsRefused() =>
         AssertRefused("items/material/iron_ingot.yaml", "value_base: 9", "value_base: 9999", "recipe.smithing.iron_billet");
 
+    [Theory]
+    [InlineData("item.material.missing_anchor")]
+    [InlineData("skill.smithing")]
+    public void AnEnchantingAnchorMustBeADefinedItem(string anchor) =>
+        AssertRefused("config/crafting.yaml", "anchor_material: item.trinket.wolf_fang", "anchor_material: " + anchor, "anchor_material");
+
     [Fact]
     public void CheapRawInputsAlsoExposeAnUnsafeComposedRecipe() =>
         AssertRefused("items/material/iron_ore.yaml", "value_base: 5", "value_base: 1", "recipe.smithing.march_spear");

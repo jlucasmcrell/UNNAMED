@@ -59,7 +59,7 @@ enchanting:
   wear_per_stability: 20
   skill_per_stability: 15
   workings:
-    - { id: working.keen_edge, name: Keen Edge, target: weapon, skill_min: 0, item_ref: item.trinket.wolf_fang, count: 1, stability: 3, damage: 1 }
-    - { id: working.warding_weave, name: Warding Weave, target: armor, skill_min: 0, item_ref: item.material.spider_silk, count: 2, stability: 3, armor: 1 }
-    - { id: working.ember_anchor, name: Ember Anchor, target: weapon, skill_min: 15, item_ref: item.material.cinder_sac, count: 2, stability: 4, damage: 1, damage_type: fire }
-    - { id: working.anchored_ward, name: Anchored Ward, target: armor, skill_min: 15, item_ref: item.material.spider_silk, count: 4, stability: 4, armor: 2 }
+    - { id: working.keen_edge, name: Keen Edge, target: weapon, skill_min: 0, anchor_material: item.trinket.wolf_fang, count: 1, stability: 3, damage: 1 }
+    - { id: working.warding_weave, name: Warding Weave, target: armor, skill_min: 0, anchor_material: item.material.spider_silk, count: 2, stability: 3, armor: 1 }
+    - { id: working.ember_anchor, name: Ember Anchor, target: weapon, skill_min: 15, anchor_material: item.material.cinder_sac, count: 2, stability: 4, damage: 1, damage_type: fire }
+    - { id: working.anchored_ward, name: Anchored Ward, target: armor, skill_min: 15, anchor_material: item.material.spider_silk, count: 4, stability: 4, armor: 2 }

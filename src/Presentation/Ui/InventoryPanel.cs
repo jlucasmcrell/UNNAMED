@@ -596,7 +596,8 @@ public partial class InventoryPanel : CanvasLayer
             {
                 if (simulation.Setup.Items.Catalog.Find(entry.DefId) is not { } piece)
                     continue;
-                foreach (var working in simulation.Setup.Crafting.Workings.Values.Where(w => w.Target == WorkingTarget.Weapon ? piece.Weapon is not null : piece.ArmorValue > 0))
+                foreach (var working in simulation.Setup.Crafting.Workings.Values.Where(w => ProgressionEngine.Knows(player.Progression, w.KnowledgeId)
+                             && (w.Target == WorkingTarget.Weapon ? piece.Weapon is not null : piece.ArmorValue > 0)))
                 {
                     var cut = Button($"inscribe/{entry.ItemId}/{working.Id}", $"Cut {working.Name} into {Names.Of(_session, entry.DefId)}", () =>
                         Submit(new InscribeCommand(simulation.PlayerId, entry.ItemId, working.Id)));
