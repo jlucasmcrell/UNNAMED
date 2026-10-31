@@ -220,6 +220,8 @@ public sealed class SaveStore
             [SaveFormat.Cells] = SectionCodec.EncodeCells(document.Delta),
             [SaveFormat.Entities] = SectionCodec.EncodeEntities(document.Delta),
         };
+        if (!document.Journal.IsDefaultOrEmpty)
+            files[SaveFormat.Journal] = SessionJournal.Encode(document.Journal);
 
         // 2-3. Write to a staging directory, flushing each file to disk.
         Guarded(slot, () =>

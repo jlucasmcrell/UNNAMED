@@ -26,6 +26,10 @@ public static class SaveFormat
     public const string Player = "player.msgpack";
     public const string Cells = "cells.msgpack";
     public const string Entities = "entities.msgpack";
+
+    /// <summary>The append-only session log beside a save (SYS-113; PERSISTENCE.md §3.2). Prose: never replayed, never load-bearing.</summary>
+    public const string Journal = "journal.jsonl";
+
     public const string IntegrityRoot = "sections.sha256";
 
     /// <summary>Every file the integrity root covers, in canonical order.</summary>
@@ -130,6 +134,7 @@ public sealed record WorldgenIdentity(int Version, string Fingerprint, int RngCo
 
 /// <summary>Everything a save records: the load key's inputs, the player, and the world delta.</summary>
 public sealed record SaveDocument(
+    // keeps the positional shape every caller already uses
     ulong WorldSeed,
     WorldgenIdentity Worldgen,
     string ContentVersion,
@@ -140,6 +145,12 @@ public sealed record SaveDocument(
     PlayerRecord Player,
     DeltaSnapshot Delta)
 {
+    /// <summary>
+    /// The session's journal lines as they will be written beside this save (SYS-113): prose for the player and for tools, never read back as
+    /// state. Empty for a save made without a journal, which is what every save before this row was.
+    /// </summary>
+    public ImmutableArray<SessionJournalEntry> Journal { get; init; } = ImmutableArray<SessionJournalEntry>.Empty;
+
     /// <summary>
     /// When the world was captured, for <c>build_timestamp</c>: a save written in the background (P-01) is stamped when it was taken,
     /// not when its bytes reached the disk, so saves order by the moment they hold. Null: when it is written.
