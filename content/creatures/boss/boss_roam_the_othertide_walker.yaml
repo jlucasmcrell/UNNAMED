@@ -33,3 +33,13 @@ perception:
 tier_hint: A
 tameable: false
 loot_table: loot.boss.roam.the_othertide_walker
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.sedge_drowned_heavy
+- name: spent
+  moves:
+  - ability.creature.sedge_drowned_heavy
+  - ability.creature.sedge_drowned_rush
+  - ability.creature.sedge_drowned_light

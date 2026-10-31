@@ -32,3 +32,12 @@ perception:
   fov_deg: 260
 tier_hint: A
 tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.tusk_sweep
+- name: spent
+  moves:
+  - ability.creature.tusk_sweep
+  - ability.creature.grazer_charge

@@ -28,6 +28,10 @@ resistances:
 weak_point:
   region: head
   from_behind: false
+  windows:
+  - phase: loose
+    every_ticks: 240
+    open_ticks: 60
 move_speed_m_s: 1.8
 turn_deg_s: 60
 body_radius_m: 1.4
@@ -39,3 +43,14 @@ perception:
   fov_deg: 120
 tier_hint: A
 tameable: false
+phases:
+- name: harnessed
+  health_below: 0.5
+  moves:
+  - ability.creature.armour_slam
+  - ability.creature.animated_armour_heavy
+- name: loose
+  moves:
+  - ability.creature.armour_slam
+  - ability.creature.animated_armour_heavy
+  - ability.creature.animated_armour_rush

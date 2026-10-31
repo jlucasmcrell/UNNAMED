@@ -33,3 +33,13 @@ perception:
   fov_deg: 240
 tier_hint: A
 tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.horn_butt
+- name: spent
+  moves:
+  - ability.creature.horn_butt
+  - ability.creature.grazer_charge
+  - ability.creature.fellhorn_heavy

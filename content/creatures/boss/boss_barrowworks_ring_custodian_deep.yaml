@@ -29,6 +29,10 @@ resistances:
 weak_point:
   region: torso
   from_behind: true
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
 move_speed_m_s: 1.9
 turn_deg_s: 50
 body_radius_m: 1.7
@@ -40,3 +44,17 @@ perception:
   fov_deg: 120
 tier_hint: A
 tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.gauge_sweep
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.index_grasp
+- name: open
+  moves:
+  - ability.creature.gauge_sweep
+  - ability.creature.index_grasp
+  - ability.creature.measure_fall

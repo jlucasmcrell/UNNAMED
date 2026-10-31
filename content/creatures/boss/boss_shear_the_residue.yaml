@@ -28,6 +28,10 @@ resistances:
 weak_point:
   region: torso
   from_behind: false
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
 move_speed_m_s: 2.6
 turn_deg_s: 70
 body_radius_m: 1.2
@@ -39,3 +43,17 @@ perception:
   fov_deg: 120
 tier_hint: A
 tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.sedge_drowned_light
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.gauge_sweep
+- name: open
+  moves:
+  - ability.creature.sedge_drowned_light
+  - ability.creature.gauge_sweep
+  - ability.creature.sedge_drowned_rush

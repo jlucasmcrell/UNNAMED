@@ -42,3 +42,13 @@ perception:
   fov_deg: 140
 tier_hint: A
 tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.wolf_bite
+- name: spent
+  moves:
+  - ability.creature.wolf_bite
+  - ability.creature.wolf_grey_alpha_heavy
+  - ability.creature.wolf_grey_alpha_rush

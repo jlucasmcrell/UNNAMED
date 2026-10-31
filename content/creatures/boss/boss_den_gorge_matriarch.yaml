@@ -37,3 +37,13 @@ perception:
   fov_deg: 360
 tier_hint: A
 tameable: false
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.spider_bite
+- name: spent
+  moves:
+  - ability.creature.spider_bite
+  - ability.creature.matriarch_lunge
+  - ability.creature.hunting_spider_matriarch_heavy

@@ -646,8 +646,10 @@ internal sealed partial class CombatSystem
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
         var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
-        // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck.
-        if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body))
+        // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck - and CMB-40's timed
+        // point is only there while its window is open, so the same blow into a guarded gauge finds the armour.
+        if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body)
+            && BossEncounter.WeakPointOpen(definition, creature.Health, tick))
             strike = strike with { ForcedRegion = weak.Region };
         var result = CombatRules.Resolve(strike, defense, C, Random("player", creature.Key, creature.Body, tick));
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });

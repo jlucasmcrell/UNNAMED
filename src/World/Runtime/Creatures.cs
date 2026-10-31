@@ -88,6 +88,15 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
 
     /// <summary>How it reads against the character's own level (finding 24): the nameplate's colour and word.</summary>
     public Threat Threat { get; init; }
+
+    /// <summary>CMB-38: the named phase the fight is in, empty for a creature with no phases.</summary>
+    public string BossPhase { get; init; } = "";
+
+    /// <summary>How long it has stood in that phase.</summary>
+    public int BossPhaseTicks { get; init; }
+
+    /// <summary>CMB-40: a timed weak point is open at this moment; always true for an untimed one.</summary>
+    public bool WeakPointOpen { get; init; } = true;
 }
 
 public sealed record CreatureNoticed(EntityId Creature, string Key, CreatureMind Mind, long Tick);
@@ -872,9 +881,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // The character is gone after where they were last perceived; a companion or an animal that stands nearer is simply there (M6).
         long targetX = atCharacter && c.Knows ? c.KnownXMm : player.XMm, targetZ = atCharacter && c.Knows ? c.KnownZMm : player.ZMm;
         double distance = Distance(c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
-        if (!c.Definition.Moves.IsDefaultOrEmpty)
+        var offered = BossEncounter.MovesAt(c.Definition, c.Health, tick);
+        if (!offered.IsDefaultOrEmpty)
         {
-            var choices = c.Definition.Moves.Where(a => !a.IsCharge
+            var choices = offered.Where(a => !a.IsCharge
                 && distance <= a.ReachMm + a.LungeMm + _context.Setup.Movement.BodyRadiusMm - 100).ToArray();
             if (choices.Length > 0)
             {
@@ -1566,6 +1576,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
                 AttackSource = c.Action.Attack?.Source,
                 AttackVariant = 0,
+                BossPhase = BossEncounter.PhaseAt(c.Definition, c.Health, tick).Name,
+                BossPhaseTicks = BossEncounter.PhaseAt(c.Definition, c.Health, tick).TicksIntoPhase,
+                WeakPointOpen = BossEncounter.WeakPointOpen(c.Definition, c.Health, tick),
                 AttackTick = c.Action.StartTick,
                 Guarding = c.GuardUntil > tick,
                 Enraged = Enraged(c),

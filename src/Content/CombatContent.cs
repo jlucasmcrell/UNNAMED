@@ -348,7 +348,16 @@ public static class CombatContent
                 TurnMdegPerSecond = map.ContainsKey("turn_deg_s") ? (long)Math.Round(Number(map, "turn_deg_s") * 1000) : 720_000,
                 WeakPoint = map.GetValueOrDefault("weak_point") is Dictionary<object, object> weak
                     ? new WeakPoint(BodyRegions.Parse(Text(weak, "region")), weak.GetValueOrDefault("from_behind") as string == "true")
+                    {
+                        Windows = (weak.GetValueOrDefault("windows") is List<object> windowRows
+                                ? windowRows
+                                : new List<object>()).OfType<Dictionary<object, object>>().Select(window => new WeakPointWindow(
+                            window.GetValueOrDefault("phase") as string ?? "",
+                            window.ContainsKey("every_ticks") ? Int(window, "every_ticks") : 0,
+                            window.ContainsKey("open_ticks") ? Int(window, "open_ticks") : 0)).ToImmutableArray(),
+                    }
                     : null,
+                Phases = Phases(map, id, abilities, tickMs),
                 Tags = Tags(map, "tags"),
             };
             if (creature.Attack.IsCharge)
@@ -359,6 +368,46 @@ public static class CombatContent
                 throw new FormatException($"{id}: pools.health, move_speed_m_s and body_radius_m are positive, xp_value is not negative");
             return creature;
         }).ToImmutableSortedDictionary(c => c.Id, c => c, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// CMB-38: the named phases of an encounter. The first is where the fight starts; each later one is entered when the one
+    /// before it ends, and a phase ends on health or on ticks - never on neither, except the last.
+    /// </summary>
+    private static ImmutableArray<BossPhase> Phases(Dictionary<object, object> map, string id,
+        IReadOnlyDictionary<string, ContentEnvelope> abilities, int tickMs)
+    {
+        var rows = map.GetValueOrDefault("phases") is List<object> list
+            ? list.OfType<Dictionary<object, object>>().ToList()
+            : new List<Dictionary<object, object>>();
+        if (rows.Count == 0)
+            return ImmutableArray<BossPhase>.Empty;
+        var phases = new List<BossPhase>(rows.Count);
+        for (int index = 0; index < rows.Count; index++)
+        {
+            var row = rows[index];
+            string name = row.GetValueOrDefault("name") as string ?? throw new FormatException($"{id}: phase {index} needs a name");
+            if (phases.Any(phase => phase.Name == name))
+                throw new FormatException($"{id}: phase '{name}' is named twice");
+            bool last = index == rows.Count - 1;
+            double? health = row.ContainsKey("health_below") ? Number(row, "health_below") : null;
+            int? ticks = row.ContainsKey("after_ticks") ? Int(row, "after_ticks") : null;
+            if (health is { } fraction && (fraction <= 0 || fraction > 1))
+                throw new FormatException($"{id}: phase '{name}' health_below is a fraction above 0 and at most 1");
+            if (ticks is { } count && count <= 0)
+                throw new FormatException($"{id}: phase '{name}' after_ticks is at least one tick");
+            if (!last && health is null && ticks is null)
+                throw new FormatException($"{id}: phase '{name}' says what ends it - health_below or after_ticks");
+            var moves = (row.GetValueOrDefault("moves") is List<object> moveList
+                    ? moveList.OfType<string>().ToList()
+                    : new List<string>())
+                .Select(key => (key, ability: abilities.GetValueOrDefault(key)
+                        ?? throw new FormatException($"{id}: phase '{name}' names {key}, which is not an ability")))
+                .Select(pair => Attack(pair.ability, tickMs).Source)
+                .ToImmutableArray();
+            phases.Add(new BossPhase(name, health, ticks, moves));
+        }
+        return phases.ToImmutableArray();
     }
 
     private static AttackProfile Attack(ContentEnvelope ability, int tickMs)

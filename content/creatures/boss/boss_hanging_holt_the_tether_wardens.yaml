@@ -39,3 +39,17 @@ perception:
   fov_deg: 110
 tier_hint: A
 tameable: false
+phases:
+- name: posted
+  health_below: 0.7
+  moves:
+  - ability.creature.animated_armour_heavy
+- name: brace
+  health_below: 0.35
+  moves:
+  - ability.creature.armour_slam
+- name: break
+  moves:
+  - ability.creature.animated_armour_heavy
+  - ability.creature.armour_slam
+  - ability.creature.warden_grasp

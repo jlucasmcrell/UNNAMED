@@ -33,3 +33,13 @@ perception:
 tier_hint: A
 tameable: false
 loot_table: loot.boss.counties.the_unsworn
+phases:
+- name: whole
+  health_below: 0.5
+  moves:
+  - ability.creature.back_ledger_raider_heavy
+- name: spent
+  moves:
+  - ability.creature.back_ledger_raider_heavy
+  - ability.creature.back_ledger_raider_rush
+  - ability.creature.back_ledger_raider_light

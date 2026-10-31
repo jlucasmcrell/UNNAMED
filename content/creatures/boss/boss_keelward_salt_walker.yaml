@@ -40,3 +40,17 @@ perception:
   fov_deg: 130
 tier_hint: A
 tameable: false
+phases:
+- name: posted
+  health_below: 0.7
+  moves:
+  - ability.creature.warden_sweep
+- name: brace
+  health_below: 0.35
+  moves:
+  - ability.creature.sedge_drowned_light
+- name: break
+  moves:
+  - ability.creature.warden_sweep
+  - ability.creature.sedge_drowned_light
+  - ability.creature.warden_grasp

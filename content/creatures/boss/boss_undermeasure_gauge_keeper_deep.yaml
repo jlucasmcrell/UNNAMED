@@ -28,6 +28,10 @@ resistances:
 weak_point:
   region: limbs
   from_behind: true
+  windows:
+  - phase: open
+    every_ticks: 300
+    open_ticks: 90
 move_speed_m_s: 2.4
 turn_deg_s: 70
 body_radius_m: 1.4
@@ -39,3 +43,17 @@ perception:
   fov_deg: 140
 tier_hint: A
 tameable: false
+phases:
+- name: closed
+  health_below: 0.66
+  moves:
+  - ability.creature.gauge_sweep
+- name: measuring
+  health_below: 0.33
+  moves:
+  - ability.creature.index_grasp
+- name: open
+  moves:
+  - ability.creature.gauge_sweep
+  - ability.creature.index_grasp
+  - ability.creature.animated_armour_rush
