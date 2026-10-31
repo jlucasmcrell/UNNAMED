@@ -3,13 +3,13 @@ kind: spawn
 schema: 1
 display_key: spawn.cairnwold.moor_crows.name
 tags: [spawn]
-notes: Crows over the open moor east of the village, working the sheep ground and the wall tops in a loose mob
+notes: Crows on the worn verge of the Old Late road, where the grass is cropped short and a crow stands against bare earth instead of disappearing into the sward - they are 0.14 m wide and were photographed four times without ever being seen
 region_ref: region.starting_frontier
 creatures:
   - { creature_ref: creature.beast.crow, count: [5, 5], role: wildlife }
 at:
-  position_m: [1000, 690]
-  radius_m: 16
+  position_m: [742, 752]
+  radius_m: 10
 level_band: [1, 1]
 respawn: { kind: timer, window_ticks: 36000 }
 tier_hint: A
