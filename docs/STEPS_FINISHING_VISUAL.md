@@ -1,7 +1,7 @@
 # The Steps — finishing pass
 
-Built on Claude's `5ee173b6` north-quay berth pass. Its boats, crane, nets,
-rope, cargo and parapet placements are preserved.
+Includes Claude's north-quay pass through `0c59dd9e`. Its boats, crane, nets,
+rope, cargo, parapet placements and 0.4 m boat draft are preserved.
 
 - The Drowned Gate reuses the existing FoldWard rune ring and drifting motes.
   Its ring follows the shore or water surface, its rune density scales to the
