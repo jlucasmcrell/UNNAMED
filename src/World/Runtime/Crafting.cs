@@ -41,6 +41,12 @@ public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand
 /// </summary>
 internal sealed record LeaveCarcassCommand(string Key, string NodeDefId, long XMm, long ZMm) : InternalCommand;
 
+/// <summary>
+/// A carcass gave up one more harvest (B-032). Internal, and dispatched rather than written, because the creature slice belongs to the
+/// creature system: the gatherer says what it took and the creature system keeps it on the body's record, which is what the save carries.
+/// </summary>
+internal sealed record CarcassHarvestedCommand(string Key, int Taken) : InternalCommand;
+
 /// <summary>The corpse a carcass lay with is gone - rotted, emptied or risen again - and the carcass goes with it.</summary>
 internal sealed record ClearCarcassCommand(string Key) : InternalCommand;
 
@@ -92,8 +98,8 @@ internal sealed class GatheringSystem : IAbstractAdvance
     private readonly List<(string Key, CellKey Cell, NodeSite Site)> _nodes;
 
     // A carcass is no node of the world's baseline, so the world delta - which proves every harvest record against the baseline - cannot
-    // hold its harvests; they are kept here for as long as the carcass lies. TODO: persist them with the corpse (a CreatureRecord field,
-    // a schema step), so a load does not give a part-skinned carcass back whole.
+    // hold its harvests as a node record. The count lives on the body's own CreatureRecord (CarcassTaken, schema 41) and is written back on
+    // every harvest, so a load gives a part-skinned carcass back part-skinned (B-032).
     private readonly Dictionary<string, NodeHarvest?> _carcasses = new(StringComparer.Ordinal);
 
     public GatheringSystem(SystemContext context, SliceOwner owner, EntityId player)
@@ -123,7 +129,9 @@ internal sealed class GatheringSystem : IAbstractAdvance
         var space = State.Space;
         var cell = _context.CellOfSite(space, xMm, zMm);
         _nodes.Add((key, cell, new NodeSite(key, nodeDefId, xMm, zMm)));
-        _carcasses[key] = null;
+        // a body loaded from a save carries what was already taken from it
+        int taken = Body(key)?.CarcassTaken ?? 0;
+        _carcasses[key] = taken > 0 ? new NodeHarvest(key, 0, taken) : null;
         return true;
     }
 
@@ -172,7 +180,10 @@ internal sealed class GatheringSystem : IAbstractAdvance
         if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, yield.ItemId, count, Quality.Standard)) is { } refused)
             return refused;
         if (_carcasses.ContainsKey(node.Key))
+        {
             _carcasses[node.Key] = new NodeHarvest(node.Key, localTick, harvests + 1);
+            TakeFromCarcass(node.Key, harvests + 1);
+        }
         else
             State.HarvestNode(_owner, node.Cell, node.Key, localTick);
         _context.Dispatch(new PracticeSkill(new SkillPractice(definition.SkillId, definition.Difficulty, PracticeOutcome.Success, tick)
@@ -204,6 +215,26 @@ internal sealed class GatheringSystem : IAbstractAdvance
         if (!Ready(definition, Record(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
             return (null, definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back");
         return (definition, null);
+    }
+
+    /// <summary>
+    /// The body a carcass key belongs to: a carcass is keyed by the creature's own identity (<c>carcass.{instance}</c>), so the record that
+    /// must keep its harvest count is found by that identity. Null when the body is no longer recorded - an older save, or a creature whose
+    /// record was retired - and then the count is only kept for as long as the carcass lies, as before.
+    /// </summary>
+    private CreatureRecord? Body(string carcassKey)
+    {
+        const string prefix = "carcass.";
+        if (!carcassKey.StartsWith(prefix, StringComparison.Ordinal))
+            return null;
+        return EntityId.TryParse(carcassKey[prefix.Length..], out var instance) ? State.World.CreatureOf(instance) : null;
+    }
+
+    /// <summary>Tell the creature system what the carcass has now given up; it owns the record and writes it.</summary>
+    private void TakeFromCarcass(string carcassKey, int taken)
+    {
+        if (Body(carcassKey) is { } body && body.CarcassTaken != taken)
+            _context.Dispatch(new CarcassHarvestedCommand(carcassKey, taken));
     }
 
     private NodeHarvest? Record(CellKey cell, string key) => _carcasses.TryGetValue(key, out var carcass) ? carcass : State.World.NodeRecord(cell, key);
