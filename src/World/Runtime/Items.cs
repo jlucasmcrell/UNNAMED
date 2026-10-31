@@ -132,13 +132,25 @@ internal sealed record CountUse : InternalCommand;
 /// To <see cref="InventorySystem"/>: a trade (M4) - a stack moves between the player and a trader's wares, and coin the
 /// other way (<see cref="Coin"/> is what the player's purse gains, negative when they pay). All or nothing.
 /// </summary>
-internal sealed record Trade(MoveItemCommand Move, long Coin) : InternalCommand;
+internal sealed record Trade(MoveItemCommand Move, long Coin) : InternalCommand
+{
+    /// <summary>Why the coin moved (GEN-04): the ledger writes this down, so a player can read where their money went.</summary>
+    public string Reason { get; init; } = UNNAMED.Domain.Economy.CoinReasons.Other;
+}
 
 /// <summary>To <see cref="InventorySystem"/>: coin into the purse - a quest's reward (M5).</summary>
-internal sealed record AddCurrency(long Amount) : InternalCommand;
+internal sealed record AddCurrency(long Amount) : InternalCommand
+{
+    /// <summary>Why the coin came in (GEN-04): a quest's reward, a sale's change, the stash giving coin back.</summary>
+    public string Reason { get; init; } = UNNAMED.Domain.Economy.CoinReasons.Other;
+}
 
 /// <summary>To <see cref="InventorySystem"/>: coin out of the purse - a hireling's wage (WP15a). Refused, and nothing taken, when it holds less.</summary>
-internal sealed record SpendCurrency(long Amount) : InternalCommand;
+internal sealed record SpendCurrency(long Amount) : InternalCommand
+{
+    /// <summary>Why the coin went out (GEN-04): a fee, a wage, the stash taking coin in.</summary>
+    public string Reason { get; init; } = UNNAMED.Domain.Economy.CoinReasons.Other;
+}
 
 /// <summary>
 /// To <see cref="InventorySystem"/>: an item given that is never lost - a quest's reward (M5): into the pack, or where the character
@@ -149,6 +161,12 @@ internal sealed record GrantItem(string ItemId, int Count, int Quality) : Intern
     /// <summary>What granted it, for a notable reward's provenance: the quest. Null: given by the world.</summary>
     public string? SourceRef { get; init; }
 }
+
+/// <summary>
+/// To <see cref="InventorySystem"/>: some of a carried stack leaves the pack (the stash taking goods in, owner ruling 2026-10-31). Refused while
+/// it is worn, and refused whole when the pack does not hold that many - nothing is taken on a count the character cannot cover.
+/// </summary>
+internal sealed record TakeCarried(string DefId, int Count) : InternalCommand;
 
 /// <summary>
 /// To <see cref="InventorySystem"/>: a carried stack leaves the character whole, keeping its identity, for a party member to wear (WP15b).
@@ -259,6 +277,8 @@ internal sealed partial class InventorySystem
         if (Move(trade.Move, tick, trading: true) is { } refused)
             return refused;
         State.SetCurrency(_owner, State.Currency + trade.Coin);
+        _context.Dispatch(new RecordCoin(tick, trade.Coin >= 0 ? UNNAMED.Domain.Economy.CoinFlow.In : UNNAMED.Domain.Economy.CoinFlow.Out,
+            trade.Reason, Math.Abs(trade.Coin), State.Currency));
         return null;
     }
 
@@ -464,6 +484,8 @@ internal sealed partial class InventorySystem
         if (command.Amount < 0)
             return "a grant adds coin";
         State.SetCurrency(_owner, checked(State.Currency + command.Amount));
+        _context.Dispatch(new RecordCoin(State.WorldTick, UNNAMED.Domain.Economy.CoinFlow.In,
+            command.Reason, command.Amount, State.Currency));
         return null;
     }
 
@@ -479,6 +501,33 @@ internal sealed partial class InventorySystem
         if (State.Currency < command.Amount)
             return $"not enough coin: {command.Amount} asked, {State.Currency} carried";
         State.SetCurrency(_owner, State.Currency - command.Amount);
+        _context.Dispatch(new RecordCoin(State.WorldTick, UNNAMED.Domain.Economy.CoinFlow.Out,
+            command.Reason, command.Amount, State.Currency));
+        return null;
+    }
+
+    public string? Handle(TakeCarried command)
+    {
+        if (command.Count < 1)
+            return "a stash takes at least one";
+        var stacks = State.Inventory.Where(e => e.DefId == command.DefId && !e.Locked).ToList();
+        if (stacks.Sum(e => e.Count) < command.Count)
+            return $"only {stacks.Sum(e => e.Count)} carried";
+        if (stacks.Any(e => Worn(e.ItemId)))
+            return $"{command.DefId} is equipped: take it off first";
+        int left = command.Count;
+        var kept = State.Inventory.ToList();
+        foreach (var stack in stacks)
+        {
+            if (left == 0)
+                break;
+            int take = Math.Min(left, stack.Count);
+            kept.Remove(stack);
+            if (stack.Count > take)
+                kept.Add(stack with { Count = stack.Count - take });
+            left -= take;
+        }
+        Commit(kept);
         return null;
     }
 

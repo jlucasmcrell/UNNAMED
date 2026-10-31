@@ -246,6 +246,8 @@ public sealed class Simulation
     private readonly DialogueSystem _dialogue;
     private readonly TradeSystem _trade;
     private readonly QuestSystem _quests;
+    private readonly CoinSystem _coins = new();
+    private readonly StashSystem _stash;
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
     private readonly SpaceSystem _spaces;
@@ -357,6 +359,7 @@ public sealed class Simulation
         _trade = new TradeSystem(_context, player.Id, _inventory.View, _markets, _merchants) { Closed = _npcs.TradeRefusal };
         _markets.Jobs = _npcs;
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
+        _stash = new StashSystem(_context, player.Id);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
             new NpcPartyLife(Dispatch, _npcs.Lives, life))
@@ -707,6 +710,15 @@ public sealed class Simulation
     public bool AtWork(string npcId) => _npcs.AtWork(npcId);
 
     /// <summary>Why a merchant will not trade now (WP12: only at work, in trading hours); null when they will, or there is no such merchant.</summary>
+    /// <summary>The character's coin ledger (GEN-04): what came in, what went out, why, and what was left.</summary>
+    public UNNAMED.Domain.Economy.CoinLedger Coins() => _coins.Ledger;
+
+    /// <summary>Whether the ledger accounts for the purse as it stands.</summary>
+    public bool CoinsAgree => _coins.Agrees(_state.Currency);
+
+    /// <summary>The character's one stash (owner ruling 2026-10-31): goods and coin held once, behind every door that opens.</summary>
+    public UNNAMED.Domain.Economy.Stash Stash() => _stash.Stash;
+
     public string? TradeRefusal(string npcId) => _state.Npcs.TryGetValue(npcId, out var npc) ? _npcs.TradeRefusal(npc) : null;
 
     /// <summary>
@@ -1003,6 +1015,9 @@ public sealed class Simulation
                 LeaveCommand leave => _dialogue.Handle(leave, WorldTick),
                 BuyCommand buy => _trade.Handle(buy, WorldTick),
                 SellCommand sell => _trade.Handle(sell, WorldTick),
+                BarterCommand barter => _trade.Handle(barter, WorldTick),
+                DepositToStashCommand put => _stash.Handle(put),
+                WithdrawFromStashCommand take => _stash.Handle(take),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
                 TameCommand tame => _pets.Handle(tame, WorldTick),
@@ -1307,6 +1322,8 @@ public sealed class Simulation
         ExchangeItems exchange => _inventory.Handle(exchange, Now),
         ExchangeItemBatch batch => _inventory.Handle(batch,Now),
         Trade trade => _inventory.Handle(trade, Now),
+        RecordCoin coin => _coins.Handle(coin),
+        TakeCarried carried => _inventory.Handle(carried),
         RestockWares restock => _inventory.Handle(restock),
         MarketTrade trade => _markets.Handle(trade),
         ProduceGoods produce => _markets.Handle(produce),

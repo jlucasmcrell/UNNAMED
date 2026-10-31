@@ -21,6 +21,13 @@ public sealed record BuyCommand(EntityId Actor, string NpcId, string Ware, int C
 /// <summary>Sell a carried stack to a trader within reach who buys that kind of thing.</summary>
 public sealed record SellCommand(EntityId Actor, string NpcId, EntityId Item, int Count) : GameCommand(Actor);
 
+/// <summary>
+/// Barter (GEN-04/05): pay for a ware with goods instead of coin. The trader takes what the goods are worth to them - their own offer for each,
+/// at their own margin - and gives change in coin when the goods are worth more than the price. All or nothing, like every other trade here.
+/// </summary>
+public sealed record BarterCommand(EntityId Actor, string NpcId, string Ware, int Count, System.Collections.Immutable.ImmutableArray<EntityId> PayWith)
+    : GameCommand(Actor);
+
 /// <summary>Have a trader within reach who repairs (WP3b) mend a carried piece, for their fee (<see cref="TradeSystem.RepairQuote"/>).</summary>
 public sealed record MerchantRepairCommand(EntityId Actor, string NpcId, EntityId Item) : GameCommand(Actor);
 
@@ -97,11 +104,74 @@ internal sealed class TradeSystem
         long price = ShelfAsk(merchant, ware.DefId, ware.Wear, ware.Quality, ware.Notable) * command.Count;
         if (price > State.Currency)
             return $"not enough coin: {price} asked, {State.Currency} carried";
-        if (_context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, command.Count), -price)) is { } failed)
+        if (_context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, command.Count), -price)
+            { Reason = UNNAMED.Domain.Economy.CoinReasons.TradeBuy }) is { } failed)
             return failed;
         if (MarketOf(merchant) is { } market)
             _context.Dispatch(new MarketTrade(market, ware.DefId, command.Count, 0));
         _context.Dispatch(new PayMerchant(merchant.Id, price, ByCharacter: true));
+        _context.Events.Publish(new ItemBought(npc.Definition.Id, ware.DefId, command.Count, price, tick));
+        return null;
+    }
+
+    public string? Handle(BarterCommand command, long tick)
+    {
+        if (Trader(command.Actor, command.NpcId, out var npc, out var merchant) is { } refused)
+            return refused;
+        var ware = _contents(_context.WaresOf(npc)!).Items.FirstOrDefault(i => i.Ref == command.Ware);
+        if (ware is null)
+            return $"{npc.Definition.Name} has no such ware";
+        if (command.Count < 1 || command.Count > ware.Count)
+            return $"{npc.Definition.Name} has {ware.Count} of it";
+        if (Heritage(npc, ware.DefId) is { } heritage)
+            return heritage;
+
+        // What the goods are worth to this trader: their own offer for each, which is what a barter is measured in.
+        var goods = new List<(string ItemId, long Value)>();
+        var entries = new List<InventoryEntry>();
+        foreach (var itemId in command.PayWith.Distinct())
+        {
+            if (State.Inventory.FirstOrDefault(e => e.ItemId == itemId) is not { } entry)
+                return $"{itemId} is not carried";
+            if (entry.Locked)
+                return $"{entry.DefId} is locked: unlock it to barter with it";
+            if (Heritage(npc, entry.DefId) is { } itemHeritage)
+                return itemHeritage;
+            if (OfferFor(merchant, entry.DefId, entry.Wear, entry.Quality, entry.Notable) is not { } each)
+                return $"{npc.Definition.Name} does not take {entry.DefId}";
+            goods.Add((entry.ItemId.Value, each * entry.Count));
+            entries.Add(entry);
+        }
+
+        long price = ShelfAsk(merchant, ware.DefId, ware.Wear, ware.Quality, ware.Notable) * command.Count;
+        var verdict = UNNAMED.Domain.Economy.BarterRules.Judge(price, UNNAMED.Domain.Economy.BarterRules.FairTradePermille, goods);
+        if (!verdict.Accepts)
+            return verdict.Offered == 0
+                ? $"{npc.Definition.Name} would take nothing for that"
+                : $"{npc.Definition.Name} wants {verdict.Required} in goods: these are worth {verdict.Offered}, short by {verdict.Short}";
+
+        foreach (var entry in entries)
+        {
+            if (_context.Dispatch(new Trade(new MoveItemCommand(_player, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(merchant.Id), entry.Count), 0)
+                { Reason = UNNAMED.Domain.Economy.CoinReasons.Barter }) is { } failed)
+                return failed;
+        }
+        if (_context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, command.Count), 0)
+            { Reason = UNNAMED.Domain.Economy.CoinReasons.Barter }) is { } taken)
+            return taken;
+
+        // Goods worth more than the price: the trader gives the difference in coin, which the ledger records as a barter.
+        long change = UNNAMED.Domain.Economy.BarterRules.Change(verdict.Offered, price);
+        if (change > 0)
+            _context.Dispatch(new Trade(new MoveItemCommand(_player, ware.Ref, ItemPlace.In(merchant.Id), ItemPlace.Carried, 0), change)
+                { Reason = UNNAMED.Domain.Economy.CoinReasons.Barter });
+
+        if (MarketOf(merchant) is { } market)
+        {
+            _context.Dispatch(new MarketTrade(market, ware.DefId, command.Count, 0));
+            foreach (var entry in entries)
+                _context.Dispatch(new MarketTrade(market, entry.DefId, 0, entry.Count));
+        }
         _context.Events.Publish(new ItemBought(npc.Definition.Id, ware.DefId, command.Count, price, tick));
         return null;
     }
@@ -125,7 +195,8 @@ internal sealed class TradeSystem
         long price = each * command.Count;
         if (_merchants.Purse(merchant.Id) is { } purse && purse < price)
             return purse == 0 ? $"{npc.Definition.Name} has no coin left to buy with" : $"{npc.Definition.Name} cannot pay {price}: their purse holds {purse}";
-        if (_context.Dispatch(new Trade(new MoveItemCommand(_player, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(merchant.Id), command.Count), price)) is { } failed)
+        if (_context.Dispatch(new Trade(new MoveItemCommand(_player, entry.ItemId.Value, ItemPlace.Carried, ItemPlace.In(merchant.Id), command.Count), price)
+            { Reason = UNNAMED.Domain.Economy.CoinReasons.TradeSell }) is { } failed)
             return failed;
         _context.Dispatch(new PayFromPurse(merchant.Id, price));
         if (MarketOf(merchant) is { } market)
