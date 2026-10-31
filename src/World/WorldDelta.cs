@@ -100,6 +100,12 @@ public enum CreatureCondition
 
     /// <summary>Dead and gone: looted, or never to return.</summary>
     Gone,
+
+    /// <summary>
+    /// CMB-43: standing, but not fighting - a duty construct that was stood down rather than killed. It can be spoken to and it
+    /// holds what it kept; it is not a corpse and nothing loots its body.
+    /// </summary>
+    StoodDown,
 }
 
 /// <summary>What a creature is doing about what it knows (SYSTEMS.md S-23's decision state; saved from schema 8).</summary>

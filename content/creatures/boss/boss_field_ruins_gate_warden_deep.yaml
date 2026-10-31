@@ -40,6 +40,15 @@ perception:
   fov_deg: 120
 tier_hint: A
 tameable: false
+stand_down:
+  condition: know.speak_the_gate_word
+  reward_xp: 110
+  keeps_loot: false
+  stinger: encounter.stinger.warden.standdown
+stingers:
+  posted: encounter.stinger.warden.posted
+  brace: encounter.stinger.warden.brace
+  break: encounter.stinger.warden.break
 phases:
 - name: posted
   health_below: 0.7
@@ -48,19 +57,10 @@ phases:
 - name: brace
   health_below: 0.35
   moves:
-  - ability.creature.warden_grasp
+  - ability.creature.warden_fall
+  - ability.creature.warden_sweep
 - name: break
   moves:
   - ability.creature.warden_sweep
-  - ability.creature.warden_grasp
   - ability.creature.warden_fall
-parts:
-- name: gate plate
-  region: torso
-  structure: 160
-- name: warden's head
-  region: head
-  structure: 70
-- name: post foot
-  region: limbs
-  structure: 80
+  - ability.creature.warden_grasp

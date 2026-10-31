@@ -359,6 +359,8 @@ public static class CombatContent
                     : null,
                 Phases = Phases(map, id, abilities, tickMs),
                 Parts = Parts(map, id),
+                StandDown = StandDown(map, id),
+                Stingers = Stingers(map, id),
                 Tags = Tags(map, "tags"),
             };
             if (creature.Attack.IsCharge)
@@ -369,6 +371,31 @@ public static class CombatContent
                 throw new FormatException($"{id}: pools.health, move_speed_m_s and body_radius_m are positive, xp_value is not negative");
             return creature;
         }).ToImmutableSortedDictionary(c => c.Id, c => c, StringComparer.Ordinal);
+    }
+
+    /// <summary>CMB-43: the non-combat resolution canon gives a duty construct, or null for a body that can only be fought.</summary>
+    private static StandDown? StandDown(Dictionary<object, object> map, string id)
+    {
+        if (map.GetValueOrDefault("stand_down") is not Dictionary<object, object> row)
+            return null;
+        string condition = row.GetValueOrDefault("condition") as string
+            ?? throw new FormatException($"{id}: a stand-down names the condition it asks for");
+        int xp = row.ContainsKey("reward_xp") ? Int(row, "reward_xp") : 0;
+        if (xp <= 0)
+            throw new FormatException($"{id}: a stand-down pays xp - killing it and standing it down are both legal and worth different amounts");
+        return new StandDown(condition, xp, row.GetValueOrDefault("keeps_loot") as string != "false",
+            row.GetValueOrDefault("stinger") as string ?? "");
+    }
+
+    /// <summary>CMB-42: the cue each named phase opens with, keyed by the phase's own name.</summary>
+    private static ImmutableSortedDictionary<string, string> Stingers(Dictionary<object, object> map, string id)
+    {
+        if (map.GetValueOrDefault("stingers") is not Dictionary<object, object> rows)
+            return ImmutableSortedDictionary<string, string>.Empty;
+        return rows.ToImmutableSortedDictionary(
+            kv => kv.Key as string ?? throw new FormatException($"{id}: a stinger needs a phase name"),
+            kv => kv.Value as string ?? throw new FormatException($"{id}: stinger '{kv.Key}' needs a cue"),
+            StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -431,7 +458,13 @@ public static class CombatContent
                         ?? throw new FormatException($"{id}: phase '{name}' names {key}, which is not an ability")))
                 .Select(pair => Attack(pair.ability, tickMs).Source)
                 .ToImmutableArray();
-            phases.Add(new BossPhase(name, health, ticks, moves));
+            var adds = row.GetValueOrDefault("adds") is Dictionary<object, object> addsRow
+                ? ImmutableArray.Create(new BossPhaseAdd(
+                    addsRow.GetValueOrDefault("creature_ref") as string
+                        ?? throw new FormatException($"{id}: phase '{name}' adds a creature without naming it"),
+                    Int(addsRow, "count")))
+                : ImmutableArray<BossPhaseAdd>.Empty;
+            phases.Add(new BossPhase(name, health, ticks, moves) { Adds = adds });
         }
         return phases.ToImmutableArray();
     }

@@ -70,7 +70,8 @@ public class DenGorgeTests
         var session = Harness.Boot(profile);
 
         Assert.Contains(Cave, session.Setup.Layouts.Keys);
-        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == "spawn.den_gorge.matriarch" && s.Space == Cave);
+        // B-030: one Matriarch, the D19 boss spawn - the legacy beast spawn stood in the same cave and was retired
+        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == "spawn.boss.den_gorge.matriarch" && s.Space == Cave);
         Assert.NotNull(session.Setup.Layout.Portals.Find(Rope));
     }
 }

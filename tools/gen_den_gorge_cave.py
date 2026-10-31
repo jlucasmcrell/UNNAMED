@@ -182,5 +182,10 @@ out.append("  - { id: gorge_silk, box_m: [500.4, 750.6, 503.6, 753.6], height_m:
 out += ["", "# Halda's dry store at the back of the alcove (PROPOSED, owner question DG-1).", "containers:",
         "  - { key: container.den_gorge.haldas_store, loot_ref: loot.haldas_store, position_m: [541.5, 754.0], stack_slots: 6 }",
         "doors: []", "npcs: []", "nodes: []", "stations: []", "switches: []", "barriers: []"]
+# CMB-41: the antechamber's hazard - the notch the brood comes out of, opening on a period.
+out += ["", "# The antechamber's vent: the brood's way out of the rock, and it does not care what stands in it.",
+        "hazards:",
+        "  - { id: hazard.den_gorge.brood_vent, kind: damage_zone, at_m: [540.0, 786.0], radius_m: 4.5,",
+        "      damage_per_tick: 3, every_ticks: 240, open_ticks: 80 }"]
 (ROOT / 'content/regions/den_gorge_cave.yaml').write_text("\n".join(out) + "\n", encoding='utf-8')
 print(f"den_gorge_cave: {sum(f is not None for r in floors for f in r)} floor points, {len(boxes)} wall boxes")

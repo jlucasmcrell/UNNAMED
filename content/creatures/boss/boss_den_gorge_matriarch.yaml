@@ -37,13 +37,24 @@ perception:
   fov_deg: 360
 tier_hint: A
 tameable: false
+stingers:
+  the chamber held: encounter.stinger.matriarch.closed
+  the brood called: encounter.stinger.matriarch.brood
+  alone in the notch: encounter.stinger.matriarch.open
 phases:
-- name: whole
-  health_below: 0.5
+- name: the chamber held
+  health_below: 0.7
   moves:
   - ability.creature.spider_bite
-- name: spent
+- name: the brood called
+  health_below: 0.4
   moves:
-  - ability.creature.spider_bite
   - ability.creature.matriarch_lunge
+  - ability.creature.spider_bite
+  adds:
+    creature_ref: creature.beast.cave_hunting_spider
+    count: 3
+- name: alone in the notch
+  moves:
   - ability.creature.hunting_spider_matriarch_heavy
+  - ability.creature.matriarch_lunge

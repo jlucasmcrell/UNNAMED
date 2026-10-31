@@ -397,6 +397,13 @@ public sealed record CreaturePart(string Name, BodyRegion Region, int Structure,
     public bool Broken(int structureLeft) => structureLeft <= 0;
 }
 
+/// <summary>
+/// CMB-43: how a duty construct can be stood down instead of killed. The owner's ruling makes both legal; this is what the
+/// stand-down asks for (the condition the character must meet) and what it pays (xp instead of the kill's, and whether the loot
+/// table still gives up what it holds).
+/// </summary>
+public sealed record StandDown(string Condition, int RewardXp, bool KeepsLoot, string Stinger);
+
 public sealed record WeakPoint(BodyRegion Region, bool FromBehind)
 {
     /// <summary>The windows that gate it, by phase name. Empty means always open.</summary>
@@ -416,8 +423,14 @@ public sealed record WeakPoint(BodyRegion Region, bool FromBehind)
 /// CMB-38: one named phase of an encounter. A phase ends when the boss falls to <see cref="HealthBelow"/> of its maximum, or
 /// when it has stood in the phase for <see cref="AfterTicks"/> ticks - whichever it names, and neither for the last phase.
 /// </summary>
+/// <summary>CMB-39's neighbours: what a boss calls when a phase opens - the Matriarch's brood.</summary>
+public sealed record BossPhaseAdd(string CreatureRef, int Count);
+
 public sealed record BossPhase(string Name, double? HealthBelow, int? AfterTicks, ImmutableArray<string> Moves)
 {
+    /// <summary>The brood this phase calls when it opens, empty for a phase that calls nothing.</summary>
+    public ImmutableArray<BossPhaseAdd> Adds { get; init; } = ImmutableArray<BossPhaseAdd>.Empty;
+
     public static BossPhase Named(string name) => new(name, null, null, ImmutableArray<string>.Empty);
 
     public bool Equals(BossPhase? other) =>
@@ -475,6 +488,16 @@ public sealed record CreatureDefinition(
     /// one phase and behaves exactly as it did before phases existed.
     /// </summary>
     public ImmutableArray<BossPhase> Phases { get; init; } = ImmutableArray<BossPhase>.Empty;
+
+    /// <summary>
+    /// CMB-43: the non-combat resolution canon gives a duty construct - what standing it down asks of the character and pays.
+    /// Null for a creature that can only be fought.
+    /// </summary>
+    public StandDown? StandDown { get; init; }
+
+    /// <summary>CMB-42: the cue a phase opens with, keyed by the phase's name.</summary>
+    public ImmutableSortedDictionary<string, string> Stingers { get; init; } =
+        ImmutableSortedDictionary<string, string>.Empty;
 
     /// <summary>
     /// CMB-39: the parts of a multi-part creature, empty for a body that is one piece. A part's region is where a blow must

@@ -111,6 +111,9 @@ public sealed record SpawnerSaturated(string SpawnKey, long Tick);
 
 public sealed record CorpseGone(string CorpseKey, long Tick);
 
+/// <summary>CMB-43: a duty construct was stood down rather than killed - what canon calls the other legal resolution.</summary>
+public sealed record CreatureStoodDown(EntityId Creature, string Key, string Condition, int RewardXp, long Tick);
+
 /// <summary>CMB-39: a part of a multi-part creature is spent - the pipe comes off, the pillar drops its crown.</summary>
 public sealed record CreaturePartBroken(EntityId Creature, string Key, string Part, long Tick);
 
@@ -154,6 +157,10 @@ internal sealed record CreatureState(
         GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
         && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
             long.MaxValue / 4, constants.BlockArcMdeg);
+    /// <summary>CMB-45: what each attacker has contributed to this fight, in points of damage and of credit.</summary>
+    public ImmutableSortedDictionary<EntityId, int> Contribution { get; init; } =
+        ImmutableSortedDictionary<EntityId, int>.Empty;
+
     /// <summary>CMB-39: structure left in each of the definition's parts, in the definition's order.</summary>
     public ImmutableArray<int> PartStructure { get; init; } = ImmutableArray<int>.Empty;
 
@@ -218,6 +225,9 @@ internal sealed record HarmCreature(EntityId Target, string Source, int Amount) 
 internal sealed record HealCreature(EntityId Target, string Source, int Amount) : InternalCommand;
 
 /// <summary>To <see cref="CombatSystem"/>: a creature's attack - its bite or its charge - reached the player; resolve it.</summary>
+/// <summary>CMB-43: the character stands a duty construct down instead of killing it (owner ruling Q1: both legal).</summary>
+internal sealed record StandDownCreature(EntityId Target, EntityId By) : InternalCommand;
+
 internal sealed record CreatureStrike(EntityId Attacker, AttackProfile Attack) : InternalCommand;
 
 /// <summary>To <see cref="CreatureSystem"/>: the player died and woke elsewhere; every hunt for them ends.</summary>
@@ -1167,10 +1177,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
             (_focusKey, _focusTick) = (c.Key, tick);
         var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
         var (partStructure, brokenPart) = SpendPart(c, hit, tick);
+        int phaseBefore = BossEncounter.PhaseAt(c.Definition, c.Health, tick).Index;
         var wounded = c with
         {
             Health = health,
             PartStructure = partStructure,
+            // CMB-45: the blow's damage is the contributor's, whoever they are.
+            Contribution = Credit(c, attacker, hit.Final),
             Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
             GuardUntil = staggered ? 0 : c.GuardUntil,
             ComboStep = staggered ? 0 : c.ComboStep,
@@ -1202,8 +1215,56 @@ internal sealed class CreatureSystem : IAbstractAdvance
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
         if (brokenPart.Length > 0)
             _context.Events.Publish(new CreaturePartBroken(c.Id, c.Key, brokenPart, tick));
+        // A phase that turns calls its brood (the Matriarch's spiderlings): the fight's phase is a function of its health, so the
+        // wound that moves it is where the call happens.
+        if (health > 0 && BossEncounter.PhaseAt(c.Definition, health, tick).Index > phaseBefore)
+            SummonAdds(c with { Health = health }, BossEncounter.PhaseAt(c.Definition, health, tick).Index);
         return null;
     }
+
+    /// <summary>
+    /// The brood a phase calls: a creature per add, standing where the boss stands, awake and already hostile - they are called to
+    /// a fight that has already started.
+    /// </summary>
+    private void SummonAdds(CreatureState owner, int phaseIndex)
+    {
+        if (owner.Definition.Phases.IsDefaultOrEmpty || phaseIndex >= owner.Definition.Phases.Length)
+            return;
+        var adds = owner.Definition.Phases[phaseIndex].Adds;
+        if (adds.IsDefaultOrEmpty)
+            return;
+        foreach (var add in adds)
+        {
+            if (!_context.Setup.Combat.Creatures.TryGetValue(add.CreatureRef, out var definition))
+                continue;
+            for (int index = 0; index < Math.Max(1, add.Count); index++)
+            {
+                string key = $"{owner.Key}#add{phaseIndex}_{index}";
+                if (State.Creatures.ContainsKey(key))
+                    continue;
+                int facing = (owner.Body.FacingMdeg + 120_000 * index) % 360_000;
+                Save(new CreatureState(Identity(key, 0), key, owner.Site, definition, owner.Role,
+                    owner.Body.XMm, owner.Body.ZMm, facing, 0, CreatureCondition.Alive, owner.Body,
+                    definition.MaxHealth, ActionState.Idle, 0)
+                {
+                    Mind = CreatureMind.Engaged,
+                    Awareness = Perception.Full,
+                    Knows = true,
+                    KnownXMm = State.Body.XMm,
+                    KnownZMm = State.Body.ZMm,
+                    LastSeenTick = 0,
+                });
+            }
+        }
+    }
+
+    /// <summary>CMB-45: add what an attacker did to the fight's tally.</summary>
+    private static ImmutableSortedDictionary<EntityId, int> Credit(CreatureState creature, EntityId by, int points) =>
+        points <= 0 ? creature.Contribution : creature.Contribution.SetItem(by, creature.Contribution.GetValueOrDefault(by) + points);
+
+    /// <summary>CMB-45: a resolution credits the one who chose it, once.</summary>
+    private static ImmutableSortedDictionary<EntityId, int> CreditOnce(CreatureState creature, EntityId by, int points) =>
+        creature.Contribution.ContainsKey(by) ? creature.Contribution : creature.Contribution.SetItem(by, points);
 
     /// <summary>
     /// CMB-39: the blow spends the part whose region it landed on, and the part breaks the first time its structure is gone.
@@ -1230,6 +1291,25 @@ internal sealed class CreatureSystem : IAbstractAdvance
         int before = structure[index];
         var spent = structure.SetItem(index, Math.Max(0, before - Math.Max(1, hit.Final)));
         return (spent, spent[index] == 0 ? parts[index].Name : "");
+    }
+
+    /// <summary>CMB-43: stand a duty construct down. A body with no stand-down rule can only be fought.</summary>
+    public string? Handle(StandDownCreature command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } c)
+            return "there is no such living creature";
+        if (c.Definition.StandDown is not { } rule)
+            return $"{c.Key} can only be fought";
+        // The one who asked for the stand-down gets the credit for it (CMB-45).
+        var credited = c with
+        {
+            Condition = CreatureCondition.StoodDown,
+            Mind = CreatureMind.Unaware,
+            Contribution = CreditOnce(c, command.By, rule.RewardXp),
+        };
+        Save(credited);
+        _context.Events.Publish(new CreatureStoodDown(c.Id, c.Key, rule.Condition, rule.RewardXp, tick));
+        return null;
     }
 
     public string? Handle(HarmCreature command, long tick)
