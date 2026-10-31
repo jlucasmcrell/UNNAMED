@@ -50,7 +50,12 @@ public class ProgressionContentTests : IDisposable
         var rules = ProgressionContent.BuildRules(loader);
 
         Assert.Equal(2_448_025, rules.Curve.TotalTo(50));            // PROGRESSION.md §3.2
-        Assert.Equal((5, 50), (rules.LevelCap, rules.SoftCap));       // PROTOTYPE.md's cap while it is in force
+        // Queue item 7: the prototype's cap of 5 is retired, so the cap in force is the design soft cap.
+        Assert.Equal((50, 50), (rules.LevelCap, rules.SoftCap));
+        Assert.Equal(100, rules.Skills.MasteryLevel);            // a designated discipline's ceiling
+        Assert.Equal(60, rules.Skills.CommonCeiling);            // every other skill's
+        Assert.Equal(500, rules.DesignationCost);
+        Assert.Equal((100, 50), (rules.RespecBaseCost, rules.RespecCostPerLevel));
         Assert.Equal(1, rules.AttributePointsPerLevel);               // §3.1: and nothing else
         Assert.Equal(57_600, rules.TicksPerWorldDay);                 // config.time: 1440 game minutes x 2 s x 20 Hz
         Assert.Equal((15, 60), (rules.Skills.DifficultyMargin, rules.Skills.CommonCeiling));

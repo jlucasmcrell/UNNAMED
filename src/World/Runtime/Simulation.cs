@@ -1045,6 +1045,12 @@ public sealed class Simulation
                 PeopleAbilityCommand ability => _people.Handle(ability, WorldTick),
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
+        DesignateSkillCommand designate => designate.Actor != PlayerId
+            ? $"unknown actor {designate.Actor}"
+            : _progression.Handle(designate, WorldTick),
+        RespecAttributesCommand respec => respec.Actor != PlayerId
+            ? $"unknown actor {respec.Actor}"
+            : _progression.Handle(respec, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
                 EnterSpaceCommand enter => _spaces.Enter(enter, WorldTick),
                 LeaveSpaceCommand leave => _spaces.Leave(leave),

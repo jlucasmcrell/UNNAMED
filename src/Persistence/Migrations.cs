@@ -130,7 +130,8 @@ public static class SchemaMigrations
         new SchemaV38ToV39(),
         new SchemaV39ToV40(),
         new SchemaV40ToV41(),
-        new SchemaV41ToV42());
+        new SchemaV41ToV42(),
+        new SchemaV42ToV43());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2163,6 +2164,26 @@ public sealed class SchemaV41ToV42 : SchemaMigration
         if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } entities)
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(MessagePackSerializer.Deserialize<EntitiesSectionDto>(
                 MessagePackSerializer.Serialize(MessagePackSerializer.Deserialize<V41.EntitySection>(entities, options), options), options), options);
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 42 -> 43: a character keeps the discipline designated for mastery and the skills that reached their cap (systems/progression, written as
+/// 40 -> 41 on its branch and renumbered after B-032's 41 and the gear builds' 42). Both fields are additive, and their absence is exactly their
+/// meaning: an older record has no designated discipline and no masteries, because its character could not have chosen or earned one. So the
+/// step keeps the sections byte for byte and moves the manifest.
+/// </summary>
+public sealed class SchemaV42ToV43 : SchemaMigration
+{
+    public override int From => 42;
+
+    public override string Summary =>
+        "schema 42 -> 43: the progression record may carry the designated discipline and the masteries (absent means none, so nothing is rewritten)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

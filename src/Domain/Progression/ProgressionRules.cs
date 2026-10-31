@@ -19,6 +19,20 @@ public sealed record ProgressionRules
     /// <summary>The game's design cap (50). It sizes the §11.3 grant budget, which must not shrink with a prototype cap.</summary>
     public required int SoftCap { get; init; }
 
+    /// <summary>
+    /// What designating a discipline for mastery costs, in coin (PROGRESSION.md section 4.3: a designation costs a long in-world undertaking,
+    /// and switching one costs the same again). 0 in a pack that has not priced it, which makes designating free rather than impossible.
+    /// </summary>
+    public int DesignationCost { get; init; }
+
+    /// <summary>What a respec costs at level 1, and what each level past the first adds. Canon is silent; these are proposed numbers.</summary>
+    public int RespecBaseCost { get; init; }
+
+    public int RespecCostPerLevel { get; init; }
+
+    /// <summary>What a respec costs a character of this level: the base, plus the per-level sum for every level past the first.</summary>
+    public int RespecCost(int level) => RespecBaseCost + RespecCostPerLevel * Math.Max(0, level - 1);
+
     public required int AttributeBase { get; init; }
 
     /// <summary>The only thing a level-up grants (§3.1).</summary>
@@ -119,9 +133,17 @@ public sealed record SkillModel(
     long UseXp,
     double FailureFactor,
     double MaxChallengeFactor,
-    long NoveltyBonusXp)
+    long NoveltyBonusXp,
+    int MasteryLevel = 100)
 {
     public long ToNext(int level) => XpPerLevelBase + XpPerLevelGrowth * level;
+
+    /// <summary>
+    /// A skill's cap against the disciplines: the common ceiling for every skill, the mastery level for the one the character has designated.
+    /// Reaching a skill's cap is what earns its mastery.
+    /// </summary>
+    public int CapOf(string skillId, string? designatedSkill) =>
+        string.Equals(skillId, designatedSkill, StringComparison.Ordinal) ? MasteryLevel : CommonCeiling;
 }
 
 /// <summary>AG-1: a level-XP multiplier for kills whose <c>creature_level - player_level</c> is in [Min, Max].</summary>
