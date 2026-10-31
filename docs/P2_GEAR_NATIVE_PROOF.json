@@ -441,5 +441,8 @@
     "Twenty armour sources are prepared and statted, but unbound: no worn fits or layering/movement acceptance.",
     "W08 polearm and W02 greatsword are excluded for unproven two-hand holds.",
     "Barrowworks balance measures the requested build2-integ reference content, not the RC lane's replacement boss or a packaged playthrough."
-  ]
+  ],
+  "source_commit": "7aa1c14f5e1d50dfae2c8930028c41dc48b7b19f",
+  "debug_assembly_sha256": "07188497e1578009a83cb13baa523d913281233113c1b959eb7e09d7866fee94",
+  "release_assembly_sha256": "22de516344e7bad4003b28f360fb1289de21bd4fa3ddbd8f7dfc72d2ee1cc6ff"
 }

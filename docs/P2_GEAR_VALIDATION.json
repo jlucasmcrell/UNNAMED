@@ -1,0 +1,53 @@
+{
+  "status": "PASS_FOCUSED_GEAR_VALIDATION",
+  "source_commit": "7aa1c14f5e1d50dfae2c8930028c41dc48b7b19f",
+  "passed": 51,
+  "failed": 0,
+  "release_build_errors": 0,
+  "release_build_existing_warnings": 25,
+  "content_definitions": 894,
+  "content_errors": 0,
+  "hooks": {
+    "placed": 128,
+    "missing": 59,
+    "unmodelled": 70,
+    "unchanged": true
+  },
+  "tests": [
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\test_results\\p2-final-content-clean.trx",
+      "passed": 17,
+      "failed": 0,
+      "sha256": "d6242202442ce1a8b05d4ece091704f794cee3a373f96cc062f38185a15d7191"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\test_results\\p2-final-application.trx",
+      "passed": 4,
+      "failed": 0,
+      "sha256": "d07698736527ffcf03aab271ec98346a084e60e15616bb72b5fc86f968b7b79a"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\test_results\\p2-final15-ttk-ticks.trx",
+      "passed": 1,
+      "failed": 0,
+      "sha256": "12d26ded2e1ed480fa21642a57512586ae8490fed3094701b5a2ef4c94ea815d"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\test_results\\p2-final-architecture.trx",
+      "passed": 23,
+      "failed": 0,
+      "sha256": "08bbed4627f17eb5f3bc7821485e85ea29feb8547223c2a96fead60eace21b00"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\test_results\\p2-progression-balance.trx",
+      "passed": 6,
+      "failed": 0,
+      "sha256": "8744cdd0747345dd9b4cd13966cd5546d628ca40874f4be1c21e402a2cd45f4f"
+    }
+  ],
+  "native_held_frames": 180,
+  "native_source_lod_frames": 45,
+  "signed_cache_references": 186,
+  "unique_dds": 81,
+  "complete_native_mip_chains": true
+}

@@ -8,6 +8,8 @@ The first-hour tuning is anchored to the Rusted Sword, Hunting Bow, Halda’s Bo
 
 Native proof covers all fifteen on both current creator bodies in ready/active poses, plus all forty-five source distance-level views. Numbered sword strikes enter through windup. Nine already small models retain native geometry at all three distance levels; six larger models reduce their meshes. Native maps and complete GPU mip chains are retained everywhere. [P2_GEAR_NATIVE_PROOF.json](P2_GEAR_NATIVE_PROOF.json) pins sources, images and limits. Manufacturer marks on W23/W24 were removed with ordinary same-source pixel cloning, never a generative model.
 
+Validation: Release build 0 errors; 51 focused tests passed (17 content, 4 application, 1 full-batch TTK, 23 architecture, 6 progression balance). Content lint loaded 894 definitions with 0 errors; hook counts remain 128 placed / 59 missing / 70 unmodelled. Signed cache audit passes all 186 image references and all 81 unique native DDS mip chains. [P2_GEAR_VALIDATION.json](P2_GEAR_VALIDATION.json) pins the test receipts.
+
 ## Integration
 
 Merge the code/data branch and the filtered art delta recorded in `P2_GEAR_DELIVERY.json`. It contains only fifteen weapon ready folders, fifteen icon pairs and their signed native cache. It is **not a standalone AssetBase**. Merge `manifests/ui_icons.json` by icon key and `texture_cache/manifest.json` by cache key, copying referenced DDS files. Preserve the full existing world/character manifests and assets. All model and DDS hashes must match the delivery receipt. No source .blend/FBX files or character payload is part of this delta.
