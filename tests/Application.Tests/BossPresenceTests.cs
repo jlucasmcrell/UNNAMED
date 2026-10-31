@@ -10,9 +10,16 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class BossPresenceTests
 {
-    private const string Matriarch = "creature.beast.hunting_spider_matriarch";
-    private const string Tender = "creature.construct.gate_tender";
-    private const string Hart = "creature.grazer.doubled_hart";
+    /// <summary>
+    /// The creature a spawn places, read from that spawn's own content: D19's spawns name boss variants, and a test should not
+    /// pin a def id the content is free to change into the variant it now fights as.
+    /// </summary>
+    private static string PlacedBy(GameSession session, string spawnKey) =>
+        session.Setup.Combat.Spawns.Single(spawn => spawn.Key == spawnKey).Members[0].CreatureId;
+
+    private const string MatriarchSpawn = "spawn.boss.den_gorge.matriarch";
+    private const string TenderSpawn = "spawn.boss.ashen_hollow.wayholder_trial";
+    private const string HartSpawn = "spawn.boss.foldscar.doubled_hart";
 
     private static Arena Open(GameSession session, (double X, double Z) player) =>
         Arena.OpenCreatures(session, session.Setup, player, 0, Array.Empty<(string, double, double, string)>(), keepSpawns: true);
@@ -22,10 +29,11 @@ public class BossPresenceTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, "region.den_gorge_cave");
-        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == "spawn.boss.den_gorge.matriarch");
+        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == MatriarchSpawn);
+        string matriarch = PlacedBy(session, MatriarchSpawn);
 
         var arena = Open(session, (516, 763));
-        Assert.Contains(arena.Simulation.Creatures, c => c.DefId == Matriarch);
+        Assert.Contains(arena.Simulation.Creatures, c => c.DefId == matriarch);
     }
 
     [Fact]
@@ -33,10 +41,11 @@ public class BossPresenceTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, "region.starting_frontier");
-        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == "spawn.boss.ashen_hollow.wayholder_trial");
+        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == TenderSpawn);
+        string tender = PlacedBy(session, TenderSpawn);
 
         var arena = Open(session, (472, 738));
-        Assert.Contains(arena.Simulation.Creatures, c => c.DefId == Tender);
+        Assert.Contains(arena.Simulation.Creatures, c => c.DefId == tender);
     }
 
     [Fact]
@@ -44,9 +53,10 @@ public class BossPresenceTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, "region.starting_frontier");
-        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == "spawn.boss.foldscar.doubled_hart");
+        Assert.Contains(session.Setup.Combat.Spawns, s => s.Key == HartSpawn);
+        string hart = PlacedBy(session, HartSpawn);
 
         var arena = Open(session, (551, 643));
-        Assert.Contains(arena.Simulation.Creatures, c => c.DefId == Hart);
+        Assert.Contains(arena.Simulation.Creatures, c => c.DefId == hart);
     }
 }
