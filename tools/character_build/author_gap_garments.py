@@ -104,14 +104,26 @@ class Garment:
         if not hasattr(self, 'surface_tree'):
             points, normals, bindings = [], [], []
             for index, node in enumerate(self.body.doc['nodes']):
-                if 'mesh' not in node or getattr(self, 'fit_mesh_name', 'Body_LOD0') not in node.get('name', '') + self.body.doc['meshes'][node['mesh']].get('name', ''):
+                if 'mesh' not in node:
+                    continue
+                names = getattr(self, 'fit_mesh_name', ['Body_LOD0'])
+                if isinstance(names, str):
+                    names = [names]
+                if not any(name in node.get('name', '') + self.body.doc['meshes'][node['mesh']].get('name', '') for name in names):
                     continue
                 transform = self.world(index)
                 skin = self.body.doc['skins'][node['skin']]
                 for primitive in self.body.doc['meshes'][node['mesh']]['primitives']:
                     at = primitive['attributes']
                     position = self.body.read(at['POSITION'])
-                    normal = self.body.read(at['NORMAL']) @ np.linalg.inv(transform[:3, :3])
+                    normal = self.body.read(at['NORMAL'])
+                    mesh = self.body.doc['meshes'][node['mesh']]
+                    for weight, target in zip(node.get('weights', mesh.get('weights', [])), primitive.get('targets', [])):
+                        if weight:
+                            position += weight*self.body.read(target['POSITION'])
+                            if 'NORMAL' in target:
+                                normal += weight*self.body.read(target['NORMAL'])
+                    normal = normal @ np.linalg.inv(transform[:3, :3])
                     points.extend((np.c_[position, np.ones(len(position))] @ transform.T)[:, :3])
                     normals.extend(normal / np.linalg.norm(normal, axis=1)[:, None])
                     for joints, weights in zip(self.body.read(at['JOINTS_0']).astype(int), self.body.read(at['WEIGHTS_0'])):
@@ -124,8 +136,46 @@ class Garment:
         fitted = np.asarray(centre) + normal*(getattr(self, 'fit_clearance', .016)-np.dot(np.asarray(centre)-self.surface_points[nearest], normal))
         return fitted, self.surface_bindings[nearest], normal
 
+    def clear_underlayer(self, clearance=.008, cuff_only=False):
+        """Fit outer metal to the actual gown, retaining the authored native bindings."""
+        reference = self.fit_reference
+        reference.fit_surface(self.positions[0])  # Build its native surface index once.
+        points = np.asarray(self.positions)
+        nearest_distance, nearest = reference.surface_tree.query(points)
+        normals = reference.surface_normals[nearest]
+        distance = np.sum((points-reference.surface_points[nearest])*normals, axis=1)
+        movement = np.maximum(0, clearance-distance)
+        movement[nearest_distance > .12] = 0
+        if cuff_only:
+            movement[np.abs(points[:, 0]) > abs(self.point('LeftHand')[0])-.01] = 0
+        points += normals*movement[:, None]
+        self.positions = points.tolist()
+        # Surface fitting changes the metal's slope; rebuild its actual vertex normals.
+        result = np.zeros_like(points)
+        for faces in self.faces:
+            triangles = np.asarray(faces, dtype=int).reshape(-1, 3)
+            if not len(triangles):
+                continue
+            vectors = np.cross(points[triangles[:, 1]]-points[triangles[:, 0]], points[triangles[:, 2]]-points[triangles[:, 0]])
+            for corner in range(3):
+                np.add.at(result, triangles[:, corner], vectors)
+        result /= np.maximum(np.linalg.norm(result, axis=1)[:, None], 1e-12)
+        self.normals = result.tolist()
+
+    def clear_front(self, clearance=.015):
+        """A rigid breastpiece clears the forward envelope, retaining both layers' spacing."""
+        reference = self.fit_reference
+        reference.fit_surface(self.positions[0])
+        points = np.asarray(self.positions)
+        _, nearest = cKDTree(reference.surface_points[:, :2]).query(points[:, :2], k=32)
+        front = reference.surface_points[nearest, 2].max(axis=1)
+        movement = max(0, float(np.max(front+clearance-points[:, 2])))
+        assert movement < .20
+        points[:, 2] += movement
+        self.positions = points.tolist()
+
     def save(self, destination, layer):
-        doc = {'asset': {'version': '2.0', 'generator': 'OTHERREACH original CMB04 metalwork'},
+        doc = {'asset': {'version': '2.0', 'generator': 'OTHERREACH original CMB04 garment authoring'},
                'scene': self.body.doc.get('scene', 0), 'scenes': copy.deepcopy(self.body.doc['scenes']),
                'nodes': copy.deepcopy(self.body.doc['nodes']), 'skins': [copy.deepcopy(self.skin)],
                'meshes': [], 'accessors': [], 'bufferViews': [], 'buffers': [{'byteLength': 0}]}
@@ -168,6 +218,28 @@ class Garment:
             {'name': 'Polished rolled edge', 'pbrMetallicRoughness': {'baseColorFactor': [.45, .43, .37, 1], 'metallicFactor': .92, 'roughnessFactor': .24}, 'doubleSided': True},
             {'name': 'Oiled strap leather', 'pbrMetallicRoughness': {'baseColorFactor': [.075, .042, .025, 1], 'metallicFactor': 0, 'roughnessFactor': .72}, 'doubleSided': True},
         ]
+        if hasattr(self, 'materials'):
+            doc['materials'] = self.materials
+        texture_sources = []
+        if hasattr(self, 'fabric'):
+            doc['images'], doc['textures'] = [], []
+            doc['samplers'] = [{'magFilter':9729,'minFilter':9987,'wrapS':10497,'wrapT':10497}]
+            for kind in ['diff','arm','nor_gl']:
+                source = self.fabric / ('rough_linen_'+kind+'_4k.jpg')
+                if kind=='diff' and (self.fabric/'rough_linen_diff_4k.png').exists():
+                    source=self.fabric/'rough_linen_diff_4k.png'
+                raw = source.read_bytes()
+                data.extend(b'\0'*(-len(data) % 4))
+                view = len(doc['bufferViews'])
+                doc['bufferViews'].append({'buffer':0,'byteOffset':len(data),'byteLength':len(raw)})
+                data.extend(raw)
+                doc['images'].append({'bufferView':view,'mimeType':'image/png' if source.suffix=='.png' else 'image/jpeg','name':source.name})
+                doc['textures'].append({'source':len(doc['images'])-1,'sampler':0})
+                texture_sources.append({'source':str(source),'sha256':hashlib.sha256(raw).hexdigest(),'license':'Poly Haven CC0; full source dimensions retained','colour_grade':source.suffix=='.png'})
+            material = doc['materials'][2]
+            material['pbrMetallicRoughness'].update(baseColorTexture={'index':0},metallicRoughnessTexture={'index':1})
+            material['normalTexture']={'index':2,'scale':.65}
+            material['occlusionTexture']={'index':1,'strength':.7}
         primitives = []
         for material, indices in enumerate(self.faces):
             if indices:
@@ -188,8 +260,9 @@ class Garment:
         assert len(self.positions) > 1000
         meta = {'schema_version': '1', 'id': self.identifier, 'asset_id': self.identifier,
                 'body': self.identifier.split('__', 1)[1], 'layer': layer, 'hides': [], 'hides_mask': 0,
-                'hide_regions': [], 'chains': self.chains, 'secondary_joints': [b['name'] for b in self.extra_bones], 'source': 'Original OTHERREACH hand-authored metalwork; no generative input or output',
-                'native_inverse_binds_exact': True, 'vertices': len(self.positions), 'triangles': sum(map(len, self.faces))//3}
+                'hide_regions': [], 'chains': self.chains, 'secondary_joints': [b['name'] for b in self.extra_bones], 'source': 'Original OTHERREACH mesh authoring with owned scan textures where listed; no generative input or output',
+                'native_inverse_binds_exact': True, 'vertices': len(self.positions), 'triangles': sum(map(len, self.faces))//3,
+                'texture_sources':texture_sources}
         path.with_name(self.identifier+'_garment.json').write_text(json.dumps(meta, indent=2))
         return meta
 
@@ -280,24 +353,24 @@ def bevor(g):
     neck = g.point('Neck')
     # An open-backed jaw cup; the short front throat plate clears the rotating mandible.
     rows = []
-    for y, rx, rz, arc in [(-.060,.100,.103,.78),(-.050,.097,.105,.80),(-.023,.089,.105,.83),
-                           (.004,.085,.110,.85),(.025,.082,.114,.82),(.030,.084,.116,.82),
-                           (.026,.087,.117,.82),(.001,.091,.113,.85),(-.027,.095,.109,.83),(-.060,.100,.103,.78)]:
+    for y, rx, rz, arc in [(-.022,.100,.124,.78),(-.018,.097,.126,.80),(.008,.089,.126,.83),
+                           (.038,.085,.129,.85),(.064,.082,.130,.82),(.070,.084,.132,.82),
+                           (.066,.087,.133,.82),(.035,.091,.132,.85),(.004,.095,.130,.83),(-.022,.100,.124,.78)]:
         rows.append([(neck+[rx*math.sin(a),y+.015*(1-math.cos(a)),rz*math.cos(a)]).tolist()
                      for a in np.linspace(-arc,arc,129)])
     g.grid(rows,0,[('UpperChest',1)])
     for sign in [-1,1]:
-        g.torus(neck+[sign*.071,-.027,.083],.003,.0014,[('UpperChest',1)],1,axis='z',segments=20)
+        g.torus(neck+[sign*.071,.008,.102],.003,.0014,[('UpperChest',1)],1,axis='z',segments=20)
 
 
 def mail_collar(g, curtain=False):
     neck = g.point('Neck')
     # Alternating interlinked rings; widened lower courses drape over the shoulders.
-    courses = 24 if curtain else 9
+    courses = 36 if curtain else 9
     for row in range(courses):
-        y = .018-row*.006
+        y = (.088 if curtain else .018)-row*.006
         flare = max(0, -y-.035)
-        rx, rz = .077+flare*.65, .076+flare*.5
+        rx, rz = ((.115+flare*.65, .128+flare*.5) if curtain else (.077+flare*.65, .076+flare*.5))
         circumference = 2*math.pi*math.sqrt((rx*rx+rz*rz)/2)
         count = int(circumference/.0063)
         for column in range(count):
@@ -308,8 +381,8 @@ def mail_collar(g, curtain=False):
             tilt=.38 if row%2 else -.38
             normal=radial*math.cos(tilt)+np.array([0,1,0])*math.sin(tilt)
             basis=np.column_stack([tangent,np.cross(normal,tangent),normal])
-            upper=float(np.clip((y+.06)/.08,0,1)) if curtain else 0
-            binding=[('Neck',upper),('UpperChest',1-upper)] if curtain else [('UpperChest',1)]
+            upper=float(np.clip((y+.08)/.17,0,1)) if curtain else 0
+            binding=[('Head',upper),('UpperChest',1-upper)] if curtain else [('UpperChest',1)]
             g.torus(centre,.0041,.00085,binding,0,axis='z',segments=12,basis=basis)
 
 
@@ -413,7 +486,7 @@ def sabatons(g):
                 top=scale*(.145-.065*along)
                 rows.append([[foot[0]+width*math.sin(a),scale*.010+top*math.cos(a),back+scale*dz]
                              for a in np.linspace(-math.pi/2,math.pi/2,65)])
-            g.grid(rows,0,binding)
+            g.grid(rows[:-1],0,binding)
             g.grid([rows[-2],rows[-1]],1,binding)
         # Articulated ankle ring remains separate from the flexing vamp.
         rows=[]
@@ -421,6 +494,14 @@ def sabatons(g):
             rows.append([[foot[0]+scale*r*math.cos(a),scale*y,foot[2]+scale*r*math.sin(a)]
                          for a in np.linspace(0,2*math.pi,97)])
         g.grid(rows,0,[(side+'LowerLeg',1)])
+        # Closed rounded toe cap, carried by the existing toe hinge. The vamp
+        # loft alone is open-ended and exposed the original toes during stride.
+        rows=[]
+        tip=foot[2]+scale*.235
+        for back,width,height in [(.035,.070,.090),(.020,.066,.085),(.006,.051,.071),(.001,.025,.045),(-.002,.002,.012)]:
+            rows.append([[foot[0]+scale*width*math.sin(a),scale*(.004+height*math.cos(a)),tip-scale*back]
+                         for a in np.linspace(-math.pi/2,math.pi/2,65)])
+        g.grid(rows,0,[(side+'Toes',1)])
 
 
 def gauntlets(g):
@@ -432,7 +513,7 @@ def gauntlets(g):
         for x,ry,rz in [(-.105,.046,.046),(-.101,.047,.047),(-.070,.039,.041),(-.026,.033,.037),(.006,.032,.036),(.011,.034,.038)]:
             rows.append([(hand+scale*np.array([sign*x,ry*math.cos(a),rz*math.sin(a)])).tolist()
                          for a in np.linspace(0,2*math.pi,97)])
-        g.grid(rows,0,[(side+'Hand',1)])
+        g.grid(rows,0,[(side+'LowerArm',1)])
         # Dorsal metacarpal plate; the palm remains leather rather than a metal mitten.
         rows=[]
         for x,width,height in [(.002,.035,.026),(.012,.040,.030),(.040,.045,.032),(.063,.042,.028),(.073,.039,.025)]:
@@ -455,8 +536,104 @@ def gauntlets(g):
                     centre=begin+(end-begin)*through
                     rows.append([(centre+radius_now*(across*math.sin(a)+dorsal*math.cos(a))).tolist()
                                  for a in np.linspace(-math.pi*.56,math.pi*.56,49)])
-                g.grid(rows,0,[(bone,1)])
+                g.grid(rows[:-1],0,[(bone,1)])
                 g.grid([rows[-2],rows[-1]],1,[(bone,1)])
+
+
+def exotic_materials():
+    return [
+        {'name':'Quiet graphite laminate','pbrMetallicRoughness':{'baseColorFactor':[.035,.040,.038,1],'metallicFactor':.18,'roughnessFactor':.82},'doubleSided':True},
+        {'name':'Dark woven steel','pbrMetallicRoughness':{'baseColorFactor':[.070,.080,.075,1],'metallicFactor':.65,'roughnessFactor':.65},'doubleSided':True},
+        {'name':'Pale undyed linen','pbrMetallicRoughness':{'baseColorFactor':[.85,.83,.75,1],'metallicFactor':0,'roughnessFactor':.94},'doubleSided':True},
+    ]
+
+
+def whispergorget(g):
+    g.materials=exotic_materials();neck=g.point('Neck')
+    for layer in range(3):
+        rows=[]
+        for y,rx,rz in [(-.055,.195,.192),(-.029,.170,.175),(.004,.127,.145),(.030,.106,.134),(.052,.105,.133)]:
+            rows.append([(neck+[rx*math.cos(a),y-layer*.003,(rz+layer*.0018)*math.sin(a)*(.78 if math.sin(a)<0 else 1)]).tolist()
+                         for a in np.linspace(0,2*math.pi,129)])
+        g.grid(rows,0,[('UpperChest',1)])
+    # Fine recessed-looking seams: dark non-emissive threads, without fasteners.
+    for a in np.linspace(0,2*math.pi,25)[:-1]:
+        g.grid([[(neck+[rx*math.cos(a+w),y,rz*math.sin(a+w)*(.78 if math.sin(a+w)<0 else 1)]).tolist() for w in [-.001,.001]]
+                for rx,rz,y in [(.195,.194,-.054),(.172,.177,-.028),(.129,.147,.005),(.108,.136,.031)]],1,[('UpperChest',1)])
+
+
+def jointward_mesh(g):
+    g.materials=exotic_materials()
+    for side in ['Left','Right']:
+        sign=1 if side=='Left' else -1
+        for joint,axis,radius,length in [('LowerArm','x',.073,.105),('LowerLeg','y',.070,.110)]:
+            centre=g.point(side+joint)
+            for row in range(27):
+                along=(row/26-.5)*length
+                count=64
+                for column in range(count):
+                    a=(column+(row%2)*.5)*2*math.pi/count
+                    if axis=='x':
+                        point=centre+[sign*along,radius*math.cos(a),radius*math.sin(a)]
+                        tangent=np.array([0,-math.sin(a),math.cos(a)])
+                        normal=np.array([0,math.cos(a),math.sin(a)])
+                        t=float(np.clip(.5+along/.035,0,1));bones=[(side+'UpperArm',1-t),(side+'LowerArm',t)]
+                    else:
+                        point=centre+[radius*math.cos(a),along,radius*math.sin(a)]
+                        tangent=np.array([-math.sin(a),0,math.cos(a)])
+                        normal=np.array([math.cos(a),0,math.sin(a)])
+                        t=float(np.clip(.5-along/.04,0,1));bones=[(side+'UpperLeg',1-t),(side+'LowerLeg',t)]
+                    point,bones,normal=g.fit_surface(point)
+                    tangent-=normal*np.dot(tangent,normal)
+                    tangent/=max(np.linalg.norm(tangent),1e-9)
+                    basis=np.column_stack([tangent,np.cross(normal,tangent),normal])
+                    g.torus(point,.0038,.0008,bones,1,axis='z',segments=10,basis=basis)
+    # The sewn armpit portion uses the same owned, physically modelled ring kit.
+    start=len(g.positions);voiders(g)
+    for material in [0]:
+        moved=[i for i in g.faces[material] if i>=start]
+        g.faces[material]=[i for i in g.faces[material] if i<start]
+        g.faces[1].extend(moved)
+
+
+def veil_collar(g):
+    g.materials=exotic_materials();head=g.point('Head');neck=g.point('Neck')
+    g.materials[2]['pbrMetallicRoughness']['baseColorFactor']=[1,1,1,1]
+    for chain,x in enumerate([-.085,0,.085]):
+        parent='Head'
+        for segment in range(4):
+            point=np.array([x,head[1]+.065-segment*.070,head[2]+.180+segment*.009])
+            name=f'cloth_gap_veil_{chain}_{segment}';g.secondary_bone(name,parent,point);parent=name
+    g.chains['cloth_gap_veil']={'stiffness':.82,'drag':.72,'gravity':.025,'radius':.004,'idle_drift':.06}
+    rows=[]
+    for row in range(49):
+        t=row/48
+        rows.append([[x,head[1]+.065-t*(.210-.023*(abs(x)/.095)**2),head[2]+.180+t*.027+.006*math.cos(x/.17*math.pi*16)*(t*.8+.2)] for x in np.linspace(-.095,.095,97)])
+    def binding(point):
+        horizontal=float(np.clip((point[0]+.085)/.085,0,2));left=min(1,int(horizontal));blend=horizontal-left
+        vertical=float(np.clip((head[1]+.065-point[1])/.07,0,3));top=min(2,int(vertical));lower=vertical-top
+        return [(f'cloth_gap_veil_{chain}_{segment}',float(weight)) for chain,cw in [(left,1-blend),(left+1,blend)] for segment,sw in [(top,1-lower),(top+1,lower)] if (weight:=cw*sw)>0]
+    g.grid(rows,2,binding)
+    for side in [-1,1]:
+        g.grid([[[side*x,head[1]+.065+w,head[2]+z] for w in [-.003,.003]]
+                for x,z in [(.095,.180),(.105,.070),(.102,-.020),(.085,-.065)]],2,[('Head',1)])
+    g.grid([[(neck+[.106*math.cos(a),y,.132*math.sin(a)]).tolist() for a in np.linspace(0,2*math.pi,97)] for y in [-.025,-.020,.010,.014]],0,[('UpperChest',1)])
+    g.uv=(np.asarray(g.uv)*.38).tolist()
+
+
+def phase_laminate(g):
+    g.materials=exotic_materials();chest=g.point('Chest')
+    # Two real, closely spaced substances produce view-dependent edge separation.
+    # Closely spaced matte ceramic and graphite shells; no emission or violet.
+    g.materials[1]['pbrMetallicRoughness'].update(baseColorFactor=[.38,.39,.36,1],metallicFactor=.08,roughnessFactor=.67)
+    for layer in range(2):
+        rows=[]
+        for y in np.linspace(-.100,.140,49):
+            through=(y+.100)/.240
+            width=.122+.035*math.sin(through*math.pi)-layer*.004
+            rows.append([(chest+[x+layer*.004,y,.170+.022*(1-(x/.17)**2)+layer*.008]).tolist()
+                         for x in np.linspace(-width,width,97)])
+        g.grid(rows,0 if layer else 1,[('Chest',1)])
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -464,23 +641,34 @@ def main():
     parser.add_argument('--body-id', required=True)
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--underlayer', type=Path, help='Native frontier garment for the sewn voider seam; source bytes retained')
-    parser.add_argument('--parts', nargs='+', default=['gorget','besagews','voiders'], choices=['gorget','besagews','voiders','bevor','aventail','mail_standard','couters','poleyns','groin_guard','faulds','sabatons','gauntlets'])
+    parser.add_argument('--fabric',type=Path,help='Owned original Poly Haven rough_linen4K folder for the veil')
+    parser.add_argument('--parts', nargs='+', default=['gorget','besagews','voiders'], choices=['gorget','besagews','voiders','bevor','aventail','mail_standard','couters','poleyns','groin_guard','faulds','sabatons','gauntlets','whispergorget','jointward_mesh','veil_collar','phase_laminate'])
     args = parser.parse_args()
     body = Glb(args.body)
     source_hash = hashlib.sha256(args.body.read_bytes()).hexdigest()
     report = {'body': str(args.body), 'body_sha256': source_hash, 'garments': []}
     authors = {'gorget':(gorget,3),'besagews':(besagews,3),'voiders':(voiders,2),'bevor':(bevor,3),
                'aventail':(lambda g:mail_collar(g,True),2),'mail_standard':(mail_collar,2),
-               'couters':(couters,3),'poleyns':(poleyns,3),'groin_guard':(groin_guard,3),'faulds':(faulds,3),'sabatons':(sabatons,3),'gauntlets':(gauntlets,3)}
+               'couters':(couters,3),'poleyns':(poleyns,3),'groin_guard':(groin_guard,3),'faulds':(faulds,3),'sabatons':(sabatons,3),'gauntlets':(gauntlets,3),
+               'whispergorget':(whispergorget,3),'jointward_mesh':(jointward_mesh,2),'veil_collar':(veil_collar,2),'phase_laminate':(phase_laminate,3)}
     for part in args.parts:
         author,layer=authors[part]
         garment = Garment(body, 'gap_'+part+'__'+args.body_id)
-        if part=='voiders' and args.underlayer:
+        if part=='veil_collar':
+            assert args.fabric,'Veil requires the owned original linen maps'
+            garment.fabric=args.fabric
+        if part in ['voiders','bevor','aventail','couters','faulds','groin_guard','gauntlets','whispergorget','jointward_mesh','phase_laminate'] and args.underlayer:
             reference=Garment(Glb(args.underlayer),'seam_reference')
             reference.fit_mesh_name='Frontier_Shirt_LOD0'
+            if part=='jointward_mesh':
+                reference.fit_mesh_name=['Frontier_Shirt_LOD0','Frontier_Pants_LOD0']
             reference.fit_clearance=.002
             garment.fit_reference=reference
         author(garment)
+        if args.underlayer and part in ['bevor','aventail','couters','faulds','groin_guard','gauntlets']:
+            garment.clear_underlayer(cuff_only=part=='gauntlets')
+        if args.underlayer and part=='phase_laminate':
+            garment.clear_front()
         report['garments'].append(garment.save(args.out, layer))
     assert hashlib.sha256(args.body.read_bytes()).hexdigest() == source_hash
     (args.out/(args.body_id+'_gap_authoring.json')).write_text(json.dumps(report, indent=2))

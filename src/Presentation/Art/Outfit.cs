@@ -197,6 +197,8 @@ public static partial class Outfit
             springs.SetRadius(i, spec.TryGetProperty("radius", out var radius) ? radius.GetSingle() : 0.02f);
             springs.SetEnableAllChildCollisions(i, true);
         }
+        float drift = settings.Select(s => s.Spec.TryGetProperty("idle_drift", out var amount) ? amount.GetSingle() : 0f).Max();
+        if (drift > 0) springs.AddChild(new GarmentDrift { Strength = drift });
         if (OS.GetEnvironment("UNNAMED_SPRING_PROBE") == "1")
             springs.AddChild(new SpringProbe { Chains = settings.Select(c => c.End).ToArray() });
         foreach (var (bone, child, radius) in capsules ?? ClothCapsules)
@@ -211,6 +213,20 @@ public static partial class Outfit
                 BoneName = bone, Radius = radius, Height = along.Length() + 2 * radius, PositionOffset = along / 2,
                 RotationOffset = new Quaternion(Vector3.Up, along.Normalized()),
             });
+        }
+    }
+
+    /// <summary>The veil's slight continuous air movement, opt-in in its authored garment sidecar.</summary>
+    private sealed partial class GarmentDrift : Node
+    {
+        public float Strength { get; init; }
+        private double _seconds;
+        public override void _Process(double delta)
+        {
+            _seconds += delta;
+            ((SpringBoneSimulator3D)GetParent()).ExternalForce = Strength * new Vector3(
+                (float)Math.Sin(_seconds * 1.3), .18f * (float)Math.Sin(_seconds * .73),
+                .7f * (float)Math.Cos(_seconds * 1.07));
         }
     }
 

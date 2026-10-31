@@ -1,173 +1,61 @@
 {
-  "status": "IN_PROGRESS_NOT_FOR_PRODUCTION_INSTALL",
-  "updated": "2026-10-31T16:43:30.497403",
-  "branch": "visual/armour-gaps",
-  "authoring_script_sha256": "c89a55555522822dee437f5c0e4717615e0ce7360f6301d1c158642082d69dd3",
-  "art": [
-    {
-      "id": "gap_besagews__humgen_player_ada_f",
-      "source_batch": "rigged_v6",
-      "status": "PRIORITY3_ADA_NATIVE_REVIEW_POSTED_MATEO_UNREVIEWED",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_besagews__humgen_player_ada_f\\gap_besagews__humgen_player_ada_f_rigged.glb",
-      "sha256": "0e8cee082dc5357589bfd4f1c5e75b6686bf7b7032663babea3d4bb66296d49d",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 13464
-    },
-    {
-      "id": "gap_besagews__humgen_player_mateo_m",
-      "source_batch": "rigged_v6",
-      "status": "PRIORITY3_ADA_NATIVE_REVIEW_POSTED_MATEO_UNREVIEWED",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_besagews__humgen_player_mateo_m\\gap_besagews__humgen_player_mateo_m_rigged.glb",
-      "sha256": "392610824920c05efec58ee25f7128442af7475946feef6a09687786591983aa",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 13464
-    },
-    {
-      "id": "gap_gorget__humgen_player_ada_f",
-      "source_batch": "rigged_v6",
-      "status": "PRIORITY3_ADA_NATIVE_REVIEW_POSTED_MATEO_UNREVIEWED",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_gorget__humgen_player_ada_f\\gap_gorget__humgen_player_ada_f_rigged.glb",
-      "sha256": "634bcbbba73367f8ab33ffa2618b823787804e568ac6472709c70dd33f1aac04",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 6720
-    },
-    {
-      "id": "gap_gorget__humgen_player_mateo_m",
-      "source_batch": "rigged_v6",
-      "status": "PRIORITY3_ADA_NATIVE_REVIEW_POSTED_MATEO_UNREVIEWED",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_gorget__humgen_player_mateo_m\\gap_gorget__humgen_player_mateo_m_rigged.glb",
-      "sha256": "e41bcfc75325b445674d941124c79ddf1a3667921996898b75061d8ef0aec639",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 6720
-    },
-    {
-      "id": "gap_voiders__humgen_player_ada_f",
-      "source_batch": "rigged_v6",
-      "status": "PRIORITY3_ADA_NATIVE_REVIEW_POSTED_MATEO_UNREVIEWED",
-      "layer": 2,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_voiders__humgen_player_ada_f\\gap_voiders__humgen_player_ada_f_rigged.glb",
-      "sha256": "a3d7ddb1cce9f506f135cd4926d54dd4ac0ecb204ffb2dd764790e2c54f91ada",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 82944
-    },
-    {
-      "id": "gap_voiders__humgen_player_mateo_m",
-      "source_batch": "rigged_v6",
-      "status": "PRIORITY3_ADA_NATIVE_REVIEW_POSTED_MATEO_UNREVIEWED",
-      "layer": 2,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_v6\\gap_voiders__humgen_player_mateo_m\\gap_voiders__humgen_player_mateo_m_rigged.glb",
-      "sha256": "8e0c15eabe81684a81a555cc64cbc2941a39cff510291ec68ad935e018e1e72e",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 82944
-    },
-    {
-      "id": "gap_aventail__humgen_player_ada_f",
-      "source_batch": "rigged_batch02",
-      "status": "SIX_ADA_NATIVE_SETUP_PASS_RENDER_FIT_PENDING",
-      "layer": 2,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch02\\gap_aventail__humgen_player_ada_f\\gap_aventail__humgen_player_ada_f_rigged.glb",
-      "sha256": "c2f1f8a73f22c1ad9bb1f55816e26494bdd0e23423226b9520735ea66c457608",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 315648
-    },
-    {
-      "id": "gap_bevor__humgen_player_ada_f",
-      "source_batch": "rigged_batch02",
-      "status": "SIX_ADA_NATIVE_SETUP_PASS_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch02\\gap_bevor__humgen_player_ada_f\\gap_bevor__humgen_player_ada_f_rigged.glb",
-      "sha256": "2e1c05f2af8722c68a56e4c7a8895fe88d4424de83a00df223815755c0069ebe",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 2784
-    },
-    {
-      "id": "gap_couters__humgen_player_ada_f",
-      "source_batch": "rigged_batch02",
-      "status": "SIX_ADA_NATIVE_SETUP_PASS_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch02\\gap_couters__humgen_player_ada_f\\gap_couters__humgen_player_ada_f_rigged.glb",
-      "sha256": "fd2f88d3b1bce9b3b17469b8daef624e6f4f4019c132d05a86568b170fd67754",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 14592
-    },
-    {
-      "id": "gap_groin_guard__humgen_player_ada_f",
-      "source_batch": "rigged_batch02",
-      "status": "SIX_ADA_NATIVE_SETUP_PASS_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch02\\gap_groin_guard__humgen_player_ada_f\\gap_groin_guard__humgen_player_ada_f_rigged.glb",
-      "sha256": "55f22c48eb56a786ac3e1bb1e1b91104ffea6abc1300398c69b8b58497da0101",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 2784
-    },
-    {
-      "id": "gap_mail_standard__humgen_player_ada_f",
-      "source_batch": "rigged_batch02",
-      "status": "SIX_ADA_NATIVE_SETUP_PASS_RENDER_FIT_PENDING",
-      "layer": 2,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch02\\gap_mail_standard__humgen_player_ada_f\\gap_mail_standard__humgen_player_ada_f_rigged.glb",
-      "sha256": "d6d849eb36fe8033d4bbb087c690d306c06b0fa9e1a8bca1a21ac2c1a57d29b6",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 98496
-    },
-    {
-      "id": "gap_poleyns__humgen_player_ada_f",
-      "source_batch": "rigged_batch02",
-      "status": "SIX_ADA_NATIVE_SETUP_PASS_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch02\\gap_poleyns__humgen_player_ada_f\\gap_poleyns__humgen_player_ada_f_rigged.glb",
-      "sha256": "1d2f5f978802b30d248212ea1b0f757554010c74f16a6558da921ea803ff88a7",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 8640
-    },
-    {
-      "id": "gap_faulds__humgen_player_ada_f",
-      "source_batch": "rigged_batch03",
-      "status": "THREE_ADA_SOURCE_EXPORT_ONLY_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch03\\gap_faulds__humgen_player_ada_f\\gap_faulds__humgen_player_ada_f_rigged.glb",
-      "sha256": "e1d2e40dc5753091c8538614be0a3111859bd251160a671b44776657d174842e",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 14400
-    },
-    {
-      "id": "gap_gauntlets__humgen_player_ada_f",
-      "source_batch": "rigged_batch03",
-      "status": "THREE_ADA_SOURCE_EXPORT_ONLY_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch03\\gap_gauntlets__humgen_player_ada_f\\gap_gauntlets__humgen_player_ada_f_rigged.glb",
-      "sha256": "2c3e1c8e476c57b3da320beaae124bbb829bce65cf9dfa0a785dcedac7d3c8d5",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 20736
-    },
-    {
-      "id": "gap_sabatons__humgen_player_ada_f",
-      "source_batch": "rigged_batch03",
-      "status": "THREE_ADA_SOURCE_EXPORT_ONLY_RENDER_FIT_PENDING",
-      "layer": 3,
-      "glb": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_batch03\\gap_sabatons__humgen_player_ada_f\\gap_sabatons__humgen_player_ada_f_rigged.glb",
-      "sha256": "1dea96a6d7958e6783e698cc05735b0e35269e5eb7658080596e0ef46963f18b",
-      "native_source_inverse_binds_exact": true,
-      "triangles": 13440
-    }
+  "status": "IN_PROGRESS_NATIVE_EQUIPMENT_ROUTE_PROVEN_NOT_FIT_APPROVED",
+  "static_source_candidates": 32,
+  "static_bodies": [
+    "humgen_player_ada_f",
+    "humgen_player_mateo_m"
   ],
-  "remaining_exotics": [
-    "whispergorget",
-    "jointward_mesh",
-    "veil_collar",
-    "phase_laminate"
+  "native_export": {
+    "body": "humgen_creator_female",
+    "part": "gorget",
+    "contract": {
+      "kind": "equipment",
+      "slot": "head",
+      "item": "item.armor.gorget",
+      "review_id": "CMB04-01",
+      "target_base": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_gorget__humgen_creator_female\\gap_gorget__humgen_creator_female_rigged.glb",
+      "source_sha256": "a7c258af38920adbedd8476247fee180d663bb5c86664ce98f8583ad7135335e",
+      "native_meshes": [
+        "gap_gorget_humgen_creator_female_gap_gorget_LOD0",
+        "gap_gorget_humgen_creator_female_gap_gorget_LOD1",
+        "gap_gorget_humgen_creator_female_gap_gorget_LOD2",
+        "gap_gorget_humgen_creator_female_gap_gorget_LOD3"
+      ],
+      "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+      "clearance_m": 0.0035,
+      "clearance_vertices_adjusted": 0,
+      "native_rest_error": 0.0,
+      "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+      "solver": "kept",
+      "fit_audit": {
+        "method": "Original gorget authored directly on unchanged native creator59 bind; same UpperChest ownership mapped to original HumGen spine.003 group, then normal custom-clothing field/export. Native carrier body and rig unmodified."
+      },
+      "export_hook_sha256": {
+        "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+        "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+      }
+    },
+    "sha256": {
+      "creator_part.json": "d7214dcb99585eb244c498979c3000e534b53daefa25270af585cbfa46d2f40b",
+      "gap_gorget__humgen_creator_female_garment.json": "9840f0fcdd8cff199b4c93d2a40d4d1eca8f365d8ba719487d650a44cdf084a3",
+      "gap_gorget__humgen_creator_female_rigged.glb": "91a7616e2221e6403d0678d10dd687433b4e1045c334b35a935fefea1387eb2c",
+      "native_materials.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    }
+  },
+  "pipeline_source_commit": "0630dadb",
+  "rejected": [
+    "native_source01 priority gorget buried under frontier collar; replaced by v6",
+    "conventional batch02/03 fits buried in the shirt; source fitting now includes active original garment morphs",
+    "exotic09 blue flat veil, collar spikes and chest baldric intersection; rejected, revised source02 not yet reviewed"
   ],
   "outstanding": [
-    "Native fit and motion verdicts for every garment/body",
-    "Four distant LODs",
-    "Peasant/soldier/Kal/Seth variants where supported by their actual rigs/underlayers",
-    "Normal equipment bindings/stock and equip-unequip proof",
-    "Exotic drift/parallax presentation"
-  ],
-  "review": "C:\\Otherreach_External_Assets\\NEXT_SYSTEMS_VISUALS\\armour_gaps\\priority_native_ada_v6",
-  "scope": "Original hand-authored metalwork on unchanged native anatomy. Source bodies are retained original exports; current trimmed native bodies preserve59 rests and draw through actual Outfit.Dress. Exact inverse-bind claim refers to each retained source-body GLB, not an unmeasured current-body binary identity. No source art sent to generative tools."
+    "Native pipeline exports and fitting controls for remaining pieces/bodies",
+    "Native head extremes, stance/motion and actual item equip/unequip",
+    "Gap-specific preserve-hair and preserve-underlayer metadata in released equipment route",
+    "Real distant geometry LODs/shared baked mail kit where needed",
+    "Human-family/creator-body fit scope and final portable asset delivery",
+    "Claude visual verdicts; no self-PASS"
+  ]
 }
