@@ -52545,8 +52545,8 @@ structures:
   box_m: [1573.6, 762.6, 1592.2, 771.2]
   height_m: 6.5
 - id: oh_exchange_granary
-  box_m: [1620.2, 765.5, 1623.8, 768.5]
-  height_m: 3.6
+  box_m: [1618.9, 765.8, 1625.1, 771.0]
+  height_m: 5.2
 - id: oh_harbour_smithy
   box_m: [1534.6, 763.4, 1542.6, 770.6]
   height_m: 5.0

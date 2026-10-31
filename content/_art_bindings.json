@@ -996,9 +996,9 @@
       "note_vfx_fab": "vfx_fab: two Fab VDB fires (hearth_fire, FirePlace_2) side by side and a coal-bed glow replace hearth_fire_core + Flame02 hearth_fire; embers kept."
     },
     "oh_exchange_": {
-      "model": "bld_fab_cw_granary",
-      "material": "wood",
-      "note": "Gate 2: the Tidepearl Exchange's granary."
+      "model": "bld_fab_cw_house_06",
+      "material": "stone",
+      "note": "The Tidepearl Exchange's counting house: stone and timber frame (no log or plank sheds in Otherhome)."
     },
     "oh_harbour_smithy": {
       "model": "bld_fab_cw_smithy",
@@ -7207,7 +7207,7 @@
       "note": "Gate 2: the Long Survey's headquarters, in the waystation's lodge kit."
     },
     "oh_exchange_granary": {
-      "model": "bld_fab_cw_granary",
+      "model": "bld_fab_cw_house_06",
       "material": "stone",
       "yaw": 180,
       "interior_light": {
