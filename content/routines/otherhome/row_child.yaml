@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.otherhome.row_child.name
 tags: [routine]
-notes: "The lane, the stairs' foot, and the row's own door."
+notes: "The lane in the morning, the stairs' foot in the afternoon, home before dark."
 region_ref: region.otherhome
 people_ref: people.mor
 settlement: otherhome
@@ -12,9 +12,9 @@ roles: [guide]
 work_hours: [7, 19]
 anchors:
   home: {position_m: [1428.0, 614.0], facing_deg: 240}
-  work: {position_m: [1400.0, 620.0], facing_deg: 270}
-  stair: {position_m: [1447.0, 604.0], facing_deg: 180}
-  lane: {position_m: [1400.0, 620.0], facing_deg: 270}
+  work: {position_m: [1400.0, 614.0], facing_deg: 270}
+  stair: {position_m: [1447.38, 604.32], facing_deg: 180}
+  lane: {position_m: [1400.0, 614.0], facing_deg: 270}
 schedule:
   - {hours: [7, 12], at: lane}
   - {hours: [12, 16], at: stair}

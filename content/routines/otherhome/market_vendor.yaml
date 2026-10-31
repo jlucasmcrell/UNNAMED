@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.otherhome.market_vendor.name
 tags: [routine]
-notes: "Her stall from the first light, the quay when the boats come in, and home at dusk."
+notes: "The quay when the boats come in, her stall the rest of the day."
 region_ref: region.otherhome
 people_ref: people.veth
 settlement: otherhome
@@ -16,4 +16,3 @@ anchors:
   quay: {position_m: [1348.0, 476.0], facing_deg: 270}
 schedule:
   - {hours: [6, 9], at: quay}
-  - {hours: [9, 18], at: work}

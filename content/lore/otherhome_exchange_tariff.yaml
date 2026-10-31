@@ -1,0 +1,17 @@
+id: lore.otherhome_exchange_tariff
+kind: lore
+schema: 1
+display_key: lore.otherhome.exchange_tariff.name
+title: The Exchange's posted tariff
+tags: [lore]
+category: places
+pages:
+- page: 1
+  sources:
+  - how: inspected
+    ref: readable.otherhome.exchange_tariff
+  text: >-
+    The Tidepearl Exchange's tariff, posted where a landing party reads it before it argues: fish by the barrel, timber by the
+    length, iron by the billet, and against every line the week in which the Exchange will pay. The prices move and the week does
+    not, and the clerks will tell you plainly that the week is the fee. Nothing here is hidden, which is the Exchange's whole
+    method: a merchant who hides a charge has to argue about it later, and argument is expensive.

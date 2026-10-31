@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.otherhome.ferryman.name
 tags: [routine]
-notes: "Gate 3: the ferryman's day in the harbour district - home, post, and the third place the post actually takes them."
+notes: "The stairs from five, the pier through the middle of the day, the stairs again till dusk."
 region_ref: region.otherhome
 people_ref: people.mor
 settlement: otherhome
@@ -15,5 +15,5 @@ anchors:
   work: {position_m: [1452.0, 504.0], facing_deg: 180}
   pier: {position_m: [1252.0, 444.0], facing_deg: 270}
 schedule:
-  - {hours: [19, 21], at: home}
   - {hours: [9, 15], at: pier}
+  - {hours: [19, 21], at: home}
