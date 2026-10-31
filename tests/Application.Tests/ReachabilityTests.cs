@@ -15,10 +15,12 @@ namespace UNNAMED.Application.Tests;
 /// </summary>
 public class ReachabilityTests
 {
+    private const string Sedge = "region.sedge_levels";
+
     /// <remarks>
-    /// Both regions a run can stand in, for the same reason <see cref="EveryQuestStep_PointsAtSomethingInTheRegion"/>
-    /// checks both: the Ring Custodian is region.barrowworks' and the start area's run correctly does not carry it,
-    /// so checking it here alone would report a creature no player can fail to meet.
+    /// Every region a run can stand in, for the same reason <see cref="EveryQuestStep_PointsAtSomethingInTheRegion"/>
+    /// checks them all: the Ring Custodian is region.barrowworks' and the Sedge's people are region.sedge_levels', and the start
+    /// area's run correctly carries neither, so checking it here alone would report a creature no player can fail to meet.
     /// </remarks>
     [Fact]
     public void EveryCreatureAndNode_StandsInTheRegion()
@@ -27,6 +29,8 @@ public class ReachabilityTests
         var setup = Harness.Boot(profile).Setup;
         using var ringProfile = new TempProfile();
         var ring = Harness.Boot(ringProfile, "region.barrowworks", barrowworks: true).Setup;
+        using var sedgeProfile = new TempProfile();
+        var sedge = Harness.Boot(sedgeProfile, Sedge).Setup;
 
         // The CATALOGS are world-wide - BuildCreatures and BuildCrafting take no region - and only the SPAWNS and the
         // placed nodes are region-scoped. So this asks "is every catalogued creature spawned somewhere a player can
@@ -39,9 +43,14 @@ public class ReachabilityTests
         foreach (var item in setup.Items.Catalog.Definitions.Values.Where(i => i.PetCreature is { Length: > 0 }))
             spawned.Add(item.PetCreature!);
         spawned.UnionWith(ring.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
+        spawned.UnionWith(sedge.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId));
         Assert.Empty(setup.Combat.Creatures.Keys.Where(c => !spawned.Contains(c)));
         var placed = setup.Layout.Nodes.Select(n => n.NodeDefId).ToHashSet(StringComparer.Ordinal);
         placed.UnionWith(ring.Layout.Nodes.Select(n => n.NodeDefId));
+        placed.UnionWith(sedge.Layout.Nodes.Select(n => n.NodeDefId));
+        // A carcass is placed by the kill: the kind of every creature that spawns names the node its body leaves.
+        placed.UnionWith(setup.Combat.Spawns.Concat(ring.Combat.Spawns).Concat(sedge.Combat.Spawns).SelectMany(s => s.Members)
+            .Select(m => setup.Combat.Creatures[m.CreatureId].CarcassRef).OfType<string>());
         Assert.Empty(setup.Crafting.Nodes.Keys.Where(n => !placed.Contains(n)));
     }
 
@@ -62,8 +71,8 @@ public class ReachabilityTests
     /// Iron Under Ash stalled at Blackvein Cut in a region with no places in it, and Mara's <c>told</c> had no way in).
     /// </summary>
     /// <remarks>
-    /// Checked against the places, people, spawns and items of <b>both</b> regions a run can stand in, because
-    /// The Unfinished Measure spans them: Kera gives it in the Ashen Hollow, and its five places are the ring's,
+    /// Checked against the places, people, spawns and items of <b>every</b> region a run can stand in - the Sedge's quests are
+    /// its own region's (region.sedge_levels) - and the start area booted with the ring, because The Unfinished Measure spans them: Kera gives it in the Ashen Hollow, and its five places are the ring's,
     /// which is its own region and its own load (the gate opens the portals, it does not merge the layouts).
     /// With the option off the quest is not offered either, so checking it against a run that cannot reach it
     /// would report a failure no player can experience.
@@ -73,19 +82,22 @@ public class ReachabilityTests
     {
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile, barrowworks: true).Setup;
+        using var sedgeProfile = new TempProfile();
+        var sedge = Harness.Boot(sedgeProfile, Sedge).Setup;
 
-        // Every layout this run can stand in. Each interior is its own, and a quest step that names one of its places
+        // Every layout a run can stand in. Each interior is its own, and a quest step that names one of its places
         // is satisfied by it - not by the exterior, where that place does not exist.
-        var layouts = setup.AllLayouts.ToList();
+        var layouts = setup.AllLayouts.Concat(sedge.AllLayouts).ToList();
 
         var places = layouts.SelectMany(l => l.Locations).Select(l => l.Id).ToHashSet(StringComparer.Ordinal);
         var people = layouts.SelectMany(l => l.Npcs).Select(n => n.NpcId).ToHashSet(StringComparer.Ordinal);
-        var spawned = setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
+        var spawned = setup.Combat.Spawns.Concat(sedge.Combat.Spawns).SelectMany(s => s.Members).Select(m => m.CreatureId).ToHashSet(StringComparer.Ordinal);
         // A creature an item brings is met by buying the item, not by walking into a spawn: the hound pup is bought at Ashen Hollow and
         // grows into the wolf (spec 43), so no spawn places one and none should (WP-pets).
         foreach (var item in setup.Items.Catalog.Definitions.Values.Where(i => i.PetCreature is { Length: > 0 }))
             spawned.Add(item.PetCreature!);
         var reachable = Reachable(setup);
+        reachable.UnionWith(Reachable(sedge));
 
         var missing = new List<string>();
         foreach (var quest in setup.Quests.Quests.Values)
@@ -157,7 +169,10 @@ public class ReachabilityTests
         reachable.UnionWith(traders.SelectMany(n => items.Merchants[n.MerchantId!].Stock).Select(s => s.ItemId));
         reachable.UnionWith(setup.Social.Dialogues.Values.SelectMany(d => d.Nodes.Values).SelectMany(n => n.Choices)
             .SelectMany(c => c.Consequences).OfType<TransferItemConsequence>().Where(t => t.ToPlayer).Select(t => t.ItemId));
-        reachable.UnionWith(setup.Layout.Nodes.Select(n => setup.Crafting.Nodes[n.NodeDefId].ItemId));
+        // A node gives each of its yields in turn, and a body that falls leaves its carcass to be worked like a placed one.
+        var nodes = setup.Layout.Nodes.Select(n => n.NodeDefId)
+            .Concat(setup.Combat.Spawns.SelectMany(s => s.Members).Select(m => setup.Combat.Creatures[m.CreatureId].CarcassRef).OfType<string>());
+        reachable.UnionWith(nodes.Select(id => setup.Crafting.Nodes[id]).SelectMany(n => n.Later.Select(y => y.ItemId).Prepend(n.ItemId)));
         reachable.UnionWith(setup.Quests.Quests.Values.SelectMany(q => q.Rewards).OfType<ItemReward>().Select(r => r.ItemId));
         // Recipes whose every input is reachable, until nothing more is.
         bool grew = true;

@@ -4,6 +4,7 @@ schema: 1
 display_key: resource.carcass.grey_wolf.name
 tags: [resource]
 name: Grey Wolf Carcass
-notes: "D18 SYSTEMS (needed-2): a body, yielding meat; the pelt comes from the same body on a second harvest once the carcass carries more than one charge."
+notes: "D18 SYSTEMS (needed-2): a body, one yield a harvest - the meat first, then the pelt for the tanning rack."
 yields:
   - { item_ref: item.material.meat_raw, count_range: [1, 3] }
+  - { item_ref: item.material.pelt_grey_wolf, count_range: [1, 1] }

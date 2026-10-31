@@ -1295,6 +1295,7 @@ public sealed class Simulation
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
+        ClearCarcassCommand clearCarcass => _gathering.Handle(clearCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),
         HealCreature heal => _creatures.Handle(heal, Now),
         DrawCreature draw => _creatures.Handle(draw, Now),

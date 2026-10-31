@@ -324,6 +324,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return $"corpse.{spawner}.m{key[(hash + 1)..]}_g{generation}";
     }
 
+    /// <summary>The node a body worth skinning leaves: it lies there exactly as long as the corpse does.</summary>
+    private static string CarcassKey(CreatureState c) => $"carcass.{c.Id}";
+
     /// <summary>A creature's identity from its name and generation: the same wolf is the same ID on every start.</summary>
     private static EntityId Identity(string key, int generation)
     {
@@ -406,7 +409,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 State.SetCreature(_owner, state);
                 // A carcass is a node only the running game holds: a body loaded as a corpse lies where it fell again, still to be skinned.
                 if (state.Condition == CreatureCondition.Corpse && definition.CarcassRef is { } carcass)
-                    _context.Dispatch(new LeaveCarcassCommand($"carcass.{state.Id}", carcass, state.Body.XMm, state.Body.ZMm));
+                    _context.Dispatch(new LeaveCarcassCommand(CarcassKey(state), carcass, state.Body.XMm, state.Body.ZMm));
                 // Party composition changes later. Even an untouched authored-size
                 // creature needs its spawn scale retained instead of being resized on load.
                 if (Scale is not null && State.World.Creature(key) is null) Save(state);
@@ -1171,7 +1174,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a
         // test, a headless run and the game all see the same carcass. The kind says whether it leaves one at all.
         if (c.Definition.CarcassRef is { } carcass)
-            _context.Dispatch(new LeaveCarcassCommand($"carcass.{c.Id}", carcass, c.Body.XMm, c.Body.ZMm));
+            _context.Dispatch(new LeaveCarcassCommand(CarcassKey(c), carcass, c.Body.XMm, c.Body.ZMm));
         if (killer == _player)
         {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
@@ -1229,6 +1232,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (c.Condition == CreatureCondition.Corpse && elapsed >= c.DiedTick + Setup.CorpseDecayTicks)
         {
             _context.Dispatch(new DiscardContainer(c.CorpseKey));
+            _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));
             _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             c = c with { Condition = CreatureCondition.Gone };
         }
@@ -1238,6 +1242,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             if (c.Condition == CreatureCondition.Corpse)
             {
                 _context.Dispatch(new DiscardContainer(c.CorpseKey));
+                _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));
                 _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             }
             int generation = c.Generation + 1;
@@ -1301,6 +1306,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (State.Creatures.Values.FirstOrDefault(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == command.CorpseKey) is not { } c)
             return $"no corpse '{command.CorpseKey}'";
         Save(c with { Condition = CreatureCondition.Gone });
+        _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));
         _context.Events.Publish(new CorpseGone(command.CorpseKey, tick));
         return null;
     }

@@ -89,7 +89,7 @@ public class CraftingTests
             {
                 "ah_yard_bog_cotton", "ah_yard_boneleaf", "ah_yard_woundmoss",
                 "ash_stand", "birch_woundmoss_1", "birch_woundmoss_2", "blackvein_spoil_1", "blackvein_spoil_2", "bog_ashbloom_1", "bog_ashbloom_2",
-                "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
+                "bog_ashbloom_3", "bog_ashbloom_4", "bog_seeped_iron", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
                 "charwood_deadfall_2", "crag_spoil_1", "crag_spoil_2",
                 "den_ash_stand", "den_bank_iron_1", "den_bank_iron_2", "den_boneleaf", "den_cotton", "den_deadfall", "den_woundmoss",
                 "fold_bog_iron_nodule", "fold_carcass_deer", "fold_carcass_wolf", "fold_cotton", "fold_grey_iron_seam", "fold_iron_1", "fold_iron_2",
