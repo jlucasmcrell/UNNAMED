@@ -68,6 +68,9 @@ public sealed record CreatedEntityRecord(EntityId InstanceId, string DefId, stri
 
     /// <summary>Its wear (WP3b): a worn piece dropped is as worn where it lies.</summary>
     public ItemWear? Wear { get; init; }
+
+    /// <summary>How it was assembled (D21): a built piece dropped keeps its parts where it lies.</summary>
+    public UNNAMED.Domain.Items.GearBuild? Built { get; init; }
 }
 
 /// <summary>An item inside a world container.</summary>
@@ -421,13 +424,13 @@ public sealed class WorldDelta
     /// registered, and its count.
     /// </summary>
     internal void PlaceItem(CellKey hostCell, EntityId itemId, string defId, int count, int xCm, int zCm, int quality = 0, NotableRecord? notable = null,
-        ItemWear? wear = null)
+        ItemWear? wear = null, UNNAMED.Domain.Items.GearBuild? built = null)
     {
         if (!InCell(xCm) || !InCell(zCm))
             throw new ArgumentOutOfRangeException(nameof(xCm), $"({xCm}, {zCm}) is outside the cell's [0, {WorldMath.CellSizeCm}) square");
         if (count <= 0)
             throw new ArgumentOutOfRangeException(nameof(count), count, "A placed stack holds at least one");
-        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable, Wear = wear };
+        _created[itemId] = new CreatedEntityRecord(itemId, defId, hostCell.ToString(), xCm, zCm) { Count = count, Quality = quality, Notable = notable, Wear = wear, Built = built };
     }
 
     /// <summary>Take a placed item out of the world (a pick-up); its identity lives on in whatever holds it next.</summary>
@@ -799,7 +802,7 @@ public sealed class WorldDelta
         var created = CreatedIn(cell);
         h.Add(created.Count);
         foreach (var c in created)
-            WearDigest.Add(NotableDigest.Add(h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality), c.Notable), c.Wear);
+            BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(c.InstanceId.Value).Add(c.DefId).Add(c.XCm).Add(c.ZCm).Add(c.Count).Add(c.Quality), c.Notable), c.Wear), c.Built);
 
         var containers = ContainersIn(cell);
         h.Add(containers.Count);
@@ -807,7 +810,7 @@ public sealed class WorldDelta
         {
             h.Add(c.Key).Add(c.InstanceId.Value).Add(c.Items.Length);
             foreach (var item in c.Items)
-                WearDigest.Add(NotableDigest.Add(h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality), item.Notable), item.Wear);
+                BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(item.ItemId.Value).Add(item.DefId).Add(item.Count).Add(item.Quality), item.Notable), item.Wear), item.Built);
         }
 
         var creatures = CreaturesIn(cell);

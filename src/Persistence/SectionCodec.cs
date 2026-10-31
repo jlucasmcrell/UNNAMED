@@ -1043,6 +1043,9 @@ public sealed class CreatedDto
 
     /// <summary>From schema 24: its wear, or null.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 42: how a dropped built piece was assembled (D21), or null.</summary>
+    [Key("built")] public GearBuildDto? Built { get; set; }
 }
 
 [MessagePackObject]
@@ -1620,6 +1623,7 @@ public static class SectionCodec
                 Quality = c.Quality,
                 Notable = NotableToDto(c.Notable),
                 Wear = WearToDto(c.Wear),
+                Built = BuildToDto(c.Built),
             }).ToArray(),
             Baselines = baselines.Select(kv => new CellBaselineDto { CellKey = kv.Key, BaselineHash = kv.Value }).ToArray(),
             Containers = snapshot.Containers.Select(c => new ContainerDto
@@ -1772,6 +1776,7 @@ public static class SectionCodec
                 Quality = QualityOf(c.Quality, $"created instance {c.InstanceId}"),
                 Notable = NotableOf(c.Notable, $"created instance {c.InstanceId}"),
                 Wear = WearOf(c.Wear, $"created instance {c.InstanceId}"),
+                Built = BuildOf(c.Built, $"created instance {c.InstanceId}"),
             })
             .ToImmutableArray();
         var containers = (section.Containers ?? throw new FormatException("entities.msgpack has no containers list (required from schema 6)"))
