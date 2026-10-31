@@ -15,7 +15,7 @@ public class BarrowworksGateTests
 {
     // Integrated frontier overlay: approved NPC migration, C1 creatures, C2 inn and accepted creature batches A/B.
     // Keep the full-file guard, alongside the semantic option-off checks below; line endings are normalised.
-    private const string SnapshotOverlaySha256 = "82450c119d56bc9028a95649ce763161d21742dc68365b5c9233ed5ab690ae37"; // Accepted C1 creature bindings, C2 inn additions, Batch B rework constructs, D10 variant clips, the Build 2 area/water/jetty content, the restored D20 bindings (B-019), the Steps (content/the-steps) and the owner-visual fixes (B-005 pilings, boss looks, the Matriarch, B-018's dead ash out of the living pool), the boss roster (boss-phases, boss-encounters) and the Steps' north quay over the integrated public overlay; ring keys remain gated.
+    private const string SnapshotOverlaySha256 = "e6b0fe449c8b310abf6ea2eee6274295184a1564aaed04b7eb86abc659dd66c4"; // Accepted C1 creature bindings, C2 inn additions, Batch B rework constructs, D10 variant clips, the Build 2 area/water/jetty content, the restored D20 bindings (B-019), the Steps (content/the-steps) and the owner-visual fixes (B-005 pilings, boss looks, the Matriarch, B-018's dead ash out of the living pool), the boss roster (boss-phases, boss-encounters) and the Steps' north quay over the integrated public overlay, plus the native Custodian index-bone weak-point cue; ring keys remain gated.
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
@@ -81,6 +81,26 @@ public class BarrowworksGateTests
         }
         Assert.All(root.GetProperty("terrain").EnumerateObject(),
             cell => Assert.Contains("space.barrowworks", cell.Name, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void TheCustodiansWeakPoint_FollowsTheSameNativeIndexBoneInBothOverlays()
+    {
+        using var shipped = JsonDocument.Parse(File.ReadAllText(Overlay, Encoding.UTF8));
+        using var ring = JsonDocument.Parse(File.ReadAllText(RingOverlay, Encoding.UTF8));
+        var looks = new[]
+        {
+            shipped.RootElement.GetProperty("creatures").GetProperty("creature.construct.ring_custodian"),
+            shipped.RootElement.GetProperty("creatures").GetProperty("creature.boss.barrowworks.ring_custodian.deep"),
+            ring.RootElement.GetProperty("creatures").GetProperty("creature.construct.ring_custodian"),
+        };
+        foreach (var look in looks)
+        {
+            Assert.Equal("bw_codex_custodian", look.GetProperty("model").GetString());
+            Assert.Equal("index", look.GetProperty("weak_point_bone").GetString());
+            Assert.Equal(new[] { 0f, .1f, -.21f }, look.GetProperty("weak_point_offset_m").EnumerateArray().Select(v => v.GetSingle()));
+            Assert.Equal(.24f, look.GetProperty("weak_point_radius_m").GetSingle());
+        }
     }
 
     /// <summary>A room or corridor-leg binding: <c>r01_…</c> or <c>corr_…</c>, which no other region uses.</summary>

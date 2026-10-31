@@ -990,7 +990,10 @@ public partial class Main : Node3D
         // Under the open sky (the gorge's ledge and hollow) the frontier stays drawn round the interior; UpdateOpenAir picks whose air.
         bool openAir = !outside && OpenAir(_session.Simulation!.ActiveLayout.SpaceId);
         Greybox.WeatherStates.UnderSky = outside || openAir;
-        _hollow.SetSpaceActive(outside || openAir);
+        // A direct closed-region boot builds its own rooms in _hollow, without
+        // a second held interior. Keep those rooms and their interior air drawn.
+        bool ownInterior = !outside && _session.Simulation!.ActiveLayout.SpaceId == _session.Setup.Layout.SpaceId;
+        _hollow.SetSpaceActive(outside || openAir || ownInterior);
         if (_scatter is not null)
             _scatter.Visible = outside || openAir;
         if (!outside && _interior is { } ring)
@@ -1191,7 +1194,10 @@ public partial class Main : Node3D
         // sward is impossible with rock scatter standing in front of it, which is what every previous frame had.
         string grassMode = _options.GetValueOrDefault("--grass") ?? "models";
         _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes,
-            cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades");
+            cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades",
+            bossCourts: _session.Setup.Combat.Spawns.Where(s => s.Space == layout.SpaceId && s.Recovery is not null
+                && s.Members.Any(m => _session.Setup.Combat.Creatures[m.CreatureId].Tags.Contains("boss")))
+                .Select(s => s.Recovery!));
         AddChild(_scatter);
         _loading?.Stage("Dressing the player", 0.66);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;

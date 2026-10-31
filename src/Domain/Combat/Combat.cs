@@ -204,6 +204,10 @@ public readonly record struct AttackContext(bool AttackerAlive, bool TargetAlive
 
 public static class CombatRules
 {
+    /// <summary>A charging body strikes on contact, including the existing 300 mm contact allowance.</summary>
+    public static long ChargeContactRadiusMm(long attackerRadiusMm, long targetRadiusMm) =>
+        attackerRadiusMm + targetRadiusMm + 300;
+
     /// <summary>Owner first-update ruling: every higher level has an advantage; two or more levels of disadvantage require tactics. Peers keep authored numbers.</summary>
     public static Strike LevelGap(Strike strike, int attackerLevel, int defenderLevel)
     {

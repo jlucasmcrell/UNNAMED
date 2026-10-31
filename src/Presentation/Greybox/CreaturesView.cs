@@ -23,6 +23,8 @@ public partial class CreaturesView : Node3D
     private readonly Dictionary<EntityId, CreatureBody> _figures = new();
     private readonly Dictionary<EntityId,Node3D> _roots = new();
     private readonly Dictionary<EntityId,Node3D> _crackles = new();
+    private readonly Dictionary<EntityId, BossEffects> _bossEffects = new();
+    private Art.ParticleRecipes? _bossRecipes;
     private long _tick = -1;
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
     private Art.ArtBindings _bindings = Art.ArtBindings.Empty;
@@ -32,6 +34,7 @@ public partial class CreaturesView : Node3D
     {
         _art = art;
         _bindings = bindings;
+        _bossRecipes = Art.ParticleRecipes.Load(art.Root);
     }
 
     /// <summary>Cull the inactive space's figures; its authoritative creatures continue in Simulation.</summary>
@@ -109,11 +112,25 @@ public partial class CreaturesView : Node3D
                 // Still where it stands, for anything that asks where a creature is drawn.
                 figure.Position = feet;
                 figure.Visible = false;
+                if (_bossEffects.TryGetValue(creature.Id, out var hiddenEffects)) hiddenEffects.Visible = false;
                 figure.ProcessMode = ProcessModeEnum.Disabled;
                 continue;
             }
             figure.ProcessMode = ProcessModeEnum.Inherit;
             figure.Pose(creature, (float)alpha, delta);
+            var boss = simulation.Setup.Combat.Creatures[creature.DefId];
+            if (boss.Tags.Contains("boss"))
+            {
+                if (!_bossEffects.TryGetValue(creature.Id, out var effects))
+                {
+                    effects = BossEffects.Create(boss, figure, _bossRecipes ?? Art.ParticleRecipes.Load(_art.Root), _bindings.Creatures.GetValueOrDefault(creature.DefId));
+                    AddChild(effects);
+                    _bossEffects[creature.Id] = effects;
+                }
+                effects.Draw(creature, simulation.Setup.Combat.Constants, simulation.Setup.Movement.BodyRadiusMm,
+                    simulation.WorldTick, delta, simulation.Setup.TickMilliseconds,
+                    (x, z) => simulation.ActiveLayout.Space.HeightAtMm((long)(x * 1000), (long)(z * 1000)) / 1000f);
+            }
         }
         // A creature that came back is a new body; the old one's figure goes.
         if (advanced && _figures.Count > views.Length)
@@ -124,6 +141,7 @@ public partial class CreaturesView : Node3D
                 _figures[id].QueueFree();
                 if(_roots.Remove(id,out var roots))roots.QueueFree();
                 if(_crackles.Remove(id,out var crackle))crackle.QueueFree();
+                if (_bossEffects.Remove(id, out var effects)) effects.QueueFree();
                 _figures.Remove(id);
             }
         }

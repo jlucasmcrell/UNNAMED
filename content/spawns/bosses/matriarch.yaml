@@ -13,15 +13,17 @@ creatures:
   - 1
   - 1
   role: sentinel
+# Accepted native body spans17.6x16.6m: use the29x21m great chamber, not the14x11m antechamber.
+# Keep the canonical body/scale and fight rules. Safe return is on the actual squeeze approach.
 at:
   position_m:
-  - 541.0
-  - 785.0
-  radius_m: 2
+  - 518.0
+  - 765.0
+  radius_m: 0.25
 level_band:
 - 4
 - 4
 respawn:
   kind: none
 tier_hint: B
-encounter_recovery: { min_x_m: 528, min_z_m: 772, max_x_m: 554, max_z_m: 798, safe_x_m: 541, safe_z_m: 770 }
+encounter_recovery: { min_x_m: 503.5, min_z_m: 754.5, max_x_m: 532.5, max_z_m: 775.5, safe_x_m: 534, safe_z_m: 779 }
