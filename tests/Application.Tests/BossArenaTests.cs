@@ -54,10 +54,6 @@ public class BossArenaTests
         using (var session = Harness.Boot(profile, "region.starting_frontier"))
             Assert.True(Find(session, "spawn.boss.ashen_hollow.wayholder_trial").Court.Forfeit);
 
-        using (var profile = new TempProfile())
-        using (var session = Harness.Boot(profile, "region.barrowworks", barrowworks: true))
-            Assert.True(Find(session, "spawn.boss.barrowworks.ring_custodian.deep").Court.Forfeit);
-
         // A court without the rule keeps the grace: Old Late waits out a walk to safety instead of forfeiting at once.
         using (var profile = new TempProfile())
         using (var session = Harness.Boot(profile, "region.starting_frontier"))
@@ -145,17 +141,6 @@ public class BossArenaTests
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, "region.den_gorge_cave");
         AssertInsideItsArena(Find(session, "spawn.boss.den_gorge.matriarch"));
-    }
-
-    [Fact]
-    public void TheMeasuringCourt_HoldsTheCustodianAtItsDeepestLevel()
-    {
-        using var profile = new TempProfile();
-        using var session = Harness.Boot(profile, "region.barrowworks", barrowworks: true);
-        var boss = Find(session, "spawn.boss.barrowworks.ring_custodian.deep");
-        AssertInsideItsArena(boss);
-        // DUNGEON END (canon/BOSSES.md §2): the deeper band the area's own custodian carries, and no respawn.
-        Assert.Equal(0L, session.Setup.Combat.Spawns.Single(s => s.Key == boss.Key).RespawnTicks);
     }
 
     [Fact]

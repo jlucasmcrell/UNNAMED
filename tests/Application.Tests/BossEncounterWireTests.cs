@@ -33,31 +33,6 @@ public class BossEncounterWireTests
     }
 
     [Fact]
-    public void TheRingCustodian_FightsThroughThreePhases_AndItsGaugeOpensOnlyInTheThird()
-    {
-        var (creatures, _) = World("region.barrowworks");
-        var boss = creatures["creature.boss.barrowworks.ring_custodian.deep"];
-
-        Assert.Equal(new[] { "closed", "measuring", "open" }, Walk(boss));
-        Assert.All(boss.Phases, phase => Assert.False(string.IsNullOrWhiteSpace(phase.Name)));
-
-        // CMB-40: guarded in I and II, open in III
-        Assert.False(BossEncounter.WeakPointOpen(boss, boss.MaxHealth, 0));
-        Assert.False(BossEncounter.WeakPointOpen(boss, (int)(boss.MaxHealth * 0.5), 0));
-        Assert.True(BossEncounter.WeakPointOpen(boss, 1, 0));
-
-        // CMB-43: a duty construct, so standing it down is legal and worth less than killing it
-        Assert.NotNull(boss.StandDown);
-        Assert.True(boss.StandDown!.RewardXp > 0 && boss.StandDown.RewardXp < boss.XpValue);
-        Assert.True(boss.StandDown.KeepsLoot);
-        Assert.False(string.IsNullOrWhiteSpace(boss.StandDown.Stinger));
-
-        // CMB-42: a cue per phase
-        Assert.Equal(3, boss.Stingers.Count);
-        Assert.All(boss.Phases, phase => Assert.True(boss.Stingers.ContainsKey(phase.Name), $"{phase.Name} has no stinger"));
-    }
-
-    [Fact]
     public void TheMatriarch_FightsThroughThreePhases_AndCallsHerBroodInTheSecond()
     {
         var (creatures, _) = World("region.den_gorge_cave");

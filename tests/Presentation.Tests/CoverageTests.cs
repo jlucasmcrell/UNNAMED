@@ -259,7 +259,7 @@ public class AudioCoverageTests
         }
         var defined = Directory.EnumerateFiles(Repository.File("content", "creatures"), "*.yaml", SearchOption.AllDirectories)
             .Select(f => File.ReadLines(f).First(l => l.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim()).ToList();
-        Assert.Equal(23, defined.Count);
+        Assert.Equal(58, defined.Count);   // the frontier's and the Sedge's, and the boss roster
         Assert.Contains("creature.beast.hunting_spider_matriarch", defined);
         Assert.All(defined, id =>
         {

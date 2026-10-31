@@ -16762,8 +16762,8 @@
       },
       "uniform_scale": 0.8,
       "voice": "sedge_eel_serpent",
-      "flesh": "flesh",
-      "blow": "bite",
+      "flesh": "plate",
+      "blow": "slam",
       "steps": {
         "walk": "move_heavy",
         "run": "move_heavy"
@@ -16889,9 +16889,9 @@
     },
     "creature.boss.foldscar.doubled_hart": {
       "model": "creature_doubled_hart",
-      "flesh": "fur",
+      "flesh": "hide",
       "voice": "deer",
-      "blow": "antler",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -17311,9 +17311,9 @@
     },
     "creature.boss.steppe.glassantler": {
       "model": "creature_doubled_hart",
-      "flesh": "fur",
+      "flesh": "hide",
       "voice": "deer",
-      "blow": "antler",
+      "blow": "gore",
       "steps": {
         "walk": "walk",
         "run": "run"
@@ -17461,6 +17461,17 @@
       },
       "uniform_scale": 0.5,
       "note": "D19: the D5 batch B rework pair - the rock golem body with the rework clip set of the same batch (its own idle/run/attack/attack_2/hit/death takes). The old records clashed with a second golem clip family in the primary art root, which skinned this body into torn stone."
+    },
+    "creature.grazer.doubled_hart": {
+      "model": "creature_doubled_hart",
+      "flesh": "hide",
+      "voice": "deer",
+      "blow": "gore",
+      "steps": {
+        "walk": "walk",
+        "run": "run"
+      },
+      "note": "The Glassantler's herd body (walked_steppe dev scaffold): the Doubled Hart's own model, as the boss draws it."
     }
   },
   "audio": {

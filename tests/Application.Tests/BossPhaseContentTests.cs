@@ -93,16 +93,4 @@ public class BossPhaseContentTests
         }
     }
 
-    [Fact]
-    public void TheCustodiansGaugeIsGuardedThenOpen()
-    {
-        var bosses = Bosses();
-        var custodian = bosses.SingleOrDefault(pair => pair.Key == "creature.boss.barrowworks.ring_custodian.deep");
-        Assert.NotNull(custodian.Value);
-        var boss = custodian.Value!;
-        Assert.Equal("closed", BossEncounter.PhaseAt(boss, boss.MaxHealth, 0).Name);
-        Assert.Equal("open", BossEncounter.PhaseAt(boss, 1, 0).Name);
-        Assert.False(BossEncounter.WeakPointOpen(boss, boss.MaxHealth, 0));
-        Assert.True(BossEncounter.WeakPointOpen(boss, 1, 0));
-    }
 }

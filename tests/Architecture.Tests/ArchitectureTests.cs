@@ -124,6 +124,7 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
             nameof(UNNAMED.World.Runtime.Simulation.DialogueVisited), // read-only history for unread dialogue topics
+            nameof(UNNAMED.World.Runtime.Simulation.Contributions),   // an encounter's contribution ledger, read only (CMB-45)
             nameof(UNNAMED.World.Runtime.Simulation.Barks),   // which of an NPC's barks hold now, for the lines said in passing
             nameof(UNNAMED.World.Runtime.Simulation.TravelOptions),   // the journeys a Waystone offers and their costs, for its panel (S-38)
             nameof(UNNAMED.World.Runtime.Simulation.TrackedQuest),   // which quest the tracker follows (WP4)

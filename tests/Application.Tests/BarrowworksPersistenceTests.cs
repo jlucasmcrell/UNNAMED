@@ -13,6 +13,25 @@ namespace UNNAMED.Application.Tests;
 
 public class BarrowworksPersistenceTests
 {
+    /// <summary>
+    /// The measuring court holds one Custodian. The D19 boss spawn (spawn.boss.barrowworks.ring_custodian.deep) stood a second one on the
+    /// legacy construct's spot (50, 106); the boss Custodian waits for the next package, because at its numbers the reference visitor won no
+    /// fight in BARROWWORKS_BALANCE's table. Nothing else in the ring is a Custodian of any kind.
+    /// </summary>
+    [Fact]
+    public void TheMeasuringCourt_HoldsExactlyOneCustodian()
+    {
+        using var profile = new TempProfile();
+        var options = new GameOptions(Path.Combine(Harness.RepoRoot(), "content"), profile.Root)
+        { RegionId = "region.barrowworks", Barrowworks = true, StartXMm = 50_000, StartZMm = 84_000 };
+        using var session = GameSession.Boot(options);
+        session.NewGame(Harness.Named("Wanderer"), seed: 42);
+        session.Frame(session.TickSeconds);
+        var custodian = Assert.Single(session.Simulation!.Creatures.Where(c => c.DefId.Contains("ring_custodian", StringComparison.Ordinal)));
+        Assert.Equal("creature.construct.ring_custodian", custodian.DefId);
+        Assert.Single(session.Setup.Combat.Spawns, s => s.Members.Any(m => m.CreatureId.Contains("ring_custodian", StringComparison.Ordinal)));
+    }
+
     [Fact]
     public void LoadingAnActiveAttempt_RestagesOutsideCourt_WithoutRefillingThePlayer()
     {
