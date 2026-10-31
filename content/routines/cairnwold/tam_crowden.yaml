@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.cairnwold.tam_crowden.name
 tags: [routine]
-notes: "Tam holds the granary at the west end; works where the region places her; sleeps in house 01."
+notes: "The lodge's pot from seven to seven, then the evening water at the well."
 region_ref: region.starting_frontier
 npc_ref: npc.cairnwold.tam_crowden
 settlement: cairnwold
@@ -13,3 +13,6 @@ work_hours: [7, 19]
 anchors:
   home: { position_m: [949, 652], facing_deg: 0 }
   work: { position_m: [941, 681.5], facing_deg: 180 }
+  well: { position_m: [969.59, 660.74], facing_deg: 180 }
+schedule:
+  - { hours: [19, 21], at: well }

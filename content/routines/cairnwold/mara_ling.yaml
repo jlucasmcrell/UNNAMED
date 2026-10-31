@@ -3,7 +3,7 @@ kind: routine
 schema: 1
 display_key: routine.cairnwold.mara_ling.name
 tags: [routine]
-notes: "Mara keeps the well; works where the region places her; sleeps in house 02."
+notes: "Mara keeps the well all day - her work anchor is the well itself - and draws the granary's water before the village wakes."
 region_ref: region.starting_frontier
 npc_ref: npc.cairnwold.mara_ling
 settlement: cairnwold
@@ -12,4 +12,7 @@ roles: [herbalist, quest_giver]           # WP12b: town roles (config.npc_life);
 work_hours: [7, 19]
 anchors:
   home: { position_m: [962, 650], facing_deg: 0 }
-  work: { position_m: [975, 665], facing_deg: 180 }
+  work: { position_m: [969.59, 660.74], facing_deg: 180 }
+  granary: { position_m: [941.0, 679.5], facing_deg: 90 }
+schedule:
+  - { hours: [5, 7], at: granary }
