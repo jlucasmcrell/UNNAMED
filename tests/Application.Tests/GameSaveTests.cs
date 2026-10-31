@@ -170,6 +170,17 @@ public class GameSaveTests
             Assert.Empty(simulation.Diagnose(quest.Id).Problems);
     }
 
+    [Theory]
+    [InlineData("creature.beast.hunting_spider_matriarch", "creature.boss.den_gorge.matriarch")]
+    [InlineData("creature.construct.gate_warden", "creature.boss.field_ruins.gate_warden.deep")]
+    [InlineData("creature.grazer.doubled_hart", "creature.boss.foldscar.doubled_hart")]
+    public void RetiredBossIds_ResolveToTheirCurrentDefinitions(string oldId, string currentId)
+    {
+        using var profile = new TempProfile();
+        var resolved = Harness.Boot(profile).Content.Resolve(oldId);
+        Assert.Equal((IdOutcome.Renamed, currentId), (resolved.Outcome, resolved.CurrentId));
+    }
+
     /// <summary>
     /// B-016: the owner's Public Playtest 1.1 save. Build 2 added authored nodes, so the generator's fingerprint changed and five of the
     /// save's cells were written against a baseline this build no longer generates. The shipped build's transition carries them across.
@@ -189,6 +200,8 @@ public class GameSaveTests
         Assert.NotEmpty(loaded.Report.CellsRebased);
         Assert.All(loaded.Report.CellsRebased, c => Assert.Contains("Public Playtest 1.1", c, StringComparison.Ordinal));
         Assert.Equal(40, loaded.Report.SourceSchema);
+        Assert.Contains(loaded.Report.Aliases, a => a.StartsWith("creature.beast.hunting_spider_matriarch -> creature.boss.den_gorge.matriarch", StringComparison.Ordinal));
+        Assert.Contains(loaded.Report.Aliases, a => a.StartsWith("creature.construct.gate_warden -> creature.boss.field_ruins.gate_warden.deep", StringComparison.Ordinal));
         Harness.Ticks(session, 20);
     }
 

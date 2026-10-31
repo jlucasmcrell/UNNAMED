@@ -2,3 +2,7 @@
 # M6 moved the region to the content bible's four cells: the M3 iron shelf became Blackvein Cut.
 aliases:
   location.iron_shelf: location.blackvein_cut
+  # D19 replaced these published creature definitions with their boss definitions; old saves retain their recorded actors.
+  creature.beast.hunting_spider_matriarch: creature.boss.den_gorge.matriarch
+  creature.construct.gate_warden: creature.boss.field_ruins.gate_warden.deep
+  creature.grazer.doubled_hart: creature.boss.foldscar.doubled_hart

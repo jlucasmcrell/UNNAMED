@@ -87,6 +87,12 @@ public class ReachabilityTests
         var setup = Harness.Boot(profile, barrowworks: true).Setup;
 
         var reachable = Reachable(setup);
+        // The item catalogue is world-wide: Sedge's tide slate and Otherhome's ledger are found in their own regions.
+        foreach (string region in new[] { Sedge, "region.otherhome" })
+        {
+            using var regionProfile = new TempProfile();
+            reachable.UnionWith(Reachable(Harness.Boot(regionProfile, region).Setup));
+        }
         // The heritage of a people nobody can play yet (the Ondrek's Record Stone) waits for them to be playable (owner, 2026-10-23).
         var held = setup.Character.Peoples.Values.Where(p => !p.Playable).SelectMany(p => p.Heritage).Select(k => k.ItemId).ToHashSet(StringComparer.Ordinal);
         // And what only the creatures held for a region not yet open would drop waits for that region.
