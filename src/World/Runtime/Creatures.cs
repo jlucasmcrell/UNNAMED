@@ -1420,6 +1420,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             StaggerImmuneUntil = immune,
             StaggeredTick = staggered ? c.Action.StartTick : null,
             StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
+            // What its carcass has given up is the gatherer's to count (CarcassHarvestedCommand): the same body keeps it, a new generation starts at none.
+            CarcassTaken = existing is not null && existing.InstanceId == c.Id ? existing.CarcassTaken : 0,
         };
         if (existing is null || existing with { BaselineHash = null } != record)
             State.SetCreatureRecord(_owner, record);

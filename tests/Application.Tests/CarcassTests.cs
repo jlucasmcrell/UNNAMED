@@ -166,6 +166,8 @@ public sealed class CarcassTests
         Assert.True(meatTaken >= 1);
         Assert.Equal(0, Carried(arena.Simulation, "item.material.pelt_grey_wolf"));
         Assert.Equal("item.material.pelt_grey_wolf", arena.Simulation.Nodes.Single(n => n.Key == key).ItemId);
+        // the world goes on before the save: the corpse is the creature system's every tick, and its record must keep the count
+        arena.Tick(40);
 
         var store = new SaveStore(profile.Root);
         store.Save(SaveSlots.Manual("skinned"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
