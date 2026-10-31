@@ -848,16 +848,12 @@ internal sealed partial class CompanionSystem : IAbstractAdvance
         string weapon = sheet.Gear.TryGetValue(EquipSlot.MainHand, out var held) && catalog.Find(held.Item.DefId)?.Weapon is { Ranged: false }
             ? held.Item.DefId
             : body.WeaponId;
-        int Worn(params EquipSlot[] slots) => slots.Sum(slot =>
-            sheet.Gear.TryGetValue(slot, out var gear) && catalog.Find(gear.Item.DefId) is { } item
-                ? EquipmentRules.ArmorOf(item, gear.Item.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
-                : 0);
-        var worn = new Dictionary<BodyRegion, int>
-        {
-            [BodyRegion.Head] = Worn(EquipSlot.Head),
-            [BodyRegion.Torso] = Worn(EquipSlot.Chest, EquipSlot.Cloak, EquipSlot.OffHand),
-            [BodyRegion.Limbs] = Worn(EquipSlot.Hands, EquipSlot.Legs, EquipSlot.Feet),
-        };
+        var worn = EquipmentRules.ArmorByRegion(
+            from piece in sheet.Gear
+            let item = catalog.Find(piece.Value.Item.DefId)
+            where item is not null
+            select (piece.Key, item, piece.Value.Item.Quality),
+            _context.Setup.Crafting.Constants.ArmorPerStep);
         var armor = Enum.GetValues<BodyRegion>().Where(r => body.Armor.ContainsKey(r) || worn.GetValueOrDefault(r) > 0)
             .ToImmutableSortedDictionary(r => r, r => body.Armor.GetValueOrDefault(r) + worn.GetValueOrDefault(r));
         int health = Approval.MaxHealth(body.MaxHealth, sheet.Progression, _context.Setup.Progression) * TraitsOf(sheet.NpcId).HealthPercent / 100;

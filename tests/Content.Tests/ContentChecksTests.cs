@@ -172,6 +172,23 @@ public class ContentChecksTests : IDisposable
         Assert.Contains(errors, e => e.Code == "SEM003" && e.Message.Contains(" movement_penalty ", StringComparison.Ordinal));
     }
 
+    /// <summary>GEN-09: the belt, shoulder and ring slots are worn slots an armour piece or a plain item may be authored into.</summary>
+    [Theory]
+    [InlineData("belt")]
+    [InlineData("shoulders")]
+    [InlineData("ring")]
+    public void TheAccessorySlots_AreWornSlots(string slot)
+    {
+        string guards = "id: item.armor.hide_shoulder_guards\nkind: item.armor\nschema: 1\ndisplay_key: item.armor.hide_shoulder_guards.name\n" +
+                        "tags: [armor]\ncategory: armor\nstack_max: 1\nweight: 1\nvalue_base: 12\nrarity: common\n" +
+                        $"slot: {slot}\narmor_value: 1\n";
+        Assert.Empty(Lint(("items/armor/hide_shoulder_guards.yaml", guards)));
+
+        string trinket = "id: item.trinket.iron_band_ring\nkind: item\nschema: 1\ndisplay_key: item.trinket.iron_band_ring.name\ntags: [item]\n" +
+                         $"category: misc\nstack_max: 1\nweight: 0.1\nvalue_base: 8\nrarity: common\nequip_slot: {slot}\n";
+        Assert.Empty(Lint(("items/trinket/iron_band_ring.yaml", trinket)));
+    }
+
     [Fact]
     public void CreatureSemantics_AreChecked()
     {

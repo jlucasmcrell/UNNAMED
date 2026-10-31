@@ -237,7 +237,7 @@ internal static class PhaseOneSchemas
     private static readonly string[] Rarities = { "common", "uncommon", "rare", "epic", "legendary", "artifact" };
     private static readonly string[] DamageTypes = { "physical_slash", "physical_pierce", "physical_blunt", "fire", "frost", "shock", "arcane", "holy", "necrotic", "poison" };
     private static readonly string[] Hands = { "one", "two", "offhand" };
-    private static readonly string[] Slots = { "head", "chest", "hands", "legs", "feet", "cloak", "ring", "amulet", "off_hand" };
+    private static readonly string[] Slots = { "head", "chest", "hands", "legs", "feet", "cloak", "ring", "amulet", "belt", "shoulders", "off_hand" };
     private static readonly string[] ItemClasses = { "ordinary", "masterwork", "notable", "artefact" };
     private static readonly string[] MaterialClasses = { "cloth", "leather", "mail", "plate", "chitin", "exotic" };
     private static readonly string[] Archetypes = { "predator", "prey", "scavenger", "humanoid", "undead", "construct", "spirit", "apex" };

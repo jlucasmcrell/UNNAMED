@@ -628,6 +628,34 @@ public sealed class InventoryDto
 
     /// <summary>From schema 24: its wear, or null when it is unworn at its made quality.</summary>
     [Key("wear")] public WearDto? Wear { get; set; }
+
+    /// <summary>From schema 40: the parts and maker an assembled piece was built from (D21), or null for a plain item.</summary>
+    [Key("built")] public BuiltDto? Built { get; set; }
+}
+
+/// <summary>
+/// A built instance (D21): the family it belongs to, the maker whose work it is, the tier it rolled at, the part in each of the family's
+/// slots, the material in each of a part's material slots, and the affixes and sockets the build carries.
+/// </summary>
+[MessagePackObject]
+public sealed class BuiltDto
+{
+    [Key("family")] public string Family { get; set; } = "";
+    [Key("maker")] public string Maker { get; set; } = "";
+    [Key("part_tier")] public int PartTier { get; set; }
+    [Key("parts")] public BuiltSlotDto[] Parts { get; set; } = Array.Empty<BuiltSlotDto>();
+    [Key("materials")] public BuiltSlotDto[] Materials { get; set; } = Array.Empty<BuiltSlotDto>();
+    [Key("affixes")] public string[]? Affixes { get; set; }
+    [Key("sockets")] public int Sockets { get; set; }
+    [Key("name")] public string? Name { get; set; }
+}
+
+/// <summary>One slot of a build: the family slot and the part or material that fills it.</summary>
+[MessagePackObject]
+public sealed class BuiltSlotDto
+{
+    [Key("slot")] public string Slot { get; set; } = "";
+    [Key("id")] public string Id { get; set; } = "";
 }
 
 /// <summary>A stack's wear (schema 24; WP3b): the points taken, and the quality it was made at.</summary>
@@ -1074,7 +1102,8 @@ public static class SectionCodec
         ZMm = player.ZMm,
         AppearanceSeed = player.AppearanceSeed,
         Inventory = player.Inventory
-            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) })
+            .Select(e => new InventoryDto { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable),
+                Wear = WearToDto(e.Wear), Built = BuiltToDto(e.Built) })
             .ToArray(),
         Progression = ProgressionCodec.ToDto(player.Progression),
         FacingMdeg = player.FacingMdeg,
@@ -1390,6 +1419,7 @@ public static class SectionCodec
             dto.Inventory.Select(e => new InventoryEntry(EntityId.Parse(e.ItemId), e.DefId, e.Count)
             {
                 Quality = QualityOf(e.Quality, $"carried {e.ItemId}"), Notable = NotableOf(e.Notable, $"carried {e.ItemId}"), Wear = WearOf(e.Wear, $"carried {e.ItemId}"),
+                Built = BuiltOf(e.Built, $"carried {e.ItemId}"),
                 Bag = placed[e.ItemId].Bag, Slot = placed[e.ItemId].Slot, Locked = placed[e.ItemId].Locked, Junk = placed[e.ItemId].Junk,
             }),
             ProgressionCodec.FromDto(progression), facing,
@@ -1469,10 +1499,41 @@ public static class SectionCodec
     }
 
     private static InventoryDto StackToDto(InventoryEntry e) =>
-        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear) };
+        new() { ItemId = e.ItemId.Value, DefId = e.DefId, Count = e.Count, Quality = e.Quality, Notable = NotableToDto(e.Notable), Wear = WearToDto(e.Wear),
+            Built = BuiltToDto(e.Built) };
 
     private static InventoryEntry StackOf(InventoryDto e, string what) =>
-        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what) };
+        new(EntityId.Parse(e.ItemId), e.DefId, e.Count) { Quality = QualityOf(e.Quality, what), Notable = NotableOf(e.Notable, what), Wear = WearOf(e.Wear, what),
+            Built = BuiltOf(e.Built, what) };
+
+    private static BuiltDto? BuiltToDto(GearBuild? built) => built is null ? null : new BuiltDto
+    {
+        Family = built.Family,
+        Maker = built.MakerId,
+        PartTier = built.PartTier,
+        Parts = built.Parts.Select(kv => new BuiltSlotDto { Slot = kv.Key, Id = kv.Value }).ToArray(),
+        Materials = built.Materials.Select(kv => new BuiltSlotDto { Slot = kv.Key, Id = kv.Value }).ToArray(),
+        Affixes = built.Affixes.ToArray(),
+        Sockets = built.Sockets,
+        Name = built.Name,
+    };
+
+    private static GearBuild? BuiltOf(BuiltDto? built, string what)
+    {
+        if (built is null)
+            return null;
+        if (built.Family.Length == 0 || built.Maker.Length == 0 || built.PartTier < 0)
+            throw new FormatException($"{what}'s build names no family, maker or part tier");
+        var parts = built.Parts.ToImmutableSortedDictionary(p => p.Slot, p => p.Id, StringComparer.Ordinal);
+        var materials = built.Materials.ToImmutableSortedDictionary(m => m.Slot, m => m.Id, StringComparer.Ordinal);
+        if (parts.Count != built.Parts.Length || materials.Count != built.Materials.Length)
+            throw new FormatException($"{what}'s build names a slot twice");
+        return new GearBuild(built.Family, built.Maker, built.PartTier, parts, materials,
+            (built.Affixes ?? Array.Empty<string>()).ToImmutableArray(), built.Sockets)
+        {
+            Name = built.Name,
+        };
+    }
 
     private static CompanionRecord Companion(CompanionDto c)
     {

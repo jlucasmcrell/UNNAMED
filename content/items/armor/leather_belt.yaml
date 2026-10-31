@@ -1,0 +1,18 @@
+id: item.armor.leather_belt
+kind: item.armor
+schema: 1
+display_key: item.armor.leather_belt.name
+tags: [item]
+name: Leather Belt
+notes: Belt armor (GEN-09) - a broad hide belt with an iron buckle, worn round the waist. Whatever hangs from it, it is what a belt slot holds.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.6
+value_base: 10
+rarity: common
+slot: belt
+armor_value: 1
+material_class: leather
+durability_max: 150       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 1, item_ref: item.material.small_hide }

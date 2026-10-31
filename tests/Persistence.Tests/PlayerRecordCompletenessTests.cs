@@ -26,6 +26,16 @@ public class PlayerRecordCompletenessTests
 {
     private static readonly MessagePackSerializerOptions Options = MessagePackSerializerOptions.Standard.WithSecurity(MessagePackSecurity.UntrustedData);
 
+    /// <summary>A piece built from parts by a maker (D21): what a rolled drop or a bench assembly is that a plain item is not.</summary>
+    private static readonly Domain.Items.GearBuild Assembled = new("sword", "maker.fixture.smithy", 1,
+        ImmutableSortedDictionary.Create<string, string>(StringComparer.Ordinal)
+            .Add("blade", "part.sword.blade.armed").Add("guard", "part.sword.guard.cross"),
+        ImmutableSortedDictionary.Create<string, string>(StringComparer.Ordinal).Add("metal_main", "mat.iron.charcoal"),
+        ImmutableArray.Create("affix.fixture.keen"), 1)
+    {
+        Name = "Fixture Keen Sword",
+    };
+
     /// <summary>
     /// The historical fixture's player - every schema's fields filled - and more, so no field is left at its default anywhere: a chest
     /// piece worn beside the main hand, a second attribute raised, a stamina pool part spent, a guard's day past the first, a second
@@ -37,8 +47,9 @@ public class PlayerRecordCompletenessTests
         var vest = new InventoryEntry(Item(12), "item.armor.fixture_vest", 1)
         {
             Bag = 0, Slot = 1,
-            // A masterwork with its maker's mark (schema 19).
+            // A masterwork with its maker's mark (schema 19), assembled from parts by a maker (D21, the built instance).
             Quality = 2,
+            Built = Assembled,
             Notable = new Domain.Items.NotableRecord("Fixture Vest", Domain.Items.ProvenanceKind.Crafted, "recipe.fixture.vest", 4_200) { Maker = "Aelin", Uses = 2 },
             // Worn a little (schema 24).
             Wear = new Domain.Items.ItemWear(12, 2),
@@ -104,11 +115,11 @@ public class PlayerRecordCompletenessTests
                 PartySheets = ImmutableArray.Create(new PartySheet("npc.fixture.scout", progression)
                 {
                     Gear = ImmutableSortedDictionary.Create<EquipSlot, PartyGear>()
-                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1) }, Loaned: true))
-                        .Add(EquipSlot.Head, new PartyGear(new InventoryEntry(Item(8), "item.armor.fixture_cap", 1) { Quality = -1, Notable = vest.Notable }, Loaned: false)),
+                        .Add(EquipSlot.MainHand, new PartyGear(new InventoryEntry(Item(7), "item.weapon.iron_sword", 1) { Quality = 1, Built = Assembled, Notable = player.Inventory.Single(e => e.Notable is not null).Notable, Wear = new Domain.Items.ItemWear(9, 1) }, Loaned: true))
+                        .Add(EquipSlot.Head, new PartyGear(new InventoryEntry(Item(8), "item.armor.fixture_cap", 1) { Quality = -1, Built = Assembled, Notable = vest.Notable }, Loaned: false)),
                     Belongings = ImmutableArray.Create(new InventoryEntry(Item(9), "item.potion.minor_healing", 2) { Quality = 1 },
-                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1) },
-                        new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
+                        new InventoryEntry(Item(10), "item.weapon.fixture_knife", 1) { Built = Assembled, Notable = vest.Notable! with { Familiarity = 1 }, Wear = new Domain.Items.ItemWear(3, 1) },
+                        new InventoryEntry(Item(11), "item.weapon.fixture_axe", 1) { Built = Assembled, Notable = player.Inventory.Single(e => e.Notable is not null).Notable }),
                 }),
                 // A swing under way that has struck two creatures (schema 27).
                 Attack = new AttackRecord("item.weapon.iron_sword", 4_200, ImmutableArray.Create(
@@ -261,6 +272,8 @@ public class PlayerRecordCompletenessTests
         ["player.companions[].contract"] = "a whole contract, present exactly on a hireling (schema 21); each of its fields is perturbed where one is present",
         ["player.inventory[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.inventory[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
+        ["player.inventory[].built"] = "a whole build (D21), absent on a plain item; each of its fields is perturbed where one is present",
+        ["player.party_sheets[].belongings[].built"] = "a whole build (D21), absent on a plain item; each of its fields is perturbed where one is present",
         ["player.party_sheets[].belongings[].notable"] = "a whole record, absent on an ordinary stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].belongings[].wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",
         ["player.party_sheets[].gear[].item.wear"] = "a whole record, absent on an unworn stack; each of its fields is perturbed where one is present",

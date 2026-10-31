@@ -1,0 +1,18 @@
+id: item.armor.hide_shoulder_guards
+kind: item.armor
+schema: 1
+display_key: item.armor.hide_shoulder_guards.name
+tags: [item]
+name: Hide Shoulder Guards
+notes: Shoulder armor (GEN-09) - a pair of hide caps strapped over the shoulders, cut from the same hide as a vest and worn over it. The first thing a shoulder slot holds.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.4
+value_base: 18
+rarity: common
+slot: shoulders
+armor_value: 2
+material_class: leather
+durability_max: 150       # wear from use (WP3b, D5); worn out it counts as crude and is never lost
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }

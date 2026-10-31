@@ -1112,8 +1112,8 @@ public sealed record PlayerRecord
                 {
                     h.Add(sheet.NpcId).Add(sheet.Progression.Digest).Add(sheet.Gear.Count);
                     foreach (var (slot, gear) in sheet.Gear)
-                        WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
-                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear);
+                        BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(EquipSlots.Key(slot)).Add(gear.Loaned ? 1 : 0).Add(gear.Item.ItemId.Value).Add(gear.Item.DefId)
+                            .Add(gear.Item.Count).Add(gear.Item.Quality), gear.Item.Notable), gear.Item.Wear), gear.Item.Built);
                     h.Add(sheet.Belongings.Length);
                     foreach (var e in sheet.Belongings)
                         BuildDigest.Add(WearDigest.Add(NotableDigest.Add(h.Add(e.ItemId.Value).Add(e.DefId).Add(e.Count).Add(e.Quality), e.Notable), e.Wear), e.Built);

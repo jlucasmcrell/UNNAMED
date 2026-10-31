@@ -1,0 +1,14 @@
+id: item.trinket.iron_band_ring
+kind: item
+schema: 1
+display_key: item.trinket.iron_band_ring.name
+tags: [item]
+name: Iron Band Ring
+notes: A ring (GEN-09) - a plain band of iron, worn on the hand. The ring slot's first carrier; a warding piece is the same slot with a better make (Codex's gear lane binds its art).
+category: misc
+stack_max: 1
+weight: 0.1
+value_base: 8
+rarity: common
+equip_slot: ring
+armor_value: 1

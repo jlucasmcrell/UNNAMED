@@ -211,6 +211,8 @@ The same mechanism carries `ability`, `recipe`, `title`, `access`, `world_flag`,
 
 **M3b reconciliation (the prototype's items).** A plain item may be worn in a jewelry slot with `equip_slot: ring|amulet`, as the wolf fang is: the prototype's "non-armor, non-weapon equipment slot". `requirements` holds only `attribute.<name>` and `skill.<id>` minima, never a level (`PROGRESSION.md` §11.1). Ammunition is a `misc` item that its weapon names with `ammo_item_ref`. A ranged weapon may give `draw_time` instead of `reach`. Coin is not an item in Phase 1: it is a purse on the character.
 
+**GEN-09 (accessory slots, 2026-10-31).** `shoulders`, `belt` and `ring` are worn slots: an armour piece names one with `slot:`, a plain item with `equip_slot:`. What a worn piece's `armor_value` guards is the body region its slot covers (COMBAT §11) — the head, or for a chest, shoulder, belt, amulet, cloak or off-hand piece the torso, or for the hands, legs, feet or a ring the limbs (the main hand holds a weapon and guards nothing). No attribute bonuses are invented for them: an accessory carries the same fields any worn piece does (armour, light radius, stealth penalty, durability, requirements, and the class and quality their rolled rarity comes from).
+
 ### 4.2 WeaponDefinition — `kind: item.weapon` (extends ItemDefinition)
 
 ```yaml
@@ -247,7 +249,7 @@ weight: 0.8
 value_base: 25
 rarity: common
 durability_max: 60
-slot: head                    # head|chest|hands|legs|feet|cloak|ring|amulet
+slot: head                    # head|chest|shoulders|hands|legs|feet|cloak|belt|ring|amulet
 armor_value: 6
 resistances: { physical_blunt: 1 }     # damage_type -> flat or percent
 movement_penalty: 0.0

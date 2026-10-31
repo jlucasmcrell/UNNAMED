@@ -2,11 +2,12 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.Domain.Items;
 
-/// <summary>Where an equipped item sits. The weapon hands plus <c>DATA_MODEL.md</c> §4.3's armor slots.</summary>
+/// <summary>Where an equipped item sits. The weapon hands plus <c>DATA_MODEL.md</c> §4.3's armor slots, and the accessories GEN-09 adds.</summary>
 public enum EquipSlot
 {
     MainHand,
@@ -19,6 +20,8 @@ public enum EquipSlot
     Cloak,
     Ring,
     Amulet,
+    Belt,
+    Shoulders,
 }
 
 public static class EquipSlots
@@ -39,6 +42,18 @@ public static class EquipSlots
         }
         throw new FormatException($"Unknown equipment slot '{key}'");
     }
+
+    /// <summary>
+    /// The body region a worn piece guards (COMBAT §11's coverage), or null for the main hand, which holds a weapon and guards nothing. What
+    /// hangs on or wraps the torso - a shoulder piece, a belt, an amulet - guards the torso; a ring is worn on the hand and guards the limbs.
+    /// </summary>
+    public static BodyRegion? Covers(EquipSlot slot) => slot switch
+    {
+        EquipSlot.Head => BodyRegion.Head,
+        EquipSlot.Chest or EquipSlot.Cloak or EquipSlot.OffHand or EquipSlot.Shoulders or EquipSlot.Belt or EquipSlot.Amulet => BodyRegion.Torso,
+        EquipSlot.Hands or EquipSlot.Legs or EquipSlot.Feet or EquipSlot.Ring => BodyRegion.Limbs,
+        _ => null,
+    };
 }
 
 /// <summary>
@@ -480,6 +495,19 @@ public static class EquipmentRules
         yield return slot;
         if (item.Weapon is { TwoHanded: true })
             yield return EquipSlot.OffHand;
+    }
+
+    /// <summary>
+    /// The armour what is worn gives on each body region (COMBAT §11's coverage), a piece's quality moving its armour as a weapon's moves its
+    /// damage. A slot that guards nothing - the main hand - adds nothing, so a weapon's own armour value is its shield when it is in the off hand.
+    /// </summary>
+    public static ImmutableSortedDictionary<BodyRegion, int> ArmorByRegion(
+        IEnumerable<(EquipSlot Slot, ItemDefinition Item, int Quality)> worn, int armorPerStep)
+    {
+        var pieces = worn.ToArray();
+        return Enum.GetValues<BodyRegion>().ToImmutableSortedDictionary(region => region, region => pieces
+            .Where(piece => EquipSlots.Covers(piece.Slot) == region)
+            .Sum(piece => ArmorOf(piece.Item, piece.Quality, armorPerStep)));
     }
 }
 

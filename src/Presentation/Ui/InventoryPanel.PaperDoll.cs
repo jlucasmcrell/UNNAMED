@@ -19,8 +19,8 @@ public partial class InventoryPanel
     private void BuildPaperDoll(BoxContainer columns)
     {
         _doll.AddChild(_dollPreview);columns.AddChild(_doll);
-        EquipSlot[][] sides={new[]{EquipSlot.Head,EquipSlot.Chest,EquipSlot.Hands,EquipSlot.Legs,EquipSlot.Feet},
-            new[]{EquipSlot.Amulet,EquipSlot.Cloak,EquipSlot.MainHand,EquipSlot.OffHand,EquipSlot.Ring}};
+        EquipSlot[][] sides={new[]{EquipSlot.Head,EquipSlot.Chest,EquipSlot.Shoulders,EquipSlot.Cloak,EquipSlot.Hands,EquipSlot.Legs,EquipSlot.Feet},
+            new[]{EquipSlot.Amulet,EquipSlot.Ring,EquipSlot.Belt,EquipSlot.MainHand,EquipSlot.OffHand}};
         for(int side=0;side<2;side++)for(int i=0;i<sides[side].Length;i++)
         {
             var slot=sides[side][i];
@@ -28,7 +28,7 @@ public partial class InventoryPanel
                 if(_session.Simulation is { } sim && sim.Player.Equipment.ContainsKey(slot))Submit(new UnequipCommand(sim.PlayerId,slot));
             },compact:true,id:$"doll/{slot}");
             button.SetAnchorsAndOffsetsPreset(side==0?Control.LayoutPreset.TopLeft:Control.LayoutPreset.TopRight);
-            button.AnchorTop=button.AnchorBottom=(i+.5f)/5;
+            button.AnchorTop=button.AnchorBottom=(i+.5f)/sides[side].Length;
             button.OffsetTop=-21;button.OffsetBottom=21;
             button.OffsetLeft=side==0?0:-150;button.OffsetRight=side==0?150:0;
             button.ClipText=true;button.IconAlignment=HorizontalAlignment.Left;button.ExpandIcon=true;button.AddThemeConstantOverride("icon_max_width",20);

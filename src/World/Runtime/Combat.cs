@@ -844,18 +844,15 @@ internal sealed partial class CombatSystem
     /// <summary>The player's armor on each region, from what is worn there (coverage, COMBAT §11), plus effects such as oakskin.</summary>
     private ImmutableSortedDictionary<BodyRegion, int> PlayerArmor()
     {
-        // A piece's quality moves its armour as a weapon's moves its damage (WP3a); a shield in the off hand guards the body.
-        int Worn(params EquipSlot[] slots) => slots.Sum(slot =>
-            State.Equipment.TryGetValue(slot, out var id) && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
-                && _context.Setup.Items.Catalog.Find(entry.DefId) is { } item
-                ? EquipmentRules.ArmorOf(item, entry.Quality, _context.Setup.Crafting.Constants.ArmorPerStep)
-                : 0);
-        var armor = ImmutableSortedDictionary.CreateRange(new[]
-        {
-            KeyValuePair.Create(BodyRegion.Head, Worn(EquipSlot.Head)),
-            KeyValuePair.Create(BodyRegion.Torso, Worn(EquipSlot.Chest, EquipSlot.Cloak, EquipSlot.OffHand)),
-            KeyValuePair.Create(BodyRegion.Limbs, Worn(EquipSlot.Hands, EquipSlot.Legs, EquipSlot.Feet)),
-        });
+        // A piece's quality moves its armour as a weapon's moves its damage (WP3a); what each slot guards is the slot's own rule, and a
+        // shield in the off hand guards the body.
+        var armor = EquipmentRules.ArmorByRegion(
+            from piece in State.Equipment
+            let entry = State.Inventory.FirstOrDefault(e => e.ItemId == piece.Value)
+            let item = entry is null ? null : _context.Setup.Items.Catalog.Find(entry.DefId)
+            where item is not null
+            select (piece.Key, item, entry!.Quality),
+            _context.Setup.Crafting.Constants.ArmorPerStep);
         return WithBonus(armor, EffectRules.ArmorBonus(EffectsOf(_player), Setup.Effects));
     }
 
