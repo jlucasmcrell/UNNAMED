@@ -19,3 +19,4 @@ stock:
 - item_ref: item.material.iron_ingot
   count: 3
   price_bias: 1.1
+gold_reserve: [80, 400]   # a port exchange counter's purse (WP14): a public buyer keeps coin for a day's salvage
