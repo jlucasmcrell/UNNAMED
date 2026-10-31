@@ -374,14 +374,15 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
 
     /// <summary>
     /// A party comes home (GEN-06): the rules decide what they bring, and the world takes it the way the world takes anything - coin into each
-    /// agent's own purse, goods onto the settlement's market through the market's own trade, hurts onto the adventurer that carries them, and a
-    /// sentence to the advance log the away sheet reads.
+    /// agent's own purse, goods onto the settlement's market through the market's own trade, hurts onto the adventurer that carries them, one of
+    /// them gone through the engine's own door where the ground took someone, and a sentence to the advance log the away sheet reads.
     /// </summary>
     private void Conclude(Expedition trip, string settlement, long day, long midnight, AdventurerSetup setup, AdvanceLog? log)
     {
         if (Current is not { } state)
             return;
-        var areas = AreasOf(settlement, setup, Day(day * Clock.TicksPerDay - Clock.StartTicks));
+        var today = Day(day);
+        var areas = AreasOf(settlement, setup, today);
         // The loot a ground can give is the settlement market's own goods: real items the world already trades, not a list invented here.
         string market = Setup!.Settlements[settlement].MarketId;
         var lootPool = MarketGoods(market).ToArray();
@@ -389,22 +390,40 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         var back = ExpeditionRules.Resolve(trip, areas, lootPool, day);
         long share = trip.Party.IsEmpty ? 0 : back.Coin / trip.Party.Length;
         var agents = state.Agents.ToBuilder();
+        // Not all of them came back: the weakest of the party, ties by key, so the same save loses the same one.
+        string? fallen = back.Lost
+            ? trip.Party.Where(agents.ContainsKey).OrderBy(k => agents[k].Level).ThenBy(k => k, StringComparer.Ordinal).FirstOrDefault()
+            : null;
         foreach (string key in trip.Party)
         {
-            if (!agents.TryGetValue(key, out var agent))
+            if (key == fallen || !agents.TryGetValue(key, out var agent))
                 continue;
-            long coin = agent.Coin + share;
             var hurt = back.Injured.Contains(key);
+            // Hurt, they mend by the same rule a hunt's hurts mend by.
+            long until = hurt ? day + setup.Rules.InjuryDays(today, key) : agent.InjuredUntilDay;
             agents[key] = agent with
             {
-                Coin = coin,
+                Coin = agent.Coin + share,
                 Condition = hurt ? AdventurerCondition.Injured : agent.Condition,
-                InjuredUntilDay = hurt ? day + 2 : agent.InjuredUntilDay,
+                InjuredUntilDay = until,
             };
             if (hurt)
-                _context.Events.Publish(new AdventurerInjured(key, agent.Name, day + 2, midnight));
+                _context.Events.Publish(new AdventurerInjured(key, agent.Name, until, midnight));
         }
         State.SetAdventurers(_owner, state with { Agents = agents.ToImmutable() });
+
+        // A death goes through the engine's own door, so the slot waits for an arrival exactly as a hunt's death does (DN4).
+        if (fallen is not null && agents.TryGetValue(fallen, out var lost))
+        {
+            _context.Events.Publish(new AdventurerDied(fallen, lost.Name, trip.AreaKey, midnight));
+            log?.Add(new AdvanceLine(midnight, AdventurerAdvanceKinds.Died, fallen)
+            {
+                ActorName = lost.Name,
+                PlaceId = setup.Settlements[settlement].LocationId ?? market,
+                SubjectId = today.Grounds.GetValueOrDefault(trip.AreaKey)?.CreatureId,
+            });
+            State.SetAdventurers(_owner, AdventurerEngine.Remove(Current!, fallen, setup.Rules, today));
+        }
 
         // The goods go onto the settlement's own market, so the expedition shows up in the living economy rather than in a footnote.
         foreach (string itemId in back.Loot)
@@ -413,7 +432,7 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         _context.Events.Publish(new ExpeditionReturned(settlement, trip.AreaKey, trip.AreaName, trip.Party, back.Coin, back.Loot, back.Injured, back.Lost, back.News, midnight));
         log?.Add(new AdvanceLine(midnight, AdventurerAdvanceKinds.Claimed, trip.AreaKey, back.Coin)
         {
-            ActorName = state.Agents.GetValueOrDefault(trip.Party.FirstOrDefault())?.Name,
+            ActorName = agents.TryGetValue(trip.Party.FirstOrDefault(k => k != fallen) ?? "", out var spoke) ? spoke.Name : null,
             PlaceId = setup.Settlements[settlement].LocationId,
             SubjectId = back.News,
             Wounded = !back.Injured.IsEmpty,

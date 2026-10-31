@@ -1,0 +1,147 @@
+using UNNAMED.Domain.Social;
+using UNNAMED.World;
+using UNNAMED.World.Runtime;
+
+namespace UNNAMED.Application.Tests;
+
+/// <summary>
+/// GEN-06 in the world: at a midnight two of a settlement's free adventurers leave for a ground it really works, are away for days, and come
+/// home with coin, goods and hurts the world takes through its own doors - purses, the market's own trade, the injury rule, and news for the
+/// away sheet. The fixture keeps the region's own spawners (a party needs a ground to work) and reads the arena's bus, because a simulation
+/// publishes to the bus it was started with rather than the session's.
+/// </summary>
+public class ExpeditionTests
+{
+    private const long Day = 57_600;
+
+    /// <summary>The world with the region's own spawners in place, from the adventurer suite's own lookout at the spawn.</summary>
+    internal static Arena World(GameSession session) =>
+        Arena.OpenCreatures(session, session.Setup, (30, 158), 90, Array.Empty<(string, double, double, string)>(),
+            keepSpawns: true, origin: Harness.Region);
+
+    private static long Stock(Simulation sim, string marketId, string itemId) =>
+        sim.Markets.First(m => m.MarketId == marketId).Goods.First(g => g.ItemId == itemId).Stock;
+
+    [Fact]
+    public void APartyLeavesForAGroundItsSettlementWorks_AndComesHomeWithItsSpoils()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = World(session);
+        var sim = arena.Simulation;
+        var left = arena.Record<ExpeditionLeft>();
+        var returned = arena.Record<ExpeditionReturned>();
+        var purses = sim.Adventurers.ToDictionary(a => a.Key, a => a.Coin);
+
+        // The doors the trip has to go through, read where it passes them: the market as it stood the midnight before, and as it stands when
+        // the party walks in, before the town's own day has gone over the stock.
+        sim.Advance(4 * Day);
+        var marketId = "market.cairnwold";
+        var stocksBefore = sim.Markets.First(m => m.MarketId == marketId).Goods.ToDictionary(g => g.ItemId, g => g.Stock);
+        var atTheDoor = new Dictionary<string, long>(StringComparer.Ordinal);
+        arena.Bus.Subscribe<ExpeditionReturned>(e =>
+        {
+            foreach (string item in e.Loot)
+                atTheDoor[item] = Stock(sim, marketId, item);
+        });
+
+        sim.Advance(1 * Day);
+
+        // A party went out, from a settlement with a ground, and it was two of them.
+        Assert.Single(left);
+        var trip = left[0];
+        Assert.Contains(trip.Settlement, session.Setup.Adventurers!.Settlements.Keys);
+        Assert.Contains(trip.AreaKey, session.Setup.Adventurers.Settlements[trip.Settlement].Grounds);
+        Assert.Equal(2, trip.Party.Length);
+        Assert.True(trip.ReturnDay > trip.LeftDay, "an expedition is away days, not hours");
+
+        // They came home, on the day they were due, with coin and with goods.
+        Assert.Single(returned);
+        var home = returned[0];
+        Assert.Equal(trip.Settlement, home.Settlement);
+        Assert.Equal(trip.AreaKey, home.AreaKey);
+        Assert.Equal(trip.Party.ToArray(), home.Party.ToArray());
+        Assert.True(home.Coin > 0);
+        Assert.NotEmpty(home.Loot);
+        Assert.Contains("came back from", home.News);
+
+        // The coin was paid to each of them: an equal share apiece, less the few coin a day out costs them (a salve, a piece of the ladder).
+        long share = home.Coin / home.Party.Length;
+        foreach (string key in home.Party)
+        {
+            long gain = sim.Adventurers.First(a => a.Key == key).Coin - purses[key];
+            Assert.InRange(gain, share - 100, share + 100);
+        }
+
+        // The goods went onto the settlement's own market, by its own trade: every piece is on it when they walk in.
+        foreach (string item in home.Loot)
+            Assert.Equal(stocksBefore.GetValueOrDefault(item) + 1, atTheDoor[item]);
+    }
+
+    [Fact]
+    public void TheHurtComeBackHurt_AndAreMendedByTheSameRuleAHuntsHurtIs()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = World(session);
+        var sim = arena.Simulation;
+        var returned = arena.Record<ExpeditionReturned>();
+        var injured = arena.Record<AdventurerInjured>();
+
+        sim.Advance(5 * Day);
+
+        var home = Assert.Single(returned);
+        Assert.NotEmpty(home.Injured);   // the fixture's trip hurts one of the party
+        var rules = session.Setup.Adventurers!.Rules;
+        long cameBack = session.Setup.Clock.Day(home.Tick);
+        foreach (string key in home.Injured)
+        {
+            var told = injured.Single(i => i.Key == key && i.Tick == home.Tick);
+            var agent = sim.World.Adventurers!.Agents[key];
+            Assert.Equal(AdventurerCondition.Injured, agent.Condition);
+            Assert.Equal(told.UntilDay, agent.InjuredUntilDay);
+            // A hunt's hurt lasts what the rules say (injury_days), not a number written into the return.
+            Assert.InRange(agent.InjuredUntilDay - cameBack, rules.InjuryMinDays, rules.InjuryMaxDays);
+            Assert.True(agent.InjuredUntilDay > cameBack, "a hurt that lasts past the day they walked in");
+        }
+    }
+
+    [Fact]
+    public void TheSameSaveLivesTheSameExpeditionsAgain()
+    {
+        static string Run(TempProfile profile, out List<ExpeditionLeft> left, out List<ExpeditionReturned> home)
+        {
+            var session = Harness.Boot(profile);
+            var arena = World(session);
+            left = arena.Record<ExpeditionLeft>();
+            home = arena.Record<ExpeditionReturned>();
+            arena.Simulation.Advance(6 * Day);
+            return AdventurerWorldTests.World(arena.Simulation);
+        }
+
+        using var one = new TempProfile();
+        using var other = new TempProfile();
+        string first = Run(one, out var leftOne, out var homeOne);
+        string again = Run(other, out var leftTwo, out var homeTwo);
+
+        Assert.Equal(first, again);
+        Assert.NotEmpty(leftOne);
+        Assert.Equal(leftOne.Count, leftTwo.Count);
+        for (int i = 0; i < leftOne.Count; i++)
+        {
+            Assert.Equal(leftOne[i].Settlement, leftTwo[i].Settlement);
+            Assert.Equal(leftOne[i].AreaKey, leftTwo[i].AreaKey);
+            Assert.Equal(leftOne[i].LeftDay, leftTwo[i].LeftDay);
+            Assert.Equal(leftOne[i].ReturnDay, leftTwo[i].ReturnDay);
+            Assert.Equal(leftOne[i].Party.ToArray(), leftTwo[i].Party.ToArray());
+        }
+        Assert.Equal(homeOne.Count, homeTwo.Count);
+        for (int i = 0; i < homeOne.Count; i++)
+        {
+            Assert.Equal(homeOne[i].Coin, homeTwo[i].Coin);
+            Assert.Equal(homeOne[i].Loot.ToArray(), homeTwo[i].Loot.ToArray());
+            Assert.Equal(homeOne[i].Injured.ToArray(), homeTwo[i].Injured.ToArray());
+            Assert.Equal(homeOne[i].News, homeTwo[i].News);
+        }
+    }
+}

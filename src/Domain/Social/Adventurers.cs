@@ -289,6 +289,10 @@ public sealed record AdventurerRules(
     /// <summary>The skill every day out practises besides the weapon's (fieldcraft); null for none.</summary>
     public string? FieldSkill { get; init; }
 
+    /// <summary>How long an injury keeps someone at the lodge: a draw between the least and the most, by the day's own sample.</summary>
+    public long InjuryDays(AdventurerDay day, string key) =>
+        InjuryMinDays + (long)(day.Sample($"injury:{key}@{day.Day}") % (ulong)(InjuryMaxDays - InjuryMinDays + 1));
+
     /// <summary>The first broken rule, or null.</summary>
     public string? Problem()
     {
@@ -671,7 +675,7 @@ public static class AdventurerEngine
         }
         if (roll < row.DeathPercent + row.InjuryPercent)
         {
-            long days = rules.InjuryMinDays + (long)((day.Sample($"injury:{a.Key}@{day.Day}") % (ulong)(rules.InjuryMaxDays - rules.InjuryMinDays + 1)));
+            long days = rules.InjuryDays(day, a.Key);
             happenings.Add(new AdventurerHappening(Injured, a.Key) { Ref = ground.SpawnKey, Amount = days });
             // Hurt, they use what they carried to mend.
             if (rules.Supply is { } supply && a.Pack.GetValueOrDefault(supply) > 0)
