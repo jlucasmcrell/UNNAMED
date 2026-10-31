@@ -58,3 +58,13 @@ phases:
   - ability.creature.index_grasp
   - ability.creature.warden_sweep
   - ability.creature.warden_fall
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

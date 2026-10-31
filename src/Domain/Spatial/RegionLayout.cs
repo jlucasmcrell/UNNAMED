@@ -162,6 +162,12 @@ public sealed record RegionLayout(
     /// <summary>Optional world-clock tide and flood-gated passages.</summary>
     public TidalWater? Tide { get; init; }
 
+    /// <summary>
+    /// CMB-41: the arena's hazards - damage zones and rising floors - as region entities. Empty for a region that hurts nobody
+    /// by itself.
+    /// </summary>
+    public ImmutableArray<UNNAMED.Domain.Combat.ArenaHazard> Hazards { get; init; } = ImmutableArray<UNNAMED.Domain.Combat.ArenaHazard>.Empty;
+
     /// <summary>The region's authored containers.</summary>
     public ImmutableArray<ContainerSite> Containers { get; init; } = ImmutableArray<ContainerSite>.Empty;
 

@@ -56,3 +56,13 @@ phases:
   - ability.creature.armour_slam
   - ability.creature.gauge_sweep
   - ability.creature.animated_armour_rush
+parts:
+- name: gauge face
+  region: head
+  structure: 60
+- name: measure arm
+  region: torso
+  structure: 140
+- name: footing
+  region: limbs
+  structure: 90

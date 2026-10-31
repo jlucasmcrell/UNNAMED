@@ -386,6 +386,17 @@ public static class BossEncounter
     }
 }
 
+/// <summary>
+/// CMB-39: one part of a multi-part creature. Parts share the creature's controller and its one health pool; each holds its own
+/// structure, answers for one region of the body, and says what breaking it does - a pipe that falls, a pillar that drops its
+/// crown, a face that comes unsealed.
+/// </summary>
+public sealed record CreaturePart(string Name, BodyRegion Region, int Structure, string? BrokenEffect = null)
+{
+    /// <summary>The part is spent.</summary>
+    public bool Broken(int structureLeft) => structureLeft <= 0;
+}
+
 public sealed record WeakPoint(BodyRegion Region, bool FromBehind)
 {
     /// <summary>The windows that gate it, by phase name. Empty means always open.</summary>
@@ -449,8 +460,54 @@ public sealed record CreatureDefinition(
     /// </summary>
     public ImmutableArray<BossPhase> Phases { get; init; } = ImmutableArray<BossPhase>.Empty;
 
+    /// <summary>
+    /// CMB-39: the parts of a multi-part creature, empty for a body that is one piece. A part's region is where a blow must
+    /// land to reach it; the creature keeps one health pool whatever its parts do.
+    /// </summary>
+    public ImmutableArray<CreaturePart> Parts { get; init; } = ImmutableArray<CreaturePart>.Empty;
+
     /// <summary>Its content tags (<c>undead</c>, <c>construct</c>): effects whose immunity tags meet them do not take.</summary>
     public ImmutableSortedSet<string> Tags { get; init; } = ImmutableSortedSet<string>.Empty;
+}
+
+/// <summary>
+/// CMB-41: an arena hazard - a region entity, not a creature. Two shapes cover the checklist's first need: a
+/// <c>damage_zone</c> that hurts whatever stands in it while its period is open, and a <c>rising_floor</c> that lifts its
+/// surface a little every tick until it caps - the Undermeasure's rising water, where leaving is the answer.
+/// </summary>
+public sealed record ArenaHazard(
+    string Id,
+    string Kind,
+    long XMm,
+    long ZMm,
+    long RadiusMm,
+    int DamagePerTick,
+    int EveryTicks,
+    int OpenTicks,
+    int RiseMmPerTick,
+    int MaxRiseMm,
+    long StartTick)
+{
+    public bool IsRising => Kind == "rising_floor";
+
+    /// <summary>Inside its footprint (a circle, in millimetres).</summary>
+    public bool Holds(long xMm, long zMm)
+    {
+        long dx = xMm - XMm, dz = zMm - ZMm;
+        return dx * dx + dz * dz <= RadiusMm * RadiusMm;
+    }
+
+    /// <summary>Its period is open at this tick - always, for a hazard with no period.</summary>
+    public bool ActiveAt(long tick) =>
+        EveryTicks <= 0 || OpenTicks <= 0 || (tick - StartTick) % EveryTicks < OpenTicks;
+
+    /// <summary>How high its surface stands at this tick, in millimetres above where it started.</summary>
+    public int LevelAt(long tick) =>
+        !IsRising || RiseMmPerTick <= 0 ? 0 : (int)Math.Min(MaxRiseMm, Math.Max(0, tick - StartTick) * RiseMmPerTick);
+
+    /// <summary>The tick at which a rising floor reaches <paramref name="heightMm"/>: the escape deadline.</summary>
+    public long ReachesAt(int heightMm) =>
+        !IsRising || RiseMmPerTick <= 0 ? long.MaxValue : StartTick + (heightMm + RiseMmPerTick - 1) / RiseMmPerTick;
 }
 
 public enum StackPolicy

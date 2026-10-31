@@ -53,3 +53,13 @@ phases:
   - ability.creature.animated_armour_heavy
   - ability.creature.armour_slam
   - ability.creature.warden_grasp
+parts:
+- name: gate plate
+  region: torso
+  structure: 160
+- name: warden's head
+  region: head
+  structure: 70
+- name: post foot
+  region: limbs
+  structure: 80

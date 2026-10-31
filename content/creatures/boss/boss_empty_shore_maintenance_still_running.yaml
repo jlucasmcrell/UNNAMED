@@ -54,3 +54,13 @@ phases:
   - ability.creature.armour_slam
   - ability.creature.animated_armour_heavy
   - ability.creature.animated_armour_rush
+parts:
+- name: harness
+  region: torso
+  structure: 90
+- name: empty helm
+  region: head
+  structure: 50
+- name: greaves
+  region: limbs
+  structure: 60

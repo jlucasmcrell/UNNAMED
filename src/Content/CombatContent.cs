@@ -358,6 +358,7 @@ public static class CombatContent
                     }
                     : null,
                 Phases = Phases(map, id, abilities, tickMs),
+                Parts = Parts(map, id),
                 Tags = Tags(map, "tags"),
             };
             if (creature.Attack.IsCharge)
@@ -368,6 +369,31 @@ public static class CombatContent
                 throw new FormatException($"{id}: pools.health, move_speed_m_s and body_radius_m are positive, xp_value is not negative");
             return creature;
         }).ToImmutableSortedDictionary(c => c.Id, c => c, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// CMB-39: the parts of a multi-part creature. A part answers for one body region, holds its own structure, and may say
+    /// what breaking it does; two parts may not answer for the same region, because a blow must land on the part it hit.
+    /// </summary>
+    private static ImmutableArray<CreaturePart> Parts(Dictionary<object, object> map, string id)
+    {
+        if (map.GetValueOrDefault("parts") is not List<object> rows)
+            return ImmutableArray<CreaturePart>.Empty;
+        var parts = new List<CreaturePart>(rows.Count);
+        foreach (var row in rows.OfType<Dictionary<object, object>>())
+        {
+            string name = row.GetValueOrDefault("name") as string ?? throw new FormatException($"{id}: a part needs a name");
+            if (parts.Any(part => part.Name == name))
+                throw new FormatException($"{id}: part '{name}' is named twice");
+            var region = BodyRegions.Parse(Text(row, "region"));
+            if (parts.Any(part => part.Region == region))
+                throw new FormatException($"{id}: part '{name}' claims {region}, which another part already holds");
+            int structure = row.ContainsKey("structure") ? Int(row, "structure") : 1;
+            if (structure <= 0)
+                throw new FormatException($"{id}: part '{name}' needs structure above zero");
+            parts.Add(new CreaturePart(name, region, structure, row.GetValueOrDefault("broken_effect") as string));
+        }
+        return parts.ToImmutableArray();
     }
 
     /// <summary>

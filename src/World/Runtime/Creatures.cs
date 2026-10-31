@@ -111,6 +111,9 @@ public sealed record SpawnerSaturated(string SpawnKey, long Tick);
 
 public sealed record CorpseGone(string CorpseKey, long Tick);
 
+/// <summary>CMB-39: a part of a multi-part creature is spent - the pipe comes off, the pillar drops its crown.</summary>
+public sealed record CreaturePartBroken(EntityId Creature, string Key, string Part, long Tick);
+
 /// <summary>A charge ran into something solid, and the charger is stunned by it.</summary>
 public sealed record CreatureStunned(EntityId Creature, string Key, long Tick);
 
@@ -150,6 +153,9 @@ internal sealed record CreatureState(
         GuardUntil > tick && DamageTypes.IsPhysical(attack.DamageType)
         && CombatRules.InFront(Body.XMm, Body.ZMm, Body.FacingMdeg, attacker.XMm, attacker.ZMm,
             long.MaxValue / 4, constants.BlockArcMdeg);
+    /// <summary>CMB-39: structure left in each of the definition's parts, in the definition's order.</summary>
+    public ImmutableArray<int> PartStructure { get; init; } = ImmutableArray<int>.Empty;
+
     public long DiedTick { get; init; }
     public long RespawnTick { get; init; }
 
@@ -399,6 +405,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                         Condition = record.Condition,
                         Body = new Body(record.XMm, space.Terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
                         Health = record.Health,
+                        // CMB-39: a save written before parts existed carries none, and an empty array is read as "not yet
+                        // touched", which the spending rule fills from the definition - so old saves load whole.
+                        PartStructure = record.PartStructure,
                         ScalePercent = record.ScalePercent,
                         LevelBonus = record.LevelBonus,
                         DiedTick = record.DiedTick,
@@ -1085,9 +1094,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (command.Attacker is null)
             (_focusKey, _focusTick) = (c.Key, tick);
         var (fromX, fromZ) = command.Attacker is null ? (State.Body.XMm, State.Body.ZMm) : (command.FromXMm, command.FromZMm);
+        var (partStructure, brokenPart) = SpendPart(c, hit, tick);
         var wounded = c with
         {
             Health = health,
+            PartStructure = partStructure,
             Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
             StaggerImmuneUntil = staggered ? tick + C.StaggerImmunityTicks : c.StaggerImmuneUntil,
             Awareness = Perception.Full,
@@ -1111,7 +1122,36 @@ internal sealed class CreatureSystem : IAbstractAdvance
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
+        if (brokenPart.Length > 0)
+            _context.Events.Publish(new CreaturePartBroken(c.Id, c.Key, brokenPart, tick));
         return null;
+    }
+
+    /// <summary>
+    /// CMB-39: the blow spends the part whose region it landed on, and the part breaks the first time its structure is gone.
+    /// Returns the structure left and the name of a part that just broke (empty when none did).
+    /// </summary>
+    private (ImmutableArray<int> Structure, string Broken) SpendPart(CreatureState creature, HitResult hit, long tick)
+    {
+        var parts = creature.Definition.Parts;
+        if (parts.IsDefaultOrEmpty)
+            return (creature.PartStructure, "");
+        var structure = creature.PartStructure.IsDefaultOrEmpty
+            ? parts.Select(part => part.Structure).ToImmutableArray()
+            : creature.PartStructure;
+        int index = -1;
+        for (int i = 0; i < parts.Length; i++)
+        {
+            if (parts[i].Region != hit.Region)
+                continue;
+            index = i;
+            break;
+        }
+        if (index < 0 || structure[index] <= 0)
+            return (structure, "");
+        int before = structure[index];
+        var spent = structure.SetItem(index, Math.Max(0, before - Math.Max(1, hit.Final)));
+        return (spent, spent[index] == 0 ? parts[index].Name : "");
     }
 
     public string? Handle(HarmCreature command, long tick)
@@ -1378,6 +1418,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             StaggerImmuneUntil = immune,
             StaggeredTick = staggered ? c.Action.StartTick : null,
             StaggerLastsTicks = staggered ? c.Action.LastsTicks : 0,
+            PartStructure = c.PartStructure,
         };
         if (existing is null || existing with { BaselineHash = null } != record)
             State.SetCreatureRecord(_owner, record);
