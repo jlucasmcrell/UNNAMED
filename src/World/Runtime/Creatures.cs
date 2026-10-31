@@ -515,6 +515,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         foreach (string key in State.Creatures.Keys.ToList())
         {
             var creature = State.Creatures[key];
+            ObservePhase(creature, tick);
             // Leaving or dying resets an encounter to full health (owner ruling OQ-17); only a defeat is durable. A
             // wound counts as well as a fight still under way, so a guardian that lost track of the character keeps
             // nothing either. Out of its space - through a portal, or respawned outside - it resets at once, quietly: there
@@ -1117,6 +1118,38 @@ internal sealed class CreatureSystem : IAbstractAdvance
     // ── wounds and death ────────────────────────────────────────────────────
 
     /// <summary>A blow lands. Whatever the creature was doing, it now knows where its attacker stands.</summary>
+    /// <summary>The last phase index seen per boss, so a crossing is published once (CMB-42). It is memory, not state: the phase is a function
+    /// of health and ticks, so a load recomputes it and the first observation re-establishes the baseline without a stinger.</summary>
+    private readonly Dictionary<string, int> _bossPhases = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// Watch one creature's phase (CMB-38's machine): the first time a boss is engaged the encounter has started, and every later change of phase
+    /// index is a crossing the audio half marks.
+    /// </summary>
+    private void ObservePhase(CreatureState c, long tick)
+    {
+        var phases = c.Definition.Phases;
+        if (phases.IsDefaultOrEmpty)
+            return;
+        bool engaged = c.Alive && (c.Mind is CreatureMind.Engaged or CreatureMind.Searching || c.Knows);
+        if (!engaged)
+        {
+            _bossPhases.Remove(c.Key);
+            return;
+        }
+        var (index, name, _) = BossEncounter.PhaseAt(c.Definition, c.Health, tick);
+        if (!_bossPhases.TryGetValue(c.Key, out int had))
+        {
+            _bossPhases[c.Key] = index;
+            _context.Events.Publish(new BossEncounterStarted(c.Id, c.Key, c.Definition.Id, c.Definition.Family, name, index, phases.Length, tick));
+            return;
+        }
+        if (had == index)
+            return;
+        _bossPhases[c.Key] = index;
+        _context.Events.Publish(new BossPhaseChanged(c.Id, c.Key, c.Definition.Id, c.Definition.Family, phases[had].Name, name, index, phases.Length, tick));
+    }
+
     public string? Handle(WoundCreature command, long tick)
     {
         if (Find(command.Target) is not { Alive: true } c)

@@ -55,6 +55,15 @@ public sealed record LoreReadableRead(string Key, string EntryId, long Tick);
 
 public sealed record ExperienceGained(XpSource Source, long Awarded, long Repaid, int LevelsGained, int Level, long Tick);
 
+/// <summary>
+/// A boss encounter was joined (CMB-42): the creature, its family, the phase it starts in and how many phases it has. The score marks it with a
+/// stinger, and the presentation has everything it needs to choose the creature's own voice from the family.
+/// </summary>
+public sealed record BossEncounterStarted(EntityId Id, string Key, string DefId, string Family, string Phase, int PhaseIndex, int PhaseCount, long Tick);
+
+/// <summary>A boss encounter crossed into another of its phases (CMB-42, on CMB-38's machine): from which phase to which, and where it now is.</summary>
+public sealed record BossPhaseChanged(EntityId Id, string Key, string DefId, string Family, string From, string To, int PhaseIndex, int PhaseCount, long Tick);
+
 public sealed record CellTierChanged(string CellKey, SimulationTier From, SimulationTier To, long Tick);
 
 /// <summary>

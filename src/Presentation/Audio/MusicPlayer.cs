@@ -82,6 +82,13 @@ public partial class MusicPlayer : Node
             else
                 _areas.Add((at, Math.Max(site.RevealRadiusMm, site.DiscoveryRadiusMm) / 1000f, site.Id));
         }
+        session.Subscribe<BossEncounterStarted>(e => Encounter(EncounterMoment.Start, e.Family, e.PhaseIndex, e.PhaseCount));
+        session.Subscribe<BossPhaseChanged>(e => Encounter(EncounterMoment.Phase, e.Family, e.PhaseIndex, e.PhaseCount));
+        session.Subscribe<CreatureKilled>(e =>
+        {
+            if (session.Setup.Combat.Creatures.TryGetValue(e.DefId, out var killed) && !killed.Phases.IsDefaultOrEmpty)
+                Encounter(EncounterMoment.End, killed.Family, killed.Phases.Length - 1, killed.Phases.Length);
+        });
         session.Subscribe<LocationDiscovered>(_ =>
         {
             if (_cue != MusicChoice.Combat && _bank.Take(MusicChoice.Discovery) is { } stream)
@@ -91,6 +98,28 @@ public partial class MusicPlayer : Node
             }
         });
     }
+
+    /// <summary>
+    /// Mark one moment of a boss encounter (CMB-42): the first cue of the rule that the set actually carries is played on the stinger deck, so the
+    /// beds duck under it exactly as they duck under a discovery. Nothing is guessed: an id the set does not have is passed over for the next.
+    /// </summary>
+    public void Encounter(EncounterMoment moment, string family, int phaseIndex, int phaseCount)
+    {
+        if (!EncounterStinger.Wants(moment, phaseIndex, phaseCount))
+            return;
+        foreach (string id in EncounterStinger.Cues(moment, family, phaseIndex, phaseCount))
+        {
+            if (_bank.Take(id) is not { } stream)
+                continue;
+            _stinger.Stream = stream;
+            _stinger.Play();
+            _stingerSeconds = stream.GetLength();
+            return;
+        }
+    }
+
+    /// <summary>How long the stinger now playing runs, for the duck curve.</summary>
+    private double _stingerSeconds;
 
     /// <summary>
     /// The opening's cue: on as the opening's first frame is drawn, from the cue's own start, which is timed to the pictures; off, and what
@@ -158,7 +187,8 @@ public partial class MusicPlayer : Node
         if (_opening || _title)
             Play(_opening ? MusicChoice.Opening : MusicChoice.Title);
         float step = (float)(delta / _fade);
-        float duck = _stinger.Playing ? Duck : 1f;
+        // CMB-42: the duck is the rule's own curve - fast down, held under the stinger, unhurried back up.
+        float duck = _stinger is { Playing: true } ? EncounterStinger.DuckGainAt((float)_stinger.GetPlaybackPosition(), _stingerSeconds) : 1f;
         for (int i = 0; i < 2; i++)
         {
             var deck = _decks[i];
