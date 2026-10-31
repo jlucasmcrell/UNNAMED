@@ -5,7 +5,7 @@ display_key: recipe.tanning.leather_small_smoked.name
 tags: [recipe]
 name: Smoke Two Small Hides
 notes: Two small hides worked over a timber fire at the tanning rack make one length of leather - the first-hour way to keep the bench supplied without a wolf.
-station: tanning
+station: tanning_rack
 skill_ref: skill.skinning
 complexity: 3
 inputs:

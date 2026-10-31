@@ -26,7 +26,7 @@ public class BossPhaseContentTests
     public void EveryBossIsANamedPhaseMachine()
     {
         var bosses = Bosses();
-        Assert.True(bosses.Count >= 35, $"expected the boss roster, found {bosses.Count}");
+        Assert.True(bosses.Count >= 34, $"expected the boss roster, found {bosses.Count}");   // the D19 Ring Custodian is held for the next package
         foreach (var (id, boss) in bosses)
         {
             Assert.False(boss.Phases.IsDefaultOrEmpty, $"{id} has no phases");

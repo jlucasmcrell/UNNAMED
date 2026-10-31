@@ -584,7 +584,7 @@ public class CraftingTests
     [InlineData("recipe.leatherwork.hide_cap_pelt", "workbench", "skill.survival", 4, "item.material.pelt_grey_wolf:1,item.material.leather:1", "item.armor.hide_cap", 1)]
     [InlineData("recipe.outfitting.satchel_cotton", "workbench", "skill.survival", 3, "item.material.bog_cotton:3,item.material.leather:1", "item.bag.satchel", 1)]
     [InlineData("recipe.fletching.arrow_rough_timber", "workbench", "skill.woodworking", 3, "item.material.timber:1,item.material.feathers:2,item.material.iron_ore:1", "item.ammo.arrow_rough", 8)]
-    [InlineData("recipe.tanning.leather_small_smoked", "tanning", "skill.skinning", 4, "item.material.small_hide:2,item.material.timber:1", "item.material.leather", 1)]
+    [InlineData("recipe.tanning.leather_small_smoked", "tanning_rack", "skill.skinning", 4, "item.material.small_hide:2,item.material.timber:1", "item.material.leather", 1)]
     public void AFirstHourRecipe_IsLearnableAndCraftableInAFreshSession(string recipe, string stationKind, string skill,
         int level, string inputs, string output, int count)
     {
