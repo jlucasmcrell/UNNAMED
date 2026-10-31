@@ -45,6 +45,22 @@ scene.camera = camera
 camera.data.type = 'ORTHO'
 camera.data.ortho_scale = .64
 rigs = [o for o in bpy.data.objects if o.type == 'ARMATURE']
+def turn(rig, name, axis, angle):
+    bone = rig.pose.bones.get(name)
+    if bone is None: return
+    world = rig.matrix_world @ bone.matrix
+    pivot = world.translation.copy()
+    rotation = Matrix.Rotation(math.radians(angle), 4, axis)
+    bone.matrix = rig.matrix_world.inverted() @ Matrix.Translation(pivot) @ rotation @ Matrix.Translation(-pivot) @ world
+    bpy.context.view_layer.update()
+
+
+def reset():
+    for rig in rigs:
+        for bone in rig.pose.bones: bone.matrix_basis = Matrix.Identity(4)
+    bpy.context.view_layer.update()
+
+
 for part in pieces:
     for name, meshes in pieces.items():
         for obj in meshes: obj.hide_render = name != part
@@ -57,22 +73,22 @@ for part in pieces:
     # No stress-pose keys or altered body rests are exported into the game.
     for rig in rigs:
         for name in ('LeftUpperArm', 'RightUpperArm'):
-            bone = rig.pose.bones.get(name)
-            if bone:
-                world = rig.matrix_world @ bone.matrix
-                pivot = world.translation.copy()
-                turn = Matrix.Rotation(math.radians(-65 if name.startswith('Left') else 65), 4, 'Y')
-                bone.matrix = rig.matrix_world.inverted() @ Matrix.Translation(pivot) @ turn @ Matrix.Translation(-pivot) @ world
+            turn(rig, name, 'Y', -65 if name.startswith('Left') else 65)
     bpy.context.view_layer.update()
     camera.location = (0, -2, 1.42)
     camera.rotation_euler = (Vector((0, 0, 1.32))-camera.location).to_track_quat('-Z', 'Y').to_euler()
     scene.render.filepath = str(out/(part+'_arms_raised_QA.png'))
     bpy.ops.render.render(write_still=True)
-    for rig in rigs:
-        for bone in rig.pose.bones: bone.matrix_basis = Matrix.Identity(4)
-    bpy.context.view_layer.update()
+    reset()
+    for label, axis, angle in [('head_left','Z',80),('head_right','Z',-80),('head_down','X',30),('head_up','X',-30)]:
+        for rig in rigs:
+            turn(rig, 'Neck', axis, angle*.45)
+            turn(rig, 'Head', axis, angle*.55)
+        scene.render.filepath = str(out/(part+'_'+label+'_QA.png'))
+        bpy.ops.render.render(write_still=True)
+        reset()
 for meshes in pieces.values():
     for obj in meshes: obj.hide_render = False
 bpy.ops.wm.save_as_mainfile(filepath=str(out/'gap_authoring_review.blend'))
 (out/'preview_receipt.json').write_text(json.dumps({'renderer': 'CPU Workbench authoring thumbnails',
-    'runtime_verdict': False, 'body': str(body), 'garments': str(garments), 'frames': 12}, indent=2))
+    'runtime_verdict': False, 'body': str(body), 'garments': str(garments), 'frames': 24}, indent=2))

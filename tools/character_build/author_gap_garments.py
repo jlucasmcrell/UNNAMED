@@ -23,6 +23,8 @@ class Garment:
         self.body, self.identifier = body, identifier
         self.positions, self.normals, self.uv, self.joints, self.weights = [], [], [], [], []
         self.faces = [[], [], []]
+        self.extra_bones = []
+        self.chains = {}
         self.skin = body.doc['skins'][0]
         self.bones = {body.doc['nodes'][n]['name']: i for i, n in enumerate(self.skin['joints'])}
         self.parents = {c: i for i, n in enumerate(body.doc['nodes']) for c in n.get('children', [])}
@@ -39,6 +41,17 @@ class Garment:
 
     def point(self, bone):
         return self.world(self.skin['joints'][self.bones[bone]])[:3, 3]
+
+    def secondary_bone(self, name, parent, point):
+        parent_node = self.skin['joints'][self.bones[parent]] if parent in [self.body.doc['nodes'][n]['name'] for n in self.skin['joints']] else None
+        if parent_node is not None:
+            parent_world = self.world(parent_node)
+        else:
+            parent_world = next(b['world'] for b in self.extra_bones if b['name'] == parent)
+        matrix = parent_world.copy()
+        matrix[:3, 3] = point
+        self.bones[name] = len(self.skin['joints'])+len(self.extra_bones)
+        self.extra_bones.append({'name':name,'parent':parent,'world':matrix,'local':np.linalg.inv(parent_world)@matrix})
 
     def vertex(self, point, normal, uv, binding):
         index = len(self.positions)
@@ -68,7 +81,7 @@ class Garment:
             for x in range(width):
                 normal = normals[y, x]
                 normal /= max(np.linalg.norm(normal), 1e-12)
-                self.vertex(points[y, x].tolist(), normal.tolist(), [x/(width-1), y/(height-1)], binding)
+                self.vertex(points[y, x].tolist(), normal.tolist(), [x/(width-1), y/(height-1)], binding(points[y,x]) if callable(binding) else binding)
         self.faces[material].extend(triangles)
 
     def torus(self, centre, radius, wire, binding, material=0, axis='y', segments=32, basis=None):
@@ -132,7 +145,15 @@ class Garment:
             return len(doc['accessors'])-1
 
         native_binds = self.body.read(self.skin['inverseBindMatrices'])
-        doc['skins'][0]['inverseBindMatrices'] = accessor(native_binds, '<f4', 'MAT4', 5126)
+        bindings = [native_binds]
+        for bone in self.extra_bones:
+            parent = next(i for i,n in enumerate(doc['nodes']) if n.get('name') == bone['parent'])
+            index = len(doc['nodes'])
+            doc['nodes'].append({'name':bone['name'],'matrix':bone['local'].T.reshape(-1).tolist()})
+            doc['nodes'][parent].setdefault('children',[]).append(index)
+            doc['skins'][0]['joints'].append(index)
+            bindings.append(np.linalg.inv(bone['world']).T.reshape(1,16))
+        doc['skins'][0]['inverseBindMatrices'] = accessor(np.concatenate(bindings), '<f4', 'MAT4', 5126)
         attributes = {
             'POSITION': accessor(self.positions, '<f4', 'VEC3', 5126, True),
             'NORMAL': accessor(self.normals, '<f4', 'VEC3', 5126),
@@ -160,12 +181,12 @@ class Garment:
         out.save(path)
         # A real exported-garment check: bind matrices and named hierarchy remain exactly native, with normalized weights.
         check = Glb(path)
-        assert np.array_equal(check.read(check.doc['skins'][0]['inverseBindMatrices']), native_binds)
+        assert np.array_equal(check.read(check.doc['skins'][0]['inverseBindMatrices'])[:len(native_binds)], native_binds)
         assert np.allclose(np.asarray(self.weights).sum(1), 1)
         assert len(self.positions) > 1000
         meta = {'schema_version': '1', 'id': self.identifier, 'asset_id': self.identifier,
                 'body': self.identifier.split('__', 1)[1], 'layer': layer, 'hides': [], 'hides_mask': 0,
-                'hide_regions': [], 'chains': {}, 'source': 'Original OTHERREACH hand-authored metalwork; no generative input or output',
+                'hide_regions': [], 'chains': self.chains, 'secondary_joints': [b['name'] for b in self.extra_bones], 'source': 'Original OTHERREACH hand-authored metalwork; no generative input or output',
                 'native_inverse_binds_exact': True, 'vertices': len(self.positions), 'triangles': sum(map(len, self.faces))//3}
         path.with_name(self.identifier+'_garment.json').write_text(json.dumps(meta, indent=2))
         return meta
@@ -204,7 +225,13 @@ def besagews(g):
         shoulder = g.point(side+'UpperArm')
         sign = 1 if side == 'Left' else -1
         centre = shoulder + np.array([sign*.006, -.063, .157])
-        binding = [(side+'Shoulder', 1)]
+        root = 'cloth_gap_besagew_'+side+'_0'
+        tip = 'cloth_gap_besagew_'+side+'_1'
+        pivot = centre+np.array([0,.109,0])
+        g.secondary_bone(root, side+'Shoulder', pivot)
+        g.secondary_bone(tip, root, centre)
+        g.chains['cloth_gap_besagew'] = {'stiffness':.6,'drag':.45,'gravity':.1,'radius':.012}
+        binding = [(tip, 1)]
         rows = []
         for radial in np.linspace(.001, .061, 12):
             row = []
@@ -218,7 +245,10 @@ def besagews(g):
             g.torus(centre+[0, 0, .003 if radius>.02 else .015], radius, .0018, binding, 1, axis='z', segments=96)
         # Straps disappear over the clavicle; paired geometry is authored, never a mirrored skin transform.
         for dx in (-.015, .015):
-            g.grid([[(centre+[dx+w, y, z]).tolist() for w in (-.004, .004)] for y, z in ((.045, -.007), (.080, -.025), (.110, -.065), (.105, -.110))], 2, binding)
+            def strap_binding(point):
+                weight = float(np.clip((pivot[1]-point[1])/.109, 0, 1))
+                return [(root, 1-weight), (tip, weight)]
+            g.grid([[(centre+[dx+w, y, z]).tolist() for w in (-.004, .004)] for y, z in ((.045, -.007), (.080, -.025), (.110, -.065), (.105, -.110))], 2, strap_binding)
         for angle in np.linspace(0, 2*math.pi, 9)[:-1]:
             g.torus(centre+[.050*math.cos(angle), .050*math.sin(angle), .009], .0025, .0012, binding, 1, axis='z', segments=12)
 
