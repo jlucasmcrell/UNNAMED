@@ -96,9 +96,9 @@ public partial class BossEffects : Node3D
         Vector3 feet = _figure.GlobalPosition;
         float yaw = view.Body.FacingMdeg / 1000f * Mathf.Pi / 180;
         if (tell is not null)
-            _floor.Mesh = Ground(feet, yaw, tell.ReachM, tell.ArcDegrees, tell.Lane ? tell.HalfWidthM : 0, .045f, ground);
+            _floor.Mesh = Ground(feet, yaw, tell.ReachM, tell.ArcDegrees, tell.Lane ? tell.HalfWidthM : 0, .12f, ground);
         if (_wave.Visible)
-            _wave.Mesh = Ground(feet, 0, Math.Max(2, _definition.RadiusMm / 1000f * 2.8f), 360, 0, .07f, ground);
+            _wave.Mesh = Ground(feet, 0, Math.Max(2, _definition.RadiusMm / 1000f * 2.8f), 360, 0, .15f, ground);
     }
 
     private static MeshInstance3D Carrier(string name) => new()

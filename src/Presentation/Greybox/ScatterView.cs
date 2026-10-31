@@ -33,6 +33,7 @@ public partial class ScatterView : Node3D
         _tree = Array.Empty<float>();
     private ulong? _builtFor;
     private WindField? _wind;
+    private EncounterRecovery[] _bossCourts = Array.Empty<EncounterRecovery>();
     private readonly Dictionary<string, Texture2D> _modelAlbedos = new(StringComparer.Ordinal);
 
     /// <summary>Instances placed by kind, and how long placing them took, for the reports.</summary>
@@ -50,13 +51,14 @@ public partial class ScatterView : Node3D
 
     /// <summary>The ground, the rules and the layout: the distance fields and the kinds' meshes are made once here; the placing waits for a world.</summary>
     public void Bind(ArtLibrary art, GroundField ground, ScatterRules rules, RegionLayout layout, IEnumerable<string> buildingPrefixes,
-        bool cardsOff = false, bool bladesOnly = false)
+        bool cardsOff = false, bool bladesOnly = false, IEnumerable<EncounterRecovery>? bossCourts = null)
     {
         _modelAlbedos.Clear();
         CardsOff = cardsOff;
         BladesOnly = bladesOnly;
         _ground = ground;
         _rules = rules;
+        _bossCourts = bossCourts?.ToArray() ?? Array.Empty<EncounterRecovery>();
         if (rules.Otherworld is { } strange)
             Otherworld.Set(strange);
         BuildFields(layout, buildingPrefixes);
@@ -472,6 +474,16 @@ public partial class ScatterView : Node3D
         if (kind.WhereStrange is { } strange)
             d *= _rules.Otherworld is { } field ? GroundField.SmoothStep(strange.From, strange.To, field.At(x, z)) : 0;
         d *= Clear(x, z, kind.ClearMargin, kind.OffPath, path);
+        // Trampled fighting ground: keep stones and bark, but plants must not
+        // conceal an attack footprint. This is local court dressing, not a tier
+        // or density change for the surrounding landscape.
+        if (kind.Wind || kind.ModelId?.StartsWith("flora_", StringComparison.Ordinal) == true)
+        foreach (var court in _bossCourts)
+        {
+            float dx = Math.Max(Math.Max(court.MinXMm / 1000f - x, x - court.MaxXMm / 1000f), 0);
+            float dz = Math.Max(Math.Max(court.MinZMm / 1000f - z, z - court.MaxZMm / 1000f), 0);
+            d *= GroundField.SmoothStep(0, .75f, MathF.Sqrt(dx * dx + dz * dz));
+        }
         if (!kind.OffPath)
             d *= 1f - GroundField.SmoothStep(0.45f, 0.7f, path);
         return d;

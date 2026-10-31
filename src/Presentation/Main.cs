@@ -1177,7 +1177,10 @@ public partial class Main : Node3D
         // sward is impossible with rock scatter standing in front of it, which is what every previous frame had.
         string grassMode = _options.GetValueOrDefault("--grass") ?? "models";
         _scatter.Bind(_art, _ground, _scatterRules, layout, _bindings.BuildingPrefixes,
-            cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades");
+            cardsOff: grassMode != "cards", bladesOnly: grassMode == "blades",
+            bossCourts: _session.Setup.Combat.Spawns.Where(s => s.Space == layout.SpaceId && s.Recovery is not null
+                && s.Members.Any(m => _session.Setup.Combat.Creatures[m.CreatureId].Tags.Contains("boss")))
+                .Select(s => s.Recovery!));
         AddChild(_scatter);
         _loading?.Stage("Dressing the player", 0.66);
         string? body = _bindings.People.GetValueOrDefault("player")?.Model;
