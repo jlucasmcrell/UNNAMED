@@ -61,11 +61,19 @@ as Claude's visual acceptance or merge it directly into `rc/playtest-2`.
 
 ## Packager's exact art delta
 
-`D:\Otherreach_Scratch\steps_finish_20261031\delivery_art_delta` contains the
+`D:\Otherreach_Scratch\steps_finish_20261031\delivery_art_delta_v3` contains the
 fifteen period wardrobe variants and both Pirate Boots variants. Its
 `DELIVERY.json` lists 183 file hashes and 148 cache entries. The guard and
 Pirate Boots coverage files are the corrected v2 copies; both robes are the
 accepted B-007 corrected copies. Native garment GLBs are unchanged.
+
+Both long-sleeved tunics also need their completed arm coverage. The native
+arm hierarchy and UVs drive `tools/creator/bake_sleeve_coverage.py`; all hand,
+head, neck and foot descendants are protected. Only their coverage PNG/JSON
+change. The native sleeve reach, exposed anatomy and unchanged garment GLB
+hashes are checked before delivery. This v3 delta supersedes the earlier
+seventeen-folder delta; its texture-cache entries and full mip chains remain
+unchanged.
 
 Merge these seventeen rigged folders into the reconciled AssetBase, retaining
 unrelated art. Merge the supplied texture-cache entries by source key and copy
