@@ -738,7 +738,7 @@ internal sealed partial class InventorySystem
         {
             case PlaceKind.Inventory:
                 return State.Inventory.Where(e => e.ItemId.Value == itemRef)
-                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear }).FirstOrDefault();
+                    .Select(e => new Located(itemRef, e.DefId, e.Count, e.ItemId, -1, 0, 0, e.Quality) { Notable = e.Notable, Wear = e.Wear, Built = e.Built }).FirstOrDefault();
             case PlaceKind.Ground:
             {
                 if (!EntityId.TryParse(itemRef, out var id) || State.World.FindCreated(id) is not { } record || !CellKey.TryParse(record.HostCell, out var cell)
@@ -922,7 +922,7 @@ internal sealed partial class InventorySystem
                 int left = MergeInto(items.Where(i => i.DefId == definition.Id && i.Quality == quality).OrderBy(i => i.ItemId.Value, StringComparer.Ordinal).ToList(),
                     definition, count, (i, add) => items[items.IndexOf(i)] = i with { Count = i.Count + add });
                 foreach (int stack in Stacks(left, definition.StackMax))
-                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null });
+                    items.Add(new ContainerItem(Identity(ref moving, definition.Id), definition.Id, stack) { Quality = quality, Notable = stack == 1 ? notable : null, Wear = stack == 1 ? wear : null, Built = built });
                 Retire(moving);
                 State.SetContainer(_owner, record with { Items = items.ToImmutableArray() });
                 break;

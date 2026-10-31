@@ -137,6 +137,15 @@ public class BarrowworksFrontierTests
         var resolved = GearResolver.Resolve(item, build, session.Setup.Gear.Parts, session.Setup.Gear.Materials, maker);
         Assert.False(resolved.Clamped);
         Assert.True(resolved.DamageMax > 0);
+
+        // A save keeps the build (schema 42), and so does the crate when the sword goes back into it.
+        static string Of(GearBuild? b) => b is null ? "none" : $"{b.Family}|{b.MakerId}|{b.PartTier}|{string.Join(",", b.Parts)}|{string.Join(",", b.Materials)}|{string.Join(",", b.Affixes)}|{b.Sockets}|{b.Name}";
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("built"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var resumed = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("built"), new LoadContext(session.Generator, session.Content, new Registry())));
+        Assert.Equal(Of(build), Of(resumed.Simulation.Player.Inventory.Single(i => i.ItemId == rolled.ItemId).Built));
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, rolled.ItemId.Value, ItemPlace.Carried, ItemPlace.In(crate.Key), 1)));
+        Assert.Equal(Of(build), Of(arena.Simulation.World.Container(crate.Key)!.Items.Single(i => i.ItemId == rolled.ItemId).Built));
     }
 
     [Fact]
