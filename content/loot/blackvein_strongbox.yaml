@@ -6,5 +6,6 @@ tags: [loot]
 notes: "The quarry's strongbox at the seam (D18 HOOK.LOCK.CONTAINER.T3): the cutting gang's pay box, master-locked and left behind when the cut closed. Static contents."
 rolls: 0
 guaranteed:
+  - { item_ref: item.armor.jointward_mesh, count_range: [1, 1] }   # CMB-04 exotic: closes every articulation seam
   - { item_ref: item.material.iron_ore, count_range: [2, 3] }
   - { item_ref: item.tool.torch, count_range: [1, 2] }

@@ -6,6 +6,7 @@ tags: [loot]
 notes: What is left in the Sunk Barrow's cist - grave goods nobody has dared lift, and what the last person to try dropped.
 rolls: 0
 guaranteed:
+  - { item_ref: item.armor.phase_laminate, count_range: [1, 1] }   # CMB-04 exotic: what argues with displacement
   - { item_ref: item.material.iron_ingot, count_range: [2, 2] }
   - { item_ref: item.consumable.salve_minor, count_range: [2, 2] }
   - { item_ref: item.ammo.arrow_rough, count_range: [10, 10] }
