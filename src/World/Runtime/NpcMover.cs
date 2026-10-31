@@ -205,6 +205,14 @@ internal sealed partial class NpcSystem
         switch (step.Kind)
         {
             case NavStepKind.Unreachable:
+                // Pushed off its line by a body it walked into, it can be pressed where the grid has no room and cannot plan from there
+                // (start_blocked) for ever: it walks out to the nearest place it can stand, and plans again from there. The glide does
+                // the same, but in one step; here it is walked, so a body in sight never jumps.
+                if (StandingClear(body) is { } clear && Walk(npc, clear, clear) is var (outward, _) && (outward.XMm, outward.ZMm) != (body.XMm, body.ZMm))
+                {
+                    Write(npc, life, outward, NavRoute.None, 0);
+                    break;
+                }
                 Write(npc, life, Turn(body, CombatRules.FacingTowards(body.XMm, body.ZMm, goalX, goalZ)), step.Route, life.StuckTicks + 1);
                 break;
             case NavStepKind.OpenGate:
@@ -217,6 +225,8 @@ internal sealed partial class NpcSystem
                 var (moved, landing) = Walk(npc, step.Target, goal);
                 long dx = moved.XMm - body.XMm, dz = moved.ZMm - body.ZMm;
                 bool headway = landing || dx * dx + dz * dz >= HeadwayMm * HeadwayMm;
+                if (!headway && AroundABody(npc, life, step.Target) is { } around)
+                    (moved, headway) = (around, true);
                 Write(npc, life, moved, step.Route, headway ? 0 : life.StuckTicks + 1);
                 break;
         }
@@ -405,6 +415,40 @@ internal sealed partial class NpcSystem
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// A body standing on the route - the character, another person, a creature - is not on the grid the route was planned on, so walking
+    /// into it head-on makes no headway however often the route is replanned: a guard whose way to work the character stood in pressed
+    /// against them for hours. The walker takes one tick's walk across its way instead, to the side away from the body (by key when it is
+    /// dead ahead), else the other side, and the route takes it on from there. Null when no body within touching distance is ahead.
+    /// </summary>
+    private Body? AroundABody(NpcState npc, NpcLifeRecord life, NavPoint target)
+    {
+        var body = npc.Body;
+        double wx = target.XMm - body.XMm, wz = target.ZMm - body.ZMm, wl = Math.Sqrt(wx * wx + wz * wz);
+        if (wl == 0)
+            return null;
+        (wx, wz) = (wx / wl, wz / wl);
+        long r = _context.Setup.Movement.BodyRadiusMm;
+        var ahead = Obstacles(npc.Definition.Id).OfType<CircleBlocker>()
+            .Select(c => (c.Id, Ox: (double)(c.CenterXMm - body.XMm), Oz: (double)(c.CenterZMm - body.ZMm), Reach: (double)(r + c.RadiusMm + PressMm)))
+            .Where(c => c.Ox * c.Ox + c.Oz * c.Oz <= c.Reach * c.Reach && c.Ox * wx + c.Oz * wz > 0)
+            .OrderBy(c => c.Ox * c.Ox + c.Oz * c.Oz).ThenBy(c => c.Id, StringComparer.Ordinal).ToList();
+        if (ahead.Count == 0)
+            return null;
+        var (_, ox, oz, _) = ahead[0];
+        double cross = wx * oz - wz * ox;
+        int side = cross > 0 ? -1 : cross < 0 ? 1 : (KeyHash(life.Key) & 1) == 0 ? 1 : -1;
+        long travel = (long)_context.Setup.Movement.SpeedMmPerSecond(Gait.Walk) * TickMs / 1000;
+        foreach (int s in new[] { side, -side })
+        {
+            long tx = body.XMm + (long)Math.Round(-wz * s * travel * 4), tz = body.ZMm + (long)Math.Round(wx * s * travel * 4);
+            var (moved, _) = Walk(npc, new NavPoint(tx, tz), new NavPoint(long.MinValue, long.MinValue));
+            if (moved.XMm != body.XMm || moved.ZMm != body.ZMm)
+                return moved;
+        }
+        return null;
     }
 
     /// <summary>Whether the character's next step would carry them farther without this NPC: the step taken with and without their body.</summary>
