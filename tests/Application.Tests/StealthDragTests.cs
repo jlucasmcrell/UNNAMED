@@ -33,12 +33,12 @@ public class StealthDragTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         // The recipe the body-discovery test proved: read the wolf's own facing, then stand along it and take it from behind.
-        double wolfFacing = Arena.OpenCreatures(session, session.Setup, (452, 720), 0,
-            new[] { (Arena.Wolf, 452.0, 721.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
+        double wolfFacing = Arena.OpenCreatures(session, session.Setup, (470, 744), 0,
+            new[] { (Arena.Wolf, 470.0, 745.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0))
             .Creature().Body.FacingMdeg / 1000.0 * Math.PI / 180;
-        var behind = (452.0 - Math.Sin(wolfFacing) * 1.2, 721.0 - Math.Cos(wolfFacing) * 1.2);
+        var behind = (470.0 - Math.Sin(wolfFacing) * 1.2, 745.0 - Math.Cos(wolfFacing) * 1.2);
         var arena = Arena.OpenCreatures(session, session.Setup, behind, (int)Math.Round(wolfFacing * 180 / Math.PI),
-            new[] { (Arena.Wolf, 452.0, 721.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0));
+            new[] { (Arena.Wolf, 470.0, 745.0, "pack_hunter") }, Quiet, startTick: Day, origin: (0, 0));
         arena.Tick(10);
         Assert.Null(arena.Submit(new TakedownCommand(arena.Player)));
         arena.Tick(60);
