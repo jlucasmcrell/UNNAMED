@@ -232,11 +232,23 @@ public sealed record RoutineDefinition(
         : WorkFromHour < WorkToHour ? hourOfDay >= WorkFromHour && hourOfDay < WorkToHour
         : hourOfDay >= WorkFromHour || hourOfDay < WorkToHour;
 
-    /// <summary>What the schedule has them doing at an hour of the day: work in work hours, asleep at home at night, else about their day.</summary>
-    public string ActivityAt(int hourOfDay, NpcLifeRules rules) =>
-        WorksAt(hourOfDay) && Anchors.ContainsKey(NpcAnchorKinds.Work) ? NpcActivities.Work
-        : rules.IsNight(hourOfDay) && SpotAt(hourOfDay) is null ? NpcActivities.Sleep
-        : NpcActivities.Idle;
+    /// <summary>
+    /// What the schedule has them doing at an hour of the day. An authored band wins over the work hours: a band naming the work site
+    /// is work, a band naming home is home (asleep at night), and a band naming any other anchor is the rest of their day spent there.
+    /// Work hours then hold for every hour no band covers, and the hours outside them are home.
+    /// </summary>
+    public string ActivityAt(int hourOfDay, NpcLifeRules rules)
+    {
+        switch (BandAt(hourOfDay))
+        {
+            case NpcAnchorKinds.Work: return NpcActivities.Work;
+            case NpcAnchorKinds.Home: return rules.IsNight(hourOfDay) ? NpcActivities.Sleep : NpcActivities.Idle;
+            case not null: return NpcActivities.Idle;
+        }
+        return WorksAt(hourOfDay) && Anchors.ContainsKey(NpcAnchorKinds.Work) ? NpcActivities.Work
+            : rules.IsNight(hourOfDay) ? NpcActivities.Sleep
+            : NpcActivities.Idle;
+    }
 
     /// <summary>Where an activity puts them at an hour of the day: the work site, home, or the spot the schedule names.</summary>
     public NpcAnchor AnchorFor(string activity, int hourOfDay) => activity switch
@@ -246,8 +258,12 @@ public sealed record RoutineDefinition(
         _ => Anchors[NpcAnchorKinds.Home],
     };
 
+    /// <summary>The anchor the band covering this hour names, home included; null when no band covers it.</summary>
+    private string? BandAt(int hourOfDay) =>
+        Schedule.FirstOrDefault(b => b.Covers(hourOfDay))?.Anchor;
+
     private string? SpotAt(int hourOfDay) =>
-        Schedule.FirstOrDefault(b => b.Covers(hourOfDay)) is { Anchor: var spot } && spot != NpcAnchorKinds.Home ? spot : null;
+        BandAt(hourOfDay) is { } spot && spot != NpcAnchorKinds.Home ? spot : null;
 }
 
 /// <summary>
