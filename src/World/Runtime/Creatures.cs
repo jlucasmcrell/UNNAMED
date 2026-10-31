@@ -1301,6 +1301,23 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return null;
     }
 
+    /// <summary>
+    /// A carcass's harvest count (B-032): it lives on its body's record, so a save taken after the meat gave it back part-skinned rather than
+    /// whole. The body is found by the identity its carcass key carries (<c>carcass.{instance}</c>); a body no longer recorded keeps nothing,
+    /// which is the behaviour every older save had.
+    /// </summary>
+    public string? Handle(CarcassHarvestedCommand command, long tick)
+    {
+        const string prefix = "carcass.";
+        if (!command.Key.StartsWith(prefix, StringComparison.Ordinal)
+            || !EntityId.TryParse(command.Key[prefix.Length..], out var instance))
+            return null;
+        if (State.World.CreatureOf(instance) is not { } body || body.CarcassTaken == command.Taken)
+            return null;
+        State.SetCreatureRecord(_owner, body with { CarcassTaken = command.Taken });
+        return null;
+    }
+
     public string? Handle(CorpseEmptied command, long tick)
     {
         if (State.Creatures.Values.FirstOrDefault(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == command.CorpseKey) is not { } c)

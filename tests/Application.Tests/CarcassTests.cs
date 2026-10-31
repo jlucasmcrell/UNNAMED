@@ -143,6 +143,48 @@ public sealed class CarcassTests
         Assert.Equal(1, Carried("item.material.leather"));
     }
 
+    /// <summary>
+    /// B-032: what a carcass has given up belongs to the body, so the save keeps it. The meat is taken, the game is saved and loaded, and the
+    /// body comes back with one charge left - the pelt - so it pays once and not twice.
+    /// </summary>
+    [Fact]
+    public void APartSkinnedCarcass_KeepsWhatWasTakenFromIt_AcrossASaveAndLoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = Killed(session, session.Setup);
+        var carcass = arena.Simulation.Nodes.Single(n => n.Key == key);
+
+        static void StandAt(Arena a, long x, long z) =>
+            Assert.Null(a.Simulation.Submit(new Relocate(new Body(x, a.Simulation.Setup.Layout.Space.HeightAtMm(x, z), z, 0))));
+        static int Carried(Simulation s, string item) => s.Player.Inventory.Where(e => e.DefId == item).Sum(e => e.Count);
+
+        // the first harvest is the meat, and only the meat
+        StandAt(arena, carcass.XMm, carcass.ZMm - 500);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, key)));
+        int meatTaken = Carried(arena.Simulation, "item.material.meat_raw");
+        Assert.True(meatTaken >= 1);
+        Assert.Equal(0, Carried(arena.Simulation, "item.material.pelt_grey_wolf"));
+        Assert.Equal("item.material.pelt_grey_wolf", arena.Simulation.Nodes.Single(n => n.Key == key).ItemId);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("skinned"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
+            session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("skinned"),
+            new LoadContext(session.Generator, session.Content, new Registry())));
+
+        // the body comes back as it was left, not whole: its next harvest is the pelt
+        var reloaded = loaded.Simulation.Nodes.Single(n => n.Key == key);
+        Assert.Equal("item.material.pelt_grey_wolf", reloaded.ItemId);
+        Assert.True(reloaded.Ready);
+
+        StandAt(loaded, reloaded.XMm, reloaded.ZMm - 500);
+        Assert.Null(loaded.Submit(new GatherCommand(loaded.Player, key)));
+        Assert.True(Carried(loaded.Simulation, "item.material.pelt_grey_wolf") >= 1);
+        Assert.Equal(meatTaken, Carried(loaded.Simulation, "item.material.meat_raw"));   // no second meat
+        Assert.False(loaded.Simulation.Nodes.Single(n => n.Key == key).Ready);
+    }
+
     [Fact]
     public void ACreatureWhoseKindNamesNoCarcass_LeavesNothing()
     {

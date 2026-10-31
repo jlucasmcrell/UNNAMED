@@ -127,7 +127,8 @@ public static class SchemaMigrations
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
-        new SchemaV39ToV40());
+        new SchemaV39ToV40(),
+        new SchemaV40ToV41());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2111,6 +2112,33 @@ public sealed class SchemaV39ToV40 : SchemaMigration
                 identity.Origin = Domain.Character.CharacterSpec.DefaultOrigin;
             next.Crossing = new CrossingDto();
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
+        }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 40 -> 41: a body's carcass keeps how many harvests it has given up (B-032). Schema 40 held that count in memory only, so a save
+/// taken after the meat was taken gave the body back whole and it paid twice. Nothing in an older save has had anything taken from it,
+/// which is exactly what the new field's default of 0 says.
+/// </summary>
+public sealed class SchemaV40ToV41 : SchemaMigration
+{
+    public override int From => 40;
+
+    public override string Summary =>
+        "schema 40 -> 41: a creature record keeps its carcass harvest count (0 for every body in an older save)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        if (document.Sections.GetValueOrDefault(SaveFormat.Entities) is { } bytes)
+        {
+            var old = MessagePackSerializer.Deserialize<Sections.V40.EntitySection>(bytes, SectionCodec.MessagePackOptions);
+            document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(
+                MessagePackSerializer.Deserialize<EntitiesSectionDto>(
+                    MessagePackSerializer.Serialize(old, SectionCodec.MessagePackOptions), SectionCodec.MessagePackOptions),
+                SectionCodec.MessagePackOptions);
         }
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
