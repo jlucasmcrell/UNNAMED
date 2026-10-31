@@ -39,6 +39,20 @@ public partial class Main
     /// <summary>A notice of a kind the player may switch off (Settings, Notices): shown unless that kind is hidden.</summary>
     private void Notice(NoticeKind kind, string text, double seconds = 4) => _hud.Toast(text, seconds, kind: kind);
 
+    private void DrawGroundItemMove(ItemMoved moved)
+    {
+        var simulation = _session.Simulation!;
+        if (moved.From.Kind != PlaceKind.Ground && moved.To.Kind != PlaceKind.Ground
+            && !simulation.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == moved.From.ContainerKey))
+            return;
+        var released = moved.Actor == simulation.PlayerId
+            && moved.From.Kind == PlaceKind.Inventory && moved.To.Kind == PlaceKind.Ground
+            && !simulation.Player.Equipment.Values.Any(id =>
+                simulation.Player.Inventory.Any(item => item.ItemId == id && item.DefId == moved.DefId))
+            ? _avatar.ReleaseWeapon(moved.DefId) : null;
+        _items.Refresh(simulation, released, moved.DefId);
+    }
+
     /// <summary>A control move as a log line reads it (CMB-16).</summary>
     private static string ControlWord(ControlMove move) => move switch
     {
@@ -240,9 +254,7 @@ public partial class Main
             if (e.To.Kind == PlaceKind.Inventory && (e.From.Kind == PlaceKind.Ground
                 || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey)))
                 Notice(NoticeKind.Items, $"Picked up {Names.Of(_session, e.DefId)}{(e.Count > 1 ? $" x{e.Count}" : "")}", 3);
-            if (e.From.Kind == PlaceKind.Ground || e.To.Kind == PlaceKind.Ground
-                || _session.Simulation!.ActiveLayout.Containers.Any(c => PlayerController.IsPickup(c) && c.Key == e.From.ContainerKey))
-                _items.Refresh(_session.Simulation!);
+            DrawGroundItemMove(e);
         });
         _session.Subscribe<QuickSlotAssigned>(_ => _inventory.Refresh());
         // The pack was laid out again (a sort, a bag, a lock, a mark): the inventory draws it again; junk sold says what it made.

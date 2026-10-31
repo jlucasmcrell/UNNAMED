@@ -17,6 +17,7 @@ public partial class ItemsView : Node3D
     private readonly Dictionary<string, Node3D> _containers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _items = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Node3D> _pickups = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, Node3D> _falling = new(StringComparer.Ordinal);
     private static readonly StandardMaterial3D Crate = new() { AlbedoColor = new Color(0.72f, 0.62f, 0.38f) };
     private static readonly StandardMaterial3D Chest = new() { AlbedoColor = new Color(0.38f, 0.26f, 0.14f) };
     private Art.ArtLibrary _art = Art.ArtLibrary.Empty;
@@ -33,6 +34,7 @@ public partial class ItemsView : Node3D
 
     public void BuildContainers(RegionLayout layout)
     {
+        _falling.Clear();
         _pickups.Clear();
         foreach (var child in GetChildren().Where(child => child != _ground))
         {
@@ -75,8 +77,10 @@ public partial class ItemsView : Node3D
     /// <summary>What is drawn for a container, by its key, or for a thing on the ground, by its instance; null when none is (for the outline).</summary>
     public Node3D? Shown(string key) => _containers.GetValueOrDefault(key) ?? _items.GetValueOrDefault(key);
 
-    public void Refresh(Simulation simulation)
+    public void Refresh(Simulation simulation, Node3D? releasedWeapon = null, string? releasedDefinition = null)
     {
+        var arriving = releasedWeapon is null ? null : simulation.WorldItems.FirstOrDefault(item =>
+            item.DefId == releasedDefinition && !_items.ContainsKey(item.Id.Value));
         foreach (var container in simulation.Containers.Where(c => Player.PlayerController.IsPickup(c.Site)))
             if (_pickups.TryGetValue(container.Site.Key, out var model))
                 model.Visible = !container.Items.IsEmpty;
@@ -87,6 +91,23 @@ public partial class ItemsView : Node3D
         foreach (var item in simulation.WorldItems)
         {
             var feet = new Vector3(item.XMm / 1000f, terrain.HeightAtMm(item.XMm, item.ZMm) / 1000f, item.ZMm / 1000f);
+            // A knocked-away weapon remains the weapon that left the hand. A dedicated
+            // ground binding still wins; ordinary weapons use their actual native model.
+            if (!_bindings.GroundItems.ContainsKey(item.DefId)
+                && _bindings.Weapons.TryGetValue(item.DefId, out var weapon)
+                && GroundWeapon(weapon.Model) is { } grounded)
+            {
+                grounded.Name = item.Id.Value;
+                grounded.Position = feet;
+                float Height(float dx, float dz) => terrain.HeightAtMm(item.XMm + (long)(dx * 1000), item.ZMm + (long)(dz * 1000)) / 1000f;
+                var normal = new Vector3(Height(-.5f, 0) - Height(.5f, 0), 1,
+                    Height(0, -.5f) - Height(0, .5f)).Normalized();
+                grounded.Basis = new Basis(new Quaternion(Vector3.Up, normal));
+                _ground.AddChild(grounded);
+                _items[item.Id.Value] = grounded;
+                _art.Coverage.Resolved("ground_item", item.DefId, weapon.Model);
+                continue;
+            }
             // The item's own look where the bindings give one (a hide, a boot, an ingot), else the shared sack.
             var drop = _bindings.GroundItems.GetValueOrDefault(item.DefId) ?? _bindings.GroundItem;
             if (drop is { } look && Art.Fitting.Site(_art, look, feet) is { } model)
@@ -109,5 +130,60 @@ public partial class ItemsView : Node3D
             _ground.AddChild(crate);
             _items[item.Id.Value] = crate;
         }
+        foreach (string id in _falling.Keys.Where(id => !_items.ContainsKey(id)).ToArray())
+        {
+            _falling[id].QueueFree();
+            _falling.Remove(id);
+        }
+        foreach (string id in _falling.Keys) _items[id].Visible = false;
+        if (releasedWeapon is not null)
+        {
+            if (arriving is not null && _items.TryGetValue(arriving.Id.Value, out var destination)
+                && destination.GetNodeOrNull<Node3D>("Turn/Weapon") is { } final)
+                Fall(arriving.Id.Value, releasedWeapon, destination, final.GlobalTransform);
+            else
+                releasedWeapon.QueueFree();
+        }
+    }
+
+    private void Fall(string id, Node3D model, Node3D destination, Transform3D landing)
+    {
+        model.Reparent(this, keepGlobalTransform: true);
+        var start = model.GlobalTransform;
+        destination.Visible = false;
+        _falling[id] = model;
+        float seconds = Mathf.Clamp(Mathf.Sqrt(2 * MathF.Max(.1f, start.Origin.Y - landing.Origin.Y) / 9.8f), .18f, .7f);
+        var tween = model.CreateTween();
+        tween.TweenMethod(Callable.From<float>(through =>
+        {
+            var pose = start.InterpolateWith(landing, through);
+            pose.Origin += Vector3.Up * (.12f * 4 * through * (1 - through));
+            model.GlobalTransform = pose;
+        }), 0f, 1f, seconds);
+        tween.TweenCallback(Callable.From(() =>
+        {
+            _falling.Remove(id);
+            if (_items.TryGetValue(id, out var settled)) settled.Visible = true;
+            model.QueueFree();
+        }));
+    }
+
+    private Node3D? GroundWeapon(string id)
+    {
+        if (_art.Model(id) is not { } model) return null;
+        var box = Art.ArtGallery.Bounds(model);
+        int along = Enumerable.Range(0, 3).MaxBy(i => box.Size[i]);
+        int thin = Enumerable.Range(0, 3).Where(i => i != along).MinBy(i => box.Size[i]);
+        Vector3 Axis(int i) => i == 0 ? Vector3.Right : i == 1 ? Vector3.Up : Vector3.Back;
+        var up = Axis(thin);
+        var forward = Axis(along);
+        model.Name = "Weapon";
+        var turn = new Node3D { Name = "Turn", Basis = new Basis(up.Cross(forward), up, forward).Inverse() };
+        turn.AddChild(model);
+        var holder = new Node3D();
+        holder.AddChild(turn);
+        var flat = Art.ArtGallery.Bounds(holder);
+        turn.Position = new Vector3(-flat.GetCenter().X, -flat.Position.Y + .01f, -flat.GetCenter().Z);
+        return holder;
     }
 }

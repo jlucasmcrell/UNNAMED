@@ -357,6 +357,18 @@ public sealed partial class SkinnedFigure : Figure
         Equip(itemDefId is null ? null : _bindings.Weapons.GetValueOrDefault(itemDefId));
     }
 
+    public override Node3D? ReleaseWeapon(string itemDefId)
+    {
+        if (_heldId != itemDefId || _held is null) return null;
+        var model = _held;
+        _held = null;
+        _heldId = null;
+        _equipped = null;
+        _haft = null;
+        Relax();
+        return model;
+    }
+
     /// <summary>A weapon by its binding (a companion's own, which is no item of the character's), or empty hands. The same one again is kept.</summary>
     public void Equip(WeaponArt? weapon)
     {

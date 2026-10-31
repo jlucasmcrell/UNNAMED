@@ -10,6 +10,10 @@ The public CPU tools preserve the CMU archive bytes, normalize the source scene'
 
 Current native candidate/proof scratch: D:/Otherreach_Scratch/codex_systems_visuals_20261031/cmb16/current_candidate01. Source-only fixtures retain actual wall-time frames, native clothes, bindings and assembly hashes. Neutral-floor source review does not prove ordinary control timing, prop continuity or a creature-family rig. Contact minima alone do not prove body support: a hanging tunic can touch the floor while the body floats. No cloth-minimum audit is treated as that visual verdict.
 
+The ground-item presentation now uses each weapon's native held-art model when it has no dedicated ground binding, laid flat along the terrain slope. The committed item-move event transfers the actual held mesh out of the hand, animates its fall to the native ground model's exact transform, then reveals the settled model. It does not change item ownership, commands, simulation positions or persistence. Dropping a spare of a still-equipped definition leaves the held weapon attached. Ordinary refreshes retain an active fall; collecting the item cancels that visual. Pickup hand contact and the dedicated release pose remain unfinished.
+
+Native headless gate at D:/Otherreach_Scratch/codex_systems_visuals_20261031/cmb16/drop_continuity01/cpu_native01/CPU_NATIVE_DROP.json exits0 after59.85s: actual GameSession inventory commands, actual production DrawGroundItemMove, same native held-node instance transferred into the fall, native weapon settled on the ground, no art problems. Its neutral-floor render fixture is prepared; this numerical/setup gate does not prove a landed disarm, rendered prop continuity or pickup.
+
 ## Still required before FINISHED
 
 - Source and judge actual trip, disarm, hit-while-prone and weapon-release motion; the six existing candidates are not substitutes for those missing takes.
