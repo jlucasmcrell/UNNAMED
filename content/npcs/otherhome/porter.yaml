@@ -27,6 +27,14 @@ appearance:
     body.muscular: 480
     body.overweight: 90
     body.skinny: 220
+    body.shoulder_muscles: 0
+    body.chest_muscles: 0
+    body.back_muscles: 0
+    body.biceps: 0
+    body.triceps: 0
+    body.forearm_muscles: 0
+    body.quad_muscles: 0
+    body.calves_muscles: 0
     look.shirt_colour: 2
     look.trouser_colour: 0
     look.hair_colour: 1
