@@ -145,9 +145,13 @@ public sealed record FestivalRules(ImmutableArray<FestivalDefinition> All, int M
         return this;
     }
 
+    // The living world asks this for every NPC every tick, so a region's festivals are worked out once.
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<string, ImmutableArray<FestivalDefinition>> _byRegion =
+        new(StringComparer.Ordinal);
+
     /// <summary>The festivals authored for one region, in the order they were written.</summary>
     public ImmutableArray<FestivalDefinition> Of(string regionId) =>
-        All.Where(f => string.Equals(f.RegionId, regionId, StringComparison.Ordinal)).ToImmutableArray();
+        _byRegion.GetOrAdd(regionId, id => All.Where(f => string.Equals(f.RegionId, id, StringComparison.Ordinal)).ToImmutableArray());
 }
 
 /// <summary>
