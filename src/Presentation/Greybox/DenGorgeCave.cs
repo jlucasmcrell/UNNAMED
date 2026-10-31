@@ -276,7 +276,7 @@ public static class DenGorgeCave
         foreach (var (x, z) in new[] { (537.5f, 788f), (542.5f, 784.5f), (539f, 795f), (544f, 788.5f), (535.5f, 783.5f) })
             Put("gorge_root_cluster", new Vector3(x, height(x, z) + 4.6f, z), new Vector3(180f + random.RandfRange(-12, 12), random.RandfRange(0, 360), 0), random.RandfRange(0.9f, 1.3f));
         // Under the crack: a fallen limb and the stones that came with it.
-        Put("flora_fallen_log", new Vector3(Crack.X + 1.2f, height(Crack.X, Crack.Y) - 0.1f, Crack.Y + 0.5f), new Vector3(4, 35, 6), 0.8f);
+        Put("flora_ph_fallen_log", new Vector3(Crack.X + 1.2f, height(Crack.X, Crack.Y) - 0.1f, Crack.Y + 0.5f), new Vector3(4, 35, 6), 0.8f);
         for (int i = 0; i < 6; i++)
         {
             float x = Crack.X + random.RandfRange(-2.5f, 2.5f), z = Crack.Y + random.RandfRange(-2f, 2f);
