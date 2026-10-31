@@ -25,7 +25,7 @@ namespace UNNAMED.Presentation;
 /// the journal and the quest debugger on screen - smelts a billet at the hearth, makes the spear at the anvil and takes it in
 /// hand, (M4) trades the old sword to Kera for arrows, (M5) shows her the spear and completes the quest, and wounds a valley stray
 /// with the spear; then walks up to the wolves' den, wounds one of the pack and stands
-/// until the pack kills the character (`PROTOTYPE.md` ยง5 step 7's deliberate death: a wounded stray only flees, and a
+/// until the pack kills the character (`PROTOTYPE.md` ง5 step 7's deliberate death: a wounded stray only flees, and a
 /// character fighting back with the spear has cleared the den). A screenshot after each step, mid-fight, and of the death
 /// recap. Windowed; exit code 0, or 1 when a step does not happen.
 /// </summary>
@@ -171,6 +171,7 @@ public sealed class UiShots
     public string? Update()
     {
         _frame++;
+        if (FieldGuideOnly && _frame <= 180) return null;
         if (_wait > 0)
         {
             // Let the panel lay out (and the take land) before the picture.
@@ -205,7 +206,7 @@ public sealed class UiShots
             if (name.Length > 0)
             {
                 _pending = "screen_" + name;
-                _wait = name.StartsWith("announce", StringComparison.Ordinal) ? 40 : 12;
+                _wait = FieldGuideOnly ? 60 : name.StartsWith("announce", StringComparison.Ordinal) ? 40 : 12;
             }
             return null;
         }
@@ -563,7 +564,7 @@ public sealed class UiShots
                 Next();
                 break;
             case 28:
-                // The quest the lesson started (M5): the ore and the shelf are behind the character already (bible ยง32), so it
+                // The quest the lesson started (M5): the ore and the shelf are behind the character already (bible ง32), so it
                 // asks for a billet now - the tracker at the top right says so, and the journal and the quest debugger say more.
                 _journal.Visible = true;
                 _journal.Refresh(_session);
