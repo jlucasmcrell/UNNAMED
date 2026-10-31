@@ -46,6 +46,7 @@ first_party:
   - drying_herb_bundle
   # Procedural and hand-built geometry (props, pieces, stations, doors, trees, rocks, buildings made for CAIRNWOLD).
   - prop_bp_
+  - prop_cw_jetty_piling # B-005 derivative of the same accepted first-party mossy beam
   - piece_bp_
   - piece_timber_
   - station_bp_
@@ -112,8 +113,10 @@ sections:
       - ledger: [A-F05, A-F07, A-F08]
         binds: [bw_codex_]
         text: "The Barrowworks interior kit: Lost Temple Environment by DanStudios and Ancient Mayan Ruins by Meshingun Studio, used under the Fab Standard License."
-      - binds: [ruin_fs_, creature_gate_]
+      - binds: [ruin_fs_, creature_gate_, boss_specification_plate_field]
         text: "The Spill and the Stopped Gate: Red Echo and Monolith Megastructure environment kits from Fab, used under the Fab Standard License. The gate constructs' Stan - The Golem source, modifications and attribution are recorded under Creatures."
+        lines:
+          - "The Specification: nine complete native Red Echo source slabs, original full-resolution maps, rigid rule-field motion and subtly lit native inlay; no humanoid robot body."
       - ledger: [A-F03]
         text: "Hearth and forge fire effects: Fire FX VDB by SHOGUN GAMES, used under the Fab Standard License."
       - ledger: [A-C01, A-C02]
@@ -157,6 +160,8 @@ sections:
   - id: frontier_wardrobe
     title: "Frontier wardrobe"
     entries:
+      - binds: [humgen_creator_f_outfit_outfit_period_robe]
+        text: "Monk's Robe by Donitz, MakeHuman Community, CC0. Native custom-content fitting, body controls, lining and coverage mask for Otherreach."
       - binds: [frontier_]
         text: "Frontier garments, modified, fitted and combined for Otherreach:"
         lines:
@@ -189,9 +194,26 @@ sections:
       - binds: [creature_d5_stan_carved]
         text: "Stan - The Golem by ShyrAssets, CC BY 4.0. Original rig, native 2K surfaces and animations; Blender chipped-edge/surface geometry and faint violet joint seams for Otherreach. Rock064 surface normal texture by ambientCG, CC0."
         url: "https://www.fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e"
-      - binds: [creature_d5_rock_golem]
+      - binds: [creature_d5_rock_golem, boss_first_formed_wingframe]
         text: "Rock Golem by Dm3d (revision of hendori-sama / umask007 work, Yughues texture), CC BY-SA 3.0, OpenGameArt. Mirrored to a full body, rescaled and given a walk for Otherreach."
         url: "https://opengameart.org/content/rock-golem"
+        lines:
+          - "First Formed: fixed Kal wing-frame adaptation by Otherreach, using the approved native wing anatomy/maps and existing ambientCG CC0 surface credits."
+          - "Creative Commons Attribution-ShareAlike 3.0: https://creativecommons.org/licenses/by-sa/3.0/"
+      - binds: [boss_foreman_nine_unit666]
+        text: "Unit 666 - Mech by elopez7, CC BY 4.0, OpenGameArt. Native industrial geometry and full-resolution PBR textures; rigid-part rig and maintenance-body motion authored for Otherreach."
+        url: "https://opengameart.org/content/unit-666-mech"
+      - binds: [boss_salt_walker_exoframe]
+        text: "Mech Character Model by Colorado Stark, CC0. Original proportions, rig, skin and full-resolution diffuse/normal/specular maps retained; native-rig tool-arm posture and motion authored for the Salt Walker."
+        url: "https://opengameart.org/content/mech-character-model"
+      - binds: [boss_understairs_octomass]
+        text: "Octobot by piacenti, CC BY 3.0. Complete native rigged assembly and worn-material variant retained; PBR routing restored and eight native-rig action takes authored for the mass under the Stairs."
+        url: "https://opengameart.org/content/octobot"
+        lines:
+          - "Creative Commons Attribution 3.0: https://creativecommons.org/licenses/by/3.0/"
+      - binds: [boss_bell_deep_angler]
+        text: "Zorag - Mutant Angler Fish - Rigged and Animated by Greeble3d, CC BY 4.0. Original 70-joint skin, materials and Idle/Swim/Bite/Alert takes; retimed swimming and additional native hit/death motion for Otherreach."
+        url: "https://sketchfab.com/3d-models/zorag-mutant-angler-fish-rigged-and-animated-2c98ad253ba94fafab8f7d10e90d9958"
       - binds: [creature_d5_stone_giant]
         text: "Giant stone Rigged Game Ready by Silent Wolf, BlenderKit Royalty Free License. Rescaled to one unit scale; Universal Animation Library takes by Quaternius (CC0) retargeted and slowed for Otherreach."
       - ledger: [A-W01]

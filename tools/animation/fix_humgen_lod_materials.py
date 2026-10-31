@@ -11,24 +11,44 @@ import struct
 import sys
 
 src, dst = sys.argv[1], sys.argv[2]
+repair_spacing = '--creator-staging-offsets' in sys.argv[3:]
 with open(src, "rb") as f:
     magic, version, _ = struct.unpack("<III", f.read(12))
     length, _ = struct.unpack("<II", f.read(8))
     gltf = json.loads(f.read(length))
     blength, _ = struct.unpack("<II", f.read(8))
-    binary = f.read(blength)
+    binary = bytearray(f.read(blength))
 
 
 meshes_by_node = {n["name"]: n["mesh"] for n in gltf["nodes"] if "mesh" in n and "name" in n}
 fixed = 0
 for name, mesh in meshes_by_node.items():
-    match = re.fullmatch(r"(.+)_LOD([1-9])", name)
-    if not match or match.group(1) + "_LOD0" not in meshes_by_node:
+    match = re.fullmatch(r"(.+)_LOD([1-9])(_lining)?", name)
+    base_name = match.group(1) + '_LOD0' + (match.group(3) or '') if match else ''
+    if not match or base_name not in meshes_by_node:
         continue
-    base = gltf["meshes"][meshes_by_node[match.group(1) + "_LOD0"]]["primitives"]
+    base = gltf["meshes"][meshes_by_node[base_name]]["primitives"]
     if len(base) != len(gltf["meshes"][mesh]["primitives"]):
         raise ValueError(f"{name}: LOD surface count differs from LOD0; cannot map materials safely")
     for index, primitive in enumerate(gltf["meshes"][mesh]["primitives"]):
+        if repair_spacing:
+            # Repair only the measured HumGen creator preview-layout error, never
+            # an arbitrary mesh or a legitimately displaced garment. Morph targets
+            # are deltas and retain their original data; joints/weights/rests stay exact.
+            position = gltf['accessors'][primitive['attributes']['POSITION']]
+            basis = gltf['accessors'][base[index]['attributes']['POSITION']]
+            offset = 2 * (int(match.group(2)) + 1)
+            shifts = [position[edge][2] - basis[edge][2] for edge in ('min', 'max')]
+            same_xy = all(abs(position[edge][axis] - basis[edge][axis]) < .1 for edge in ('min', 'max') for axis in (0, 1))
+            if same_xy and all(abs(shift + offset) < .1 for shift in shifts):
+                assert position['componentType'] == 5126 and position['type'] == 'VEC3' and 'sparse' not in position
+                view = gltf['bufferViews'][position['bufferView']]
+                start = view.get('byteOffset', 0) + position.get('byteOffset', 0)
+                for vertex in range(position['count']):
+                    at = start + vertex * view.get('byteStride', 12) + 8
+                    struct.pack_into('<f', binary, at, struct.unpack_from('<f', binary, at)[0] + offset)
+                for edge in ('min', 'max'):
+                    position[edge][2] += offset
         # Native eyes/hair have their own atlas and UVs at each level. Keep
         # those baked maps; only the procedural garment fallback needs LOD0.
         material = gltf["materials"][primitive["material"]] if "material" in primitive else {}
@@ -37,6 +57,11 @@ for name, mesh in meshes_by_node.items():
             image = gltf["images"][gltf["textures"][texture["index"]]["source"]]
             if image.get("name", "").endswith("_LOD" + match.group(2)):
                 continue
+        # HumGen's lower garment bands retain procedural colour-group masks.
+        # With the baked LOD0 atlas these are not vertex albedo colours.
+        for attribute in list(primitive['attributes']):
+            if attribute.startswith('COLOR_') and attribute not in base[index]['attributes']:
+                del primitive['attributes'][attribute]
         if "material" in base[index] and primitive.get("material") != base[index]["material"]:
             primitive["material"] = base[index]["material"]
             fixed += 1

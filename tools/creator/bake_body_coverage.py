@@ -8,13 +8,22 @@ import json
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+import numpy as np
 
 SIZE = 1024
 GROW = 3
 
+def protected_joints(nodes, joints, feet=False):
+    """Exposed anatomy includes every descendant, e.g. IndexDistal under Hand."""
+    parents={child:i for i,node in enumerate(nodes) for child in node.get('children',[])}
+    words=('head','neck','hand') + (('foot','toe') if feet else ())
+    def exposed(i):
+        return any(word in nodes[i].get('name','').lower() for word in words) or (i in parents and exposed(parents[i]))
+    return [exposed(i) for i in joints]
+
 
 def bake(folder):
+    from PIL import Image, ImageDraw
     source = folder / 'body_coverage.json'
     if not source.exists():
         return None
@@ -28,15 +37,23 @@ def bake(folder):
         points = [(t[i] * SIZE, (1.0 - t[i + 1]) * SIZE) for i in (0, 2, 4)]
         draw.polygon(points, fill=255)
     # Grow the coverage a few texels: a filtered sample on the seam must not find skin inside the hole.
-    grown = mask
+    original = np.asarray(mask)
+    padded = np.pad(original, GROW, mode='constant')
+    grown = original.copy()
     for offset in range(1, GROW + 1):
         shifted = []
         for dx, dy in ((offset, 0), (-offset, 0), (0, offset), (0, -offset)):
             shifted.append((dx, dy))
         for dx, dy in shifted:
-            grown = Image.fromarray(
-                __import__('numpy').maximum(__import__('numpy').asarray(grown),
-                                            __import__('numpy').roll(__import__('numpy').asarray(mask), (dy, dx), (0, 1))))
+            # An atlas is not tiled: wrapping its hem onto the opposite edge
+            # erases exposed skin at the neck/face UV border.
+            shifted = padded[GROW-dy:GROW-dy+SIZE, GROW-dx:GROW-dx+SIZE]
+            grown = np.maximum(grown, shifted)
+    grown = Image.fromarray(grown)
+    # Padding a seam must never eat into the exposed neck, face or hands.
+    exposed = ImageDraw.Draw(grown)
+    for t in data.get('protected_uv_triangles') or []:
+        exposed.polygon([(t[i] * SIZE, (1.0-t[i+1]) * SIZE) for i in (0, 2, 4)], fill=0)
     out = folder / 'body_coverage.png'
     grown.save(out)
     covered = sum(1 for value in grown.getdata() if value)

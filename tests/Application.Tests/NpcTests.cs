@@ -78,6 +78,22 @@ public class NpcTests
     // ── the people ──────────────────────────────────────────────────────────
 
     [Fact]
+    public void Views_PreserveNamedPeople_WithoutReplacingGeneratedPeoples()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var simulation = session.NewGame(Harness.Named("Tester"), seed: 42);
+        Assert.Equal("people.siann", simulation.Npcs.Single(n => n.Id == Sel).PeopleId);
+        foreach (var npc in simulation.Npcs)
+        {
+            string? expected = npc.Resident ? session.Setup.NpcLife.Routines[npc.Id].PeopleId
+                : npc.Role == "adventurer" ? simulation.World.Adventurers!.Agents[npc.Id].PeopleId
+                : session.Setup.Social.Npcs[npc.Id].PeopleId;
+            Assert.Equal(expected, npc.PeopleId);
+        }
+    }
+
+    [Fact]
     public void TheWaystationsPeople_StandWhereTheRegionPutsThem()
     {
         using var profile = new TempProfile();

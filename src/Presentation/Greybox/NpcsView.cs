@@ -91,13 +91,20 @@ public partial class NpcsView : Node3D
                 continue;
             if (!_figures.TryGetValue(npc.Id, out var figure))
             {
-                string? sex = simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id)?.Sex;
+                var definition = simulation.Setup.Social.Npcs.GetValueOrDefault(npc.Id);
+                string? sex = definition?.Sex;
                 var appearance = _bindings.Person(npc.Id, npc.PeopleId, instance, sex);
-                var native = MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id, sex: sex);
+                var authored = VisualOptions.ComparisonCast == "humgen" ? definition?.Appearance : null;
+                var body = authored is null || appearance is null ? null
+                    : Art.SkinnedFigure.Create(_art, _bindings, npc.Id,
+                        body: sex == "f" ? "humgen_creator_female" : "humgen_creator_male", people: npc.PeopleId,
+                        appearance: appearance with { Outfit = Array.Empty<string>(), OutfitBody = null });
+                var native = body is null ? MHCharacters.MetaHumanFigure.Create(_art, _bindings, npc.Id, sex: sex) : null;
                 native?.ConfigureNpcPerformance(_performanceStage);
-                var body = native is null ? Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance) : null;
+                if (body is null && native is null)
+                    body = Art.SkinnedFigure.Create(_art, _bindings, npc.Id, appearance: appearance);
                 if (body is not null) Art.PeopleAppearance.EnsureSex(body, sex);
-                string? model = native is not null ? "mh:" + native.CharacterId : appearance?.Model;
+                string? model = native is not null ? "mh:" + native.CharacterId : body?.ModelId ?? appearance?.Model;
                 if (native is not null || body is not null)
                     _art.Coverage.Resolved("person", npc.Id, model!);
                 else
@@ -105,7 +112,9 @@ public partial class NpcsView : Node3D
                 figure = (Figure?)native ?? body ?? (Figure)new Avatar { Clothing = Clothes(npc.Id) };
                 figure.Name = npc.Id;
                 AddChild(figure);
-                if (body is not null && body.ModelId.StartsWith("humgen_", StringComparison.Ordinal) && !_bindings.NamedCharacters.ContainsKey(npc.Id))
+                if (body is not null && authored is not null && body.ModelId.StartsWith("humgen_creator_", StringComparison.Ordinal))
+                    Art.PeopleAppearance.ApplyLook(body, npc.PeopleId, authored, _art, body.ModelId);
+                else if (body is not null && body.ModelId.StartsWith("humgen_", StringComparison.Ordinal) && !_bindings.NamedCharacters.ContainsKey(npc.Id))
                     Art.PeopleAppearance.ApplyResidentLook(body, npc.PeopleId, instance);
                 _figures[npc.Id] = figure;
                 string speakerId = npc.Id;

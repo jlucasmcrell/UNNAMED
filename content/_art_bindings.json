@@ -48,7 +48,7 @@
         "flora_cos_sourwood_tree_e"
       ],
       "material": "wood",
-      "wind": 0.2,
+      "wind": 0,
       "note": "Vegetation overhaul 2026-10-14 (asset_work/vegetation): card-aware LODs, lod3 crossed-plane impostor. Both >= 8.4 m wide so the three 3.1 m blockers fit."
     },
     "cw_wall_": {
@@ -10069,19 +10069,22 @@
       "note": "D18: a jetty deck board - the waystation's own timber pad."
     },
     "cw_jetty_post_1": {
-      "model": "cw_hurdle_fence",
+      "model": "prop_cw_jetty_piling",
+      "offset": [0, -2.5, 0],
       "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
+      "note": "Cairnwold piling: accepted mossy timber stood upright, full texture/LOD detail; 2.5 m buried below the jetty shelf to the pond bed."
     },
     "cw_jetty_post_2": {
-      "model": "cw_hurdle_fence",
+      "model": "prop_cw_jetty_piling",
+      "offset": [0, -2.5, 0],
       "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
+      "note": "Cairnwold piling: accepted mossy timber stood upright, full texture/LOD detail; 2.5 m buried below the jetty shelf to the pond bed."
     },
     "cw_jetty_post_3": {
-      "model": "cw_hurdle_fence",
+      "model": "prop_cw_jetty_piling",
+      "offset": [0, -2.5, 0],
       "material": "wood",
-      "note": "Gate 2: a market stall's back, wattle on posts."
+      "note": "Cairnwold piling: accepted mossy timber stood upright, full texture/LOD detail; 2.5 m buried below the jetty shelf to the pond bed."
     },
     "cw_pond_reeds_1": {
       "model": "flora_cattail_clump",
@@ -16120,6 +16123,214 @@
         "run": "scuttle_fast"
       }
     },
+    "creature.boss.field_ruins.gate_warden.deep": {
+      "model": "creature_d5_stone_giant",
+      "clips": {
+        "idle": "creature.creature_d5_stone_giant.idle",
+        "walk": "creature.creature_d5_stone_giant.walk",
+        "run": "creature.creature_d5_stone_giant.run",
+        "attack": "creature.creature_d5_stone_giant.attack",
+        "hit": "creature.creature_d5_stone_giant.hit",
+        "death": "creature.creature_d5_stone_giant.death",
+        "ability.creature.warden_sweep": "creature.creature_d5_stone_giant.attack",
+        "ability.creature.warden_fall": "creature.creature_d5_stone_giant.attack",
+        "ability.creature.warden_grasp": "creature.creature_d5_stone_giant.attack"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "uniform_scale": 1.8,
+      "note": "Only this B009 boss keeps the accepted stone-giant body. Gate Warden at the Stopped Gate; no stat changes.",
+      "paces": {
+        "walk": 3.76,
+        "run": 12.2
+      }
+    },
+    "creature.boss.underhold.first_formed.deep": {
+      "model": "boss_first_formed_wingframe",
+      "clips": {
+        "idle": "creature.creature_d5_rock_golem.idle",
+        "walk": "creature.creature_d5_rock_golem.walk",
+        "run": "creature.creature_d5_rock_golem.run",
+        "attack": "creature.creature_d5_rock_golem.attack",
+        "hit": "creature.creature_d5_rock_golem.hit",
+        "death": "creature.creature_d5_rock_golem.death",
+        "ability.creature.tender_strike": "creature.creature_d5_rock_golem.attack_2",
+        "attack_2": "creature.creature_d5_rock_golem.attack_2",
+        "ability.creature.warden_sweep": "creature.creature_d5_rock_golem.attack",
+        "ability.creature.armour_slam": "creature.creature_d5_rock_golem.attack_2",
+        "ability.creature.warden_fall": "creature.creature_d5_rock_golem.attack"
+      },
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "walk",
+        "run": "move_heavy"
+      },
+      "uniform_scale": 0.64,
+      "note": "MR-0150 native rock golem and matching native motion; fixed Kal wing-frame rigidly attached to chest from approved Kal anatomy. Catalogue-derived proposal, Claude verdict pending.",
+      "paces": {
+        "walk": 1.41,
+        "run": 4.58
+      }
+    },
+    "creature.boss.caldera.foreman_nine": {
+      "model": "boss_foreman_nine_unit666",
+      "clips": {
+        "idle": "creature.boss_foreman_nine_unit666.idle",
+        "walk": "creature.boss_foreman_nine_unit666.walk",
+        "run": "creature.boss_foreman_nine_unit666.run",
+        "attack": "creature.boss_foreman_nine_unit666.attack",
+        "attack_2": "creature.boss_foreman_nine_unit666.attack_2",
+        "hit": "creature.boss_foreman_nine_unit666.hit",
+        "death": "creature.boss_foreman_nine_unit666.death",
+        "attack_3": "creature.boss_foreman_nine_unit666.attack_3",
+        "ability.creature.warden_sweep": "creature.boss_foreman_nine_unit666.attack",
+        "ability.creature.armour_slam": "creature.boss_foreman_nine_unit666.attack_2",
+        "ability.creature.warden_grasp": "creature.boss_foreman_nine_unit666.attack_3"
+      },
+      "uniform_scale": 0.4,
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "note": "Native catalogue candidate; source provenance and authored motion receipt in owner_boss_looks_20261030. Claude visual verdict pending; no stats/data changes."
+    },
+    "creature.boss.keelward.salt_walker": {
+      "model": "boss_salt_walker_exoframe",
+      "clips": {
+        "idle": "creature.boss_salt_walker_exoframe.idle",
+        "walk": "creature.boss_salt_walker_exoframe.walk",
+        "run": "creature.boss_salt_walker_exoframe.run",
+        "attack": "creature.boss_salt_walker_exoframe.attack",
+        "attack_2": "creature.boss_salt_walker_exoframe.attack_2",
+        "hit": "creature.boss_salt_walker_exoframe.hit",
+        "death": "creature.boss_salt_walker_exoframe.death",
+        "attack_3": "creature.boss_salt_walker_exoframe.attack_3",
+        "ability.creature.warden_sweep": "creature.boss_salt_walker_exoframe.attack",
+        "ability.creature.warden_fall": "creature.boss_salt_walker_exoframe.attack_2",
+        "ability.creature.oathkeeper_light": "creature.boss_salt_walker_exoframe.attack_3",
+        "ability.creature.sedge_drowned_light": "creature.boss_salt_walker_exoframe.attack_2",
+        "ability.creature.warden_grasp": "creature.boss_salt_walker_exoframe.attack_3"
+      },
+      "uniform_scale": 1.12,
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "note": "Native catalogue candidate; source provenance and authored motion receipt in owner_boss_looks_20261030. Claude visual verdict pending; no stats/data changes."
+    },
+    "creature.boss.the_steps.under_the_stairs": {
+      "model": "boss_understairs_octomass",
+      "clips": {
+        "idle": "creature.boss_understairs_octomass.idle",
+        "walk": "creature.boss_understairs_octomass.walk",
+        "run": "creature.boss_understairs_octomass.run",
+        "attack": "creature.boss_understairs_octomass.attack",
+        "attack_2": "creature.boss_understairs_octomass.attack_2",
+        "hit": "creature.boss_understairs_octomass.hit",
+        "death": "creature.boss_understairs_octomass.death",
+        "attack_3": "creature.boss_understairs_octomass.attack_3",
+        "ability.creature.warden_sweep": "creature.boss_understairs_octomass.attack",
+        "ability.creature.warden_fall": "creature.boss_understairs_octomass.attack_2",
+        "ability.creature.warden_grasp": "creature.boss_understairs_octomass.attack_3",
+        "ability.creature.gauge_sweep": "creature.boss_understairs_octomass.attack"
+      },
+      "uniform_scale": 0.72,
+      "voice": "cave_hunting_spider",
+      "flesh": "chitin",
+      "blow": "sting",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "note": "Native catalogue candidate; source provenance and authored motion receipt in owner_boss_looks_20261030. Claude visual verdict pending; no stats/data changes."
+    },
+    "creature.boss.colophon.the_specification": {
+      "model": "boss_specification_plate_field",
+      "clips": {
+        "idle": "creature.boss_specification_plate_field.idle",
+        "walk": "creature.boss_specification_plate_field.walk",
+        "run": "creature.boss_specification_plate_field.run",
+        "attack": "creature.boss_specification_plate_field.attack",
+        "attack_2": "creature.boss_specification_plate_field.attack_2",
+        "hit": "creature.boss_specification_plate_field.hit",
+        "death": "creature.boss_specification_plate_field.death",
+        "attack_3": "creature.boss_specification_plate_field.attack_3",
+        "ability.creature.warden_sweep": "creature.boss_specification_plate_field.attack",
+        "ability.creature.warden_fall": "creature.boss_specification_plate_field.attack_2",
+        "ability.creature.warden_grasp": "creature.boss_specification_plate_field.attack_3",
+        "ability.creature.index_grasp": "creature.boss_specification_plate_field.attack_3"
+      },
+      "uniform_scale": 1,
+      "voice": "animated_armour",
+      "flesh": "plate",
+      "blow": "slam",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "note": "Native catalogue candidate; source provenance and authored motion receipt in owner_boss_looks_20261030. Claude visual verdict pending; no stats/data changes."
+    },
+    "creature.boss.isles.the_bell_that_answers": {
+      "model": "boss_bell_deep_angler",
+      "clips": {
+        "idle": "creature.boss_bell_deep_angler.idle",
+        "walk": "creature.boss_bell_deep_angler.walk",
+        "run": "creature.boss_bell_deep_angler.run",
+        "attack": "creature.boss_bell_deep_angler.attack",
+        "attack_2": "creature.boss_bell_deep_angler.attack_2",
+        "hit": "creature.boss_bell_deep_angler.hit",
+        "death": "creature.boss_bell_deep_angler.death",
+        "ability.creature.warden_sweep": "creature.boss_bell_deep_angler.attack",
+        "ability.creature.warden_fall": "creature.boss_bell_deep_angler.attack_2",
+        "ability.creature.warden_grasp": "creature.boss_bell_deep_angler.attack_2",
+        "ability.creature.measure_fall": "creature.boss_bell_deep_angler.attack_2"
+      },
+      "uniform_scale": 0.8,
+      "voice": "sedge_eel_serpent",
+      "flesh": "flesh",
+      "blow": "bite",
+      "steps": {
+        "walk": "move_heavy",
+        "run": "move_heavy"
+      },
+      "note": "Native catalogue candidate; source provenance and authored motion receipt in owner_boss_looks_20261030. Claude visual verdict pending; no stats/data changes."
+    },
+    "creature.boss.den_gorge.matriarch": {
+      "model": "creature_d5_tarantula_matriarch",
+      "clips": {
+        "idle": "creature.creature_d5_tarantula_matriarch.idle",
+        "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
+        "walk": "creature.creature_d5_tarantula_matriarch.walk",
+        "run": "creature.creature_d5_tarantula_matriarch.walk",
+        "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "death": "creature.creature_d5_tarantula_matriarch.dead",
+        "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
+      },
+      "voice": "cave_hunting_spider",
+      "flesh": "chitin",
+      "blow": "sting",
+      "note": "D19 alias of the accepted 7a47ff2f native Mixall tarantula and all six matching 70-joint takes. Restore the private art delivery with this binding. No Nephila hit take: that skeleton is incompatible. No change to boss stats or canonical size.",
+      "steps": {
+        "walk": "scuttle",
+        "run": "scuttle_fast"
+      }
+    },
     "creature.beast.hunting_spider_matriarch": {
       "model": "creature_d5_tarantula_matriarch",
       "clips": {
@@ -16132,8 +16343,7 @@
         "death": "creature.creature_d5_tarantula_matriarch.dead",
         "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
         "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "hit": "creature.creature_playtest_cave_spider.hit"
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
       },
       "voice": "cave_hunting_spider",
       "flesh": "chitin",

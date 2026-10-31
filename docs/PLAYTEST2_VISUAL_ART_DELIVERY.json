@@ -1,0 +1,366 @@
+{
+  "status": "B020_AND_B007_FINISHED_FOR_CLAUDE_REVIEW; B018_SOURCE_FINISHED_A_B_VERDICT_PENDING",
+  "source_branch": "fix/owner-visual-bugs",
+  "commits": {
+    "B020": "3cc25af9850d834bfeb8e7be54852fce26e46f3e",
+    "B007": "a84f45d190bc8885655030f7b8a1e7efe3be6a7c",
+    "B018": "907e09564d21f593feb00cd5e6c42ff4fec1ada6",
+    "cloth_final_material": "e5fe1e61",
+    "B018_pooled_dead_ash": "873b5d37",
+    "native_body_fit": "707d01d1",
+    "native_shape_reference": "a814d172",
+    "full_hand_protection": "cb8bfb6e",
+    "named_npc_people_projection": "4e12840b"
+  },
+  "delta_root": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\proof_art",
+  "runtime_union": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\runtime_art",
+  "base_delivery": "docs/OWNER_VISUAL_FIX_ART_DELIVERY.json at165797cd; keep all earlier accepted fixes",
+  "cache_gate": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\robe_reference_cache_gate.json",
+  "native_guards": [
+    "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\robe_reference_preservation_guard.json",
+    "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\B020_FINISHED.json",
+    "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\B007_FINISHED.json",
+    "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\B018_FINISHED_SOURCE_PROOF.json"
+  ],
+  "cache_entries": 22,
+  "delivery": "Copy four garment folders after prior private visual-art delivery; merge texture_cache/manifest.json BY KEY and copy referenced full-resolution DDS payloads. Source-only merge is insufficient. Do not replace whole destination cache or base bodies.",
+  "credits": "Donitz, Monk's Robe, MakeHuman Community, CC0; existing HumGen credits retained",
+  "assets": [
+    {
+      "asset": "humgen_creator_f_outfit_outfit_office_new_intern",
+      "files": [
+        {
+          "name": "body_coverage.json",
+          "sha256": "491780dd0ef5e7b3658177ff06847481e8f6bffe24f4c01b66b71a3ea833b9c0",
+          "bytes": 4677518
+        },
+        {
+          "name": "body_coverage.png",
+          "sha256": "da1cb5533f07736ca3924101209b27693b2d5b03d34bd1846c0ecc32f2137a0b",
+          "bytes": 4835
+        },
+        {
+          "name": "creator_part.json",
+          "sha256": "e9a50ecb251062937973cd961a4cf8485aa0815691240ab860e12ef30e8f3765",
+          "bytes": 2362
+        },
+        {
+          "name": "humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb",
+          "sha256": "2433c2079e15afaa53571407f453d3b340e4b2a6ed6f8aec93ee1a1d07529754",
+          "bytes": 114259596
+        },
+        {
+          "name": "native_coverage_receipt.json",
+          "sha256": "263c0baaab425704197a25664e131f5b566c7c4e6590ac40d56fd8801c13b1df",
+          "bytes": 2837
+        },
+        {
+          "name": "native_fit_receipt.json",
+          "sha256": "92406e215c1ddfb8dd21cb25520eba1e18cb93c773fc080ce17bdb2087209095",
+          "bytes": 2837
+        },
+        {
+          "name": "native_materials.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "bytes": 2
+        }
+      ]
+    },
+    {
+      "asset": "humgen_creator_f_outfit_outfit_period_robe",
+      "files": [
+        {
+          "name": "body_coverage.json",
+          "sha256": "c962776a2a7f0af89299e8ecb53a91f0f683866e7abeb35e97ddca1ec86fc056",
+          "bytes": 6229603
+        },
+        {
+          "name": "body_coverage.png",
+          "sha256": "14acf018bb10e3da1ba17eeed2f8df7d948a4872731842daa9d5e2fa0fdfbb54",
+          "bytes": 4463
+        },
+        {
+          "name": "creator_part.json",
+          "sha256": "c72881977d4d0be7e1f1a589ead010dfdf95d63e16b832eaa063ebaceaaa57dc",
+          "bytes": 803
+        },
+        {
+          "name": "humgen_creator_f_outfit_outfit_period_robe_rigged.glb",
+          "sha256": "9e3373bf5882c4ca54d52d652c471fb40522044776e8c3b95fea2c5c4d18e753",
+          "bytes": 118566712
+        },
+        {
+          "name": "humgen_creator_f_outfit_outfit_period_robe_rigged.shape_reference.json",
+          "sha256": "63c96c5dcf4333bf628489d6c3eef03bd5a5600906e6418b56443b8e46503716",
+          "bytes": 1263
+        },
+        {
+          "name": "native_coverage_receipt.json",
+          "sha256": "d157a4048f13b3f24b6fa1990e43a4f7a8e20cb83ca58e04f7e1c1f44671a24f",
+          "bytes": 1333
+        },
+        {
+          "name": "native_fit_receipt.json",
+          "sha256": "72366f0618fdbf886fa31e375bd9f5c2bbf9f7d0e7c3afa91e24a0c1fb58ea6c",
+          "bytes": 1409
+        },
+        {
+          "name": "native_materials.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "bytes": 2
+        }
+      ]
+    },
+    {
+      "asset": "humgen_creator_m_outfit_outfit_office_new_intern",
+      "files": [
+        {
+          "name": "body_coverage.json",
+          "sha256": "b2e355c0cf4447c0d1cf348868367ea33ec0aae8fd86fa311a8573f6a99cd904",
+          "bytes": 4652234
+        },
+        {
+          "name": "body_coverage.png",
+          "sha256": "ceac35bf18c1019523b7b76eb20b44950670beddbdcade28eb6e91c129a353ee",
+          "bytes": 4548
+        },
+        {
+          "name": "creator_part.json",
+          "sha256": "54c74ed1f02cf4c5fce459895c916ffc384b7d3c1e445227a917a1962eeade82",
+          "bytes": 2262
+        },
+        {
+          "name": "humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb",
+          "sha256": "57c7652019f0a3854a7f679b9e919955c3bd62fd9f470fbdf5fe157fb13af206",
+          "bytes": 115477000
+        },
+        {
+          "name": "native_coverage_receipt.json",
+          "sha256": "35afe8a6a1ecb343b90b26cc9a790c977248352c37a92815765b6ac58324ba8d",
+          "bytes": 2785
+        },
+        {
+          "name": "native_fit_receipt.json",
+          "sha256": "cb443f0f4b0ed0884ddac5f40eeea160178e3894059e49b8265ba4d8a96c3ce9",
+          "bytes": 2785
+        },
+        {
+          "name": "native_materials.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "bytes": 2
+        }
+      ]
+    },
+    {
+      "asset": "humgen_creator_m_outfit_outfit_period_robe",
+      "files": [
+        {
+          "name": "body_coverage.json",
+          "sha256": "6fe1fd4c15d9db2c4e5ef484f6b63beaf10aa7b753ad022c332e9703ac344b3d",
+          "bytes": 6229601
+        },
+        {
+          "name": "body_coverage.png",
+          "sha256": "14acf018bb10e3da1ba17eeed2f8df7d948a4872731842daa9d5e2fa0fdfbb54",
+          "bytes": 4463
+        },
+        {
+          "name": "creator_part.json",
+          "sha256": "398da8d68c7fa6f0353c8f7a37370da3a360bd3f4c497fffbfa39b726d7e6f7c",
+          "bytes": 801
+        },
+        {
+          "name": "humgen_creator_m_outfit_outfit_period_robe_rigged.glb",
+          "sha256": "61f26cf578ea08aecad85202c73d8c5e371ee64f4c9321c1c050733cc04e5082",
+          "bytes": 118023400
+        },
+        {
+          "name": "humgen_creator_m_outfit_outfit_period_robe_rigged.shape_reference.json",
+          "sha256": "b8d0bf2f0713abb542eb1304f4b80371894523f12189b0e7cf5217906fc12805",
+          "bytes": 1263
+        },
+        {
+          "name": "native_coverage_receipt.json",
+          "sha256": "094affdf376e9d7efcc6ad8887bb9b4265faa39466cbc2a1651fcc2aa63fbba7",
+          "bytes": 1329
+        },
+        {
+          "name": "native_fit_receipt.json",
+          "sha256": "1eb5af6dde3772d93036fdf2be4628a67cc071de1eade3fe889fca5e22b10fc4",
+          "bytes": 1405
+        },
+        {
+          "name": "native_materials.json",
+          "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+          "bytes": 2
+        }
+      ]
+    }
+  ],
+  "motion_payload": {
+    "private_copy": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\character_payload",
+    "receipt": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\character_payload_receipt.json",
+    "required": "Stage the separate71-file exact-target character bundle as humgen_characters, or set OTHERREACH_CHARACTER_ROOT; normal binary export alone does not contain it.",
+    "target_guard": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\motion_target_guard.json",
+    "target_guard_result": "43 actual bodies matched /0 failures"
+  },
+  "clean_export": {
+    "commit": "907e09564d21f593feb00cd5e6c42ff4fec1ada6",
+    "root": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\clean_package3",
+    "receipt": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\clean_export_receipt.json"
+  },
+  "source_tip": "4e12840b",
+  "assembled_cache_gate": {
+    "receipt": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\assembled_payload_cache_gate.json",
+    "references": 13386,
+    "large_images": 6316,
+    "failures": 0
+  },
+  "proof_provenance": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\proof_host_provenance_material.json",
+  "first_creator_review": {
+    "receipt": "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\b020_native_proof\\CAPTURED.json",
+    "reviewed_originals": 18,
+    "decision": "REJECTED: original Kal clip gone; robe rear panels missing and office cloth dithered. e5fe1e61 material correction queued for native recheck."
+  },
+  "texture_cache_entries": {
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#0": {
+      "dds": "0ba283260b57a9d43c0e5f4f.normal.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#1": {
+      "dds": "51503bd7c058934fd9ffdaa7.color.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "color"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#2": {
+      "dds": "03fcede8eba1b900a5db2632.data.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "data"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#3": {
+      "dds": "e566af99118cb3358353f2cc.normal.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#4": {
+      "dds": "5fdf0bfc772b4c75164f3f98.color.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "color"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#5": {
+      "dds": "108da94725414f440dc56657.data.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "data"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#6": {
+      "dds": "56eb0f8c5caaa4e61a9fc0a0.normal.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#7": {
+      "dds": "88ed6aacd6c6f6ef40fa4489.color.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "color"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_office_new_intern/humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb#8": {
+      "dds": "440c05ae9f4b45673b3417ec.data.dds",
+      "size": 114259596,
+      "sig": "3A6B8A84992EBAFD75D2BF44",
+      "role": "data"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#0": {
+      "dds": "45881a192386fa165ef0f2ca.normal.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#1": {
+      "dds": "dd15ee481bd84389165c570a.color.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "color"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#2": {
+      "dds": "5f3f42fa5e55327175454254.data.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "data"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#3": {
+      "dds": "e69c126e487821a189a9d073.normal.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#4": {
+      "dds": "7f9d6a3387443d8e4e129ba2.color.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "color"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#5": {
+      "dds": "16fda70d882ffaa24c3638b7.data.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "data"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#6": {
+      "dds": "fee376f0bc2dd3fd8c0013ff.normal.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#7": {
+      "dds": "9a981234d7cd55364d2556f4.color.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "color"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_office_new_intern/humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb#8": {
+      "dds": "3c039b206a890da8c2195a72.data.dds",
+      "size": 115477000,
+      "sig": "B80BD58E9AD736EDB2C08F37",
+      "role": "data"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_period_robe/humgen_creator_f_outfit_outfit_period_robe_rigged.glb#0": {
+      "dds": "bd0544cb053108b54864478a.normal.dds",
+      "size": 118566712,
+      "sig": "FC353289D59E9C18744363B6",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_f_outfit_outfit_period_robe/humgen_creator_f_outfit_outfit_period_robe_rigged.glb#1": {
+      "dds": "d134452305166c5818911bb9.color.dds",
+      "size": 118566712,
+      "sig": "FC353289D59E9C18744363B6",
+      "role": "color"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_period_robe/humgen_creator_m_outfit_outfit_period_robe_rigged.glb#0": {
+      "dds": "3d613b95cd5497a1b788973e.normal.dds",
+      "size": 118023400,
+      "sig": "97B0A3A0FF91DE7DC9113317",
+      "role": "normal"
+    },
+    "rigged/humgen_creator_m_outfit_outfit_period_robe/humgen_creator_m_outfit_outfit_period_robe_rigged.glb#1": {
+      "dds": "fa42a6911581cc0dc3a09c20.color.dds",
+      "size": 118023400,
+      "sig": "97B0A3A0FF91DE7DC9113317",
+      "role": "color"
+    }
+  },
+  "cache_scope": "26 image references,22 >=2K,0failures after final robe changes. Earlier full assembled13386/6316large/0 was before these corrections; affected delta rechecked.",
+  "proof_host_provenance": [
+    "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\proof_host_provenance_robe_lining.json",
+    "D:\\Otherreach_Scratch\\playtest2_visual_fixes_20261030\\proof_host_provenance_sel_world.json"
+  ],
+  "morph_exception": "Office morphs unchanged. Robe b_/s_ POSITION/NORMAL deltas remove only the measured identical eye-control rest-fit (704 controls);160 cor targets exact. Base geometry clearance welded at UV splits; no per-facet experimental push. Four LODs/rig/rest/skin/UV/indices/native image bytes retained.",
+  "private_world_limitations": "Sel-only existing review filter, full-quality native world.19 missing/withdrawn dressing IDs recorded, not claiming0withheld or restoring withdrawn authored_hero art. No RC gate/real-time performance claim."
+}

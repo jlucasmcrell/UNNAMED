@@ -1,0 +1,79 @@
+{
+  "status": "REQUESTED_FOUR_BUGS_RESOLVED_PRIVATE_PROOF_REVIEWED_B020_OPEN",
+  "package": "D:\\Otherreach_Scratch\\visual_bug_package_20261030",
+  "roots": {
+    "primary": {
+      "root": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\primary",
+      "manifest_sha256": "959c4bd1f9cc6cb7a92823a617089f8eb814e6e9d9c49dd5c0791bed40466e64"
+    },
+    "fallback": {
+      "root": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\fallback",
+      "manifest_sha256": "43bf43b603ba445149db67a8b78b1c0b2acfa5d1ae52a5258c4fda89532290b4"
+    }
+  },
+  "source_fix_commits": [
+    "e352cd9d",
+    "e2bf0d74",
+    "e4aac2be",
+    "76112f68"
+  ],
+  "original_bug_lane_sources": [
+    "1504032d14b1e8ab05de730fb24b77edc8572756",
+    "c0be755110458eb97d07b12608426721c38b2549"
+  ],
+  "gate_image_references": 13376,
+  "gate_failures": 0,
+  "packaged_boot_assets": 552,
+  "packaged_boot_withheld": 0,
+  "receipts": {
+    "B013_private_delivery_receipt.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B013_private_delivery_receipt.json",
+      "sha256": "61e3fa0ec0048f822e5774149c3517b2582d28c3eb61d9403d84afe6944558f5"
+    },
+    "B013_legacy_dependency_native_recovery.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B013_legacy_dependency_native_recovery.json",
+      "sha256": "b5803b77643f277dbae17334fcaac88671eea2aaf012681231c0766a92d2ae85"
+    },
+    "B013_package_cache_final.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B013_package_cache_final.json",
+      "sha256": "a56196aff0d3431efe88529078b80fe058d8d2577cef6a6c0d711fe5caca16a2"
+    },
+    "B014_asset_repair.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B014_asset_repair.json",
+      "sha256": "d37a523c366ee7f7b737d40c3e38d592bbf57df189b05b823a3de98d9de1cc20"
+    },
+    "B014_unchanged_image_cache_receipt.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B014_unchanged_image_cache_receipt.json",
+      "sha256": "bda8187b978b2a1293728803e3f3ec1cc3c81c8c29b55a956ace914ed494b0c2"
+    },
+    "B014_full_wardrobe_preservation_audit.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B014_full_wardrobe_preservation_audit.json",
+      "sha256": "4d7e6f2ac7f2773edb576f8a7d816d3d66579cea2dc6724ba31fdfa13056aec1"
+    },
+    "B014_all_band_alignment_audit.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B014_all_band_alignment_audit.json",
+      "sha256": "9d0372ab4c4eab9be58ea238908b8d6cfa85b59139b2eafcabfc0db0446226bd"
+    },
+    "B005_packaged_recheck_provenance.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B005_packaged_recheck_provenance.json",
+      "sha256": "795fdfa48bb5911da81a03bb29da2ea8cc85a9de8d7fb47275618cb0a784f9fe"
+    },
+    "B014_reviewed_packaged_proof.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B014_reviewed_packaged_proof.json",
+      "sha256": "0cb096973ad60a93b571e2871b1f363ef39291fab440c9179cfd5ba0e087794c"
+    },
+    "B004_B005_reviewed_packaged_proof.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B004_B005_reviewed_packaged_proof.json",
+      "sha256": "87a627fd24aa9808940bcc222ff381e746f559ce698045e85ad7b39e6beea018"
+    },
+    "B004_foldscar_scene_attribution.json": {
+      "path": "E:\\Otherreach_Scratch\\visual_bug_proof_20261030\\B004_foldscar_scene_attribution.json",
+      "sha256": "7bff2d430b3c5dd724a8bab0505e1180ada2c590509682d2418ff81955751d86"
+    }
+  },
+  "owner_install_untouched": true,
+  "owner_save_copied": false,
+  "marketing_stopped": true,
+  "limitations": "Private diagnostic assembly and Test02 native engine, no owner installation. Old quit handling retained until Claude B-001/B-017 integration. B-016 transition required before owner install. Recovered dependency PNGs represent approved native BC7 decoded pixels, not original pre-compression authoring files; native DDS bytes are unchanged.",
+  "remaining": "B-020 Kal near outfit/body clipping; other owner bug gates and Claude save/quit work. Marketing stopped; owner installation unchanged."
+}

@@ -1,0 +1,62 @@
+D19 catalogue-derived boss appearances
+====================================
+
+Foreman Nine:
+Unit 666 - Mech by elopez7, Creative Commons Attribution 4.0.
+https://opengameart.org/content/unit-666-mech
+https://creativecommons.org/licenses/by/4.0/
+Otherreach modifications: rigid-part rig and maintenance-body action takes.
+Original full-resolution PBR maps retained.
+
+The Specification:
+Red Echo environment kit from the settled owned Fab library, Fab Standard License.
+Existing Spill/Stopped Gate environment attribution remains in force.
+Native SM_large_module_02 source slabs (catalogue ARCH-9afe2c54784b): all7,820
+source triangles retained in each of nine plates, native2K/4K PBR maps and UVs.
+Otherreach modifications: uniform metric placement, rigid rule-field motion,
+subtle light on the native inlay; DirectX normals adapted to OpenGL at original
+resolution. No robot body, borrowed mechanical joints or generated images.
+
+The Salt Walker:
+Mech Character Model by Colorado Stark, CC0 1.0 / Public Domain.
+https://opengameart.org/content/mech-character-model
+https://creativecommons.org/publicdomain/zero/1.0/
+Otherreach modifications: native-rig tool-arm posture and action takes; original
+anatomy, skin weights, rig and full-resolution diffuse/normal/specular maps retained.
+
+The Thing Under the Stairs:
+Octobot by piacenti, Creative Commons Attribution 3.0.
+https://opengameart.org/content/octobot
+https://creativecommons.org/licenses/by/3.0/
+Otherreach modifications: native worn-material variant, modern PBR node routing
+and eight action takes on the original rigged assembly. Source textures retained.
+
+The Bell That Answers:
+Zorag - Mutant Angler Fish - Rigged and Animated by Greeble3d,
+Creative Commons Attribution 4.0.
+https://sketchfab.com/3d-models/zorag-mutant-angler-fish-rigged-and-animated-2c98ad253ba94fafab8f7d10e90d9958
+https://creativecommons.org/licenses/by/4.0/
+Otherreach modifications: metric game binding, retimed swimming, native hit/death
+takes. Original skin, rig, maps and Idle/Swim/Bite/Alert animation retained.
+
+The First Formed:
+Rock Golem by Dm3d, revision of hendori-sama / umask007 work; Yughues texture,
+Creative Commons Attribution-ShareAlike 3.0.
+https://opengameart.org/content/rock-golem
+https://creativecommons.org/licenses/by-sa/3.0/
+Otherreach modifications: the previously converted complete D5 rock body and
+native animation, with the fixed Kal wing-frame attached to the chest.
+Kal wing-frame adaptation by Otherreach; approved Kal anatomy/maps and existing
+ambientCG CC0 surface attributions retained. Original source and derived Blender
+scene are retained in the private art delivery; no generative image/mesh assets.
+
+The Matriarch:
+Spiders - characters with animations by Mixall, Creative Commons Attribution 4.0.
+https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2
+https://creativecommons.org/licenses/by/4.0/
+The accepted native tarantula, rig and six takes restored without source alteration.
+
+The Gate Warden:
+Giant stone Rigged Game Ready by Silent Wolf, BlenderKit Royalty Free License.
+Existing D5 body and existing Quaternius Universal Animation Library takes
+(CC0 1.0), retargeted and slowed for Otherreach. Previous credits remain in force.

@@ -590,7 +590,9 @@ public partial class HollowView : Node3D
             Coverage.Resolved("structure_surface", blocker.Id, worn);
         }
         // A model bound with a wind stiffness sways on the world wind (Phase B, B4: the trees).
-        if (look.Wind > 0 && VisualOptions.Wind)
+        // Dead ash also occurs in the living tree pool; its rigid bare trunks
+        // must not inherit that pool's canopy wind deformation.
+        if (look.Wind > 0 && VisualOptions.Wind && look.Model != "flora_cos_dead_ash_tree")
         {
             WindField.Ensure(this);
             // A PLACED TREE HAD NO PER-INSTANCE COLOUR AT ALL UNTIL 2026-09-29. `Windblown` took only a stiffness, so

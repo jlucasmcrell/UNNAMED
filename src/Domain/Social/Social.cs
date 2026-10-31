@@ -2,6 +2,7 @@
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Quests;
 
@@ -30,6 +31,9 @@ public sealed record NpcDefinition(string Id, string Name, string Role, Immutabl
 
     /// <summary>A party member's values (WP15b): the deeds that move what they think of the character, and what they say of them.</summary>
     public ImmutableArray<ValueReaction> Values { get; init; } = ImmutableArray<ValueReaction>.Empty;
+
+    /// <summary>The authored native creator look, constrained by its people when drawn.</summary>
+    public CharacterAppearance? Appearance { get; init; }
 
     public bool Offers(string service) => Services.Contains(service);
 }

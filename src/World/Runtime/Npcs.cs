@@ -242,7 +242,7 @@ internal sealed partial class NpcSystem
                 Downed = State.Companions.TryGetValue(n.Definition.Id, out var companion) && companion.Condition == CompanionCondition.Downed,
                 Activity = life?.Activity,
                 Resident = _context.Setup.NpcLife.Routines.TryGetValue(n.Definition.Id, out var slot) && slot.IsSlot,
-                PeopleId = slot?.PeopleId ?? State.World.Adventurers?.Agents.GetValueOrDefault(n.Definition.Id)?.PeopleId,
+                PeopleId = slot?.PeopleId ?? State.World.Adventurers?.Agents.GetValueOrDefault(n.Definition.Id)?.PeopleId ?? n.Definition.PeopleId,
                 Role = n.Definition.Role,
                 Moving = life is { Route.Status: NavRouteStatus.Active, Condition: not NpcCondition.Hired } && !State.Companions.ContainsKey(n.Definition.Id),
             };

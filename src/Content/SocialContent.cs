@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using System.Globalization;
+using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Factions;
@@ -30,6 +31,9 @@ public static class SocialContent
     private static readonly string[] Consequences =
         { "transfer_item", "teach", "set_world_flag", "record_relationship_event", "open_service", "start_quest", "recruit_companion", "order_companion",
           "report_act", "hire_hireling", "dismiss_companion", "rent_room", "tell_lore", "take_passage" };
+
+    private static readonly string[] AppearanceKeys =
+        { "stature_cm", "face", "hair", "facial_hair", "outfit", "footwear", "sliders" };
 
     public static IReadOnlyList<ValidationError> Validate(ContentLoader loader)
     {
@@ -161,10 +165,41 @@ public static class SocialContent
                 FactionId = map.GetValueOrDefault("faction_ref") is string faction ? Defined(loader, faction, "faction", id) : null,
                 PeopleId = map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null,
                 Hireling = map.ContainsKey("hireling") ? HireProfile(id, Map(map, "hireling"), loader) : null,
+                Appearance = Appearance(id, map),
                 Teaches = TeachingContent.Offers(id, map, loader),
                 Values = Rows(map, "values", id).Select((row, i) => Value($"{id} values[{i}]", row, loader)).ToImmutableArray(),
             };
         }).ToImmutableSortedDictionary(n => n.Id, n => n, StringComparer.Ordinal);
+
+    private static CharacterAppearance? Appearance(string id, Dictionary<object, object> map)
+    {
+        if (!map.ContainsKey("appearance"))
+            return null;
+        if (!map.ContainsKey("people_ref"))
+            throw new FormatException($"{id}: an appearance is constrained by its people, so it names people_ref");
+        var appearance = Map(map, "appearance");
+        if (appearance.Keys.FirstOrDefault(k => !AppearanceKeys.Contains(k as string ?? "")) is { } unknown)
+            throw new FormatException($"{id} appearance: '{unknown}' is not one of {string.Join(", ", AppearanceKeys)}");
+        var sliders = ImmutableSortedDictionary.CreateBuilder<string, int>(StringComparer.Ordinal);
+        if (appearance.TryGetValue("sliders", out var block))
+        {
+            foreach (var (key, value) in block as Dictionary<object, object> ?? throw new FormatException($"{id} appearance: sliders must be a map"))
+            {
+                if (key as string is not { } slider || !UNNAMED.Domain.DefinitionId.IsValid(slider))
+                    throw new FormatException($"{id} appearance: '{key}' is not a slider ID");
+                sliders.Add(slider, int.TryParse(value as string, NumberStyles.Integer, CultureInfo.InvariantCulture, out int moved)
+                    ? moved
+                    : throw new FormatException($"{id} appearance: slider {slider} is a whole number"));
+            }
+        }
+        var look = new CharacterAppearance(Int(appearance, "stature_cm") * 10, Named(appearance, "face"), Named(appearance, "hair"),
+            Named(appearance, "facial_hair"), Named(appearance, "outfit"), Named(appearance, "footwear")) { Sliders = sliders.ToImmutable() };
+        return look.Problem() is { } problem ? throw new FormatException($"{id} appearance: {problem}") : look;
+    }
+
+    /// <summary>One of the IDs an <c>appearance</c> names, or null for a slot it leaves out.</summary>
+    private static string? Named(Dictionary<object, object> map, string key) =>
+        map.GetValueOrDefault(key) as string is { Length: > 0 } named ? named : null;
 
     /// <summary>
     /// One of a party member's <c>values</c> (WP15b): the <c>deed</c> (killed, crafted, harvested, delivered) on a subject named as a deed

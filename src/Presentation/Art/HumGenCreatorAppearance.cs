@@ -16,6 +16,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     private string? _worn;
     private HumGenEyeFitData? _eyeFit;
     private readonly Dictionary<CreatorChoice, string?> _parts = new();
+    private SkinnedModel? _body;
 
     /// <summary>
     /// Whether the outfit's own headwear is drawn. The creator hides it on the steps that are about the face and the hair,
@@ -86,6 +87,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         // re-applied with it so a live slider cannot leave a stale shared material on a
         // different preview.
         controller.Materials(art, face, look, people);
+        controller.Standoff(model); // Dye starts from the native material; keep clearance on the final drawn copy.
         // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
         // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
         Stencil(art, model, controller._worn);
@@ -213,11 +215,19 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (kind is not ("Outfit" or "Footwear")) continue;
             for (int surface = 0; surface < (mesh.Mesh?.GetSurfaceCount() ?? 0); surface++)
             {
-                if ((mesh.HasMeta("creator_part_kind") ? Origin(mesh, surface) : mesh.GetSurfaceOverrideMaterial(surface)) is not BaseMaterial3D cloth) continue;
-                if (cloth.HasMeta("creator_standoff")) continue;
+                if ((mesh.GetSurfaceOverrideMaterial(surface) ?? Origin(mesh, surface)) is not BaseMaterial3D cloth) continue;
+                if (cloth.HasMeta("creator_standoff")
+                    && cloth.Transparency == BaseMaterial3D.TransparencyEnum.Disabled
+                    && cloth.CullMode == BaseMaterial3D.CullModeEnum.Disabled) continue;
                 var grown = (BaseMaterial3D)cloth.Duplicate();
                 grown.SetMeta("creator_standoff", true);
-                grown.GrowAmount = GarmentStandoff;
+                // Native garments are solid cloth. Imported alpha/culling settings can
+                // discard their back panels even though the fitted mesh is intact.
+                grown.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
+                grown.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+                grown.Grow = true;
+                // The lining normals face inward: move both shells outward together.
+                grown.GrowAmount = mesh.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) ? -GarmentStandoff : GarmentStandoff;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
@@ -409,6 +419,7 @@ public sealed partial class HumGenCreatorAppearance : Node
     {
         var body = model as SkinnedModel ?? model.FindChildren("*", "", true, false).OfType<SkinnedModel>().FirstOrDefault();
         if (body is null) return;
+        _body = body;
         string face = look.Face ?? _data.FirstFace(sex);
         foreach (var choice in new[] { CreatorChoice.Hair, CreatorChoice.FacialHair, CreatorChoice.Outfit, CreatorChoice.Footwear })
         {
@@ -518,7 +529,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             if (!mesh.HasMeta("creator_part_kind")
                 || mesh.GetMeta("creator_part_kind").AsString() != CreatorChoice.Outfit.ToString()) continue;
             bool worn = IsHeadwear(mesh.Mesh?.SurfaceGetMaterial(0)?.ResourceName ?? "") || IsHeadwear(mesh.Name.ToString());
-            if (worn) mesh.Visible = Headwear;
+            if (worn) _body?.OutfitVisible(mesh, Headwear);
         }
     }
 

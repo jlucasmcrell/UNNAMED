@@ -1,0 +1,101 @@
+{
+  "source": "D:\\Otherreach_Scratch\\creature_upgrade_d5_20261027\\batch_b_payload",
+  "accepted_lane_commit": "7a47ff2f",
+  "source_body_equals_sealed_batch_b_delivery": true,
+  "files": [
+    {
+      "path": "rigged/creature_d5_tarantula_matriarch/creature_d5_tarantula_matriarch_rigged.glb",
+      "sha256": "3a1dd675b732ef9d27290d7bbac7d72f82b210bcc164d5918f6aa913f4d482cc",
+      "bytes": 3888724
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.attack_1.glb",
+      "sha256": "45f0e43fc282033eca0654ff12904e0b1e6228dd25cc151b7142e4366080c2f2",
+      "bytes": 139884
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.attack_2.glb",
+      "sha256": "082a95055db5c32eca7fc04ce0b99d8d583a8ca5dea6e57f71b1e8602368a5c1",
+      "bytes": 117256
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.dead.glb",
+      "sha256": "40c7447654dddefd9f2d960f571607b19c54c4ca08b58e9e1bcc3c3b82623a7a",
+      "bytes": 128916
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.idle.glb",
+      "sha256": "8df95dc810622a7c606bc18b61ddcbfe17ef0169185f0c3d43be7c92b011aa9a",
+      "bytes": 333620
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.idle_2.glb",
+      "sha256": "0b8a5845aedd0f5255618cd84f0cb143bf28fda79e7c32162d046370d2a778aa",
+      "bytes": 328420
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.walk.glb",
+      "sha256": "2e5a91fe82f2633c7f263e0ac8ad48be95293e65e0be0538df6ac1ce79870de2",
+      "bytes": 125172
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.attack_1.json",
+      "sha256": "0574d8b36312163c5d355c5e75dd8cbd7ba1d592af571a1812d951d21de3d874",
+      "bytes": 629
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.attack_2.json",
+      "sha256": "5e8334a8103c191e05d1f0e47c38b3b07729a24494748f1e7d865a148ba26fb4",
+      "bytes": 629
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.dead.json",
+      "sha256": "28cbf1e6859b7476f5d0c939286b41113462dc54e94637934b50361590a71c4d",
+      "bytes": 616
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.idle.json",
+      "sha256": "7e0f814767cabd2f93aaa74ad89397e6f240c1a5877f1cf274aab92ae27f3777",
+      "bytes": 615
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.idle_2.json",
+      "sha256": "139dfd475d8ac6e348667fc69d6340f6f77694b51edb1e43eef3933d775363ce",
+      "bytes": 621
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.walk.json",
+      "sha256": "760c457280d1d6aa530fbfaba858e3ea0c0ab81fe857be869e3ff55e20d285ea",
+      "bytes": 615
+    },
+    {
+      "path": "texture_cache/215386224284b443f95a4262.color.dds",
+      "sha256": "aa97c898e04dddce5e2b347b70763b6803aed583783912c930fffe3f13378e4f",
+      "bytes": 5592580
+    }
+  ],
+  "native_clips": 6,
+  "max_rest_error": 0.0,
+  "status": "FINISHED_NATIVE_SOURCE_FOR_CLAUDE_REVIEW",
+  "cache_entries": {
+    "rigged/creature_d5_tarantula_matriarch/creature_d5_tarantula_matriarch_rigged.glb#0": {
+      "dds": "215386224284b443f95a4262.color.dds",
+      "size": 3888724,
+      "sig": "B2944BBFC2D01E9A8E96CCCC",
+      "role": "color"
+    }
+  },
+  "proof": {
+    "directory": "D:\\Otherreach_Scratch\\owner_boss_looks_20261030\\matriarch_native_close",
+    "exit": 0,
+    "seconds": 61.532,
+    "originals": 12,
+    "all_originals_personally_reviewed": true,
+    "video_seconds": 18.2,
+    "frames": 546,
+    "one_fps_samples": 18,
+    "all_one_fps_samples_personally_reviewed": true,
+    "visual_verdict": "Producer reviewed; Claude judgement pending",
+    "actual_cave_context": "Queued separately; not implied by native stand proof"
+  }
+}
