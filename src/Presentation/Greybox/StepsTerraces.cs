@@ -34,6 +34,38 @@ internal static class StepsTerraces
                 Vertex(x,z); Vertex(x+1,z+1); Vertex(x,z+1);
             }
         }
+        // The coarse terrain slopes from each 6 m cut into the narrower native
+        // boards. Face those exposed banks in the same native cobble, rather
+        // than leaving raw stretched terrain between the boards and cheek stone.
+        foreach (var stair in layout.Space.WalkableSurfaces.Where(s => s.Columns == 7 && s.Rows == 17
+            && s.HeightsMm[0] != s.HeightsMm[^1]))
+        {
+            float centre = (stair.OriginXMm + stair.MaxXMm) / 2000f;
+            foreach (int side in new[] { -1, 1 })
+            {
+                Vector3 Point(int x, int z)
+                {
+                    float px = centre + side * (1.4f + x * .25f), pz = stair.OriginZMm / 1000f + z * .5f;
+                    float py = layout.Space.Terrain.HeightAtMm((long)MathF.Round(px * 1000), (long)MathF.Round(pz * 1000)) / 1000f;
+                    return new Vector3(px, py + .025f, pz);
+                }
+                void Triangle(Vector3 a, Vector3 b, Vector3 c)
+                {
+                    var normal = (c-a).Cross(b-a).Normalized();
+                    if (normal.Y < 0) { (b,c) = (c,b); normal = -normal; }
+                    foreach (var point in new[] { a,b,c })
+                    {
+                        surface.SetNormal(normal); surface.SetUV(new Vector2(point.X,point.Z) / maps.TileSizeM); surface.AddVertex(point);
+                    }
+                }
+                for (int z = 0; z < 32; z++)
+                for (int x = 0; x < 10; x++)
+                {
+                    var a=Point(x,z); var b=Point(x+1,z); var c=Point(x,z+1); var d=Point(x+1,z+1);
+                    Triangle(a,b,d); Triangle(a,d,c);
+                }
+            }
+        }
         surface.Index(); surface.GenerateTangents();
         var material = new StandardMaterial3D
         {

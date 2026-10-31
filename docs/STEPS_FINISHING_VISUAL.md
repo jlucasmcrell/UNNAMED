@@ -17,6 +17,8 @@ wicker hurdles are included.
   tops follow the upper landing; their lower portions sit in the bank. The
   cheeks meet the actual 6 m terrain-cut boundaries, retaining the native
   stair boards and clear walking centre. No new art is required.
+  The exposed sloping strips between boards and cheek stone receive the same
+  native cobble PBR facing as the terrace backfill, conforming to the terrain.
   Camera colliders use the exposed height up to the upper landing plus 15 cm,
   rather than the full buried stone-piece height.
 
