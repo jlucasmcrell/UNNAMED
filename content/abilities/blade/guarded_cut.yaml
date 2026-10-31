@@ -1,0 +1,14 @@
+id: ability.blade.guarded_cut
+kind: ability
+schema: 1
+display_key: ability.blade.guarded_cut.name
+tags: [ability]
+name: Guarded Cut
+notes: "A short cut thrown from behind the guard - less damage than the swing it replaces, and the arm is already back where it was."
+class: active
+discipline: skill.one_hand_blade
+cost: { stamina: 14 }
+cooldown_s: 6
+windup_multiplier: 1.4
+payload:
+  - { type: damage, multiplier_of_weapon: 1.8 }

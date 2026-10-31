@@ -76,8 +76,10 @@ public class TeachingContentTests
         }, npcs.Values.Where(n => !n.Teaches.IsEmpty).Select(n => n.Id));
         string[] Lessons(string npc, TeachingKind kind) => npcs[npc].Teaches.Where(o => o.Kind == kind).Select(o => o.DefinitionId).ToArray();
 
-        Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.ashen_hollow.kera_voss", TeachingKind.Technique));
-        Assert.Equal(new[] { "ability.polearm.long_thrust" }, Lessons("npc.cairnwold.durn_skell", TeachingKind.Technique));
+        Assert.Equal(new[] { "ability.blade.power_strike", "ability.blade.guarded_cut", "ability.blade.hamstring", "ability.bow.steady_aim", "ability.bow.parting_shot" },
+            Lessons("npc.ashen_hollow.kera_voss", TeachingKind.Technique));
+        Assert.Equal(new[] { "ability.polearm.long_thrust", "ability.polearm.set_against_the_charge", "ability.polearm.hooked_pull" },
+            Lessons("npc.cairnwold.durn_skell", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.ashen_hollow.tavar_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.blade.power_strike" }, Lessons("npc.sedge.iren_orr", TeachingKind.Technique));
         Assert.Equal(new[] { "ability.bow.aimed_shot" }, Lessons("npc.sedge.tess_ferry", TeachingKind.Technique));
@@ -112,8 +114,11 @@ public class TeachingContentTests
         var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
         var techniques = TeachingContent.BuildTechniques(loader);
 
-        Assert.Equal(new[] { ("ability.blade.power_strike", "skill.one_hand_blade"), ("ability.bow.aimed_shot", "skill.bow"),
-            ("ability.polearm.long_thrust", "skill.polearm") }, techniques.Values.Select(t => (t.Id, t.SkillId)));
+        // Every weapon family has at least one active technique, and every technique works its own family's skill. Playtest 2's unlock ladder
+        // gives each family a first rung a beginner may take and a second at the proficient band, so the rule is "at least one", not "one".
+        var families = techniques.Values.GroupBy(t => t.SkillId).ToDictionary(g => g.Key, g => g.Select(t => t.Id).ToList());
+        foreach (string skill in new[] { "skill.one_hand_blade", "skill.bow", "skill.polearm" })
+            Assert.True(families.TryGetValue(skill, out var ids) && ids.Count > 0, $"{skill} has no active technique");
         var strike = techniques["ability.blade.power_strike"];
         Assert.Equal((1.6, 1.5, 0L, 22, 120, "effect.bleeding", 50), (strike.DamageMultiplier, strike.WindupMultiplier, strike.ReachBonusMm,
             strike.StaminaCost, strike.CooldownTicks, strike.OnHitEffect, strike.OnHitEffectPercent));

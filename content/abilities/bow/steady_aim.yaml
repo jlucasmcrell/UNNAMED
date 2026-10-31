@@ -1,0 +1,14 @@
+id: ability.bow.steady_aim
+kind: ability
+schema: 1
+display_key: ability.bow.steady_aim.name
+tags: [ability]
+name: Steady Aim
+notes: "A breath held half a beat longer than the body wants, and fewer arrows that miss."
+class: active
+discipline: skill.bow
+cost: { stamina: 12 }
+cooldown_s: 8
+windup_multiplier: 1.4
+payload:
+  - { type: damage, multiplier_of_weapon: 1.6 }

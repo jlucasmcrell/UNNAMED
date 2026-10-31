@@ -515,10 +515,10 @@ public class ContentLoaderTests
         Assert.Empty(loader.Errors);        Assert.Equal(
             new[]
             {
-                "ability.blade.power_strike", "ability.bow.aimed_shot", "ability.creature.animated_armour_heavy", "ability.creature.animated_armour_rush",
-                "ability.creature.armour_slam", "ability.creature.ash_ember_hound_heavy", "ability.creature.ash_ember_hound_rush", "ability.creature.barrowback_heavy",
-                "ability.creature.boar_charge", "ability.creature.boar_gore", "ability.creature.bone_walker_husk_heavy", "ability.creature.bone_walker_husk_rush",
-                "ability.creature.bristleback_boar_heavy", "ability.creature.buck_heavy", "ability.creature.buck_rush", "ability.creature.cave_hunting_spider_heavy",
+                "ability.blade.guarded_cut", "ability.blade.power_strike", "ability.bow.aimed_shot", "ability.creature.animated_armour_heavy", "ability.creature.animated_armour_rush",
+                "ability.blade.hamstring", "ability.creature.armour_slam", "ability.creature.ash_ember_hound_heavy", "ability.creature.ash_ember_hound_rush", "ability.creature.barrowback_heavy",
+                "ability.bow.parting_shot", "ability.creature.boar_charge", "ability.creature.boar_gore", "ability.creature.bone_walker_husk_heavy", "ability.creature.bone_walker_husk_rush",
+                "ability.bow.steady_aim", "ability.creature.bristleback_boar_heavy", "ability.creature.buck_heavy", "ability.creature.buck_rush", "ability.creature.cave_hunting_spider_heavy",
                 "ability.creature.cave_hunting_spider_rush", "ability.creature.chicken_heavy", "ability.creature.chicken_rush", "ability.creature.doe_heavy",
                 "ability.creature.doe_rush", "ability.creature.fellhorn_heavy", "ability.creature.gate_tender_heavy", "ability.creature.gate_tender_rush",
                 "ability.creature.gauge_sweep", "ability.creature.grazer_charge", "ability.creature.hoof_kick", "ability.creature.horn_butt",
@@ -534,7 +534,7 @@ public class ContentLoaderTests
                 "ability.people.ondrek.stonesense", "ability.people.orenth.afterimage", "ability.people.orenth.anchor_recall", "ability.people.orenth.blink",
                 "ability.people.orenth.planar_anchor", "ability.people.orenth.wraith_step", "ability.people.siann.kindled_ring", "ability.people.siann.perfect_recall",
                 "ability.people.vaskaal.long_sight", "ability.people.vaskaal.thermal_read", "ability.people.veth.quick_study", "ability.people.veth.supple",
-                "ability.polearm.long_thrust", "body.kal_f.average", "body.kal_m.average", "body.orenth_f.average",
+                "ability.polearm.hooked_pull", "ability.polearm.long_thrust", "body.kal_f.average", "body.kal_m.average", "body.orenth_f.average",
                 "body.orenth_m.average", "body.siann_f.average", "body.siann_m.average", "body.veth_f.average",
                 "body.veth_f.heavy", "body.veth_f.lean", "body.veth_f.very_heavy", "body.veth_f.very_lean",
                 "body.veth_m.average", "body.veth_m.heavy", "body.veth_m.lean", "body.veth_m.very_heavy",
