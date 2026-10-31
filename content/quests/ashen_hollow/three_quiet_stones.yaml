@@ -5,7 +5,7 @@ display_key: quest.ashen_hollow.three_quiet_stones.name
 tags: [quest]
 notes: Quest 2 of the content bible (§16), Sel's. No objective asks for a fight - the spider holds the convenient way to the south-east stone, not the objective - and nothing assumes an order the fiction does not need (bible §32) - stones turned before the quest count, and so does a Tavar already freed (Sel's tavar_back line starts and completes it). The stones and the heart are switches (M6) whose flags live in the Foldscar's cell.
 title: The Three Quiet Stones
-summary: Sel Arien's guide, Tavar Orr, is caught in the Foldscar - there to be seen, and half a breath out of step with everything. The Quiet Stones around it were turned out of line.
+summary: Sel Arien's guide is in the Foldscar, and the three stones that hold its measure have been turned out of line. Put them back and see what he is.
 track: side
 giver_ref: npc.ashen_hollow.sel_arien
 entry_objective: o_learn

@@ -250,7 +250,7 @@ nodes:
     text: "He reads what you wrote, upside down, and nods as if it were a bill he'd expected. \"Bound somewhere. Good. The bed's still yours if the road brings you back - and it will. Roads do.\""
     choices:
       - id: back
-        text: "Thank you, Renn."
+        text: "Sign me in before I change my mind."
         next: again
   roll_recorded:
     text: "\"Let's see it. ... 'Kept,' in Berrin's hand. Good. Then here's mine.\" He writes, and dries it with his sleeve. \"Your line's closed. You're the one who closed it, so the roll's yours to keep now - properly, I mean. Keeper. It's the only word we Veth use on purpose.\""
@@ -277,7 +277,7 @@ nodes:
     text: "Ashen Hollow. A stop on the old road between the quarry and the woods: a bed, a meal and a roof, in that order of reliability. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar. The Foldscar has not yet thought of anything to do about it."
     choices:
       - id: back
-        text: "Thanks."
+        text: "Bed, meal, roof. I'll take the second one now."
         next: again
   work:
     text: "Kera needs iron and a steady pair of hands. Sel needs someone who reads more than they swing. Between them they'll have you working before you've found the privy. It's behind the lodge."
@@ -310,7 +310,7 @@ nodes:
         text: "It will."
         next: again
   personal:
-    text: "\"I started with a bed, a meal and a roof to keep sound. Apparently that makes me a steward.\" He wipes his hands on the cloth at his belt, though they are clean. \"Everyone who comes through goes in the book - name, road, where they're bound. Most are bound somewhere. The ones who aren't, I find something for. We Veth keep things. Roads. Promises. People who turn up.\""
+    text: "\"I started with a bed, a meal and a roof to keep sound. Apparently that makes me a steward.\" He wipes his hands on the cloth at his belt, though they are clean. \"Everyone who comes through goes in the book - name, road, where they're bound. Most are bound somewhere. The ones who aren't, I find something for. We Veth keep things. Roads. Promises. People who turn up. You're not the first to sit there lost. There's a Kal in the book asked me the way back to a mountain that isn't there.\""
     choices:
       - id: back
         text: "I'll try to be bound somewhere."

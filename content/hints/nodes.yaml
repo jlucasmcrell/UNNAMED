@@ -7,4 +7,4 @@ notes: "Existing."
 category: crafting
 trigger: node_gathered
 order: 0
-text: "A worked node runs out. Most grow back in time; some, once worked out, are gone."
+text: "Pick a thing bare and it stops giving. Most of it grows back in time. Some of it does not, and those are worth leaving a little of."

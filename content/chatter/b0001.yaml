@@ -44,7 +44,8 @@ lines:
   - { key: chat.b0001.0035, text: "Wind's got the shed door banging. Wayfarers' marks are all up the road post and not one of us can read them.", places: [ashen_hollow], times: [afternoon], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0036, text: "Half a day in the stop and the load's still on the wain. That's the afternoon gone.", speakers: [carter], places: [ashen_hollow], times: [afternoon], ai_generated: true }
   - { key: chat.b0001.0037, text: "Lamp's lit at the gate and the watch is set. Two of us tonight instead of a sensible number.", speakers: [guard], places: [ashen_hollow], times: [dusk], weather: [overcast], ai_generated: true }
-  - { key: chat.b0001.0038, text: "A Reckoning's a bad way to measure a road. I've been walking this one since the third tally.", speakers: [traveller], places: [ashen_hollow], times: [dusk], weather: [wind], ai_generated: true }
+  - { key: chat.b0001.0038, text: "Every year they count again and the road's longer than the count. I've walked it since the third one and I'll walk it after the next.",
+       speakers: [traveller], places: [old_east_road], times: [dusk], ai_generated: true }
   - { key: chat.b0001.0039, text: "Hollow Day's coming round and half this place will find an excuse to do nothing for a day.", speakers: [villager], places: [ashen_hollow], times: [dusk], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0040, text: "The Siann don't age past their twenties, which makes an argument with one a long business.", speakers: [adventurer], places: [ashen_hollow], times: [dusk], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0041, text: "Fences checked and the gate tied. Now I can think about eating.", places: [ashen_hollow], times: [dusk], weather: [rain], ai_generated: true }
@@ -55,7 +56,8 @@ lines:
   - { key: chat.b0001.0046, text: "Tools are up and the iron's cooling. It'll be there in the morning like it always is.", speakers: [crafter], places: [ashen_hollow], times: [dusk], ai_generated: true }
   - { key: chat.b0001.0047, text: "Wain's loaded for an early start on the basin road. Room for a passenger if they can be up.", speakers: [carter], places: [ashen_hollow], times: [dusk], channel: world, ai_generated: true }
   - { key: chat.b0001.0048, text: "Hands are done in. They still want the last barrow moved before we eat.", speakers: [labourer], places: [ashen_hollow], times: [dusk], ai_generated: true }
-  - { key: chat.b0001.0049, text: "My brother's Call took him east and we've had one letter since.", speakers: [villager], places: [ashen_hollow], times: [evening], weather: [fair], ai_generated: true }
+  - { key: chat.b0001.0049, text: "My brother went east with his Call and it's one letter in two years. My mother counts them out loud.",
+       speakers: [villager], places: [ashen_hollow], times: [evening], ai_generated: true }
   - { key: chat.b0001.0050, text: "Smith's hand, that one. You can tell by how he holds a hammer he didn't buy.", speakers: [crafter], places: [ashen_hollow], times: [evening], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0051, text: "There was a Mor through here in the summer. No reflection in the trough and no end of talk about it.", speakers: [villager], places: [ashen_hollow], times: [evening], weather: [rain], ai_generated: true }
   - { key: chat.b0001.0052, text: "Orenth guide took my cousin over the crags and brought him back a day early and a year older.", speakers: [hunter], places: [ashen_hollow], times: [evening], weather: [wind], ai_generated: true }
@@ -78,7 +80,8 @@ lines:
   - { key: chat.b0001.0069, text: "Marked or born to it, there's a difference, and nobody in this valley can tell you which is which.", speakers: [adventurer], places: [ashen_hollow], times: [night], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0070, text: "Clear night. Barrowbacks are only ever seen near the Foldscar, and nowhere else in the world.", speakers: [farmer], places: [ashen_hollow], times: [night], ai_generated: true }
   - { key: chat.b0001.0071, text: "One of the birds won't settle. Whatever she's hearing, I'm not.", speakers: [herder], places: [ashen_hollow], times: [night], ai_generated: true }
-  - { key: chat.b0001.0072, text: "Away from the fires the night's not quiet, it's busy. It's just busy about other things.", places: [ashen_hollow], times: [night], ai_generated: true }
+  - { key: chat.b0001.0072, text: "Night's not quiet out here, it's busy. It's just busy about things that aren't me, and I'd like it to stay that way.",
+       speakers: [guard], places: [wilds], times: [night], ai_generated: true }
   - { key: chat.b0001.0073, text: "Grain's in off the moor and tallied to the last sack. The tally turns tomorrow and it has to add up.", speakers: [farmer], places: [cairnwold], times: [dawn], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0074, text: "Tally turns tomorrow. That's when the arguments about the granary start, and they'll run a fortnight.", speakers: [villager], places: [cairnwold], times: [dawn], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0075, text: "Anybody with hides to move, I'm going up the road at first light and I'll take a load.", speakers: [carter], places: [cairnwold], times: [dawn], channel: world, ai_generated: true }
@@ -90,7 +93,8 @@ lines:
   - { key: chat.b0001.0081, text: "Veth built this village and the walls still aren't straight. It's been four hundred years.", speakers: [villager], places: [cairnwold], times: [dawn], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0082, text: "Rain on drystone. Half of it goes into the wall and comes out somewhere by noon.", speakers: [villager], places: [cairnwold], times: [dawn], weather: [rain], ai_generated: true }
   - { key: chat.b0001.0083, text: "Up before the light. Something's been working the moor edge and it's not a fox.", speakers: [hunter], places: [cairnwold], times: [dawn], ai_generated: true }
-  - { key: chat.b0001.0084, text: "Every morning the same. Somebody's up the rise before the rest of us with a load on.", places: [cairnwold], times: [dawn], ai_generated: true }
+  - { key: chat.b0001.0084, text: "Our Tam's up the rise before light and back before the second bell. It's not ambition. It's that the lodge is full of us.",
+       speakers: [villager], places: [cairnwold], times: [dawn], ai_generated: true }
   - { key: chat.b0001.0085, text: "Well's clean and the chain holds. Nothing down there but water and a long drop.", speakers: [villager], places: [cairnwold], times: [morning], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0086, text: "Everything iron's dear here. The last of our own seam goes to the smith and the rest comes up the road.", speakers: [villager], places: [cairnwold], times: [morning], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0087, text: "Bog iron or grey iron, the old ones could tell by the ring of it. I can't, and it costs me.", speakers: [crafter], places: [cairnwold], times: [morning], weather: [fair], ai_generated: true }
@@ -113,7 +117,8 @@ lines:
   - { key: chat.b0001.0104, text: "Sparks all afternoon off one piece and it still won't take an edge.", speakers: [crafter], places: [cairnwold], times: [afternoon], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0105, text: "Patrol's done and the wall's sound. I'll say that much for the wall.", speakers: [guard], places: [cairnwold], times: [afternoon], weather: [fog], ai_generated: true }
   - { key: chat.b0001.0106, text: "Flock's come off the high ground early. They do that when the weather means it.", speakers: [herder, farmer], places: [cairnwold], times: [afternoon], weather: [fair], ai_generated: true }
-  - { key: chat.b0001.0107, text: "Fog came down off the crags and the whole village went quiet with it.", places: [cairnwold], times: [afternoon], ai_generated: true }
+  - { key: chat.b0001.0107, text: "Fog off the crags and you could hear the Veth counting their beasts by voice alone. Half of them count wrong and they know it.",
+       speakers: [herder], places: [cairnwold], times: [afternoon], weather: [fog], ai_generated: true }
   - { key: chat.b0001.0108, text: "Nothing on the road in or out since noon. If you're waiting on a cart, it isn't coming today.", speakers: [guard], places: [cairnwold], times: [afternoon], channel: world, ai_generated: true }
   - { key: chat.b0001.0109, text: "Lodge'll be full tonight. The tally's turning and everyone's got an opinion about the granary.", speakers: [villager], places: [cairnwold], times: [dusk], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0110, text: "Kal stone in that wall. Older than the house round it, and it'll be there when the house isn't.", speakers: [crafter], places: [cairnwold], times: [dusk], weather: [wind], ai_generated: true }
@@ -238,7 +243,8 @@ lines:
   - { key: chat.b0001.0229, text: "Seam's running thin at the far end. The quarry master says it's the same seam, so it's the same seam.", speakers: [labourer], places: [wilds], times: [morning], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0230, text: "Iron out of the south crag seam comes up softer than Blackvein's. Two seams, two hammers, two tempers.", speakers: [crafter], places: [wilds], times: [morning], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0231, text: "The Ondrek pay well for quarried stone and don't haggle. That's reason enough for most people.", speakers: [adventurer], places: [wilds], times: [morning], weather: [fair], ai_generated: true }
-  - { key: chat.b0001.0232, text: "Morning's the only time out here you can see where the ground lets you walk.", places: [wilds], times: [morning], weather: [overcast], ai_generated: true }
+  - { key: chat.b0001.0232, text: "Go out at first light and the wet shows you every hole in the ground before you find it with a leg.",
+       speakers: [hunter], places: [wilds], times: [morning], ai_generated: true }
   - { key: chat.b0001.0233, text: "Cloud's down and the far side of the moor is gone. An Orenth knows the ground's thin before anyone else does.", places: [wilds], times: [morning], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0234, text: "Found where a boar's been feeding in the night. Fresh, and deeper than I'd like.", speakers: [hunter], places: [wilds], times: [morning], weather: [rain], ai_generated: true }
   - { key: chat.b0001.0235, text: "Cutting timber out here is carrying timber out here. The cutting's the easy half.", places: [wilds], times: [morning], weather: [fair], ai_generated: true }
@@ -249,7 +255,8 @@ lines:
   - { key: chat.b0001.0240, text: "Boar's been at the ash stand two nights running. If you're cutting there, cut in daylight.", speakers: [hunter], places: [wilds], times: [morning], channel: world, ai_generated: true }
   - { key: chat.b0001.0241, text: "Spider's webbed the easy way round to the Foldscar. Short route, and you're not the one deciding.", speakers: [hunter], places: [wilds], times: [afternoon], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0242, text: "Armour walking about the Cut with nobody inside it. It's been there as long as anyone's been looking.", speakers: [adventurer], places: [wilds], times: [afternoon], weather: [overcast], ai_generated: true }
-  - { key: chat.b0001.0243, text: "Sun's full on the moor. Touch a stone and it's a return point after. That's all anybody knows about it.", places: [wilds], times: [afternoon], weather: [fair], ai_generated: true }
+  - { key: chat.b0001.0243, text: "Put your hand on the stone before you go on. I don't know why it helps and I've stopped asking, but it helps.",
+       speakers: [traveller], places: [wilds], times: [afternoon], ai_generated: true }
   - { key: chat.b0001.0244, text: "Long afternoon. The survey finds something in the ground and then the ground is interesting again.", places: [wilds], times: [afternoon], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0245, text: "Been out in this since noon. There's no shelter out here that isn't a hole.", speakers: [traveller, labourer], places: [wilds], times: [afternoon], weather: [rain], ai_generated: true }
   - { key: chat.b0001.0246, text: "Hauling cut timber on my back and the barrow's an ornament I can't use.", speakers: [labourer], places: [wilds], times: [afternoon], weather: [wind], ai_generated: true }
@@ -270,7 +277,8 @@ lines:
   - { key: chat.b0001.0261, text: "Got out to the flat before dark and I'd not push a wain further tonight.", speakers: [carter, traveller], places: [wilds], times: [dusk], weather: [rain], ai_generated: true }
   - { key: chat.b0001.0262, text: "Rain's come on and the trees are doing their best. It's not shelter, but it's a direction.", speakers: [traveller], places: [wilds], times: [dusk], weather: [rain], ai_generated: true }
   - { key: chat.b0001.0263, text: "Dropped the last of the timber at the edge of the wet ground. Morning can have the rest.", speakers: [labourer], places: [wilds], times: [dusk], ai_generated: true }
-  - { key: chat.b0001.0264, text: "Somewhere out there the last of the light is on water and it looks like something it isn't.", places: [wilds], times: [dusk], weather: [fair], ai_generated: true }
+  - { key: chat.b0001.0264, text: "Light does a thing on the wet ground out here that'll have you swearing there's a lake. There's no lake. Ask me how I know.",
+       speakers: [labourer], places: [wilds], times: [dusk], ai_generated: true }
   - { key: chat.b0001.0265, text: "Sat down with the fire. The wayhold keeps the road and the stone, and neither is any use to me tonight.", places: [wilds], times: [evening], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0266, text: "Ask what a Pacha is and you'll get four answers. Ask what happens when one turns and you'll get silence.", speakers: [villager], places: [wilds], times: [evening], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0267, text: "The scholar account and the Other account. Two words for the same strangeness and neither one gets you warm.", speakers: [adventurer], places: [wilds], times: [evening], weather: [rain], ai_generated: true }
@@ -283,7 +291,8 @@ lines:
   - { key: chat.b0001.0274, text: "Made the edge of the moors before dark and that's as far as I'm going.", speakers: [carter, traveller], places: [wilds], times: [evening], ai_generated: true }
   - { key: chat.b0001.0275, text: "Legs are done. The timber isn't.", speakers: [labourer], places: [wilds], times: [evening], ai_generated: true }
   - { key: chat.b0001.0276, text: "Moor's wet through and the low crossing's gone. If you're coming out here, come by the high ground.", speakers: [villager], places: [wilds], times: [evening], channel: world, ai_generated: true }
-  - { key: chat.b0001.0277, text: "Night out here. Fold's a word people use and nobody defines it twice.", places: [wilds], times: [night], weather: [overcast], ai_generated: true }
+  - { key: chat.b0001.0277, text: "They call it the Fold out here. I've been out in it twice and I'd call it something with more swear in it.",
+       speakers: [hunter], places: [wilds], times: [night], ai_generated: true }
   - { key: chat.b0001.0278, text: "No stars, no moon, no horizon. Just the fire and about two feet of ground.", places: [wilds], times: [night], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0279, text: "Something walked past the fire and left no mark in the ash. I've been awake since.", speakers: [adventurer], places: [wilds], times: [night], weather: [fair], ai_generated: true }
   - { key: chat.b0001.0280, text: "They'll tell you the Otherways are roads, a road you can walk. I've never met anyone came back to say.", speakers: [villager], places: [wilds], times: [night], weather: [overcast], ai_generated: true }
@@ -293,7 +302,6 @@ lines:
   - { key: chat.b0001.0284, text: "Worked by lantern light till it made me stupid, then stopped.", speakers: [labourer], places: [wilds], times: [night], weather: [overcast], ai_generated: true }
   - { key: chat.b0001.0285, text: "Out in the dark after the beasts again. They're well pleased with themselves about it.", speakers: [farmer, herder], places: [wilds], times: [night], ai_generated: true }
   - { key: chat.b0001.0286, text: "Tools in the bag, bag under me, and me awake all night anyway.", speakers: [crafter, adventurer], places: [wilds], times: [night], weather: [rain], ai_generated: true }
-  - { key: chat.b0001.0287, text: "Away out here the night's not peaceful, it's busy. It's just busy about other things.", places: [wilds], times: [night], weather: [wind], ai_generated: true }
   - { key: chat.b0001.0288, text: "Nothing on the wilds side tonight. Watch'll be on the high ground till light.", speakers: [guard], places: [wilds], times: [night], channel: world, ai_generated: true }
   - { key: chat.b0001.0289, text: "Weather's turned in the night. You can smell it before you can see it.", places: [ashen_hollow], times: [dawn], events: [weather_turned], ai_generated: true }
   - { key: chat.b0001.0290, text: "It came over about noon and changed the whole day. Everyone's gone quiet about it.", places: [cairnwold], times: [afternoon], events: [weather_turned], ai_generated: true }

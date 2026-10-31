@@ -109,7 +109,7 @@ nodes:
     text: "\"South. Past the last wall. Along the crags till the face goes black.\" A pause. \"West end. East is rotten. Comes away in your hand.\" Another. \"Something walks that line at night. Leave it be.\""
     choices:
       - id: back
-        text: "I will find it."
+        text: "West end. Black in the face. I'll find it."
         next: again
   praised:
     text: "He turns the spear over once. Sights down it once. Nods once. \"Good.\" He holds it out to you, and does not let go straight away. \"Keep it.\""
@@ -117,7 +117,7 @@ nodes:
     next_if_exhausted: again
     choices:
       - id: back
-        text: "Thank you."
+        text: "Hn. ...Thanks."
         next: again
   judged:
     text: "He turns it over once. \"It will hold.\" He taps the socket with the hammer, and it rings wrong. \"There.\" He hands it back. \"Next one.\""
@@ -134,7 +134,7 @@ nodes:
         text: "I'll make them count."
         next: again
   kera:
-    text: "\"Kera talks. I hit things.\" Something happens at the corner of his mouth, and is gone. \"We both get iron out of it.\""
+    text: "\"Kera talks. I hit things.\" Something happens at the corner of his mouth, and is gone. \"We both get iron out of it.\" The hammer falls twice more. \"She'll tell you about the wings. Don't stand under her.\""
     choices:
       - id: back
         text: "I'll tell her you said so."

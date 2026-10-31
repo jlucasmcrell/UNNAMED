@@ -30,7 +30,7 @@ nodes:
       - id: leave
         text: "Just passing."
   again:
-    text: "Oh - you again. Good. That's you in, and out, and in. I like a number that comes back."
+    text: "Oh - you again. Good. That's you in, and out, and in. I like a number that comes back. \"I count what comes off the moor. A Kal counts what the moor is made of. We're both counting, and neither of us is getting anywhere.\""
     choices:
       - id: moor
         text: "About the moor."

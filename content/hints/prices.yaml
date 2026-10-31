@@ -7,4 +7,4 @@ notes: "Existing."
 category: economy
 trigger: price_changed
 order: 0
-text: "Prices move with what a town has and what it needs: what is scarce there costs more."
+text: "Two towns will not give you the same price for the same thing. Carry the ore to where they have none and see."

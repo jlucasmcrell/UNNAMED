@@ -26,7 +26,7 @@ nodes:
           - { command: record_relationship_event, npc_ref: npc.ashen_hollow.tavar_orr, dimension: trust, delta: 10, event: freed_from_the_fold }
         next: caught
   caught:
-    text: "\"Three days, Sel will say. For me it was one long afternoon where everything arrived a breath late. I could see the waystation smoke. I heard you coming from the wrong side.\" He opens and closes his hands, as if checking they are his."
+    text: "\"Three days, Sel will say. For me it was one long afternoon where everything arrived a breath late. I could see the waystation smoke. I heard you coming from the wrong side.\" He opens and closes his hands, as if checking they are his. Then, not looking at you: \"A Kal landed on me once. He called it a landing.\""
     choices:
       - id: stones
         text: "What were the stones for?"

@@ -307,3 +307,27 @@ lines:
   - { key: chat.b0002.0298, text: "Word's come up the road that {claimant} brought in {bounty}. That's one less thing out here.", speakers: [traveller], places: [old_east_road], times: [dusk], events: [bounty_claimed], ai_generated: true }
   - { key: chat.b0002.0299, text: "They're saying {claimant} took {bounty}. Doesn't change my night and I'm glad of it.", speakers: [hunter], places: [wilds], times: [night], events: [bounty_claimed], ai_generated: true }
   - { key: chat.b0002.0300, text: "{claimant} is done with {bounty} and paid for it. The watch had the wall and no part in it.", speakers: [guard], places: [cairnwold], times: [morning], events: [bounty_claimed], ai_generated: true }
+  - { key: chat.b0002.0910, text: "Kal came through with three loads and paid in coin, which is more than the wayhold's done this season.",
+       speakers: [villager], places: [ashen_hollow], times: [afternoon], ai_generated: true }
+  - { key: chat.b0002.0911, text: "Kal won't take quarried stone. Won't say why, either. I've stopped offering and they've stopped not explaining.",
+       speakers: [crafter], places: [ashen_hollow], times: [morning], ai_generated: true }
+  - { key: chat.b0002.0912, text: "The Ondrek read a stone the way we read a debt. Difference is they're polite about it.",
+       speakers: [adventurer], places: [ashen_hollow], times: [evening], ai_generated: true }
+  - { key: chat.b0002.0913, text: "Hollow folk call us tight with the tally. We're not tight, we've just been short before and they haven't.",
+       speakers: [farmer], places: [cairnwold], times: [dusk], ai_generated: true }
+  - { key: chat.b0002.0914, text: "Survey came up from the Hollow with charts of our own basin. Our own. Nobody in this village knew we had charts.",
+       speakers: [villager], places: [cairnwold], times: [evening], ai_generated: true }
+  - { key: chat.b0002.0915, text: "Veth don't move and Kal do. That's the whole of the argument and neither side thinks they started it.",
+       speakers: [traveller], places: [cairnwold], times: [afternoon], ai_generated: true }
+  - { key: chat.b0002.0916, text: "Hollow's got the iron and the wayhold. Cairnwold's got the grain and the manners. Guess which one a carter prefers.",
+       speakers: [carter], places: [old_east_road], times: [morning], ai_generated: true }
+  - { key: chat.b0002.0917, text: "Cairnwold'll feed you and ask what you're doing here in the same breath. I'd rather be asked than not fed.",
+       speakers: [traveller], places: [old_east_road], times: [evening], ai_generated: true }
+  - { key: chat.b0002.0918, text: "The Siann at the Hollow don't guess out loud. After a week up here that's restful.",
+       speakers: [adventurer], places: [old_east_road], times: [dusk], ai_generated: true }
+  - { key: chat.b0002.0919, text: "Wayhold marks the posts and the Survey marks the ground and both of them expect thanks for it.",
+       speakers: [villager], places: [old_east_road], times: [afternoon], ai_generated: true }
+  - { key: chat.b0002.0920, text: "Hollow folk think the moor's empty. It's not empty, it's just not theirs.",
+       speakers: [hunter], places: [wilds], times: [dawn], ai_generated: true }
+  - { key: chat.b0002.0921, text: "The Survey pays on time and asks questions after. I'd rather the other way round and I'd still take the money.",
+       speakers: [labourer], places: [wilds], times: [afternoon], ai_generated: true }
