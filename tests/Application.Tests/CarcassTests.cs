@@ -4,8 +4,12 @@ using System;
 using System.Collections.Immutable;
 using System.Linq;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Spatial;
+using UNNAMED.Persistence;
+using UNNAMED.World;
 using UNNAMED.World.Runtime;
 using Xunit;
+using Registry = UNNAMED.EntityRegistry.EntityRegistry;
 
 namespace UNNAMED.Application.Tests;
 
@@ -60,6 +64,125 @@ public sealed class CarcassTests
         Assert.InRange(Math.Sqrt(Math.Pow(carcass.XMm - fell.XMm, 2) + Math.Pow(carcass.ZMm - fell.ZMm, 2)), 0, 3000);
         Assert.True(carcass.Ready);
         Assert.Equal("item.material.meat_raw", carcass.ItemId);
+    }
+
+    private static (Arena Arena, string Carcass) Killed(GameSession session, SimulationSetup setup, long respawnTicks = 0)
+    {
+        var arena = Arena.OpenCreatures(session, setup, Open, 0, new[] { (Arena.Wolf, Open.X, Open.Z + 2.0, "pack_hunter") }, respawnTicks: respawnTicks);
+        var before = CarcassKeys(arena.Simulation);
+        arena.Fight(arena.Creature(), 400);
+        return (arena, Assert.Single(CarcassKeys(arena.Simulation).Except(before)));
+    }
+
+    /// <summary>The carcass lies as long as the corpse does: when the body rots away it goes too, in the running game and after a load.</summary>
+    [Fact]
+    public void ACarcass_RotsAwayWithItsCorpse_LiveAndAfterALoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var setup = session.Setup with { Combat = session.Setup.Combat with { CorpseDecayTicks = 200 } };
+        var (arena, carcass) = Killed(session, setup);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("kill"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content,
+            arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("kill"), new LoadContext(session.Generator, session.Content, new Registry())));
+        Assert.Contains(carcass, CarcassKeys(loaded.Simulation));
+
+        arena.Tick(220);
+        loaded.Tick(220);
+        Assert.DoesNotContain(carcass, CarcassKeys(arena.Simulation));
+        Assert.DoesNotContain(carcass, CarcassKeys(loaded.Simulation));
+    }
+
+    /// <summary>A creature that comes back takes its old body with it, and the carcass with the body.</summary>
+    [Fact]
+    public void ACarcass_GoesWhenItsCreatureReturns()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, carcass) = Killed(session, session.Setup, respawnTicks: 100);
+        // Out past the leash, so the spawner is free to bring the wolf back.
+        long x = (long)((Open.X + 60 + arena.Origin.X) * 1000), z = (long)((Open.Z + arena.Origin.Z) * 1000);
+        Assert.Null(arena.Simulation.Submit(new Relocate(new Body(x, arena.Simulation.Setup.Layout.Space.HeightAtMm(x, z), z, 0))));
+
+        arena.Tick(120);
+        Assert.Equal(CreatureCondition.Alive, arena.Creature().Condition);
+        Assert.DoesNotContain(carcass, CarcassKeys(arena.Simulation));
+    }
+
+    /// <summary>
+    /// The whole hide chain in a fresh session: the kill leaves a carcass, its first harvest is the meat and its second the pelt, and the
+    /// pelt, carried to the Foldscar's tanning rack, teaches the tanning by experiment and is worked into leather there.
+    /// </summary>
+    [Fact]
+    public void AWolfKill_GivesItsMeat_ThenItsPelt_AndThePeltTansIntoLeather()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = Killed(session, session.Setup);
+        arena.Tick(40);   // the last blow's recovery done, so the hands are free for the rack
+        void StandAt(long x, long z) =>
+            Assert.Null(arena.Simulation.Submit(new Relocate(new Body(x, arena.Simulation.Setup.Layout.Space.HeightAtMm(x, z), z, 0))));
+        int Carried(string item) => arena.Simulation.Player.Inventory.Where(e => e.DefId == item).Sum(e => e.Count);
+
+        var carcass = arena.Simulation.Nodes.Single(n => n.Key == key);
+        StandAt(carcass.XMm, carcass.ZMm - 500);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, key)));
+        Assert.True(Carried("item.material.meat_raw") >= 1);
+        Assert.Equal(0, Carried("item.material.pelt_grey_wolf"));
+        Assert.Equal("item.material.pelt_grey_wolf", arena.Simulation.Nodes.Single(n => n.Key == key).ItemId);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, key)));
+        Assert.True(Carried("item.material.pelt_grey_wolf") >= 1);
+        Assert.False(arena.Simulation.Nodes.Single(n => n.Key == key).Ready);
+
+        var rack = arena.Simulation.Setup.Layout.Stations.Single(s => s.Key == "station.foldscar_tanning");
+        StandAt(rack.XMm, rack.ZMm - 1000);
+        Assert.Null(arena.Submit(new ExperimentCommand(arena.Player, rack.Key)));
+        Assert.Null(arena.Submit(new CraftCommand(arena.Player, "recipe.tanning.wolf_hide")));
+        Assert.Equal(1, Carried("item.material.leather"));
+    }
+
+    /// <summary>
+    /// B-032: what a carcass has given up belongs to the body, so the save keeps it. The meat is taken, the game is saved and loaded, and the
+    /// body comes back with one charge left - the pelt - so it pays once and not twice.
+    /// </summary>
+    [Fact]
+    public void APartSkinnedCarcass_KeepsWhatWasTakenFromIt_AcrossASaveAndLoad()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var (arena, key) = Killed(session, session.Setup);
+        var carcass = arena.Simulation.Nodes.Single(n => n.Key == key);
+
+        static void StandAt(Arena a, long x, long z) =>
+            Assert.Null(a.Simulation.Submit(new Relocate(new Body(x, a.Simulation.Setup.Layout.Space.HeightAtMm(x, z), z, 0))));
+        static int Carried(Simulation s, string item) => s.Player.Inventory.Where(e => e.DefId == item).Sum(e => e.Count);
+
+        // the first harvest is the meat, and only the meat
+        StandAt(arena, carcass.XMm, carcass.ZMm - 500);
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, key)));
+        int meatTaken = Carried(arena.Simulation, "item.material.meat_raw");
+        Assert.True(meatTaken >= 1);
+        Assert.Equal(0, Carried(arena.Simulation, "item.material.pelt_grey_wolf"));
+        Assert.Equal("item.material.pelt_grey_wolf", arena.Simulation.Nodes.Single(n => n.Key == key).ItemId);
+
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("skinned"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(),
+            session.Content, arena.Simulation.WorldTick, 0));
+        var loaded = Arena.Resume(arena.Simulation.Setup, store.Load(SaveSlots.Manual("skinned"),
+            new LoadContext(session.Generator, session.Content, new Registry())));
+
+        // the body comes back as it was left, not whole: its next harvest is the pelt
+        var reloaded = loaded.Simulation.Nodes.Single(n => n.Key == key);
+        Assert.Equal("item.material.pelt_grey_wolf", reloaded.ItemId);
+        Assert.True(reloaded.Ready);
+
+        StandAt(loaded, reloaded.XMm, reloaded.ZMm - 500);
+        Assert.Null(loaded.Submit(new GatherCommand(loaded.Player, key)));
+        Assert.True(Carried(loaded.Simulation, "item.material.pelt_grey_wolf") >= 1);
+        Assert.Equal(meatTaken, Carried(loaded.Simulation, "item.material.meat_raw"));   // no second meat
+        Assert.False(loaded.Simulation.Nodes.Single(n => n.Key == key).Ready);
     }
 
     [Fact]

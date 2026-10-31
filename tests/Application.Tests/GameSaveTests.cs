@@ -158,6 +158,28 @@ public class GameSaveTests
             Assert.Empty(simulation.Diagnose(quest.Id).Problems);
     }
 
+    /// <summary>
+    /// B-016: the owner's Public Playtest 1.1 save. Build 2 added authored nodes, so the generator's fingerprint changed and five of the
+    /// save's cells were written against a baseline this build no longer generates. The shipped build's transition carries them across.
+    /// </summary>
+    [Fact]
+    public void APublicPlaytest11Save_LoadsUnderTodaysGame()
+    {
+        using var profile = new TempProfile();
+        string slot = SaveSlots.Manual("gambino");
+        Copy(Path.Combine(Fixture("public_1_1_slate_gambino"), "save"), Path.Combine(profile.Root, slot));
+        var session = Harness.Boot(profile);
+        var loaded = session.Load(slot);
+
+        Assert.Empty(loaded.Report.Blockers);
+        Assert.True(loaded.IsComplete, $"quarantined [{string.Join(", ", loaded.QuarantinedSections)}], rejected " +
+            $"[{string.Join("; ", loaded.RejectedRecords.Select(r => $"{r.Section} {r.Key}: {r.Reason}"))}]");
+        Assert.NotEmpty(loaded.Report.CellsRebased);
+        Assert.All(loaded.Report.CellsRebased, c => Assert.Contains("Public Playtest 1.1", c, StringComparison.Ordinal));
+        Assert.Equal(40, loaded.Report.SourceSchema);
+        Harness.Ticks(session, 20);
+    }
+
     private static void Copy(string from, string to)
     {
         Directory.CreateDirectory(to);

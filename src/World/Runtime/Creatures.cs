@@ -146,7 +146,8 @@ internal sealed record CreatureState(
     [System.Text.Json.Serialization.JsonIgnore]
     public NoticeKind LastNotice { get; init; }
     public long NextChargeTick { get; init; }
-    // Transient human-like defense and attack chain state (Sedge D18).
+    // Like a swing in progress, these reactions are transient. A loaded body
+    // has to perceive the next windup anew; no unseen attack can provoke one.
     public long GuardUntil { get; init; }
     public int ComboStep { get; init; }
     public long ComboUntil { get; init; }
@@ -346,6 +347,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return $"corpse.{spawner}.m{key[(hash + 1)..]}_g{generation}";
     }
 
+    /// <summary>The node a body worth skinning leaves: it lies there exactly as long as the corpse does.</summary>
+    private static string CarcassKey(CreatureState c) => $"carcass.{c.Id}";
+
     /// <summary>A creature's identity from its name and generation: the same wolf is the same ID on every start.</summary>
     private static EntityId Identity(string key, int generation)
     {
@@ -390,7 +394,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     }
                 }
                 int facing = (int)(channel.UInt64(40) % 360_000);
-                var body = new Body(x, space.Terrain.HeightAtMm(x, z), z, facing);
+                var body = new Body(x, space.HeightAtMm(x, z), z, facing);
                 var state = new CreatureState(Identity(key, 0), key, site, definition, role, x, z, facing, 0, CreatureCondition.Alive, body,
                     Math.Max(1, (int)Math.Round(definition.MaxHealth * scale.HealthFactor)), ActionState.Idle, 0)
                 {
@@ -404,7 +408,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                         Id = record.InstanceId,
                         Generation = record.Generation,
                         Condition = record.Condition,
-                        Body = new Body(record.XMm, space.Terrain.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
+                        Body = new Body(record.XMm, space.HeightAtMm(record.XMm, record.ZMm), record.ZMm, record.FacingMdeg),
                         Health = record.Health,
                         ScalePercent = record.ScalePercent,
                         LevelBonus = record.LevelBonus,
@@ -426,6 +430,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                     };
                 }
                 State.SetCreature(_owner, state);
+                // A carcass is a node only the running game holds: a body loaded as a corpse lies where it fell again, still to be skinned.
+                if (state.Condition == CreatureCondition.Corpse && definition.CarcassRef is { } carcass)
+                    _context.Dispatch(new LeaveCarcassCommand(CarcassKey(state), carcass, state.Body.XMm, state.Body.ZMm));
                 // Party composition changes later. Even an untouched authored-size
                 // creature needs its spawn scale retained instead of being resized on load.
                 if (Scale is not null && State.World.Creature(key) is null) Save(state);
@@ -455,7 +462,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     /// <summary>A living creature after an absence: at home as it stood at the start, its fight and its search forgotten. Its wounds stay.</summary>
     private CreatureState AtHome(CreatureState c) => c with
     {
-        Body = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
+        Body = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg),
         Mind = CreatureMind.Unaware,
         Awareness = 0,
         Knows = false,
@@ -478,7 +485,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             var safe = c.Site.Recovery!;
             Save(AtHome(c) with { Health = c.ScaledMaxHealth });
-            var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
+            var arrival = new Body(safe.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(safe.SafeXMm, safe.SafeZMm), safe.SafeZMm, State.Body.FacingMdeg);
             _context.Dispatch(new Relocate(arrival));
             _context.Dispatch(new RestageEncounterParty(arrival, safe));
             _context.Events.Publish(new EncounterRestarted(c.Site.Key, true, State.WorldTick));
@@ -532,7 +539,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 if (count >= 20)
                 {
                     Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
-                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).Terrain.HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
+                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
                     _context.Dispatch(new RestageEncounterParty(arrival, court));
                     _context.Events.Publish(new EncounterRestarted(creature.Site.Key, false, tick));
                     _outsideAttemptTicks.Remove(key);
@@ -869,6 +876,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             CombatPhase.Staggered or CombatPhase.Recovery => c,
             CombatPhase.Windup => Aim(c),
+            CombatPhase.Dodge => c with { Body = Move(c, c.Body.XMm + c.Action.DirXPermille * 2,
+                c.Body.ZMm + c.Action.DirZPermille * 2, Gait.Run,
+                C.DodgeDistanceMm * 1000 / Math.Max(1, C.DodgeTicks * TickMs)) with { FacingMdeg = c.Body.FacingMdeg } },
             CombatPhase.Active when c.Action.Kind == ActionKind.Charge => Run(c, tick),
             CombatPhase.Active => Strike(c, tick),
             _ => Act(c, tick),
@@ -1477,6 +1487,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 attack = Scaled(choices[(int)(rng.UInt64(0) % (ulong)choices.Length)], c.ScalePercent);
             }
         }
+        if (c.Definition.CloseAttack is { } close && distance <= close.ReachMm + _context.Setup.Movement.BodyRadiusMm - 100)
+            attack = Scaled(close, c.ScalePercent);
+        bool humanoidCombo = c.Definition.Tags.Contains("humanoid") && c.Definition.CloseAttack is not null;
+        if (humanoidCombo && c.ComboStep >= 2 && c.ComboUntil >= tick)
+            attack = Scaled(c.Definition.Attack, c.ScalePercent);
         double toKnown = Distance(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         int facing = CombatRules.FacingTowards(c.Body.XMm, c.Body.ZMm, targetX, targetZ);
         // A territory holds the line: past its edge the guardian goes back and faces the intruder from inside.
@@ -1500,6 +1515,26 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
         bool clear = !Walled(c, c.Body.XMm, c.Body.ZMm, player.XMm, player.ZMm);
         bool seesTarget = tick == c.LastSeenTick;
+        if (c.GuardUntil > tick)
+            return c with { Body = Turn(c, facing), ComboStep = 0, ComboUntil = 0 };
+        var incoming = State.PlayerCombat.Action;
+        if (c.Definition.Tags.Contains("humanoid") && atCharacter && seesTarget && clear && distance < 4_000
+            && incoming.Kind == ActionKind.Attack && incoming.PhaseAt(tick, C).Phase == CombatPhase.Windup
+            && incoming.StartTick != c.ReactedToAttackTick)
+        {
+            int reaction = RngChannel.Open(State.World.WorldSeed,
+                _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm), "humanoid_defense",
+                $"{c.Key}/{incoming.StartTick}").Int(0, 0, 3);
+            c = c with { ReactedToAttackTick = incoming.StartTick };
+            if (reaction == 0)
+                return c with { Body = Turn(c, facing), ComboStep = 0, ComboUntil = 0, GuardUntil = incoming.StartTick
+                    + incoming.Attack!.WindupTicks + incoming.Attack.ActiveTicks + 2 };
+            if (reaction == 1 && _context.ControlOn(c.Id) != ControlKind.Roots)
+            {
+                var (dx, dz) = Direction(c.Body, player.XMm, player.ZMm);
+                return c with { ComboStep = 0, ComboUntil = 0, Action = ActionState.Begin(ActionKind.Dodge, tick, dirX: -dx, dirZ: -dz) };
+            }
+        }
 
         // A charge opens from range, committed to its line: only at a target it can see, and not too often - and only at the character.
         if (_context.ControlOn(c.Id) != ControlKind.Roots && c.Definition.Charge is { } charge && atCharacter && seesTarget && clear && tick >= c.NextChargeTick
@@ -1513,6 +1548,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Body = Turn(c, facing),
                 Action = ActionState.Begin(ActionKind.Charge, tick, charge, dx, dz),
                 NextChargeTick = tick + charge.CooldownTicks,
+                ComboStep = 0, ComboUntil = 0,
             };
         }
 
@@ -1527,7 +1563,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 return c with { Body = turned };
             attack = PhaseMove(c, attack);
             _context.Events.Publish(new AttackStarted(c.Id, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
-            return c with { Body = turned, Action = ActionState.Begin(ActionKind.Attack, tick, attack) };
+            return c with { Body = turned, Action = ActionState.Begin(ActionKind.Attack, tick, attack),
+                ComboStep = humanoidCombo && attack.Source == c.Definition.CloseAttack!.Source
+                    ? (c.ComboUntil >= tick ? c.ComboStep : 0) + 1 : 0,
+                ComboUntil = humanoidCombo ? tick + attack.TotalTicks + 12 : 0 };
         }
 
         // A pack hunter comes in from the side: aim off the straight line until close.
@@ -1674,6 +1713,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         {
             Health = health,
             Action = staggered && !longer ? ActionState.Begin(ActionKind.Staggered, tick) : c.Action,
+            GuardUntil = staggered ? 0 : c.GuardUntil,
+            ComboStep = staggered ? 0 : c.ComboStep,
+            ComboUntil = staggered ? 0 : c.ComboUntil,
             StaggerImmuneUntil = staggered ? tick + C.StaggerImmunityTicks : c.StaggerImmuneUntil,
             Awareness = Perception.Full,
             Knows = true,
@@ -1747,7 +1789,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a
         // test, a headless run and the game all see the same carcass. The kind says whether it leaves one at all.
         if (c.Definition.CarcassRef is { } carcass)
-            _context.Dispatch(new LeaveCarcassCommand($"carcass.{c.Id}", carcass, c.Body.XMm, c.Body.ZMm));
+            _context.Dispatch(new LeaveCarcassCommand(CarcassKey(c), carcass, c.Body.XMm, c.Body.ZMm));
         if (killer == _player)
         {
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Killed, c.Definition.Id, 1, Domain.Crafting.Quality.Standard, null, tick)));
@@ -1805,6 +1847,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (c.Condition == CreatureCondition.Corpse && elapsed >= c.DiedTick + Setup.CorpseDecayTicks)
         {
             _context.Dispatch(new DiscardContainer(c.CorpseKey));
+            _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));
             _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             c = c with { Condition = CreatureCondition.Gone };
         }
@@ -1814,10 +1857,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
             if (c.Condition == CreatureCondition.Corpse)
             {
                 _context.Dispatch(new DiscardContainer(c.CorpseKey));
+                _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));
                 _context.Events.Publish(new CorpseGone(c.CorpseKey, tick));
             }
             int generation = c.Generation + 1;
-            var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).Terrain.HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
+            var home = new Body(c.HomeXMm, _context.Setup.SpaceFor(c.Site.Space).HeightAtMm(c.HomeXMm, c.HomeZMm), c.HomeZMm, c.HomeFacingMdeg);
             var scale = ScaleOf();
             c = new CreatureState(Identity(c.Key, generation), c.Key, c.Site, c.Definition, c.Role, c.HomeXMm, c.HomeZMm, c.HomeFacingMdeg,
                 generation, CreatureCondition.Alive, home, Math.Max(1, (int)Math.Round(c.Definition.MaxHealth * scale.HealthFactor)), ActionState.Idle, 0)
@@ -1872,11 +1916,29 @@ internal sealed class CreatureSystem : IAbstractAdvance
         return null;
     }
 
+    /// <summary>
+    /// A carcass's harvest count (B-032): it lives on its body's record, so a save taken after the meat gave it back part-skinned rather than
+    /// whole. The body is found by the identity its carcass key carries (<c>carcass.{instance}</c>); a body no longer recorded keeps nothing,
+    /// which is the behaviour every older save had.
+    /// </summary>
+    public string? Handle(CarcassHarvestedCommand command, long tick)
+    {
+        const string prefix = "carcass.";
+        if (!command.Key.StartsWith(prefix, StringComparison.Ordinal)
+            || !EntityId.TryParse(command.Key[prefix.Length..], out var instance))
+            return null;
+        if (State.World.CreatureOf(instance) is not { } body || body.CarcassTaken == command.Taken)
+            return null;
+        State.SetCreatureRecord(_owner, body with { CarcassTaken = command.Taken });
+        return null;
+    }
+
     public string? Handle(CorpseEmptied command, long tick)
     {
         if (State.Creatures.Values.FirstOrDefault(c => c.Condition == CreatureCondition.Corpse && c.CorpseKey == command.CorpseKey) is not { } c)
             return $"no corpse '{command.CorpseKey}'";
         Save(c with { Condition = CreatureCondition.Gone });
+        _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));
         _context.Events.Publish(new CorpseGone(command.CorpseKey, tick));
         return null;
     }
@@ -1980,7 +2042,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     internal CreatureState? Find(EntityId id) => State.Creatures.Values.FirstOrDefault(c => c.Id == id);
 
-    private Body Move(CreatureState c, long toXMm, long toZMm, Gait gait)
+    private Body Move(CreatureState c, long toXMm, long toZMm, Gait gait, long? speedOverride = null)
     {
         var from = c.Body;
         double dx = toXMm - from.XMm, dz = toZMm - from.ZMm;
@@ -1989,7 +2051,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
             return from;
         var intent = new MoveIntent((int)Math.Round(dx / length * 1000), (int)Math.Round(dz / length * 1000), gait,
             Turn(c, CombatRules.FacingTowards(from.XMm, from.ZMm, toXMm, toZMm)).FacingMdeg);
-        var rules = new MovementRules(c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
+        var rules = new MovementRules(speedOverride ?? c.Definition.MoveSpeedMmPerSecond, 50, 100, c.Definition.RadiusMm, 0);
         var others = new List<Blocker>(Obstacles(c.Site.Space).Doors)
         {
             new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, _context.Setup.Movement.BodyRadiusMm, 0),
@@ -2171,7 +2233,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 Temperament = TemperamentRules.Of(c.Role.Peaceful, c.Role.AnswersCalls, c.Mind == CreatureMind.Engaged),
                 Threat = ThreatRules.Of(c.Definition.Level + c.LevelBonus, State.Progression.Level),
                 AttackSource = c.Action.Attack?.Source,
-                AttackVariant = 0,
+                AttackVariant = c.Definition.CloseAttack is not null && c.Action.Attack is not null
+                    ? RngChannel.Open(State.World.WorldSeed, _context.CellOfSite(c.Site.Space, c.Site.XMm, c.Site.ZMm), "creature_motion",
+                        $"{c.Key}@{c.Action.StartTick}/{c.Action.Attack.Source}").Int(0, 0, int.MaxValue) : 0,
                 AttackTick = c.Action.StartTick,
                 Guarding = c.GuardUntil > tick,
                 Enraged = Enraged(c),

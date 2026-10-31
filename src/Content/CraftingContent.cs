@@ -11,7 +11,7 @@ namespace UNNAMED.Content;
 
 /// <summary>
 /// Builds the simulation's <see cref="CraftingSetup"/> and lints what the reference and semantic passes cannot see (CRF001):
-/// a node's material yields one item; a finite node has charges and a daily one exactly one; a node takes 0 to 10 swings;
+/// a node's material yields one item a harvest (a finite node may yield several, one after another); a finite node has charges and a daily one exactly one; a node takes 0 to 10 swings;
 /// a recipe names a station kind, a skill, its inputs and one output; <c>config.crafting</c> is in range; a yield passive adds to
 /// gathering.
 /// </summary>
@@ -126,7 +126,7 @@ public static class CraftingContent
     }
 
     /// <summary>
-    /// Nodes (DATA_MODEL.md §4.16) with their material folded in (§4.10): <c>resource_ref</c>'s single yield, <c>charges</c>,
+    /// Nodes (DATA_MODEL.md §4.16) with their material folded in (§4.10): <c>resource_ref</c>'s yields in harvest order, <c>charges</c>,
     /// <c>respawn</c> (<c>none</c> or <c>daily</c>), <c>harvest_skill</c> and the <c>difficulty</c> a harvest trains it at, and the
     /// <c>swings</c> one harvest takes (one unless the node says otherwise, so every node that names none is worked at a touch).
     /// </summary>
@@ -140,11 +140,13 @@ public static class CraftingContent
             string id = definition.Id;
             string resourceId = Text(map, "resource_ref");
             var resource = resources.GetValueOrDefault(resourceId) ?? throw new FormatException($"{id}: {resourceId} is not a resource");
-            var yields = Rows(Read(resource.YamlSource), "yields", resourceId).ToList();
-            if (yields.Count != 1)
-                throw new FormatException($"{resourceId}: Phase 1 builds a resource of exactly one yield");
-            var yield = yields[0];
-            var range = List(yield, "count_range");
+            var yields = Rows(Read(resource.YamlSource), "yields", resourceId).Select(row =>
+            {
+                var range = List(row, "count_range");
+                return new NodeYield(Text(row, "item_ref"), IntOf(range, 0, "count_range"), IntOf(range, 1, "count_range"));
+            }).ToList();
+            if (yields.Count == 0)
+                throw new FormatException($"{resourceId}: a resource yields at least one item");
             var respawn = Text(map, "respawn") switch
             {
                 "none" => Respawn.None,
@@ -154,15 +156,17 @@ public static class CraftingContent
             string skill = Text(map, "harvest_skill");
             if (!skills.ContainsKey(skill))
                 throw new FormatException($"{id}: harvest_skill {skill} is not a skill");
-            var node = new NodeDefinition(id, Text(yield, "item_ref"), IntOf(range, 0, "count_range"), IntOf(range, 1, "count_range"),
-                Int(map, "charges"), respawn, skill, Int(map, "difficulty"))
+            var node = new NodeDefinition(id, yields[0].ItemId, yields[0].Min, yields[0].Max, Int(map, "charges"), respawn, skill, Int(map, "difficulty"))
             {
+                Later = yields.Skip(1).ToImmutableArray(),
                 ResourceId = resourceId,
                 Swings = map.ContainsKey("swings") ? Int(map, "swings") : 1,
                 Tier = map.ContainsKey("tier") ? Int(map, "tier") : 1,
                 Hidden = string.Equals(map.GetValueOrDefault("hidden") as string, "true", StringComparison.OrdinalIgnoreCase),
             };
-            if (node.YieldMin < 1 || node.YieldMax < node.YieldMin || node.Charges < 1 || node.Difficulty < 0)
+            if (yields.Count > 1 && (node.Respawn != Respawn.None || node.Charges < yields.Count))
+                throw new FormatException($"{id}: {resourceId} yields {yields.Count} things, one a harvest, so the node must be finite with at least that many charges");
+            if (yields.Any(y => y.Min < 1 || y.Max < y.Min) || node.Charges < 1 || node.Difficulty < 0)
                 throw new FormatException($"{id}: a yield of [min, max] with 1 <= min <= max, at least one charge, and a difficulty not below 0");
             if (node.Swings is < 0 or > 10)
                 throw new FormatException($"{id}: swings must be 0..10 (how many swings one harvest takes)");

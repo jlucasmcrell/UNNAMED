@@ -84,7 +84,7 @@ settlements:
     location_ref: location.cairnwold.lodge
     market_ref: market.cairnwold
     smith_merchant_ref: merchant.cairnwold.durn_skell
-    lodge: { position_m: [956, 681], facing_deg: 0 }   # south of the cookfire, clear of its eating ring (WP12b's 3.3 m)
+    lodge: { position_m: [956, 681], facing_deg: 0 }   # east of the cookfire, clear of its eating ring (WP12b's 3.3 m)
     grounds:
       - spawn.cairnwold.moor_strays
       - spawn.cairnwold.moor_hares

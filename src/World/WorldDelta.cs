@@ -218,6 +218,13 @@ public sealed record CreatureRecord(
 
     /// <summary>How long that stagger lasts; 0 for the usual.</summary>
     public int StaggerLastsTicks { get; init; }
+
+    /// <summary>
+    /// How many harvests this body's carcass has given up (schema 41): 0 is a body nothing has been taken from. A carcass is a finite node -
+    /// the grey wolf's holds two charges, the meat first and then the hide - so the count is what a load must keep; a part-skinned body was
+    /// coming back whole, and paid twice.
+    /// </summary>
+    public int CarcassTaken { get; init; }
 }
 
 /// <summary>What <see cref="WorldDelta.TakeSnapshot"/> captures: the whole persisted world delta.</summary>
@@ -463,6 +470,13 @@ public sealed class WorldDelta
 
     /// <summary>A creature's record, or null while it is still its spawner's baseline.</summary>
     public CreatureRecord? Creature(string key) => _creatures.GetValueOrDefault(key);
+
+    /// <summary>
+    /// The record of the body with this identity, or null while it is its spawner's baseline. A carcass is keyed by its body's identity, and
+    /// it is the record that must keep what has been taken from the carcass (schema 41; B-032).
+    /// </summary>
+    internal CreatureRecord? CreatureOf(EntityId instanceId) =>
+        _creatures.Values.FirstOrDefault(c => c.InstanceId == instanceId);
 
     public IReadOnlyList<CreatureRecord> CreaturesIn(CellKey cell)
     {

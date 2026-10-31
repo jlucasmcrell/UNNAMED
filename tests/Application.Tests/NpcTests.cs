@@ -85,10 +85,10 @@ public class NpcTests
         var simulation = session.NewGame(Harness.Named("Tester"), seed: 42);
 
         var npcs = simulation.Npcs.Where(n => n.Id.StartsWith("npc.ashen_hollow.", StringComparison.Ordinal)).OrderBy(n => n.Id, StringComparer.Ordinal).ToList();
-        // The waystation's three, and Tavar, caught in the Foldscar (M6); Cairnwold's four stand in their village.
+        // The waystation's three, and Tavar, caught in the Foldscar (M6); Cairnwold's four stand in their village, and the rim keeper on the road.
         Assert.Equal(new[] { Kera, Renn, Sel, "npc.ashen_hollow.tavar_orr" }, npcs.Select(n => n.Id));
         Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien", "Tavar Orr" }, npcs.Select(n => n.Name));
-        Assert.Equal(8, simulation.Npcs.Count(n => !n.Resident && n.Role != "adventurer"));   // and 6 role residents a town (WP12, DN3)
+        Assert.Equal(9, simulation.Npcs.Count(n => !n.Resident && n.Role != "adventurer"));   // and 6 role residents a town (WP12, DN3)
         // The owner's inn dial keeps three in Ashen Hollow and four in Cairnwold.
         var adventurers=session.Setup.Adventurers!;
         Assert.Equal(adventurers.Settlements.Values.Sum(s=>s.Target??adventurers.Rules.TargetPerSettlement), simulation.World.Adventurers!.Agents.Count);

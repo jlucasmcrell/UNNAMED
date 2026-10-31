@@ -19,6 +19,7 @@ public class SessionTests
         Assert.Equal(Enumerable.Range(4, 7).SelectMany(x => new[] { $"r_0_0:c_{x:00}_06", $"r_0_0:c_{x:00}_07" }), layout.CellKeys);
         Assert.Equal(new[]
             {
+                "door.blackvein.seam_gate", "door.blackvein.tool_shed",
                 "door.cw_house_01", "door.cw_house_02", "door.cw_house_03", "door.cw_house_04", "door.cw_house_05", "door.cw_house_06", "door.cw_house_07",
                 "door.cw_longhouse", "door.forge_shed", "door.granary", "door.longhouse", "door.smithy",
             }, layout.Doors.Select(d => d.Key).OrderBy(k => k, StringComparer.Ordinal));
@@ -59,8 +60,10 @@ public class SessionTests
         Assert.Equal(start, simulation.Player.Body);   // queued, not applied: nothing changes outside the tick
 
         Harness.Ticks(session, 1);
-        // 3.2 m/s for one 50 ms tick is 160 mm; facing comes from the intent.
-        Assert.Equal(new Body(start.XMm, start.YMm, start.ZMm + 160, 0), simulation.Player.Body);
+        // 3.2 m/s for one 50 ms tick is 160 mm; facing comes from the intent. The start is on Ashen Hollow's creek bank, so the body
+        // keeps to the ground it moved onto rather than the height it left.
+        long z = start.ZMm + 160;
+        Assert.Equal(new Body(start.XMm, simulation.Setup.Layout.Space.HeightAtMm(start.XMm, z), z, 0), simulation.Player.Body);
     }
 
     [Theory]

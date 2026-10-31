@@ -5,7 +5,7 @@ display_key: recipe.tanning.wolf_hide.name
 tags: [recipe]
 name: Tan a Wolf Hide
 notes: "D18 SYSTEMS (needed-2): the tanning rack's own work - a grey wolf pelt scraped, soaked and worked into leather. Trains skinning, so the craft rises from the same skill the carcass did."
-station: tanning
+station: tanning_rack
 skill_ref: skill.skinning
 complexity: 6
 inputs:

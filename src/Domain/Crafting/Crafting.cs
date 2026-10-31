@@ -40,7 +40,21 @@ public sealed record NodeDefinition(string Id, string ItemId, int YieldMin, int 
     /// Whether the node does not show until it is prospected. A hidden deposit is placed, counted and harvested, but the
     /// ground reads as ore only to someone looking for it - HOOK.PROSPECT.SIGN's whole activity.
     /// </summary>
-    public bool Hidden { get; init; }}
+    public bool Hidden { get; init; }
+
+    /// <summary>
+    /// What the harvests after the first give, in order, when a finite node's material yields more than one thing (a carcass: its meat,
+    /// then its pelt); empty when every harvest gives the same. A harvest past the last of them gives the last again.
+    /// </summary>
+    public ImmutableArray<NodeYield> Later { get; init; } = ImmutableArray<NodeYield>.Empty;
+
+    /// <summary>What the harvest after <paramref name="harvests"/> earlier ones gives.</summary>
+    public NodeYield YieldAt(int harvests) =>
+        harvests == 0 || Later.IsEmpty ? new NodeYield(ItemId, YieldMin, YieldMax) : Later[Math.Min(harvests, Later.Length) - 1];
+}
+
+/// <summary>One harvest's item and its count range.</summary>
+public sealed record NodeYield(string ItemId, int Min, int Max);
 
 public sealed record RecipeInput(string ItemId, int Count);
 

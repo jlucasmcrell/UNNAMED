@@ -134,11 +134,19 @@ public class CraftingTests
 
         Assert.Equal(new[]
             {
+                "ah_yard_bog_cotton", "ah_yard_boneleaf", "ah_yard_woundmoss",
                 "ash_stand", "birch_woundmoss_1", "birch_woundmoss_2", "blackvein_spoil_1", "blackvein_spoil_2", "bog_ashbloom_1", "bog_ashbloom_2",
-                "bog_ashbloom_3", "bog_ashbloom_4", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
-                "charwood_deadfall_2", "crag_spoil_1", "crag_spoil_2", "foldscar_boneleaf_1", "foldscar_boneleaf_2", "foldscar_boneleaf_3",
+                "bog_ashbloom_3", "bog_ashbloom_4", "bog_seeped_iron", "cairnwold_ash_stand", "cairnwold_ash_stand_2", "cairnwold_iron_seam", "charwood_deadfall_1",
+                "charwood_deadfall_2", "crag_spoil_1", "crag_spoil_2",
+                "den_ash_stand", "den_bank_iron_1", "den_bank_iron_2", "den_boneleaf", "den_cotton", "den_deadfall", "den_woundmoss",
+                "fold_bog_iron_nodule", "fold_carcass_deer", "fold_carcass_wolf", "fold_cotton", "fold_grey_iron_seam", "fold_iron_1", "fold_iron_2",
+                "fold_resin_pine", "fold_snare_1", "fold_snare_2", "fold_weathered_grey_iron", "fold_wood_1", "fold_wood_2",
+                "foldscar_boneleaf_1", "foldscar_boneleaf_2", "foldscar_boneleaf_3",
                 "halda_larder_snare_east", "halda_larder_snare_west", "halda_pelt_snare_east", "halda_pelt_snare_west", "hollow_ash_stand_2", "hollow_woundmoss_1", "hollow_woundmoss_2", "hollow_woundmoss_3", "iron_seam", "moor_deadfall_1", "moor_deadfall_2",
-                "moss_cotton_1", "moss_cotton_2", "moss_cotton_3", "road_deadfall", "road_woundmoss",
+                "moss_cotton_1", "moss_cotton_2", "moss_cotton_3",
+                "old_late_cotton", "old_late_herb_1", "old_late_herb_2", "old_late_iron_1", "old_late_iron_2", "old_late_snare_1", "old_late_snare_2",
+                "old_late_wood_1", "old_late_wood_2",
+                "road_deadfall", "road_wain_pelt_snare", "road_woundmoss",
             }, simulation.Nodes.Select(n => n.Name).OrderBy(n => n, StringComparer.Ordinal));
         var nodes = simulation.Nodes.Where(n => n.Name is "ash_stand" or "iron_seam").OrderBy(n => n.Name, StringComparer.Ordinal).ToList();
         Assert.All(nodes, n => Assert.True(n.Ready));

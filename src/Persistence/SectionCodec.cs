@@ -967,6 +967,9 @@ public sealed class CreatureDto
     [Key("search_until")] public long SearchUntil { get; set; }
     [Key("has_called")] public bool HasCalled { get; set; }
 
+    /// <summary>How many harvests its carcass has given up (schema 41); 0 for an untouched body and for every older save.</summary>
+    [Key("carcass_taken")] public int CarcassTaken { get; set; }
+
     /// <summary>Required from schema 14. The 13 -> 14 step gives older saves none: the charge, the stagger and the stun were not kept.</summary>
     [Key("continuation")] public CreatureContinuationDto? Continuation { get; set; }
 }
@@ -1609,6 +1612,7 @@ public static class SectionCodec
                 LastSeenTick = c.LastSeenTick,
                 SearchUntil = c.SearchUntil,
                 HasCalled = c.HasCalled,
+                CarcassTaken = c.CarcassTaken,
                 Continuation = new CreatureContinuationDto
                 {
                     NextChargeTick = c.NextChargeTick,
@@ -1753,6 +1757,7 @@ public static class SectionCodec
                     LastSeenTick = c.LastSeenTick,
                     SearchUntil = c.SearchUntil,
                     HasCalled = c.HasCalled,
+                    CarcassTaken = c.CarcassTaken,
                     NextChargeTick = continuation.NextChargeTick,
                     StaggerImmuneUntil = continuation.StaggerImmuneUntil,
                     StaggeredTick = continuation.StaggeredTick,

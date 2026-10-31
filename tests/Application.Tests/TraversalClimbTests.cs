@@ -19,45 +19,51 @@ public class TraversalClimbTests
 
     private static readonly (string, double, double, string)[] Nobody = Array.Empty<(string, double, double, string)>();
 
+    // Region metres, the same space the props are authored in, not the hollow-relative offsets the combat arenas take.
     private static Arena Open(GameSession session, (double X, double Z) at, int facingDeg) =>
-        Arena.OpenCreatures(session, session.Setup, at, facingDeg, Nobody);
+        Arena.OpenCreatures(session, session.Setup, at, facingDeg, Nobody, origin: (0, 0));
 
-    /// <summary>Press into a structure for a while and report how far the body rose, which is what a climb does and a wall does not.</summary>
+    /// <summary>
+    /// Press into a structure for a while and report the highest the feet stood above the terrain, which is what a climb does and a wall does
+    /// not. The peak, not the end: a run that goes on presses over the top and down the far side.
+    /// </summary>
     private static (double X, double Z, long Rose) Press(GameSession session, (double X, double Z) from, int facingDeg, int ticks)
     {
         var arena = Open(session, from, facingDeg);
+        var terrain = arena.Simulation.Setup.Layout.Space.Terrain;
         int dz = facingDeg == 0 ? 1000 : -1000;
-        long start = arena.Simulation.Player.Body.YMm;
-        (double X, double Z, long Rose) last = (from.X, from.Z, 0);
+        (double X, double Z, long Rose) peak = (from.X, from.Z, 0);
         for (int tick = 0; tick < ticks; tick++)
         {
             arena.Simulation.Enqueue(new MoveCommand(arena.Player, new MoveIntent(0, dz, Gait.Run, facingDeg * 1000)));
             arena.Tick();
             var body = arena.Simulation.Player.Body;
-            last = (body.XMm / 1000.0, body.ZMm / 1000.0, body.YMm - start);
+            long above = body.YMm - terrain.HeightAtMm(body.XMm, body.ZMm);
+            if (above > peak.Rose)
+                peak = (body.XMm / 1000.0, body.ZMm / 1000.0, above);
         }
-        return last;
+        return peak;
     }
 
-    /// <summary>The fallen timber lies 0.8 m high across x 163-171, z 147-147.8. A run into it from the south mounts it.</summary>
+    /// <summary>The fallen timber lies 0.8 m high across x 563-571, z 747-747.8. A run into it from the south mounts it.</summary>
     [Fact]
     public void ABodyPressingIntoTheFallenTimber_MountsIt()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (x, z, rose) = Press(session, (567.0, 769.0), facingDeg: 0, ticks: 120);
-        _out.WriteLine($"ended at region ({x:0.00}, {z:0.00}), rose {rose} mm");
+        var (x, z, rose) = Press(session, (567.0, 745.0), facingDeg: 0, ticks: 120);
+        _out.WriteLine($"peaked at region ({x:0.00}, {z:0.00}), {rose} mm above the ground");
         Assert.True(rose > 400, $"a 0.8 m timber inside the mantle reach was not climbed: the body rose {rose} mm at ({x:0.00}, {z:0.00})");
     }
 
-    /// <summary>The cart wreck is 1.4 m - above the 1.2 m vault window, inside the 3 m mantle reach - so it is climbed, not vaulted.</summary>
+    /// <summary>The cart wreck is 1.4 m across x 555.5-558.5, z 761.2-763.2 - above the 1.2 m vault window, inside the 3 m mantle reach - so it is climbed, not vaulted.</summary>
     [Fact]
     public void ABodyPressingIntoTheCartWreck_ClimbsIt()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var (x, z, rose) = Press(session, (557.0, 784.0), facingDeg: 0, ticks: 160);
-        _out.WriteLine($"ended at region ({x:0.00}, {z:0.00}), rose {rose} mm");
+        var (x, z, rose) = Press(session, (557.0, 759.0), facingDeg: 0, ticks: 160);
+        _out.WriteLine($"peaked at region ({x:0.00}, {z:0.00}), {rose} mm above the ground");
         Assert.True(rose > 600, $"a 1.4 m cart inside the mantle reach was not climbed: the body rose {rose} mm at ({x:0.00}, {z:0.00})");
     }
 }

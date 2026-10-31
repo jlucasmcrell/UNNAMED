@@ -211,6 +211,14 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>The generator fingerprint of M3's layout, the one M3f to M5 saves were written against. Frozen: it names a past layout.</summary>
     private const string M3LayoutFingerprint = "sha256:4c97504c3d0db625e2447230087d2eabb56b4427c486a790f541d677a01b9a1b";
 
+    /// <summary>
+    /// The generator fingerprints of builds that went to players, newest last. Every release that changes the authored nodes
+    /// changes the fingerprint, so add the shipped build's fingerprint here when it ships, or its saves stop loading. Frozen entries.
+    /// </summary>
+    internal static readonly ImmutableArray<(string Release, string Fingerprint)> ShippedFingerprints = ImmutableArray.Create(
+        ("Public Playtest 1.1", "sha256:ae5ec7974b5d1108aacc527a99f392b30f4a41c2d0e34302cd88f02767b3b9b8"),
+        ("First update owner test 02", "sha256:eb3bf7e7e3cc368ba08feeba9fc60f8596529630bdb8f7b3dc75bb6c79618254"));
+
 /// <summary>
     /// The region's combat setup, with each reachable interior's spawns added (B1). A spawn carries the space it stands in, so the
     /// added creatures are that interior's and are never seen or struck from the exterior.
@@ -328,6 +336,12 @@ public sealed class GameSession : IDomainEvents, IDisposable
         if (generator.Fingerprint != M3LayoutFingerprint)
             transitions = transitions.Add(new BaselineTransition("M6: the content bible's four cells", M3LayoutFingerprint, generator.Fingerprint,
                 DropVanishedTargets: true));
+        // A save from a shipped build carries onto this one. Between releases authored nodes are added, moved or removed, so a
+        // strike recorded against a node this build no longer places is declared lost; everything else carries as it is.
+        foreach (var (release, fingerprint) in ShippedFingerprints)
+            if (fingerprint != generator.Fingerprint)
+                transitions = transitions.Add(new BaselineTransition($"{release} to this build", fingerprint, generator.Fingerprint,
+                    DropVanishedTargets: true));
         return new GameSession(options, setup, content, generator, WorldContent.DisplayNames(loader), transitions)
         {
             ClockAtWorldStartHours = WorldContent.ClockAtWorldStartHours(loader),

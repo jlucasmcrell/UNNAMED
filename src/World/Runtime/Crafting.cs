@@ -41,6 +41,15 @@ public sealed record GatherCommand(EntityId Actor, string NodeKey) : GameCommand
 /// </summary>
 internal sealed record LeaveCarcassCommand(string Key, string NodeDefId, long XMm, long ZMm) : InternalCommand;
 
+/// <summary>
+/// A carcass gave up one more harvest (B-032). Internal, and dispatched rather than written, because the creature slice belongs to the
+/// creature system: the gatherer says what it took and the creature system keeps it on the body's record, which is what the save carries.
+/// </summary>
+internal sealed record CarcassHarvestedCommand(string Key, int Taken) : InternalCommand;
+
+/// <summary>The corpse a carcass lay with is gone - rotted, emptied or risen again - and the carcass goes with it.</summary>
+internal sealed record ClearCarcassCommand(string Key) : InternalCommand;
+
 /// <summary>Work a known recipe at a station of its kind within reach, from carried materials.</summary>
 public sealed record CraftCommand(EntityId Actor, string RecipeId) : GameCommand(Actor)
 {
@@ -95,6 +104,11 @@ internal sealed class GatheringSystem : IAbstractAdvance
     private readonly EntityId _player;
     private readonly List<(string Key, CellKey Cell, NodeSite Site)> _nodes;
 
+    // A carcass is no node of the world's baseline, so the world delta - which proves every harvest record against the baseline - cannot
+    // hold its harvests as a node record. The count lives on the body's own CreatureRecord (CarcassTaken, schema 41) and is written back on
+    // every harvest, so a load gives a part-skinned carcass back part-skinned (B-032).
+    private readonly Dictionary<string, NodeHarvest?> _carcasses = new(StringComparer.Ordinal);
+
     public GatheringSystem(SystemContext context, SliceOwner owner, EntityId player)
     {
         _context = context;
@@ -122,6 +136,9 @@ internal sealed class GatheringSystem : IAbstractAdvance
         var space = State.Space;
         var cell = _context.CellOfSite(space, xMm, zMm);
         _nodes.Add((key, cell, new NodeSite(key, nodeDefId, xMm, zMm)));
+        // a body loaded from a save carries what was already taken from it
+        int taken = Body(key)?.CarcassTaken ?? 0;
+        _carcasses[key] = taken > 0 ? new NodeHarvest(key, 0, taken) : null;
         return true;
     }
 
@@ -142,6 +159,13 @@ internal sealed class GatheringSystem : IAbstractAdvance
         return null;
     }
 
+    public string? Handle(ClearCarcassCommand command, long tick)
+    {
+        _nodes.RemoveAll(n => n.Key == command.Key);
+        _carcasses.Remove(command.Key);
+        return null;
+    }
+
     public string? Handle(GatherCommand command, long tick)
     {
         if (command.Actor != _player)
@@ -152,22 +176,29 @@ internal sealed class GatheringSystem : IAbstractAdvance
         if (definition is null)
             return refusal!;
         var node = _nodes.First(n => n.Key == command.NodeKey);
-        var record = State.World.NodeRecord(node.Cell, node.Key);
+        var record = Record(node.Cell, node.Key);
         long localTick = _context.SpaceTick(node.Cell.Space, tick);
         int harvests = record?.HarvestSeq ?? 0;
 
         // The yield is rolled from the node and its harvest, and a skilled hand takes more.
         var channel = RngChannel.Open(State.World.WorldSeed, node.Cell, "gather", $"{node.Key}@{harvests + 1}");
-        int count = channel.Int(0, definition.YieldMin, definition.YieldMax + 1) + Bonus(definition.SkillId);
-        if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, definition.ItemId, count, Quality.Standard)) is { } refused)
+        var yield = definition.YieldAt(harvests);
+        int count = channel.Int(0, yield.Min, yield.Max + 1) + Bonus(definition.SkillId);
+        if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, yield.ItemId, count, Quality.Standard)) is { } refused)
             return refused;
-        State.HarvestNode(_owner, node.Cell, node.Key, localTick);
+        if (_carcasses.ContainsKey(node.Key))
+        {
+            _carcasses[node.Key] = new NodeHarvest(node.Key, localTick, harvests + 1);
+            TakeFromCarcass(node.Key, harvests + 1);
+        }
+        else
+            State.HarvestNode(_owner, node.Cell, node.Key, localTick);
         _context.Dispatch(new PracticeSkill(new SkillPractice(definition.SkillId, definition.Difficulty, PracticeOutcome.Success, tick)
         {
             NoveltyKey = definition.Id,
         }));
-        _context.Events.Publish(new NodeGathered(node.Key, definition.Id, definition.ItemId, count,
-            !Ready(definition, State.World.NodeRecord(node.Cell, node.Key), localTick), tick));
+        _context.Events.Publish(new NodeGathered(node.Key, definition.Id, yield.ItemId, count,
+            !Ready(definition, Record(node.Cell, node.Key), localTick), tick));
         if (definition.ResourceId is { } resource)
             _context.Dispatch(new RecordDeed(new Deed(DeedKind.Harvested, resource, count, Quality.Standard, null, tick)));
         return null;
@@ -188,10 +219,32 @@ internal sealed class GatheringSystem : IAbstractAdvance
         var body = State.Body;
         if (Math.Sqrt(Math.Pow(node.Site.XMm - body.XMm, 2) + Math.Pow(node.Site.ZMm - body.ZMm, 2)) > _context.Setup.Items.Inventory.ReachMm)
             return (null, "that is out of reach");
-        if (!Ready(definition, State.World.NodeRecord(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
+        if (!Ready(definition, Record(node.Cell, node.Key), _context.SpaceTick(node.Cell.Space, tick)))
             return (null, definition.Respawn == Respawn.None ? "it is worked out" : "there is nothing to take until it grows back");
         return (definition, null);
     }
+
+    /// <summary>
+    /// The body a carcass key belongs to: a carcass is keyed by the creature's own identity (<c>carcass.{instance}</c>), so the record that
+    /// must keep its harvest count is found by that identity. Null when the body is no longer recorded - an older save, or a creature whose
+    /// record was retired - and then the count is only kept for as long as the carcass lies, as before.
+    /// </summary>
+    private CreatureRecord? Body(string carcassKey)
+    {
+        const string prefix = "carcass.";
+        if (!carcassKey.StartsWith(prefix, StringComparison.Ordinal))
+            return null;
+        return EntityId.TryParse(carcassKey[prefix.Length..], out var instance) ? State.World.CreatureOf(instance) : null;
+    }
+
+    /// <summary>Tell the creature system what the carcass has now given up; it owns the record and writes it.</summary>
+    private void TakeFromCarcass(string carcassKey, int taken)
+    {
+        if (Body(carcassKey) is { } body && body.CarcassTaken != taken)
+            _context.Dispatch(new CarcassHarvestedCommand(carcassKey, taken));
+    }
+
+    private NodeHarvest? Record(CellKey cell, string key) => _carcasses.TryGetValue(key, out var carcass) ? carcass : State.World.NodeRecord(cell, key);
 
     private bool Ready(NodeDefinition definition, NodeHarvest? record, long tick) =>
         CraftingRules.Ready(definition, record?.LastHarvestTick, record?.HarvestSeq ?? 0, tick, _context.Setup.Progression.TicksPerWorldDay);
@@ -206,8 +259,9 @@ internal sealed class GatheringSystem : IAbstractAdvance
         _nodes.Where(n => Setup.Nodes.ContainsKey(n.Site.NodeDefId)).Select(n =>
         {
             var definition = Setup.Nodes[n.Site.NodeDefId];
-            return new NodeView(n.Key, n.Site.Name, definition.Id, definition.ItemId, n.Site.XMm, n.Site.ZMm,
-                Ready(definition, State.World.NodeRecord(n.Cell, n.Key), _context.SpaceTick(n.Cell.Space, State.WorldTick))) { Space = n.Cell.Space };
+            var record = Record(n.Cell, n.Key);
+            return new NodeView(n.Key, n.Site.Name, definition.Id, definition.YieldAt(record?.HarvestSeq ?? 0).ItemId, n.Site.XMm, n.Site.ZMm,
+                Ready(definition, record, _context.SpaceTick(n.Cell.Space, State.WorldTick))) { Space = n.Cell.Space };
         }).ToImmutableArray();
 }
 

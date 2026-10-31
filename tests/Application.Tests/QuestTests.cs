@@ -354,7 +354,7 @@ public class QuestTests
 
     /// <summary>
     /// Deliberately broken 1: a quest wants more ore than the world holds. The seam is finite, and nothing else gives ore - in a world
-    /// with the hollow's seam alone, without Cairnwold's.
+    /// with the hollow's seam alone, without Cairnwold's, the Foldscar's or Blackvein's strongbox.
     /// </summary>
     [Fact]
     public void TheDebugger_ExplainsAQuestTheWorldCanNoLongerSatisfy()
@@ -363,8 +363,16 @@ public class QuestTests
         var session = Harness.Boot(profile);
         var greedy = Broken("quest.test.greedy", "The Greedy Smith", Objective("o_ore", "Bring nine lumps of ore.", new AcquireItem(Ore, 9, Quality.Crude)));
         var rules = WithQuests(session, greedy);
-        // The only ore is the hollow's seam: Cairnwold's seam and the daily ore spoil are taken out of this world.
-        rules = rules with { Layout = rules.Layout with { Nodes = rules.Layout.Nodes.Where(n => n.Name != "cairnwold_iron_seam" && n.NodeDefId != "node.ore.loose_iron").ToImmutableArray() } };
+        // The only ore is the hollow's seam: every other node that gives ore (Cairnwold's seam, the daily spoil, the Foldscar's seams) and
+        // Blackvein's strongbox are taken out of this world.
+        rules = rules with
+        {
+            Layout = rules.Layout with
+            {
+                Nodes = rules.Layout.Nodes.Where(n => n.Name == "iron_seam" || rules.Crafting.Nodes.GetValueOrDefault(n.NodeDefId)?.ItemId != Ore).ToImmutableArray(),
+                Containers = rules.Layout.Containers.Where(c => c.Key != "container.blackvein.strongbox").ToImmutableArray(),
+            },
+        };
         var arena = At(session, AtSeam, r => r.WithQuests(new[] { QuestRules.Start(greedy, 0) }), rules);
 
         var seam = () => arena.Simulation.Nodes.Single(n => n.Name == "iron_seam");

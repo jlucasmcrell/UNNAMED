@@ -102,16 +102,17 @@ public class JumpAndCrouchTests
     }
 
     [Fact]
-    public void AJump_NeverCarriesOverTheFenceTheCartAWallADoorOrTheFold()
+    public void AJump_NeverCarriesOverAWallADoorOrTheFold_WhileARunTakesTheFenceAndTheCart()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
+        double radius = session.Setup.Movement.BodyRadiusMm / 1000.0;
 
-        // The smithy fence: 1.2 m high, x 44-51.4, z 146-146.4 - approached from the north, at a run and at a sprint.
-        Never("the fence at a run", Clearing(session, (47.5, 150), 180, Gait.Run, 146));
-        Never("the fence at a sprint", Clearing(session, (47.5, 150), 180, Gait.Sprint, 146));
-        // The merchant cart: 1.4 m, x 155.5-158.5, z 161.2-163.2 - at a sprint, from the south.
-        Never("the cart", Clearing(session, (157, 157), 0, Gait.Sprint, 163.2));
+        // BRIEF D6 made every structure climbable but the barriers, so the smithy fence (1.2 m high, x 44-51.4, z 146-146.4) and the
+        // merchant cart (1.4 m, x 155.5-158.5, z 161.2-163.2) are vaulted and climbed from a run without any jump - the body is not
+        // stopped at their near face - and what a jump must still never carry over are the faces beyond the reach, the door and the fold.
+        Assert.True(RunAndJump(session, (47.5, 150), 180, Gait.Run, takeOffTick: 999) <= 146.4 + radius - 0.01, "the fence stopped a run");
+        Assert.True(RunAndJump(session, (157, 157), 0, Gait.Sprint, takeOffTick: 999) >= 161.2 - radius + 0.01, "the cart stopped a sprint");
         // The lodge's north wall: 3.2 m, z 131.6-132 - at a sprint, from the north.
         Never("the lodge wall", Clearing(session, (44, 137), 180, Gait.Sprint, 131.6));
         // The smithy's closed door: 2.4 m, on its west wall, x 53-53.4 - run at it along x.

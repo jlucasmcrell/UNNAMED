@@ -64,8 +64,8 @@ public class SwimmingTests
         ford.Tick(1);
         Assert.False(ford.Simulation.Swimming);
         var wading = ford.Simulation.Player.Body;
-        Assert.Equal(6_400, wading.YMm);   // the ford's own gravel, under the feet
-        Assert.Equal(session.Setup.Layout.Space.HeightAtMm(wading.XMm, wading.ZMm), wading.YMm);
+        Assert.Equal(6_450, wading.YMm);   // the ford's own gravel bar, 5 cm on its 6.40 m bed, under the feet and under the 6.55 m water
+        Assert.InRange(wading.YMm - session.Setup.Layout.Space.HeightAtMm(wading.XMm, wading.ZMm), 0, 50);   // on the bed or the bar, never lifted above the water
     }
 
     [Fact]
