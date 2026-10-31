@@ -8,12 +8,12 @@ The fighter is the review route's: it closes, circles toward the Custodian's slo
 
 | Loadout | Level | Wins | Median s to kill (wins) | Median blows taken |
 |---|---|---|---|---|
-| Rusted Sword, hide kit, 3 salves | 1 | 4/12 | 295.0 | 1 |
-| March Spear, hide kit, 3 salves | 1 | 1/12 | 270.0 | 2 |
-| Rusted Sword, hide kit, 3 salves | 3 | 12/12 | 142.1 | 1 |
-| March Spear, hide kit, 3 salves | 3 | 11/12 | 105.9 | 2 |
-| Rusted Sword, hide kit, 3 salves | 5 | 12/12 | 58.2 | 1 |
-| March Spear, hide kit, 3 salves | 5 | 12/12 | 45.2 | 0 |
+| Rusted Sword, hide kit, 3 salves | 1 | 3/12 | 285.9 | 1 |
+| March Spear, hide kit, 3 salves | 1 | 1/12 | 278.6 | 2 |
+| Rusted Sword, hide kit, 3 salves | 3 | 12/12 | 144.3 | 1 |
+| March Spear, hide kit, 3 salves | 3 | 11/12 | 104.1 | 2 |
+| Rusted Sword, hide kit, 3 salves | 5 | 12/12 | 57.9 | 0 |
+| March Spear, hide kit, 3 salves | 5 | 12/12 | 44.1 | 1 |
 
 ## Custodian blows to fell a character standing still
 

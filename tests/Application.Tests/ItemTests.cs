@@ -206,6 +206,9 @@ public class ItemTests
         var session = Harness.Boot(profile);
         var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, ToTheDenCache));
+        // The cache has had a lock since D20's lockpicking (LockpickingTests picks them); opened here the way a pick records it.
+        var site = session.Setup.Layout.Containers.Single(c => c.Key == Den);
+        Assert.Null(simulation.Submit(new SetWorldFlag(CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0), LockRules.FlagOf(Den), 1)));
 
         var untouched = simulation.Containers.Single(c => c.Site.Key == Den);
         Assert.Null(untouched.Id);

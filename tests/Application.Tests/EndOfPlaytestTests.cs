@@ -67,9 +67,10 @@ public class EndOfPlaytestTests
 
         var end = arena.Simulation.Quests.Single(q => q.Id == End);
         Assert.Equal((QuestStatus.Completed, "End of the playtest"), (end.Status, end.Title));
-        Assert.Contains("itch.io", end.Summary);
-        Assert.Contains("Thank you", end.Summary);
-        Assert.DoesNotContain("://", end.Summary);   // feedback text to read, never a link the game follows
+        // The Playtest 2 text pass (ee04fad1, story-gate approved) keeps the journal in-world: the feedback request left it.
+        Assert.Contains("this stretch of the road", end.Summary);
+        Assert.DoesNotContain("itch.io", end.Summary);
+        Assert.DoesNotContain("://", end.Summary);   // never a link the game follows
         Assert.DoesNotContain("farewell", arena.Simulation.Conversation!.Replies.Select(r => r.Id));
     }
 }
