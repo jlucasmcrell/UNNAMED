@@ -4,6 +4,8 @@
 using UNNAMED.Domain;
 using UNNAMED.Domain.Spatial;
 
+using UNNAMED.Domain.Combat;
+
 namespace UNNAMED.World.Runtime;
 
 /// <summary>
@@ -36,6 +38,12 @@ public sealed record GlideCommand(EntityId Actor, bool Spread) : GameCommand(Act
 /// weapon's reach is the target; the outcome is an armour-and-vital check, so an armoured or well-built body survives and turns.
 /// </summary>
 public sealed record TakedownCommand(EntityId Actor) : GameCommand(Actor);
+
+/// <summary>
+/// Stand a duty construct down rather than break it (CMB-43): one route, what is said or shown, and how far through the ritual the character
+/// has come. The construct answers in its own voice; a court that answers keeps the answer on a world flag.
+/// </summary>
+public sealed record StandDownCommand(EntityId Actor, EntityId Target, StandDownRoute Route, string? Argument = null, int RiteStep = 0) : GameCommand(Actor);
 
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);

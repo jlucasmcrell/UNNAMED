@@ -21,3 +21,18 @@ loot_table: loot.gate_tender
 perception: { sight_m: 20, hearing_m: 22, fov_deg: 140 }
 tier_hint: A
 tameable: false
+
+# CMB-43: the tender is the warden's poor relation - it answers the same word and a different rite: what it tends is the oil and the
+# hinges, so the ritual is leaving the gate easier to keep than you found it. A tender stood down is a court that owes you a small
+# unglamorous favour, which is the most Orenth thing in the Barrowworks.
+duty:
+  routes: [word, rite]
+  words:
+    - "the gate is kept"
+  rites:
+    - { id: oil_the_hinge, asked: "The hinge is dry. The tender is looking at it, and at you, and at the hinge." }
+    - { id: leave_it_better, asked: "It waits, patiently, for the gate to be left in better order than it was met in." }
+  voice:
+    called: "'Tender at work. The gate is kept. Go around.' A taper lifts, and does not come down."
+    accepted: "'Better.' The taper goes out. It goes back to the hinge, which is all it ever wanted."
+    refused: "'Dry hinge. Dry answer.' It puts the taper down, which is the last warning it gives."

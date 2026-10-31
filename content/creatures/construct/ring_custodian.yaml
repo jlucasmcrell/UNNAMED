@@ -21,3 +21,21 @@ loot_table: loot.ring_custodian
 perception: { sight_m: 18, hearing_m: 22, fov_deg: 120 }
 tier_hint: B
 tameable: false
+
+# CMB-43: the measuring court answers a court's own three ways. Its words are the survey's formula for a reading; its rite is the
+# measurement itself, which is the thing the ring was built to take; its token is the right the Barrowworks issues to whoever keeps
+# the measure. Killing it takes its loot; standing it down takes the reading, which is what Kera actually wants.
+duty:
+  routes: [word, token, rite]
+  token: item.quest.halda_token
+  words:
+    - "the measure is kept"
+    - "I am the reading you were waiting for"
+  rites:
+    - { id: name_the_court, asked: "It waits. A bar of brass slides out of the housing: a lectern, offered at chest height." }
+    - { id: stand_the_measure, asked: "The court is cold on three sides and warm on the fourth. It wants a body where the measure stands." }
+    - { id: keep_the_reading, asked: "The index turns a full quarter and stops. It is listening for the reading it never got." }
+  voice:
+    called: "The housing turns without hurrying. 'A visitor. The court is not open. State a reading or state a name.'"
+    accepted: "'Kept.' The bar withdraws. The court stays where it stands, and stops being a thing that measures you."
+    refused: "'Not a reading.' The housing turns away, and the sweep begins."

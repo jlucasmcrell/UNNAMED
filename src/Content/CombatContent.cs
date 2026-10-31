@@ -357,6 +357,7 @@ public static class CombatContent
                             window.ContainsKey("open_ticks") ? Int(window, "open_ticks") : 0)).ToImmutableArray(),
                     }
                     : null,
+                Duty = Duty(map, id),
                 Phases = Phases(map, id, abilities, tickMs),
                 Tags = Tags(map, "tags"),
             };
@@ -368,6 +369,46 @@ public static class CombatContent
                 throw new FormatException($"{id}: pools.health, move_speed_m_s and body_radius_m are positive, xp_value is not negative");
             return creature;
         }).ToImmutableSortedDictionary(c => c.Id, c => c, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// CMB-43: a duty construct's terms. <c>routes</c> names the ways it may be stood down (word, token, rite), <c>rites</c> is the ritual in
+    /// the order the court keeps it, <c>token_ref</c> is the right it honours, <c>words</c> are what may be said back to it, and <c>voice</c>
+    /// is what it says when called, when it stands down and when it refuses. A creature with no block is kill-only.
+    /// </summary>
+    private static DutyTerms Duty(Dictionary<object, object> map, string id)
+    {
+        if (map.GetValueOrDefault("duty") is not Dictionary<object, object> duty)
+            return DutyTerms.None;
+
+        var routes = (duty.GetValueOrDefault("routes") as List<object> ?? new List<object>())
+            .Select(r => (r as string ?? "") switch
+            {
+                "word" => StandDownRoute.Word,
+                "token" => StandDownRoute.Token,
+                "rite" => StandDownRoute.Rite,
+                var other => throw new FormatException($"{id}: duty route '{other}' is not one of word, token, rite"),
+            }).ToImmutableArray();
+
+        var rites = (duty.GetValueOrDefault("rites") as List<object> ?? new List<object>())
+            .Select(r => r as Dictionary<object, object> ?? new Dictionary<object, object>())
+            .Select(r => new DutyRite(Text(r, "id"), Text(r, "asked")))
+            .ToImmutableArray();
+        if (routes.Contains(StandDownRoute.Rite) && rites.IsEmpty)
+            throw new FormatException($"{id}: a construct that answers a ritual needs at least one rite");
+
+        var words = (duty.GetValueOrDefault("words") as List<object> ?? new List<object>())
+            .Select(w => w as string ?? "").Where(w => w.Length > 0).ToImmutableArray();
+        if (routes.Contains(StandDownRoute.Word) && words.IsEmpty)
+            throw new FormatException($"{id}: a construct that answers words needs at least one word");
+
+        string? token = duty.GetValueOrDefault("token") as string;
+        if (routes.Contains(StandDownRoute.Token) && token is null)
+            throw new FormatException($"{id}: a construct that honours a token must name it");
+
+        var voice = duty.GetValueOrDefault("voice") as Dictionary<object, object> ?? new Dictionary<object, object>();
+        return new DutyTerms(routes, rites, token, words, new DutyVoice(
+            Text(voice, "called"), Text(voice, "accepted"), Text(voice, "refused")));
     }
 
     /// <summary>

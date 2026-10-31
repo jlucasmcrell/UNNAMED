@@ -16,6 +16,40 @@ public class BarrowworksCustodianTests
 {
     private const string Custodian = "creature.construct.ring_custodian";
 
+    // ── CMB-43: the measuring court can be answered instead of broken ────────
+
+    /// <summary>The court reads its own terms off content: three routes, three rites, a token that is a right, and its voice.</summary>
+    [Fact]
+    public void TheMeasuringCourt_AnswersThreeRoutes_InItsOwnVoice()
+    {
+        using var profile = new TempProfile();
+        var setup = Harness.Boot(profile, "region.barrowworks", barrowworks: true).Setup;
+
+        var duty = setup.Combat.Creatures[Custodian].Duty;
+        Assert.True(duty.AnswersAny);
+        Assert.Equal(3, duty.Routes.Length);
+        Assert.Equal(3, duty.Rites.Length);
+        Assert.Equal("item.quest.halda_token", duty.TokenId);
+        Assert.Contains("the measure is kept", duty.Words);
+        Assert.Contains("Kept", duty.Voice.Accepted);
+    }
+
+    /// <summary>A guardian and a tender answer too, each with its own rites and its own refusal: a court is not one court.</summary>
+    [Fact]
+    public void TheWardensAnswerTheirOwnRites_NotTheCustodians()
+    {
+        using var profile = new TempProfile();
+        var setup = Harness.Boot(profile, "region.barrowworks", barrowworks: true).Setup;
+
+        var warden = setup.Combat.Creatures["creature.construct.gate_warden"].Duty;
+        var tender = setup.Combat.Creatures["creature.construct.gate_tender"].Duty;
+
+        Assert.NotEqual(warden.Rites[0].Id, tender.Rites[0].Id);
+        Assert.Null(warden.TokenId);
+        Assert.NotEqual(warden.Voice.Refused, tender.Voice.Refused);
+    }
+
+
     [Fact]
     public void TheCustodian_StandsInTheMeasuringCourt_LeavingTheVestibuleForRetreat()
     {

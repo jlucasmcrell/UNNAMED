@@ -420,6 +420,12 @@ public sealed record CreatureDefinition(
     public string? LootTableId { get; init; }
 
     /// <summary>
+    /// A duty construct's terms (CMB-43): how it may be stood down rather than broken. "None" for everything that must be fought, which
+    /// is every creature content does not give a <c>duty:</c> block.
+    /// </summary>
+    public DutyTerms Duty { get; init; } = DutyTerms.None;
+
+    /// <summary>
     /// The carcass this body leaves when it falls (D18 SYSTEMS, needed-2): a node kind a skinner can work. Null for a
     /// creature with nothing worth taking off it - HOOK.NODE.CARCASS asks for a body worth skinning after the kill, and
     /// this is the field that says which bodies are.

@@ -21,3 +21,17 @@ loot_table: loot.gate_warden
 perception: { sight_m: 24, hearing_m: 26, fov_deg: 120 }
 tier_hint: B
 tameable: false
+
+# CMB-43: the gate warden is a duty, not a kill - the canon's doorkeeper. It answers a word (the ward's own charge) and its rite is
+# closing a door behind you, which is the only thing a warden respects. No token: the gate does not read paper.
+duty:
+  routes: [word, rite]
+  words:
+    - "the gate is kept"
+  rites:
+    - { id: show_open_hands, asked: "It looks at your hands. It has been looking at hands longer than the gate has stood." }
+    - { id: close_behind, asked: "The ward steps aside a hand's width and waits for the door to be shut after you." }
+  voice:
+    called: "'Stop. The gate is kept.' It does not raise anything. It simply stands where the walking is."
+    accepted: "'Kept.' It steps back, and goes on standing, and will not remember your name - only that you shut the door."
+    refused: "'No.' The ward takes its old stance like a door closing."

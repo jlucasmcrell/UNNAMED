@@ -99,6 +99,14 @@ public sealed record CreatureView(EntityId Id, string Key, string DefId, string 
     public bool WeakPointOpen { get; init; } = true;
 }
 
+/// <summary>
+/// A duty construct was stood down rather than killed (CMB-43): which court answered, by which route, what was said or shown, and the tick.
+/// </summary>
+public sealed record ConstructStoodDown(EntityId Id, string Key, StandDownRoute Route, string? Argument, long Tick);
+
+/// <summary>A duty construct refused the attempt (CMB-43) and said so in its own voice: what it answered with is the reason.</summary>
+public sealed record StandDownRefused(EntityId Id, string Key, StandDownRoute Route, string Said, long Tick);
+
 public sealed record CreatureNoticed(EntityId Creature, string Key, CreatureMind Mind, long Tick);
 
 /// <summary>A creature called for help (a howl): packmates within earshot who answer calls come to it.</summary>
@@ -1069,6 +1077,47 @@ internal sealed class CreatureSystem : IAbstractAdvance
     // ── wounds and death ────────────────────────────────────────────────────
 
     /// <summary>A blow lands. Whatever the creature was doing, it now knows where its attacker stands.</summary>
+    /// <summary>A spawn key made into a flag id: a world flag is a definition id, so only lower-case letters, digits and dots stay.</summary>
+    private static string FlagKey(string key) =>
+        new(key.Select(c => char.IsAsciiLetterOrDigit(c) ? char.ToLowerInvariant(c) : '_').ToArray());
+
+    /// <summary>
+    /// CMB-43: a duty construct stands down when answered the way its court keeps - the right word, the token that is a right, or its ritual
+    /// in order. Standing down is not a kill: it keeps its post, its loot stays, and the court remembers the answer on its own world flag.
+    /// A construct with no terms, or a wrong answer, refuses in its own voice.
+    /// </summary>
+    public string? Handle(StandDownCommand command, long tick)
+    {
+        if (Find(command.Target) is not { Alive: true } c)
+            return "there is no such living construct";
+        if (c.Condition == CreatureCondition.StoodDown)
+            return "it is already standing down";
+        var terms = c.Definition.Duty;
+        if (!terms.AnswersAny)
+            return $"{c.Definition.Id} cannot be reasoned with";
+        // A right is a fact the world keeps, not a thing in a pocket: the court honours the flag its own grant set.
+        bool carriesToken = terms.TokenId is { } right && State.World.GetFlag(_context.CellOf(c.Body), "world.right." + right) != 0;
+        var result = StandDownRules.Answers(terms, new StandDownAttempt(command.Route, command.Argument, command.RiteStep, carriesToken));
+        if (!result.Accepted)
+        {
+            _context.Events.Publish(new StandDownRefused(c.Id, c.Key, command.Route, result.Said, tick));
+            return result.Said;
+        }
+
+        var stood = c with
+        {
+            Condition = CreatureCondition.StoodDown,
+            Action = ActionState.Begin(ActionKind.Idle, tick),
+            Mind = CreatureMind.Unaware,
+            Awareness = 0,
+            Knows = false,
+        };
+        Save(stood);
+        _context.Dispatch(new SetWorldFlag(_context.CellOf(c.Body), "world.standdown." + FlagKey(c.Key), 1));
+        _context.Events.Publish(new ConstructStoodDown(c.Id, c.Key, command.Route, command.Argument, tick));
+        return null;
+    }
+
     public string? Handle(WoundCreature command, long tick)
     {
         if (Find(command.Target) is not { Alive: true } c)

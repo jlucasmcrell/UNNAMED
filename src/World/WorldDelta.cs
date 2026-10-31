@@ -100,6 +100,12 @@ public enum CreatureCondition
 
     /// <summary>Dead and gone: looted, or never to return.</summary>
     Gone,
+
+    /// <summary>
+    /// Not dead and not coming: a duty construct that was stood down rather than broken (CMB-43). It keeps its post, takes no further
+    /// part in the fight, keeps its loot, and remembers - by world flag - that it was answered.
+    /// </summary>
+    StoodDown,
 }
 
 /// <summary>What a creature is doing about what it knows (SYSTEMS.md S-23's decision state; saved from schema 8).</summary>
