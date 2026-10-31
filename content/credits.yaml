@@ -195,7 +195,7 @@ sections:
       - binds: [creature_d5_stone_giant]
         text: "Giant stone Rigged Game Ready by Silent Wolf, BlenderKit Royalty Free License. Rescaled to one unit scale; Universal Animation Library takes by Quaternius (CC0) retargeted and slowed for Otherreach."
       - ledger: [A-W01]
-        binds: [creature_wm_]
+        binds: [creature_wm_, creature_doubled_hart]
         text: "Creature models and animations: WildMesh 3D (UNITY Animated Animals Realistic Pack; 100 MODELS), used under the WildMesh Standard licence."
         lines:
           - "Creature appearance corrections: native stag antler attachment and UV routing, natural hind and fox coats, juvenile hound proportions, and shorter mammoth tusks. Original WildMesh source models and textures retained."
