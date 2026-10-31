@@ -87,6 +87,12 @@ public static class ContributionRules
     /// <summary>Five per cent: below this a contribution is an assist and does not qualify for the encounter's rewards (E4).</summary>
     public const int QualifyingPermille = 50;
 
+    /// <summary>
+    /// The coin an encounter's credit is paid out of: a tenth of what the encounter was worth in experience, so the purse is a rule and not a
+    /// number each encounter chooses. A construct worth nothing pays nothing.
+    /// </summary>
+    public static long Purse(int xpValue) => Math.Max(0, xpValue) / 10;
+
     /// <summary>The weight of one landed blow.</summary>
     public static int Weigh(int damage, bool weakPoint) => Math.Max(0, damage) * (weakPoint ? WeakPointPermille : 1_000) / 1_000;
 

@@ -90,6 +90,38 @@ internal sealed class ContributionSystem
         var mine = shares.FirstOrDefault(s => s.ActorId == _player.Value);
         if (mine is { Qualified: true })
             _context.Dispatch(new SetWorldFlag(_context.CellOf(target.Body), "world.contribution.qualified", 1));
+
+        Pay((int)target.Definition.XpValue, shares, target.Key, tick);
+    }
+
+    /// <summary>
+    /// Pay the people who fought it (the MMO rule). The purse is derived from what the encounter was worth, so it is deterministic, and each
+    /// contributor takes their own per-mille of it. The character is paid by the reward systems that own a character's purse; an adventurer
+    /// is paid here, through <see cref="AdventurerShare"/>, which is the event the bounty purse split already speaks.
+    /// </summary>
+    private void Pay(int xpValue, ImmutableArray<ContributionShare> shares, string encounterKey, long tick)
+    {
+        long purse = ContributionRules.Purse(xpValue);
+        if (purse <= 0)
+            return;
+        foreach (var share in shares)
+        {
+            if (share.ActorId == _player.Value || !share.Qualified)
+                continue;
+            if (AdventurerOf(share.ActorId) is not { } key)
+                continue;
+            _context.Events.Publish(new AdventurerShare(key, encounterKey, purse * share.Permille / 1000, tick));
+        }
+    }
+
+    /// <summary>The adventurer behind a body's instance id, if the contributor is one: the same bodies the adventurer system embodies.</summary>
+    private string? AdventurerOf(string instanceId)
+    {
+        var id = EntityId.Parse(instanceId);
+        var agents = State.World.Adventurers?.Agents;
+        if (agents is null)
+            return null;
+        return agents.Values.FirstOrDefault(a => AdventurerSystem.InstanceIdOf(a.Key) == id)?.Key;
     }
 
     /// <summary>A spawn key or a region made into a flag id: a world flag is a definition id, so only lower-case letters, digits and dots stay.</summary>
