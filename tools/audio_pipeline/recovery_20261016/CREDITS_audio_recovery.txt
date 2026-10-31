@@ -369,3 +369,22 @@ Nothing from Sonniss, Cosmos, Kenney or OpenGameArt was fed to any AI model.
    mus.stinger.discovery.02: seed 23; prompt "short discovery fanfare phrase, wooden flute rising melody over a swelling fiddle drone, acoustic, wonder, ends on a held note"
    mus.title.01: seed 11; prompt "slow solemn folk theme, solo battered wooden flute melody over a soft fiddle drone, sparse frame drum, wide room reverb, warm acoustic, melancholic and hopeful, 70 bpm"
    mus.title.02: seed 23; prompt "slow solemn folk theme, solo battered wooden flute melody over a soft fiddle drone, sparse frame drum, wide room reverb, warm acoustic, melancholic and hopeful, 70 bpm"
+
+== Spell SFX (P2)
+   licence: Sonniss GDC 2026 licence: royalty-free, commercial use, no attribution; no redistribution as a library; owner rule: no AI/ML use
+   Cut from the library at one window, filtered and levelled to the magic family: cast -21.5 LUFS momentary max, flight -23,
+   impact -19, a resolution -22, an end -24; mono 48 kHz PCM_24. Window and loudness are in the audio manifest per file.
+   344 Audio - Elemental Palette Designed Vol. 1 / METLMisc_Metal, Slow Whoosh, Rattle, Pass By x4 01_344 Audio_Elemental Palette Designed Vol 1.wav  ->  sfx.magic.holdfast
+   344 Audio - Elemental Palette Designed Vol. 1 / WATRMisc_Water, Liquid Impact, Bubble, Sci Fi, Hit 04_344 Audio_Elemental Palette Designed Vol 1.wav  ->  sfx.magic.hush_the_sting
+   344 Audio - Elemental Palette Designed Vol. 1 / WINDDsgn_Wind, Rush, Whoosh, Long x5 01_344 Audio_Elemental Palette Designed Vol 1.wav  ->  sfx.magic.clear_the_dead_weight
+   Alexander Kopeikin - 100 kHz Designed Ice / ice, block of ice crushed, heavy-015.wav  ->  sfx.magic.shiver_spike
+   Alexander Kopeikin - 100 kHz Designed Ice / ice, crack, ice block snapping-001.wav  ->  sfx.magic.shiver_spike
+   Alexander Kopeikin - 100 kHz Designed Ice / ice, movement, ice drift, ice field cracking up, initial, wide-001.wav  ->  sfx.magic.shiver_spike
+   Alexander Kopeikin - Emotion and Magic / magic, drone, tension, spellbound, evanescence-002.wav  ->  sfx.magic.holdfast
+   Alexander Kopeikin - Emotion and Magic / magic, energy flow, astonishment-001.wav  ->  sfx.magic.ember_mend
+   Alexander Kopeikin - Emotion and Magic / magic, energy flow, astral travel-015.wav  ->  sfx.magic.clear_the_dead_weight
+   CB_Sounddesign - Applicable Sounds - Organic UI and Building Games SFX / GAMEMisc_Magic Creation 23_CB Sounddesign_APPlicable Sounds.wav  ->  sfx.magic.ember_mend
+   Epic Stock Media - Elemental Mutation Whooshes and Impacts / ELECMisc_Impact Electric Tonal Deep Movement Motion Hiss Glitch 01_ESM_EMWI.wav  ->  sfx.magic.hush_the_sting
+   Epic Stock Media - Elemental Mutation Whooshes and Impacts / FIREWhsh_Whoosh Fire Deep Growl Monster Saturated Crisp 03_ESM_EMWI.wav  ->  sfx.magic.cinder_dart
+   Epic Stock Media - Elemental Mutation Whooshes and Impacts / GLASMvmt_Whoosh Glass Crystal Fragments Sharp Shards Dry 05_ESM_EMWI.wav  ->  sfx.magic.shiver_spike
+   Epic Stock Media - Fantasy Game 2 - Sound Kit for Enchanted Realms / MAGAngl_Magic Light Spell Enchantment Potion Effect Tonal Bright 03_ESM_FG2.wav  ->  sfx.magic.holdfast
