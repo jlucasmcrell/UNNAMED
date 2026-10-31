@@ -246,6 +246,11 @@ public class ContentLoader
             _errors.AddRange(adventurerErrors);
             success &= adventurerErrors.Count == 0;
 
+            // Homes: the plots a character may claim and build on (HSG codes; GAPS_WORK_QUEUE #6)
+            var homeErrors = HousingContent.Validate(this);
+            _errors.AddRange(homeErrors);
+            success &= homeErrors.Count == 0;
+
             // Lore: the headings, the pages and the discoveries that open them (LOR codes; spec 41)
             var loreErrors = LoreContent.Validate(this);
             _errors.AddRange(loreErrors);

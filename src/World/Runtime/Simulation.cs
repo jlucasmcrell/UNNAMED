@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -130,6 +130,10 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
     public WeatherRules Weather { get; init; } = WeatherRules.Default;
 
+    /// <summary>Every home plot the pack defines, by id (HSG-; queue item #6).</summary>
+    public ImmutableSortedDictionary<string, UNNAMED.Domain.Housing.HomeDefinition> Homes { get; init; } =
+        ImmutableSortedDictionary<string, UNNAMED.Domain.Housing.HomeDefinition>.Empty;
+
     /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
     public FactionSetup Factions { get; init; } = FactionSetup.Empty;
 
@@ -248,6 +252,7 @@ public sealed class Simulation
     private readonly QuestSystem _quests;
     private readonly CoinSystem _coins = new();
     private readonly StashSystem _stash;
+    private readonly HomesSystem _homes;
     private readonly QuestDebugger _debugger;
     private readonly CompanionSystem _companions;
     private readonly SpaceSystem _spaces;
@@ -360,6 +365,7 @@ public sealed class Simulation
         _markets.Jobs = _npcs;
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _stash = new StashSystem(_context, player.Id);
+        _homes = new HomesSystem(_context, _state.Claim(nameof(HomesSystem), StateSlice.Homes), player.Id, setup.Homes);
         _quests.Listen(bus);
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
             new NpcPartyLife(Dispatch, _npcs.Lives, life))
@@ -719,6 +725,18 @@ public sealed class Simulation
     /// <summary>The character's one stash (owner ruling 2026-10-31): goods and coin held once, behind every door that opens.</summary>
     public UNNAMED.Domain.Economy.Stash Stash() => _stash.Stash;
 
+    /// <summary>Every plot the pack defines, by id (HSG-): what a home costs, what building it takes, and how much floor it has.</summary>
+    public ImmutableSortedDictionary<string, UNNAMED.Domain.Housing.HomeDefinition> Homes => Setup.Homes;
+
+    /// <summary>The homes the character holds, by plot id.</summary>
+    public ImmutableArray<UNNAMED.Domain.Housing.HomeState> Owned => _homes.Held;
+
+    /// <summary>
+    /// A home's chest as a storage point: the ONE shared stash behind one more door (owner ruling 2026-10-31). It opens once the house is built;
+    /// the housing lane keeps no store of its own, which is what makes goods put away at home reachable at a bank.
+    /// </summary>
+    public UNNAMED.Domain.Economy.StoragePoint? HomeStorage(string homeId) => _homes.Storage(homeId);
+
     public string? TradeRefusal(string npcId) => _state.Npcs.TryGetValue(npcId, out var npc) ? _npcs.TradeRefusal(npc) : null;
 
     /// <summary>
@@ -1016,7 +1034,11 @@ public sealed class Simulation
                 BuyCommand buy => _trade.Handle(buy, WorldTick),
                 SellCommand sell => _trade.Handle(sell, WorldTick),
                 BarterCommand barter => _trade.Handle(barter, WorldTick),
-                DepositToStashCommand put => _stash.Handle(put),
+                ClaimHomeCommand claim => _homes.Handle(claim, WorldTick),
+        BuildHomeCommand build => _homes.Handle(build, WorldTick),
+        PlaceFurnitureCommand furnish => _homes.Handle(furnish, WorldTick),
+        RemoveFurnitureCommand unfurnish => _homes.Handle(unfurnish, WorldTick),
+        DepositToStashCommand put => _stash.Handle(put),
                 WithdrawFromStashCommand take => _stash.Handle(take),
                 OrderCompanionCommand order => _companions.Handle(order, WorldTick),
                 ReviveCommand revive => _companions.Handle(revive, WorldTick),
@@ -1202,7 +1224,7 @@ public sealed class Simulation
             _state.Effects.GetValueOrDefault(_identity.Id, ImmutableArray<ActiveEffect>.Empty),
             _state.Relationships.SelectMany(n => n.Value.Select(d => new RelationshipValue(n.Key, d.Key, d.Value))),
             _state.Conversations.Select(c => new ConversationMemory(c.Key, c.Value.ToImmutableArray())),
-            _state.Quests.Values, _companions.Records())
+            _state.Quests.Values, _companions.Records(), _state.Homes)
         {
             Posture = dead ? Posture.Grounded : _state.Posture,
             Waystones = _travel.Records(),

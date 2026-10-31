@@ -1,0 +1,14 @@
+id: home.cairnwold.mill_plot
+kind: home
+schema: 1
+display_key: home.cairnwold.mill_plot.name
+tags: [home]
+name: The plot above the millpond
+notes: "Ground above Cairnwold's millpond, dry enough to build on and close enough to the water to matter. Berrin's lodge sells the claim; the village keeps the shore."
+region: starting_frontier
+at_m: [955.0, 640.0]
+price_coin: 400
+radius_m: 10.0
+build_materials:
+  - { item_ref: item.material.timber, count: 10 }
+  - { item_ref: item.material.iron_ore, count: 6 }

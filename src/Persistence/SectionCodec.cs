@@ -68,6 +68,11 @@ public sealed class PlayerDto
     /// <summary>Required from schema 12. The 11 -> 12 step gives older saves none: no one could join before M6.</summary>
     [Key("companions")] public CompanionDto[]? Companions { get; set; }
 
+
+
+    /// <summary>Required from schema 45 (HSG-): the plots the character has claimed, built and furnished. Older saves have none.</summary>
+    [Key("homes")] public HomeDto[]? Homes { get; set; }
+
     /// <summary>Required from schema 13. The 12 -> 13 step gives older saves a body standing on the ground (the owner's M6 playtest).</summary>
     [Key("posture")] public PostureDto? Posture { get; set; }
 
@@ -1107,6 +1112,18 @@ public static class SectionCodec
                     .ToArray(),
             })
             .ToArray(),
+        Homes = player.Homes.Select(h => new HomeDto
+        {
+            HomeId = h.HomeId,
+            Built = h.Built,
+            Furniture = h.Furniture.Select(f => new FurnitureDto
+            {
+                ItemId = f.ItemId,
+                XMm = f.XMm,
+                ZMm = f.ZMm,
+                FacingMdeg = f.FacingMdeg,
+            }).ToArray(),
+        }).ToArray(),
         Companions = player.Companions
             .Select(c => new CompanionDto
             {
@@ -1319,6 +1336,13 @@ public static class SectionCodec
         var relationships = dto.Relationships ?? throw new FormatException("player.msgpack has no relationships (required from schema 10)");
         var conversations = dto.Conversations ?? throw new FormatException("player.msgpack has no conversations (required from schema 10)");
         var quests = dto.Quests ?? throw new FormatException("player.msgpack has no quests (required from schema 11)");
+        // A save from before schema 45 has no homes, which is what a character who never claimed a plot holds.
+        var homes = (dto.Homes ?? Array.Empty<HomeDto>())
+            .Select(h => new UNNAMED.Domain.Housing.HomeState(h.HomeId, h.Built,
+                (h.Furniture ?? Array.Empty<FurnitureDto>())
+                    .Select(f => new UNNAMED.Domain.Housing.FurniturePlacement(f.ItemId, f.XMm, f.ZMm, f.FacingMdeg))
+                    .ToImmutableArray()))
+            .ToArray();
         var companions = dto.Companions ?? throw new FormatException("player.msgpack has no companions (required from schema 12)");
         var posture = dto.Posture ?? throw new FormatException("player.msgpack has no posture (required from schema 13)");
         var waystones = dto.Waystones ?? throw new FormatException("player.msgpack has no Waystone records (required from schema 15)");
@@ -1404,7 +1428,7 @@ public static class SectionCodec
                 q.Objectives.Select(o => new ObjectiveState(o.Id,
                     QuestKeys.ParseObjective(o.Status) ?? throw new FormatException($"objective {o.Id} of {q.QuestId} has status '{o.Status}'"),
                     o.ActivatedTick, o.EndedTick, o.Progress)).ToImmutableArray())),
-            companions.Select(Companion).Select(c => focusTargets.Contains(c.NpcId) ? c with { Tactics = c.Tactics with { FocusTarget = true } } : c))
+            companions.Select(Companion).Select(c => focusTargets.Contains(c.NpcId) ? c with { Tactics = c.Tactics with { FocusTarget = true } } : c), homes)
         {
             Posture = new Posture(stance, posture.Airborne, posture.AirMs) { Wing = dto.Wings is { } wings ? ParseWing(wings.Wing) : WingState.Folded, FeetMm = dto.Wings?.FeetMm ?? 0 },
             Waystones = waystones.Select(w => new WaystoneRecord(w.Stone, w.Region,
@@ -1900,4 +1924,23 @@ public static class SectionCodec
 
     /// <summary>Manifest JSON options, shared with the migration chain, which edits the manifest as JSON.</summary>
     public static JsonSerializerOptions ManifestOptions => ManifestJson;
+}
+
+/// <summary>One home in the save: the plot, whether the house stands, and what furniture is in it.</summary>
+[MessagePackObject]
+public sealed class HomeDto
+{
+    [Key("home")] public string HomeId { get; set; } = "";
+    [Key("built")] public bool Built { get; set; }
+    [Key("furniture")] public FurnitureDto[]? Furniture { get; set; }
+}
+
+/// <summary>One piece of furniture standing in a home: what it is, where, and which way it faces.</summary>
+[MessagePackObject]
+public sealed class FurnitureDto
+{
+    [Key("item")] public string ItemId { get; set; } = "";
+    [Key("x_mm")] public long XMm { get; set; }
+    [Key("z_mm")] public long ZMm { get; set; }
+    [Key("facing")] public int FacingMdeg { get; set; }
 }

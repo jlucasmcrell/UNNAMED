@@ -254,7 +254,8 @@ public sealed record PlayerRecord
         CharacterProgression? progression = null, int facingMdeg = 0, IEnumerable<DiscoveryRecord>? discoveries = null,
         IEnumerable<KeyValuePair<EquipSlot, EntityId>>? equipment = null, long currency = 0, IEnumerable<ActiveEffect>? effects = null,
         IEnumerable<RelationshipValue>? relationships = null, IEnumerable<ConversationMemory>? conversations = null,
-        IEnumerable<QuestState>? quests = null, IEnumerable<CompanionRecord>? companions = null)
+        IEnumerable<QuestState>? quests = null, IEnumerable<CompanionRecord>? companions = null,
+        IEnumerable<UNNAMED.Domain.Housing.HomeState>? homes = null)
     {
         if (id.Kind != EntityKind.Character)
             throw new ArgumentException($"The player's instance ID must be a character ID, got {id}", nameof(id));
@@ -356,6 +357,8 @@ public sealed record PlayerRecord
         if (Quests.Select(q => q.QuestId).Distinct(StringComparer.Ordinal).Count() != Quests.Length)
             throw new ArgumentException("A quest is recorded once", nameof(quests));
         Companions = (companions ?? Array.Empty<CompanionRecord>()).OrderBy(c => c.NpcId, StringComparer.Ordinal).ToImmutableArray();
+        Homes = (homes ?? Array.Empty<UNNAMED.Domain.Housing.HomeState>())
+            .OrderBy(h => h.HomeId, StringComparer.Ordinal).ToImmutableArray();
         foreach (var c in Companions)
         {
             bool down = c.Condition == CompanionCondition.Downed;
@@ -721,6 +724,10 @@ public sealed record PlayerRecord
 
     /// <summary>The companions the character has recruited, sorted by NPC (SYSTEMS.md S-25). Schema 12.</summary>
     public ImmutableArray<CompanionRecord> Companions { get; }
+
+    /// <summary>The homes the character holds, sorted by plot (HSG-; queue item #6). Schema 45.</summary>
+    public ImmutableArray<UNNAMED.Domain.Housing.HomeState> Homes { get; }
+
 
     /// <summary>
     /// Standing or crouched, and how far into a jump (the owner's M6 playtest). Schema 13: a save made crouched under an overhang, or in

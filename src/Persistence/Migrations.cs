@@ -127,7 +127,12 @@ public static class SchemaMigrations
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
-        new SchemaV39ToV40());
+        new SchemaV39ToV40(),
+        new SchemaV40ToV41(),
+        new SchemaV41ToV42(),
+        new SchemaV42ToV43(),
+        new SchemaV43ToV44(),
+        new SchemaV44ToV45());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2112,6 +2117,81 @@ public sealed class SchemaV39ToV40 : SchemaMigration
             next.Crossing = new CrossingDto();
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
         }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+
+/// <summary>
+/// Schema 40 -> 41: a version this branch carries no change between. The number belongs to another lane; the step exists so an older save has a
+/// chain to this build's 45, and it rewrites nothing but the manifest.
+/// </summary>
+public sealed class SchemaV40ToV41 : SchemaMigration
+{
+    public override int From => 40;
+
+    public override string Summary => "schema 40 -> 41: no change on this branch (the number belongs to another lane)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Schema 41 -> 42: no change on this branch, as above.</summary>
+public sealed class SchemaV41ToV42 : SchemaMigration
+{
+    public override int From => 41;
+
+    public override string Summary => "schema 41 -> 42: no change on this branch (the number belongs to another lane)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Schema 42 -> 43: no change on this branch, as above.</summary>
+public sealed class SchemaV42ToV43 : SchemaMigration
+{
+    public override int From => 42;
+
+    public override string Summary => "schema 42 -> 43: no change on this branch (the number belongs to another lane)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Schema 43 -> 44: no change on this branch, as above.</summary>
+public sealed class SchemaV43ToV44 : SchemaMigration
+{
+    public override int From => 43;
+
+    public override string Summary => "schema 43 -> 44: no change on this branch (the number belongs to another lane)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>Schema 44 -> 45: the homes arrive (HSG-; queue item #6). Absent means none, so nothing is rewritten but the manifest.</summary>
+public sealed class SchemaV44ToV45 : SchemaMigration
+{
+    public override int From => 44;
+
+    public override string Summary =>
+        "schema 44 -> 45: the player may hold homes, built and furnished (absent means none, so nothing is rewritten)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

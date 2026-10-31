@@ -1,0 +1,14 @@
+id: home.ashen_hollow.waystation_plot
+kind: home
+schema: 1
+display_key: home.ashen_hollow.waystation_plot.name
+tags: [home]
+name: The plot behind the waystation
+notes: "A walled-off yard behind Renn's waystation, where the stone is already laid and the wayward wall still stands. Renn sells the claim, the wayhold keeps the ground, and what a body builds there is theirs."
+region: starting_frontier
+at_m: [476.0, 736.0]
+price_coin: 250
+radius_m: 9.0
+build_materials:
+  - { item_ref: item.material.timber, count: 6 }
+  - { item_ref: item.material.iron_ore, count: 4 }

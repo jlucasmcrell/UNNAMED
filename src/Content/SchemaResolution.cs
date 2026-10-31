@@ -325,6 +325,14 @@ public static class ContentKindRegistry
             IdPrefix: "piece"
         );
 
+        // 32b. home - a plot a character may claim and build on, with the chest that reaches their shared stash (HSG-; queue #6)
+        kinds["home"] = new ContentKindDefinition(
+            Kind: "home",
+            FullKind: "home",
+            Directory: "homes",
+            IdPrefix: "home"
+        );
+
         // 33. chatter - a file of chat lines: the ambient corpus or the LFG, news and system templates (WP16)
         kinds["chatter"] = new ContentKindDefinition(
             Kind: "chatter",

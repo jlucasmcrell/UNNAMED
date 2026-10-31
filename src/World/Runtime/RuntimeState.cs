@@ -86,6 +86,9 @@ public enum StateSlice
     /// <summary>Every quest the player has started, with its objectives (S-29; M5). Saved with the player (schema 11).</summary>
     Quests,
 
+    /// <summary>The homes a character holds: plots claimed, whether each is built, and the furniture standing in it (HSG-; queue #6).</summary>
+    Homes,
+
     /// <summary>The companions the player has recruited (S-25; M6). Saved with the player (schema 12); a companion's body is an NPC's.</summary>
     Companions,
 
@@ -183,6 +186,7 @@ internal sealed class RuntimeState
         Conversations = player.Conversations.ToImmutableSortedDictionary(c => c.DialogueId, c => c.Heard.ToImmutableSortedSet(StringComparer.Ordinal),
             StringComparer.Ordinal);
         Quests = player.Quests.ToImmutableSortedDictionary(q => q.QuestId, q => q, StringComparer.Ordinal);
+        Homes = player.Homes;
         RoadsWalked = player.RoadsWalked.ToImmutableSortedSet(StringComparer.Ordinal);
         KnownStones = player.Waystones.ToImmutableSortedDictionary(w => w.StoneKey, w => w, StringComparer.Ordinal);
         ReturnPoint = player.ReturnPoint;
@@ -251,6 +255,10 @@ internal sealed class RuntimeState
     public ImmutableSortedDictionary<string, ImmutableSortedSet<string>> Conversations { get; private set; }
     public Conversation? Conversation { get; private set; }
     public ImmutableSortedDictionary<string, QuestState> Quests { get; private set; }
+    /// <summary>The homes the character holds, by plot id (HSG-; queue item #6). Schema 45.</summary>
+    public ImmutableArray<UNNAMED.Domain.Housing.HomeState> Homes { get; private set; } =
+        ImmutableArray<UNNAMED.Domain.Housing.HomeState>.Empty;
+
     public ImmutableSortedDictionary<string, CompanionState> Companions { get; private set; } =
         ImmutableSortedDictionary.Create<string, CompanionState>(StringComparer.Ordinal);
     public ImmutableSortedDictionary<string, DeedTally> Deeds { get; private set; }
@@ -383,6 +391,13 @@ internal sealed class RuntimeState
     {
         Require(owner, StateSlice.PlayerProgression);
         Progression = progression.Validate();
+    }
+
+    /// <summary>The homes a character holds, ordered by plot id: one entry per plot claimed (HSG-; queue item #6).</summary>
+    public void SetHomes(SliceOwner owner, ImmutableArray<UNNAMED.Domain.Housing.HomeState> homes)
+    {
+        Require(owner, StateSlice.Homes);
+        Homes = homes.OrderBy(h => h.HomeId, StringComparer.Ordinal).ToImmutableArray();
     }
 
     public void AddDiscovery(SliceOwner owner, DiscoveryRecord record)
