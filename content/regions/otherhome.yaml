@@ -61406,9 +61406,6 @@ structures:
 - id: oh_nq_cargo_02_5
   box_m: [1255.3, 415.6, 1256.52, 416.18]
   height_m: 0.41
-- id: oh_nq_flake_03
-  box_m: [1263.0, 419.0, 1263.2, 424.7]
-  height_m: 1.17
 - id: oh_nq_cargo_04_0
   box_m: [1254.0, 426.5, 1254.66, 427.16]
   height_m: 0.34
@@ -61445,9 +61442,6 @@ structures:
 - id: oh_nq_cargo_06_4
   box_m: [1254.0, 440.1, 1255.22, 440.68]
   height_m: 0.41
-- id: oh_nq_flake_07
-  box_m: [1263.0, 443.5, 1263.2, 449.2]
-  height_m: 1.17
 - id: oh_nq_cargo_08_0
   box_m: [1254.0, 451.0, 1254.68, 451.68]
   height_m: 0.75
@@ -61481,9 +61475,6 @@ structures:
 - id: oh_nq_cargo_10_5
   box_m: [1255.3, 464.6, 1256.52, 465.18]
   height_m: 0.41
-- id: oh_nq_flake_11
-  box_m: [1263.0, 468.0, 1263.2, 473.7]
-  height_m: 1.17
 - id: oh_nq_cargo_12_0
   box_m: [1254.0, 475.5, 1254.66, 476.16]
   height_m: 0.34
