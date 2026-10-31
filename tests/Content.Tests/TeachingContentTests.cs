@@ -143,7 +143,7 @@ public class TeachingContentTests
         }));
         Assert.Equal(new[]
         {
-            TechniqueKind.Blow, TechniqueKind.GuardBeat, TechniqueKind.Parry, TechniqueKind.Blow, TechniqueKind.SteadyDraw,
+            TechniqueKind.GuardBeat, TechniqueKind.Parry, TechniqueKind.Blow, TechniqueKind.Blow, TechniqueKind.SteadyDraw,
             TechniqueKind.GapThrust, TechniqueKind.QuietBlade, TechniqueKind.GivingGround, TechniqueKind.Blow, TechniqueKind.SetAgainstCharge,
         }, techniques.Values.Select(t => t.Kind));
         var strike = techniques["ability.blade.power_strike"];

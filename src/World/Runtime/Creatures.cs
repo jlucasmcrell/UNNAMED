@@ -548,7 +548,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
         };
         var (phase, _) = combat.Action.PhaseAt(State.WorldTick + 1, C);
         // A quiet blade spends nothing noisy: no shout, no clatter, no swing for anything to hear.
-        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active && combat.Action.Attack is { Silent: false })
+        if (combat.Action.Kind == ActionKind.Attack && phase is CombatPhase.Windup or CombatPhase.Active
+            && combat.Action.Attack is not { Silent: true })
             radius = Math.Max(radius, sound.SwingMm);
         // A stealthy character makes less of every sound (finding 26: -15/30/45% of the effective radius by rank).
         if (radius > 0)
@@ -908,9 +909,10 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
         // A human-like body holds its guard while it is within reach of the character and not committed to a blow of its own: the stance
         // canon calls human-like defence, and the guard a guard beat exists to take away (CMB-24). It answers a tell, and answers a body
-        // standing in front of it.
+        // standing in front of it. Only people: a construct's plate is the Barrowworks' own problem, and a guard there would make the gate
+        // unkillable for a character who has not learned the beat.
         var character = State.PlayerCombat.Action;
-        if (c.Definition.Family is "humanoid" or "construct" && c.Knows && clear
+        if (c.Definition.Family is "humanoid" && c.Knows && clear
             && distance <= attack.ReachMm + _context.Setup.Movement.BodyRadiusMm + 1_500)
         {
             int guardFor = character.Kind == ActionKind.Attack && character.PhaseAt(tick, C).Phase == CombatPhase.Windup

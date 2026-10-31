@@ -59,17 +59,24 @@ public class TeachingTests
         Assert.Equal(new[] { "recipe.smithing.torch", "recipe.cooking.torch", "recipe.cooking.boil_water", "recipe.cooking.herb_tea",
             "recipe.herbal.salve_minor_boiled", Billet, "recipe.smithing.march_spear", "recipe.fletching.arrows", "recipe.fletching.hunting_bow",
             "recipe.fletching.hunting_bow_silk", "recipe.smithing.lamework_jack", "recipe.smithing.lame_coif", "recipe.smithing.lame_sabatons",
-            "recipe.smithing.fitting_wedge", PowerStrike }, view.Lessons.Select(l => l.DefinitionId));
+            "recipe.smithing.fitting_wedge", PowerStrike, "ability.blade.parry", "ability.blade.beat_the_guard" },
+            view.Lessons.Select(l => l.DefinitionId));
         Assert.All(view.Lessons.Take(8), l => Assert.True(l.ByDialogue && l.Fee == 0 && l.Met));
         // The Barrowworks wedge waits on the ring being reachable, which it never is with the Barrowworks off.
         var wedge = view.Lessons.Single(l => l.DefinitionId == "recipe.smithing.fitting_wedge");
         Assert.False(wedge.Met);
         Assert.IsType<FlagRequirement>(Assert.Single(wedge.Requirements).Requirement);
-        var strike = view.Lessons.Last();
+        var strike = view.Lessons.Single(l => l.DefinitionId == PowerStrike);
         Assert.Equal((TeachingKind.Technique, 25L, false, false), (strike.Kind, strike.Fee, strike.Known, strike.ByDialogue));
         var gate = Assert.Single(strike.Requirements);
         Assert.Equal((new SkillBandRequirement(Blade, "familiar", 15) as TeachingRequirement, false, 4L), (gate.Requirement, gate.Met, gate.Have));
         Assert.False(strike.Met);
+        // The slice's two blade techniques come from the same forge, and the guard-beat waits on the parry (CMB-24).
+        var parry = view.Lessons.Single(l => l.DefinitionId == "ability.blade.parry");
+        Assert.Equal((TeachingKind.Technique, 25L, false, false), (parry.Kind, parry.Fee, parry.Known, parry.ByDialogue));
+        var beat = view.Lessons.Single(l => l.DefinitionId == "ability.blade.beat_the_guard");
+        Assert.Equal(2, beat.Requirements.Length);
+        Assert.False(beat.Met);
         Assert.Null(arena.Simulation.Teaching("npc.ashen_hollow.renn_vale"));   // Renn teaches nothing
     }
 
