@@ -107,7 +107,7 @@ public partial class BossEffects : Node3D
         GIMode = GeometryInstance3D.GIModeEnum.Disabled,
     };
 
-    private static ArrayMesh Ground(Vector3 feet, float yaw, float reach, float arc, float laneWidth,
+    internal static ArrayMesh Ground(Vector3 feet, float yaw, float reach, float arc, float laneWidth,
         float lift, Func<float, float, float> ground)
     {
         var surface = new SurfaceTool();
