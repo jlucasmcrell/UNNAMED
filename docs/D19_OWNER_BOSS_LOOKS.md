@@ -46,7 +46,7 @@ delivery. Every body and motion is subject to Claude's eye before integration.
 |---|---|
 | Gate Warden | MR-0002 accepted stone giant; this one retains it |
 | First Formed | MR-0150 native rock golem, fixed Kal wing-frame rigid to chest |
-| Foreman Nine | MR-0161 elo pez7 Unit 666 industrial maintenance body; newly rigid-part rigged |
+| Foreman Nine | MR-0161 elopez7 Unit 666 industrial maintenance body; newly rigid-part rigged |
 | Salt Walker | MR-0136 Colorado Stark native exo-frame; native 43-joint rig, newly authored motion |
 | Under the Stairs | MR-0142 piacenti Octobot's complete rigged eight-limbed assembly, native worn-material variant |
 | Specification | A distributed field of native Unit 666 armour plates; no humanoid body/head/limbs |
@@ -65,3 +65,13 @@ reuse only identical embedded-image hashes and roles. No reduced-quality path.
 
 These seven candidates are not a claim that all 35 D19 boss appearances are
 finished. B-008 and the real cave/warden context frames remain next in the queue.
+
+## Matriarch native close evidence completed
+
+`matriarch_native_close`: 12 native originals and every one of 18 one-second
+samples personally inspected. The native spider is complete and articulated;
+its leap and curling death read without wrong-rig distortion. 546 frames /
+18.2 seconds, decode clean, process exit 0, 61.532-second lease. Producer
+review is not Claude acceptance. Exact art/cache delivery is pinned in
+`D19_MATRIARCH_ART_DELIVERY.json`. Real cave context remains a separate queued
+check. The initial over-wide proof is retained as rejected framing.
