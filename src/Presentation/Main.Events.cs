@@ -49,6 +49,18 @@ public partial class Main
     private void Subscribe()
     {
         SubscribeDenGorge();
+        _session.Subscribe<RivalTaunted>(e =>
+        {
+            if (e.Moment == UNNAMED.Domain.Social.RivalMoment.Met
+                && SettingsStore.Current.Profile.Interface.Shows(NoticeKind.World)
+                && _session.Simulation!.Rivals().FirstOrDefault(r => r.NpcId == e.NpcId) is { } rival)
+            {
+                var card = NoticeBoardModel.Rivals(new[] { rival },
+                    id => _session.Setup.Social.Npcs.GetValueOrDefault(id)?.Rival, id => Names.Of(_session, id))[0];
+                _hud.Announce(card.Name, $"{card.Identity} · {card.Regard}", HudStyle.Brass);
+            }
+            Notice(NoticeKind.World, $"{e.Name}: {e.Line}", 6);
+        });
         // A wild animal's offer says its odds while it stands, and why it failed when it does: the number here is the one the roll used, so
         // what the meat, the approach and the Handling skill bought the character is visible (spec 43's taming).
         _session.Subscribe<TameAttempted>(e =>

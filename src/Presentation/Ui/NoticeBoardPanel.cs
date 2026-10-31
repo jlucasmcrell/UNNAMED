@@ -70,12 +70,14 @@ public partial class NoticeBoardPanel : CanvasLayer
         var contracts = NoticeBoardModel.Contracts(simulation.Bounties, simulation.PlayerId,
             id => _session.Setup.Quests.Quests.GetValueOrDefault(id), id => Names.Of(_session, id));
         var away = NoticeBoardModel.Away(simulation.Adventurers, id => Names.Of(_session, id));
-        string signature = $"{simulation.WorldTick}|{string.Join(",", contracts.Select(c => $"{c.Title}:{c.Facts}:{c.Taken}"))}|" +
-                           string.Join(",", away.Select(a => $"{a.Name}:{a.Doing}"));
+        var rivals = NoticeBoardModel.Rivals(simulation.Rivals(),
+            id => _session.Setup.Social.Npcs.GetValueOrDefault(id)?.Rival, id => Names.Of(_session, id));
+        string signature = $"{string.Join(",", contracts.Select(c => $"{c.Title}:{c.Facts}:{c.Taken}"))}|" +
+                           string.Join(",", away.Select(a => $"{a.Name}:{a.Doing}")) + "|" + string.Join("|", rivals);
         if (signature == _drawn)
             return;
         _drawn = signature;
-        Build(contracts, away);
+        Build(contracts, away, rivals);
     }
 
     private static long Distance(Domain.Spatial.StationSite board, Domain.Spatial.Body body)
@@ -85,7 +87,8 @@ public partial class NoticeBoardPanel : CanvasLayer
     }
 
     private void Build(System.Collections.Immutable.ImmutableArray<NoticeContract> contracts,
-        System.Collections.Immutable.ImmutableArray<NoticeAway> away)
+        System.Collections.Immutable.ImmutableArray<NoticeAway> away,
+        System.Collections.Immutable.ImmutableArray<NoticeRival> rivals)
     {
         UiKit.Clear(_sheet.Body);
         // The rules of the board are said once, in its header; each line carries the facts of its own contract.
@@ -100,6 +103,19 @@ public partial class NoticeBoardPanel : CanvasLayer
             work.AddChild(row.Root);
         }
         _sheet.Body.AddChild(work);
+
+        if (!rivals.IsEmpty)
+        {
+            var competitors = UiKit.Section("Other hands on the board", "adventurers who work the same postings");
+            foreach (var rival in rivals)
+            {
+                var card = UiKit.Section(rival.Name, rival.Identity, HudStyle.Bone);
+                card.AddChild(UiKit.Words(rival.Regard, 18, HudStyle.Brass));
+                card.AddChild(UiKit.Quiet(rival.Tally));
+                competitors.AddChild(card);
+            }
+            _sheet.Body.AddChild(competitors);
+        }
 
         var outOnTheirDay = UiKit.Section("Out on their day", "the beds that are unmade and the seats that are empty");
         if (away.IsEmpty)
