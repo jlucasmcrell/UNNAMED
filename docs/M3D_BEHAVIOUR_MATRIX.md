@@ -27,12 +27,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Creature | Opens with | Tell at m | Lands from m | Arrow to blow s | Runs down a sprinter | Sword kill s (fighter died) | Death standing s | Walker seen at m | Sprinter heard at m |
 |---|---|---|---|---|---|---|---|---|---|
-| Ash Ember Hound | Rush | 5.9 | 0.7 | 2.5 | yes, 6.4 s (Ember Lunge) | 3.4 (0/8) | 12.5 | 31.2 | 15.7 |
-| Bone Walker Husk | Rush | 3.8 | 2.6 | 5.1 | no | 6.4 (0/8) | 12.7 | 19.6 | 15.8 |
-| Animated Armour | Rush | 6.0 | 0.8 | 4.9 | no | no kill (8/8) | 4.8 | 16.1 | 15.8 |
-| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | no | 10.3 (0/8) | 7.3 | 21.8 | 15.8 |
-| Cave Hunting Spider | Rush | 4.2 | 1.1 | 3.1 | no | 4.5 (0/8) | 13.2 | 6.0 | 13.7 |
-| Grey Wolf | Rush | 5.8 | 0.9 | 3.0 | no | 4.9 (0/8) | 18.1 | 27.6 | 15.8 |
+| Ash Ember Hound | Rush | 5.9 | 0.7 | 2.5 | yes, 6.4 s (Ember Lunge) | 3.4 (0/8) | 12.5 | 31.2 | 17.0 |
+| Bone Walker Husk | Rush | 3.8 | 2.6 | 5.1 | no | 6.4 (0/8) | 11.6 | 19.6 | 17.1 |
+| Animated Armour | Rush | 6.0 | 0.8 | 4.9 | no | no kill (8/8) | 4.3 | 16.1 | 17.1 |
+| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | no | 10.3 (0/8) | 7.3 | 21.8 | 17.1 |
+| Cave Hunting Spider | Rush | 5.3 | 1.1 | 3.0 | no | 4.5 (0/8) | 12.8 | 6.0 | 13.7 |
+| Grey Wolf | Rush | 5.8 | 0.9 | 3.0 | no | 4.9 (0/8) | 18.8 | 27.6 | 17.0 |
 
 ## Roles (content)
 
@@ -60,6 +60,13 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Spawner | At (x, z) m | Creatures, each in its role | Returns |
 |---|---|---|---|
+| spawn.boss.ashen_hollow.wayholder_trial | (472, 738) | The Gate Tender as sentinel | after 3.0 min |
+| spawn.boss.cairnwold.the_unpaid | (430, 770) | Barrowback as territorial | after 10.0 min |
+| spawn.boss.den_gorge.matriarch | (541, 785) | Hunting Spider Matriarch as sentinel | no |
+| spawn.boss.field_ruins.gate_warden.deep | (866, 762) | The Gate Warden as sentinel | no |
+| spawn.boss.foldscar.doubled_hart | (541, 636) | The Doubled Hart as sentinel | no |
+| spawn.boss.old_late.the_breath_late | (521, 767) | The Breath Late as sentinel | after 4.0 min |
+| spawn.boss.the_road.old_grey | (476, 762) | Grey Alpha as den_alpha | after 6.0 min |
 | spawn.cairnwold.barrow_sentinel | (928, 772) | Animated Armour as sentinel | after 60.0 min |
 | spawn.cairnwold.birch_boar | (946, 748) | Bristleback Boar as territorial | after 30.0 min |
 | spawn.cairnwold.birch_deer | (1082, 730) | Timber Hind as skittish x2, Timber Stag as skittish | after 30.0 min |
@@ -70,18 +77,16 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.cairnwold.moor_hares | (1000, 700) | Frost Hare as wildlife x3 | after 30.0 min |
 | spawn.cairnwold.moor_strays | (1024, 753) | Grey Wolf as stray, Grey Wolf as roamer x2 | after 20.0 min |
 | spawn.cairnwold.outfall_hares | (1060, 640) | Frost Hare as wildlife x2 | after 30.0 min |
-| spawn.den_gorge.matriarch | (516, 763) | Hunting Spider Matriarch as sentinel | no |
 | spawn.den_gorge.young | (541, 785) | Cave Hunting Spider as sentinel x2 | no |
 | spawn.field.breach_northeast | (867, 736) | Animated Armour as sentinel | after 60.0 min |
 | spawn.field.breach_south | (846, 777) | Animated Armour as sentinel | after 144.0 min |
 | spawn.field.breach_west | (824, 758) | Animated Armour as sentinel | after 60.0 min |
-| spawn.field.gate_warden | (866, 762) | Gate Warden as sentinel | no |
 | spawn.field.tenders_east | (873, 727) | Gate Tender as sentinel x2 | after 60.0 min |
 | spawn.field.tenders_needle | (912, 752) | Gate Tender as sentinel x2 | after 144.0 min |
 | spawn.field.tenders_north | (830, 716) | Gate Tender as roamer x2 | after 60.0 min |
 | spawn.field.tenders_south | (856, 792) | Gate Tender as sentinel x2 | after 144.0 min |
 | spawn.field.tenders_west | (800, 760) | Gate Tender as roamer x2 | after 60.0 min |
-| spawn.foldscar.pack | (556, 664) | Grey Wolf as pack_hunter x2 | after 30.0 min |
+| spawn.foldscar.pack | (558.5, 710) | Grey Wolf as pack_hunter x2 | after 30.0 min |
 | spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | after 30.0 min |
 | spawn.hollow.charwood_deer | (612, 718) | Timber Hind as skittish x2, Timber Stag as skittish | after 30.0 min |
 | spawn.hollow.charwood_fox | (590, 700) | Lantern Fox as wildlife | after 30.0 min |
