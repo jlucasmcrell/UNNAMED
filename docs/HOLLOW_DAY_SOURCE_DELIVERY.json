@@ -1,32 +1,635 @@
 {
-  "status": "IN_PROGRESS_SOURCE_CANDIDATES",
-  "production_install": false,
-  "visual_verdict": null,
-  "files": [
-    {
-      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\HollowDay_Source.blend",
-      "bytes": 46364378,
-      "sha256": "0f9c29533e485267baee0d6b65a61405d00a2a59bf0b27801fcc2d36f809e7d9"
+  "status": "FINISHED_VISUAL_IMPLEMENTATION_HANDOFF_CLAUDE_VERDICT_PENDING",
+  "branch": "visual/hollow-day",
+  "runtime_public_source": "2892165d plus tower placement [435,737]",
+  "gallery": {
+    "status": "NATIVE_CALENDAR_DRESSING_REQUIRES_REVIEW",
+    "evidence": [
+      {
+        "name": "ORDINARY_DAY",
+        "tick": 152,
+        "festivals": [
+          {
+            "Id": "festival.frontier.tally_turning",
+            "Name": "The Tally's Turning",
+            "RegionId": "region.starting_frontier",
+            "SiteXMm": 438000,
+            "SiteZMm": 725850,
+            "SiteFacingMdeg": 0,
+            "Gathering": false,
+            "FromHour": 9,
+            "ToHour": 13,
+            "Day": 1101,
+            "Site": {
+              "XMm": 438000,
+              "ZMm": 725850,
+              "FacingMdeg": 0
+            }
+          }
+        ],
+        "visible": 0,
+        "camera": "(450, 14.2, 756)"
+      },
+      {
+        "name": "HOLLOW_DAY",
+        "tick": 10494038,
+        "festivals": [
+          {
+            "Id": "festival.frontier.hollow_day",
+            "Name": "Hollow Day",
+            "RegionId": "region.starting_frontier",
+            "SiteXMm": 434000,
+            "SiteZMm": 744000,
+            "SiteFacingMdeg": 180,
+            "Gathering": true,
+            "FromHour": 10,
+            "ToHour": 16,
+            "Day": 1001,
+            "Site": {
+              "XMm": 434000,
+              "ZMm": 744000,
+              "FacingMdeg": 180
+            }
+          }
+        ],
+        "visible": 5,
+        "camera": "(450, 14.2, 756)"
+      },
+      {
+        "name": "NEXT_DAY",
+        "tick": 10551600,
+        "festivals": [
+          {
+            "Id": "festival.frontier.tally_turning",
+            "Name": "The Tally's Turning",
+            "RegionId": "region.starting_frontier",
+            "SiteXMm": 438000,
+            "SiteZMm": 725850,
+            "SiteFacingMdeg": 0,
+            "Gathering": true,
+            "FromHour": 9,
+            "ToHour": 13,
+            "Day": 2101,
+            "Site": {
+              "XMm": 438000,
+              "ZMm": 725850,
+              "FacingMdeg": 0
+            }
+          }
+        ],
+        "visible": 0,
+        "camera": "(450, 14.2, 756)"
+      }
+    ],
+    "frames": 99,
+    "places_sha256": "a951447a3127d5c6519a0d67424b9ffdf0af1b28962895c06d8e6589a3936f8c",
+    "art_problems": {
+      "env_ph_dead_tree_trunk": "no file at ready\\env_ph_dead_tree_trunk\\env_ph_dead_tree_trunk.glb",
+      "env_ph_tree_stump_01": "no file at ready\\env_ph_tree_stump_01\\env_ph_tree_stump_01.glb",
+      "env_ph_wine_barrel_01": "no file at ready\\env_ph_wine_barrel_01\\env_ph_wine_barrel_01.glb",
+      "env_ph_wooden_crate_01": "no file at ready\\env_ph_wooden_crate_01\\env_ph_wooden_crate_01.glb",
+      "prop_campfire_tripod": "no file at ready\\prop_campfire_tripod\\prop_campfire_tripod.glb",
+      "prop_carved_stone_trough": "no file at ready\\prop_carved_stone_trough\\prop_carved_stone_trough.glb",
+      "prop_cracked_stone_urn": "no file at ready\\prop_cracked_stone_urn\\prop_cracked_stone_urn.glb",
+      "prop_garden_wheelbarrow": "no file at ready\\prop_garden_wheelbarrow\\prop_garden_wheelbarrow.glb",
+      "prop_hanging_inn_sign": "no file at ready\\prop_hanging_inn_sign\\prop_hanging_inn_sign.glb",
+      "prop_headless_stone_statue": "no file at ready\\prop_headless_stone_statue\\prop_headless_stone_statue.glb",
+      "prop_heap_of_raw_ore_chunks": "no file at ready\\prop_heap_of_raw_ore_chunks\\prop_heap_of_raw_ore_chunks.glb",
+      "prop_iron_banded_ore_cart": "no file at ready\\prop_iron_banded_ore_cart\\prop_iron_banded_ore_cart.glb",
+      "prop_iron_coal_skip_basket": "no file at ready\\prop_iron_coal_skip_basket\\prop_iron_coal_skip_basket.glb",
+      "prop_iron_lantern": "no file at ready\\prop_iron_lantern\\prop_iron_lantern.glb",
+      "prop_market_stall_frame": "no file at ready\\prop_market_stall_frame\\prop_market_stall_frame.glb",
+      "prop_mead_barrel_cradle": "no file at ready\\prop_mead_barrel_cradle\\prop_mead_barrel_cradle.glb",
+      "prop_quarry_rail_track": "no file at ready\\prop_quarry_rail_track\\prop_quarry_rail_track.glb",
+      "prop_quarry_winch": "no file at ready\\prop_quarry_winch\\prop_quarry_winch.glb",
+      "prop_sacks_and_grain": "no file at ready\\prop_sacks_and_grain\\prop_sacks_and_grain.glb"
     },
-    {
-      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\HOLLOW_DAY_ART_RECEIPT.json",
-      "bytes": 2893,
-      "sha256": "993d0cab7fe623e70ef5df1784b7c441a5b852f8c0c017a29160636273f0ac61"
+    "scope": "Actual populated game world, native source models/cache/materials, actual Simulation.Advance to HollowDay182 and following day183, actual Dressing/FestivalWind/SetFestivals. Private inspection camera and isolated profile; no plants, actors or world art withheld. Direct year advance and paused camera inspections are not played/performance or fresh-RC acceptance. Old native host lacks the new JSON resource, so the private fixture calls the same public Dressing.Place with the frozen public file once after world boot."
+  },
+  "exit": {
+    "exit": 3221226356,
+    "lease_seconds": 356.8496884999913
+  },
+  "inputs": {
+    "public_commit": "2892165d307cad7ce9c5d9a0f9fe495973ab4657",
+    "private_source_sha256": "d2648d9f93b1ec8a64c7840ae87580e07c7f2227e582df8fd0b56b55712a9fe9",
+    "assemblies": {
+      "UNNAMED.Application.dll": "b1fc0c2a9a26f0277034c208e3b8451a3f706fe5727afe966ed552d698616a55",
+      "UNNAMED.Content.dll": "7b25da18e1ca5378a3d884f2079902fd79ba551f7286050bd9aaaf40c5c73a4c",
+      "UNNAMED.Domain.dll": "c218d1b757ca51dde91eb100f21c588345a9ae8e100a262fc00dfb6cc5f003ce",
+      "UNNAMED.EntityRegistry.dll": "09ef9f465ed035fa246d0a1784aacced50e3b236b70a06cafcfc40f15f60ba60",
+      "UNNAMED.Persistence.dll": "1aa27c6db6e866c4a4dc41c15177c05f1a3bfb45c347a1fdea755b3aeacefb59",
+      "UNNAMED.Presentation.dll": "a6266e39d3321cf28254873b69bd6cc2eb22a72fc5496a2f66c6d9af6b0c278f",
+      "UNNAMED.World.dll": "b750ff3760a8468cdeb466d9345de0b212d43826f862ec4644ab7aa6c9257465"
     },
-    {
-      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\ready\\festival_hollow_bunting\\festival_hollow_bunting.glb",
-      "bytes": 42188948,
-      "sha256": "a484a26d78fcb6f5bd57c6732bb6c949f0d100da6845604a9bdc34d137b69fb9"
+    "scope": "Native world calendar dressing inspection; isolated profile/inspection camera/year advance, not played/freshRC/performance acceptance"
+  },
+  "native_source_stage": {
+    "status": "SOURCE_STAGE_ONLY_REQUIRES_REVIEW",
+    "placed": 5,
+    "wind_pivots": 73,
+    "cache_hits": 11,
+    "art_problems": {},
+    "scope": "Actual ArtLibrary, Dressing.Place, FestivalWind and HollowView.SetFestivals; original native PBR geometry. Flat source stage with explicit FestivalView, not simulation calendar/crowd/terrain acceptance."
+  },
+  "native_source_exit": {
+    "exit": 0,
+    "lease_seconds": 28.964103799997247
+  },
+  "cache": {
+    "status": "PASS",
+    "scope": "Existing public TextureCache implementation run in Godot4.7.2 editor headless. Signed original GLBs, full source resolution, BC7 DDS with mip chains. Stock BC7 block alignment increases4096x4105 linen to4096x4108; no source map/GLB was rewritten. No material or in-game acceptance.",
+    "entries": [
+      {
+        "key": "ready/festival_hollow_bunting/festival_hollow_bunting.glb#0",
+        "source_sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+        "dds": "8672634e20bf4710340d5892.normal.dds",
+        "dds_sha256": "b29c26c9d3501f8d5947b0e5e7f3bda1942c0b7db05cbcdf90f8b5ac026f5d37",
+        "source_dimensions": [
+          4096,
+          4096
+        ],
+        "dds_dimensions": [
+          4096,
+          4096
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "normal"
+      },
+      {
+        "key": "ready/festival_hollow_bunting/festival_hollow_bunting.glb#1",
+        "source_sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+        "dds": "0aa8d1a675f945d721e58064.generic.dds",
+        "dds_sha256": "7f99ec5167bfe4014ec51861e575b35c9374736287dc8fe44d2f1056d6a341f6",
+        "source_dimensions": [
+          4096,
+          4096
+        ],
+        "dds_dimensions": [
+          4096,
+          4096
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "generic"
+      },
+      {
+        "key": "ready/festival_hollow_bunting/festival_hollow_bunting.glb#2",
+        "source_sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+        "dds": "caa3456783d94e59ea2e8d76.normal.dds",
+        "dds_sha256": "1aac25088596de19b43c388a04d907c24e370852c254b3cb9617d38e8c422c2a",
+        "source_dimensions": [
+          4096,
+          4105
+        ],
+        "dds_dimensions": [
+          4096,
+          4108
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "normal"
+      },
+      {
+        "key": "ready/festival_hollow_bunting/festival_hollow_bunting.glb#3",
+        "source_sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+        "dds": "d3e0128fd75804b8819f27cf.generic.dds",
+        "dds_sha256": "17b95617ab3f1f82baa8d415a1787e9a0d7ca6cbea8834dcd445a563833111ee",
+        "source_dimensions": [
+          4096,
+          4105
+        ],
+        "dds_dimensions": [
+          4096,
+          4108
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "generic"
+      },
+      {
+        "key": "ready/festival_hollow_bunting/festival_hollow_bunting.glb#4",
+        "source_sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+        "dds": "0aa8d1a675f945d721e58064.color.dds",
+        "dds_sha256": "7f99ec5167bfe4014ec51861e575b35c9374736287dc8fe44d2f1056d6a341f6",
+        "source_dimensions": [
+          4096,
+          4096
+        ],
+        "dds_dimensions": [
+          4096,
+          4096
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "color"
+      },
+      {
+        "key": "ready/festival_hollow_bunting/festival_hollow_bunting.glb#5",
+        "source_sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+        "dds": "d3e0128fd75804b8819f27cf.color.dds",
+        "dds_sha256": "17b95617ab3f1f82baa8d415a1787e9a0d7ca6cbea8834dcd445a563833111ee",
+        "source_dimensions": [
+          4096,
+          4105
+        ],
+        "dds_dimensions": [
+          4096,
+          4108
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "color"
+      },
+      {
+        "key": "ready/festival_hollow_market_stall/festival_hollow_market_stall.glb#0",
+        "source_sha256": "3f3f2c9584f807b4e409f05c955c719ed781334c12c63bf5e050a76a8d180267",
+        "dds": "aa1bce2444fc9e4aed041673.normal.dds",
+        "dds_sha256": "d19444344cb427bd36f96714482f0b88dff94a626af076d3321818f58b7fda01",
+        "source_dimensions": [
+          2048,
+          2048
+        ],
+        "dds_dimensions": [
+          2048,
+          2048
+        ],
+        "mips": 12,
+        "dxgi": 98,
+        "role": "normal"
+      },
+      {
+        "key": "ready/festival_hollow_market_stall/festival_hollow_market_stall.glb#1",
+        "source_sha256": "3f3f2c9584f807b4e409f05c955c719ed781334c12c63bf5e050a76a8d180267",
+        "dds": "663e470ab1dfaf196b65a677.color.dds",
+        "dds_sha256": "3ff3072743358c6b27825a0a8bd51108d34ae5e4c1eb1b85f18069aa9128b85b",
+        "source_dimensions": [
+          2048,
+          2048
+        ],
+        "dds_dimensions": [
+          2048,
+          2048
+        ],
+        "mips": 12,
+        "dxgi": 98,
+        "role": "color"
+      },
+      {
+        "key": "ready/festival_hollow_market_stall/festival_hollow_market_stall.glb#2",
+        "source_sha256": "3f3f2c9584f807b4e409f05c955c719ed781334c12c63bf5e050a76a8d180267",
+        "dds": "0237f2933aff90219630d729.generic.dds",
+        "dds_sha256": "b8f6480d7d16ae4fac298d91740ac28c221443a63d6a87845a4505e578f7da7e",
+        "source_dimensions": [
+          2048,
+          2048
+        ],
+        "dds_dimensions": [
+          2048,
+          2048
+        ],
+        "mips": 12,
+        "dxgi": 98,
+        "role": "generic"
+      },
+      {
+        "key": "ready/festival_hollow_tally_tower/festival_hollow_tally_tower.glb#0",
+        "source_sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+        "dds": "8672634e20bf4710340d5892.normal.dds",
+        "dds_sha256": "b29c26c9d3501f8d5947b0e5e7f3bda1942c0b7db05cbcdf90f8b5ac026f5d37",
+        "source_dimensions": [
+          4096,
+          4096
+        ],
+        "dds_dimensions": [
+          4096,
+          4096
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "normal"
+      },
+      {
+        "key": "ready/festival_hollow_tally_tower/festival_hollow_tally_tower.glb#1",
+        "source_sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+        "dds": "0aa8d1a675f945d721e58064.generic.dds",
+        "dds_sha256": "7f99ec5167bfe4014ec51861e575b35c9374736287dc8fe44d2f1056d6a341f6",
+        "source_dimensions": [
+          4096,
+          4096
+        ],
+        "dds_dimensions": [
+          4096,
+          4096
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "generic"
+      },
+      {
+        "key": "ready/festival_hollow_tally_tower/festival_hollow_tally_tower.glb#2",
+        "source_sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+        "dds": "caa3456783d94e59ea2e8d76.normal.dds",
+        "dds_sha256": "1aac25088596de19b43c388a04d907c24e370852c254b3cb9617d38e8c422c2a",
+        "source_dimensions": [
+          4096,
+          4105
+        ],
+        "dds_dimensions": [
+          4096,
+          4108
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "normal"
+      },
+      {
+        "key": "ready/festival_hollow_tally_tower/festival_hollow_tally_tower.glb#3",
+        "source_sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+        "dds": "d3e0128fd75804b8819f27cf.generic.dds",
+        "dds_sha256": "17b95617ab3f1f82baa8d415a1787e9a0d7ca6cbea8834dcd445a563833111ee",
+        "source_dimensions": [
+          4096,
+          4105
+        ],
+        "dds_dimensions": [
+          4096,
+          4108
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "generic"
+      },
+      {
+        "key": "ready/festival_hollow_tally_tower/festival_hollow_tally_tower.glb#4",
+        "source_sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+        "dds": "0aa8d1a675f945d721e58064.color.dds",
+        "dds_sha256": "7f99ec5167bfe4014ec51861e575b35c9374736287dc8fe44d2f1056d6a341f6",
+        "source_dimensions": [
+          4096,
+          4096
+        ],
+        "dds_dimensions": [
+          4096,
+          4096
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "color"
+      },
+      {
+        "key": "ready/festival_hollow_tally_tower/festival_hollow_tally_tower.glb#5",
+        "source_sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+        "dds": "d3e0128fd75804b8819f27cf.color.dds",
+        "dds_sha256": "17b95617ab3f1f82baa8d415a1787e9a0d7ca6cbea8834dcd445a563833111ee",
+        "source_dimensions": [
+          4096,
+          4105
+        ],
+        "dds_dimensions": [
+          4096,
+          4108
+        ],
+        "mips": 13,
+        "dxgi": 98,
+        "role": "color"
+      }
+    ]
+  },
+  "terrain": {
+    "scope": "Native static GLB bounds and authored domain terrain triangles; broad footprint/terrain check only, not native rendered crowd/route acceptance.",
+    "region_sha256": "a1b6686e146d06bc489669c13f751f2e49c1be0a4f0d23efdb528d24ba1e888b",
+    "placements": [
+      {
+        "model": "festival_hollow_bunting",
+        "at": [
+          439,
+          734
+        ],
+        "yaw": 0,
+        "festival": "festival.frontier.hollow_day",
+        "native_size_m": [
+          6.075000013398943,
+          3.1500000953674316,
+          0.07500001339894262
+        ],
+        "footprint_corners": [
+          [
+            435.9624999933005,
+            733.9624999933005
+          ],
+          [
+            435.9624999933005,
+            734.0375000066995
+          ],
+          [
+            442.0375000066995,
+            733.9624999933005
+          ],
+          [
+            442.0375000066995,
+            734.0375000066995
+          ]
+        ],
+        "centre_ground_m": 7.2,
+        "corner_ground_range_m": 0.0,
+        "gathering_centre_distance_m": 11.180339887498949
+      },
+      {
+        "model": "festival_hollow_bunting",
+        "at": [
+          435,
+          744
+        ],
+        "yaw": 90,
+        "festival": "festival.frontier.hollow_day",
+        "native_size_m": [
+          6.075000013398943,
+          3.1500000953674316,
+          0.07500001339894262
+        ],
+        "footprint_corners": [
+          [
+            434.9624999933005,
+            747.0375000066995
+          ],
+          [
+            435.0375000066995,
+            747.0375000066995
+          ],
+          [
+            434.9624999933005,
+            740.9624999933005
+          ],
+          [
+            435.0375000066995,
+            740.9624999933005
+          ]
+        ],
+        "centre_ground_m": 7.2,
+        "corner_ground_range_m": 0.0012000002143830457,
+        "gathering_centre_distance_m": 1.0
+      },
+      {
+        "model": "festival_hollow_market_stall",
+        "at": [
+          438,
+          740
+        ],
+        "yaw": 180,
+        "festival": "festival.frontier.hollow_day",
+        "native_size_m": [
+          2.8650609329701737,
+          2.7918602128656143,
+          3.5834654960751773
+        ],
+        "footprint_corners": [
+          [
+            439.4325304664851,
+            741.7917327480376
+          ],
+          [
+            439.4325304664851,
+            738.2082672519624
+          ],
+          [
+            436.5674695335149,
+            741.7917327480376
+          ],
+          [
+            436.5674695335149,
+            738.2082672519624
+          ]
+        ],
+        "centre_ground_m": 7.2,
+        "corner_ground_range_m": 0.0,
+        "gathering_centre_distance_m": 5.656854249492381
+      },
+      {
+        "model": "festival_hollow_market_stall",
+        "at": [
+          443,
+          740
+        ],
+        "yaw": 180,
+        "festival": "festival.frontier.hollow_day",
+        "native_size_m": [
+          2.8650609329701737,
+          2.7918602128656143,
+          3.5834654960751773
+        ],
+        "footprint_corners": [
+          [
+            444.4325304664851,
+            741.7917327480376
+          ],
+          [
+            444.4325304664851,
+            738.2082672519624
+          ],
+          [
+            441.5674695335149,
+            741.7917327480376
+          ],
+          [
+            441.5674695335149,
+            738.2082672519624
+          ]
+        ],
+        "centre_ground_m": 7.2,
+        "corner_ground_range_m": 0.0,
+        "gathering_centre_distance_m": 9.848857801796104
+      },
+      {
+        "model": "festival_hollow_tally_tower",
+        "at": [
+          435,
+          737
+        ],
+        "yaw": 180,
+        "festival": "festival.frontier.hollow_day",
+        "native_size_m": [
+          1.899999976158142,
+          4.189219610748033,
+          1.0292544716080898
+        ],
+        "footprint_corners": [
+          [
+            435.94999998807907,
+            737.514627235804
+          ],
+          [
+            435.94999998807907,
+            736.485372764196
+          ],
+          [
+            434.05000001192093,
+            737.514627235804
+          ],
+          [
+            434.05000001192093,
+            736.485372764196
+          ]
+        ],
+        "centre_ground_m": 7.2,
+        "corner_ground_range_m": 0.026599999666213847,
+        "gathering_centre_distance_m": 7.0710678118654755
+      }
+    ]
+  },
+  "art_receipt": {
+    "status": "AUTHORING_ONLY",
+    "assets": [
+      {
+        "id": "festival_hollow_bunting",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\ready\\festival_hollow_bunting\\festival_hollow_bunting.glb",
+        "sha256": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a"
+      },
+      {
+        "id": "festival_hollow_tally_tower",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\ready\\festival_hollow_tally_tower\\festival_hollow_tally_tower.glb",
+        "sha256": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db"
+      },
+      {
+        "id": "festival_hollow_market_stall",
+        "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\ready\\festival_hollow_market_stall\\festival_hollow_market_stall.glb",
+        "sha256": "3f3f2c9584f807b4e409f05c955c719ed781334c12c63bf5e050a76a8d180267"
+      }
+    ],
+    "sources": {
+      "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\rough_wood\\rough_wood_diff_4k.jpg": "2a7714192151b892e1fc3850e0d83beac385b933e7615b356d5537aa42ad3410",
+      "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\rough_wood\\rough_wood_nor_gl_4k.jpg": "6d01bfa129d42d90a6b58bdc1dcf358a37bbbeca9422ac6e974ed2457ff01c05",
+      "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\rough_linen\\rough_linen_diff_4k.jpg": "dca61aacd6cf3194681070cede3c16a3b61a32cb3eef5bf4c52db698b2286d3d",
+      "C:\\Otherreach_External_Assets\\PolyHaven\\textures\\rough_linen\\rough_linen_nor_gl_4k.jpg": "1a591b2acd7e61f3511e483a731c5f18847cce36ec501d669b853b30c203d422",
+      "C:\\Otherreach_External_Assets\\Sourced_20261018\\itch\\free-cc0-medieval-props\\extracted\\MedievalPropsPack\\MarketStall\\MarketStall.fbx": "69f7f3fb4654c581f7382b9cee9540a9f52f54b2c6881d0414588e6f81ac3fba",
+      "C:\\Otherreach_External_Assets\\Sourced_20261018\\itch\\free-cc0-medieval-props\\extracted\\MedievalPropsPack\\MarketStall\\MarketStall_Base_Color.png": "99e2e003f165001b6e6c4503be5f9b1fbfd3c03b117733c56a240585a8c564df",
+      "C:\\Otherreach_External_Assets\\Sourced_20261018\\itch\\free-cc0-medieval-props\\extracted\\MedievalPropsPack\\MarketStall\\MarketStall_Roughness.png": "4b1363021d02dcd1258f46114e8681415205a663b4aa666f5933cec67a932439",
+      "C:\\Otherreach_External_Assets\\Sourced_20261018\\itch\\free-cc0-medieval-props\\extracted\\MedievalPropsPack\\MarketStall\\MarketStall_Normal.png": "acaa0f2aa8a3e198e61b6c02383f5bb1e2909c9e15184d867b4037cbae2015a7"
     },
-    {
-      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\ready\\festival_hollow_market_stall\\festival_hollow_market_stall.glb",
-      "bytes": 4917192,
-      "sha256": "d72c7e68cd062a86fcc6f0e2deb86dfafc61e7d43bb3e63fd57db9fbac95b7fb"
-    },
-    {
-      "path": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art01\\ready\\festival_hollow_tally_tower\\festival_hollow_tally_tower.glb",
-      "bytes": 43362668,
-      "sha256": "a6f7fed838adf0e24fa8cd0aca1b4b6e70c979928bdfcee2d987ee5a7b2e37c1"
-    }
+    "licences": [
+      "CC0 - 3DModelsCC0 Free CC0 Medieval Props; provenance retained in External Assets",
+      "CC0 - Poly Haven rough_linen and rough_wood"
+    ],
+    "canon": "A forest of hanging staves that clack in the wind; small frontier restrung frame, not the towers of Talvess.",
+    "review": "No in-game verdict, placement or animation acceptance yet"
+  },
+  "delivery_root": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\runtime_art03",
+  "source_blend": "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\HollowDay_Source.blend",
+  "sha256": {
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\ready\\festival_hollow_bunting\\festival_hollow_bunting.glb": "ebefd18219431ca799c933fd25b48fd898bf2a47e072cfdd9e457a4dd4416e9a",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\ready\\festival_hollow_market_stall\\festival_hollow_market_stall.glb": "3f3f2c9584f807b4e409f05c955c719ed781334c12c63bf5e050a76a8d180267",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\ready\\festival_hollow_tally_tower\\festival_hollow_tally_tower.glb": "fa19792920f4c631e4ee7aec514e8455ae4d2ff38a50a8380b3b924ec52df4db",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\HollowDay_Source.blend": "4cebd682116d24250cf3095f692ca1e8c8925782ff2c75c3453bb3451ba2ea3a",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\hollowday\\art03\\HOLLOW_DAY_ART_RECEIPT.json": "5f1100212708639e8f8081eedec2e4850005377ea50931cb708c74498c6c5e5b",
+    "D:\\Otherreach_Scratch\\codex_systems_visuals_hollowday\\src\\Presentation\\Art\\hollow_day_dressing.json": "a951447a3127d5c6519a0d67424b9ffdf0af1b28962895c06d8e6589a3936f8c"
+  },
+  "limitations": [
+    "Native world fixture uses old host with frozen new production assemblies, direct real Simulation.Advance and private inspection camera; not played or fresh package.",
+    "Normal source world root has19 unrelated missing existing dressing IDs, enumerated verbatim in gallery.art_problems. No requested HollowDay model/material was missing.",
+    "World capture completed all frames then aborted in teardown0xC0000374; no clean-exit package acceptance. Source-only native stage exits0 in28.964seconds.",
+    "SOURCE_STAGE images use a neutral QA floor and earlier tower position438737; final world PNGs/video and frozen placement use435737.",
+    "Wind video is99 continuous native viewport frames using original wall-clock timestamps, no interpolation/speed change.",
+    "No collider is added by the existing decorative dressing pipeline; do not treat this as a played crowd/pathfinding test."
   ]
 }

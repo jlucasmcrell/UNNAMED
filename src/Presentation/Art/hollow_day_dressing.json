@@ -5,6 +5,6 @@
     { "model": "festival_hollow_bunting", "at": [435, 744], "yaw": 90, "festival": "festival.frontier.hollow_day" },
     { "model": "festival_hollow_market_stall", "at": [438, 740], "yaw": 180, "festival": "festival.frontier.hollow_day" },
     { "model": "festival_hollow_market_stall", "at": [443, 740], "yaw": 180, "festival": "festival.frontier.hollow_day" },
-    { "model": "festival_hollow_tally_tower", "at": [438, 737], "yaw": 180, "festival": "festival.frontier.hollow_day" }
+    { "model": "festival_hollow_tally_tower", "at": [435, 737], "yaw": 180, "festival": "festival.frontier.hollow_day" }
   ]
 }
