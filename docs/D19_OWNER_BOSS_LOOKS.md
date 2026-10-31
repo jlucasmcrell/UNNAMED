@@ -49,7 +49,7 @@ delivery. Every body and motion is subject to Claude's eye before integration.
 | Foreman Nine | MR-0161 elopez7 Unit 666 industrial maintenance body; newly rigid-part rigged |
 | Salt Walker | MR-0136 Colorado Stark native exo-frame; native 43-joint rig, newly authored motion |
 | Under the Stairs | MR-0142 piacenti Octobot's complete rigged eight-limbed assembly, native worn-material variant |
-| Specification | A distributed field of native Unit 666 armour plates; no humanoid body/head/limbs |
+| Specification | ARCH-9afe2c54784b complete native Red Echo source slabs in a rule-field; no humanoid body/head/limbs |
 | Bell That Answers | MR-0398 Greeble3d Zorag deep angler; original idle/swim/bite/alert, native hit/death additions |
 
 The source Mech FBX's nominal Take001 is static (439 channels, none changing).
@@ -59,7 +59,7 @@ no UAL or unrelated spider takes are silently assigned.
 
 `native_boss_rig_motion_guard.json`: eight distinct bodies, no missing matching
 bone names, rest mismatches, missing clips or static bound state takes.
-`native_candidate_cache_gate.json`: 322 image references, 192 at >=2K, zero
+`native_candidate_cache_gate.json`: 337 image references, 207 at >=2K, zero
 failures. Original full-resolution map data is retained; signed cache aliases
 reuse only identical embedded-image hashes and roles. No reduced-quality path.
 
@@ -75,3 +75,71 @@ its leap and curling death read without wrong-rig distortion. 546 frames /
 review is not Claude acceptance. Exact art/cache delivery is pinned in
 `D19_MATRIARCH_ART_DELIVERY.json`. Real cave context remains a separate queued
 check. The initial over-wide proof is retained as rejected framing.
+
+## Producer rejections and affected reproof
+
+The initial centroid-based First Formed wing placement, closed-shell Octobot
+export and Unit666 joint/antenna Specification experiment are rejected. Exact
+old files and reasons are retained under `rejected_firstformed_centroid`,
+`rejected_understairs_closed`, and `rejected_specification_mech_parts`. Those
+frames cannot approve the revised art. The corrected First Formed uses native
+wing_root and a back anchor. Resetting the Octobot's saved rest pose alone
+did not change its native bind matrices, so that attempted correction is also
+rejected. Selecting the largest XZ footprint from its original ArmatureAction
+was also wrong: that selects the closed outer casing, as the v4 native proof
+shows. Evaluating the original Blender geometry at frames 1..110 identifies
+the unfolded final frame 110. That native pose becomes the authored takes'
+base by bone name. Its two independent native skin roots share the floor
+correction; no foreign skeleton or body replacement is introduced.
+The Specification now has nine
+complete engraved native Red Echo slabs (9 x 7,820 source triangles), native
+full-resolution2K/4K maps/UVs, modest inlay light and no robot body. The only
+normal-map adapter is the source manifest's DirectX-to-OpenGL green-channel
+conversion at unchanged resolution. Updated affected cache:337refs207large,
+zero failures; native rig/motion guard still passes.
+
+The first corrected batch completed every First Formed state, then stopped
+at Octobot with `Packaged texture >=2K is uncompressed`. The producer rebuilt
+Octobot clips after that renderer had loaded its cache manifest; this input
+race is not device loss. The inputs are now copied together into immutable
+`frozen_native_v4/primary`; the completed two-body proof used that snapshot.
+No input mutation is permitted while its validation is queued or running.
+
+The v4 process completed in 252.264 seconds with exit 0 and no art/cache
+errors. Its closed Octobot pose is rejected. Specification's native body,
+idle, locomotion, attack and hit previews are producer-reviewed; the death
+put nine slabs into three coplanar overlaps. That final state now settles
+into separate floor rows. Preservation receipt proves the body and all
+other Specification state GLBs remain byte-identical to v4. The corrected
+Octobot uses immutable v5; the Specification idle/death check uses v6.
+Both affected native checks are now complete; Claude's judgement remains.
+
+Octobot v5: exit 0 in 161.165 seconds, art problems 0. Full-size idle, all
+16 originals and all 50 usable one-second samples personally inspected;
+setup sample 1 rejected. The open eight-limbed body stays intact through
+locomotion, three attacks, hit and grounded collapse. All ten Octobot GLBs
+remain byte-identical in final v6. The native recording has import holds;
+its 51.4-second container is not a real-time or FPS result.
+
+Specification v6: exit 0 in 36.912 seconds, art problems 0. All four revised
+idle/death originals and six usable one-second samples reviewed, including
+full-size final landing: nine slabs lie in separate floor rows. Earlier
+fourteen nondeath originals and raw samples 55..77 supply the unchanged
+body/other-state proof. The old overlapping death is rejected. The shortened
+native review video joins only the unchanged body excerpt and revised death.
+
+`D19_B009_ART_DELIVERY.json` pins final immutable v6 files/cache, retained
+Warden dependencies, every actual pinned D19 move mapping, licence/provenance
+and the actor review receipts. Seven B-009 bosses now have seven distinct
+body bindings; only the Warden retains the old stone giant. This is a
+FINISHED source/private-art handoff for Claude's visual verdict, not RC
+acceptance. DS data/stats and all prior accepted art deliveries remain intact.
+
+Corrected First Formed: full-size idle, all 14 originals and raw one-second
+samples 2..22 personally inspected. Wing frame stays behind the torso and
+clear of the legs through seven state previews. A decode-clean 21-second
+actor-only clip uses exact raw frames 33..663, excluding setup and the later
+batch failure. The batch exit was 2; no whole-batch or clean-quit claim.
+Foreman, Salt Walker and Bell originals plus every selected one-second sample
+are also producer-reviewed; exact actor spans and limits are recorded in
+`selected_actor_review/*_producer_review.json`. Claude judges all candidates.
