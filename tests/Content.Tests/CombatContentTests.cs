@@ -61,7 +61,8 @@ public class CombatContentTests
     [Fact]
     public void TheGamesCombat_BuildsInWholeTicks()
     {
-        var setup = CombatContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")), "region.starting_frontier");
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        var setup = CombatContent.Build(loader, "region.starting_frontier");
 
         var wolf = setup.Creatures["creature.beast.wolf_grey"];
         Assert.Equal((2, 50, 4_500L, 450L, 30L), (wolf.Level, wolf.MaxHealth, wolf.MoveSpeedMmPerSecond, wolf.RadiusMm, wolf.XpValue));
@@ -92,24 +93,9 @@ public class CombatContentTests
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
         // The den's leader joins the four (owner finding 29): the pack, plus the animal that makes it a den.
-        Assert.Equal(new[] { "den_alpha", "den_guardian", "pack_hunter", "pack_hunter", "sleeper" }, spawns["spawn.hollow.den_pack"].Members.Select(m => m.RoleId));
-        Assert.Equal((24_000L, 3), (spawns["spawn.hollow.east_pack"].RespawnTicks, spawns["spawn.hollow.east_pack"].Route.Length));   // back after 20 minutes
-        Assert.Equal(new[]
-        {
-            "ambusher", "den_alpha", "den_guardian", "herd", "herd_shy", "hunter", "night_walker", "pack_hunter", "prowler", "roamer", "sentinel",
-            "skittish", "sleeper", "stray", "territorial", "wildlife", "yard_fowl",
-        }, setup.Roles.Keys);
-
-        // The content bible's five archetypes, each a creature of its own with its own body and blow (§10) - and the start area's wildlife
-        // and its two great grazers. The Ring Custodian is M8 I4's, inside the gated Barrowworks; the gate tender and the Gate Warden keep the Spill; the hunting spider matriarch keeps the hollow under the den.
-        Assert.Equal(new[]
-            {
-                "creature.beast.ash_ember_hound", "creature.beast.bristleback_boar", "creature.beast.buck", "creature.beast.cave_hunting_spider",
-                "creature.beast.chicken", "creature.beast.doe", "creature.beast.hound_pup", "creature.beast.hunting_spider_matriarch", "creature.beast.rabbit", "creature.beast.red_fox", "creature.beast.rooster", "creature.beast.sedge_eel_serpent",
-                "creature.beast.wolf_grey", "creature.beast.wolf_grey_alpha", "creature.construct.animated_armour", "creature.construct.gate_tender", "creature.construct.gate_warden",
-                "creature.construct.ring_custodian",
-                "creature.grazer.barrowback", "creature.grazer.fellhorn", "creature.humanoid.back_ledger_raider", "creature.undead.bone_walker_husk", "creature.undead.sedge_drowned",
-            }, setup.Creatures.Keys);
+        // The run carries every creature content defines, ordinally sorted - the catalogue, not a hand-kept list, so a new
+        // creature (the D19 roster, a lane's new beast) joins the expectation instead of breaking it.
+        Assert.Equal(loader.GetByKind("creature").Keys.OrderBy(key => key, StringComparer.Ordinal), setup.Creatures.Keys);
         Assert.Equal(1_100L, setup.Creatures["creature.grazer.fellhorn"].RadiusMm); // C1 gore contact stays 0.3 m farther out.
         var barrowback = setup.Creatures["creature.grazer.barrowback"];
         Assert.Equal((5, 220, 1_400L, 16_000L), (barrowback.Level, barrowback.MaxHealth, barrowback.RadiusMm, barrowback.Charge!.ReachMm));

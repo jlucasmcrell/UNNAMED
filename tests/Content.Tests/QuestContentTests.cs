@@ -55,6 +55,35 @@ public class QuestContentTests
         return loader.Errors;
     }
 
+    /// <summary>
+    /// Edits for every spawn file that places <paramref name="creatureRef"/>, putting a creature of the same level band in its
+    /// place - read from content, so a second spawn of the same creature, or a replacement that changes the band, cannot quietly
+    /// turn the scenario into a different failure.
+    /// </summary>
+    private static (string Path, string Find, string Replace)[] SpawnsReplacing(string creatureRef)
+    {
+        var loader = Game.Value;
+        string reference = "creature_ref: " + creatureRef;
+        var spawnFiles = Directory.EnumerateFiles(Path.Combine(RepoPaths.Root(), "content", "spawns"), "*.yaml", SearchOption.AllDirectories)
+            .Where(file => File.ReadAllText(file).Contains(reference, StringComparison.Ordinal))
+            .OrderBy(file => file, StringComparer.Ordinal)
+            .ToList();
+        Assert.NotEmpty(spawnFiles);
+
+        var creatures = UNNAMED.Content.CombatContent.BuildCreatures(loader, WorldContent.TickMilliseconds(loader));
+        int band = creatures[creatureRef].Level;
+        string replacement = creatures.Values
+            .Where(definition => definition.Id != creatureRef && definition.Level == band)
+            .Select(definition => definition.Id)
+            .OrderBy(id => id, StringComparer.Ordinal)
+            .First();
+
+        return spawnFiles
+            .Select(file => (Path.GetRelativePath(Path.Combine(RepoPaths.Root(), "content"), file).Replace('\\', '/'),
+                reference, "creature_ref: " + replacement))
+            .ToArray();
+    }
+
     private const string Quest1 = "quests/ashen_hollow/iron_under_ash.yaml";
 
     /// <summary>
@@ -436,9 +465,11 @@ public class QuestContentTests
             e => e.Code == "QST001" && e.Message.Contains("offers no reply 'take_bears'", StringComparison.Ordinal));
         Assert.Contains(HaldaWith(Step("dialogue_choice", "{ npc_ref: npc.ashen_hollow.renn_vale, node: elsewhere, choice: back }")),
             e => e.Code == "QST001" && e.Message.Contains("has no line 'elsewhere'", StringComparison.Ordinal));
+        // Every spawn that places the creature is edited, with a replacement of the same level band: the rule under test is
+        // "no spawn places this creature", so the scenario has to load cleanly for the question to be asked at all.
         Assert.Contains(ErrorsWith(Halda, HaldaFirst,
                 Step("defeat_creature", "{ creature_ref: creature.grazer.barrowback, flag_ref: world.hollow.halda_tally_kept, location_ref: location.outpost }"),
-                ("spawns/wildlife/foldscar_barrowbacks.yaml", "creature_ref: creature.grazer.barrowback", "creature_ref: creature.grazer.fellhorn")),
+                SpawnsReplacing("creature.grazer.barrowback")),
             e => e.Code == "QST001" && e.Message.Contains("no spawn places creature.grazer.barrowback", StringComparison.Ordinal));
         Assert.Contains(HaldaWith(Step("waystone_known", "{ waystone_ref: waystone.far_north }")),
             e => e.Code == "QST001" && e.Message.Contains("no region places the Waystone waystone.far_north", StringComparison.Ordinal));

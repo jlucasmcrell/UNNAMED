@@ -401,6 +401,15 @@ public sealed record WeakPoint(BodyRegion Region, bool FromBehind)
 {
     /// <summary>The windows that gate it, by phase name. Empty means always open.</summary>
     public ImmutableArray<WeakPointWindow> Windows { get; init; } = ImmutableArray<WeakPointWindow>.Empty;
+
+    // A record's generated equality would compare the windows' backing array by reference; two points with the same ground and
+    // the same windows are the same point.
+    public bool Equals(WeakPoint? other) =>
+        other is not null && Region == other.Region && FromBehind == other.FromBehind
+        && (Windows.IsDefault ? ImmutableArray<WeakPointWindow>.Empty : Windows)
+            .SequenceEqual(other.Windows.IsDefault ? ImmutableArray<WeakPointWindow>.Empty : other.Windows);
+
+    public override int GetHashCode() => HashCode.Combine(Region, FromBehind, Windows.IsDefault ? 0 : Windows.Length);
 }
 
 /// <summary>
@@ -410,6 +419,13 @@ public sealed record WeakPoint(BodyRegion Region, bool FromBehind)
 public sealed record BossPhase(string Name, double? HealthBelow, int? AfterTicks, ImmutableArray<string> Moves)
 {
     public static BossPhase Named(string name) => new(name, null, null, ImmutableArray<string>.Empty);
+
+    public bool Equals(BossPhase? other) =>
+        other is not null && Name == other.Name && HealthBelow == other.HealthBelow && AfterTicks == other.AfterTicks
+        && (Moves.IsDefault ? ImmutableArray<string>.Empty : Moves)
+            .SequenceEqual(other.Moves.IsDefault ? ImmutableArray<string>.Empty : other.Moves);
+
+    public override int GetHashCode() => HashCode.Combine(Name, HealthBelow, AfterTicks, Moves.IsDefault ? 0 : Moves.Length);
 }
 
 /// <summary>
