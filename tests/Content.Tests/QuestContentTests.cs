@@ -89,8 +89,10 @@ public class QuestContentTests
         Assert.Equal(new[] { "talk_to", "visit_location", "acquire_item", "explore_location", "acquire_item", "acquire_item", "talk_to" },
             quest.Order.Select(o => o.Condition.Type));
         Assert.DoesNotContain(quest.Order, o => o.Condition is KillCreature);
-        // The seam is finite: what the ore is made into counts as the ore obtained, and a spear as the billet (the audit's C-01).
-        Assert.Equal(new[] { "item.material.iron_ingot", "item.weapon.march_spear" }, Assert.IsType<AcquireItem>(quest.Objectives["o_ore"].Condition).OrItems);
+        // The seam is finite: what the ore is made into counts as the ore obtained, and a spear as the billet (the audit's C-01), and
+        // since D21 the sword the forge assembles out of the ingots counts too.
+        Assert.Equal(new[] { "item.material.iron_ingot", "item.weapon.march_spear", "item.weapon.rusted_sword" },
+            Assert.IsType<AcquireItem>(quest.Objectives["o_ore"].Condition).OrItems);
         Assert.Equal(new[] { "item.weapon.march_spear" }, Assert.IsType<AcquireItem>(quest.Objectives["o_billet"].Condition).OrItems);
         Assert.Empty(Assert.IsType<AcquireItem>(quest.Objectives["o_spear"].Condition).OrItems);
         // A straight line, and the last step - showing Kera the spear - ends it.
@@ -190,8 +192,8 @@ public class QuestContentTests
 
     [Fact]
     public void OrItemRefs_NamesEachItemOnce_AndNotTheItemItself() =>
-        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear]",
-                "or_item_refs: [item.material.iron_ore, item.material.iron_ingot, item.weapon.march_spear]"),
+        Assert.Contains(ErrorsWith(Quest1, "or_item_refs: [item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword]",
+                "or_item_refs: [item.material.iron_ore, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword]"),
             e => e.Code == "QST001" && e.Message.Contains("or_item_refs names each item once, and not the item_ref itself", StringComparison.Ordinal));
 
     [Fact]
