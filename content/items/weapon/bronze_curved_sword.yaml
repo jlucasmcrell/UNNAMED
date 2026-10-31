@@ -1,0 +1,21 @@
+id: item.weapon.bronze_curved_sword
+kind: item.weapon
+schema: 1
+display_key: item.weapon.bronze_curved_sword.name
+tags: [item]
+name: Bronze Sickle-Sword
+notes: The bronze edge curves past the hand. New binding keeps the old hilt serviceable.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 2.5
+value_base: 32
+damage: [7, 9]
+damage_type: physical_slash
+hands: one
+requirements: { attribute.might: 9 }
+attack_speed: 1.35
+reach: 1.7
+skill_ref: skill.one_hand_blade
+durability_max: 200
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 2, item_ref: item.material.iron_ingot }

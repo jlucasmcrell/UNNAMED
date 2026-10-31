@@ -1,0 +1,21 @@
+id: item.weapon.iron_curved_sword
+kind: item.weapon
+schema: 1
+display_key: item.weapon.iron_curved_sword.name
+tags: [item]
+name: Iron Sickle-Sword
+notes: A narrow iron edge curved forward of the grip, with little weight behind the point.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 2.9
+value_base: 34
+damage: [8, 10]
+damage_type: physical_slash
+hands: one
+requirements: { attribute.might: 10 }
+attack_speed: 1.15
+reach: 1.8
+skill_ref: skill.one_hand_blade
+durability_max: 200
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 2, item_ref: item.material.iron_ingot }

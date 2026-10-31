@@ -39,7 +39,8 @@ def reset():
 
 def scale_image(img, px):
     if max(img.size) > px:
-        img.scale(px, px) if img.size[0] == img.size[1] else img.scale(px, max(1, int(img.size[1] * px / img.size[0])))
+        ratio = px / max(img.size)
+        img.scale(max(1, round(img.size[0] * ratio)), max(1, round(img.size[1] * ratio)))
 
 
 def adjust_image(img, scale=1.0, channel=None, cap=None):

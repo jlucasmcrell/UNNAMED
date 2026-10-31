@@ -1,0 +1,1147 @@
+[
+  {
+    "id": "item.weapon.engraved_road_sword",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.engraved_road_sword.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Engraved Road Sword",
+    "notes": "Old letters lie under the rust. A new grip keeps the worn road blade steady.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.8,
+    "value_base": 25,
+    "damage": [
+      7,
+      9
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 9
+    },
+    "attack_speed": 1.3,
+    "reach": 1.8,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W01",
+    "era": "Salvage / reverse engineering",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.iron_curved_sword",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.iron_curved_sword.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Iron Sickle-Sword",
+    "notes": "A narrow iron edge curved forward of the grip, with little weight behind the point.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.9,
+    "value_base": 34,
+    "damage": [
+      8,
+      10
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 10
+    },
+    "attack_speed": 1.15,
+    "reach": 1.8,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W03",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.bronze_broadsword",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.bronze_broadsword.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Bronze Broadsword",
+    "notes": "A broad bronze blade with a plain guard. Its edge has been dressed for the road.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.7,
+    "value_base": 29,
+    "damage": [
+      7,
+      9
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 9
+    },
+    "attack_speed": 1.25,
+    "reach": 1.7,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W04",
+    "era": "Primitive / ancient",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.bronze_curved_sword",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.bronze_curved_sword.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Bronze Sickle-Sword",
+    "notes": "The bronze edge curves past the hand. New binding keeps the old hilt serviceable.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.5,
+    "value_base": 32,
+    "damage": [
+      7,
+      9
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 9
+    },
+    "attack_speed": 1.35,
+    "reach": 1.7,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W05",
+    "era": "Primitive / ancient",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.bearded_road_axe",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.bearded_road_axe.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Bearded Road Axe",
+    "notes": "A broad bearded bit on a dark wooden haft. The carving has outlasted its first owner.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.8,
+    "value_base": 31,
+    "damage": [
+      9,
+      11
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 10
+    },
+    "attack_speed": 1.0,
+    "reach": 1.6,
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W06",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.stone_haft_hammer",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.stone_haft_hammer.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Stone Haft Hammer",
+    "notes": "A dark stone head lashed to a bent wooden haft. The haft can be renewed without losing the stone.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 3.8,
+    "value_base": 19,
+    "damage": [
+      9,
+      11
+    ],
+    "damage_type": "physical_blunt",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 10
+    },
+    "attack_speed": 0.9,
+    "reach": 1.5,
+    "durability_max": 200,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.ash_haft"
+    },
+    "review_id": "W07",
+    "era": "Primitive / ancient",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.weathered_double_bit_axe",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.weathered_double_bit_axe.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Weathered Double Bit Axe",
+    "notes": "Weathered steel on a pale wooden haft. Both edges have been dressed, but the old bit needs frequent care.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.6,
+    "value_base": 24,
+    "damage": [
+      8,
+      10
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 9
+    },
+    "attack_speed": 1.1,
+    "reach": 1.6,
+    "durability_max": 160,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W24",
+    "era": "Salvage / reverse engineering",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.carved_old_bow",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.carved_old_bow.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Carved Old Bow",
+    "notes": "An old carved bow, its grip worn smooth and its string renewed.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.2,
+    "value_base": 28,
+    "damage": [
+      8,
+      10
+    ],
+    "damage_type": "physical_pierce",
+    "hands": "two",
+    "requirements": {
+      "attribute.might": 9
+    },
+    "draw_time": 1.0,
+    "ammo_item_ref": "item.ammo.arrow_rough",
+    "skill_ref": "skill.bow",
+    "durability_max": 200,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 3,
+      "item_ref": "item.material.bog_cotton"
+    },
+    "review_id": "W09",
+    "era": "Primitive / ancient",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.red_grip_hunting_knife",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.red_grip_hunting_knife.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Red Grip Hunting Knife",
+    "notes": "A worn hunting blade with a red grip and a plain brass stop for the hand.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.5,
+    "value_base": 23,
+    "damage": [
+      6,
+      8
+    ],
+    "damage_type": "physical_pierce",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 8
+    },
+    "attack_speed": 1.75,
+    "reach": 1.2,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W14",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.plain_belt_knife",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.plain_belt_knife.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Plain Belt Knife",
+    "notes": "A plain steel blade riveted between two slabs of wood. Easy to carry and easy to mend.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.35,
+    "value_base": 12,
+    "damage": [
+      5,
+      7
+    ],
+    "damage_type": "physical_pierce",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 7
+    },
+    "attack_speed": 1.9,
+    "reach": 1.1,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W15",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.brass_hilt_sword",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.brass_hilt_sword.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Brass Hilt Sword",
+    "notes": "A long, narrow blade with a brass-coloured hilt. The old fittings still hold tightly.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 3.0,
+    "value_base": 36,
+    "damage": [
+      8,
+      10
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 10
+    },
+    "attack_speed": 1.2,
+    "reach": 1.8,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W20",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.wood_grip_knife",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.wood_grip_knife.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Wood Grip Knife",
+    "notes": "A sturdy utility knife with a close wooden grip. Its edge is short and easily kept.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.4,
+    "value_base": 18,
+    "damage": [
+      6,
+      8
+    ],
+    "damage_type": "physical_pierce",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 8
+    },
+    "attack_speed": 1.7,
+    "reach": 1.2,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W21",
+    "era": "Modern",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.carving_knife",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.carving_knife.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Carving Knife",
+    "notes": "A short tapering blade in a broad wooden handle. A carver can keep working after the edge wears.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.25,
+    "value_base": 9,
+    "damage": [
+      4,
+      6
+    ],
+    "damage_type": "physical_pierce",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 6
+    },
+    "attack_speed": 2.0,
+    "reach": 1.0,
+    "skill_ref": "skill.one_hand_blade",
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W22",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.weapon.double_bit_axe",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.double_bit_axe.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Double Bit Axe",
+    "notes": "A double iron bit on a straight wooden haft. Either edge can take the next cut.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.7,
+    "value_base": 34,
+    "damage": [
+      9,
+      11
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 10
+    },
+    "attack_speed": 1.0,
+    "reach": 1.6,
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W23",
+    "era": "Modern",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  },
+  {
+    "id": "item.armor.sealed_road_boots",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.sealed_road_boots.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Sealed Road Boots",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.1,
+    "value_base": 18,
+    "slot": "feet",
+    "armor_value": 2,
+    "material_class": "leather",
+    "durability_max": 250,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A01",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.sealed_road_jack",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.sealed_road_jack.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Sealed Road Jack",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 4.4,
+    "value_base": 39,
+    "slot": "chest",
+    "armor_value": 7,
+    "material_class": "leather",
+    "durability_max": 250,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A02",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.sealed_road_breeches",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.sealed_road_breeches.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Sealed Road Breeches",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.2,
+    "value_base": 26,
+    "slot": "legs",
+    "armor_value": 3,
+    "material_class": "leather",
+    "durability_max": 250,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A04",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.quilted_ward_boots",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.quilted_ward_boots.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Quilted Ward Boots",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.3,
+    "value_base": 21,
+    "slot": "feet",
+    "armor_value": 2,
+    "material_class": "leather",
+    "durability_max": 350,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A05",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.quilted_ward_jack",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.quilted_ward_jack.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Quilted Ward Jack",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 5.0,
+    "value_base": 47,
+    "slot": "chest",
+    "armor_value": 8,
+    "material_class": "leather",
+    "durability_max": 250,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A06",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.ward_closed_helm",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.ward_closed_helm.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Ward Closed Helm",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.9,
+    "value_base": 31,
+    "slot": "head",
+    "armor_value": 4,
+    "material_class": "plate",
+    "durability_max": 500,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A07",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.quilted_ward_breeches",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.quilted_ward_breeches.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Quilted Ward Breeches",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.8,
+    "value_base": 33,
+    "slot": "legs",
+    "armor_value": 4,
+    "material_class": "leather",
+    "durability_max": 250,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A08",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.ward_plate_gauntlets",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.ward_plate_gauntlets.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Ward Plate Gauntlets",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.9,
+    "value_base": 23,
+    "slot": "hands",
+    "armor_value": 2,
+    "material_class": "plate",
+    "durability_max": 500,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A09",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.river_lame_boots",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.river_lame_boots.name",
+    "tags": [
+      "item"
+    ],
+    "name": "River Lame Boots",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.5,
+    "value_base": 27,
+    "slot": "feet",
+    "armor_value": 3,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A10",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.river_lame_jack",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.river_lame_jack.name",
+    "tags": [
+      "item"
+    ],
+    "name": "River Lame Jack",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 6.1,
+    "value_base": 59,
+    "slot": "chest",
+    "armor_value": 9,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A11",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.river_lame_gloves",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.river_lame_gloves.name",
+    "tags": [
+      "item"
+    ],
+    "name": "River Lame Gloves",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.8,
+    "value_base": 22,
+    "slot": "hands",
+    "armor_value": 2,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A12",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.river_open_helm",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.river_open_helm.name",
+    "tags": [
+      "item"
+    ],
+    "name": "River Open Helm",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.7,
+    "value_base": 29,
+    "slot": "head",
+    "armor_value": 4,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A13",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.river_lame_breeches",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.river_lame_breeches.name",
+    "tags": [
+      "item"
+    ],
+    "name": "River Lame Breeches",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 3.0,
+    "value_base": 35,
+    "slot": "legs",
+    "armor_value": 4,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A14",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.repaired_proof_helm",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.repaired_proof_helm.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Repaired Proof Helm",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.2,
+    "value_base": 38,
+    "slot": "head",
+    "armor_value": 5,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A15",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.repaired_proof_sabatons",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.repaired_proof_sabatons.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Repaired Proof Sabatons",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.9,
+    "value_base": 33,
+    "slot": "feet",
+    "armor_value": 3,
+    "material_class": "plate",
+    "durability_max": 550,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A16",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.repaired_proof_jack",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.repaired_proof_jack.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Repaired Proof Jack",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 7.4,
+    "value_base": 69,
+    "slot": "chest",
+    "armor_value": 10,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A17",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.repaired_proof_cuisses",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.repaired_proof_cuisses.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Repaired Proof Cuisses",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 3.8,
+    "value_base": 44,
+    "slot": "legs",
+    "armor_value": 5,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A18",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.open_road_barbute",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.open_road_barbute.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Open Road Barbute",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 1.5,
+    "value_base": 25,
+    "slot": "head",
+    "armor_value": 3,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A21",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.sealed_brass_gauntlets",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.sealed_brass_gauntlets.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Sealed Brass Gauntlets",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 0.7,
+    "value_base": 20,
+    "slot": "hands",
+    "armor_value": 2,
+    "material_class": "leather",
+    "durability_max": 250,
+    "repair": {
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
+    },
+    "review_id": "A22",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.armor.old_ward_greathelm",
+    "kind": "item.armor",
+    "schema": 1,
+    "display_key": "item.armor.old_ward_greathelm.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Old Ward Greathelm",
+    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "category": "armor",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.6,
+    "value_base": 35,
+    "slot": "head",
+    "armor_value": 5,
+    "material_class": "plate",
+    "durability_max": 400,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 4,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "A23",
+    "era": "Medieval / renaissance",
+    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+  },
+  {
+    "id": "item.weapon.notched_road_axe",
+    "kind": "item.weapon",
+    "schema": 1,
+    "display_key": "item.weapon.notched_road_axe.name",
+    "tags": [
+      "item"
+    ],
+    "name": "Notched Road Axe",
+    "notes": "A notched iron bit on a bent wooden haft, bound in faded red cloth.",
+    "category": "weapon",
+    "item_class": "ordinary",
+    "stack_max": 1,
+    "weight": 2.4,
+    "value_base": 28,
+    "damage": [
+      8,
+      10
+    ],
+    "damage_type": "physical_slash",
+    "hands": "one",
+    "requirements": {
+      "attribute.might": 10
+    },
+    "attack_speed": 1.1,
+    "reach": 1.5,
+    "durability_max": 200,
+    "repair": {
+      "station": "anvil",
+      "skill_ref": "skill.smithing",
+      "skill_min": 2,
+      "item_ref": "item.material.iron_ingot"
+    },
+    "review_id": "W18",
+    "era": "Medieval / renaissance",
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+  }
+]

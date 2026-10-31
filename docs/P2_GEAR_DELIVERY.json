@@ -1,0 +1,929 @@
+{
+  "schema": 1,
+  "status": "VALIDATED_GEAR_DELTA_READY_FOR_CLAUDE_INTEGRATION",
+  "source_branch": "content/p2-gear",
+  "source_commit": "7aa1c14f5e1d50dfae2c8930028c41dc48b7b19f",
+  "base": "build2-integ 303bdbe8",
+  "created_utc": "2026-10-31T15:53:29.475480+00:00",
+  "art_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\weapon_delivery_final",
+  "weapons": 15,
+  "armour": 0,
+  "icons": 15,
+  "lod_files": 45,
+  "accepted_native_held_frames": 180,
+  "source_lod_frames": 45,
+  "signed_cache_references": 186,
+  "unique_dds": 81,
+  "full_mip_chains": true,
+  "merge_delta_only": true,
+  "integration": "Merge fifteen ready folders. Merge ui_icons.json by icon key and texture_cache/manifest.json by cache key with its DDS files. Preserve all existing world/character assets and full manifests. This delta is not a standalone AssetBase.",
+  "deferred": "Twenty armour pieces, W08 polearm and W02 greatsword: no unproven worn/two-hand fits shipped.",
+  "source_blends_or_character_payload_distributed": false,
+  "files": [
+    {
+      "path": "cache_audit_final.json",
+      "bytes": 99438,
+      "sha256": "a6d2c7337e1d58a765349fe744a3f9f8a90a98d57d61be94a09876360db79f02"
+    },
+    {
+      "path": "cache_prepare.json",
+      "bytes": 100730,
+      "sha256": "b3e4e156405034b62d445707a3e504023aa647fd06dc4d7ed4eaf78bba437fa1"
+    },
+    {
+      "path": "CREDITS_NOTICE.md",
+      "bytes": 3142,
+      "sha256": "0d9ec5eb82f2bee97d1d68f195231c1bc1748fbc64b46a58a773c9e8d852cf77"
+    },
+    {
+      "path": "full_mip_audit.json",
+      "bytes": 17528,
+      "sha256": "e2c3fb00c7d6ddace02ef40648a48b849daa111dd097287c9014ca6faa901303"
+    },
+    {
+      "path": "NATIVE_PROOF.json",
+      "bytes": 21140,
+      "sha256": "c957bd571c1ac3469d6e0752a727e710017069ee3d3f4093cfd5edbcaf0dbbf4"
+    },
+    {
+      "path": "primary/brand_removal_receipts.json",
+      "bytes": 12222,
+      "sha256": "cde3cc0e3d840a88f58e5ec6256da806d4fffd7303e79fdc2bacc020af71ad4d"
+    },
+    {
+      "path": "primary/gear_icon_receipts.json",
+      "bytes": 2868,
+      "sha256": "49c20f53bf191f4e7ec8070b3aacf10f6cdc624435129d502b1141b2e6dc9b29"
+    },
+    {
+      "path": "primary/manifests/ui_icons.json",
+      "bytes": 6054,
+      "sha256": "25e50464a31b06a2643dc9f9205e76b8617300b9b330b649660f777a423cb6f2"
+    },
+    {
+      "path": "primary/ready/gear_bearded_road_axe/gear_bearded_road_axe.glb",
+      "bytes": 18152024,
+      "sha256": "f7230b9af22755a13ef1b146067037c9240f171bdf219e04a06808f021780d7a"
+    },
+    {
+      "path": "primary/ready/gear_bearded_road_axe/gear_bearded_road_axe_lod1.glb",
+      "bytes": 18152024,
+      "sha256": "f7230b9af22755a13ef1b146067037c9240f171bdf219e04a06808f021780d7a"
+    },
+    {
+      "path": "primary/ready/gear_bearded_road_axe/gear_bearded_road_axe_lod2.glb",
+      "bytes": 18152024,
+      "sha256": "f7230b9af22755a13ef1b146067037c9240f171bdf219e04a06808f021780d7a"
+    },
+    {
+      "path": "primary/ready/gear_bearded_road_axe/gear_bearded_road_axe_meta.json",
+      "bytes": 2198,
+      "sha256": "627b68544b3a33480d98475e48c06503d313eab0c844ceebaa1a80e80b9d024e"
+    },
+    {
+      "path": "primary/ready/gear_brass_hilt_sword/gear_brass_hilt_sword.glb",
+      "bytes": 3008484,
+      "sha256": "c3f0c30d35a94ed69e4dbc354e6b5e57c546c6cba6538bb3dfc9c1837de33235"
+    },
+    {
+      "path": "primary/ready/gear_brass_hilt_sword/gear_brass_hilt_sword_lod1.glb",
+      "bytes": 3008484,
+      "sha256": "c3f0c30d35a94ed69e4dbc354e6b5e57c546c6cba6538bb3dfc9c1837de33235"
+    },
+    {
+      "path": "primary/ready/gear_brass_hilt_sword/gear_brass_hilt_sword_lod2.glb",
+      "bytes": 3008484,
+      "sha256": "c3f0c30d35a94ed69e4dbc354e6b5e57c546c6cba6538bb3dfc9c1837de33235"
+    },
+    {
+      "path": "primary/ready/gear_brass_hilt_sword/gear_brass_hilt_sword_meta.json",
+      "bytes": 2114,
+      "sha256": "5b3c284cabb89e373ceeacb50c0d9ac0e43079cf4918d09bffab55011d5cf7ba"
+    },
+    {
+      "path": "primary/ready/gear_bronze_broadsword/gear_bronze_broadsword.glb",
+      "bytes": 19396276,
+      "sha256": "7a7a0888dd881918283ef7bd234de2d414f64762c359cf47b363af2d51ef0765"
+    },
+    {
+      "path": "primary/ready/gear_bronze_broadsword/gear_bronze_broadsword_lod1.glb",
+      "bytes": 18332928,
+      "sha256": "ffe6058e13b1450ae3b0e21b7fd7f990bf0f6c9ebfd8be1823f8c477513465fc"
+    },
+    {
+      "path": "primary/ready/gear_bronze_broadsword/gear_bronze_broadsword_lod2.glb",
+      "bytes": 17784584,
+      "sha256": "b51cb52cfaf835f330c90beb53f23664fcdec094e74d7643060ca094e6d46494"
+    },
+    {
+      "path": "primary/ready/gear_bronze_broadsword/gear_bronze_broadsword_meta.json",
+      "bytes": 2711,
+      "sha256": "cc6851774d804d77e06029cc1c96309a2b8e52899155c2d32a8fe820c6acad5a"
+    },
+    {
+      "path": "primary/ready/gear_bronze_curved_sword/gear_bronze_curved_sword.glb",
+      "bytes": 17004088,
+      "sha256": "37e31ad444230ccbbb26d45a8741cc5f5ae86d8d6abafa882ef0550de45f55e8"
+    },
+    {
+      "path": "primary/ready/gear_bronze_curved_sword/gear_bronze_curved_sword_lod1.glb",
+      "bytes": 16544876,
+      "sha256": "9ad34f2ba67b16251585116e8cb1dfccde5fae0806813a9139948c4586178dbc"
+    },
+    {
+      "path": "primary/ready/gear_bronze_curved_sword/gear_bronze_curved_sword_lod2.glb",
+      "bytes": 16307580,
+      "sha256": "a87b264529c65a21d48b91ab0546e466be4ab13784ed1aaab618ba8d7b053287"
+    },
+    {
+      "path": "primary/ready/gear_bronze_curved_sword/gear_bronze_curved_sword_meta.json",
+      "bytes": 2711,
+      "sha256": "7915e18a334a4ea23d54ca507ec75690eb819b00ac30f082f7ece884570945fd"
+    },
+    {
+      "path": "primary/ready/gear_carved_old_bow/gear_carved_old_bow.glb",
+      "bytes": 2594688,
+      "sha256": "8bf6e22d47ea1c5e3f7d11e79f9dd349b2bc738f6cef860b8e7a9e19aab3da00"
+    },
+    {
+      "path": "primary/ready/gear_carved_old_bow/gear_carved_old_bow_lod1.glb",
+      "bytes": 2594688,
+      "sha256": "8bf6e22d47ea1c5e3f7d11e79f9dd349b2bc738f6cef860b8e7a9e19aab3da00"
+    },
+    {
+      "path": "primary/ready/gear_carved_old_bow/gear_carved_old_bow_lod2.glb",
+      "bytes": 2594688,
+      "sha256": "8bf6e22d47ea1c5e3f7d11e79f9dd349b2bc738f6cef860b8e7a9e19aab3da00"
+    },
+    {
+      "path": "primary/ready/gear_carved_old_bow/gear_carved_old_bow_meta.json",
+      "bytes": 2295,
+      "sha256": "766fb6c5b187733c0c72f71629bece65f4f6be0c58c9b77afcdf1f1e09cabba9"
+    },
+    {
+      "path": "primary/ready/gear_carving_knife/gear_carving_knife.glb",
+      "bytes": 1737468,
+      "sha256": "22ad9ee9298a7eb83d5a0e8e953e34cf04f1c921646b6cb74798a3147b4cd336"
+    },
+    {
+      "path": "primary/ready/gear_carving_knife/gear_carving_knife_lod1.glb",
+      "bytes": 1737468,
+      "sha256": "22ad9ee9298a7eb83d5a0e8e953e34cf04f1c921646b6cb74798a3147b4cd336"
+    },
+    {
+      "path": "primary/ready/gear_carving_knife/gear_carving_knife_lod2.glb",
+      "bytes": 1737468,
+      "sha256": "22ad9ee9298a7eb83d5a0e8e953e34cf04f1c921646b6cb74798a3147b4cd336"
+    },
+    {
+      "path": "primary/ready/gear_carving_knife/gear_carving_knife_meta.json",
+      "bytes": 2129,
+      "sha256": "5532d9b0ddbfafb6a3dccd83c187844b7953c809bfb44588e236dd81099d87df"
+    },
+    {
+      "path": "primary/ready/gear_double_bit_axe/gear_double_bit_axe.glb",
+      "bytes": 51416084,
+      "sha256": "d7d989f759cf30ebad2eb76dc0ae1a27f8d1363456e7be2b70848fad737976c9"
+    },
+    {
+      "path": "primary/ready/gear_double_bit_axe/gear_double_bit_axe_lod1.glb",
+      "bytes": 51311796,
+      "sha256": "58e04a59166a104d389ec96fc2b941495e8c156f5a0a538b485df80308567b65"
+    },
+    {
+      "path": "primary/ready/gear_double_bit_axe/gear_double_bit_axe_lod2.glb",
+      "bytes": 51256708,
+      "sha256": "b47620ed1193cf68b0e89de12571f4f9156de4b85574750264230b4f7b998af6"
+    },
+    {
+      "path": "primary/ready/gear_double_bit_axe/gear_double_bit_axe_meta.json",
+      "bytes": 2983,
+      "sha256": "59a26e0a9eda203cb93a104d5b08d9fb3da1c51a074858e0d056a657d1f11ef5"
+    },
+    {
+      "path": "primary/ready/gear_engraved_road_sword/gear_engraved_road_sword.glb",
+      "bytes": 4482788,
+      "sha256": "ece451475af82606ce70f21abe49e45a84f1bd3165b4d5f116fc51b1a851ba4e"
+    },
+    {
+      "path": "primary/ready/gear_engraved_road_sword/gear_engraved_road_sword_lod1.glb",
+      "bytes": 4482788,
+      "sha256": "ece451475af82606ce70f21abe49e45a84f1bd3165b4d5f116fc51b1a851ba4e"
+    },
+    {
+      "path": "primary/ready/gear_engraved_road_sword/gear_engraved_road_sword_lod2.glb",
+      "bytes": 4482788,
+      "sha256": "ece451475af82606ce70f21abe49e45a84f1bd3165b4d5f116fc51b1a851ba4e"
+    },
+    {
+      "path": "primary/ready/gear_engraved_road_sword/gear_engraved_road_sword_meta.json",
+      "bytes": 2165,
+      "sha256": "8b30d51535f7dcef9fb5b719d663f3f0ed11ebadea563c3fe614829557815fb2"
+    },
+    {
+      "path": "primary/ready/gear_iron_curved_sword/gear_iron_curved_sword.glb",
+      "bytes": 12801708,
+      "sha256": "74dc25db26f5f364f859b616e37aee748b2b176fb2ec6e0740dedae09a002fdb"
+    },
+    {
+      "path": "primary/ready/gear_iron_curved_sword/gear_iron_curved_sword_lod1.glb",
+      "bytes": 12342528,
+      "sha256": "e4760340d78ad9975d42d083042a763dff2a106787db9986c515feee6a40e677"
+    },
+    {
+      "path": "primary/ready/gear_iron_curved_sword/gear_iron_curved_sword_lod2.glb",
+      "bytes": 12105228,
+      "sha256": "fd8d1ae645c6adb56ae957398ed0c443afec5c41f45a67dd70b20635705a42cf"
+    },
+    {
+      "path": "primary/ready/gear_iron_curved_sword/gear_iron_curved_sword_meta.json",
+      "bytes": 2701,
+      "sha256": "6f8d86d3ea5f1b3ab68fc27847b352db3317601feb76c4796c49401f9771eefe"
+    },
+    {
+      "path": "primary/ready/gear_notched_road_axe/gear_notched_road_axe.glb",
+      "bytes": 9500648,
+      "sha256": "15d63c73a78e6e7abffec2c26b3e398aa63e7320ffca6947da50e77dd5c53302"
+    },
+    {
+      "path": "primary/ready/gear_notched_road_axe/gear_notched_road_axe_lod1.glb",
+      "bytes": 9500648,
+      "sha256": "15d63c73a78e6e7abffec2c26b3e398aa63e7320ffca6947da50e77dd5c53302"
+    },
+    {
+      "path": "primary/ready/gear_notched_road_axe/gear_notched_road_axe_lod2.glb",
+      "bytes": 9500648,
+      "sha256": "15d63c73a78e6e7abffec2c26b3e398aa63e7320ffca6947da50e77dd5c53302"
+    },
+    {
+      "path": "primary/ready/gear_notched_road_axe/gear_notched_road_axe_meta.json",
+      "bytes": 2150,
+      "sha256": "100ffb323ed8389a4888e1a2fb0f881f703fd9542432b94e669e04b3afd316d3"
+    },
+    {
+      "path": "primary/ready/gear_plain_belt_knife/gear_plain_belt_knife.glb",
+      "bytes": 1041836,
+      "sha256": "7132b7be3aafd49400a5b6dad354343a6d31b468d7e8e2382f66229b67969ed4"
+    },
+    {
+      "path": "primary/ready/gear_plain_belt_knife/gear_plain_belt_knife_lod1.glb",
+      "bytes": 1041836,
+      "sha256": "7132b7be3aafd49400a5b6dad354343a6d31b468d7e8e2382f66229b67969ed4"
+    },
+    {
+      "path": "primary/ready/gear_plain_belt_knife/gear_plain_belt_knife_lod2.glb",
+      "bytes": 1041836,
+      "sha256": "7132b7be3aafd49400a5b6dad354343a6d31b468d7e8e2382f66229b67969ed4"
+    },
+    {
+      "path": "primary/ready/gear_plain_belt_knife/gear_plain_belt_knife_meta.json",
+      "bytes": 2130,
+      "sha256": "d2cf073357530fea40a10fd18787636661bfb28268db928183bfad91cff95f88"
+    },
+    {
+      "path": "primary/ready/gear_red_grip_hunting_knife/gear_red_grip_hunting_knife.glb",
+      "bytes": 19119104,
+      "sha256": "49701ef5b30e2ffa061904c1a571067e82a911fed71f7b086d3387cffb376f84"
+    },
+    {
+      "path": "primary/ready/gear_red_grip_hunting_knife/gear_red_grip_hunting_knife_lod1.glb",
+      "bytes": 19119104,
+      "sha256": "49701ef5b30e2ffa061904c1a571067e82a911fed71f7b086d3387cffb376f84"
+    },
+    {
+      "path": "primary/ready/gear_red_grip_hunting_knife/gear_red_grip_hunting_knife_lod2.glb",
+      "bytes": 19119104,
+      "sha256": "49701ef5b30e2ffa061904c1a571067e82a911fed71f7b086d3387cffb376f84"
+    },
+    {
+      "path": "primary/ready/gear_red_grip_hunting_knife/gear_red_grip_hunting_knife_meta.json",
+      "bytes": 2173,
+      "sha256": "77e5a921beb1eaaac741b41d568b7fa113181b84b3a606057fda4c61d475e26b"
+    },
+    {
+      "path": "primary/ready/gear_stone_haft_hammer/gear_stone_haft_hammer.glb",
+      "bytes": 6084540,
+      "sha256": "0c7608815304b68855156de4c73a8372c2f649ac5bb069cfbbc1ea5e6350d751"
+    },
+    {
+      "path": "primary/ready/gear_stone_haft_hammer/gear_stone_haft_hammer_lod1.glb",
+      "bytes": 5996060,
+      "sha256": "69632e98f92e42cf049babd0dc499f3542d9d8b601acd87d2f58fc1c6542c3b5"
+    },
+    {
+      "path": "primary/ready/gear_stone_haft_hammer/gear_stone_haft_hammer_lod2.glb",
+      "bytes": 5951728,
+      "sha256": "2a7b6e71cce9068b641531c9c9bad0a8252f5dcb55a2ffb3460ca8172c2d3de4"
+    },
+    {
+      "path": "primary/ready/gear_stone_haft_hammer/gear_stone_haft_hammer_meta.json",
+      "bytes": 2759,
+      "sha256": "9f6d05962d788cf4077beee539f2c6f2a56ab69e7d9d3087944cd5fa5418d62d"
+    },
+    {
+      "path": "primary/ready/gear_weathered_double_bit_axe/gear_weathered_double_bit_axe.glb",
+      "bytes": 70214024,
+      "sha256": "a738e1784e8eeecf1d73c5babad7d59740d1ab2c058ce782241acd7d325f759b"
+    },
+    {
+      "path": "primary/ready/gear_weathered_double_bit_axe/gear_weathered_double_bit_axe_lod1.glb",
+      "bytes": 70109772,
+      "sha256": "c349020f52e3c383013793ddf1e77fae23b66d78a1f0c3ee9fdbf219e76985c5"
+    },
+    {
+      "path": "primary/ready/gear_weathered_double_bit_axe/gear_weathered_double_bit_axe_lod2.glb",
+      "bytes": 70054684,
+      "sha256": "7a53bc1ec116e184b8c6c02fc6a25502630941307b3778f6776adf89011a003d"
+    },
+    {
+      "path": "primary/ready/gear_weathered_double_bit_axe/gear_weathered_double_bit_axe_meta.json",
+      "bytes": 3308,
+      "sha256": "53ebbc4c0ad748c90b6ff63cea47909084543d6210a5288275b242223099f578"
+    },
+    {
+      "path": "primary/ready/gear_wood_grip_knife/gear_wood_grip_knife.glb",
+      "bytes": 838588,
+      "sha256": "b72c0802eb6f56242c2f20b446d7f58f99439d788d5d4e702f0fae7821271217"
+    },
+    {
+      "path": "primary/ready/gear_wood_grip_knife/gear_wood_grip_knife_lod1.glb",
+      "bytes": 838588,
+      "sha256": "b72c0802eb6f56242c2f20b446d7f58f99439d788d5d4e702f0fae7821271217"
+    },
+    {
+      "path": "primary/ready/gear_wood_grip_knife/gear_wood_grip_knife_lod2.glb",
+      "bytes": 838588,
+      "sha256": "b72c0802eb6f56242c2f20b446d7f58f99439d788d5d4e702f0fae7821271217"
+    },
+    {
+      "path": "primary/ready/gear_wood_grip_knife/gear_wood_grip_knife_meta.json",
+      "bytes": 2112,
+      "sha256": "85d066f651742433a1208d7a98a06dd40270bf8f666081eda39caff9140fcb69"
+    },
+    {
+      "path": "primary/texture_cache/02d50b59d6ff367e2cf89c1a.data.dds",
+      "bytes": 89478660,
+      "sha256": "8b5f435ab44931c15e0ab103229f96e59a21cac1c560aa5e934232896ceae220"
+    },
+    {
+      "path": "primary/texture_cache/069df82a5bd89eb79cf459dd.color.dds",
+      "bytes": 13192516,
+      "sha256": "9a5113364aabfe7984415f363e2937e727eb85dd59966274dbc7952cbbce82f4"
+    },
+    {
+      "path": "primary/texture_cache/0b576c3a0653a1915ae82e05.color.dds",
+      "bytes": 87556,
+      "sha256": "6948e3124812124a50f854c3b970649e471ab1afe85e1585d33cf913f5d4a0ed"
+    },
+    {
+      "path": "primary/texture_cache/0ed822ae695211782bb6f029.color.dds",
+      "bytes": 22020,
+      "sha256": "6047bec0f339f708e752554a48da060d9637682bf582253359dbbdb834921681"
+    },
+    {
+      "path": "primary/texture_cache/1359571ae9606200c93a4db5.color.dds",
+      "bytes": 22020,
+      "sha256": "84fb1fec3273b6a3043fd5bddbdce508e25fdc392353f36525d4698dd43708dc"
+    },
+    {
+      "path": "primary/texture_cache/15ae4f62f49474d07b7b4ff1.normal.dds",
+      "bytes": 22369796,
+      "sha256": "aaca919c59f0a2916a39795e673a70eee761bd7efa0851c881f916acac8dedc8"
+    },
+    {
+      "path": "primary/texture_cache/189845b579f70d3c547917fe.color.dds",
+      "bytes": 5592580,
+      "sha256": "4527b7183a11ee46f8e68246cc00fbed744e1b727b76adee0d17ace0694f52b2"
+    },
+    {
+      "path": "primary/texture_cache/1a1543224bef5da3bf9df77b.normal.dds",
+      "bytes": 89478660,
+      "sha256": "b1d3336a06977ca870528266c8427346f0960283a211d82867ae8385a0593be2"
+    },
+    {
+      "path": "primary/texture_cache/1e896b458313da882958d27e.color.dds",
+      "bytes": 22369796,
+      "sha256": "2cf78b57555d2b3086e4c0d9d2506bc608e34796746f41012481218134e26723"
+    },
+    {
+      "path": "primary/texture_cache/2336647cd0f3c3a8b726bb0b.color.dds",
+      "bytes": 89478660,
+      "sha256": "5f6692c655918b999e4416818045e66f917fa20d100468b2c2d1597b70fadde5"
+    },
+    {
+      "path": "primary/texture_cache/2a4348cac2148b122b436462.color.dds",
+      "bytes": 13192516,
+      "sha256": "a21af85489dc0b6e56ef63e034af00972e651825e667ac3a41db408389e369fc"
+    },
+    {
+      "path": "primary/texture_cache/304daaeba1235cd2ba677aad.color.dds",
+      "bytes": 22369796,
+      "sha256": "e6a92aae5f3ff6adaab4b65c27573840c2d66372ab14bb7e7c18b5beb6530c41"
+    },
+    {
+      "path": "primary/texture_cache/34a158241446531c089463ec.data.dds",
+      "bytes": 5592580,
+      "sha256": "ab5c760c5c27a8ead1c34ded5c75c40d9428330f99a1c162d184b41e5f50fc1c"
+    },
+    {
+      "path": "primary/texture_cache/35312f936cafb9d48ad6658f.color.dds",
+      "bytes": 87556,
+      "sha256": "de6314d222979a70694d21768fd77ed096dad71c7ddb3da02ab0713995ae928f"
+    },
+    {
+      "path": "primary/texture_cache/3b5fc5c44947fb8eb37ef55c.normal.dds",
+      "bytes": 22369796,
+      "sha256": "1472a39a4a0d774333303fc0aebe568509aed092d18a44554f151846867a1f2f"
+    },
+    {
+      "path": "primary/texture_cache/442aaa451709f8d2210d6fef.color.dds",
+      "bytes": 28933620,
+      "sha256": "abaaa2dc9433624ae6ffe4cee6bd0e3e82b12a7de6bd29a17294f49421901f46"
+    },
+    {
+      "path": "primary/texture_cache/4591e239929c63d009223f30.normal.dds",
+      "bytes": 5592580,
+      "sha256": "3e5bd649e4c1b9c8ae5aa1c5a4649584265b99196a1bb1ab79428ddc5bb5cfbb"
+    },
+    {
+      "path": "primary/texture_cache/4926803375ce93a99ec657b6.color.dds",
+      "bytes": 22020,
+      "sha256": "22a4cc75d64025a0518ce24445f6df0719d7d94daf719971b75d5e7528a02b3f"
+    },
+    {
+      "path": "primary/texture_cache/4d7cd28460b9a0b3d471afda.color.dds",
+      "bytes": 22369796,
+      "sha256": "f4859a62b2eb61fd607fc8ec58cc1f0c2ceac392399ce82b863a54014dc6d164"
+    },
+    {
+      "path": "primary/texture_cache/502b68453166a3ca2f12045d.data.dds",
+      "bytes": 22369796,
+      "sha256": "20e80df7745668343392a4c1d80331f5a9a8aad334a4bf5d8677b8566c5cb20c"
+    },
+    {
+      "path": "primary/texture_cache/52f31fae4e2e9dd60a3fd310.color.dds",
+      "bytes": 5592580,
+      "sha256": "7d29ed096392d53ee75ebb6f9d1b38b8b79debff3c1718cffa24d8db891ee8d5"
+    },
+    {
+      "path": "primary/texture_cache/5316dffd42e17407cab7aecd.normal.dds",
+      "bytes": 89478660,
+      "sha256": "5b4b54461ee3c8866297397b9d29704a8e96a562474a7f640d9461710d5ee32b"
+    },
+    {
+      "path": "primary/texture_cache/55fc172847a75839df325c09.data.dds",
+      "bytes": 22369796,
+      "sha256": "2e245314f38df878d35643328c8981d9abc9e26963bbb79cc85fa2ad9baba455"
+    },
+    {
+      "path": "primary/texture_cache/566bc9ee2a64df09bcc95557.data.dds",
+      "bytes": 22369796,
+      "sha256": "925081480e60337dc15c4abb776d557753a9acaca7401275f20a50c5688cffef"
+    },
+    {
+      "path": "primary/texture_cache/5754426ce7eb42d9a5068251.color.dds",
+      "bytes": 22020,
+      "sha256": "d5302c475c0ec6ad88c9f480917521b8019a92ecf9171aa5206cad1be685d5d8"
+    },
+    {
+      "path": "primary/texture_cache/576b1e7c00aa8f5fd0c3cd4c.data.dds",
+      "bytes": 89478660,
+      "sha256": "8abae76ce338b6b11af325528823fda35d1de18050b23b037ff932ae73cba477"
+    },
+    {
+      "path": "primary/texture_cache/57fb371e1918704481a82b51.color.dds",
+      "bytes": 22369796,
+      "sha256": "4ba93f537e571b1464063f596f4d6bc9ecb3eabd09ff5abed1905201a9e61e44"
+    },
+    {
+      "path": "primary/texture_cache/5c5b64f69fb18a721b3aec0c.color.dds",
+      "bytes": 87556,
+      "sha256": "03bbbc7efff1ccf549c276d47e14d0f4c20feeffc1acc86ce1fe08f646e103b6"
+    },
+    {
+      "path": "primary/texture_cache/5d4ac58462d07314ca875f7c.color.dds",
+      "bytes": 89478660,
+      "sha256": "10a402d1ca62c872ce821335a9c879c66d44bc36f82cbdeba34c353dac2296e4"
+    },
+    {
+      "path": "primary/texture_cache/5eab350b8220ac9944dbdfa4.color.dds",
+      "bytes": 5592580,
+      "sha256": "2fa93ad6ad0329c39d24269302a329ebb44417faf70a5459fedc502281d5e0b9"
+    },
+    {
+      "path": "primary/texture_cache/66681ba2117ff57c6f06e0b8.color.dds",
+      "bytes": 22020,
+      "sha256": "ad63075220f7101c9da70478e5d913535876f6e005c9a1c5a0953629cd02838b"
+    },
+    {
+      "path": "primary/texture_cache/66bc18184d7a93515f916c48.color.dds",
+      "bytes": 22020,
+      "sha256": "31470101437b222ba55e60d90c575872c7a8c3735677f1c714dcd3b24fd6452d"
+    },
+    {
+      "path": "primary/texture_cache/6a0196bfeafd28ef7791ea25.normal.dds",
+      "bytes": 22369796,
+      "sha256": "a67ef7558c18de436ae8c5621523e765a719774851ce23ce4f1e93b91ab5f9b9"
+    },
+    {
+      "path": "primary/texture_cache/6b4cc5b1664c275254f5acb5.color.dds",
+      "bytes": 22020,
+      "sha256": "166764d24169953e4ef9e00c2b754508c0b9004c55bafd24fae773d23e2a9c57"
+    },
+    {
+      "path": "primary/texture_cache/6b80237f54334d3ec74ccd83.normal.dds",
+      "bytes": 22369796,
+      "sha256": "7847ac8b3f5b0eccaba708c8e5481a07ef3779efc73c1583a05665cafd757d97"
+    },
+    {
+      "path": "primary/texture_cache/6bf9c867ea32604be12a47f3.normal.dds",
+      "bytes": 89478660,
+      "sha256": "8ea415cd3f1d0920ed2ba2972306697eee47e5a43f5197d3b50c996eeab5e5a5"
+    },
+    {
+      "path": "primary/texture_cache/6c6a5eba150fa81f9e28d8c0.color.dds",
+      "bytes": 87556,
+      "sha256": "8db4d3e3044a0a844ed49f434d87f4be3a44ec46314475f9bcac460e94ddaf86"
+    },
+    {
+      "path": "primary/texture_cache/6d69e364a99233a8902c99c7.color.dds",
+      "bytes": 87556,
+      "sha256": "bffb9096e81e2a8703f66bfe92207e9ee1aed87a803c3be79a38ec05e9919d3f"
+    },
+    {
+      "path": "primary/texture_cache/70e68afd1f9b3b3139d1ec3a.color.dds",
+      "bytes": 87556,
+      "sha256": "98d5d69280d51fe36618a2f7596309873c3d744c078d8d4bc1cfcbcd13c88a31"
+    },
+    {
+      "path": "primary/texture_cache/7e89f903cd6b5ffe2dbe542a.color.dds",
+      "bytes": 22020,
+      "sha256": "3c3532f653ac99a1490b87dddc9d9c5d4d726973454bfb9cb3fe9d7b3ecac643"
+    },
+    {
+      "path": "primary/texture_cache/809e6a507e2616c049cb933b.color.dds",
+      "bytes": 22020,
+      "sha256": "5e53b362d8bba3d0c876a41451b8b33e22eea5e93063ed0f40eb647de783cc1d"
+    },
+    {
+      "path": "primary/texture_cache/80f75ec5692effca583aa2e5.color.dds",
+      "bytes": 87556,
+      "sha256": "8d8dd3fd3b8ad4819ea90d1ee5fc3fac83694d5727d1a7e5ec59810f9d30236c"
+    },
+    {
+      "path": "primary/texture_cache/84d2dad3fe5d58a10fc2d3e3.color.dds",
+      "bytes": 87556,
+      "sha256": "a43c5f8ff6e06c5ac4f472f31311bbd90f0f87ee0e0e5556153b394574019daf"
+    },
+    {
+      "path": "primary/texture_cache/8b3de2726f34e27803f82b0f.color.dds",
+      "bytes": 87556,
+      "sha256": "b0c3bc3348af478e9bfb81652015f77c5fee5689362db4367839d26b2e72ee13"
+    },
+    {
+      "path": "primary/texture_cache/8cd9edee2978646252ae725c.normal.dds",
+      "bytes": 28933620,
+      "sha256": "f155886aef7d6e7c57a17295f5f1ce0b6e2b6d7ee0110655625fbaa4c981d705"
+    },
+    {
+      "path": "primary/texture_cache/9619a867f14b5c0a79792f5a.normal.dds",
+      "bytes": 22369796,
+      "sha256": "bff2f204d8c85425f96afe7414edc3d9531d80da2b61b4a4255f0bae94a5614d"
+    },
+    {
+      "path": "primary/texture_cache/977cfd6ad909874c110d65b1.data.dds",
+      "bytes": 22369796,
+      "sha256": "bb82d59f959b75b18b62e8bdc70555876ced81eba48e207236a1b4026a60df85"
+    },
+    {
+      "path": "primary/texture_cache/9af65d5fdfd2a193c24069b1.color.dds",
+      "bytes": 22369796,
+      "sha256": "9d23523c5c8da1ca204692665541d5144dcc402e9056feacd55e80774f690974"
+    },
+    {
+      "path": "primary/texture_cache/9c6fb85c1bd5ec42e53868fc.color.dds",
+      "bytes": 22020,
+      "sha256": "4bbef1e43fdfef83ff2c5830f9529d41658d931420385c40528d523e18c37fe0"
+    },
+    {
+      "path": "primary/texture_cache/9e0207709836bacf8959c753.normal.dds",
+      "bytes": 5592580,
+      "sha256": "e2c24f1ce3817b340baeea45cd690cebb042b509bbbc763b63c4b365ff3ca7c9"
+    },
+    {
+      "path": "primary/texture_cache/a31c98d4a89d603fb919c538.normal.dds",
+      "bytes": 13192516,
+      "sha256": "ccc9881f4b3eeb093b30d74b7eb900e9a8f7bf2f40dad5638f5a0575620a34fe"
+    },
+    {
+      "path": "primary/texture_cache/a4bf9f122be2de866097b791.color.dds",
+      "bytes": 89478660,
+      "sha256": "bfbc677e962aab28bf7f720b82a96f0f16d091e6b6a563276b19cd734d5c3828"
+    },
+    {
+      "path": "primary/texture_cache/a58356ee63fd48691806c647.color.dds",
+      "bytes": 87556,
+      "sha256": "b004ecdf39baabfa0e4adaec9b92806a898be5ca354ebe119e93dea68e4aefb9"
+    },
+    {
+      "path": "primary/texture_cache/a7711ffd275ae3208ab025c5.normal.dds",
+      "bytes": 28933620,
+      "sha256": "9d5b5091a7c5eb9e2bd4e943b8db56a9fb0b80da30ead801929990ac34c74463"
+    },
+    {
+      "path": "primary/texture_cache/a8032959082616372828f14d.data.dds",
+      "bytes": 5592580,
+      "sha256": "76b7fbc68f73453781c87d331793a46d13c12e39774349a634a851294b5b8fe3"
+    },
+    {
+      "path": "primary/texture_cache/acfbb7df4ba67490dbf22a3c.color.dds",
+      "bytes": 22020,
+      "sha256": "562360ece7e10de4728f07f2a5fd402e5b49c60657252303a3d1a4ce5d49f367"
+    },
+    {
+      "path": "primary/texture_cache/aec23021d3b326cf8b5e7213.color.dds",
+      "bytes": 87556,
+      "sha256": "1396cfa04624579433a12a2a2113c856081ca6f03208a0cc41a4d6c404bd03b9"
+    },
+    {
+      "path": "primary/texture_cache/af7f15bd60e4ed9f1b8355f0.color.dds",
+      "bytes": 87556,
+      "sha256": "9f024cd40a96e345e992b3e930b359ab32eb809c6c1fae9f3f72f863153a63b2"
+    },
+    {
+      "path": "primary/texture_cache/b8030b4fd6decafdd653bbd4.normal.dds",
+      "bytes": 22369796,
+      "sha256": "02655e9435cc2ea2cf862bd9c3da5ee4f14bb3cf589acc9699b891860242fad1"
+    },
+    {
+      "path": "primary/texture_cache/b978d642966969f2488cab1c.color.dds",
+      "bytes": 22020,
+      "sha256": "9b269d016b2e9acc5b5ed1ad3ff73d1e123e821aad85cccdc077645a62e3b6d9"
+    },
+    {
+      "path": "primary/texture_cache/ba56cf7f1a571b03ee24b057.normal.dds",
+      "bytes": 5592580,
+      "sha256": "237cf9020519595329a10b12911d28bf0af8b83194ef5095d94c2b5e0a61e0b9"
+    },
+    {
+      "path": "primary/texture_cache/bafdad0c966cb4239f05ffe1.color.dds",
+      "bytes": 87556,
+      "sha256": "5851f4bd1dec266fe80b743bbe24aad320a220245edec700f9c610cc18592d1f"
+    },
+    {
+      "path": "primary/texture_cache/bdd8c5bd8433e4a8619892d0.data.dds",
+      "bytes": 5592580,
+      "sha256": "48ed9aace23466a71c5013c3ee48a8c700f41e6d90f4d4cd337fc7d085ea142f"
+    },
+    {
+      "path": "primary/texture_cache/be530414cc8bbfd07a527539.color.dds",
+      "bytes": 28933620,
+      "sha256": "6d8d7c9f636f4ca216f9a6d87bbb2e2627ea2b09b24ae02054eaf07e6bc9cb26"
+    },
+    {
+      "path": "primary/texture_cache/c51ccdc0a41d40bc740960a3.data.dds",
+      "bytes": 4184788,
+      "sha256": "4c3ceff539a3e0c97f4991d90c2e50b09206fe8aa3238dd76f149ef5fdb96db7"
+    },
+    {
+      "path": "primary/texture_cache/c8923ace72df4df612b65262.color.dds",
+      "bytes": 87556,
+      "sha256": "b80561e88e2f58e3774869fb649282abd4c21d13c970bf13859dcaa745db54e1"
+    },
+    {
+      "path": "primary/texture_cache/ca258691c2297153b3ad4e2d.data.dds",
+      "bytes": 5592580,
+      "sha256": "1ce3356c7e9ca0ee7193c6cefc66b565a3ee790750b6dc3c5e8feb21cb9878ad"
+    },
+    {
+      "path": "primary/texture_cache/cb45ed882d8a61ea9dbe547d.normal.dds",
+      "bytes": 5592580,
+      "sha256": "216a1d3b0a457fe3471a6fe21e625f94124224619d3db0af184397ea30456e66"
+    },
+    {
+      "path": "primary/texture_cache/ce0c3be3c8d5f18cb3b13524.color.dds",
+      "bytes": 22020,
+      "sha256": "a814f1446b9656c6a34c634dac1d8e98d26892cc513751436b3b3ea73e27202c"
+    },
+    {
+      "path": "primary/texture_cache/cf1b930524e9349506e123f1.data.dds",
+      "bytes": 89478660,
+      "sha256": "50ddbe1648d8f181629a3e99585d1eb715fbdd4893b112e14e6ae5884c215bfd"
+    },
+    {
+      "path": "primary/texture_cache/d66a4668aded5488093ceba4.color.dds",
+      "bytes": 22020,
+      "sha256": "5dd76dbaaa5e2ed0f5ab9cb65230c9c933182ad681af8fdf4f310b593a8e33fa"
+    },
+    {
+      "path": "primary/texture_cache/d6d6ea710547e08614779d14.color.dds",
+      "bytes": 5592580,
+      "sha256": "80b89bd0e50dca52ccca7e53633acf4d77819af145569aeac1328dc16d075362"
+    },
+    {
+      "path": "primary/texture_cache/e4580b2b5c925710fa25ce83.data.dds",
+      "bytes": 22369796,
+      "sha256": "e64cb3312a300886c06913aea31dc07cb92c24b461ed7d16a449df7e0a6d7fd8"
+    },
+    {
+      "path": "primary/texture_cache/e681b96490056553f699d965.color.dds",
+      "bytes": 22369796,
+      "sha256": "166c92a27f23fc6591ee35a02dbcdc0c74ba695b19f2c9ae63a113c454a5a3a7"
+    },
+    {
+      "path": "primary/texture_cache/ee036cc374b9f57df1baacae.normal.dds",
+      "bytes": 4184788,
+      "sha256": "5371d6c26dd611988d89ada4f69ed085c938e10a86b52a7cadc3b771133e4843"
+    },
+    {
+      "path": "primary/texture_cache/f454462ae8213ef458c5cfcd.color.dds",
+      "bytes": 22020,
+      "sha256": "eca5b5880aaa48571a1dec337f8db88528b0b10b33526b29597c725b78022e11"
+    },
+    {
+      "path": "primary/texture_cache/f4b2126d1b52ef3ed7050ef1.color.dds",
+      "bytes": 4184788,
+      "sha256": "ff84fc84a2eaa4fddbe5f77019a39621e2633af8746090025678d136b39c3280"
+    },
+    {
+      "path": "primary/texture_cache/f602ddc17dbffc55c008fe40.color.dds",
+      "bytes": 5592580,
+      "sha256": "3a679a62a163061a0e2442d9eaf584bdfc1a67f03d64c1b352ff15c087be29db"
+    },
+    {
+      "path": "primary/texture_cache/f957cfc94a5e107ad0c93646.color.dds",
+      "bytes": 22369796,
+      "sha256": "0e859a8a55e85f7926feeaf40abcc8acaf298950fc7c5637d5eb77b61ce4a108"
+    },
+    {
+      "path": "primary/texture_cache/faf478b53487b0c145b55467.data.dds",
+      "bytes": 22369796,
+      "sha256": "96477e5b3c2d9f22ff04f7a8869302141e7ba0817740fbdbcec5c859ce0fe8a8"
+    },
+    {
+      "path": "primary/texture_cache/fbe9e4551fec69ee72cff37b.color.dds",
+      "bytes": 87556,
+      "sha256": "c056018aa1978c3235347c51510afe7d078d7cd67635719f82f5a62dfd66ab2f"
+    },
+    {
+      "path": "primary/texture_cache/manifest.json",
+      "bytes": 40747,
+      "sha256": "adeb7c6590a36bfab699d6c983c2ece5c5affc44145d244f7e4f4712459a1ea2"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_bearded_road_axe_128.png",
+      "bytes": 3998,
+      "sha256": "c26f29f9cd0603ed2e7d15b9417d918fe1c8710a2dfb1e2f22521492798321d9"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_bearded_road_axe_256.png",
+      "bytes": 10900,
+      "sha256": "232a64eb4c143e6f07ae54e994288b6c1bebc9a61e319e694448f72fefc32ab0"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_brass_hilt_sword_128.png",
+      "bytes": 3203,
+      "sha256": "0de8c7cf40956cd277e52eb085a308018fa2678e59a51258b6700071d70694cf"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_brass_hilt_sword_256.png",
+      "bytes": 8085,
+      "sha256": "137a5911f3e3d41233d580be9a79cb573d7c502ddd1caab2787daa5552b48968"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_bronze_broadsword_128.png",
+      "bytes": 3638,
+      "sha256": "6ed2b93d4996cba136a7620563096467c1fbe9d80fb99aba47951ad2dc4f9b52"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_bronze_broadsword_256.png",
+      "bytes": 8981,
+      "sha256": "c2bf12ff3af819d9a3b77ad2adfed159bb541d59a9a18e592427d0245c4df7f3"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_bronze_curved_sword_128.png",
+      "bytes": 3183,
+      "sha256": "27dc9f8c3def83f6ec9c2469c94436afe0002f8d12f354d27e622de0a0a5b5e8"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_bronze_curved_sword_256.png",
+      "bytes": 7462,
+      "sha256": "f8499e274348027e6ac750a95c5ea2d627e994d10a614e90a683d5b602c8f514"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_carved_old_bow_128.png",
+      "bytes": 3537,
+      "sha256": "b7e07c435e9d0f43d1fb86cf8f8b57494dd2a58c47cfa636b23cc27fc75c2586"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_carved_old_bow_256.png",
+      "bytes": 9364,
+      "sha256": "12c5e8f68e3991a149a3458d8562e2d92968f997d2e425ea1880f1a96c3a737a"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_carving_knife_128.png",
+      "bytes": 5836,
+      "sha256": "9b8cf6f38ba71816b7d7daf9339a1832e9bf38c29427202b04dccc48e7bbe7ad"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_carving_knife_256.png",
+      "bytes": 19058,
+      "sha256": "0bafdb980d42498873bbe2ad3bd9959bd504370a43c3bedc994fb475d467ba88"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_double_bit_axe_128.png",
+      "bytes": 5229,
+      "sha256": "465b04eab70401d78e93cf7731748b5779282c026b871550be3f7e7cc4b2963f"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_double_bit_axe_256.png",
+      "bytes": 15358,
+      "sha256": "5cd5d3bd0b343f79759a6b8391fd6464c52d6245b223a716497d48f09784297a"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_engraved_road_sword_128.png",
+      "bytes": 5139,
+      "sha256": "2ecd55745dcd050afcc098c91d0661b847386056afd378cae84196848f7a21dc"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_engraved_road_sword_256.png",
+      "bytes": 15376,
+      "sha256": "246a21d5675c60206e907a4a14fa8b4ec8771bbe2f0a4260025bd0358cedddae"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_iron_curved_sword_128.png",
+      "bytes": 3090,
+      "sha256": "a77c4435a85c5a390e5a9eee0caac74d8de30cd71a9eeabb712d8934cd431c79"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_iron_curved_sword_256.png",
+      "bytes": 7214,
+      "sha256": "a80de04cd16d76f7589de8692381df01061119b5937fa65f43993bd9937f17a7"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_notched_road_axe_128.png",
+      "bytes": 8938,
+      "sha256": "303546531f7a6575e19f2d4c7cc5c27401e52fba36b48c863caf344ed1c055d3"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_notched_road_axe_256.png",
+      "bytes": 30566,
+      "sha256": "2268b8ca8f1c865ca67d0158e5a760b617312aa2c117082b7453de158dd59871"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_plain_belt_knife_128.png",
+      "bytes": 4930,
+      "sha256": "4fb896990286a79eeb1ca35bfb3eb104b27f024aa9fdbce7b88b154ba8050dae"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_plain_belt_knife_256.png",
+      "bytes": 13984,
+      "sha256": "03550cfeb2219c5a2c7581c21a36fd26fedfc4f6083e159170d19447b1b77851"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_red_grip_hunting_knife_128.png",
+      "bytes": 5634,
+      "sha256": "581a22f8ad1245e15df55e5253a153fcf8d41bf56ab0505f7465146c88e3317a"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_red_grip_hunting_knife_256.png",
+      "bytes": 18005,
+      "sha256": "c78c0a79bd948491339ce6c5dfbe6e1df877fa17a94b6e1b3617af44c10de0f0"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_stone_haft_hammer_128.png",
+      "bytes": 6160,
+      "sha256": "4e360a2cae416717e47789fb79ffb4ba4f55678d5561610df26deaa45ef046c5"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_stone_haft_hammer_256.png",
+      "bytes": 19921,
+      "sha256": "b2458b5f3c7767a42ecce2fbe41d47a99cf3ad0f6646be41ec7e37eb00f3eaa1"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_weathered_double_bit_axe_128.png",
+      "bytes": 5277,
+      "sha256": "12d1db7c7428387c7a043d77e5ca8084a52e668f644fc395f6d6749481268324"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_weathered_double_bit_axe_256.png",
+      "bytes": 15607,
+      "sha256": "8f296ae0c0bc85e2678cb239339879ee235cb51e2b2ecfac0ba7472716d14ad4"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_wood_grip_knife_128.png",
+      "bytes": 5953,
+      "sha256": "411db27674d4bdab0ef2e6caf57e7736de9999ed6289a1ee0978668b85945ed5"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_wood_grip_knife_256.png",
+      "bytes": 18716,
+      "sha256": "b1e590bb00c38af20c79f61796734e25638758181824d00c3aa8b6427a444716"
+    },
+    {
+      "path": "VALIDATION.json",
+      "bytes": 1756,
+      "sha256": "e121c7c11a0d0b266d7294fe6dd98227e2b13e3101adb59c563f71c3a787949d"
+    }
+  ]
+}

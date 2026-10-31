@@ -1,0 +1,21 @@
+id: item.weapon.carving_knife
+kind: item.weapon
+schema: 1
+display_key: item.weapon.carving_knife.name
+tags: [item]
+name: Carving Knife
+notes: A short tapering blade in a broad wooden handle. A carver can keep working after the edge wears.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 0.25
+value_base: 9
+damage: [4, 6]
+damage_type: physical_pierce
+hands: one
+requirements: { attribute.might: 6 }
+attack_speed: 2.0
+reach: 1.0
+skill_ref: skill.one_hand_blade
+durability_max: 200
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 2, item_ref: item.material.iron_ingot }

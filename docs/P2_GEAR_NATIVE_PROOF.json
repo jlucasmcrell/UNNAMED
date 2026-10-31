@@ -1,0 +1,448 @@
+{
+  "schema": 1,
+  "status": "PASS_NATIVE_GEAR_SOURCE_LODS_AND_READY_ACTIVE_HELD",
+  "weapons": 15,
+  "armour": 0,
+  "source_base": "build2-integ 303bdbe8",
+  "models": [
+    {
+      "item_id": "item.weapon.engraved_road_sword",
+      "review_id": "W01",
+      "model": "gear_engraved_road_sword",
+      "primary_sha256": "ece451475af82606ce70f21abe49e45a84f1bd3165b4d5f116fc51b1a851ba4e",
+      "source_sha256": "63e9afed6235c8b0b26e9f033ee8386ea003ec664c5127df1dd1f29e338842b5",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/6201b2f5-c0ec-4dbb-b58e-5c24784facca/",
+      "author": "Dr toxic",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        856,
+        856,
+        856
+      ]
+    },
+    {
+      "item_id": "item.weapon.iron_curved_sword",
+      "review_id": "W03",
+      "model": "gear_iron_curved_sword",
+      "primary_sha256": "74dc25db26f5f364f859b616e37aee748b2b176fb2ec6e0740dedae09a002fdb",
+      "source_sha256": "70a985cb0b156d8b29dd4255f8c68dbb2847ec96bbeebb9c03956509f19de5a6",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/318309c7-f5c3-49b4-ab7b-2484bdf3c17c/",
+      "author": "z1",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        41540,
+        20770,
+        10384
+      ]
+    },
+    {
+      "item_id": "item.weapon.bronze_broadsword",
+      "review_id": "W04",
+      "model": "gear_bronze_broadsword",
+      "primary_sha256": "7a7a0888dd881918283ef7bd234de2d414f64762c359cf47b363af2d51ef0765",
+      "source_sha256": "cf34726a68479b880b52958f05cb2fb4d2cfa04561025579ced8f81c57811227",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/e64388b8-c363-4da1-8bca-3ffc990a87a9/",
+      "author": "z1",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        75334,
+        37666,
+        18832
+      ]
+    },
+    {
+      "item_id": "item.weapon.bronze_curved_sword",
+      "review_id": "W05",
+      "model": "gear_bronze_curved_sword",
+      "primary_sha256": "37e31ad444230ccbbb26d45a8741cc5f5ae86d8d6abafa882ef0550de45f55e8",
+      "source_sha256": "9d2847d5801666a001111910bfe50ef1d08019954f71d7d31d23e8ff66c7fae4",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/5871f307-42c8-4daf-b69e-7609449b5051/",
+      "author": "z1",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        41540,
+        20770,
+        10384
+      ]
+    },
+    {
+      "item_id": "item.weapon.bearded_road_axe",
+      "review_id": "W06",
+      "model": "gear_bearded_road_axe",
+      "primary_sha256": "f7230b9af22755a13ef1b146067037c9240f171bdf219e04a06808f021780d7a",
+      "source_sha256": "4248c0640f84657be4b16db7b0ee8778b8f2f39b4dd7a615ae06cedaef2b2aee",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/464a2d66-0443-467b-98f3-3c75088b7abb/",
+      "author": "Crazy0_0Cat",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        1002,
+        1002,
+        1002
+      ]
+    },
+    {
+      "item_id": "item.weapon.stone_haft_hammer",
+      "review_id": "W07",
+      "model": "gear_stone_haft_hammer",
+      "primary_sha256": "0c7608815304b68855156de4c73a8372c2f649ac5bb069cfbbc1ea5e6350d751",
+      "source_sha256": "5107ad87737c10800ee926a5a945a9d4cf654c4c9d882a5d9651e85d823f4164",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/1957620b-f527-4661-a2bd-ca51df02be19/",
+      "author": "3D Addicts",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        7488,
+        3744,
+        1872
+      ]
+    },
+    {
+      "item_id": "item.weapon.weathered_double_bit_axe",
+      "review_id": "W24",
+      "model": "gear_weathered_double_bit_axe",
+      "primary_sha256": "a738e1784e8eeecf1d73c5babad7d59740d1ab2c058ce782241acd7d325f759b",
+      "source_sha256": "cd67a81d5e3e7a76a9342638cab0e527368d96787d1f2ee21d6c1a25749e39a5",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/b4ec399a-2a83-481f-94c9-8e93cce68f20/",
+      "author": "Joachim Bornemann",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        7450,
+        3724,
+        1862
+      ]
+    },
+    {
+      "item_id": "item.weapon.carved_old_bow",
+      "review_id": "W09",
+      "model": "gear_carved_old_bow",
+      "primary_sha256": "8bf6e22d47ea1c5e3f7d11e79f9dd349b2bc738f6cef860b8e7a9e19aab3da00",
+      "source_sha256": "4cf9b0246b6d5bfcff1cdf9bbda340f5fd0509f003c3ac2a09ff5f09b3275957",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/daddccf8-c5d6-40eb-a874-da1722fbdea9/",
+      "author": "Mijan 3d",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        3078,
+        3078,
+        3078
+      ]
+    },
+    {
+      "item_id": "item.weapon.red_grip_hunting_knife",
+      "review_id": "W14",
+      "model": "gear_red_grip_hunting_knife",
+      "primary_sha256": "49701ef5b30e2ffa061904c1a571067e82a911fed71f7b086d3387cffb376f84",
+      "source_sha256": "43f2295c430569b57e19a350e8502f7813178657c37feb6db2c929a9bd5cb8cf",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/1bbbd74b-ae5d-4cbd-8489-ab5947d17fc1/",
+      "author": "AMK 3D",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        2408,
+        2408,
+        2408
+      ]
+    },
+    {
+      "item_id": "item.weapon.plain_belt_knife",
+      "review_id": "W15",
+      "model": "gear_plain_belt_knife",
+      "primary_sha256": "7132b7be3aafd49400a5b6dad354343a6d31b468d7e8e2382f66229b67969ed4",
+      "source_sha256": "6bd1abc95b2813c4bb91b43de9f2ccc63b7be18ae67dd4a96576f188d48e11ee",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/8c1f4fd7-3a2c-465f-8a4d-08fd0dca8126/",
+      "author": "Polary Studios",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        884,
+        884,
+        884
+      ]
+    },
+    {
+      "item_id": "item.weapon.brass_hilt_sword",
+      "review_id": "W20",
+      "model": "gear_brass_hilt_sword",
+      "primary_sha256": "c3f0c30d35a94ed69e4dbc354e6b5e57c546c6cba6538bb3dfc9c1837de33235",
+      "source_sha256": "f12280bf947969f0f333247afac75b0c224389729a5b6dcc0576ae5af704cfcf",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/c7813f41-e345-41a9-bde9-90ce9ebdb863/",
+      "author": "Josue Morales",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        4228,
+        4228,
+        4228
+      ]
+    },
+    {
+      "item_id": "item.weapon.wood_grip_knife",
+      "review_id": "W21",
+      "model": "gear_wood_grip_knife",
+      "primary_sha256": "b72c0802eb6f56242c2f20b446d7f58f99439d788d5d4e702f0fae7821271217",
+      "source_sha256": "23ebd94cd4dc3eef775276117ede4d3d3f5542128aaf555a96ca50ddd562c067",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/b4ac9583-a957-498d-be53-6263d74d6276/",
+      "author": "Vadim Gubey",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        672,
+        672,
+        672
+      ]
+    },
+    {
+      "item_id": "item.weapon.carving_knife",
+      "review_id": "W22",
+      "model": "gear_carving_knife",
+      "primary_sha256": "22ad9ee9298a7eb83d5a0e8e953e34cf04f1c921646b6cb74798a3147b4cd336",
+      "source_sha256": "501467fa1b6c8c586d9f59d77bb5cdeb3d37589a9de51b855fea75c1aabf5a6a",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/b0481a5a-988a-4067-a327-bba3892cfc09/",
+      "author": "Future/Past Creatives",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        1304,
+        1304,
+        1304
+      ]
+    },
+    {
+      "item_id": "item.weapon.double_bit_axe",
+      "review_id": "W23",
+      "model": "gear_double_bit_axe",
+      "primary_sha256": "d7d989f759cf30ebad2eb76dc0ae1a27f8d1363456e7be2b70848fad737976c9",
+      "source_sha256": "f4ed5aed7cf887734bbff8bf2852554058b9a9de2d8eab5484cc01b1308b8143",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/3cab72ec-e02d-458a-952a-01bb4a5fa77b/",
+      "author": "Joachim Bornemann",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        7450,
+        3724,
+        1862
+      ]
+    },
+    {
+      "item_id": "item.weapon.notched_road_axe",
+      "review_id": "W18",
+      "model": "gear_notched_road_axe",
+      "primary_sha256": "15d63c73a78e6e7abffec2c26b3e398aa63e7320ffca6947da50e77dd5c53302",
+      "source_sha256": "b799e538222f8233ac43dd9a4d95ca80a9b6607fb0e3c6b66487a8731536c720",
+      "source": "https://www.blenderkit.com/asset-gallery-detail/3e92cb0c-1b46-4d92-a4de-080794a1e75d/",
+      "author": "Vladislav Kuznetsov",
+      "licence": "BlenderKit Royalty Free License",
+      "lod_triangles": [
+        4667,
+        4667,
+        4667
+      ]
+    }
+  ],
+  "accepted_frame_manifest": "D:\\Otherreach_Scratch\\p2_gear_20261031\\held_final15_accepted\\ACCEPTED_FRAME_ORIGINS.json",
+  "accepted_current_native_frames": 180,
+  "retained_capture_frames": 192,
+  "source_lod_frames": 45,
+  "native_bodies": [
+    "humgen_creator_female",
+    "humgen_creator_male"
+  ],
+  "motion_policy": "49 exact-target native clips on each current creator body; strict target-body hash gate",
+  "gpu_leases_seconds": [
+    474.1973733,
+    183.8115197
+  ],
+  "renderer": "Godot 4.7.2 stable mono, high tier, 1920x1080 held originals; 1024px native model icon originals",
+  "pose_method": "Normal SkinnedFigure/HeldWeapon path; active sword variants entered through windup. Staged ready/active poses, not a played route or performance claim.",
+  "body_rest_bind_or_weight_changes": false,
+  "generative_processing": false,
+  "branding_receipt": "D:\\Otherreach_Scratch\\p2_gear_20261031\\weapon_delivery_final\\primary\\brand_removal_receipts.json",
+  "full_mip_audit": "D:\\Otherreach_Scratch\\p2_gear_20261031\\weapon_delivery_final\\full_mip_audit.json",
+  "source_files": {
+    "src/Presentation/Art/AnimationSheet.cs": "521b2771066caae056d975beb958250a6eaa7c7032ee953c8bbd7c017efd5140",
+    "src/Presentation/Art/HeldWeapon.cs": "35d46ad5b201e2124359bd49ed42ac76972cdf9719dba204a9da38e8d170765b",
+    "src/Presentation/Main.cs": "afb78a5f48aae2094d076dfa47bf39b0f852edf62e36d47c4256d6bbdd8df02d"
+  },
+  "source_lod_images": [
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bearded_road_axe.png",
+      "sha256": "cebb2272caccf53fbadcddb4dbab5320984e073a1222c2422524bfd0c01854e8"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bearded_road_axe_lod1.png",
+      "sha256": "cebb2272caccf53fbadcddb4dbab5320984e073a1222c2422524bfd0c01854e8"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bearded_road_axe_lod2.png",
+      "sha256": "cebb2272caccf53fbadcddb4dbab5320984e073a1222c2422524bfd0c01854e8"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_brass_hilt_sword.png",
+      "sha256": "fc87b71dfbd45de7552ae72e5908b29a400537a3aa5e60b1d1b49ea50b569aec"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_brass_hilt_sword_lod1.png",
+      "sha256": "fc87b71dfbd45de7552ae72e5908b29a400537a3aa5e60b1d1b49ea50b569aec"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_brass_hilt_sword_lod2.png",
+      "sha256": "fc87b71dfbd45de7552ae72e5908b29a400537a3aa5e60b1d1b49ea50b569aec"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bronze_broadsword.png",
+      "sha256": "e97f0bca8da77e51b0db059725e5d455dde7699a4606d585b5890416e0f93159"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bronze_broadsword_lod1.png",
+      "sha256": "e479a0ce6223450920526429ed8875132fc1926b9155fcdfca29fc9b91ea93de"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bronze_broadsword_lod2.png",
+      "sha256": "670c38f9e4101a689f32fe62aa77255332ab09c047056a3d621ca4d00024a737"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bronze_curved_sword.png",
+      "sha256": "5d5171329f4631a9fe97c3cb6d61bb43183db303449a90d8283bf3da6fcefec5"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bronze_curved_sword_lod1.png",
+      "sha256": "77fd0410b0e7739a0fdb72d4da333fc8ab3125eb28765d9d2d0e11ddc1ae4396"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_bronze_curved_sword_lod2.png",
+      "sha256": "4ac900ef7b39861858ac60113fa97ad13f7e841112560f358f68dda3929ea482"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_carved_old_bow.png",
+      "sha256": "b0c2dbdd04f653111167f6161d71b4403ee2362e86ce40b87df7324684049aef"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_carved_old_bow_lod1.png",
+      "sha256": "b0c2dbdd04f653111167f6161d71b4403ee2362e86ce40b87df7324684049aef"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_carved_old_bow_lod2.png",
+      "sha256": "b0c2dbdd04f653111167f6161d71b4403ee2362e86ce40b87df7324684049aef"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_carving_knife.png",
+      "sha256": "5efbfd885e85fb9cfbd060fbcb835ddf67638955638a4c267a4bdaafbea8af9c"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_carving_knife_lod1.png",
+      "sha256": "5efbfd885e85fb9cfbd060fbcb835ddf67638955638a4c267a4bdaafbea8af9c"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_carving_knife_lod2.png",
+      "sha256": "5efbfd885e85fb9cfbd060fbcb835ddf67638955638a4c267a4bdaafbea8af9c"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_double_bit_axe.png",
+      "sha256": "d106db8c3405fd9e4b6887fdc17ac752ca9559dca57dfe30773ae7b06540fd6a"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_double_bit_axe_lod1.png",
+      "sha256": "94a0b27c3d85c7c1d0b00910d4b4d73182e417fbec0e52a2f9bb422c7e8bcc3d"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_double_bit_axe_lod2.png",
+      "sha256": "af8e8aef8c4d854cb9b5fe46e61eb73bd8197206f2762c9647e344ca3a62dbb5"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_engraved_road_sword.png",
+      "sha256": "f727da091003c4031e228ce8635aabc375ef24f181a10f89c1250e9fb52063ac"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_engraved_road_sword_lod1.png",
+      "sha256": "f727da091003c4031e228ce8635aabc375ef24f181a10f89c1250e9fb52063ac"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_engraved_road_sword_lod2.png",
+      "sha256": "f727da091003c4031e228ce8635aabc375ef24f181a10f89c1250e9fb52063ac"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_iron_curved_sword.png",
+      "sha256": "93a888d83cffe6bba63f137e9fc560ce699f5ea61882a0521fd6471413f706e6"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_iron_curved_sword_lod1.png",
+      "sha256": "eacea8dab0258b3845d78bc073288f3165536235fd618545e1ba21cbfa31a574"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_iron_curved_sword_lod2.png",
+      "sha256": "c7eb0864518adf827ef46f1f54272496f304286a6f43a7823d4206a34716a556"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_notched_road_axe.png",
+      "sha256": "1e6fe26a8d139772a3ccd2c226a3f50c2926c288ba03920a6221cfc8e78ffdc0"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_notched_road_axe_lod1.png",
+      "sha256": "1e6fe26a8d139772a3ccd2c226a3f50c2926c288ba03920a6221cfc8e78ffdc0"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_notched_road_axe_lod2.png",
+      "sha256": "1e6fe26a8d139772a3ccd2c226a3f50c2926c288ba03920a6221cfc8e78ffdc0"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_plain_belt_knife.png",
+      "sha256": "3be0159b9165b0b9d61d6e708319d5525b8df2037d72837c5dbba07fd2ddc47e"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_plain_belt_knife_lod1.png",
+      "sha256": "3be0159b9165b0b9d61d6e708319d5525b8df2037d72837c5dbba07fd2ddc47e"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_plain_belt_knife_lod2.png",
+      "sha256": "3be0159b9165b0b9d61d6e708319d5525b8df2037d72837c5dbba07fd2ddc47e"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_red_grip_hunting_knife.png",
+      "sha256": "e63305bb2c0fca31cb9224a0377d0c13b6e43efc26f09091af38f9ce4e7fa4df"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_red_grip_hunting_knife_lod1.png",
+      "sha256": "e63305bb2c0fca31cb9224a0377d0c13b6e43efc26f09091af38f9ce4e7fa4df"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_red_grip_hunting_knife_lod2.png",
+      "sha256": "e63305bb2c0fca31cb9224a0377d0c13b6e43efc26f09091af38f9ce4e7fa4df"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_stone_haft_hammer.png",
+      "sha256": "e769573137b42157a0f91227e3207e334f683295a184e06172deb6ec357503ca"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_stone_haft_hammer_lod1.png",
+      "sha256": "59037ba029e51d1ebb34db073ff7bc7124153e354b206cd85e62eeafa853749e"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_stone_haft_hammer_lod2.png",
+      "sha256": "b78dc1b25e7dd241262a7482ef3bcb792afc5daf48b54864bf3decae7f064041"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_weathered_double_bit_axe.png",
+      "sha256": "ce37a9526edd1768bacae1d23bbeb1f5fe6c3532703118258e7875955135a5f7"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_weathered_double_bit_axe_lod1.png",
+      "sha256": "3020a8e0cafaf11cec4d4fae24b658866fabc0027a05554bcd53cf678be0853b"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_weathered_double_bit_axe_lod2.png",
+      "sha256": "bc8130a6222bc713ad7302d20579816e8bde8097b549bf925f9c3394cd7ff27c"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_wood_grip_knife.png",
+      "sha256": "7169d8fcd6a57ad9b2170391b7f0029e7b755de3e4bbb73a6e8f7d6656aee3a3"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_wood_grip_knife_lod1.png",
+      "sha256": "7169d8fcd6a57ad9b2170391b7f0029e7b755de3e4bbb73a6e8f7d6656aee3a3"
+    },
+    {
+      "file": "D:\\Otherreach_Scratch\\p2_gear_20261031\\icon_renders_final15_unbranded1\\gear_wood_grip_knife_lod2.png",
+      "sha256": "7169d8fcd6a57ad9b2170391b7f0029e7b755de3e4bbb73a6e8f7d6656aee3a3"
+    }
+  ],
+  "limits": [
+    "Twenty armour sources are prepared and statted, but unbound: no worn fits or layering/movement acceptance.",
+    "W08 polearm and W02 greatsword are excluded for unproven two-hand holds.",
+    "Barrowworks balance measures the requested build2-integ reference content, not the RC lane's replacement boss or a packaged playthrough."
+  ],
+  "source_commit": "7aa1c14f5e1d50dfae2c8930028c41dc48b7b19f",
+  "debug_assembly_sha256": "07188497e1578009a83cb13baa523d913281233113c1b959eb7e09d7866fee94",
+  "release_assembly_sha256": "22de516344e7bad4003b28f360fb1289de21bd4fa3ddbd8f7dfc72d2ee1cc6ff"
+}

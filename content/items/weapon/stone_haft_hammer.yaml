@@ -1,0 +1,20 @@
+id: item.weapon.stone_haft_hammer
+kind: item.weapon
+schema: 1
+display_key: item.weapon.stone_haft_hammer.name
+tags: [item]
+name: Stone Haft Hammer
+notes: A dark stone head lashed to a bent wooden haft. The haft can be renewed without losing the stone.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 3.8
+value_base: 19
+damage: [9, 11]
+damage_type: physical_blunt
+hands: one
+requirements: { attribute.might: 10 }
+attack_speed: 0.9
+reach: 1.5
+durability_max: 200
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.ash_haft }

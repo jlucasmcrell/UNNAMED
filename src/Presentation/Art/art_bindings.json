@@ -6186,6 +6186,67 @@
    "model": "weapon_real_hunting_spear",
    "family": "polearm",
    "note": "The manifest's polearm family (weapon_march_spear has no grip socket)."
+  },
+  "item.weapon.engraved_road_sword": {
+   "model": "gear_engraved_road_sword",
+   "family": "sword"
+  },
+  "item.weapon.iron_curved_sword": {
+   "model": "gear_iron_curved_sword",
+   "family": "sword"
+  },
+  "item.weapon.bronze_broadsword": {
+   "model": "gear_bronze_broadsword",
+   "family": "sword"
+  },
+  "item.weapon.bronze_curved_sword": {
+   "model": "gear_bronze_curved_sword",
+   "family": "sword"
+  },
+  "item.weapon.bearded_road_axe": {
+   "model": "gear_bearded_road_axe",
+   "family": "sword"
+  },
+  "item.weapon.stone_haft_hammer": {
+   "model": "gear_stone_haft_hammer",
+   "family": "sword"
+  },
+  "item.weapon.carved_old_bow": {
+   "model": "gear_carved_old_bow",
+   "family": "bow",
+   "hand": "off_hand"
+  },
+  "item.weapon.red_grip_hunting_knife": {
+   "model": "gear_red_grip_hunting_knife",
+   "family": "sword"
+  },
+  "item.weapon.plain_belt_knife": {
+   "model": "gear_plain_belt_knife",
+   "family": "sword"
+  },
+  "item.weapon.weathered_double_bit_axe": {
+   "model": "gear_weathered_double_bit_axe",
+   "family": "sword"
+  },
+  "item.weapon.brass_hilt_sword": {
+   "model": "gear_brass_hilt_sword",
+   "family": "sword"
+  },
+  "item.weapon.wood_grip_knife": {
+   "model": "gear_wood_grip_knife",
+   "family": "sword"
+  },
+  "item.weapon.carving_knife": {
+   "model": "gear_carving_knife",
+   "family": "sword"
+  },
+  "item.weapon.double_bit_axe": {
+   "model": "gear_double_bit_axe",
+   "family": "sword"
+  },
+  "item.weapon.notched_road_axe": {
+   "model": "gear_notched_road_axe",
+   "family": "sword"
   }
  },
  "companion_weapon": {
@@ -6460,7 +6521,22 @@
   "item.weapon.stun_device": "ui.item.hunting_bow",
   "item.weapon.tractor_projector": "ui.item.hunting_bow",
   "item.weapon.water_projector": "ui.item.hunting_bow",
-  "item.tool.lure_stone": "ui.item.glass_marble"
+  "item.tool.lure_stone": "ui.item.glass_marble",
+  "item.weapon.engraved_road_sword": "ui.item.engraved_road_sword",
+  "item.weapon.iron_curved_sword": "ui.item.iron_curved_sword",
+  "item.weapon.bronze_broadsword": "ui.item.bronze_broadsword",
+  "item.weapon.bronze_curved_sword": "ui.item.bronze_curved_sword",
+  "item.weapon.bearded_road_axe": "ui.item.bearded_road_axe",
+  "item.weapon.stone_haft_hammer": "ui.item.stone_haft_hammer",
+  "item.weapon.carved_old_bow": "ui.item.carved_old_bow",
+  "item.weapon.red_grip_hunting_knife": "ui.item.red_grip_hunting_knife",
+  "item.weapon.plain_belt_knife": "ui.item.plain_belt_knife",
+  "item.weapon.weathered_double_bit_axe": "ui.item.weathered_double_bit_axe",
+  "item.weapon.brass_hilt_sword": "ui.item.brass_hilt_sword",
+  "item.weapon.wood_grip_knife": "ui.item.wood_grip_knife",
+  "item.weapon.carving_knife": "ui.item.carving_knife",
+  "item.weapon.double_bit_axe": "ui.item.double_bit_axe",
+  "item.weapon.notched_road_axe": "ui.item.notched_road_axe"
  },
  "effects": {
   "cast_charge": "vfx.magic.cast_charge",
