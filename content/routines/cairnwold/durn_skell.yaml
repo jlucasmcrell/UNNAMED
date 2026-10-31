@@ -13,3 +13,8 @@ work_hours: [6, 20]
 anchors:
   home: { position_m: [961, 664], facing_deg: 0 }
   work: { position_m: [982, 674.5], facing_deg: 0 }
+  well: { position_m: [969.59, 660.74], facing_deg: 180 }
+schedule:
+  - { hours: [6, 12], at: work }
+  - { hours: [12, 13], at: well }
+  - { hours: [13, 20], at: work }
