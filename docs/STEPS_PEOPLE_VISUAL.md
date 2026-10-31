@@ -110,3 +110,8 @@ private packaged diagnostic host using production NPC creation, with visible
 subjects batched and staged in the actual market. Simulation population stays
 present. These are visual evidence, not a complete RC, crowd or performance
 gate. Claude's visual verdict remains separate from the passing native audit.
+
+Claude's 31 October 13:10 verdict is **PASS for all 27 people**. The native
+originals, audit, source looks and wardrobe delivery above are the accepted
+people checkpoint. The later stair and sky follow-up does not change these
+looks or the native body/clothing payload.
