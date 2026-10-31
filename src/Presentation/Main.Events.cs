@@ -57,7 +57,8 @@ public partial class Main
             {
                 var card = NoticeBoardModel.Rivals(new[] { rival },
                     id => _session.Setup.Social.Npcs.GetValueOrDefault(id)?.Rival, id => Names.Of(_session, id))[0];
-                _hud.Announce(card.Name, $"{card.Identity} · {card.Regard}", HudStyle.Brass);
+                _hud.Announce("Rival met", card.Name, HudStyle.Brass,
+                    (card.Identity, null), (card.Regard, null));
             }
             Notice(NoticeKind.World, $"{e.Name}: {e.Line}", 6);
         });
