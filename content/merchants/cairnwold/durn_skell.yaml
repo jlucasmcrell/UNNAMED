@@ -13,6 +13,20 @@ stock:
   - { item_ref: item.material.ash_haft, count: 2, price_bias: 1.0 }
   - { item_ref: item.bag.satchel, count: 2, price_bias: 1.0 }          # his hide bags, so the pack grows without a bench (owner request: bags can be bought or crafted)
   - { item_ref: item.bag.reagent_satchel, count: 1, price_bias: 1.0 }
+  # The quiet road's kit (D23 S5-S7): Durn pays for a crossing nobody saw (the Quiet Crossing), so he sells what makes one - the cloak and
+  # the soft soles he cuts himself, the watchglass and the still-air ward off the moor's peddlers, the sleep draught and its waking dose, the
+  # blowpipe with its darts, the sleep dart, the scent mask and the tripwire ward.
+  - { item_ref: item.armor.veil_cloak, count: 1, price_bias: 1.0 }
+  - { item_ref: item.tool.dampener_pads, count: 1, price_bias: 1.0 }
+  - { item_ref: item.tool.watchglass, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.stills_ward, count: 1, price_bias: 1.0 }
+  - { item_ref: item.tool.scent_mask, count: 2, price_bias: 1.0 }
+  - { item_ref: item.consumable.sleep_draught, count: 2, price_bias: 1.0 }
+  - { item_ref: item.consumable.wake_dose, count: 2, price_bias: 1.0 }
+  - { item_ref: item.weapon.blowpipe, count: 1, price_bias: 1.0 }
+  - { item_ref: item.ammo.blowpipe_dart, count: 12, price_bias: 1.0 }
+  - { item_ref: item.weapon.sleep_dart, count: 6, price_bias: 1.0 }
+  - { item_ref: item.tool.ward_tripwire, count: 1, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [40, 250]   # a village smith's purse (WP14)
 restock_min: 1

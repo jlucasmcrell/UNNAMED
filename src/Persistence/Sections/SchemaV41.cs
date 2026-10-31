@@ -1,7 +1,7 @@
 // UNNAMED Persistence - schema 41 section shapes (the stacks and the entity section as schema 41 wrote them). FROZEN.
 // No Godot references - pure C#
 //
-// Schema 42 gave a carried stack and a stack in a container its gear build (D21). The stack shapes as schema 41 wrote them are frozen here, and
+// Schema 42 gave a carried stack, a stack in a container and a dropped stack its gear build (D21). The stack shapes as schema 41 wrote them are frozen here, and
 // every older frozen shape that named the live stack DTOs now names these; the entity section is frozen because its containers hold the stacks.
 
 using MessagePack;
@@ -34,6 +34,20 @@ public sealed class ContainerItemDto
     [Key("item_id")] public string ItemId { get; set; } = "";
     [Key("def_id")] public string DefId { get; set; } = "";
     [Key("count")] public int Count { get; set; }
+    [Key("quality")] public int? Quality { get; set; }
+    [Key("notable")] public NotableDto? Notable { get; set; }
+    [Key("wear")] public WearDto? Wear { get; set; }
+}
+
+[MessagePackObject]
+public sealed class CreatedDto
+{
+    [Key("instance_id")] public string InstanceId { get; set; } = "";
+    [Key("def_id")] public string DefId { get; set; } = "";
+    [Key("host_cell")] public string HostCell { get; set; } = "";
+    [Key("x_cm")] public int XCm { get; set; }
+    [Key("z_cm")] public int ZCm { get; set; }
+    [Key("count")] public int? Count { get; set; }
     [Key("quality")] public int? Quality { get; set; }
     [Key("notable")] public NotableDto? Notable { get; set; }
     [Key("wear")] public WearDto? Wear { get; set; }

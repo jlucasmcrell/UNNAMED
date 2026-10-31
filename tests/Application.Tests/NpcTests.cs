@@ -104,7 +104,7 @@ public class NpcTests
         // The waystation's three, and Tavar, caught in the Foldscar (M6); Cairnwold's four stand in their village, and the rim keeper on the road.
         Assert.Equal(new[] { Kera, Renn, Sel, "npc.ashen_hollow.tavar_orr" }, npcs.Select(n => n.Id));
         Assert.Equal(new[] { "Kera Voss", "Renn Vale", "Sel Arien", "Tavar Orr" }, npcs.Select(n => n.Name));
-        Assert.Equal(9, simulation.Npcs.Count(n => !n.Resident && n.Role != "adventurer"));   // and 6 role residents a town (WP12, DN3)
+        Assert.Equal(12, simulation.Npcs.Count(n => !n.Resident && n.Role != "adventurer"));   // and stealth's three watchmen (waystation, cairn, road); 6 role residents a town (WP12, DN3)
         // The owner's inn dial keeps three in Ashen Hollow and four in Cairnwold.
         var adventurers=session.Setup.Adventurers!;
         Assert.Equal(adventurers.Settlements.Values.Sum(s=>s.Target??adventurers.Rules.TargetPerSettlement), simulation.World.Adventurers!.Agents.Count);
@@ -599,7 +599,10 @@ public class NpcTests
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
-        var arena = At(session, AtKera, r => With(r, 1000));
+        // Her shelf (with Playtest 2's fifteen weapons) outweighs and outnumbers a bare pack: a buyer who can carry it, so the test is about the shelf.
+        var items = session.Setup.Items;
+        var setup = session.Setup with { Items = items with { Inventory = items.Inventory with { CarryBaseGrams = items.Inventory.CarryBaseGrams * 4, StackSlots = items.Inventory.StackSlots + 16 } } };
+        var arena = Arena.OpenCreatures(session, setup, AtKera, 0, Array.Empty<(string, double, double, string)>(), r => With(r, 5000));
         int stacks = arena.Simulation.Wares(Kera)!.Wares.Length;
         // Authored stock lines may split into several stacks (e.g. sixty arrows).
         Assert.Equal(session.Setup.Items.Merchants[Wares].Stock.Sum(s =>

@@ -16,7 +16,7 @@ pages:
       moment early to anyone watching for it. The back of it is open where its works run. That is the whole of the
       fight: get behind it and stay there.
     sources:
-      - { how: studied, ref: creature.construct.gate_warden }
+      - { how: studied, ref: creature.boss.field_ruins.gate_warden.deep }
   - page: 2
     text: >
       Brought down, it does not get up, and the gate does not make another; whatever it was guarding the anchors
@@ -24,4 +24,4 @@ pages:
       hour. Cairnwold had no name for it, because nobody from the village had been down into the court. They call it
       the warden now, because the one who came back up called it that.
     sources:
-      - { how: studied, ref: creature.construct.gate_warden }
+      - { how: studied, ref: creature.boss.field_ruins.gate_warden.deep }

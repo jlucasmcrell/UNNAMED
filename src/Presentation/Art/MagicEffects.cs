@@ -92,6 +92,44 @@ public partial class MagicEffects : Node3D
         }
     }
 
+    /// <summary>One release tell from the simulation's completed cast; purges need no status effect to have been present.</summary>
+    public void Resolve(Figure body, string formula)
+    {
+        if (_recipes is null) return;
+        var names = _recipes.For(formula + "_release");
+        if (names.Count == 0) return;
+        Vector3[] points = formula switch
+        {
+            "spell.warding.hush_the_sting" => new[] { body.Hand("L"), body.Hand("R") }.OfType<Vector3>().ToArray(),
+            "spell.vital.clear_the_dead_weight" => new[] { body.Shoulder("L"), body.Shoulder("R") }.OfType<Vector3>().ToArray(),
+            _ => new[] { body.GlobalPosition + Vector3.Up * 0.035f },
+        };
+        // Bone pivots lie inside the shoulder cap. Shed off the garment's outer surface, along the actual rig's shoulder span.
+        if (formula == "spell.vital.clear_the_dead_weight" && points.Length == 2)
+        {
+            var outward = (points[1] - points[0]).Normalized() * 0.075f;
+            points[0] += Vector3.Up * 0.06f - outward;
+            points[1] += Vector3.Up * 0.06f + outward;
+        }
+        foreach (var point in points)
+        {
+            // World-space one-shots must enter the tree at their emission point, before the GPU emitter starts.
+            var holder = new Node3D { Position = ToLocal(point) };
+            AddChild(holder);
+            foreach (string name in names)
+            {
+                if (FormulaForm.Create(name) is { } form) holder.AddChild(form);
+                else if (_recipes.Build(name) is { } particles)
+                {
+                    holder.AddChild(particles);
+                    ParticleRecipes.Fire(particles);
+                }
+            }
+            Release(holder, Math.Max(1.1, _recipes.Lifetime(names)) + 0.1);
+        }
+        _coverage?.Resolved("effect_recipe", formula + "_release", string.Join(" + ", names));
+    }
+
     private void DrawCharge(Figure body, string? casting, bool gathering)
     {
         if (_glyphForm)
@@ -157,7 +195,7 @@ public partial class MagicEffects : Node3D
 
     private void DrawOnBody(Figure body, IReadOnlyList<(string Id, double Left)> effects)
     {
-        var active = effects.Where(e => _bindings.Effects.ContainsKey(e.Id)).Select(e => e.Id).ToHashSet(StringComparer.Ordinal);
+        var active = effects.Where(e => _bindings.Effects.ContainsKey(e.Id) || _recipes?.For(e.Id).Count > 0).Select(e => e.Id).ToHashSet(StringComparer.Ordinal);
         foreach (string gone in _onBody.Keys.Where(k => !active.Contains(k)).ToList())
         {
             _onBody[gone].Quad.QueueFree();
@@ -176,9 +214,10 @@ public partial class MagicEffects : Node3D
         }
         foreach (var (effect, left) in effects.Where(e => active.Contains(e.Id)))
         {
-            if (RecipesOnBody(effect) is { } recipes)
+            var at = body.GlobalPosition + (effect == "effect.ember_mending" ? Vector3.Up * 0.85f : Vector3.Zero);
+            if (RecipesOnBody(effect, at) is { } recipes)
             {
-                recipes.GlobalPosition = body.GlobalPosition;
+                recipes.GlobalPosition = at;
                 foreach (var form in recipes.GetChildren().OfType<FormulaForm>())
                     form.SecondsLeft = left;
                 continue;
@@ -207,13 +246,13 @@ public partial class MagicEffects : Node3D
     }
 
     /// <summary>The recipes and forms standing in for a body effect's flipbook (at the body's feet), built the first time; null when none do.</summary>
-    private Node3D? RecipesOnBody(string effect)
+    private Node3D? RecipesOnBody(string effect, Vector3 at)
     {
         if (_recipesOnBody.TryGetValue(effect, out var shown))
             return shown.Holder;
-        if (_recipes is null || !_bindings.Effects.TryGetValue(effect, out string? id) || _recipes.For(id) is not { Count: > 0 } names)
+        if (_recipes is null || _recipes.For(_bindings.Effects.GetValueOrDefault(effect) ?? effect) is not { Count: > 0 } names)
             return null;
-        var holder = new Node3D { Name = effect.Replace('.', '_') + "_recipes" };
+        var holder = new Node3D { Name = effect.Replace('.', '_') + "_recipes", Position = ToLocal(at) };
         foreach (string name in names)
         {
             if (FormulaForm.Create(name) is { } form)

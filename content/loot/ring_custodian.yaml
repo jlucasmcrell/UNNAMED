@@ -9,3 +9,10 @@ entries:
   - { item_ref: item.material.iron_ingot, chance: 1.0, count_range: [2, 3] }
   - { item_ref: item.material.iron_ore, chance: 0.5, count_range: [1, 2] }
   - { item_ref: item.legend.measure_rod, chance: 1.0, count_range: [1, 1] }
+  # What the works' own watch carried (D23 S7, D21): Keelward and Vaskaal kit, each a chance - the quiet kit only: the rifles and the laser wait for their region (coordinator, a level 1-5 boss).
+  - { item_ref: item.weapon.dart_launcher, chance: 0.2, count_range: [1, 1] }
+  - { item_ref: item.ammo.dart_cartridge, chance: 0.4, count_range: [4, 8] }
+  - { item_ref: item.weapon.stun_device, chance: 0.2, count_range: [1, 1] }
+  - { item_ref: item.tool.silencer, chance: 0.3, count_range: [1, 1] }
+  - { item_ref: item.tool.detector_thermal, chance: 0.3, count_range: [1, 1] }
+  - { item_ref: item.armor.boots_muffled, chance: 0.3, count_range: [1, 1] }

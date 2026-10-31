@@ -16,6 +16,13 @@ public class ItemTests
 
     private static InventoryEntry Carried(Simulation simulation, string defId) => simulation.Player.Inventory.Single(e => e.DefId == defId);
 
+    /// <summary>The cache has had a lock since D20 (LockpickingTests picks it): opened the way a pick records it, for the tests about carrying.</summary>
+    private static void OpenTheDenCache(Simulation simulation)
+    {
+        var site = simulation.Setup.Layout.Containers.Single(c => c.Key == Den);
+        Assert.Null(simulation.Submit(new SetWorldFlag(CellKey.OfWorld(site.XMm / 1000.0, site.ZMm / 1000.0), LockRules.FlagOf(Den), 1)));
+    }
+
     private static string? Rejection(GameSession session, GameCommand command)
     {
         var rejected = Harness.Record<CommandRejected>(session);
@@ -257,6 +264,7 @@ public class ItemTests
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
+        OpenTheDenCache(simulation);
         var ingots = simulation.Containers.Single(c => c.Site.Key == Den).Items.Single(i => i.DefId == "item.material.iron_ingot");
 
         simulation.Enqueue(new MoveItemCommand(simulation.PlayerId, ingots.Ref, ItemPlace.In(Den), ItemPlace.Carried, 1));
@@ -277,6 +285,7 @@ public class ItemTests
         var rejected = new List<CommandRejected>();
         bus.Subscribe<CommandRejected>(rejected.Add);
         Walk(simulation, ToTheDenCache);
+        OpenTheDenCache(simulation);
 
         simulation.Enqueue(new MoveItemCommand(simulation.PlayerId, $"{Den}#00", ItemPlace.In(Den), ItemPlace.Carried, 1));
         simulation.DrainCommands();
@@ -297,6 +306,7 @@ public class ItemTests
         var took = new List<TookAll>();
         bus.Subscribe<TookAll>(took.Add);
         Walk(simulation, ToTheDenCache);
+        OpenTheDenCache(simulation);
         var inCache = Tally(simulation.Containers.Single(c => c.Site.Key == Den).Items.Select(i => (i.DefId, i.Count)));
         var carried = Tally(simulation.Player.Inventory.Select(e => (e.DefId, e.Count)));
 
@@ -334,6 +344,7 @@ public class ItemTests
         var took = new List<TookAll>();
         bus.Subscribe<TookAll>(took.Add);
         Walk(simulation, ToTheDenCache);
+        OpenTheDenCache(simulation);
         var inCache = Tally(simulation.Containers.Single(c => c.Site.Key == Den).Items.Select(i => (i.DefId, i.Count)));
         var carried = Tally(simulation.Player.Inventory.Select(e => (e.DefId, e.Count)));
 
@@ -361,6 +372,7 @@ public class ItemTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
+        OpenTheDenCache(simulation);
 
         Assert.Contains("out of reach", Rejection(session, new TakeAllCommand(simulation.PlayerId, Den)));
         string wares = session.Setup.Items.Merchants.Keys.First();
@@ -374,6 +386,7 @@ public class ItemTests
         var session = Harness.Boot(profile);
         var simulation = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(Harness.WalkPath(session, ToTheDenCache));
+        OpenTheDenCache(simulation);
         session.Submit(new MoveItemCommand(simulation.PlayerId, $"{Den}#00", ItemPlace.In(Den), ItemPlace.Carried, 12));
         Harness.Ticks(session, 1);
         var arrows = Carried(simulation, "item.ammo.arrow_rough");

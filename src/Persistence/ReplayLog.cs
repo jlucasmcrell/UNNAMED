@@ -433,6 +433,7 @@ public sealed class ReplayLogWriter : IDisposable
     private void Append(string line, long tick, long sequence)
     {
         int bytes = Encoding.UTF8.GetByteCount(line) + 1;
+        Directory.CreateDirectory(_root);   // a folder taken away while the game ran (a refused disk, M-02) is made again
         string path = ReplayLog.PathOf(_root);
         long length = File.Exists(path) ? new FileInfo(path).Length : 0;
         if (length > 0 && length + bytes > _maxPartBytes)

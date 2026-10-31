@@ -35,6 +35,12 @@ public sealed record SpawnSite(string Key, long XMm, long ZMm, long RadiusMm, Im
     /// <summary>Ticks from a death to the return, or 0 when the dead stay dead.</summary>
     public long RespawnTicks { get; init; }
 
+    /// <summary>
+    /// A guarded site, dungeon, camp or patrolled ground (<c>bodies_persist</c>, owner ruling 2026-10-31): its dead do not fade with time; a body
+    /// lies until the site restocks, so a guard can still find it long after. The open world's bodies fade as they always have.
+    /// </summary>
+    public bool BodiesPersist { get; init; }
+
     public ImmutableArray<(long XMm, long ZMm)> Route { get; init; } = ImmutableArray<(long XMm, long ZMm)>.Empty;
 }
 
@@ -2022,7 +2028,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private CreatureState Afterlife(CreatureState c, long tick, bool away = false, long? timer = null)
     {
         long elapsed = timer ?? tick;
-        if (c.Condition == CreatureCondition.Corpse && elapsed >= c.DiedTick + Setup.CorpseDecayTicks)
+        if (c.Condition == CreatureCondition.Corpse && !c.Site.BodiesPersist && elapsed >= c.DiedTick + Setup.CorpseDecayTicks)
         {
             _context.Dispatch(new DiscardContainer(c.CorpseKey));
             _context.Dispatch(new ClearCarcassCommand(CarcassKey(c)));

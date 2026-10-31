@@ -192,7 +192,7 @@ public class QuestContentTests
     public void AFiniteItemARecipeConsumes_MustAlsoCountWhatItIsMadeInto() =>
         Assert.Contains(ErrorsWith(Quest1, "params: { item_ref: item.material.iron_ore, or_item_refs: [item.armor.lame_coif, item.armor.lame_sabatons, item.armor.lamework_jack, item.material.iron_ingot, item.weapon.march_spear, item.weapon.rusted_sword], count: 1 }",
                 "params: { item_ref: item.material.iron_ore, count: 1 }", FiniteSpoil),
-            e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ore, and recipe.smithing.iron_billet makes it into item.material.iron_ingot",
+            e => e.Code == "QST001" && e.Message.Contains("nothing renews item.material.iron_ore, and recipe.fletching.arrow_rough_timber makes it into item.ammo.arrow_rough",
                 StringComparison.Ordinal));
 
     [Fact]

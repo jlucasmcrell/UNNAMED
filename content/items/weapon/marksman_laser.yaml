@@ -2,7 +2,7 @@ id: item.weapon.marksman_laser
 kind: item.weapon
 schema: 1
 display_key: item.weapon.marksman_laser.name
-tags: [weapon, tech, marksman, laser]
+tags: [weapon, tech, marksman, laser, held_unopened_region]   # held for a region not yet open: no first-hour source (coordinator)
 name: Marksman Laser
 notes: "The marksman laser: long lens stack, hit-scan with no drop, and an optic that is not optional (4.2)."
 category: weapon

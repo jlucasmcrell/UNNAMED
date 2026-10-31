@@ -17,6 +17,13 @@ public class QuickBarTests
     private const string Bolt = "spell.force.impulse_bolt";
     private const string Ward = "spell.warding.brace_ward";
     private const string Thread = "spell.vital.mending_thread";
+    // Playtest 2's first-hour workings, after the first three in the book's order (ea6fd978).
+    private const string Cinder = "spell.force.cinder_dart";
+    private const string Shiver = "spell.force.shiver_spike";
+    private const string Holdfast = "spell.warding.holdfast";
+    private const string Hush = "spell.warding.hush_the_sting";
+    private const string Ember = "spell.vital.ember_mend";
+    private const string DeadWeight = "spell.vital.clear_the_dead_weight";
     private static readonly (double X, double Z) Ground = (120, 60);
 
     private static Arena Open(GameSession session, Func<PlayerRecord, PlayerRecord>? change = null) =>
@@ -44,8 +51,10 @@ public class QuickBarTests
 
         Read(arena);
 
-        Assert.Equal(new string?[] { Salve, Flask, null, Bolt, Ward, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
-        Assert.Equal(new[] { (0, Salve), (1, Flask), (3, Bolt), (4, Ward), (5, Thread) }, assigned.Select(a => (a.Slot, a.DefinitionId!)));
+        // Keys four to eight first, then the free key three, then nine onwards.
+        Assert.Equal(new string?[] { Salve, Flask, Holdfast, Bolt, Ward, Thread, Cinder, Shiver, Hush, Ember, DeadWeight, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new[] { (0, Salve), (1, Flask), (3, Bolt), (4, Ward), (5, Thread), (6, Cinder), (7, Shiver), (2, Holdfast), (8, Hush), (9, Ember), (10, DeadWeight) },
+            assigned.Select(a => (a.Slot, a.DefinitionId!)));
     }
 
     [Fact]
@@ -57,11 +66,11 @@ public class QuickBarTests
         Read(arena);
 
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 0, Ward)));
-        Assert.Equal(new string?[] { Ward, Flask, null, Bolt, Salve, Thread, null, null, null, null, null, null }, arena.Simulation.QuickBar);
-        Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 7, Bolt)));
-        Assert.Equal(new string?[] { Ward, Flask, null, null, Salve, Thread, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, Flask, Holdfast, Bolt, Salve, Thread, Cinder, Shiver, Hush, Ember, DeadWeight, null }, arena.Simulation.QuickBar);
+        Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 11, Bolt)));
+        Assert.Equal(new string?[] { Ward, Flask, Holdfast, null, Salve, Thread, Cinder, Shiver, Hush, Ember, DeadWeight, Bolt }, arena.Simulation.QuickBar);
         Assert.Null(arena.Submit(new AssignQuickSlotCommand(arena.Player, 5, null)));
-        Assert.Equal(new string?[] { Ward, Flask, null, null, Salve, null, null, Bolt, null, null, null, null }, arena.Simulation.QuickBar);
+        Assert.Equal(new string?[] { Ward, Flask, Holdfast, null, Salve, null, Cinder, Shiver, Hush, Ember, DeadWeight, Bolt }, arena.Simulation.QuickBar);
 
         // Cleared, a formula that is still known is not put back while the character plays on.
         arena.Tick(20);

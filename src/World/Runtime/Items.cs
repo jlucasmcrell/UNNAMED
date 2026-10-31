@@ -768,7 +768,7 @@ internal sealed partial class InventorySystem
                     || cell.Space != State.Space)
                     return null;
                 var (x, z) = WorldPosition(cell, record.XCm, record.ZCm);
-                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear, Work = record.Work };
+                return new Located(itemRef, record.DefId, record.Count, id, -1, x, z, record.Quality) { Notable = record.Notable, Wear = record.Wear, Built = record.Built, Work = record.Work };
             }
             default:
             {
@@ -880,7 +880,7 @@ internal sealed partial class InventorySystem
                 if (whole)
                     return record.InstanceId;
                 var cell = CellKey.Parse(record.HostCell);
-                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear, record.Work);
+                State.PlaceItem(_owner, cell, record.InstanceId, record.DefId, record.Count - count, record.XCm, record.ZCm, record.Quality, record.Notable, record.Wear, built: record.Built, work: record.Work);
                 return null;
             }
             default:
@@ -935,7 +935,7 @@ internal sealed partial class InventorySystem
                 // One placed stack per drop, where the body stands; a drop larger than a stack lies as several.
                 foreach (int stack in Stacks(count, definition.StackMax))
                     State.PlaceItem(_owner, cell, Identity(ref moving, definition.Id), definition.Id, stack,
-                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null, stack == 1 ? work : null);
+                        (int)((x - minX) / 10), (int)((z - minZ) / 10), quality, stack == 1 ? notable : null, stack == 1 ? wear : null, built, stack == 1 ? work : null);
                 break;
             }
             default:

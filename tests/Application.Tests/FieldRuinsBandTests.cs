@@ -21,7 +21,7 @@ namespace UNNAMED.Application.Tests;
 public class FieldRuinsBandTests(ITestOutputHelper output)
 {
     private const string Tender = "creature.construct.gate_tender";
-    private const string Warden = "creature.construct.gate_warden";
+    private const string Warden = "creature.boss.field_ruins.gate_warden.deep";   // the D19 encounter replaced the construct (3971fb6f)
     private const int Worlds = 12;
     private const double TickSeconds = 0.05;
     private static readonly (double X, double Z) Ground = (120, 60);
@@ -32,7 +32,8 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
         using var profile = new TempProfile();
         var setup = Harness.Boot(profile).Setup;
         var creatures = setup.Combat.Creatures;
-        var field = setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.field.", StringComparison.Ordinal)).ToList();
+        // The court's Gate Warden is a D19 boss encounter now (3971fb6f), spawned as spawn.boss.field_ruins.*: still one of the nine.
+        var field = setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.field.", StringComparison.Ordinal) || s.Key.StartsWith("spawn.boss.field_ruins.", StringComparison.Ordinal)).ToList();
         Assert.Equal(9, field.Count);
         Assert.All(field.Where(s => s.Key.Contains("tenders", StringComparison.Ordinal)).SelectMany(s => s.Members),
             m => Assert.Equal(4, creatures[m.CreatureId].Level));
@@ -165,6 +166,19 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
             }
             double dx = creature.Body.XMm - body.XMm, dz = creature.Body.ZMm - body.ZMm;
             double gx = goalX - body.XMm, gz = goalZ - body.ZMm;
+            if (behind)
+            {
+                // The way behind it must go round it, not through it: when the creature stands on the straight line to the goal (it faces the
+                // character square on), head for its flank first - otherwise the character walks into its body and stands there in front of it.
+                double toCreature = Math.Sqrt(dx * dx + dz * dz), toGoalNow = Math.Sqrt(gx * gx + gz * gz);
+                double across = toGoalNow > 0 ? Math.Abs(dx * gz - dz * gx) / toGoalNow : 0;
+                if (toGoalNow > toCreature && across < reach * 0.8)
+                {
+                    double side = dx * gz - dz * gx >= 0 ? 1 : -1;
+                    gx = creature.Body.XMm + -dz / toCreature * reach * side - body.XMm;
+                    gz = creature.Body.ZMm + dx / toCreature * reach * side - body.ZMm;
+                }
+            }
             double distance = Math.Sqrt(dx * dx + dz * dz), toGoal = Math.Sqrt(gx * gx + gz * gz);
             int facing = CombatRules.FacingTowards(body.XMm, body.ZMm, creature.Body.XMm, creature.Body.ZMm);
             bool inReach = distance <= reach;

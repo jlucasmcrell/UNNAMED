@@ -38,6 +38,12 @@ public class CairnwoldQuestTests
             Assert.True(arena.WalkTo(x, z), $"never reached ({x}, {z}): stopped at {arena.Simulation.Player.Body}");
     }
 
+    private static bool Near(Arena arena, string npcId)
+    {
+        var (them, me) = (arena.Simulation.Npcs.Single(n => n.Id == npcId).Body, arena.Simulation.Player.Body);
+        return Math.Sqrt(Math.Pow(them.XMm - me.XMm, 2) + Math.Pow(them.ZMm - me.ZMm, 2)) <= 1800;
+    }
+
     private static void Say(Arena arena, string npcId, params string[] replies)
     {
         Assert.Null(arena.Submit(new TalkCommand(arena.Player, npcId)));
@@ -106,7 +112,12 @@ public class CairnwoldQuestTests
         Gather(arena, "bog_ashbloom_2");
         Assert.Equal(3, Carried(arena, Ashbloom));
         Walk(arena, BackToMara);
-        Walk(arena, AtMara);
+        // The day has gone on: Mara keeps her routine (10fa967f), so the return is to wherever she stands now (from the east at the well) - followed, if she is walking.
+        for (int i = 0; i < 20 && !Near(arena, Mara); i++)
+        {
+            var mara = arena.Simulation.Npcs.Single(n => n.Id == Mara).Body;
+            arena.WalkTo(mara.XMm / 1000.0 - arena.Origin.X + 1.6, mara.ZMm / 1000.0 - arena.Origin.Z + 0.4);   // east of her: the gate post is north of the well
+        }
         Say(arena, Mara, "bog_return", "back");
 
         Assert.Equal(QuestStatus.Completed, Status(arena, WhatTheBogKept));

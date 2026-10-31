@@ -126,7 +126,10 @@ public class ItemizationContentTests
     public void Crafting_HoldsItsExperiments_MasterworkFlags_AndDropBands()
     {
         var crafting = CraftingContent.Build(Game());
-        Assert.Equal(new[] { "recipe.leatherwork.cloak", "recipe.leatherwork.timber_shield", "recipe.smithing.assembled_sword", "recipe.smithing.torch", "recipe.tanning.wolf_hide" },
+        // With Playtest 2's recipes (p2-recipes), eight of which are found by experiment too.
+        Assert.Equal(new[] { "recipe.cooking.herb_tea_ashbloom", "recipe.cooking.trail_stew", "recipe.fletching.arrow_rough_timber", "recipe.herbal.salve_field",
+                "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots_deer", "recipe.leatherwork.hide_cap_pelt", "recipe.leatherwork.timber_shield",
+                "recipe.outfitting.satchel_cotton", "recipe.smithing.assembled_sword", "recipe.smithing.torch", "recipe.tanning.leather_small_smoked", "recipe.tanning.wolf_hide" },
             crafting.Recipes.Values.Where(r => r.Experiment).Select(r => r.Id));
         Assert.Equal((2, 2), (crafting.Constants.ExperimentsPerStation["workbench"], crafting.Constants.ExperimentsPerStation["forge"]));
         Assert.True(crafting.Recipes["recipe.leatherwork.smith_gloves"].MasterworkPossible);

@@ -17,6 +17,7 @@ pools:
 attack_set:
 - ability.creature.tusk_sweep
 - ability.creature.grazer_charge
+- ability.creature.fellhorn_heavy
 armor:
   head: 4
   torso: 5
@@ -41,3 +42,4 @@ phases:
   moves:
   - ability.creature.tusk_sweep
   - ability.creature.grazer_charge
+  - ability.creature.fellhorn_heavy

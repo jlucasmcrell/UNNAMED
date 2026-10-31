@@ -2,7 +2,7 @@ id: item.weapon.charge_rifle
 kind: item.weapon
 schema: 1
 display_key: item.weapon.charge_rifle.name
-tags: [weapon, tech, marksman, rail]
+tags: [weapon, tech, marksman, rail, held_unopened_region]   # held for a region not yet open: no first-hour source (coordinator)
 name: Charge Rifle
 notes: "The rail line: a slug accelerated by a coil, loud and heavy and indifferent to wind (4.2)."
 category: weapon

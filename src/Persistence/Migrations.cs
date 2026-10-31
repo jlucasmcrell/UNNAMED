@@ -1358,7 +1358,7 @@ public sealed class SchemaV23ToV24 : SchemaMigration
             document.Sections[SaveFormat.Entities] = MessagePackSerializer.Serialize(new V25.EntitiesSection
             {
                 Records = old.Records,
-                Created = old.Created.Select(c => new CreatedDto
+                Created = old.Created.Select(c => new V41.CreatedDto
                 {
                     InstanceId = c.InstanceId, DefId = c.DefId, HostCell = c.HostCell, XCm = c.XCm, ZCm = c.ZCm, Count = c.Count, Quality = c.Quality, Notable = c.Notable,
                 }).ToArray(),
@@ -2157,7 +2157,7 @@ public sealed class SchemaV41ToV42 : SchemaMigration
 {
     public override int From => 41;
 
-    public override string Summary => "schema 41 -> 42: stacks keep their gear build (none in an older save)";
+    public override string Summary => "schema 41 -> 42: stacks, carried, held or dropped, keep their gear build (none in an older save)";
 
     public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
     {

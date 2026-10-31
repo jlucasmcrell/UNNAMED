@@ -23,4 +23,4 @@ buys_tags:
 gold_reserve:
 - 80
 - 400
-restock_min: 60
+restock_min: 1   # game days between restocks, as every other trader (60 left a drained purse empty for two months)

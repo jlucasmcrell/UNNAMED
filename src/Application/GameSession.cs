@@ -703,13 +703,28 @@ public sealed class GameSession : IDomainEvents, IDisposable
     {
         var simulation = _simulation ?? throw new InvalidOperationException("There is no running world to save");
         var now = Now();
-        _replay?.Sync(simulation.CommandLog);
+        SyncReplayLog(simulation);
         return SaveDocuments.Capture(simulation.World, simulation.CaptureRecord(), Content, simulation.WorldTick, PlaytimeSeconds, _worldTimeAdvanced)
             with
             {
                 CapturedAt = now, SavedUtc = now, AwayLog = _away,
                 CommandLogSha256 = _store is null ? null : ReplayLog.Digest(_store.Root, simulation.WorldTick),
             };
+    }
+
+    /// <summary>
+    /// Writes the commands the log does not have yet. A disk that refuses them never stops the frame (M-02): what was not written stays
+    /// queued, in order, for the next frame the disk takes it.
+    /// </summary>
+    private void SyncReplayLog(Simulation simulation)
+    {
+        try
+        {
+            _replay?.Sync(simulation.CommandLog);
+        }
+        catch (Exception error) when (error is IOException or UnauthorizedAccessException)
+        {
+        }
     }
 
     /// <summary>
@@ -814,7 +829,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
             simulation.DrainCommands();   // anything an event handler queued applies at the next boundary
         }
 
-        _replay?.Sync(simulation.CommandLog);
+        SyncReplayLog(simulation);
         var saves = Finished();
         // An autosave is taken at this boundary and written in the background (P-01) - but not while the last is still being written: the
         // next is counted from that one's capture. A failure never stops the frame (M-02); it comes back as an outcome.
