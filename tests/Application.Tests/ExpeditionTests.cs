@@ -107,6 +107,56 @@ public class ExpeditionTests
     }
 
     [Fact]
+    public void APartyOnTheRoadDoesNothingInTown_AndTakesItsOwnDaysUpAgainWhenItIsHome()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = World(session);
+        var sim = arena.Simulation;
+        var left = arena.Record<ExpeditionLeft>();
+        var home = arena.Record<ExpeditionReturned>();
+
+        // The first midnight: the party sets out. What it had made of itself by then is the road's starting line.
+        sim.Advance(Day);
+        var trip = Assert.Single(left);
+        Assert.True(trip.ReturnDay > trip.LeftDay + 1, "a trip worth tracing covers more than a day");
+        var setOut = trip.Party.Select(k => sim.World.Adventurers!.Agents[k]).ToList();
+        var stayed = sim.World.Adventurers!.Agents.Values.Where(a => a.Settlement == trip.Settlement && !trip.Party.Contains(a.Key)).ToList();
+        Assert.Equal(2, stayed.Count);   // the two of the cairnwold this trip did not take
+
+        for (long d = trip.LeftDay + 1; d < trip.ReturnDay; d++)
+        {
+            sim.Advance(Day);
+            Assert.Equal(d, session.Setup.Clock.Day(sim.WorldTick));
+            foreach (var was in setOut)
+            {
+                var now = sim.World.Adventurers!.Agents[was.Key];
+                // On the road there is no day at the ground, no bounty off the board and nothing bought: the engine has them resting.
+                Assert.Equal(AdventurerGoals.Rest, now.Plan.Goal);
+                Assert.Equal(was.Kills, now.Kills);
+                Assert.Equal(was.BountiesClaimed, now.BountiesClaimed);
+                Assert.Equal(was.Coin, now.Coin);
+                Assert.Equal(was.Gear.Count, now.Gear.Count);
+                Assert.Equal(was.Level, now.Level);
+            }
+            // ...while the town they left goes on without them, so what is frozen is the party and not the world.
+            Assert.Contains(stayed, was => sim.World.Adventurers!.Agents.TryGetValue(was.Key, out var now) && now.Kills > was.Kills);
+        }
+
+        // The midnight they are due home is not one of the trip's days: the engine plans them a day of their own again.
+        sim.Advance(Day);
+        var back = Assert.Single(home);
+        Assert.Equal(trip.ReturnDay, session.Setup.Clock.Day(sim.WorldTick));
+        Assert.Equal(trip.Party.ToArray(), back.Party.ToArray());
+        foreach (var was in setOut)
+        {
+            var now = sim.World.Adventurers!.Agents[was.Key];
+            Assert.Equal(trip.ReturnDay, now.Plan.Day);
+            Assert.NotEqual(AdventurerGoals.Rest, now.Plan.Goal);
+        }
+    }
+
+    [Fact]
     public void TheSameSaveLivesTheSameExpeditionsAgain()
     {
         static string Run(TempProfile profile, out List<ExpeditionLeft> left, out List<ExpeditionReturned> home)

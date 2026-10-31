@@ -310,11 +310,26 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             // stays with the party until helped up or fallen.
             foreach (var ally in state.Agents.Values.Where(a => a.Party == PartyKeys.Key(PartyMembership.TemporaryAlly)).ToList())
                 _context.Dispatch(new Dismiss(ally.Key));
-            var (next, happenings) = AdventurerEngine.Midnight(Current!, setup.Rules, Day(d));
+            var (next, happenings) = AdventurerEngine.Midnight(OnTheRoad(Current!, d), setup.Rules, Day(d));
             State.SetAdventurers(_owner, next);
             Carry(state, happenings, midnight, log);
             Expeditions(d, midnight, log, Day(d));
         }
+    }
+
+    /// <summary>
+    /// The party of an expedition that is out on <paramref name="day"/> is on the road, not at its lodge. The engine leaves be whoever already has a
+    /// plan for today (its own test for someone away), so their day out is neither resolved nor planned again: nobody on the road hunts, claims a
+    /// bounty or buys a piece of the ladder. The midnight they are due home is not one of the trip's days, so they take up their own days again.
+    /// </summary>
+    private AdventurerState OnTheRoad(AdventurerState state, long day)
+    {
+        var agents = state.Agents;
+        foreach (var trip in _expeditions.Values.Where(t => t.IsAway(day)))
+            foreach (string key in trip.Party)
+                if (agents.ContainsKey(key))
+                    agents = agents.SetItem(key, agents[key] with { Plan = AdventurerPlan.Resting(day) });
+        return agents == state.Agents ? state : state with { Agents = agents };
     }
 
     /// <summary>What a midnight did, carried to its owners by command, published, and logged for the away sheet.</summary>
