@@ -5,6 +5,7 @@
 using System.Collections.Immutable;
 using System.Globalization;
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.World;
 using UNNAMED.Domain.Travel;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -45,6 +46,8 @@ public static class WorldContent
             TryBuild(() => BuildOffline(loader), "config.time", loader, errors);
             TryBuild(() => BuildCalendar(loader), "config.time", loader, errors);
             TryBuild(() => BuildWeather(loader), "config.weather", loader, errors);
+        TryBuild(() => BuildSeasons(loader), "config.seasons", loader, errors);
+        TryBuild(() => BuildClimates(loader), "config.seasons", loader, errors);
         }
         return errors;
     }
@@ -210,6 +213,123 @@ public static class WorldContent
     /// How the weather's fronts are laid out and drawn (<c>config.weather</c>; WP7). A pack without it has D6's weather. Every state named
     /// in <c>weights</c> must be one the simulation knows.
     /// </summary>
+    /// <summary>
+    /// The seasons as content (<c>config.seasons</c>, WLD-37/56): what each season does to temperature, daylight, the ground, prices, forage and
+    /// the working day, and what each of the Director's event kinds adds on top. A pack that declares none keeps <see cref="SeasonRules.Default"/>.
+    /// </summary>
+    public static SeasonRules BuildSeasons(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.seasons"))
+            return SeasonRules.Default;
+        var map = Config(loader, "config.seasons");
+        var season = Map(map, "season");
+        var events = map.ContainsKey("events") ? Map(map, "events") : new Dictionary<object, object>();
+
+        var temperature = new Dictionary<string, int>(StringComparer.Ordinal);
+        var days = new Dictionary<string, int>(StringComparer.Ordinal);
+        var ground = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (key, _) in season)
+        {
+            string name = key as string ?? throw new FormatException("config.seasons names a season with something that is not a season");
+            if (!Seasons.All.Contains(name))
+                throw new FormatException($"config.seasons declares '{name}', which is not a season ({string.Join(", ", Seasons.All)})");
+            var row = Map(season, name);
+            temperature[name] = Int(row, "temperature_c");
+            days[name] = Int(row, "day_minutes");
+            string where = row["ground"] as string ?? throw new FormatException($"config.seasons gives {name} no ground");
+            if (!Grounds.All.Contains(where))
+                throw new FormatException($"config.seasons gives {name} the ground '{where}', which is not ground");
+            ground[name] = where;
+        }
+
+        var market = new Dictionary<string, int>(StringComparer.Ordinal);
+        var forage = new Dictionary<string, int>(StringComparer.Ordinal);
+        var road = new Dictionary<string, int>(StringComparer.Ordinal);
+        var work = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (string name in temperature.Keys)
+        {
+            market[name] = Permille(map, "market_permille", name, 1000);
+            forage[name] = Permille(map, "forage_permille", name, 1000);
+            road[name] = Permille(map, "road_permille", name, 1000);
+            work[name] = map.ContainsKey("work_hour_shift") ? Permille(map, "work_hour_shift", name, 0) : 0;
+        }
+
+        var eventMarket = new Dictionary<string, int>(StringComparer.Ordinal);
+        var eventForage = new Dictionary<string, int>(StringComparer.Ordinal);
+        var eventRoad = new Dictionary<string, int>(StringComparer.Ordinal);
+        var shelters = new List<string>();
+        var closes = new List<string>();
+        foreach (var (key, _) in events)
+        {
+            string kind = key as string ?? throw new FormatException("config.seasons names an event kind with something that is not a kind");
+            if (!WorldEventKinds.All.Contains(kind))
+                throw new FormatException($"config.seasons declares the event '{kind}', which the Director never draws");
+            var row = Map(events, kind);
+            eventMarket[kind] = Permille(row, "market_permille", null, 1000);
+            eventForage[kind] = Permille(row, "forage_permille", null, 1000);
+            eventRoad[kind] = Permille(row, "road_permille", null, 1000);
+            if (Flag(row, "shelters"))
+                shelters.Add(kind);
+            if (Flag(row, "closes_road"))
+                closes.Add(kind);
+        }
+
+        return (new SeasonRules
+        {
+            TemperatureC = temperature.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            DayMinutes = days.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            Ground = ground.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            MarketPermille = market.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            ForagePermille = forage.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            RoadPermille = road.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            WorkHourShift = work.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            EventMarketPermille = eventMarket.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            EventForagePermille = eventForage.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            EventRoadPermille = eventRoad.ToImmutableSortedDictionary(StringComparer.Ordinal),
+            ShelteringEvents = shelters.ToImmutableArray(),
+            ClosingEvents = closes.ToImmutableArray(),
+            FestivalEvent = map.GetValueOrDefault("festival_event") as string ?? WorldEventKinds.Festival,
+        }).Validated();
+    }
+
+    /// <summary>A region's own climate offset (<c>config.seasons</c>' <c>climates</c>), by region id.</summary>
+    public static ImmutableSortedDictionary<string, ClimateOffset> BuildClimates(ContentLoader loader)
+    {
+        if (!loader.Definitions.ContainsKey("config.seasons") || Config(loader, "config.seasons").GetValueOrDefault("climates") is not Dictionary<object, object> climates)
+            return ImmutableSortedDictionary<string, ClimateOffset>.Empty;
+        var offsets = new Dictionary<string, ClimateOffset>(StringComparer.Ordinal);
+        foreach (var (key, _) in climates)
+        {
+            string region = key as string ?? throw new FormatException("config.seasons names a climate with something that is not a region id");
+            var row = Map(climates, region);
+            offsets[region] = new ClimateOffset(
+                row.ContainsKey("temperature_offset_c") ? Int(row, "temperature_offset_c") : 0,
+                row.ContainsKey("day_minutes_offset") ? Int(row, "day_minutes_offset") : 0);
+        }
+        return offsets.ToImmutableSortedDictionary(StringComparer.Ordinal);
+    }
+
+    /// <summary>A row's yes or no: a YAML bool, or the word, and anything else is no.</summary>
+    private static bool Flag(Dictionary<object, object> row, string key) => row.GetValueOrDefault(key) switch
+    {
+        true => true,
+        string text => string.Equals(text, "true", StringComparison.OrdinalIgnoreCase),
+        _ => false,
+    };
+
+    /// <summary>
+    /// One number out of a permille table: with a key, the season's entry in the table at <paramref name="table"/>; without one, the row's own
+    /// value under <paramref name="table"/> (an event row reads <c>{ market_permille: 880 }</c>).
+    /// </summary>
+    private static int Permille(Dictionary<object, object> map, string table, string? key, int fallback)
+    {
+        if (key is null)
+            return map.ContainsKey(table) ? Int(map, table) : fallback;
+        if (!map.ContainsKey(table) || map[table] is not Dictionary<object, object> row)
+            return fallback;
+        return row.ContainsKey(key) ? Int(row, key) : fallback;
+    }
+
     public static WeatherRules BuildWeather(ContentLoader loader)
     {
         if (!loader.Definitions.ContainsKey("config.weather"))

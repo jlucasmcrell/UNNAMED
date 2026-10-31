@@ -47,6 +47,21 @@ internal sealed class SystemContext
 {
     private readonly Dictionary<object, SpaceId> _siteSpaces = new();
 
+    /// <summary>
+    /// What the season and the Director's events do to a region now, in permille (WLD-37/56): prices, forage, roads and the working day. The
+    /// simulation installs its own live readings at construction; before that, and in a world with no seasons at all, every one of them is neutral.
+    /// </summary>
+    public Func<string, int> MarketPermille { get; set; } = _ => 1000;
+
+    public Func<string, int> ForagePermille { get; set; } = _ => 1000;
+
+    public Func<string, int> RoadPermille { get; set; } = _ => 1000;
+
+    public Func<string, bool> RoadClosed { get; set; } = _ => false;
+
+    public Func<string, (bool Shelter, bool Festival, int WorkHourShift)> ScheduleOf { get; set; } =
+        _ => (false, false, 0);
+
     public SystemContext(RuntimeState state, SimulationSetup setup, IEventBus events, Func<InternalCommand, string?> dispatch)
     {
         State = state;

@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -129,6 +129,13 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
 
     /// <summary>How the weather's fronts are laid out and drawn (config.weather; WP7).</summary>
     public WeatherRules Weather { get; init; } = WeatherRules.Default;
+
+    /// <summary>What a season and the Director's events do to prices, roads, forage, schedules and a region's climate (WLD-37/56).</summary>
+    public UNNAMED.Domain.World.SeasonRules Seasons { get; init; } = UNNAMED.Domain.World.SeasonRules.Default;
+
+    /// <summary>A region's own climate offset (config.seasons' <c>climates</c>): what makes two regions read differently in one season.</summary>
+    public ImmutableSortedDictionary<string, UNNAMED.Domain.World.ClimateOffset> Climates { get; init; } =
+        ImmutableSortedDictionary<string, UNNAMED.Domain.World.ClimateOffset>.Empty;
 
     /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
     public FactionSetup Factions { get; init; } = FactionSetup.Empty;
@@ -412,6 +419,12 @@ public sealed class Simulation
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
         _worldEvents = new WorldEventsSystem(_context);
+        // The season and the Director reach the systems that feel them through the context they already share (WLD-37/56).
+        _context.MarketPermille = MarketPermille;
+        _context.ForagePermille = ForagePermille;
+        _context.RoadPermille = RoadPermille;
+        _context.RoadClosed = RoadClosed;
+        _context.ScheduleOf = ScheduleOf;
         _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _lights, _laden, _lfg, _pets, _worldEvents);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
@@ -898,6 +911,48 @@ public sealed class Simulation
 
     /// <summary>The world events running in one region now (WLD-89): never more than the cap, in the order they began.</summary>
     public ImmutableArray<UNNAMED.Domain.World.WorldEvent> WorldEvents(string regionId) => _worldEvents.Running(regionId, WorldTick);
+
+    /// <summary>
+    /// A region's climate reading now (WLD-37/56; WEATHER §5): its season, the temperature and daylight that region's own offset gives it, and the
+    /// ground that follows. Two regions read differently in the same season, which is the point of a regional climate.
+    /// </summary>
+    public UNNAMED.Domain.World.ClimateReading Climate(string regionId)
+    {
+        var (season, midwinter) = _worldEvents.SeasonOf(WorldTick);
+        var offset = Setup.Climates.GetValueOrDefault(regionId) ?? new UNNAMED.Domain.World.ClimateOffset();
+        return UNNAMED.Domain.World.WorldEffects.Climate(Setup.Seasons, regionId, season, midwinter,
+            offset.TemperatureOffsetC, offset.DayMinutesOffset);
+    }
+
+    /// <summary>The region this simulation's player stands in, as the seasons and the Director name it.</summary>
+    public string Region => _worldEvents.RegionIdOf(Setup) ?? string.Empty;
+
+    /// <summary>What the season and one region's events leave of a price, in permille (WLD-37/56).</summary>
+    public int MarketPermille(string regionId) =>
+        UNNAMED.Domain.World.WorldEffects.MarketPermille(Setup.Seasons, _worldEvents.SeasonOf(WorldTick).Season,
+            _worldEvents.Running(regionId, WorldTick));
+
+    /// <summary>What the season and one region's events leave of a node's yield, in permille.</summary>
+    public int ForagePermille(string regionId) =>
+        UNNAMED.Domain.World.WorldEffects.ForagePermille(Setup.Seasons, _worldEvents.SeasonOf(WorldTick).Season,
+            _worldEvents.Running(regionId, WorldTick));
+
+    /// <summary>What a road through one region allows now, in permille of its dry-season pace; zero when it is shut.</summary>
+    public int RoadPermille(string regionId) =>
+        UNNAMED.Domain.World.WorldEffects.RoadPermille(Setup.Seasons, _worldEvents.SeasonOf(WorldTick).Season,
+            _worldEvents.Running(regionId, WorldTick));
+
+    /// <summary>Whether a road through one region is shut outright now (WLD-37: roads change with the season and with what is happening).</summary>
+    public bool RoadClosed(string regionId) =>
+        UNNAMED.Domain.World.WorldEffects.RoadClosed(Setup.Seasons, _worldEvents.Running(regionId, WorldTick));
+
+    /// <summary>
+    /// How one region spends its day now: whether its people are sheltering, whether it is the festival instead of work, and how many hours the
+    /// season moves the working day (WLD-56: seasons and events change NPC schedules).
+    /// </summary>
+    public (bool Shelter, bool Festival, int WorkHourShift) ScheduleOf(string regionId) =>
+        UNNAMED.Domain.World.WorldEffects.Schedule(Setup.Seasons, _worldEvents.SeasonOf(WorldTick).Season,
+            _worldEvents.Running(regionId, WorldTick));
 
 
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>

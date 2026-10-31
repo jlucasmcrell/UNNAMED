@@ -104,6 +104,9 @@ internal sealed class WorldEventsSystem : IAbstractAdvance
 
     /// <summary>Read-only state's own day, for a caller that has a tick and no day.</summary>
     public long Day(long tick) => _context.Setup.Clock.Day(tick);
+
+    /// <summary>The region this world runs in, named as the Director and the climate reader name regions.</summary>
+    public string? RegionIdOf(SimulationSetup setup) => setup.Layout.Id;
 }
 
 /// <summary>The kinds of advance line the world's clock and Director write.</summary>

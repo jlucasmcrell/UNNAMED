@@ -232,9 +232,15 @@ internal sealed class TradeSystem
             ? OfferFor(merchant, itemId, wear, quality, notable)
             : null;
 
-    /// <summary>What a trader asks for one: its value times their bias for it (1 for anything they did not stock) times their town's price.</summary>
+    /// <summary>
+    /// What the season and the roads are doing to prices here, in permille (WLD-37/56): the region's own market reading, applied to the piece's
+    /// value before the town's market factor, so the two compound as the economy already compounds its factors.
+    /// </summary>
+    private long Season() => _context.MarketPermille(_context.Setup.Layout.Id);
+
+    /// <summary>What a trader asks for one: its value (seasoned) times their bias for it (1 for anything they did not stock) times their town's price.</summary>
     private long AskFor(Merchant merchant, string itemId, int quality = 0, bool makerMarked = false) =>
-        EconomyEngine.Ask(Items.Pricing.Value(Items.Catalog.Get(itemId), quality, makerMarked), merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
+        EconomyEngine.Ask(Items.Pricing.Value(Items.Catalog.Get(itemId), quality, makerMarked) * Season() / 1000, merchant.Stock.FirstOrDefault(s => s.ItemId == itemId)?.PriceBias ?? 1.0,
             _markets.Factor(MarketOf(merchant), itemId));
 
     /// <summary>What a trader asks for one piece as it stands on the shelf: less when it is worn (the same curve their offers use).</summary>
@@ -249,7 +255,7 @@ internal sealed class TradeSystem
         if (Items.Pricing.SellPrice(item, merchant) is null)
             return null;
         string? market = MarketOf(merchant);
-        long offer = EconomyEngine.Offer(Items.Pricing.Value(item, Durability.MadeQuality(quality, wear), MakerMarked(notable)), Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
+        long offer = EconomyEngine.Offer(Items.Pricing.Value(item, Durability.MadeQuality(quality, wear), MakerMarked(notable)) * Season() / 1000, Items.Pricing.SellRatio, _markets.Factor(market, itemId), _markets.Remembered(market, itemId),
             _context.Setup.Economy.Rules, AskFor(merchant, itemId, Durability.MadeQuality(quality, wear), MakerMarked(notable)));
         return Durability.SalePrice(offer, item, wear, Items.Inventory.Durability);
     }

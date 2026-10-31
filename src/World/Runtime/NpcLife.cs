@@ -154,7 +154,7 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
         {
             var before = life.Npcs;
             var given = new HashSet<string>(StringComparer.Ordinal);
-            var (next, happenings) = NpcLifeEngine.Hour(life, Life.Routines, Life.Rules, HourContext(life.Hour + 1), (r, g) => NameFor(r, g, given), CanArrive);
+            var (next, happenings) = NpcLifeEngine.Hour(life, SeasonedRoutines(), Life.Rules, HourContext(life.Hour + 1), (r, g) => NameFor(r, g, given), CanArrive);
             State.SetNpcLife(_owner, next);
             foreach (var happening in happenings.Where(h => h.Kind == NpcLifeEngine.Arrived))
             {
@@ -205,6 +205,31 @@ internal sealed partial class NpcSystem : IAbstractAdvance, IJobOutput, ITeachin
             Settle(npc, x, z, facing);
         }
         Rehire(toTick);
+    }
+
+    private (bool Shelter, bool Festival, int WorkHourShift) _schedule;
+    private ImmutableSortedDictionary<string, RoutineDefinition>? _seasoned;
+
+    /// <summary>
+    /// The routines as this season and this region's events leave them (WLD-56: seasons and events change NPC schedules): each one's working day
+    /// moved by the season's shift, and shut altogether while the region is sheltering or at its festival. Rebuilt only when the schedule changes.
+    /// </summary>
+    private ImmutableSortedDictionary<string, RoutineDefinition> SeasonedRoutines()
+    {
+        var schedule = _context.ScheduleOf(_context.Setup.Layout.Id);
+        if (_seasoned is not null && schedule == _schedule)
+            return _seasoned;
+        _schedule = schedule;
+        var builder = ImmutableSortedDictionary.CreateBuilder<string, RoutineDefinition>(StringComparer.Ordinal);
+        foreach (var (key, routine) in Life.Routines)
+        {
+            var (from, to) = UNNAMED.Domain.World.WorldEffects.WorkHours(routine.WorkFromHour, routine.WorkToHour, schedule);
+            builder[key] = from == routine.WorkFromHour && to == routine.WorkToHour
+                ? routine
+                : routine with { WorkFromHour = from, WorkToHour = to };
+        }
+        _seasoned = builder.ToImmutable();
+        return _seasoned;
     }
 
     /// <summary>Put a body down at a pose, standing, its route forgotten: only ever out of sight (C or D, or during the catch-up).</summary>

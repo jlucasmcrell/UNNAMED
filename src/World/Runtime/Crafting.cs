@@ -152,6 +152,11 @@ internal sealed class GatheringSystem : IAbstractAdvance
         // The yield is rolled from the node and its harvest, and a skilled hand takes more.
         var channel = RngChannel.Open(State.World.WorldSeed, node.Cell, "gather", $"{node.Key}@{harvests + 1}");
         int count = channel.Int(0, definition.YieldMin, definition.YieldMax + 1) + Bonus(definition.SkillId);
+        // WLD-37: what the season and the region's events leave to forage (WEATHER §4's "crop/forage availability"). A node that gives nothing
+        // still gives nothing; one that gives something gives at least one.
+        int forage = _context.ForagePermille(_context.Setup.Layout.Id);
+        if (count > 0 && forage != 1000)
+            count = Math.Max(1, (int)Math.Round(count * forage / 1000.0, MidpointRounding.AwayFromZero));
         if (_context.Dispatch(new ExchangeItems(ImmutableArray<StackTake>.Empty, definition.ItemId, count, Quality.Standard)) is { } refused)
             return refused;
         State.HarvestNode(_owner, node.Cell, node.Key, localTick);

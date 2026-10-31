@@ -1,0 +1,58 @@
+id: config.seasons
+kind: config
+schema: 1
+display_key: config.seasons.name
+tags: [config]
+# WLD-37/56 (WEATHER_SEASONS_SURVIVAL_AND_ENVIRONMENT.md 4-5): a season is systemic, and a region's climate is its own reading of it. Every
+# number here is a permille so it composes with the economy's own factors, and the shipped values are the balance pass.
+notes: What each season does to temperature, daylight, ground, prices, forage and roads, and what the Director's events add on top.
+season:
+  thaw:      { temperature_c: 8,  day_minutes: 720, ground: mud }
+  highsun:   { temperature_c: 19, day_minutes: 960, ground: dry }
+  harvest:   { temperature_c: 12, day_minutes: 720, ground: dry }
+  frostfall: { temperature_c: -2, day_minutes: 480, ground: frost }
+  intercalary: { temperature_c: -6, day_minutes: 420, ground: snow }
+market_permille:
+  thaw: 1000
+  highsun: 950
+  harvest: 900
+  frostfall: 1150
+  intercalary: 1250
+forage_permille:
+  thaw: 900
+  highsun: 1000
+  harvest: 1300
+  frostfall: 600
+  intercalary: 350
+road_permille:
+  thaw: 850
+  highsun: 1000
+  harvest: 1000
+  frostfall: 700
+  intercalary: 500
+work_hour_shift:
+  thaw: 0
+  highsun: 1
+  harvest: -1
+  frostfall: -2
+  intercalary: -3
+events:
+  # What each of the Director's kinds does on top of the season. A caravan brings goods and lowers prices; an incursion or a siege raises them,
+  # thins the forage and shuts the road (a siege outright); a festival is the Hollow Day.
+  caravan:   { market_permille: 880,  forage_permille: 1000, road_permille: 950 }
+  migration: { market_permille: 950,  forage_permille: 900,  road_permille: 900 }
+  incursion: { market_permille: 1250, forage_permille: 800,  road_permille: 600, shelters: true }
+  siege:     { market_permille: 1500, forage_permille: 600,  road_permille: 300, shelters: true, closes_road: true }
+  festival:  { market_permille: 1050, forage_permille: 1000, road_permille: 900 }
+festival_event: festival
+climates:
+  # WEATHER 5: climate is regional. A region's own offset moves its temperature and its daylight from the season's reading; a region not named
+  # here reads the season plainly.
+  starting_frontier: { temperature_offset_c: 0, day_minutes_offset: 0 }
+  ashen_hollow: { temperature_offset_c: 1, day_minutes_offset: 10 }
+  cairnwold: { temperature_offset_c: -1, day_minutes_offset: -10 }
+  barrowworks: { temperature_offset_c: -4, day_minutes_offset: 0 }
+  sedge_levels: { temperature_offset_c: 2, day_minutes_offset: 20 }
+  otherhome: { temperature_offset_c: 3, day_minutes_offset: 30 }
+  cistern_court: { temperature_offset_c: 1, day_minutes_offset: 0 }
+  den_gorge_cave: { temperature_offset_c: -2, day_minutes_offset: -20 }

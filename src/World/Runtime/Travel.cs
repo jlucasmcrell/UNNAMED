@@ -196,7 +196,7 @@ internal sealed class TravelSystem
             return ImmutableArray<TravelOption>.Empty;
         string? blocked = Blocked();
         return Layout.Waystones.Where(w => w.Key != fromKey && Knows(w))
-            .Select(w => new TravelOption(w.Key, Layout.Id, CostTo(from, w), blocked)).ToImmutableArray();
+            .Select(w => new TravelOption(w.Key, Layout.Id, CostTo(from, w), blocked ?? RoadShut())).ToImmutableArray();
     }
 
     /// <summary>The character knows this stone of the region played.</summary>
@@ -221,8 +221,22 @@ internal sealed class TravelSystem
         return null;
     }
 
-    private TravelCost CostTo(WaystoneSite from, WaystoneSite to) =>
-        Journeys.Cost(Layout.Roads, from, to, _context.Setup.Movement.SpeedMmPerSecond(Gait.Walk), _context.Setup.TickMilliseconds);
+    /// <summary>
+    /// The journey's walking cost, as the road allows it today (WLD-37: seasons and events change roads). A slower road lengthens the walk the
+    /// quote shows; a shut one is refused where the quote is offered, not here, so the two reasons a stone will not take a character look alike.
+    /// </summary>
+    private TravelCost CostTo(WaystoneSite from, WaystoneSite to)
+    {
+        var cost = Journeys.Cost(Layout.Roads, from, to, _context.Setup.Movement.SpeedMmPerSecond(Gait.Walk), _context.Setup.TickMilliseconds);
+        int permille = _context.RoadPermille(Layout.Id);
+        return permille is <= 0 or 1000
+            ? cost
+            : cost with { WalkTicks = Math.Max(1, (long)Math.Ceiling(cost.WalkTicks * 1000.0 / permille)) };
+    }
+
+    /// <summary>Why no journey along this region's roads is possible today, or null when the road is open.</summary>
+    private string? RoadShut() =>
+        _context.RoadClosed(Layout.Id) ? "The road is shut: nothing travels it while this lasts" : null;
 
     private void Know(WaystoneSite stone, WaystoneMethod method, string text, long tick)
     {
