@@ -469,6 +469,28 @@
       "material": "stone",
       "yaw_spread": 360.0,
       "note": "Claude steps-visual: limestone breaking through the headland's bank."
+    },
+    "oh_quayedging_j": {
+      "models": [
+        "wall_cos_drystone_02_l400"
+      ],
+      "material": "stone",
+      "note": "Claude steps-visual: a run over each seam of the basin's edging, so the drystone ends close up."
+    },
+    "oh_quaywall_j": {
+      "models": [
+        "wall_cos_drystone_02_l400"
+      ],
+      "material": "stone",
+      "note": "Claude steps-visual: a run over each seam of the quay parapet, so the drystone ends close up."
+    },
+    "oh_nq_flake_": {
+      "models": [
+        "prop_bp_hurdle_wattle"
+      ],
+      "material": "wood",
+      "fit": "tile",
+      "note": "Claude steps-visual: fish flakes on the north quay, wattle hurdles stood in a line to dry the catch."
     }
   },
   "building_walls": {
@@ -12896,6 +12918,311 @@
       "model": "prop_cos_basket_mvv_03",
       "material": "wood",
       "note": "Claude steps-visual: a stall's wares."
+    },
+    "oh_nq_store_00": {
+      "model": "bld_fab_ah_forge_shed",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_01": {
+      "model": "bld_fab_cw_granary",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_02": {
+      "model": "bld_fab_cw_house_06",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_03": {
+      "model": "cw_granary_staddled",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_04": {
+      "model": "bld_fab_ah_forge_shed",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_05": {
+      "model": "bld_fab_cw_granary",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_06": {
+      "model": "bld_fab_cw_house_06",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_07": {
+      "model": "cw_granary_staddled",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_store_08": {
+      "model": "bld_fab_cw_granary",
+      "material": "stone",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_00_0": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_00_1": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_00_2": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_00_4": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_00_5": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cart_01": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_02_0": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_02_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_02_3": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_02_4": {
+      "model": "prop_cos_basket_met_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_02_5": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_04_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_04_1": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_04_2": {
+      "model": "prop_cos_basket_met_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_04_3": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_04_4": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_04_5": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cart_05": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_06_0": {
+      "model": "prop_cos_basket_met_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_06_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_06_2": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_06_3": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_06_4": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_08_0": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_08_1": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_08_2": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_08_4": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_08_5": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cart_09": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_10_0": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_10_2": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_10_3": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_10_4": {
+      "model": "prop_cos_basket_met_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_10_5": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_12_0": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_12_1": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_12_2": {
+      "model": "prop_cos_basket_met_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_12_3": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_12_4": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_12_5": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cart_13": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_14_0": {
+      "model": "prop_cos_basket_met_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_14_1": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_14_2": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_14_3": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_14_4": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_24_0": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_24_1": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_24_2": {
+      "model": "prop_ph_wooden_crate_02",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_24_4": {
+      "model": "prop_cos_basket_mvv_03",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cargo_24_5": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq_cart_25": {
+      "model": "prop_bp_merchant_cart",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's working dress."
     }
   },
   "doors": {

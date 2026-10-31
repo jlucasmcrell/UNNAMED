@@ -13,7 +13,7 @@ work_hours: [5, 19]
 anchors:
   home: {position_m: [1452.0, 498.0], facing_deg: 180}
   work: {position_m: [1452.0, 504.0], facing_deg: 180}
-  pier: {position_m: [1252.0, 444.0], facing_deg: 270}
+  pier: {position_m: [1258.5, 446.0], facing_deg: 270}
 schedule:
   - {hours: [9, 15], at: pier}
   - {hours: [19, 21], at: home}
