@@ -59828,6 +59828,150 @@ structures:
 - id: oh_quaygoods_023_3
   box_m: [1272.20, 1145.00, 1272.90, 1145.70]
   height_m: 0.62
+- id: oh_quaypost_023
+  box_m: [1259.84, 408.00, 1260.16, 408.32]
+  height_m: 3.2
+- id: oh_quaygoods_n00_0
+  box_m: [1283.00, 415.00, 1283.70, 415.70]
+  height_m: 0.62
+- id: oh_quaygoods_n00_1
+  box_m: [1283.00, 415.90, 1283.70, 416.60]
+  height_m: 0.62
+- id: oh_quaygoods_n00_2
+  box_m: [1283.90, 415.40, 1284.80, 416.30]
+  height_m: 0.62
+- id: oh_quaygoods_n00_3
+  box_m: [1283.30, 419.00, 1284.00, 419.70]
+  height_m: 0.62
+- id: cw_cart_ohq_01
+  box_m: [1281.00, 426.00, 1282.60, 429.10]
+  height_m: 1.0
+- id: oh_quaygoods_n01_0
+  box_m: [1283.00, 431.00, 1283.70, 431.70]
+  height_m: 0.62
+- id: oh_quaygoods_n01_1
+  box_m: [1283.00, 431.90, 1283.70, 432.60]
+  height_m: 0.62
+- id: oh_quaygoods_n01_2
+  box_m: [1283.90, 431.40, 1284.80, 432.30]
+  height_m: 0.62
+- id: oh_quaygoods_n01_3
+  box_m: [1283.30, 435.00, 1284.00, 435.70]
+  height_m: 0.62
+- id: oh_quaypost_024
+  box_m: [1259.84, 440.00, 1260.16, 440.32]
+  height_m: 3.2
+- id: oh_quaygoods_n02_0
+  box_m: [1283.00, 447.00, 1283.70, 447.70]
+  height_m: 0.62
+- id: oh_quaygoods_n02_1
+  box_m: [1283.00, 447.90, 1283.70, 448.60]
+  height_m: 0.62
+- id: oh_quaygoods_n02_2
+  box_m: [1283.90, 447.40, 1284.80, 448.30]
+  height_m: 0.62
+- id: oh_quaygoods_n02_3
+  box_m: [1283.30, 451.00, 1284.00, 451.70]
+  height_m: 0.62
+- id: oh_quaygoods_n03_0
+  box_m: [1283.00, 463.00, 1283.70, 463.70]
+  height_m: 0.62
+- id: oh_quaygoods_n03_1
+  box_m: [1283.00, 463.90, 1283.70, 464.60]
+  height_m: 0.62
+- id: oh_quaygoods_n03_2
+  box_m: [1283.90, 463.40, 1284.80, 464.30]
+  height_m: 0.62
+- id: oh_quaygoods_n03_3
+  box_m: [1283.30, 467.00, 1284.00, 467.70]
+  height_m: 0.62
+- id: oh_quaypost_025
+  box_m: [1259.84, 472.00, 1260.16, 472.32]
+  height_m: 3.2
+- id: cw_cart_ohq_04
+  box_m: [1281.00, 474.00, 1282.60, 477.10]
+  height_m: 1.0
+- id: oh_quaygoods_n04_0
+  box_m: [1283.00, 479.00, 1283.70, 479.70]
+  height_m: 0.62
+- id: oh_quaygoods_n04_1
+  box_m: [1283.00, 479.90, 1283.70, 480.60]
+  height_m: 0.62
+- id: oh_quaygoods_n04_2
+  box_m: [1283.90, 479.40, 1284.80, 480.30]
+  height_m: 0.62
+- id: oh_quaygoods_n04_3
+  box_m: [1283.30, 483.00, 1284.00, 483.70]
+  height_m: 0.62
+- id: oh_quaygoods_n05_0
+  box_m: [1283.00, 495.00, 1283.70, 495.70]
+  height_m: 0.62
+- id: oh_quaygoods_n05_1
+  box_m: [1283.00, 495.90, 1283.70, 496.60]
+  height_m: 0.62
+- id: oh_quaygoods_n05_2
+  box_m: [1283.90, 495.40, 1284.80, 496.30]
+  height_m: 0.62
+- id: oh_quaygoods_n05_3
+  box_m: [1283.30, 499.00, 1284.00, 499.70]
+  height_m: 0.62
+- id: oh_quaypost_026
+  box_m: [1259.84, 504.00, 1260.16, 504.32]
+  height_m: 3.2
+- id: oh_quaygoods_n06_0
+  box_m: [1283.00, 511.00, 1283.70, 511.70]
+  height_m: 0.62
+- id: oh_quaygoods_n06_1
+  box_m: [1283.00, 511.90, 1283.70, 512.60]
+  height_m: 0.62
+- id: oh_quaygoods_n06_2
+  box_m: [1283.90, 511.40, 1284.80, 512.30]
+  height_m: 0.62
+- id: oh_quaygoods_n06_3
+  box_m: [1283.30, 515.00, 1284.00, 515.70]
+  height_m: 0.62
+- id: cw_cart_ohq_07
+  box_m: [1281.00, 522.00, 1282.60, 525.10]
+  height_m: 1.0
+- id: oh_quaygoods_n07_0
+  box_m: [1283.00, 527.00, 1283.70, 527.70]
+  height_m: 0.62
+- id: oh_quaygoods_n07_1
+  box_m: [1283.00, 527.90, 1283.70, 528.60]
+  height_m: 0.62
+- id: oh_quaygoods_n07_2
+  box_m: [1283.90, 527.40, 1284.80, 528.30]
+  height_m: 0.62
+- id: oh_quaygoods_n07_3
+  box_m: [1283.30, 531.00, 1284.00, 531.70]
+  height_m: 0.62
+- id: oh_quaypost_027
+  box_m: [1259.84, 536.00, 1260.16, 536.32]
+  height_m: 3.2
+- id: oh_quaygoods_n08_0
+  box_m: [1283.00, 543.00, 1283.70, 543.70]
+  height_m: 0.62
+- id: oh_quaygoods_n08_1
+  box_m: [1283.00, 543.90, 1283.70, 544.60]
+  height_m: 0.62
+- id: oh_quaygoods_n08_2
+  box_m: [1283.90, 543.40, 1284.80, 544.30]
+  height_m: 0.62
+- id: oh_quaygoods_n08_3
+  box_m: [1283.30, 547.00, 1284.00, 547.70]
+  height_m: 0.62
+- id: oh_quaygoods_n09_0
+  box_m: [1283.00, 559.00, 1283.70, 559.70]
+  height_m: 0.62
+- id: oh_quaygoods_n09_1
+  box_m: [1283.00, 559.90, 1283.70, 560.60]
+  height_m: 0.62
+- id: oh_quaygoods_n09_2
+  box_m: [1283.90, 559.40, 1284.80, 560.30]
+  height_m: 0.62
+- id: oh_quaygoods_n09_3
+  box_m: [1283.30, 563.00, 1284.00, 563.70]
+  height_m: 0.62
 - id: oh_quaywall_000
   box_m: [1248.10, 400.00, 1249.30, 404.00]
   height_m: 1.4
