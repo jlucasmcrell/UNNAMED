@@ -26,6 +26,12 @@ public sealed class ProgressionDto
     [Key("novelty_firsts")] public string[] NoveltyFirsts { get; set; } = Array.Empty<string>();
     [Key("pools")] public PoolsDto Pools { get; set; } = new();
     [Key("guards")] public GuardsDto Guards { get; set; } = new();
+
+    /// <summary>The discipline designated for mastery (schema 41); null for a character who has chosen none, and for every older save.</summary>
+    [Key("designated_skill")] public string? DesignatedSkill { get; set; }
+
+    /// <summary>The skills that reached their cap and earned a mastery (schema 41); empty in every older save.</summary>
+    [Key("masteries")] public string[] Masteries { get; set; } = Array.Empty<string>();
 }
 
 [MessagePackObject]
@@ -131,6 +137,8 @@ public static class ProgressionCodec
         ProductionFirsts = p.ProductionFirsts.ToArray(),
         NoveltyFirsts = p.NoveltyFirsts.ToArray(),
         Pools = new PoolsDto { Health = p.Pools.Health, Stamina = p.Pools.Stamina, Focus = p.Pools.Focus, Strain = p.Pools.Strain },
+        DesignatedSkill = p.DesignatedSkill,
+        Masteries = p.Masteries.ToArray(),
         Guards = new GuardsDto
         {
             SpeciesToday = p.Guards.SpeciesToday
@@ -164,6 +172,8 @@ public static class ProgressionCodec
         ProductionFirsts = dto.ProductionFirsts.ToImmutableSortedSet(StringComparer.Ordinal),
         NoveltyFirsts = dto.NoveltyFirsts.ToImmutableSortedSet(StringComparer.Ordinal),
         Pools = new PoolState(dto.Pools.Health, dto.Pools.Stamina, dto.Pools.Focus, dto.Pools.Strain),
+        DesignatedSkill = dto.DesignatedSkill,
+        Masteries = dto.Masteries.ToImmutableSortedSet(StringComparer.Ordinal),
         Guards = new XpGuardState(
             Unique(dto.Guards.SpeciesToday, s => s.SpeciesId, s => new SpeciesDay(s.Day, s.Kills), "AG-2 species")
                 .ToImmutableSortedDictionary(StringComparer.Ordinal),

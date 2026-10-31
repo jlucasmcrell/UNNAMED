@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -960,6 +960,12 @@ public sealed class Simulation
                 PeopleAbilityCommand ability => _people.Handle(ability, WorldTick),
                 TakeAllCommand takeAll => _inventory.Handle(takeAll, WorldTick),
                 SpendAttributeCommand spend => spend.Actor != PlayerId ? $"unknown actor {spend.Actor}" : _progression.Handle(spend, WorldTick),
+        DesignateSkillCommand designate => designate.Actor != PlayerId
+            ? $"unknown actor {designate.Actor}"
+            : _progression.Handle(designate, WorldTick),
+        RespecAttributesCommand respec => respec.Actor != PlayerId
+            ? $"unknown actor {respec.Actor}"
+            : _progression.Handle(respec, WorldTick),
                 InteractCommand interact => _interaction.Handle(interact, WorldTick),
                 EnterSpaceCommand enter => _spaces.Enter(enter, WorldTick),
                 LeaveSpaceCommand leave => _spaces.Leave(leave),

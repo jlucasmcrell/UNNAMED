@@ -795,6 +795,21 @@ internal sealed class WorldFlagSystem
 /// <summary>Spend an unspent attribute point on an attribute in play (the owner's M6 playtest: the character sheet; PROTOTYPE.md C11).</summary>
 public sealed record SpendAttributeCommand(EntityId Actor, CharacterAttribute Attribute) : GameCommand(Actor);
 
+/// <summary>
+/// Designate the discipline whose skill may pass the common ceiling (PROGRESSION.md section 4.3), or switch the designation to another. Costs
+/// <see cref="ProgressionRules.DesignationCost"/> coin; the mastery a discipline earns is a title, never a level grant.
+/// </summary>
+public sealed record DesignateSkillCommand(EntityId Actor, string SkillId) : GameCommand(Actor);
+
+/// <summary>
+/// Give every spent attribute point back and spend the coin it costs (queue item 7). What a respec costs rises with the level that earned the
+/// points, so it is a real sink at the level a build matters, and pocket change at level 2.
+/// </summary>
+public sealed record RespecAttributesCommand(EntityId Actor) : GameCommand(Actor);
+
+/// <summary>A discipline was designated: which, and what it cost.</summary>
+public sealed record SkillDesignated(string SkillId, int Cost, long Tick);
+
 /// <summary>An attribute point was spent: the attribute's new value, and the points left.</summary>
 public sealed record AttributeSpent(CharacterAttribute Attribute, int Value, int Unspent, long Tick);
 
@@ -843,6 +858,42 @@ internal sealed class ProgressionSystem
         };
         if (pools != progression.Pools)
             _context.State.SetProgression(_owner, progression with { Pools = pools });
+        return null;
+    }
+
+    /// <summary>
+    /// Choose or switch the discipline that may pass the common ceiling. The skill must exist in the roster; the cost is paid before the
+    /// designation moves, so a refusal leaves the character exactly as they were.
+    /// </summary>
+    public string? Handle(DesignateSkillCommand command, long tick)
+    {
+        var progression = _context.State.Progression;
+        var rules = _context.Setup.Progression;
+        if (!rules.Roster.Any(s => s.Id == command.SkillId))
+            return $"'{command.SkillId}' is not a discipline of this world";
+        if (string.Equals(progression.DesignatedSkill, command.SkillId, StringComparison.Ordinal))
+            return $"'{command.SkillId}' is already the designated discipline";
+        if (rules.DesignationCost > 0 && _context.Dispatch(new SpendCurrency(rules.DesignationCost)) is { } refused)
+            return refused;
+        _context.State.SetProgression(_owner, Designation.Choose(progression, command.SkillId));
+        _context.Events.Publish(new SkillDesignated(command.SkillId, rules.DesignationCost, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// Give every spent attribute point back for coin. The points return to the pool and the allocation empties; grants and level stay, because
+    /// neither was bought with a point.
+    /// </summary>
+    public string? Handle(RespecAttributesCommand command, long tick)
+    {
+        var progression = _context.State.Progression;
+        var rules = _context.Setup.Progression;
+        if (progression.Allocation.Values.All(v => v == 0))
+            return "no attribute points are spent";
+        int cost = rules.RespecCost(progression.Level);
+        if (cost > 0 && _context.Dispatch(new SpendCurrency(cost)) is { } refused)
+            return refused;
+        _context.State.SetProgression(_owner, Designation.Refund(progression));
         return null;
     }
 

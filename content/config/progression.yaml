@@ -16,13 +16,22 @@ derived:                          # §4.1: base + integer coefficients per attri
   strain_tolerance: { base: 10, per_point: { will: 2, endurance: 1 } }
 skills:                           # §4.2: use under challenge
   difficulty_margin: 15           # a use grants XP only when difficulty > skill - 15
-  common_ceiling: 60              # designated masteries (M12) continue to 100
+  common_ceiling: 60              # the cap for every skill that is not the designated discipline
+  mastery_level: 100              # the cap for the one discipline the character designates
   xp_per_level_base: 20           # XP from level L to L+1 = base + growth * L
   xp_per_level_growth: 4
   use_xp: 10                      # XP for a use exactly one margin past the gate
   failure_factor: 0.5             # a failure still teaches, at this rate
   max_challenge_factor: 2.0
   novelty_bonus_xp: 25            # the first success of a technique, formula or output
+# Queue item 7: the prices of the two progression decisions. Canon names the designation cost as "a long in-world undertaking" and is silent on
+# respec, so these two are proposed numbers: 500 coin to choose or switch a designation, and a respec that costs more the higher the level that
+# earned the points (100 at level 1, +50 a level).
+designation_cost: 500
+respec_cost:
+  base: 100
+  per_level: 50
+
 guards:                           # §3.4
   level_band:                     # AG-1: [min, max, multiplier] on creature_level - player_level
     - [-999, -16, 0.00]

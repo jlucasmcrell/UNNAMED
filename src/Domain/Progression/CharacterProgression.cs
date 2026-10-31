@@ -66,6 +66,18 @@ public sealed record CharacterProgression
     public ImmutableSortedDictionary<string, SkillState> Skills { get; init; } =
         ImmutableSortedDictionary.Create<string, SkillState>(StringComparer.Ordinal);
 
+    /// <summary>
+    /// The one discipline designated for mastery (schema 41; PROGRESSION.md section 4.3): it may pass the common ceiling and rise to the
+    /// mastery level. Chosen, never granted by level, and switched only at a cost.
+    /// </summary>
+    public string? DesignatedSkill { get; init; }
+
+    /// <summary>
+    /// The skills that have reached their cap and earned a mastery (schema 41): the common ceiling for an ordinary skill, the mastery level for
+    /// the designated discipline. A mastery is a title and a band, never a level-up grant.
+    /// </summary>
+    public ImmutableSortedSet<string> Masteries { get; init; } = ImmutableSortedSet.Create<string>(StringComparer.Ordinal);
+
     public ImmutableSortedDictionary<string, KnownTechnique> Known { get; init; } =
         ImmutableSortedDictionary.Create<string, KnownTechnique>(StringComparer.Ordinal);
 
@@ -93,6 +105,10 @@ public sealed record CharacterProgression
             Require(ProgressionKeys.IsSkillId(id) && skill.Level is >= 0 and <= 100 && skill.ProgressXp >= 0, $"skill {id} {skill}");
         foreach (var id in Known.Keys)
             Require(ProgressionKeys.IsTechniqueId(id), $"known technique '{id}'");
+        if (DesignatedSkill is { } designated)
+            Require(ProgressionKeys.IsSkillId(designated), $"designated discipline '{designated}'");
+        foreach (var mastery in Masteries)
+            Require(ProgressionKeys.IsSkillId(mastery), $"mastery '{mastery}'");
         foreach (var id in ProductionFirsts.Concat(NoveltyFirsts))
             Require(DefinitionId.IsValid(id), $"first-time record '{id}'");
         Require(Pools.Health is null or >= 0 && Pools.Stamina is null or >= 0 && Pools.Focus is null or >= 0 && Pools.Strain >= 0, $"pools {Pools}");

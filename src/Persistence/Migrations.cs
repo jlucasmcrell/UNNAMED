@@ -127,7 +127,8 @@ public static class SchemaMigrations
         new SchemaV36ToV37(),
         new SchemaV37ToV38(),
         new SchemaV38ToV39(),
-        new SchemaV39ToV40());
+        new SchemaV39ToV40(),
+        new SchemaV40ToV41());
 
     /// <summary>The steps from one schema to another, in order - or empty and false when the table has a gap.</summary>
     public static bool TryChain(ImmutableArray<SchemaMigration> table, int from, int to, out ImmutableArray<SchemaMigration> chain)
@@ -2112,6 +2113,26 @@ public sealed class SchemaV39ToV40 : SchemaMigration
             next.Crossing = new CrossingDto();
             document.Sections[SaveFormat.Player] = MessagePackSerializer.Serialize(next, SectionCodec.MessagePackOptions);
         }
+        document.Manifest["schema_version"] = To;
+        report.Steps.Add(Summary);
+    }
+}
+
+/// <summary>
+/// Schema 40 -> 41: a character keeps the discipline designated for mastery and the skills that reached their cap (queue item 7). Both fields
+/// are additive, and their absence is exactly their meaning: a record written by schema 40 has no designated discipline and no masteries, because
+/// its character could not have chosen or earned one. So the step keeps the section byte for byte and moves the manifest, rather than decoding and
+/// re-encoding a record to write two defaults that decoding already gives.
+/// </summary>
+public sealed class SchemaV40ToV41 : SchemaMigration
+{
+    public override int From => 40;
+
+    public override string Summary =>
+        "schema 40 -> 41: the progression record may carry the designated discipline and the masteries (absent means none, so nothing is rewritten)";
+
+    public override void Apply(MigrationDocument document, MigrationEnvironment environment, MigrationReport report)
+    {
         document.Manifest["schema_version"] = To;
         report.Steps.Add(Summary);
     }

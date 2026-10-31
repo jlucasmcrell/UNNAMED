@@ -173,7 +173,8 @@ public static class ProgressionEngine
             }
         }
 
-        int ceiling = aptitude.Ceiling(model);
+        // the designated discipline may rise past the common ceiling; every other skill stops at it (section 4.3)
+        int ceiling = Math.Min(aptitude.Ceiling(model), model.CapOf(practice.SkillId, progression.DesignatedSkill));
         int level = state.Level;
         long progress = state.ProgressXp + xp;
         int gained = 0;
@@ -189,10 +190,13 @@ public static class ProgressionEngine
         var advancements = xp > 0
             ? ImmutableArray.Create(new Advancement(Axis.Skills, practice.SkillId, xp, "practice", practice.Tick))
             : ImmutableArray<Advancement>.Empty;
+        // a skill that reaches its cap has earned its mastery, once
+        var masteries = level >= ceiling ? progression.Masteries.Add(practice.SkillId) : progression.Masteries;
         var result = progression with
         {
             Skills = progression.Skills.SetItem(practice.SkillId, new SkillState(level, progress)),
             NoveltyFirsts = novelty,
+            Masteries = masteries,
         };
         return new SkillResult(result, xp, gained, advancements);
     }
@@ -319,5 +323,34 @@ public static class ProgressionEngine
             ClusterKills = guards.ClusterKills.SetItem(kill.ClusterKey, recent.Add(tick)),
         };
         return (band * saturation, updated);
+    }
+}
+
+/// <summary>
+/// The designation a character may choose (PROGRESSION.md section 4.3): the discipline that may pass the common ceiling. Pure - what it costs
+/// is the caller's business, so the same call serves a purchase, a quest reward or a tool.
+/// </summary>
+public static class Designation
+{
+    /// <summary>Designate a discipline, or clear the designation with null. The skill must be one the world knows.</summary>
+    public static CharacterProgression Choose(CharacterProgression progression, string? skillId)
+    {
+        if (skillId is not null && !ProgressionKeys.IsSkillId(skillId))
+            throw new ArgumentException($"'{skillId}' is not a skill ID", nameof(skillId));
+        return progression with { DesignatedSkill = skillId };
+    }
+
+    /// <summary>
+    /// Give every spent attribute point back: the allocation empties and the points return to the pool. Grants stay - they were never the
+    /// character's to spend again - and the level that earned the points does not move.
+    /// </summary>
+    public static CharacterProgression Refund(CharacterProgression progression)
+    {
+        int refunded = progression.Allocation.Values.Sum();
+        return progression with
+        {
+            Allocation = ImmutableSortedDictionary<CharacterAttribute, int>.Empty,
+            UnspentAttributePoints = progression.UnspentAttributePoints + refunded,
+        };
     }
 }
