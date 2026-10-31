@@ -9,7 +9,6 @@ public partial class FestivalWind : Node
 
     public override void _Ready()
     {
-        WindField.Ensure(GetParent());
         foreach (var node in GetParent().FindChildren("*", nameof(Node3D), true, false).OfType<Node3D>()
                      .OrderBy(n => n.Name.ToString(), StringComparer.Ordinal))
         {

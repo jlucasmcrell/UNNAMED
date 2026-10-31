@@ -82,6 +82,9 @@ public static class Dressing
                 holder.SetMeta("tidal_float_offset_m", floating.GetSingle());
             if (entry.TryGetProperty("festival", out var festival) && festival.GetString() is { Length: > 0 } festivalId)
             {
+                // The view has finished entering the tree. Adding wind from a
+                // hanging piece's _Ready would re-enter its busy parent setup.
+                WindField.Ensure(parent);
                 holder.SetMeta("festival", festivalId);
                 holder.Visible = false;
             }
