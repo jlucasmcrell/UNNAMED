@@ -270,6 +270,7 @@ public sealed class Simulation
     private readonly CombinedSettingOuts _trips;
     private readonly CombinedHireability _hiring;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
+    private readonly WorldEventsSystem _worldEvents;
     private readonly ImmutableArray<IAbstractAdvance> _advances;
     private long _sequence;
     private bool _stepping;
@@ -410,7 +411,8 @@ public sealed class Simulation
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _lights, _laden, _lfg, _pets);
+        _worldEvents = new WorldEventsSystem(_context);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _lights, _laden, _lfg, _pets, _worldEvents);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
@@ -890,6 +892,12 @@ public sealed class Simulation
 
     /// <summary>The region's NPC adventurers (WP13): level, coin, gear, what they are about today, and whether they are in town or with the party.</summary>
     public ImmutableArray<AdventurerView> Adventurers => _adventurers.Views();
+
+    /// <summary>The season the world is in, and whether this is the midwinter Hollow Day (WLD-33, owner ruling).</summary>
+    public (string Season, bool Midwinter) Season => _worldEvents.SeasonOf(WorldTick);
+
+    /// <summary>The world events running in one region now (WLD-89): never more than the cap, in the order they began.</summary>
+    public ImmutableArray<UNNAMED.Domain.World.WorldEvent> WorldEvents(string regionId) => _worldEvents.Running(regionId, WorldTick);
 
 
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
