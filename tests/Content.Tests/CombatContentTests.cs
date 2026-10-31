@@ -86,9 +86,13 @@ public class CombatContentTests
         var spawns = setup.Spawns.ToDictionary(s => s.Key);
         // 29, not 30: the Ring Custodian's spawn is region.barrowworks' and this run is the start area's, so
         // CombatContent correctly does not carry it. A run of the ring has it and not these.
-        // 58: the D19 roster put ten more spawns in this run's areas - the ten bosses a player build loads, seven of them in the
-        // starting frontier, the holt and the road that this run carries
-        Assert.Equal(58, spawns.Count);   // includes the accepted Foldscar and Old Late packs in addition to the existing regional spawns
+        // Every spawn content declares for this region and no more: a spawn the loader drops, or one a lane adds, moves this
+        // number, where a literal only tells you the roster changed.
+        int authored = Directory.EnumerateFiles(Path.Combine(RepoPaths.Root(), "content", "spawns"), "*.yaml", SearchOption.AllDirectories)
+            .Select(file => File.ReadAllText(file))
+            .Count(yaml => yaml.Contains("region_ref: region.starting_frontier", StringComparison.Ordinal));
+        Assert.Equal(authored, spawns.Count);
+        Assert.True(authored > 40, $"the starting frontier reads as {authored} spawn sites");
         var strays = spawns["spawn.hollow.valley_strays"];
         Assert.Equal((2, 518_000L, 728_000L, 24_000L), (strays.Members.Length, strays.XMm, strays.ZMm, strays.RespawnTicks));
         Assert.All(strays.Members, m => Assert.Equal("stray", m.RoleId));
