@@ -6379,6 +6379,7 @@
   "skill.hunting": "ui.skill.bow",
   "skill.prospecting": "ui.skill.survival",
   "item.tome.fitting_tables": "ui.item.bench_patterns",
+  "item.otherhome.port_ledger": "ui.item.bench_patterns",
   "skill.herbalism": "ui.skill.survival",
   "skill.skinning": "ui.skill.survival",
   "skill.woodworking": "ui.skill.smithing",
