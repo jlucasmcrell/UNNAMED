@@ -35,7 +35,9 @@ internal static class Camps
     }
     public static CampView? View(SystemContext context,EntityId owner)
     {
-        var pieces=context.State.World.CreatedEntities.Where(c=>IsPiece(c.DefId)).Select(c=>
+        // ordered by the piece's id - a ULID, so the order is the order they were placed and it survives a save and a load
+        var pieces=context.State.World.CreatedEntities.Where(c=>IsPiece(c.DefId))
+            .OrderBy(c=>c.InstanceId.Value,StringComparer.Ordinal).Select(c=>
         {
             var (x,z)=Position(c); return new CampPiece(c.InstanceId,c.DefId,x,z);
         }).ToImmutableArray();
