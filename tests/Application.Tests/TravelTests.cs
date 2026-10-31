@@ -186,7 +186,11 @@ public class TravelTests
         // By the Old East Road, the Rim is a little over half a kilometre from the Ashen Waystone, the last 43 m across the rim's turf.
         Assert.InRange(option.Cost.RoadMm, 520_000, 600_000);
         double walkMmPerSecond = session.Setup.Movement.SpeedMmPerSecond(Domain.Spatial.Gait.Walk);
-        Assert.Equal((long)Math.Ceiling(option.Cost.RoadMm / walkMmPerSecond * 1000 / session.Setup.TickMilliseconds), option.Cost.WalkTicks);
+        long dryTicks = (long)Math.Ceiling(option.Cost.RoadMm / walkMmPerSecond * 1000 / session.Setup.TickMilliseconds);
+        // WLD-37: the road is what the season and the region's events leave of it, so the quote is the dry walk at the road's own pace.
+        int roadPermille = arena.Simulation.RoadPermille(arena.Simulation.Region);
+        Assert.True(roadPermille > 0, "the road is open");
+        Assert.Equal(roadPermille == 1000 ? dryTicks : (long)Math.Ceiling(dryTicks * 1000.0 / roadPermille), option.Cost.WalkTicks);
         // The other way round costs the same.
         var rim = At(session, AtRim, r => Knowing(r, null, Ashen, Rim));
         Assert.Equal(option.Cost, Assert.Single(rim.Simulation.TravelOptions(Rim)).Cost);
