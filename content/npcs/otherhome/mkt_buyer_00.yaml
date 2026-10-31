@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1549.0, 777.6]
 facing_deg: 0
+people_ref: people.orenth
+appearance:
+  stature_cm: 178
+  face: face.f.caucasian.johanna
+  hair: hair.long.ponytail
+  outfit: outfit.period.coat
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 32
+    body.muscular: 220
+    body.overweight: 150
+    body.skinny: 200
+    look.shirt_colour: 4
+    look.trouser_colour: 1
+    look.hair_colour: 2
+    look.skin_tone: 0

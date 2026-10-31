@@ -21,3 +21,21 @@ teaches:
   - { kind: recipe, recipe_ref: recipe.smithing.iron_billet, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.smithing.march_spear, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.smithing.lame_coif, by_dialogue: true }
+people_ref: people.kal
+appearance:
+  stature_cm: 163
+  face: face.f.caucasian.debra
+  outfit: outfit.period.smith_apron
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 46
+    body.muscular: 600
+    body.overweight: 470
+    body.skinny: 30
+    look.shirt_colour: 4
+    look.trouser_colour: 1
+    look.hair_colour: 0
+    look.skin_tone: 2
+    look.kal_stone: 1
+    look.kal_growth: 0
+    look.kal_jaw: 0

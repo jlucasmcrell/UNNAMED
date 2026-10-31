@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1673.0, 785.6]
 facing_deg: 180
+people_ref: people.veth
+appearance:
+  stature_cm: 180
+  face: face.m.caucasian.theo
+  hair: hair.long.bun
+  outfit: outfit.period.leathers
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 27
+    body.muscular: 360
+    body.overweight: 50
+    body.skinny: 330
+    look.shirt_colour: 4
+    look.trouser_colour: 1
+    look.hair_colour: 1
+    look.skin_tone: 0

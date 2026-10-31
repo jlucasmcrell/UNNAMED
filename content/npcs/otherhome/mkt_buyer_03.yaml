@@ -11,3 +11,20 @@ unique: true
 level_band: [1, 1]
 position_m: [1551.0, 785.6]
 facing_deg: 180
+people_ref: people.orenth
+appearance:
+  stature_cm: 174
+  face: face.m.black.kent
+  hair: hair.aged.thin_curly_combed
+  facial_hair: facehair.beard.full_beard_1
+  outfit: outfit.period.coat
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 68
+    body.muscular: 80
+    body.overweight: 370
+    body.skinny: 80
+    look.shirt_colour: 2
+    look.trouser_colour: 0
+    look.hair_colour: 3
+    look.skin_tone: 0

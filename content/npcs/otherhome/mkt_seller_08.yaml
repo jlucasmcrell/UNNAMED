@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1660.0, 788.1]
 facing_deg: 0
+people_ref: people.siann
+appearance:
+  stature_cm: 149
+  face: face.m.asian.liam
+  hair: hair.long.medium_center_part
+  outfit: outfit.period.coat
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 24
+    body.muscular: 110
+    body.overweight: 80
+    body.skinny: 650
+    look.shirt_colour: 3
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 3

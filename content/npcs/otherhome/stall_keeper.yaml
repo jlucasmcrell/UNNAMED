@@ -11,3 +11,21 @@ unique: true
 level_band: [1, 1]
 position_m: [1580.0, 782.0]
 facing_deg: 0
+people_ref: people.kal
+appearance:
+  stature_cm: 170
+  face: face.m.black.hugo
+  outfit: outfit.period.coat
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 58
+    body.muscular: 400
+    body.overweight: 600
+    body.skinny: 20
+    look.shirt_colour: 3
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 4
+    look.kal_stone: 1
+    look.kal_growth: 0
+    look.kal_jaw: 0

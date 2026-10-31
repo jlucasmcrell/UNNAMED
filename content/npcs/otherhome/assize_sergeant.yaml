@@ -18,3 +18,20 @@ teaches:
     fee: 30
     by_dialogue: true
     requires: { skill: { skill_ref: skill.polearm, band: familiar } }
+people_ref: people.veth
+appearance:
+  stature_cm: 184
+  face: face.m.caucasian.julius
+  hair: hair.short.short_combed
+  facial_hair: facehair.other.stubble_short
+  outfit: outfit.period.guard
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 49
+    body.muscular: 450
+    body.overweight: 180
+    body.skinny: 40
+    look.shirt_colour: 4
+    look.trouser_colour: 1
+    look.hair_colour: 3
+    look.skin_tone: 0

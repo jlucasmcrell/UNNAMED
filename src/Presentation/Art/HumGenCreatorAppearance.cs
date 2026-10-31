@@ -226,10 +226,16 @@ public sealed partial class HumGenCreatorAppearance : Node
                 grown.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
                 grown.Grow = true;
                 // The lining normals face inward: move both shells outward together.
-                grown.GrowAmount = mesh.Name.ToString().EndsWith("_lining", StringComparison.Ordinal) ? -GarmentStandoff : GarmentStandoff;
+                string piece = mesh.Name.ToString();
+                bool role = _worn?.Contains("_outfit_period_", StringComparison.Ordinal) == true;
+                float clearance = role && IsLayered(piece) ? .0115f : GarmentStandoff;
+                grown.GrowAmount = piece.EndsWith("_lining", StringComparison.Ordinal) ? -clearance : clearance;
                 mesh.SetSurfaceOverrideMaterial(surface, grown);
             }
         }
+
+        static bool IsLayered(string piece) => piece.Contains("_elvs_mens_apron1_", StringComparison.OrdinalIgnoreCase)
+            || piece.Contains("cloak", StringComparison.OrdinalIgnoreCase);
         // The body is drawn a little inside itself, so the 3.5 mm of cloth stand-off is not the only thing between skin and
         // cloth: a body dial that grows the waist past the garment still cannot reach the inside of the shirt.
         foreach (var skin in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
@@ -409,7 +415,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             : LookSwatches.Cloth(kind == "trousers" ? LookSwatches.Trousers : LookSwatches.Shirts, look.Sliders.TryGetValue(
                 kind == "trousers" ? LookSwatches.TrouserSlider : LookSwatches.ShirtSlider, out int index) ? index : null);
         var dyed = (BaseMaterial3D)garment.Duplicate();
-        dyed.AlbedoTexture = null;
+        // Keep the native weave and wear under the selected dye.
         dyed.AlbedoColor = new Color(swatch.R, swatch.G, swatch.B, dyed.AlbedoColor.A);
         mesh.SetSurfaceOverrideMaterial(surface, dyed);
     }
@@ -446,6 +452,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             // Outfit (the review, 2026-10-28). The frontier outfit is still in the list, and still the player's to choose.
             if (choice == CreatorChoice.Outfit && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Id == "outfit.office.new_intern")?.Id;
             if (choice == CreatorChoice.Footwear && selected is null) selected = _catalogue.Options(choice, sex).FirstOrDefault(o => o.Label.Contains("Pirate", StringComparison.OrdinalIgnoreCase))?.Id;
+            if (choice == CreatorChoice.Footwear && look.Outfit == "outfit.period.guard") selected = null;
             string? asset = selected is null ? (choice is CreatorChoice.Hair ? growth : choice is CreatorChoice.FacialHair ? growth : null)
                 : HumGenCreatorData.Part(choice, sex, selected);
             if (_parts.TryGetValue(choice, out var previous) && previous == asset) continue;
@@ -463,6 +470,15 @@ public sealed partial class HumGenCreatorAppearance : Node
                 var source = art.Rigged(asset) ?? throw new InvalidDataException("Native part could not load: " + asset);
                 if (choice == CreatorChoice.Outfit) _worn = asset;
                 var rig = ArtLibrary.Find<Skeleton3D>(source) ?? throw new InvalidDataException("Native part rig missing");
+                // This cape already has authored inner faces. A generated reverse shell
+                // crosses its folded surface instead of supplying a missing lining.
+                foreach (var duplicate in source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+                    .Where(mesh => mesh.Name.ToString().Contains("Medieval_Hooded_Cloak", StringComparison.Ordinal)
+                        && mesh.Name.ToString().EndsWith("_lining", StringComparison.Ordinal)).ToArray())
+                {
+                    duplicate.GetParent().RemoveChild(duplicate);
+                    duplicate.Free();
+                }
                 CharacterMaterials.Upgrade(source, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
                 HumGenMaterials.Apply(source, art, asset);
                 added.AddRange(source.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>());

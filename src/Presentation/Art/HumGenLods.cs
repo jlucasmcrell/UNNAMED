@@ -35,12 +35,16 @@ public sealed class HumGenLods
     private static List<Part> Parts(IEnumerable<MeshInstance3D> meshes) => meshes.Select(mesh =>
     {
         string name = mesh.Name.ToString();
+        // Native garment linings follow the shell's level: _LOD0_lining.
+        // Keep them as a separate piece so one shell and one lining draw together.
+        bool lining = name.EndsWith("_lining", StringComparison.Ordinal);
+        if (lining) name = name[..^7];
         int at = name.LastIndexOf("_LOD", StringComparison.Ordinal);
         if (at < 0 || !int.TryParse(name.AsSpan(at + 4), out int level))
             return null;
         mesh.VisibilityRangeBegin = 0;
         mesh.VisibilityRangeEnd = 0;
-        return new Part(mesh, name[..at], level);
+        return new Part(mesh, name[..at] + (lining ? "_lining" : ""), level);
     }).OfType<Part>().ToList();
 
     public void OutfitVisible(MeshInstance3D mesh, bool shown)

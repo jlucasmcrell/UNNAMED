@@ -19,3 +19,20 @@ teaches:
     requires: { skill: { skill_ref: skill.bow, band: familiar } }
   - { kind: recipe, recipe_ref: recipe.fletching.arrows, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.fletching.hunting_bow, by_dialogue: true }
+people_ref: people.orenth
+appearance:
+  stature_cm: 179
+  face: face.m.middle_eastern.cole
+  hair: hair.aged.thin_slicked_back
+  facial_hair: facehair.beard.groomed_beard_1
+  outfit: outfit.period.tunic
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 61
+    body.muscular: 280
+    body.overweight: 280
+    body.skinny: 100
+    look.shirt_colour: 3
+    look.trouser_colour: 0
+    look.hair_colour: 3
+    look.skin_tone: 0

@@ -10,3 +10,19 @@ unique: true
 role: merchant
 services: [trade]
 merchant_ref: merchant.otherhome.tidepearl_clerk
+people_ref: people.orenth
+appearance:
+  stature_cm: 169
+  face: face.f.black.nora
+  hair: hair.long.bun
+  outfit: outfit.period.coat
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 37
+    body.muscular: 100
+    body.overweight: 180
+    body.skinny: 180
+    look.shirt_colour: 1
+    look.trouser_colour: 1
+    look.hair_colour: 1
+    look.skin_tone: 0

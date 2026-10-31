@@ -11,3 +11,21 @@ unique: true
 level_band: [1, 1]
 position_m: [1648.0, 775.1]
 facing_deg: 180
+people_ref: people.kal
+appearance:
+  stature_cm: 158
+  face: face.m.middle_eastern.george
+  outfit: outfit.period.apron
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 39
+    body.muscular: 520
+    body.overweight: 390
+    body.skinny: 60
+    look.shirt_colour: 3
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 3
+    look.kal_stone: 1
+    look.kal_growth: 0
+    look.kal_jaw: 0

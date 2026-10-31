@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1612.0, 782.0]
 facing_deg: 180
+people_ref: people.veth
+appearance:
+  stature_cm: 166
+  face: face.f.asian.jane
+  hair: hair.long.bun_bangs
+  outfit: outfit.period.apron
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 53
+    body.muscular: 80
+    body.overweight: 420
+    body.skinny: 20
+    look.shirt_colour: 3
+    look.trouser_colour: 0
+    look.hair_colour: 3
+    look.skin_tone: 0

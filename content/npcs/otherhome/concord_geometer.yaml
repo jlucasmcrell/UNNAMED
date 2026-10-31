@@ -10,3 +10,19 @@ dialogue_ref: dialogue.otherhome.concord_geometer
 unique: true
 role: scholar
 services: []
+people_ref: people.siann
+appearance:
+  stature_cm: 151
+  face: face.f.asian.luna
+  hair: hair.long.medium_center_part
+  outfit: outfit.period.robe
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 26
+    body.muscular: 100
+    body.overweight: 40
+    body.skinny: 700
+    look.shirt_colour: 4
+    look.trouser_colour: 1
+    look.hair_colour: 0
+    look.skin_tone: 1

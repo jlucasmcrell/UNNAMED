@@ -11,3 +11,21 @@ unique: true
 level_band: [1, 1]
 position_m: [1690.0, 788.1]
 facing_deg: 0
+people_ref: people.kal
+appearance:
+  stature_cm: 167
+  face: face.f.black.nova
+  outfit: outfit.period.smith_apron
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 51
+    body.muscular: 570
+    body.overweight: 450
+    body.skinny: 40
+    look.shirt_colour: 2
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 1
+    look.kal_stone: 1
+    look.kal_growth: 0
+    look.kal_jaw: 0

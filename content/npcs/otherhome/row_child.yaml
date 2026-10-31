@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1428.0, 614.0]
 facing_deg: 240
+people_ref: people.veth
+appearance:
+  stature_cm: 142
+  face: face.m.asian.ben
+  hair: hair.regular.bowl
+  outfit: outfit.period.tunic
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 18
+    body.muscular: -100
+    body.overweight: -60
+    body.skinny: 520
+    look.shirt_colour: 0
+    look.trouser_colour: 0
+    look.hair_colour: 1
+    look.skin_tone: 0

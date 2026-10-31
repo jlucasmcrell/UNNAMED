@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1402.0, 604.0]
 facing_deg: 180
+people_ref: people.veth
+appearance:
+  stature_cm: 173
+  face: face.f.black.maya
+  hair: hair.long.ponytail_short
+  outfit: outfit.period.dress
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 25
+    body.muscular: 230
+    body.overweight: 100
+    body.skinny: 330
+    look.shirt_colour: 0
+    look.trouser_colour: 0
+    look.hair_colour: 1
+    look.skin_tone: 0

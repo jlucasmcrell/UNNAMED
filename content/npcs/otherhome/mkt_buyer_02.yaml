@@ -11,3 +11,21 @@ unique: true
 level_band: [1, 1]
 position_m: [1681.0, 777.6]
 facing_deg: 0
+people_ref: people.kal
+appearance:
+  stature_cm: 154
+  face: face.f.asian.abby
+  outfit: outfit.period.dress
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 64
+    body.muscular: 330
+    body.overweight: 650
+    body.skinny: 0
+    look.shirt_colour: 3
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 5
+    look.kal_stone: 1
+    look.kal_growth: 0
+    look.kal_jaw: 0

@@ -9,3 +9,19 @@ notes: "The Long Survey's archivist: every survey plaque in the frontier answers
 unique: true
 role: scholar
 services: []
+people_ref: people.siann
+appearance:
+  stature_cm: 153
+  face: face.m.caucasian.owen
+  hair: hair.long.bob_long
+  outfit: outfit.period.robe
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 30
+    body.muscular: 70
+    body.overweight: 100
+    body.skinny: 610
+    look.shirt_colour: 2
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 2

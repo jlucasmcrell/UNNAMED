@@ -11,3 +11,20 @@ unique: true
 level_band: [1, 1]
 position_m: [1641.0, 777.6]
 facing_deg: 0
+people_ref: people.veth
+appearance:
+  stature_cm: 188
+  face: face.m.hispanic.enzo
+  hair: hair.regular.slicked_back
+  facial_hair: facehair.other.stubble_long
+  outfit: outfit.period.tunic
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 36
+    body.muscular: 390
+    body.overweight: 120
+    body.skinny: 100
+    look.shirt_colour: 1
+    look.trouser_colour: 1
+    look.hair_colour: 1
+    look.skin_tone: 0

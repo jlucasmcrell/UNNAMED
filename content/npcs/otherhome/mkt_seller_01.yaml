@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1598.0, 775.1]
 facing_deg: 180
+people_ref: people.orenth
+appearance:
+  stature_cm: 164
+  face: face.f.asian.macy
+  hair: hair.long.bun
+  outfit: outfit.period.apron
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 57
+    body.muscular: 60
+    body.overweight: 320
+    body.skinny: 80
+    look.shirt_colour: 4
+    look.trouser_colour: 1
+    look.hair_colour: 3
+    look.skin_tone: 0

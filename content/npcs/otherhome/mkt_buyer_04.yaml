@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1653.0, 785.6]
 facing_deg: 180
+people_ref: people.siann
+appearance:
+  stature_cm: 144
+  face: face.f.caucasian.clara
+  hair: hair.long.bob_bangs
+  outfit: outfit.period.robe
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 23
+    body.muscular: 40
+    body.overweight: 50
+    body.skinny: 780
+    look.shirt_colour: 0
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 2

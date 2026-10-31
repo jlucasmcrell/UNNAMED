@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1588.0, 788.1]
 facing_deg: 0
+people_ref: people.veth
+appearance:
+  stature_cm: 171
+  face: face.m.black.noah
+  hair: hair.short.short_curly_fade
+  outfit: outfit.period.tunic
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 28
+    body.muscular: 210
+    body.overweight: 140
+    body.skinny: 160
+    look.shirt_colour: 0
+    look.trouser_colour: 0
+    look.hair_colour: 1
+    look.skin_tone: 0

@@ -11,3 +11,20 @@ unique: true
 level_band: [1, 1]
 position_m: [1558.0, 788.1]
 facing_deg: 0
+people_ref: people.orenth
+appearance:
+  stature_cm: 183
+  face: face.m.asian.terrence
+  hair: hair.long.medium_side_part
+  facial_hair: facehair.beard.goatee
+  outfit: outfit.period.coat
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 47
+    body.muscular: 150
+    body.overweight: 260
+    body.skinny: 100
+    look.shirt_colour: 1
+    look.trouser_colour: 1
+    look.hair_colour: 1
+    look.skin_tone: 0

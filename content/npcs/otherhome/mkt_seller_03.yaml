@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1668.0, 775.1]
 facing_deg: 180
+people_ref: people.veth
+appearance:
+  stature_cm: 175
+  face: face.f.black.lisa
+  hair: hair.curls.dreadlocks
+  outfit: outfit.period.tunic
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 34
+    body.muscular: 190
+    body.overweight: 70
+    body.skinny: 330
+    look.shirt_colour: 1
+    look.trouser_colour: 1
+    look.hair_colour: 1
+    look.skin_tone: 0

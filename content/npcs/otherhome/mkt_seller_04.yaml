@@ -11,3 +11,19 @@ unique: true
 level_band: [1, 1]
 position_m: [1538.0, 788.1]
 facing_deg: 0
+people_ref: people.siann
+appearance:
+  stature_cm: 146
+  face: face.f.caucasian.gwen
+  hair: hair.long.bob_long
+  outfit: outfit.period.dress
+  footwear: footwear.extra_outfits_pack.pirate_boots
+  sliders:
+    face.age: 28
+    body.muscular: 60
+    body.overweight: 90
+    body.skinny: 700
+    look.shirt_colour: 2
+    look.trouser_colour: 0
+    look.hair_colour: 0
+    look.skin_tone: 0
