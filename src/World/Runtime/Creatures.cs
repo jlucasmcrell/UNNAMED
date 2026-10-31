@@ -1119,6 +1119,9 @@ internal sealed class CreatureSystem : IAbstractAdvance
         if (hit.Final > 0)
             _context.Dispatch(new RemoveEffect(c.Id, "effect.sleep"));
         Sound(new Noise(c.Body.XMm, c.Body.ZMm, Setup.Noise.BlowMm));
+        // CMB-45: the blow is accounted for where it is resolved, part by part, so nothing has to trust a listener to see it.
+        if (hit.Final > 0)
+            _context.Dispatch(new RecordContribution(attacker.Value, c.Key, hit.Region, hit.Final, hit.Critical, tick));
         _context.Events.Publish(new HitResolved(attacker, command.AttackerDefId ?? "player", c.Id, command.Source, hit.Region, hit.Final, hit.Critical,
             hit.Blocked, hit.Dodged, staggered, health, tick));
         Save(health == 0 ? Die(wounded, tick, attacker) : wounded);
@@ -1188,6 +1191,8 @@ internal sealed class CreatureSystem : IAbstractAdvance
             killer = _player;
         _context.Dispatch(new ClearEffects(c.Id));
         _context.Events.Publish(new CreatureKilled(c.Id, c.Definition.Id, killer, tick) { DirectAttacker = directAttacker });
+        // CMB-45: the credit divides at the same moment the world learns the creature is gone.
+        _context.Dispatch(new ConcludeEncounter(c.Key, c.Definition.Id, killer.Value, tick));
 
         // D18 SYSTEMS (needed-2): a body worth skinning is left where it fell, by the system that owns the death, so a
         // test, a headless run and the game all see the same carcass. The kind says whether it leaves one at all.

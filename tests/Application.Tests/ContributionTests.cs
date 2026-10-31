@@ -1,21 +1,65 @@
-// UNNAMED Application tests - public contribution accounting on a real kill (CMB-45)
+// UNNAMED Application tests - public contribution accounting end to end (CMB-45)
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
-using UNNAMED.World.Runtime;
-
 using UNNAMED.World;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Application.Tests;
 
 /// <summary>
-/// CMB-45's read surface at the world's own level. The accounting's rules live in the domain and are tested there (eight deterministic
-/// tests over weights, shares, ties, the qualification threshold and parts); this file holds what the world exposes to a reader.
+/// CMB-45 in a real fight: the accounting is reached the way every live system is reached - the system that resolves a blow dispatches the
+/// contribution, and the system that owns the death concludes the encounter. These tests fight for real and then read what the world recorded.
 /// </summary>
 public class ContributionTests
 {
     private const string Prey = "creature.beast.rabbit";
     private static readonly (double X, double Z) Yard = (48, 126.2);
 
+    [Fact]
+    public void ARealFight_FillsTheLedger_AndTheKillConcludesTheEncounter()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Yard, 0, new[] { (Prey, 49.4, 126.2, "guard") }, Wielding);
+
+        var concluded = arena.Record<EncounterConcluded>();
+        var prey = arena.Creature();
+
+        // Nothing swung yet: nothing accounted for.
+        Assert.Null(arena.Simulation.Contributions(prey.Key));
+
+        arena.Fight(prey, 400);
+
+        // The fight ended, so the encounter concluded at the same moment the creature fell.
+        var outcome = Assert.Single(concluded);
+        Assert.Equal("killed", outcome.Outcome);
+        Assert.Equal(Prey, outcome.CreatureDefId);
+
+        // One contributor, the whole of the credit, and it qualifies.
+        var mine = Assert.Single(outcome.Shares);
+        Assert.Equal(arena.Player.Value, mine.ActorId);
+        Assert.Equal(1000, mine.Permille);
+        Assert.True(mine.Qualified);
+        Assert.Equal(arena.Player, outcome.Finisher);
+
+        // Qualified by the region it happened in, and the ledger is spent once the encounter is over.
+        Assert.StartsWith("r", outcome.RegionKey);
+        Assert.Null(arena.Simulation.Contributions(prey.Key));
+        Assert.Empty(arena.Simulation.Contributions());
+    }
+
+    /// <summary>The accounting is private until someone lands a blow: an encounter nobody has hit has no ledger.</summary>
+    [Fact]
+    public void AnEncounterNobodyHasHit_HasNoLedger()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Yard, 0, new[] { (Prey, 49.4, 126.2, "guard") }, Wielding);
+
+        var prey = arena.Creature();
+        Assert.Null(arena.Simulation.Contributions(prey.Key));
+        Assert.Empty(arena.Simulation.Contributions());
+    }
 
     /// <summary>The fixture's character starts unarmed; a fight needs something in its hand, so it is handed a blade.</summary>
     private static PlayerRecord Wielding(PlayerRecord record)
@@ -25,37 +69,5 @@ public class ContributionTests
         var item = inventory.Single(e => e.DefId == Sword).ItemId;
         return new PlayerRecord(record.Id, record.Name, record.XMm, record.YMm, record.ZMm, record.AppearanceSeed, inventory, record.Progression,
             record.FacingMdeg, record.Discoveries, new[] { KeyValuePair.Create(EquipSlot.MainHand, item) }, record.Currency, record.Effects);
-    }
-
-    /// <summary>
-    /// Real blows land in a real fight: the shared Arena.Fight helper closes the distance and swings, and the world publishes the hits. This
-    /// is the ground the accounting stands on. It does not yet prove the ledger: see README.md in this branch for that gap.
-    /// </summary>
-    [Fact]
-    public void RealBlows_Land_AndTheWorldPublishesThem()
-    {
-        using var profile = new TempProfile();
-        var session = Harness.Boot(profile);
-        var arena = Arena.OpenCreatures(session, session.Setup, Yard, 0, new[] { (Prey, 49.4, 126.2, "guard") }, Wielding);
-
-        var prey = arena.Creature();
-        var hits = arena.Record<HitResolved>();
-
-        arena.Fight(prey, 120);
-
-        Assert.Contains(hits, h => h.Attacker == arena.Player && h.Damage > 0);
-    }
-
-    /// <summary>Before a blow lands there is no ledger: the accounting is made of what happened, not what might.</summary>
-    [Fact]
-    public void AnEncounterNobodyHasHit_HasNoLedger()
-    {
-        using var profile = new TempProfile();
-        var session = Harness.Boot(profile);
-        var arena = Arena.OpenCreatures(session, session.Setup, Yard, 0, new[] { (Prey, 49.4, 126.2, "guard") });
-
-        var wolf = arena.Simulation.Creatures.Single(c => c.DefId == Prey);
-        Assert.Null(arena.Simulation.Contributions(wolf.Key));
-        Assert.Empty(arena.Simulation.Contributions());
     }
 }

@@ -360,8 +360,6 @@ public sealed class Simulation
         _quests = new QuestSystem(_context, _state.Claim(nameof(QuestSystem), StateSlice.Quests), player.Id);
         _quests.Listen(bus);
         _contribution = new ContributionSystem(_context, player.Id);
-        bus.Listen<HitResolved>(_contribution.Landed);
-        bus.Listen<CreatureKilled>(e => _contribution.Concluded(e.Creature, e.DefId, e.Killer, e.Tick));
         _companions = new CompanionSystem(_context, _state.Claim(nameof(CompanionSystem), StateSlice.Companions), player.Id, player.Companions,
             new NpcPartyLife(Dispatch, _npcs.Lives, life))
         {
@@ -1271,6 +1269,26 @@ public sealed class Simulation
     /// An internal command at the tick boundary, as another system would send it: for tests and the fixture probe only (internal), standing
     /// in for systems not built yet - residents' departures and injuries by rule.
     /// </summary>
+    /// <summary>The accounting's own internal commands (CMB-45): a blow counted, an encounter concluded.</summary>
+    private string? Contribute(InternalCommand command) => command switch
+    {
+        RecordContribution landed => Count(landed),
+        ConcludeEncounter done => Close(done),
+        _ => "not an accounting command",
+    };
+
+    private string? Count(RecordContribution landed)
+    {
+        _contribution.Handle(landed);
+        return null;
+    }
+
+    private string? Close(ConcludeEncounter done)
+    {
+        _contribution.Handle(done);
+        return null;
+    }
+
     internal string? Submit(InternalCommand command)
     {
         if (_stepping || _advancing)
@@ -1304,6 +1322,8 @@ public sealed class Simulation
         LieDowned downed => _combat.Handle(downed, Now),
         CreatureStrike strike => _combat.Handle(strike, Now),
         WoundCreature wound => _creatures.Handle(wound, Now),
+        RecordContribution landed => Contribute(landed),
+        ConcludeEncounter done => Contribute(done),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         HarmCreature harm => _creatures.Handle(harm, Now),
         HealCreature heal => _creatures.Handle(heal, Now),
