@@ -467,14 +467,6 @@
       ],
       "material": "stone",
       "note": "Claude steps-visual: a run over each seam of the quay parapet, so the drystone ends close up."
-    },
-    "oh_nq_flake_": {
-      "models": [
-        "prop_bp_hurdle_wattle"
-      ],
-      "material": "wood",
-      "fit": "tile",
-      "note": "Claude steps-visual: fish flakes on the north quay, wattle hurdles stood in a line to dry the catch."
     }
   },
   "building_walls": {
