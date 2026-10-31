@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -267,6 +267,7 @@ public sealed class Simulation
     private readonly LfgSystem _lfg;
     private readonly ChatSystem _chat;
     private readonly AdventurerSystem _adventurers;
+    private readonly SparringSystem _sparring;
     private readonly CombinedSettingOuts _trips;
     private readonly CombinedHireability _hiring;
     private readonly ImmutableArray<ITierSimulation> _tierSimulations;
@@ -398,6 +399,7 @@ public sealed class Simulation
         _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
         _adventurers = new AdventurerSystem(_context, _state.Claim(nameof(AdventurerSystem), StateSlice.Adventurers), player.Id);
+        _sparring = new SparringSystem(_context, player.Id, _adventurers, () => _adventurers.Views(), () => _combat.View());
         _trips = new CombinedSettingOuts(setup.SettingOuts ?? _npcs, _adventurers);
         _hiring = new CombinedHireability(_adventurers, _npcs);
         _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id, _trips);
@@ -410,7 +412,7 @@ public sealed class Simulation
         // The abstract advance (WP11): the clock first, so every other system brings itself to the tick it reads. A new world system
         // that goes on while the character is away adds itself here. The party goes before the adventurers: an adventurer it lets go or
         // loses at a midnight of the absence takes up their life from that midnight, however the absence is split (T-22).
-        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _lights, _laden, _lfg, _pets);
+        _advances = ImmutableArray.Create<IAbstractAdvance>(_clock, _weather, _companions, _adventurers, _sparring, _creatures, _effects, _gathering, _quests, _factions, _sheets, _approval, _npcs, _markets, _teaching, _durability, _lights, _laden, _lfg, _pets);
         _state.RequireEverySliceOwned();
         _effects.Seed(player.Id, player.Effects);
         _combat.Seed(player);
@@ -891,6 +893,9 @@ public sealed class Simulation
     /// <summary>The region's NPC adventurers (WP13): level, coin, gear, what they are about today, and whether they are in town or with the party.</summary>
     public ImmutableArray<AdventurerView> Adventurers => _adventurers.Views();
 
+    /// <summary>The training grounds (GEN-07): where each settlement drills, when, and who is on it now.</summary>
+    public ImmutableArray<SparSiteView> Sparring => _sparring.Views(WorldTick);
+
 
     /// <summary>The town markets: each good's stock and price against base, and what is on the road to them (WP14).</summary>
     public ImmutableArray<MarketView> Markets => _markets.Views();
@@ -1034,6 +1039,7 @@ public sealed class Simulation
                 RepairCommand repair => _durability.Handle(repair, WorldTick),
                 MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 JoinGroupCommand join => _lfg.Handle(join, WorldTick),
+                JoinSparCommand spar => _sparring.Handle(spar, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
             };
             _log.Add(new LoggedCommand(WorldTick, _sequence++, command, rejected));
@@ -1083,6 +1089,7 @@ public sealed class Simulation
             _discovery.Tick(tick);
             _quests.Tick(tick);
             _adventurers.Tick(tick);
+            _sparring.Tick(tick);
             _markets.Tick(tick);
             _quickBar.Tick(tick);
             _gearSets.Tick(tick);

@@ -133,6 +133,12 @@ public sealed record AdventurerState(long Day, ImmutableSortedDictionary<string,
     /// </summary>
     public ImmutableSortedDictionary<string, AdventurerBody> Bodies { get; init; } = ImmutableSortedDictionary.Create<string, AdventurerBody>(StringComparer.Ordinal);
 
+    /// <summary>
+    /// What two fighters think of each other after sparring (GEN-07), by the pair's two keys in key order joined with '|': a bout leaves respect,
+    /// and a close one leaves more.
+    /// </summary>
+    public ImmutableSortedDictionary<string, int> SparRegard { get; init; } = ImmutableSortedDictionary.Create<string, int>(StringComparer.Ordinal);
+
     public static AdventurerState Empty(long day) => new(day,
         ImmutableSortedDictionary.Create<string, AdventurerRecord>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, AdventurerVacancy>(StringComparer.Ordinal));

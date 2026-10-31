@@ -1,3 +1,4 @@
+using UNNAMED.Domain.Progression;
 // UNNAMED World - NPC adventurers in the running world: their days at midnight, what those days do to the boards, the creatures and the
 // markets, their bodies at the lodge, asking for company, being hired and grouping up, and the world going on while away (WP13)
 // No Godot references - pure C#
@@ -837,6 +838,37 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
         return (purpose, purposeName, destination);
     }
 
+    /// <summary>
+    /// A bout fought out at a training ground (GEN-07): both fighters practised the drill blade, both think a little more of the other, and the
+    /// world is told the bout began and how it ended. Returns the regard the bout left between them.
+    /// </summary>
+    internal int Sparred(SparSite site, SparBout bout, long tick)
+    {
+        if (Current is not { } state)
+            return 0;
+        _context.Events.Publish(new SparringBegan(site.Id, site.SettlementId, site.AnimationId, bout.First.Key, bout.Second.Key, tick));
+        var rules = _context.Setup.Progression;
+        var agents = state.Agents.ToBuilder();
+        var regard = state.SparRegard.ToBuilder();
+        string pair = string.Join("|", new[] { bout.First.Key, bout.Second.Key }.OrderBy(k => k, StringComparer.Ordinal));
+        int gained = 0;
+        foreach (var fighter in new[] { bout.First, bout.Second })
+        {
+            int gain = SparRules.RegardGain(bout, fighter.Key);
+            gained += gain;
+            regard[pair] = regard.GetValueOrDefault(pair) + gain;
+            if (!agents.TryGetValue(fighter.Key, out var record) || rules is null)
+                continue;   // the character stands on their own sheet
+            var practised = ProgressionEngine.Practice(record.Progression,
+                new SkillPractice(SparRules.SkillId, record.Level, fighter.Key == bout.WinnerKey ? PracticeOutcome.Success : PracticeOutcome.Failure, tick),
+                rules, _context.Setup.Character.TraitsOf(record.PeopleId).Learning);
+            agents[fighter.Key] = record with { Progression = practised.Progression };
+        }
+        State.SetAdventurers(_owner, state with { Agents = agents.ToImmutable(), SparRegard = regard.ToImmutable() });
+        _context.Events.Publish(new SparringEnded(site.Id, site.SettlementId, bout.WinnerKey, bout.LoserKey, bout.Rounds, bout.CloseBy,
+            PlayerFought: bout.First.Key == SparringSystem.PlayerKey || bout.Second.Key == SparringSystem.PlayerKey, gained, tick));
+        return gained;
+    }
     private void Set(AdventurerRecord a)
     {
         if (Current is { } state)

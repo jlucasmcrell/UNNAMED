@@ -734,9 +734,18 @@ public sealed class AdventurersDto
     [Key("agents")] public AdventurerDto[] Agents { get; set; } = Array.Empty<AdventurerDto>();
     [Key("vacancies")] public AdventurerVacancyDto[] Vacancies { get; set; } = Array.Empty<AdventurerVacancyDto>();
     [Key("bodies")] public AdventurerBodyDto[] Bodies { get; set; } = Array.Empty<AdventurerBodyDto>();
+    [Key("spar_regard")] public SparRegardDto[] SparRegard { get; set; } = Array.Empty<SparRegardDto>();
 }
 
 /// <summary>An adventurer's body standing outside the party: whose, by name, and where - a load stands exactly these.</summary>
+[MessagePackObject]
+public sealed class SparRegardDto
+{
+    [Key("pair")] public string Pair { get; set; } = "";
+    [Key("regard")] public int Regard { get; set; }
+}
+
+/// <summary>An adventurer's body standing in the world outside the party: whose, by name, and where.</summary>
 [MessagePackObject]
 public sealed class AdventurerBodyDto
 {
@@ -1679,6 +1688,7 @@ public static class SectionCodec
         }).ToArray(),
         Bodies = state.Bodies.Select(b => new AdventurerBodyDto { Key = b.Key, Name = b.Value.Name, XMm = b.Value.XMm, ZMm = b.Value.ZMm, FacingMdeg = b.Value.FacingMdeg })
             .ToArray(),
+        SparRegard = state.SparRegard.Select(r => new SparRegardDto { Pair = r.Key, Regard = r.Value }).ToArray(),
     };
 
     private static NpcLifeDto NpcLifeToDto(NpcLifeState life) => new()
@@ -1888,7 +1898,11 @@ public static class SectionCodec
             if (!DefinitionId.IsValid(b.Key) || !bodies.TryAdd(b.Key, new AdventurerBody(b.Name, b.XMm, b.ZMm, b.FacingMdeg)))
                 throw new FormatException($"entities.msgpack holds the adventurer body {b.Key} twice, or under a malformed key");
         }
-        return new AdventurerState(dto.Day, agents.ToImmutable(), vacancies.ToImmutable()) { Bodies = bodies.ToImmutable() };
+        return new AdventurerState(dto.Day, agents.ToImmutable(), vacancies.ToImmutable())
+        {
+            Bodies = bodies.ToImmutable(),
+            SparRegard = dto.SparRegard.Where(r => r.Pair.Contains('|')).ToImmutableSortedDictionary(r => r.Pair, r => r.Regard, StringComparer.Ordinal),
+        };
     }
 
     /// <summary>The cell key of a slot key: <c>&lt;cell_key&gt;.&lt;population_id&gt;.&lt;ordinal&gt;</c>, and a cell key has no '.'.</summary>
