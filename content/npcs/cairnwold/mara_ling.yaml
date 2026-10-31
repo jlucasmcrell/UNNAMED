@@ -9,3 +9,8 @@ notes: Keeps the village well - the region's 0.68 m circle at (68.0, 60.0) - and
 role: villager
 dialogue_ref: dialogue.cairnwold.mara_ling
 unique: true
+# What she teaches (WP9, C10): the body's two workings, from the well keeper who reads what grows on the moor and what ails a person.
+# Neither is by her own lines, so both sit in her Learn column at a price into her purse.
+teaches:
+  - { kind: spell, spell_ref: spell.vital.set_the_bone, fee: 10 }
+  - { kind: spell, spell_ref: spell.vital.wake_the_nerve, fee: 22, requires: { skill: { skill_ref: skill.vital, band: familiar }, prerequisite: spell.vital.set_the_bone } }

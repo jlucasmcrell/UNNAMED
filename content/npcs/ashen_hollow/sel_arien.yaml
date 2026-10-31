@@ -28,7 +28,15 @@ appearance:
     face.nose_tip_width: -580
     look.shirt_colour: 4            # Slate: an archivist's grey
 faction_ref: faction.ashen_hollow.long_survey
-# What she teaches (WP9, C10): the salves, by her own lines, free, as she always has.
+# What she teaches (WP9, C10): the salves, by her own lines, free, as she always has. The workings of the two domains a survey scholar
+# holds - force and warding - go in her Learn column: the two an untrained hand can hold free with the primer, the rest at a price and
+# only to a settled one, each after the working it is built on.
 teaches:
   - { kind: recipe, recipe_ref: recipe.herbal.salve_minor, by_dialogue: true }
   - { kind: recipe, recipe_ref: recipe.herbal.salve_ember, by_dialogue: true }
+  - { kind: spell, spell_ref: spell.force.keen_note }
+  - { kind: spell, spell_ref: spell.force.rime_pin, fee: 6 }
+  - { kind: spell, spell_ref: spell.warding.quiet_seal, fee: 8 }
+  - { kind: spell, spell_ref: spell.force.salt_arc, fee: 18, requires: { skill: { skill_ref: skill.force, band: familiar }, prerequisite: spell.force.keen_note } }
+  - { kind: spell, spell_ref: spell.warding.tripwire_sigil, fee: 14, requires: { skill: { skill_ref: skill.warding, band: familiar }, prerequisite: spell.warding.quiet_seal } }
+  - { kind: spell, spell_ref: spell.warding.loose_the_root, fee: 12, requires: { skill: { skill_ref: skill.warding, band: familiar }, prerequisite: spell.warding.quiet_seal } }

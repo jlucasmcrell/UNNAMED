@@ -1,0 +1,17 @@
+id: spell.warding.quiet_seal
+kind: spell
+schema: 1
+display_key: spell.warding.quiet_seal.name
+tags: [spell]
+name: Quiet Seal
+notes: "Containment (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Warding\": barriers, seals, anti-scrying, containment, alarms). A seal drawn over the body that holds its own sound in: the Muffled effect, which is what makes a heavy boot quiet on stone and a working quiet in the next room. The first warding a body learns that keeps nothing out - it keeps the caster in."
+domain: skill.warding
+complexity: 2
+cost: { focus: 8, strain: 6 }
+cast_time_s: 0.5
+targeting: self
+cooldown_s: 3.0
+requires_skill_level: 0
+vfx: spell.warding.brace_ward
+payload:
+  - { type: apply_effect, effect_ref: effect.muffled }

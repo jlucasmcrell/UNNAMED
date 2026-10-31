@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Magic;
+using UNNAMED.World.Runtime;
 
 namespace UNNAMED.Content.Tests;
 
@@ -11,6 +12,11 @@ public class MagicContentTests
         loader.LoadAll(root);
         return loader;
     }
+
+    /// <summary>The game's own pack, built once for the tests that only read it: the content is 1,370-odd definitions and re-parsing it
+    /// per case would make a theory over eight workings cost eight loads.</summary>
+    private static readonly Lazy<MagicSetup> Game =
+        new(() => MagicContent.Build(Load(Path.Combine(RepoPaths.Root(), "content"))));
 
     /// <summary>A copy of the game's content with one file edited, in a directory removed afterwards.</summary>
     private sealed class EditedContent : IDisposable
@@ -35,32 +41,38 @@ public class MagicContentTests
         public void Dispose() => Directory.Delete(Root, recursive: true);
     }
 
-    private static void AssertRefused(string relativePath, string find, string replace, string mentions)
+    private static void AssertRefused(string relativePath, string find, string replace, string mentions, string code = "MAG001")
     {
         using var content = new EditedContent(relativePath, find, replace);
         var loader = Load(content.Root);
-        Assert.Contains(loader.Errors, e => e.Code == "MAG001" && e.Message.Contains(mentions, StringComparison.Ordinal));
+        Assert.Contains(loader.Errors, e => e.Code == code && e.Message.Contains(mentions, StringComparison.Ordinal));
     }
 
     [Fact]
     public void TheGamesMagic_IsThreeFormulasOfThreeDomains_InWholeTicks()
     {
-        var magic = MagicContent.Build(Load(Path.Combine(RepoPaths.Root(), "content")));
+        var magic = Game.Value;
 
-        // Playtest 2 (data-only): the three original workings plus six first-hour formulas, two to a school.
+        // Playtest 2 (data-only): the three original workings, the six first-hour formulas the spell lane added, two to a school, and the
+        // eight this pass adds - three of force, two of vital, three of warding - each with its own cooldown, its own skill floor and the
+        // art it borrows until Codex's VFX pass gives it its own.
         Assert.Equal(new[]
         {
-            "spell.force.cinder_dart", "spell.force.impulse_bolt", "spell.force.shiver_spike",
-            "spell.vital.clear_the_dead_weight", "spell.vital.ember_mend", "spell.vital.mending_thread",
-            "spell.warding.brace_ward", "spell.warding.holdfast", "spell.warding.hush_the_sting",
+            "spell.force.cinder_dart", "spell.force.impulse_bolt", "spell.force.keen_note", "spell.force.rime_pin",
+            "spell.force.salt_arc", "spell.force.shiver_spike",
+            "spell.vital.clear_the_dead_weight", "spell.vital.ember_mend", "spell.vital.mending_thread", "spell.vital.set_the_bone",
+            "spell.vital.wake_the_nerve",
+            "spell.warding.brace_ward", "spell.warding.holdfast", "spell.warding.hush_the_sting", "spell.warding.loose_the_root",
+            "spell.warding.quiet_seal", "spell.warding.tripwire_sigil",
         }, magic.Formulas.Keys);
         Assert.Equal(new[] { "skill.force", "skill.vital", "skill.warding" },
             magic.Formulas.Values.Select(f => f.DomainSkillId).Distinct().OrderBy(d => d, StringComparer.Ordinal));
 
-        // Every first-hour formula sits inside the band a level-appropriate caster can hold.
+        // Every formula but the three the game shipped with sits inside the band a first-hour caster can hold: a rung of a ladder that
+        // runs from a one-complexity note to a four-complexity nerve working, never past what one Focus pool pays for.
         foreach (var early in magic.Formulas.Values.Where(f => f.Id is not ("spell.force.impulse_bolt" or "spell.vital.mending_thread" or "spell.warding.brace_ward")))
         {
-            Assert.InRange(early.Complexity, 2, 3);
+            Assert.InRange(early.Complexity, 1, 4);
             Assert.InRange(early.FocusCost, 1, 15);
             Assert.InRange(early.StrainCost, 1, 12);
             Assert.True(early.CastTicks > 0);
@@ -127,4 +139,76 @@ public class MagicContentTests
     [Fact]
     public void ABookReadMoreThanOnce_IsRefused() =>
         AssertRefused("items/tome/resonance_primer.yaml", "  consume: true", "  consume: false", "a book that teaches is read once");
+
+    // ── the eight first-hour workings, one test each ───────────────────────────────────────────────────────────────────────────
+    // Each row is that formula's data: the school it works, what it costs, its own cooldown in ticks (config.time's 50 ms), the skill
+    // floor a lesson keeps, and the formula whose art it borrows while it has none of its own.
+
+    [Theory]
+    [InlineData("spell.force.keen_note", "skill.force", 1, 4, 3, 20, 0, "spell.force.impulse_bolt")]
+    [InlineData("spell.force.rime_pin", "skill.force", 1, 5, 4, 24, 0, "spell.force.impulse_bolt")]
+    [InlineData("spell.force.salt_arc", "skill.force", 3, 9, 7, 70, 15, "spell.force.impulse_bolt")]
+    [InlineData("spell.vital.set_the_bone", "skill.vital", 2, 8, 6, 80, 0, "spell.vital.mending_thread")]
+    [InlineData("spell.vital.wake_the_nerve", "skill.vital", 4, 12, 9, 120, 15, "spell.vital.mending_thread")]
+    [InlineData("spell.warding.quiet_seal", "skill.warding", 2, 8, 6, 60, 0, "spell.warding.brace_ward")]
+    [InlineData("spell.warding.tripwire_sigil", "skill.warding", 2, 10, 7, 100, 15, "spell.warding.brace_ward")]
+    [InlineData("spell.warding.loose_the_root", "skill.warding", 3, 9, 7, 80, 15, "spell.warding.brace_ward")]
+    public void AFirstHourWorking_IsTheWorkingItsContentSays(string id, string domain, int complexity, int focus, int strain, int cooldownTicks,
+        int requires, string art)
+    {
+        var magic = Game.Value;
+        var formula = magic.Formulas[id];
+
+        Assert.Equal((domain, complexity, focus, strain, cooldownTicks, requires),
+            (formula.DomainSkillId, formula.Complexity, formula.FocusCost, formula.StrainCost, formula.CooldownTicks, formula.RequiresSkillLevel));
+        // Its art is another formula's, and that formula is one the pack builds - never an id invented for a working that has no art yet.
+        Assert.Equal(art, formula.Art);
+        Assert.Contains(formula.Art, magic.Formulas.Keys);
+        // A cooldown is a wait a person can feel, and never longer than a first-hour fight.
+        Assert.InRange(formula.CooldownTicks, 1, 200);
+    }
+
+    [Theory]
+    [InlineData("spell.force.keen_note", "damage:physical_blunt:4:7")]
+    [InlineData("spell.force.rime_pin", "damage:frost:4:7")]
+    [InlineData("spell.force.salt_arc", "damage:shock:8:12")]
+    [InlineData("spell.vital.set_the_bone", "applies:effect.mending")]
+    [InlineData("spell.vital.wake_the_nerve", "removes:effect.sleep,effect.paralyse")]
+    [InlineData("spell.warding.quiet_seal", "applies:effect.muffled")]
+    [InlineData("spell.warding.tripwire_sigil", "applies:effect.ward_tripwire")]
+    [InlineData("spell.warding.loose_the_root", "removes:effect.root")]
+    public void AFirstHourWorking_DoesWhatItsContentSays(string id, string expected)
+    {
+        var magic = Game.Value;
+        var formula = magic.Formulas[id];
+        string read = formula.Blow is { } blow
+            ? $"damage:{blow.DamageType}:{blow.DamageMin}:{blow.DamageMax}"
+            : formula.Applies.Length > 0 && formula.Removes.Length == 0 ? $"applies:{string.Join(",", formula.Applies)}"
+            : formula.Removes.Length > 0 && formula.Applies.Length == 0 ? $"removes:{string.Join(",", formula.Removes)}"
+            : $"both:{string.Join(",", formula.Applies)}/{string.Join(",", formula.Removes)}";
+        Assert.Equal(expected, read);
+    }
+
+    [Fact]
+    public void AWorkingBorrowingArtThatDoesNotExist_IsRefused() =>
+        AssertRefused("spells/force/keen_note.yaml", "vfx: spell.force.impulse_bolt", "vfx: vfx.force.impulse_bolt_travel",
+            "is not a formula this pack builds");
+
+    [Fact]
+    public void ALessonOfferedBelowTheSkillItsWorkingNeeds_IsRefused() =>
+        AssertRefused("npcs/ashen_hollow/sel_arien.yaml",
+            "spell_ref: spell.force.salt_arc, fee: 18, requires: { skill: { skill_ref: skill.force, band: familiar }",
+            "spell_ref: spell.force.salt_arc, fee: 18, requires: { skill: { skill_ref: skill.force, band: untrained }",
+            "offers it at 0 (untrained)", "TCH001");
+
+    [Fact]
+    public void ASkillFloorThatIsNotABand_IsRefused() =>
+        AssertRefused("spells/force/salt_arc.yaml", "requires_skill_level: 15", "requires_skill_level: 12",
+            "is not a band floor config.teaching names", "TCH001");
+
+    [Fact]
+    public void ABookHandingOutAWorkingALessonWouldWithhold_IsRefused() =>
+        AssertRefused("items/tome/resonance_primer.yaml", "    - { kind: spell, ref: spell.vital.mending_thread }",
+            "    - { kind: spell, ref: spell.vital.mending_thread }\n    - { kind: spell, ref: spell.force.salt_arc }",
+            "a book cannot teach spell.force.salt_arc", "TCH001");
 }

@@ -30,6 +30,27 @@ public sealed record FormulaDefinition(string Id, string DomainSkillId, int Comp
 
     /// <summary>Effects the working lifts from its target: the mending that stops a bleed.</summary>
     public ImmutableArray<string> Removes { get; init; } = ImmutableArray<string>.Empty;
+
+    /// <summary>
+    /// How long this working sits out after it is released, on top of the body's recovery: a first-hour working is quick to bring
+    /// again, a heavy one leaves the caster open. Zero means the recovery alone.
+    /// </summary>
+    public int CooldownTicks { get; init; }
+
+    /// <summary>
+    /// The formula whose art this working borrows, when it has none of its own yet (Codex's VFX pass gives each its own): its ink
+    /// and polygon before the hand, and the shot's travel and impact. Empty is its own - the same id - and nothing else is invented.
+    /// </summary>
+    public string ArtId { get; init; } = "";
+
+    /// <summary>The formula its art comes from: its own, unless it borrows one that is already drawn.</summary>
+    public string Art => ArtId.Length == 0 ? Id : ArtId;
+
+    /// <summary>
+    /// The domain skill a body needs before the working can be learned (a trainer's lesson or a book is gated at it). Casting above
+    /// one's skill is never locked - it costs more Strain and may fizzle (MAGIC "Unsafe casting").
+    /// </summary>
+    public int RequiresSkillLevel { get; init; }
 }
 
 /// <summary>The tuning of casting (<c>config.magic</c>): the pools' return, Strain's limits, and what skill and Resonance change.</summary>

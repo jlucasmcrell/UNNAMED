@@ -65,8 +65,18 @@ public class MagicTests
 
     // ── knowing ─────────────────────────────────────────────────────────────
 
+    /// <summary>The primer's own grant list, in the order the book hands them over: its three originals, then the six first-hour workings
+    /// the spell lane added to the same three schools. The book is still a primer - every one is complexity 2 or 3.</summary>
+    private static readonly string[] PrimerFormulas =
+    {
+        Bolt, Ward, Thread,
+        "spell.force.cinder_dart", "spell.force.shiver_spike",
+        "spell.warding.holdfast", "spell.warding.hush_the_sting",
+        "spell.vital.ember_mend", "spell.vital.clear_the_dead_weight",
+    };
+
     [Fact]
-    public void ThePrimer_TeachesItsThreeFormulas_WithoutASingleCast()
+    public void ThePrimer_TeachesEveryFormulaItGrants_WithoutASingleCast()
     {
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
@@ -81,9 +91,9 @@ public class MagicTests
         var primer = arena.Simulation.Player.Inventory.Single(e => e.DefId == Primer);
         Assert.Null(arena.Submit(new UseItemCommand(arena.Player, primer.ItemId)));
 
-        Assert.Equal(new[] { Bolt, Ward, Thread }, learned.Select(l => l.DefinitionId));
+        Assert.Equal(PrimerFormulas, learned.Select(l => l.DefinitionId));
         Assert.All(learned, l => Assert.Equal("book", l.Source));
-        Assert.All(new[] { Bolt, Ward, Thread }, f => Assert.Equal(Primer, arena.Simulation.Player.Progression.Known[f].SourceRef));
+        Assert.All(PrimerFormulas, f => Assert.Equal(Primer, arena.Simulation.Player.Progression.Known[f].SourceRef));
         Assert.DoesNotContain(arena.Simulation.Player.Inventory, e => e.DefId == Primer);   // read once
         Assert.Empty(cast);
         Assert.Empty(arena.Simulation.Player.Progression.Skills);                         // study teaches formulas, never skill
@@ -401,5 +411,53 @@ public class MagicTests
         Assert.Equal(arena.Simulation.Combat.Effects.ToList(), again.Combat.Effects.ToList());
         Assert.Contains(again.Combat.Effects, e => e.EffectId == "effect.braced");
         Assert.Equal(new[] { Bolt, Thread, Ward }, again.Player.Progression.Known.Keys.Where(k => k.StartsWith("spell.", StringComparison.Ordinal)));
+    }
+
+    // ── a working's own cooldown ───────────────────────────────────────────────────────────────────────────────────────────────
+
+    [Fact]
+    public void AWorkingWillNotBeBroughtAgainUntilItsOwnCooldownPasses_AndAnotherStillCan()
+    {
+        const string Note = "spell.force.keen_note";   // 4 Focus, a 1.0 s cooldown: the cheapest thing in the kit
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Ground, 0, Array.Empty<(string, double, double, string)>(),
+            r => Knowing(Skilled(r, "skill.force", 20), Note, Bolt), 42);
+
+        Cast(arena, Note);
+        int cooling = arena.Simulation.FormulaCooldown(Note);
+        Assert.InRange(cooling, 1, 20);
+        Assert.Equal($"{Note} is not ready ({cooling} ticks)", arena.Submit(new CastCommand(arena.Player, Note)));
+
+        // Per formula, not one lock across all working: the bolt has no cooldown and is ready while the note cools.
+        Assert.Equal(0, arena.Simulation.FormulaCooldown(Bolt));
+        Assert.Null(arena.Submit(new CastCommand(arena.Player, Bolt)));
+        arena.Tick(Ticks(arena, Bolt));
+
+        // And once the note's own second is up, it comes again.
+        arena.Tick(21);
+        Assert.Equal(0, arena.Simulation.FormulaCooldown(Note));
+        Assert.Null(arena.Submit(new CastCommand(arena.Player, Note)));
+    }
+
+    [Fact]
+    public void AWorkingBrokenOffInItsTell_StillSpendsItsCooldown()
+    {
+        // A salt arc's cooldown is 3.5 s, long enough that the dash's own recovery fits inside it: what is measured here is the working's
+        // cooldown, not the wait of the body.
+        const string Arc = "spell.force.salt_arc";
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var arena = Arena.OpenCreatures(session, session.Setup, Ground, 0, Array.Empty<(string, double, double, string)>(),
+            r => Knowing(Skilled(r, "skill.force", 20), Arc), 42);
+
+        Assert.Null(arena.Submit(new CastCommand(arena.Player, Arc)));
+        arena.Tick(1);
+        Assert.Null(arena.Submit(new DodgeCommand(arena.Player, 1000, 0)));
+        arena.Tick(20);   // past the dash's own recovery, well inside the working's three and a half seconds
+
+        // A working abandoned in its tell is spent, like a swing: the Focus is gone and the cooldown stands.
+        Assert.InRange(arena.Simulation.FormulaCooldown(Arc), 1, 70);
+        Assert.StartsWith($"{Arc} is not ready", arena.Submit(new CastCommand(arena.Player, Arc)));
     }
 }

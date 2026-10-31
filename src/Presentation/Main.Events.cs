@@ -322,7 +322,9 @@ public partial class Main
         var to = new Vector3(shot.ToXMm / 1000f, terrain.HeightAtMm(shot.ToXMm, shot.ToZMm) / 1000f + height, shot.ToZMm / 1000f);
         // Out of the hands, not the chest.
         from += (to - from).Normalized() * 0.4f;
-        string? stem = working && shot.Source.IndexOf('.') is > 0 and var dot ? "vfx." + shot.Source[(dot + 1)..] : null;
+        // A working without art of its own borrows the formula's it names, so a new formula is drawn the moment it exists.
+        string art = working ? formula!.Art : shot.Source;
+        string? stem = working && art.IndexOf('.') is > 0 and var dot ? "vfx." + art[(dot + 1)..] : null;
         _projectiles.Loose(from, to, working, shot.Target is not null, stem);
     }
 

@@ -1,0 +1,17 @@
+id: spell.vital.set_the_bone
+kind: spell
+schema: 1
+display_key: spell.vital.set_the_bone.name
+tags: [spell]
+name: Set the Bone
+notes: "Tissue and bone (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Vital / Restoration\": bleeding control, tissue, bone...). The mend a body is taught before the thread: it puts the salve's own Mending on the caster and nothing else, so it closes no bleed and lifts no poison - it is the working that keeps a hurt caster on their feet, at half the Mending Thread's cost."
+domain: skill.vital
+complexity: 2
+cost: { focus: 8, strain: 6 }
+cast_time_s: 0.8
+targeting: self
+cooldown_s: 4.0
+requires_skill_level: 0
+vfx: spell.vital.mending_thread
+payload:
+  - { type: apply_effect, effect_ref: effect.mending }

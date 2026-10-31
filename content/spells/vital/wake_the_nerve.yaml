@@ -1,0 +1,18 @@
+id: spell.vital.wake_the_nerve
+kind: spell
+schema: 1
+display_key: spell.vital.wake_the_nerve.name
+tags: [spell]
+name: Wake the Nerve
+notes: "Nerves (MAGIC_SUPERNATURAL_AND_COSMIC_SYSTEMS.md \"Core domains - Vital / Restoration\": ...nerves, organs). Sleep and a held body are conditions of the nerve, not wounds, so this working lifts both at once - the cheap end of what a herbalist's poison can do to a person, and the reason a body carries it in a cave. Complexity 4: the hardest of the first-hour additions, and not offered before the Set the Bone is known."
+domain: skill.vital
+complexity: 4
+cost: { focus: 12, strain: 9 }
+cast_time_s: 1.0
+targeting: self
+cooldown_s: 6.0
+requires_skill_level: 15
+vfx: spell.vital.mending_thread
+payload:
+  - { type: remove_effect, effect_ref: effect.sleep }
+  - { type: remove_effect, effect_ref: effect.paralyse }
