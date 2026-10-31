@@ -55,6 +55,9 @@ public class PlayerRecordCompletenessTests
         {
             Allocation = player.Progression.Allocation.SetItem(CharacterAttribute.Precision, 2),
             Pools = player.Progression.Pools with { Stamina = 55 },
+            // The two schema-41 fields (queue item 7): a designated discipline and the masteries it has earned.
+            DesignatedSkill = "skill.one_hand_blade",
+            Masteries = ImmutableSortedSet.Create("skill.one_hand_blade", "skill.bow"),
             Guards = player.Progression.Guards with
             {
                 SpeciesToday = player.Progression.Guards.SpeciesToday.SetItem("creature.beast.wolf_grey", new SpeciesDay(2, 3)),

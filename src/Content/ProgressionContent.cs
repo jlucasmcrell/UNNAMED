@@ -85,6 +85,9 @@ public static class ProgressionContent
             var derived = Map(p, "derived");
             var skills = Map(p, "skills");
             var guards = Map(p, "guards");
+    var respec = p.TryGetValue("respec_cost", out var respecNode) && respecNode is Dictionary<object, object> respecMap
+        ? respecMap
+        : new Dictionary<object, object>();
             var package = Map(p, "starting_package");
 
             var rules = new ProgressionRules
@@ -92,6 +95,9 @@ public static class ProgressionContent
                 Curve = curve,
                 LevelCap = levelCap,
                 SoftCap = softCap,
+            DesignationCost = p.ContainsKey("designation_cost") ? Int(p, "designation_cost") : 0,
+            RespecBaseCost = respec.Count > 0 ? Int(respec, "base") : 0,
+            RespecCostPerLevel = respec.Count > 0 ? Int(respec, "per_level") : 0,
                 AttributeBase = Int(p, "attribute_base"),
                 AttributePointsPerLevel = Int(p, "attribute_points_per_level"),
                 AttributeGrantCapFraction = Number(p, "attribute_grant_cap_fraction"),
@@ -101,7 +107,8 @@ public static class ProgressionContent
                 Skills = new SkillModel(
                     Int(skills, "difficulty_margin"), Int(skills, "common_ceiling"),
                     Long(skills, "xp_per_level_base"), Long(skills, "xp_per_level_growth"), Long(skills, "use_xp"),
-                    Number(skills, "failure_factor"), Number(skills, "max_challenge_factor"), Long(skills, "novelty_bonus_xp")),
+                    Number(skills, "failure_factor"), Number(skills, "max_challenge_factor"), Long(skills, "novelty_bonus_xp"),
+            MasteryLevel: skills.ContainsKey("mastery_level") ? Int(skills, "mastery_level") : 100),
                 Guards = new XpGuards(
                     List(guards, "level_band").Select((row, i) => BandRow(row, i)).ToImmutableArray(),
                     Number(guards, "new_species_floor"), Number(guards, "species_decay"), Number(guards, "species_floor"),
