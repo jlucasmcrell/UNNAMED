@@ -1,0 +1,12 @@
+id: mat.chrome
+kind: material
+schema: 1
+display_key: mat.chrome.name
+tags: [material]
+name: Chrome Plate
+notes: "Bright chrome over salvage steel: Caldera works' finish, and the part that tells a buyer whose hands it left."
+word: "Chrome"
+class: metal
+material_ref_item: item.material.iron_ingot
+mult: { damage: 1.04, armor: 1.05, weight: 1.02, durability: 1.1, value: 1.7 }
+tier_min: 2

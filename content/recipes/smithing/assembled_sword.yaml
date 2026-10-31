@@ -1,0 +1,17 @@
+id: recipe.smithing.assembled_sword
+kind: recipe
+schema: 1
+display_key: recipe.smithing.assembled_sword.name
+tags: [recipe]
+name: Assemble a Sword
+notes: "D21 G3: a sword built at the bench out of a blade, a guard, a grip and a pommel - the parts the picker offers, the maker's own set."
+station: forge
+skill_ref: skill.smithing
+complexity: 2
+inputs:
+  - { item_ref: item.material.iron_ingot, count: 2 }
+  - { item_ref: item.material.ash_haft, count: 1 }
+outputs:
+  - { item_ref: item.weapon.rusted_sword, count: 1, quality_roll: true }
+discovery: { experiment: true }   # found by trying parts at a forge
+xp_award: { xp: 40 }

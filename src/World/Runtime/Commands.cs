@@ -1,4 +1,4 @@
-// UNNAMED World - the commands presentation may submit (ARCHITECTURE.md §4.1, D-11)
+﻿// UNNAMED World - the commands presentation may submit (ARCHITECTURE.md §4.1, D-11)
 // No Godot references - pure C#
 
 using UNNAMED.Domain;
@@ -23,7 +23,7 @@ public sealed record JumpCommand(EntityId Actor) : GameCommand(Actor);
 /// Crouch, or stand up where there is room to (the owner's M6 playtest). Gliding, a crouch flares the wings to brake and coming out of it
 /// spreads them again (Kal).
 /// </summary>
-public sealed record CrouchCommand(EntityId Actor, bool Crouched) : GameCommand(Actor);
+public sealed record CrouchCommand(EntityId Actor, bool Crouched, bool Prone = false) : GameCommand(Actor);
 
 /// <summary>
 /// Spread the wings in the air, or fold them (Kal: Wing Glide, RACE_ABILITIES_PROPOSAL.md §3.2): presentation sends it when jump is held past
@@ -35,7 +35,25 @@ public sealed record GlideCommand(EntityId Actor, bool Spread) : GameCommand(Act
 /// Put a knife into a creature that has not noticed the character (STEALTH §12-§14; owner finding 27). The body nearest and inside the
 /// weapon's reach is the target; the outcome is an armour-and-vital check, so an armoured or well-built body survives and turns.
 /// </summary>
-public sealed record TakedownCommand(EntityId Actor) : GameCommand(Actor);
+public sealed record TakedownCommand(EntityId Actor, bool NonLethal = false) : GameCommand(Actor);
+
+/// <summary>
+/// Carry a body into cover (STEALTH §6.3): the corpse is laid in the nearest cover that hides it whole, and from then on nobody walking past
+/// that ground finds it. No separate hidden flag is needed - a body in the shadow alcove is a body the same geometry hides.
+/// </summary>
+public sealed record HideBodyCommand(EntityId Actor, EntityId Target) : GameCommand(Actor);
+
+/// <summary>
+/// Take hold of a body and pull it along the ground (STEALTH §6.2): it comes with the character instead of being carried away whole, a metre or
+/// two at a time, and it stays where the light can find it until the character stops to hide it properly.
+/// </summary>
+public sealed record DragBodyCommand(EntityId Actor, EntityId Target) : GameCommand(Actor);
+
+/// <summary>
+/// Put an authored light out, or light it again (STEALTH §2.2): a lamp the character is standing beside. The stealth player's own lever on the world,
+/// and it darkens the same number the sight check reads.
+/// </summary>
+public sealed record DouseLightCommand(EntityId Actor, string? LightKey, bool Lit, bool ByShot = false) : GameCommand(Actor);
 
 /// <summary>Use an interactable - in Phase 1, open or close a door. Range is checked from the actor's body.</summary>
 public sealed record InteractCommand(EntityId Actor, string TargetKey) : GameCommand(Actor);

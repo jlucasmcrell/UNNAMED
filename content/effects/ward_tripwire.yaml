@@ -1,0 +1,13 @@
+id: effect.ward_tripwire
+kind: effect
+schema: 1
+display_key: effect.ward_tripwire.name
+tags: [effect, stealth, magic]
+name: Tripwire Ward
+notes: "A tripwire ward (STEALTH.md 10): an alarm the moment it is crossed. Disabled with Quiet the Ward, a rune key, or a distraction that crosses it first."
+category: debuff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 10.0
+tick_interval_min: 0
+dispel_category: magic

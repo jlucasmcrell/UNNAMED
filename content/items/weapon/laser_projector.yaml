@@ -1,0 +1,21 @@
+id: item.weapon.laser_projector
+kind: item.weapon
+schema: 1
+display_key: item.weapon.laser_projector.name
+tags: [weapon, tech, projector, laser]
+name: Laser Projector
+notes: "A laser projector: lens stack and resonator, precision with a small armour penalty ignored (4.1.1)."
+category: weapon
+stack_max: 1
+weight: 3.0
+value_base: 180
+item_class: ordinary
+damage: [7, 9]
+damage_type: fire
+attack_speed: 0.83
+reach: 9.0
+hands: two
+skill_ref: skill.projector
+durability_max: 150
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: projector.laser, maker_ref: maker.vaskaal.charge_kit, part_tier: 3 }

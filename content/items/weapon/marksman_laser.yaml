@@ -1,0 +1,21 @@
+id: item.weapon.marksman_laser
+kind: item.weapon
+schema: 1
+display_key: item.weapon.marksman_laser.name
+tags: [weapon, tech, marksman, laser]
+name: Marksman Laser
+notes: "The marksman laser: long lens stack, hit-scan with no drop, and an optic that is not optional (4.2)."
+category: weapon
+stack_max: 1
+weight: 4.0
+value_base: 320
+item_class: ordinary
+damage: [10, 13]
+damage_type: fire
+attack_speed: 0.5
+reach: 14.0
+hands: two
+skill_ref: skill.marksmanship
+durability_max: 150
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: marksman, maker_ref: maker.vaskaal.charge_kit, part_tier: 3 }

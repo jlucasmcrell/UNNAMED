@@ -1,0 +1,11 @@
+id: mat.wood.ash
+kind: material
+schema: 1
+display_key: mat.wood.ash.name
+tags: [material]
+name: Ash Haft Wood
+notes: "Ash grown in the hollow's coppice: straight, springy, and the reason a haft lasts a season."
+class: wood
+material_ref_item: item.material.ash_haft
+mult: { damage: 0.95, armor: 0.9, weight: 1.05, durability: 0.95, value: 0.9 }
+tier_min: 1

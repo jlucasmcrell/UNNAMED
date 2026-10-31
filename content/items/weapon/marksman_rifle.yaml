@@ -1,0 +1,24 @@
+﻿id: item.weapon.marksman_rifle
+kind: item.weapon
+schema: 1
+display_key: item.weapon.marksman_rifle.name
+tags: [item]
+name: Marksman Rifle
+notes: A long-barrelled windlass piece with a brass scope (STEALTH 7.4; D23 S5). Slow to draw, heavy to carry, and it carries further and hits harder than any bow in the starting frontier - at the price of a nine-metre crack that a whole street hears.
+category: weapon
+stack_max: 1
+weight: 4.8
+value_base: 260
+rarity: common
+damage: [22, 26]
+damage_type: physical_pierce
+draw_time: 1.6
+hands: two
+reach: 60
+ammo_item_ref: item.ammo.bolt_iron
+skill_ref: skill.bow
+sneak_multiplier: 2.5
+shot_noise_m: 9
+requirements: { attribute.might: 12 }
+durability_max: 260
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 4, item_ref: item.material.timber }

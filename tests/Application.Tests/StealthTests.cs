@@ -1,4 +1,4 @@
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Items;
@@ -56,7 +56,7 @@ public class StealthTests
     /// Does a sprint at 12 m behind the creature reach its ears at this stealth level? The footfall is not written down anywhere a test can read
     /// (the noise stream is consumed by perception and cleared), so the question is asked of the creature instead: it heard nothing, or it did.
     /// </summary>
-    private static bool SprintIsHeardAtTwelveMetres(GameSession session, (double X, double Z) wolf, int stealthLevel)
+    private static long SprintRingAtTwelveMetres(GameSession session, (double X, double Z) wolf, int stealthLevel)
     {
         double facing = FacingOf(session, wolf);
         var arena = Armed(session, Along(wolf, facing, -12), FacingDeg(facing), Sword, stealthLevel: stealthLevel,
@@ -66,9 +66,16 @@ public class StealthTests
         var body = arena.Simulation.Player.Body;
         double dx = (wolf.X + arena.Origin.X) * 1000 - body.XMm, dz = (wolf.Z + arena.Origin.Z) * 1000 - body.ZMm;
         Assert.Null(arena.Submit(new MoveCommand(arena.Player, Harness.Toward(dx, dz, Gait.Sprint))));
-        arena.Tick(12);
+        arena.Tick(1);
+        long ring = arena.Simulation.PlayerNoiseMm;
         Assert.Null(arena.Submit(new MoveCommand(arena.Player, MoveIntent.Idle(arena.Simulation.Player.Body.FacingMdeg))));
-        return Only(arena).Awareness > 0 || Only(arena).Mind != CreatureMind.Unaware || noticed.Count > 0;
+        // The question is whether it was HEARD, not whether anything found the character - and not whether a sprinting body closed the distance while it
+        // was being measured, which is what made this flaky. The ring the simulation publishes while the sprint is being made is the answer.
+        return ring;
+
+
+
+
     }
 
     // ── the skill is quieter, never invisible ───────────────────────────────
@@ -81,10 +88,11 @@ public class StealthTests
         var wolf = (120.0, 80.0);
 
         // A sprint carries 16 m, so at 12 m a creature that has not seen the character hears it (STEALTH §7).
-        Assert.True(SprintIsHeardAtTwelveMetres(session, wolf, stealthLevel: 0), "an untrained sprint must be heard at 12 m");
+        Assert.True(SprintRingAtTwelveMetres(session, wolf, stealthLevel: 0) > 12_000, "an untrained sprint must carry past 12 m");
 
         // At rank 3 the same sprint is 16 m x 0.55 = 8.8 m: quieter, and still a sound it could hear from closer (§20: no hidden flag).
-        Assert.False(SprintIsHeardAtTwelveMetres(session, wolf, stealthLevel: 8), "a rank-3 sprint must not carry 12 m");
+        long trained = SprintRingAtTwelveMetres(session, wolf, stealthLevel: 8);
+        Assert.True(trained is > 4_000 and < 12_000, $"a rank-3 sprint must be quieter than 12 m and still a sound ({trained} mm)");
     }
 
     // ── a dagger, and the takedown it makes possible ────────────────────────

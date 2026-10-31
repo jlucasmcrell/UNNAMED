@@ -1,0 +1,40 @@
+id: maker.veth.reach_smith
+kind: maker
+schema: 1
+display_key: maker.veth.reach_smith.name
+tags: [maker]
+name: Reach Smith
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
+people_ref: people.veth
+era: medieval
+fit_family: compact_broad
+part_sets:
+  sword:
+    blade: [{ part_ref: part.sword.blade.arming_straight, weight: 5 }, { part_ref: part.sword.blade.leaf_long, weight: 3 }, { part_ref: part.sword.blade.broad_two_hand, weight: 2 }]
+    guard: [{ part_ref: part.sword.guard.cross, weight: 5 }, { part_ref: part.sword.guard.swept, weight: 3 }]
+    grip: [{ part_ref: part.sword.grip.wrapped, weight: 5 }, { part_ref: part.sword.grip.waisted, weight: 3 }]
+    pommel: [{ part_ref: part.sword.pommel.disc, weight: 5 }, { part_ref: part.sword.pommel.faceted, weight: 3 }]
+  axe:
+    head: [{ part_ref: part.axe.head.bearded, weight: 5 }, { part_ref: part.axe.head.broad, weight: 3 }]
+    haft: [{ part_ref: part.axe.haft.short, weight: 5 }, { part_ref: part.axe.haft.long, weight: 4 }]
+    binding: [{ part_ref: part.axe.binding.band, weight: 5 }]
+  spear:
+    head: [{ part_ref: part.spear.head.leaf, weight: 5 }, { part_ref: part.spear.head.pike, weight: 4 }]
+    haft: [{ part_ref: part.spear.haft.long, weight: 5 }]
+    binding: [{ part_ref: part.spear.binding.band, weight: 5 }]
+  staff:
+    shaft: [{ part_ref: part.staff.shaft.ash, weight: 5 }]
+    cap: [{ part_ref: part.staff.cap.iron, weight: 4 }]
+    binding: [{ part_ref: part.staff.binding.band, weight: 5 }]
+  blowpipe:
+    tube: [{ part_ref: part.blowpipe.tube.reed, weight: 5 }, { part_ref: part.blowpipe.tube.bone, weight: 3 }]
+    mouthpiece: [{ part_ref: part.blowpipe.mouthpiece.reed, weight: 5 }, { part_ref: part.blowpipe.mouthpiece.waxed, weight: 3 }]
+material_palette: [{ material_ref: mat.iron.plain, weight: 5 }, { material_ref: mat.iron.charcoal_steel, weight: 2 }, { material_ref: mat.wood.ash, weight: 4 }, { material_ref: mat.hide.deer, weight: 3 }]
+signature: { tendency: balanced, stat_bias: { durability_mult: 1.02 } }
+tier_range: [1, 3]
+name_grammar: name.maker.veth_reach_smith
+maker_words: ["Reach", "Marchland", "Waystation"]
+tooltip_line_key: maker.veth.reach_smith.line
+source_notes:
+  - "GEAR_GENERATION section 11: plain, balanced, bog and grey iron, hide, wool."
+  - "Drops from Kaldrun bandits and wolf dens, Barrowworks chests and Ashen Hollow containers; sold at the hollow's smithy."

@@ -107,6 +107,9 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// <summary>Resource nodes, recipes, and the tuning of quality (M3f).</summary>
     public CraftingSetup Crafting { get; init; } = CraftingSetup.Empty;
 
+    /// <summary>D21's parts, makers and materials: what an assembled recipe builds from.</summary>
+    public UNNAMED.Domain.Items.GearSetup Gear { get; init; } = UNNAMED.Domain.Items.GearSetup.Empty;
+
     /// <summary>The named NPCs and their conversations (M4).</summary>
     public SocialSetup Social { get; init; } = SocialSetup.Empty;
 
@@ -261,6 +264,8 @@ public sealed class Simulation
     private readonly TeachingSystem _teaching;
     private readonly DurabilitySystem _durability;
     private readonly BurningLightsSystem _lights;
+    private readonly DetectionSystem _detection;
+    private readonly AlarmSystem _alarms;
     private readonly LadenSystem _laden;
     private readonly PartySheetSystem _sheets;
     private readonly PetSystem _pets;
@@ -387,6 +392,7 @@ public sealed class Simulation
         _debugger = new QuestDebugger(_context, _quests, _dialogue, _gathering.Views, _trade.View, () => Containers, _creatures.Views, _inventory.WorldItems);
         _deeds = new DeedSystem(_context, _state.Claim(nameof(DeedSystem), StateSlice.Deeds));
         _weather = new WeatherSystem(_context, _state.Claim(nameof(WeatherSystem), StateSlice.Weather), new CellKey(_cells[0].Region, 0, 0));
+        _context.WeatherNow = () => _weather.View(WorldTick).State;   // the ear asks what the sky is doing (STEALTH §3.4)
         _factions = new FactionSystem(_context, _state.Claim(nameof(FactionSystem), StateSlice.Factions));
         _quickBar = new QuickBarSystem(_context, _state.Claim(nameof(QuickBarSystem), StateSlice.QuickBar), player.Id);
         _gearSets = new GearSetSystem(_context, _state.Claim(nameof(GearSetSystem), StateSlice.GearSets), player.Id,
@@ -396,6 +402,8 @@ public sealed class Simulation
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
         _lights = new BurningLightsSystem(_context, player.Id);
+        _detection = new DetectionSystem(_context, player.Id);
+        _alarms = new AlarmSystem(_context, _npcs);
         _laden = new LadenSystem(_context, () => _movement.Effective, _inventory.CarriedGrams, _inventory.CarryLimitGrams);
         _approval = new ApprovalSystem(_context, _dialogue.Banter, () => _quests.Tracked(null) is { } tracked ? _quests.Marker(tracked) : null);
         _approval.Listen(bus);
@@ -541,6 +549,18 @@ public sealed class Simulation
     }
 
     /// <summary>The cell a door stands in, in the space its layout stands in: its flag lives in that cell's delta.</summary>
+    /// <summary>A thrown lure: the world hears it where it lands, and the wards it crossed are spent (D23 S7, STEALTH.md 3.2).</summary>
+    private string? Distract(DistractCommand command)
+    {
+        _detection.Distract(_state.Space, command.XMm, command.ZMm);
+        // A thrown lure is an impact heard where it landed, which is what a thrown stone is (STEALTH.md 3.2).
+        _context.Dispatch(new RaiseNoise(new UNNAMED.Domain.Creatures.Noise(command.XMm, command.ZMm, Setup.Combat.Noise.ImpactSolidMm)
+        {
+            Source = UNNAMED.Domain.Creatures.SoundSource.Impact,
+        }));
+        return null;
+    }
+
     public static CellKey CellOf(SpaceId space, DoorSite door) => CellOf(space, door.ClosedFootprint);
 
     /// <summary>The cell a switch stands in (M6): its flag, and every flag it requires, live in that cell's delta.</summary>
@@ -569,6 +589,9 @@ public sealed class Simulation
 
     /// <summary>The sparse world delta. Its public members only read (tests/Architecture.Tests).</summary>
     public WorldDelta World => _state.World;
+
+    /// <summary>What the character's carried sensors read this tick (D23 S7): transient, empty when nothing is carried.</summary>
+    public ImmutableArray<DetectorContact> DetectorContacts => _detection.Contacts;
 
     /// <summary>Standing or crouched, and how far into a jump (the owner's M6 playtest): cheap to read every frame.</summary>
     public Posture Posture => _state.Posture;
@@ -682,6 +705,60 @@ public sealed class Simulation
 
     /// <summary>Every creature the region holds, living or dead.</summary>
     public ImmutableArray<CreatureView> Creatures => _creatures.Views();
+
+    /// <summary>The light the character is standing in, in per mille of full day, and the band it falls in (STEALTH §2.1): the HUD's gem and
+    /// the sight check read the same number, so the gem cannot lie about what an observer gets.</summary>
+    public int PlayerLitPermille => _creatures.LitAt(Player.Body.XMm, Player.Body.ZMm);
+
+    public UNNAMED.Domain.Combat.LightBand PlayerLightBand => _creatures.PlayerBand;
+
+    /// <summary>How far the character is heard right now, in millimetres: the HUD's noise ring is drawn at exactly this radius (§2.7).</summary>
+    public long PlayerNoiseMm => _creatures.PlayerNoiseRadiusMm();
+
+    /// <summary>
+    /// Which way the air moves today, in millidegrees (STEALTH §4.6): the same for every body in the world, derived from the seed and the day, so a
+    /// scent test can stand a creature upwind of the character and be sure that is where it is.
+    /// </summary>
+    public long WindBearing() => _creatures.WindBearingOfPublic;
+
+    /// <summary>
+    /// Which way the air moves at a place (STEALTH §4.6): the wind content authors over that ground if it covers the point, else the day's
+    /// prevailing wind. The same number the creatures' noses are read against, so a readout and the world agree.
+    /// </summary>
+    public long WindBearingAt(long xMm, long zMm) =>
+        UNNAMED.Domain.Creatures.WindRules.BearingAt(_creatures.WindBearingOf, ActiveLayout.Winds, xMm, zMm);
+
+    /// <summary>The strength of the air at a place, in metres a second (authored where content gives a wind).</summary>
+    public double WindStrengthAt(long xMm, long zMm) =>
+        UNNAMED.Domain.Creatures.WindRules.StrengthAt(0, ActiveLayout.Winds, xMm, zMm);
+
+    /// <summary>Whether an authored light is out, so the world view can dim the lamp the simulation has stopped counting (STEALTH §2.2).</summary>
+    public bool IsLightDoused(string key) => _creatures.IsDoused(key);
+
+    /// <summary>How many creatures have found the character so far: zero is what a ghost run means (STEALTH §9).</summary>
+    public int StealthDetections() => _creatures.Detections;
+
+    /// <summary>How far the character reads what has noticed them, with whatever device they hold (STEALTH §10.3).</summary>
+    public long PlayerDetectionRangeMm() => _context.PlayerDetectRangeMm();
+
+    /// <summary>What the character is standing on, which is half the reason the ring is the size it is (STEALTH §3.1).</summary>
+    public string PlayerSurface => _creatures.PlayerSurface;
+
+    /// <summary>
+    /// Where a searching creature will look next (STEALTH 4.2), for tests and reviews: the widening pattern is a rule, and a rule can be read.
+    public (long X, long Z) SearchPointOf(EntityId creature, long searchStartedTick, long tick) =>
+        _creatures.Find(creature) is { } state ? _creatures.SearchPoint(state, tick, searchStartedTick) : (0, 0);
+
+    /// <summary>
+    /// How visible the character is to one creature, from 0 (not in a state to be seen at all) upward, as the sight check itself computes it
+    /// (STEALTH §2): the light they both stand in, the cover the character is behind, their posture and what they carry. Read-only, for tests
+    /// and reviews that need the factor rather than the consequence.
+    /// </summary>
+
+    public double PlayerVisibilityTo(EntityId creature) =>
+        _creatures.Views().FirstOrDefault(c => c.Id == creature) is { } view && _creatures.Find(creature) is { } state
+            ? _creatures.VisibleTo(state, Player.Body)
+            : 0;
 
     /// <summary>The region's named NPCs (M4).</summary>
     public ImmutableArray<NpcView> Npcs => _npcs.Views();
@@ -982,7 +1059,11 @@ public sealed class Simulation
                 EquipCommand equip => _equipment.Handle(equip, WorldTick),
                 UnequipCommand unequip => _equipment.Handle(unequip, WorldTick),
                 AttackCommand attack => _combat.Handle(attack, WorldTick),
+            ThrowCommand throwCommand => _combat.Handle(throwCommand, WorldTick),
                 TakedownCommand takedown => _combat.Handle(takedown, WorldTick),
+                HideBodyCommand hide => _creatures.Handle(hide, WorldTick),
+                DouseLightCommand douse => _creatures.Handle(douse, WorldTick),
+                DragBodyCommand drag => _creatures.Handle(drag, WorldTick),
                 BlockCommand block => _combat.Handle(block, WorldTick),
                 DodgeCommand dodge => _laden.Dodge(() => _combat.Handle(dodge, WorldTick)),
                 CastCommand cast => _combat.Handle(cast, WorldTick),
@@ -1040,6 +1121,7 @@ public sealed class Simulation
                 SwapGearSetCommand swap => _gearSets.Handle(swap, WorldTick),
                 CancelGearSwapCommand cancel => _gearSets.Handle(cancel, WorldTick),
                 RepairCommand repair => _durability.Handle(repair, WorldTick),
+        DistractCommand distract => Distract(distract),
                 MerchantRepairCommand repair => _trade.Handle(repair, WorldTick),
                 JoinGroupCommand join => _lfg.Handle(join, WorldTick),
                 _ => $"no system handles {command.GetType().Name}",
@@ -1080,6 +1162,8 @@ public sealed class Simulation
             _combat.Tick(tick);
             _laden.Tick(tick);
             _lights.Tick(tick);
+            _detection.Tick(tick);
+            _alarms.Tick(tick);
             _creatures.Tick(tick);
             _companions.Tick(tick);
             _pets.Tick(tick);
@@ -1324,6 +1408,8 @@ public sealed class Simulation
         WoundCreature wound => _creatures.Handle(wound, Now),
         RecordContribution landed => Contribute(landed),
         ConcludeEncounter done => Contribute(done),
+        RaiseNoise noise => _creatures.Handle(noise, Now),
+        ExtinguishLight outLight => _creatures.Handle(outLight, Now),
         LeaveCarcassCommand leaveCarcass => _gathering.Handle(leaveCarcass, Now),
         ClearCarcassCommand clearCarcass => _gathering.Handle(clearCarcass, Now),
         CarcassHarvestedCommand carcassHarvested => _creatures.Handle(carcassHarvested, Now),

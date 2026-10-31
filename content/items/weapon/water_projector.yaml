@@ -1,0 +1,21 @@
+id: item.weapon.water_projector
+kind: item.weapon
+schema: 1
+display_key: item.weapon.water_projector.name
+tags: [weapon, tech, projector, water]
+name: Jet Projector
+notes: "A jet projector: water is the ammunition and refillable at any source (4.1.1)."
+category: weapon
+stack_max: 1
+weight: 4.0
+value_base: 70
+item_class: ordinary
+damage: [3, 5]
+damage_type: physical_blunt
+attack_speed: 1.25
+reach: 5.0
+hands: two
+skill_ref: skill.projector
+durability_max: 120
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: projector.water, maker_ref: maker.constructed.caldera_works, part_tier: 2 }

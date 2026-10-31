@@ -61,7 +61,7 @@ public static class NpcLifeContent
             NpcLifeSetup setup;
             try
             {
-                setup = Build(loader, regionId);
+                setup = Build(loader, regionId, withInteriors: false);
             }
             catch (Exception e) when (e is FormatException or InvalidCastException or KeyNotFoundException or ArgumentException)
             {
@@ -170,17 +170,46 @@ public static class NpcLifeContent
         return errors;
     }
 
+    /// <summary>
+    /// The regions whose routines make up one region's lives: the region itself, and the interiors its own portals lead into. A body placed
+    /// in the Barrowworks walks by a routine the interior's region file declares, so a setup that held only the frontier's routines would leave
+    /// the interior watch standing where she was placed.
+    /// </summary>
+    private static HashSet<string> RegionsLived(ContentLoader loader, string regionId)
+    {
+        var regions = new HashSet<string>(StringComparer.Ordinal) { regionId };
+        if (!loader.Definitions.TryGetValue(regionId, out var definition))
+            return regions;
+        var spaces = new HashSet<string>(StringComparer.Ordinal);
+        var map = Read(definition.YamlSource);
+        foreach (var entry in map.ContainsKey("portals") ? List(map, "portals") : new List<object>())
+            if (entry is Dictionary<object, object> row && row.GetValueOrDefault("space") is string space)
+                spaces.Add(space);
+        if (spaces.Count == 0)
+            return regions;
+        // Only an interior names a space; an exterior region has none, which is not an error here.
+        foreach (var region in loader.GetByKind("region").Values)
+            if (Read(region.YamlSource).GetValueOrDefault("space") is string space && spaces.Contains(space))
+                regions.Add(region.Id);
+        return regions;
+    }
+
     /// <summary>The lives of one region: its routines and the rules.</summary>
-    public static NpcLifeSetup Build(ContentLoader loader, string regionId)
+    public static NpcLifeSetup Build(ContentLoader loader, string regionId, bool withInteriors = true)
     {
         var rules = BuildRules(loader);
         var npcs = SocialContent.BuildNpcs(loader);
+        // The lints check a region's own routines against its own ground, so they ask for the strict set; a run's lives include the interiors
+        // its portals lead into, because a body in the Barrowworks walks by a routine the interior region declares.
+        var lived = withInteriors
+            ? RegionsLived(loader, regionId)
+            : new HashSet<string>(StringComparer.Ordinal) { regionId };
         var routines = new List<RoutineDefinition>();
         foreach (var definition in loader.GetByKind("routine").Values.OrderBy(d => d.Id, StringComparer.Ordinal))
         {
             string id = definition.Id;
             var map = Read(definition.YamlSource);
-            if (Text(map, "region_ref") != regionId)
+            if (!lived.Contains(Text(map, "region_ref") ?? string.Empty))
                 continue;
             string? npcId = map.GetValueOrDefault("npc_ref") as string;
             if (npcId is not null && !npcs.ContainsKey(npcId))

@@ -1,0 +1,42 @@
+id: maker.constructed.caldera_works
+kind: maker
+schema: 1
+display_key: maker.constructed.caldera_works.name
+tags: [maker]
+name: Caldera Works
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
+people_ref: people.constructed
+era: industrial
+fit_family: compact_broad
+part_sets:
+  projector.fire:
+    emitter: [{ part_ref: part.projector.fire.emitter.fire_nozzle, weight: 5 }, { part_ref: part.projector.fire.emitter.fire_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.fire.cell.fire_cell, weight: 5 }, { part_ref: part.projector.fire.cell.fire_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.fire.frame.frame_ceramic, weight: 5 }, { part_ref: part.projector.fire.frame.frame_salvage, weight: 2 }]
+    optic: [{ part_ref: part.projector.fire.optic.optic_iron, weight: 5 }, { part_ref: part.projector.fire.optic.optic_lens, weight: 3 }]
+  projector.air:
+    emitter: [{ part_ref: part.projector.air.emitter.air_nozzle, weight: 5 }, { part_ref: part.projector.air.emitter.air_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.air.cell.air_cell, weight: 5 }, { part_ref: part.projector.air.cell.air_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.air.frame.frame_ceramic, weight: 5 }, { part_ref: part.projector.air.frame.frame_salvage, weight: 2 }]
+    optic: [{ part_ref: part.projector.air.optic.optic_iron, weight: 5 }, { part_ref: part.projector.air.optic.optic_lens, weight: 3 }]
+  projector.water:
+    emitter: [{ part_ref: part.projector.water.emitter.water_nozzle, weight: 5 }, { part_ref: part.projector.water.emitter.water_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.water.cell.water_cell, weight: 5 }, { part_ref: part.projector.water.cell.water_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.water.frame.frame_ceramic, weight: 5 }, { part_ref: part.projector.water.frame.frame_salvage, weight: 2 }]
+    optic: [{ part_ref: part.projector.water.optic.optic_iron, weight: 5 }, { part_ref: part.projector.water.optic.optic_lens, weight: 3 }]
+  marksman:
+    emitter: [{ part_ref: part.marksman.emitter.accelerator_rail, weight: 5 }, { part_ref: part.marksman.emitter.lens_stack, weight: 3 }]
+    cell: [{ part_ref: part.marksman.cell.slug_magazine, weight: 5 }, { part_ref: part.marksman.cell.power_cell, weight: 3 }]
+    frame: [{ part_ref: part.marksman.frame.frame, weight: 5 }]
+    optic: [{ part_ref: part.marksman.optic.optic_scope, weight: 5 }, { part_ref: part.marksman.optic.optic_lens, weight: 3 }]
+    stabiliser: [{ part_ref: part.marksman.stabiliser.bipod, weight: 5 }, { part_ref: part.marksman.stabiliser.gyro, weight: 3 }]
+    muzzle: [{ part_ref: part.marksman.muzzle.silencer, weight: 4 }, { part_ref: part.marksman.muzzle.cold_core, weight: 3 }]
+material_palette: [{ material_ref: mat.ceramic.white, weight: 4 }, { material_ref: mat.obsidian, weight: 3 }, { material_ref: mat.chrome, weight: 3 }, { material_ref: mat.iron.charcoal_steel, weight: 2 }]
+signature: { tendency: loud, stat_bias: { damage_mult: 1.06, durability_mult: 0.96 } }
+tier_range: [1, 5]
+name_grammar: name.maker.constructed_caldera_works
+maker_words: ["Caldera", "Ceramic", "Chrome"]
+tooltip_line_key: maker.constructed.caldera_works.line
+source_notes:
+  - "GEAR_GENERATION section 11: ceramic-white, obsidian, chrome, sulphur; brittle_keen and loud; tools and maintained parts."
+  - "Section 4.1.2: the fire, air and water families and the rail line's coil and rail are Constructed artifice."

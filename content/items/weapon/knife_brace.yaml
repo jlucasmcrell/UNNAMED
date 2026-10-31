@@ -1,0 +1,23 @@
+id: item.weapon.knife_brace
+kind: item.weapon
+schema: 1
+display_key: item.weapon.knife_brace.name
+tags: [item]
+name: Knife Brace
+notes: A leather brace of throwing knives, worn on the forearm (STEALTH §7.1, §7.11). It is the thrower's weapon the way a bow is an archer's - what leaves it is a knife, and the knives come from a stack of their own, so a thrown knife is a knife spent and a thrown knife found is a knife back. The arm's own family - skill.thrown - and 2x on a body that has not noticed the thrower. Almost silent at the hand (3 m, §7.8) - the noise of a thrown knife is the body it lands in.
+category: weapon
+stack_max: 1
+weight: 0.4
+value_base: 40
+rarity: common
+damage: [6, 8]
+damage_type: physical_pierce
+draw_time: 0.35          # a throw, not a draw: the arm comes back and goes out
+hands: one
+ammo_item_ref: item.ammo.knife_thrown
+skill_ref: skill.thrown
+sneak_multiplier: 2.0    # a knife into a body that has not noticed the thrower (STEALTH §7.1)
+shot_noise_m: 3          # the arm itself, all but silent (STEALTH §7.8)
+requirements: { attribute.might: 8 }
+durability_max: 90
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 1, item_ref: item.material.bog_cotton }

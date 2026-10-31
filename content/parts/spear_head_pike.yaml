@@ -1,0 +1,15 @@
+id: part.spear.head.pike
+kind: part
+schema: 1
+display_key: part.spear.head.pike.name
+asset: "D21 Polearm heads: Spear [BK B], PARTIAL"
+noun: "pike"
+tags: [head, pike]
+name: Narrow Pike Point
+notes: "A narrow point: less cutting, more reaching."
+family: spear
+slot: head
+mesh: mesh.part.spear.head.pike
+material_slots: [metal_edge]
+tier_min: 2
+stat_contrib: { damage_mult: 1.04, reach_add: 0.2, weight_add: 0.2, speed_mult: 0.99, durability_add: 0 }

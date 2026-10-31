@@ -19,5 +19,11 @@ body_radius_m: 0.45
 xp_value: 60
 loot_table: loot.animated_armour
 perception: { sight_m: 15, hearing_m: 18, fov_deg: 100 }   # the visor narrows its sight
+# There is no head to shoot: the shell is the body (STEALTH §7.2 - a construct has no weak point but a named core, and this one's is not
+# written yet, so a shot at it is worth exactly a shot at it).
+hit_zones:
+  head: { multiplier: 1.0 }
+  torso: { multiplier: 1.0 }
+  limbs: { multiplier: 0.9 }
 tier_hint: A
 tameable: false

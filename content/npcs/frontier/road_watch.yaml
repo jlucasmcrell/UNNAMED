@@ -1,0 +1,12 @@
+id: npc.frontier.road_watch
+kind: npc
+sex: f
+schema: 1
+display_key: npc.frontier.road_watch.name
+tags: [npc, frontier]
+name: The Road Watch
+notes: "D23 S6 (HOOK.STEALTH.PATROL): the road's watch walks the bend round - the wain, the rim and the gap - which is the road's own patrol. She keeps the old road's bend, and her round is the loop a stealth route has to read."
+role: guard
+services: []
+dialogue_ref: dialogue.frontier.road_watch
+unique: true

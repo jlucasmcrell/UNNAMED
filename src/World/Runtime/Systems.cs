@@ -1,4 +1,4 @@
-// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
+﻿// UNNAMED World - the Phase-1 runtime systems (SYSTEMS.md S-04, S-08, S-20, S-21, S-22, S-30)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -32,6 +32,15 @@ internal sealed record SetWorldFlag(CellKey Cell, string FlagId, long Value) : I
 {
     public bool Quiet { get; init; }
 }
+
+/// <summary>
+/// To <see cref="CreatureSystem"/>, which owns the ear: a sound was made somewhere (STEALTH §3, §7.8). Whoever made it says where it
+/// carried and what made it; hearing it is the creature system's own business, so no other system writes its noise stream.
+/// </summary>
+internal sealed record RaiseNoise(Domain.Creatures.Noise Noise) : InternalCommand;
+
+/// <summary>Put an authored light out as the world's own act - an arrow through the lantern - rather than a hand on it (STEALTH §2.2).</summary>
+internal sealed record ExtinguishLight(string Key) : InternalCommand;
 
 /// <summary>To <see cref="ProgressionSystem"/>: award level XP.</summary>
 internal sealed record AwardExperience(XpAward Award) : InternalCommand;
@@ -81,6 +90,13 @@ internal sealed class SystemContext
 
     public RuntimeState State { get; }
     public SimulationSetup Setup { get; }
+
+    /// <summary>
+    /// The layout of the space the character is in: the region's own outside, an interior's when a portal has been taken (the Barrowworks'
+    /// thirteen rooms are their own layout). Systems that move or place bodies must ask this, not <see cref="SimulationSetup.Layout"/>,
+    /// or they act on the exterior while the character stands indoors.
+    /// </summary>
+    public RegionLayout Layout => Setup.LayoutFor(State.Space);
     public IEnumerable<(RegionLayout Layout,StationSite Site)> Stations(EntityId player) =>
         Setup.Sites(l=>l.Stations).Concat(Camps.View(this,player) is { } camp
             ? new[] { (Setup.Layout,camp.Station) } : Enumerable.Empty<(RegionLayout,StationSite)>());
@@ -94,6 +110,13 @@ internal sealed class SystemContext
 
     /// <summary>The movement rules the player's body moves by: the shared ones, at its people's speed, with its people's leap and wings.</summary>
     public MovementRules PlayerMovement { get; }
+
+    /// <summary>
+    /// The weather over the region, wired by the composition root once the weather system exists (STEALTH §3.4: rain masks a footfall). A
+    /// seam rather than a second copy of the front: the weather stays the weather system's, and a system that needs to know what it is doing
+    /// asks here.
+    /// </summary>
+    public Func<WeatherState>? WeatherNow { get; set; }
 
     /// <summary>An NPC's people, where the world knows it (a named NPC's <c>people_ref</c>, a role resident's slot, an adventurer); null for one it does not.</summary>
     public string? PeopleOf(string npcId) =>
@@ -245,10 +268,58 @@ internal sealed class SystemContext
     /// How much further the character is seen for what they have equipped (WP3a): the equipped items' <c>stealth_penalty</c>, summed and
     /// capped at 1 - a lit torch in the off hand.
     /// </summary>
+    /// <summary>
+    /// The best sound dampening the character is wearing (STEALTH §10.2): the largest share any worn piece takes off the step, and never more than
+    /// 0.6 - what is worn can muffle a step, not remove it.
+    /// </summary>
+    /// <summary>
+    /// The best cloak the character is wearing (STEALTH §10.1): the largest share of a body any worn piece takes off the eye, never more than half.
+    /// </summary>
+    /// <summary>
+    /// Whether a worn ward shuts the nose (STEALTH §10.4): the animals can still see and hear the wearer, it is one sense shut and not a cloak.
+    /// </summary>
+    public bool PlayerScentWard() => State.Equipment.Values
+        .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+        .Any(entry => entry is not null && (Setup.Items.Catalog.Find(entry.DefId)?.ScentWard ?? false));
+    public double PlayerStealthBonus() => Math.Clamp(
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.StealthBonus ?? 0)
+            .DefaultIfEmpty(0)
+            .Max(),
+        0, 0.5);
+
+    /// <summary>
+    /// How far the character can read what has noticed them: the eye's own thirty metres, plus whatever a held device adds (STEALTH §10.3).
+    /// </summary>
+    public long PlayerDetectRangeMm() => 30_000 + Math.Max(0,
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0L : Setup.Items.Catalog.Find(entry.DefId)?.DetectRangeMm ?? 0L)
+            .DefaultIfEmpty(0)
+            .Max());
+    public double PlayerNoiseDampen() => Math.Clamp(
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.NoiseDampen ?? 0)
+            .DefaultIfEmpty(0)
+            .Max(),
+        0, 0.6);
     public double PlayerStealthPenalty() =>
         Math.Min(1, State.Equipment.Values
             .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
             .Sum(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.StealthPenalty ?? 0));
+
+    /// <summary>
+    /// How far the character's own held light reaches, if anything equipped gives light (STEALTH §2.2): a torch or a lantern is a light
+    /// standing where the body is, and it lights the body it is carried by. Zero when nothing equipped gives light.
+    /// </summary>
+    public long PlayerLightRadiusMm() =>
+        State.Equipment.Values
+            .Select(id => State.Inventory.FirstOrDefault(e => e.ItemId == id))
+            .Select(entry => entry is null ? 0 : Setup.Items.Catalog.Find(entry.DefId)?.LightRadiusMm ?? 0)
+            .DefaultIfEmpty(0)
+            .Max();
 
     /// <summary>How close the body must be to speak or trade with an NPC: a hand's reach, to the NPC's body (M4).</summary>
     public long TalkReachMm => Setup.Items.Inventory.ReachMm + Setup.Movement.BodyRadiusMm;
@@ -416,7 +487,8 @@ internal sealed class MovementSystem
         var posture = _context.State.Posture;
         if (posture.Aloft)
             return command.Crouched ? Flare(posture, tick) : posture.Wing == WingState.Flare ? Wings(posture with { Wing = WingState.Glide }, tick) : null;
-        var stance = command.Crouched ? Stance.Crouched : Stance.Standing;
+        // On the belly is its own stance, not a deeper crouch (STEALTH §2.6): the lowest and slowest way a body moves.
+        var stance = command.Prone ? Stance.Prone : command.Crouched ? Stance.Crouched : Stance.Standing;
         if (posture.Stance == stance)
             return null;
         if (posture.Airborne)

@@ -1,0 +1,13 @@
+id: effect.scent_masked
+kind: effect
+schema: 1
+display_key: effect.scent_masked.name
+tags: [effect, stealth, nature]
+name: Scent Masked
+notes: "A scent mask or the Mask Scent working (STEALTH.md 10): scent range halved. It smells strange to a human nose and rain washes it out; a bleeding wound is not masked at all."
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 10.0
+tick_interval_min: 0
+dispel_category: nature

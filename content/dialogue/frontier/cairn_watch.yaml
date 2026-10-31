@@ -1,0 +1,30 @@
+id: dialogue.frontier.cairn_watch
+kind: dialogue
+schema: 1
+display_key: dialogue.frontier.cairn_watch.name
+tags: [dialogue, frontier]
+notes: "D23 S6: The Cairn Watch keeps Cairnwold's street. A short greeting and one line about the round, so the guard on patrol is a person and not a mover."
+participants: [npc.frontier.cairn_watch]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Evening. Keep to the light and we will not have to talk twice.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: round
+        text: "Long round?"
+        next: round
+      - id: leave
+        text: "Just passing."
+        next: goodbye
+  round:
+    text: "\"The same walk as yesterday, and the day before. The trick is to be looking when something is wrong.\""
+    choices:
+      - id: leave
+        text: "Good walking."
+        next: goodbye
+  again:
+    text: "\"Still walking.\""
+  goodbye:
+    text: "\"Mind yourself.\""

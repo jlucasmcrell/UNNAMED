@@ -27,12 +27,12 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 
 | Creature | Opens with | Tell at m | Lands from m | Arrow to blow s | Runs down a sprinter | Sword kill s (fighter died) | Death standing s | Walker seen at m | Sprinter heard at m |
 |---|---|---|---|---|---|---|---|---|---|
-| Ash Ember Hound | Rush | 5.9 | 0.7 | 2.5 | yes, 6.2 s (Ember Lunge) | 3.4 (0/8) | 12.5 | 28.8 | 15.7 |
-| Bone Walker Husk | Rush | 3.8 | 2.6 | 5.3 | no | 6.4 (0/8) | 12.4 | 16.9 | 15.8 |
-| Animated Armour | Rush | 6.0 | 0.8 | 5.0 | no | no kill (8/8) | 3.3 | 13.9 | 15.8 |
-| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | yes, 1.3 s (Charge) | 10.3 (0/8) | 7.3 | 18.9 | 15.8 |
-| Cave Hunting Spider | Rush | 3.1 | 1.0 | 3.1 | no | 4.5 (0/8) | 13.2 | 5.1 | 13.7 |
-| Grey Wolf | Rush | 5.8 | 0.9 | 3.0 | no | 4.9 (0/8) | 19.4 | 23.8 | 15.8 |
+| Ash Ember Hound | Rush | 5.9 | 0.7 | 2.5 | yes, 6.4 s (Ember Lunge) | 3.4 (0/8) | 12.5 | 31.2 | 15.7 |
+| Bone Walker Husk | Rush | 3.8 | 2.6 | 5.1 | no | 6.4 (0/8) | 12.7 | 19.6 | 15.8 |
+| Animated Armour | Rush | 6.0 | 0.8 | 4.9 | no | no kill (8/8) | 4.8 | 16.1 | 15.8 |
+| Bristleback Boar | Charge | 12.0 | 0.8 | 1.8 | no | 10.3 (0/8) | 7.3 | 21.8 | 15.8 |
+| Cave Hunting Spider | Rush | 4.2 | 1.1 | 3.1 | no | 4.5 (0/8) | 13.2 | 6.0 | 13.7 |
+| Grey Wolf | Rush | 5.8 | 0.9 | 3.0 | no | 4.9 (0/8) | 18.1 | 27.6 | 15.8 |
 
 ## Roles (content)
 
@@ -81,6 +81,7 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.field.tenders_north | (830, 716) | Gate Tender as roamer x2 | after 60.0 min |
 | spawn.field.tenders_south | (856, 792) | Gate Tender as sentinel x2 | after 144.0 min |
 | spawn.field.tenders_west | (800, 760) | Gate Tender as roamer x2 | after 60.0 min |
+| spawn.foldscar.pack | (556, 664) | Grey Wolf as pack_hunter x2 | after 30.0 min |
 | spawn.hollow.boar_wallow | (418, 672) | Bristleback Boar as territorial | after 30.0 min |
 | spawn.hollow.charwood_deer | (612, 718) | Timber Hind as skittish x2, Timber Stag as skittish | after 30.0 min |
 | spawn.hollow.charwood_fox | (590, 700) | Lantern Fox as wildlife | after 30.0 min |
@@ -95,6 +96,7 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | spawn.hollow.iron_shelf_husk | (448, 658) | Bone Walker Husk as roamer | after 30.0 min |
 | spawn.hollow.spider_lair | (572, 648) | Cave Hunting Spider as ambusher | after 30.0 min |
 | spawn.hollow.valley_strays | (518, 728) | Grey Wolf as stray x2 | after 20.0 min |
+| spawn.old_late.brute | (650, 735) | Barrowback as roamer | after 45.0 min |
 | spawn.road.barrow_husks | (846, 630) | Bone Walker Husk as sentinel, Bone Walker Husk as roamer | after 60.0 min |
 | spawn.road.bend_hunter | (560, 702) | Grey Wolf as hunter | after 48.0 min |
 | spawn.road.charred_pair | (690, 784) | Ash Ember Hound as prowler x2 | after 30.0 min |

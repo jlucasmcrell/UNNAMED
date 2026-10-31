@@ -255,7 +255,27 @@ containers:
   - { key: container.barrowworks.coffer_sorting, loot_ref: loot.barrowworks.coffer, position_m: [74.5, 64.8], stack_slots: 3, lock_tier: 2 }
   - { key: container.barrowworks.coffer_still_bay, loot_ref: loot.barrowworks.coffer, position_m: [69.5, 64.4], stack_slots: 3, lock_tier: 2 }
   - { key: container.barrowworks.coffer_master, loot_ref: loot.barrowworks.coffer_master, position_m: [92.0, 63.4], stack_slots: 2, lock_tier: 3 }
-npcs: []
+lights:
+- { key: light.barrowworks_intake, position_m: [52, 18], radius_m: 6, intensity: 620, dousable: true }
+- { key: light.barrowworks_archive, position_m: [70, 80], radius_m: 6, intensity: 640, dousable: true }
+covers:
+- { key: cover.barrowworks_crates, kind: crate, position_m: [58, 34], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+- { key: cover.barrowworks_alcove, kind: shadow_alcove, position_m: [75, 62], radius_m: 2.5, height_m: 1.8, blocks_sight_percent: 100 }
+- { key: cover.barrowworks_curtain, kind: curtain, position_m: [80, 88], radius_m: 3.0, height_m: 1.8, blocks_sight_percent: 100 }
+routes:
+- { key: route.barrowworks.shadow.sorting_floor, kind: shadow, position_m: [50.0, 10.0], to_m: [60, 30], cover_percent: 85 }
+- { key: route.barrowworks.roof.headworks, kind: roof, position_m: [60, 30], to_m: [75, 60], cover_percent: 75, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.barrowworks.vent.air_shaft, kind: vent, position_m: [40, 40], to_m: [45, 70], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 } }
+- { key: route.barrowworks.disguise.cloak_rail, kind: disguise, position_m: [70, 80], to_m: [80, 90], cover_percent: 50 }
+wards:
+- { key: ward.barrowworks.archive_door, position_m: [70, 80], radius_m: 2.5, name: "Gauge ward", alarm_ref: world.ward.barrowworks_alarm, rune_key: item.tool.rune_key_archive }
+- { key: ward.barrowworks.threshold_run, position_m: [50, 12], radius_m: 2.0, name: "Threshold ward", alarm_ref: world.ward.barrowworks_alarm }
+npcs:
+- npc_ref: npc.barrowworks.watchkeeper
+  position_m: [52, 28]
+  facing_deg: 180
+  routine_ref: routine.barrowworks.watchkeeper
+
 nodes:
   - { name: barrowworks_ash_stand, node_ref: node.wood.ash_stand, position_m: [74, 64] }
 stations: []
@@ -314,3 +334,22 @@ switches:
     done_text: "The measure comes apart at the joints, because it was built to. Every segment is a length of good ash haft and a plate of worked iron, and the ring has no one left in it to measure anything with. You take it apart for what it is made of."
 barriers:
   - { key: barrier.barrowworks.measure, flag_ref: world.barrowworks.headworks_dismantled, box_m: [42.1, 128.4, 43.1, 133.6], height_m: 2.2, prompt: 'The measure. Its retaining and release saddles are beside it.' }
+
+patrols:
+- key: patrol.barrowworks.floor
+  position_m: [52, 28]
+  npc_ref: npc.barrowworks.watchkeeper
+  period_s: 180
+  blind_spot_s: 45
+  stops_m: [[52, 28], [60, 34], [69, 64], [52, 28]]
+kennels:
+- { key: kennel.barrowworks, position_m: [54, 26], handler_ref: npc.barrowworks.watchkeeper, dog_ref: creature.beast.wolf_grey }
+capture_sites:
+- { key: capture.barrowworks_still_bay, position_m: [69, 64], holding_ref: location.barrowworks.r06_still_bay, holds: 2 }
+walkable_surfaces:
+- id: surface.barrowworks_intake
+  origin_m: [50, 26]
+  spacing_m: 4
+  columns: 3
+  rows: 3
+  heights_m: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]

@@ -1,7 +1,8 @@
-// UNNAMED Domain - stealth as the player's own competence, and the assassin's two instruments (STEALTH_DETECTION_AND_THREAT.md
+﻿// UNNAMED Domain - stealth as the player's own competence, and the assassin's two instruments (STEALTH_DETECTION_AND_THREAT.md
 // §12, §13, §14, §20; PROGRESSION.md §6; owner findings 26 and 27)
 // No Godot references - pure C#
 
+using System.Collections.Immutable;
 using UNNAMED.Domain.Creatures;
 
 namespace UNNAMED.Domain.Combat;
@@ -41,6 +42,36 @@ public static class StealthRules
 public sealed record TakedownResult(HitResult Hit, BodyRegion Region, bool Killed);
 
 /// <summary>
+/// Placing a shot (STEALTH §7.2): a ranged blow is not rolled onto a region, it is put where the shooter aimed it, and what that is
+/// worth is the body's own anatomy - a head is a head because of what is inside it, not because the weapon is better. A shot at the
+/// mass is the plain blow; a shot at a zone the body does not offer is the plain blow too, since there is nothing there to hit.
+/// </summary>
+public static class WeakPointRules
+{
+    /// <summary>What a body offers an aimed shot: its own authored zones, else the build's default table.</summary>
+    public static ImmutableSortedDictionary<BodyRegion, HitZone> Zones(CreatureDefinition definition, CombatConstants constants) =>
+        definition.HitZones.IsEmpty ? constants.HitZones : definition.HitZones;
+
+    /// <summary>
+    /// What a shot placed in <paramref name="region"/> multiplies by on this body, from in front or not. A front-only zone - a boar's
+    /// eye, a visor gap - gives nothing from behind, where the armour is.
+    /// </summary>
+    public static double Multiplier(CreatureDefinition definition, CombatConstants constants, BodyRegion region, bool fromFront)
+    {
+        if (Zones(definition, constants).GetValueOrDefault(region) is not { } zone)
+            return 1.0;
+        return zone.FrontOnly && !fromFront ? 1.0 : Math.Max(0.0, zone.Multiplier);
+    }
+
+    /// <summary>
+    /// One shot's whole multiplier, capped (§7.1's <c>sneak_cap</c>): every multiplier a single arrow can earn - the weapon's own on an
+    /// unaware target, and the zone's - comes to no more than the cap, so a perfect shot on a perfect target is still bounded.
+    /// </summary>
+    public static double Capped(double sneak, double zone, CombatConstants constants) =>
+        Math.Min(Math.Max(0, sneak) * Math.Max(0, zone), Math.Max(1, constants.SneakCap));
+}
+
+/// <summary>
 /// A qualifying rear dagger ambush executes an unaware non-boss at Even threat or below (owner RC d5 ruling).
 /// Other attempts retain the armour/vital result. Both resolve through the one combat resolver.
 /// </summary>
@@ -49,6 +80,27 @@ public static class TakedownRules
     // "Even" uses the same threat band as the plate: the reviewed level-2 wolf vs level-1 Ada is Even.
     public static bool Executes(bool dagger, bool unaware, bool fromBehind, Threat threat, bool boss) =>
         dagger && unaware && fromBehind && threat <= Threat.Even && !boss;
+    /// <summary>
+    /// Reach for a blade's work (STEALTH §5.3): a step and the weapon's length on the level, and from above - a ledge, a stair, a wall the character
+    /// has climbed - as far as the drop is deep, because a body that comes down on someone reaches them from further up. It never reaches UP: a
+    /// takedown is not a grab at someone standing over you.
+    /// </summary>
+    public static bool InReach(long reachMm, long actorY, long targetY, long horizontalMm)
+    {
+        long drop = actorY - targetY;
+        long extra = drop >= MinDropMm ? Math.Min(drop * 2, MaxDropReachMm) : 0;
+        if (drop < -MaxReachUpMm)
+            return false;
+        return horizontalMm <= reachMm + extra;
+    }
+
+    /// <summary>How far below the character has to be before the drop itself is worth anything, and the most it can add.</summary>
+    public const long MinDropMm = 1_200;
+    public const long MaxDropReachMm = 3_000;
+
+    /// <summary>How far above the character a target can be and still be taken - an arm's length, no more.</summary>
+    public const long MaxReachUpMm = 600;
+
     /// <summary>The vital a takedown aims at: the head from behind, the torso from inside reach (COMBAT §19's weak points).</summary>
     public static BodyRegion Vital(bool fromBehind) => fromBehind ? BodyRegion.Head : BodyRegion.Torso;
 

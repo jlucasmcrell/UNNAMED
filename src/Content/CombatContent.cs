@@ -94,7 +94,16 @@ public static class CombatContent
         if (rules.Suspicious is <= 0 or >= Perception.Full || rules.HeardNoise < rules.Suspicious || rules.HeardCall < rules.HeardNoise
             || rules.HeardCall >= Perception.Full || rules.SightPerSecondAtRange <= 0 || rules.SightPerSecondClose < rules.SightPerSecondAtRange)
             throw new FormatException($"awareness needs 0 < suspicious <= heard_noise <= heard_call < {Perception.Full}, and sight rates rising with closeness");
-        var sounds = new NoiseRules(Mm(noise, "walk"), Mm(noise, "run"), Mm(noise, "sprint"), Mm(noise, "swing"), Mm(noise, "blow"), Mm(noise, "call"));
+        var sounds = new NoiseRules(Mm(noise, "walk"), Mm(noise, "run"), Mm(noise, "sprint"), Mm(noise, "swing"), Mm(noise, "blow"), Mm(noise, "call"))
+        {
+            KillMm = noise.ContainsKey("kill") ? Mm(noise, "kill") : 2_000,
+            ImpactFleshMm = noise.ContainsKey("impact_flesh") ? Mm(noise, "impact_flesh") : 1_500,
+            ImpactSolidMm = noise.ContainsKey("impact_solid") ? Mm(noise, "impact_solid") : 4_000,
+            ShotMm = noise.ContainsKey("shot") ? Mm(noise, "shot") : 6_000,
+            CreepMm = noise.ContainsKey("creep") ? Mm(noise, "creep") : 500,
+            CrouchMm = noise.ContainsKey("crouch") ? Mm(noise, "crouch") : 1_500,
+            ProneMm = noise.ContainsKey("prone") ? Mm(noise, "prone") : 250,
+        };
         var roles = Map(map, "roles").ToImmutableSortedDictionary(kv => kv.Key as string ?? "", kv => Role(kv.Key as string ?? "", kv.Value), StringComparer.Ordinal);
         long decay = ToTicks(Number(corpse, "decay_s"), tickMs);
         int slots = Int(corpse, "stack_slots");
@@ -103,8 +112,56 @@ public static class CombatContent
         var hours = map.ContainsKey("hours") ? Hours(loader, Map(map, "hours"), tickMs) : null;
         if (hours is null && roles.Values.FirstOrDefault(r => r.Rests != RestTime.Never) is { } keeper)
             throw new FormatException($"roles.{keeper.Id} rests by {keeper.Rests.ToString().ToLowerInvariant()}, so the config gives hours");
-        return setup => setup with { Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots, Hours = hours };
+        var light = map.ContainsKey("light") ? Light(Map(map, "light")) : new LightRules();
+        return setup => setup with
+        {
+            Awareness = rules, Noise = sounds, Roles = roles, CorpseDecayTicks = decay, CorpseStackSlots = slots, Hours = hours, Light = light,
+        };
     }
+
+    /// <summary>
+    /// How light, cover and posture make a body visible (STEALTH §2): the four bands' ceilings, what each does to a sight line, the ambient by
+    /// the clock, and the three postures' heights and gains. Every one of them is a condition the player can read and change.
+    /// </summary>
+    private static LightRules Light(Dictionary<object, object> light)
+    {
+        var bands = Map(light, "bands");
+        var sight = Map(light, "sight");
+        var ambient = Map(light, "ambient");
+        var postures = Map(light, "postures");
+        var rules = new LightRules
+        {
+            DarkBelow = Int(bands, "dark"),
+            DimBelow = Int(bands, "dim"),
+            LitBelow = Int(bands, "lit"),
+            DarkFactor = Number(sight, "dark"),
+            DimFactor = Number(sight, "dim"),
+            LitFactor = Number(sight, "lit"),
+            BrightFactor = Number(sight, "bright"),
+            NightSightDarkFactor = Number(sight, "night_sight_dark"),
+            AmbientDay = Int(ambient, "day"),
+            AmbientNight = Int(ambient, "night"),
+            InteriorAmbient = Int(ambient, "interior"),
+            CarrierSightMultiple = light.ContainsKey("carrier_sight_multiple") ? Int(light, "carrier_sight_multiple") : 8,
+            Standing = Posture(Map(postures, "standing")),
+            Crouched = Posture(Map(postures, "crouched")),
+            Prone = Posture(Map(postures, "prone")),
+        };
+        if (rules.DarkBelow is <= 0 or > LightRules.PerMille || rules.DimBelow <= rules.DarkBelow || rules.LitBelow <= rules.DimBelow
+            || rules.LitBelow >= LightRules.PerMille)
+            throw new FormatException("light.bands is three rising ceilings in 1..1000 per mille (dark < dim < lit)");
+        if (rules.DarkFactor is <= 0 or > 1 || rules.DimFactor is <= 0 or > 1 || rules.LitFactor <= 0 || rules.BrightFactor < rules.LitFactor
+            || rules.NightSightDarkFactor is <= 0 or > 1)
+            throw new FormatException("light.sight needs positive factors, dark and dim no brighter than lit, and bright no darker than lit");
+        if (rules.AmbientDay <= rules.AmbientNight || rules.InteriorAmbient < 0 || rules.CarrierSightMultiple < 1)
+            throw new FormatException("light.ambient needs a day brighter than its night, a non-negative interior, and a carrier multiple of at least 1");
+        if (rules.Crouched.HeightMm >= rules.Standing.HeightMm || rules.Prone.HeightMm >= rules.Crouched.HeightMm)
+            throw new FormatException("light.postures must be lower than the last: prone < crouched < standing");
+        return rules;
+    }
+
+    private static PostureRule Posture(Dictionary<object, object> posture) =>
+        new(Mm(posture, "eye_m"), Number(posture, "sight_gain"), Mm(posture, "height_m"));
 
     /// <summary>
     /// <c>hours</c>: when night falls and day breaks, by the world clock - which reads config.time's <c>clock_at_world_start_h</c> at
@@ -244,6 +301,8 @@ public static class CombatContent
             Unarmed = new AttackProfile("unarmed", IntOf(unarmedDamage, 0, "unarmed.damage"), IntOf(unarmedDamage, 1, "unarmed.damage"),
                 Damage(Text(unarmedMap, "damage_type")), Mm(unarmedMap, "reach"), unarmedWindup, unarmedActive,
                 Math.Max(0, unarmedTotal - unarmedWindup - unarmedActive), Int(unarmedMap, "stamina_cost")),
+            SneakCap = map.ContainsKey("sneak_cap") ? Number(map, "sneak_cap") : 6.0,
+            HitZones = ranged.ContainsKey("hit_zones") ? HitZones(Map(ranged, "hit_zones"), "config.damage_constants ranged.hit_zones") : ImmutableSortedDictionary<BodyRegion, HitZone>.Empty,
         };
         if (constants.ArmorK <= 0 || constants.CritMultiplier < 1 || constants.BaseCritPercent is < 0 or > 100
             || constants.PierceArmorIgnored is < 0 or > 1 || constants.BlockMitigationPercent is < 0 or > 100
@@ -361,6 +420,7 @@ public static class CombatContent
                 Parts = Parts(map, id),
                 StandDown = StandDown(map, id),
                 Stingers = Stingers(map, id),
+                HitZones = map.ContainsKey("hit_zones") ? HitZones(Map(map, "hit_zones"), $"{id} hit_zones") : ImmutableSortedDictionary<BodyRegion, HitZone>.Empty,
                 Tags = Tags(map, "tags"),
             };
             if (creature.Attack.IsCharge)
@@ -573,10 +633,36 @@ public static class CombatContent
         if (map.GetValueOrDefault("perception") is not Dictionary<object, object> perception)
             return new Senses(25_000, 140_000, 30_000);
         var senses = new Senses(Mm(perception, "sight_m"), perception.ContainsKey("fov_deg") ? (long)Math.Round(Number(perception, "fov_deg") * 1000) : 140_000,
-            Mm(perception, "hearing_m"));
+            Mm(perception, "hearing_m"))
+        {
+            NightSight = perception.GetValueOrDefault("night_sight") as string == "true",
+            ScentMm = perception.ContainsKey("scent_m") ? Mm(perception, "scent_m") : 0,
+        };
         if (senses.SightMm < 0 || senses.HearingMm < 0 || senses.FieldOfViewMdeg is <= 0 or > 360_000)
             throw new FormatException($"{id}: perception needs non-negative ranges and a field of view in (0, 360]");
         return senses;
+    }
+
+    /// <summary>
+    /// A body's own hit zones (STEALTH §7.2): head, torso and limbs, each with what a shot placed there multiplies by, and
+    /// <c>front_only: true</c> for a zone that only opens from in front - a boar's eye behind its skull. A body that authors none
+    /// takes the build's table.
+    /// </summary>
+    private static ImmutableSortedDictionary<BodyRegion, HitZone> HitZones(Dictionary<object, object> zonesMap, string at)
+    {
+        var zones = ImmutableSortedDictionary.CreateBuilder<BodyRegion, HitZone>(Comparer<BodyRegion>.Default);
+        foreach (var region in Enum.GetValues<BodyRegion>())
+        {
+            string key = BodyRegions.Key(region);
+            if (!zonesMap.ContainsKey(key))
+                continue;
+            var row = Map(zonesMap, key);
+            double multiplier = Number(row, "multiplier");
+            if (multiplier <= 0)
+                throw new FormatException($"{at}.{key}: multiplier is above 0");
+            zones.Add(region, new HitZone(region, multiplier, row.GetValueOrDefault("front_only") as string == "true"));
+        }
+        return zones.ToImmutable();
     }
 
     /// <summary>Skill passives (<c>passives: [{at, modifiers}]</c>): the one-hand blade's steadier stagger at level 3.</summary>

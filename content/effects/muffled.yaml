@@ -1,0 +1,13 @@
+id: effect.muffled
+kind: effect
+schema: 1
+display_key: effect.muffled.name
+tags: [effect, stealth, tech]
+name: Muffled
+notes: "A sound dampener (STEALTH.md 10): footfall at a fifth of its noise, a swing or a shot at six tenths, and a low hum audible at a metre. The rail's crack is not damped - that is what a silencer is for."
+category: buff
+stack_policy: refresh
+max_stacks: 1
+duration_min: 10.0
+tick_interval_min: 0
+dispel_category: tech

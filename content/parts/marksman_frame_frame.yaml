@@ -1,0 +1,14 @@
+id: part.marksman.frame.frame
+kind: part
+schema: 1
+display_key: part.marksman.frame.frame.name
+tags: [frame, tech]
+name: Marksman Frame
+notes: "A long frame with a cheek rest: the part that decides how still you can be."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons/AWM-F-sniper-rifle_4842e4aa"
+family: marksman
+slot: frame
+mesh: mesh.part.marksman.frame.frame
+material_slots: [frame]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.2, speed_mult: 1.0, durability_add: 8 }

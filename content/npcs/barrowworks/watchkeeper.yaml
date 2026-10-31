@@ -1,0 +1,13 @@
+id: npc.barrowworks.watchkeeper
+kind: npc
+sex: f
+schema: 1
+display_key: npc.barrowworks.watchkeeper.name
+tags: [npc, barrowworks]
+name: The Watchkeeper
+notes: "D23 S6 (HOOK.STEALTH.POST): the Barrowworks' own post - a watchkeeper who keeps the intake board and walks the sorting floor. She is the sentry a stealth route has to read: her post is the intake, her loop goes to the archive, and the disguise rail and the vent are the ways past her. Content-only for now: she has a post, a loop and a greeting, and no dialogue tree of her own."
+role: guard
+services: []
+dialogue_ref: dialogue.barrowworks.watchkeeper
+unique: true
+people_ref: people.veth

@@ -246,6 +246,8 @@ structures:
   - { id: tree_137, circle_m: [196.2, 66.8, 0.4], height_m: 7.0 }
   - { id: tree_138, circle_m: [196.0, 61.4, 0.4], height_m: 7.0 }
   - { id: tree_139, circle_m: [197.7, 54.6, 0.4], height_m: 7.0 }
+  # D23 S6 (HOOK.STEALTH.ALARM): the yard bell's own post, where the waystation's people can reach it.
+  - { id: bellpost_ashen_hollow_yard, circle_m: [56, 144, 0.6], height_m: 2.6 }
 # Doors block movement while closed; their open state is a world flag in their cell.
   # ---- ASHEN HOLLOW INTERIORS, 2026-09-29 ---------------------------------------------------
   # Priority 6 said "interiors - THERE ARE NONE ANYWHERE; houses are solid collision boxes so the
@@ -363,6 +365,26 @@ containers:
   - { key: container.stash.waystation, loot_ref: loot.stash_empty, position_m: [40, 137], stack_slots: 60, stash: true }   # the character's stash beside the storage chest; the workbench, forge and cookfire work from it
   - { key: container.merchant_cart, loot_ref: loot.merchant_cart, position_m: [157, 160.2], stack_slots: 8 }  # bible §6: the bow at the cart
 # The waystation's people (M4): each named NPC where they stand, and which way they face (0 = +Z, clockwise towards +X).
+lights:
+- { key: light.hollow_yard, position_m: [46, 128], radius_m: 6, intensity: 620, dousable: true }
+- { key: light.hollow_lodge, position_m: [48, 124], radius_m: 5, intensity: 600, dousable: true }
+covers:
+- { key: cover.hollow_hedge, kind: hedge, position_m: [43, 130], radius_m: 3.0, height_m: 1.2, blocks_sight_percent: 100 }
+- { key: cover.hollow_grass, kind: tall_grass, position_m: [140, 50], radius_m: 6.0, height_m: 1.2, blocks_sight_percent: 67 }
+- { key: cover.hollow_crates, kind: crate, position_m: [58, 146], radius_m: 2.5, height_m: 1.1, blocks_sight_percent: 67 }
+routes:
+- { key: route.ashen_hollow.shadow.waystone_line, kind: shadow, position_m: [30, 158], to_m: [46, 126], cover_percent: 85 }
+- { key: route.ashen_hollow.grass.bog_ashbloom, kind: grass, position_m: [150, 42], to_m: [120, 60], cover_percent: 67 }
+- { key: route.ashen_hollow.roof.shed_gantry, kind: roof, position_m: [60.5, 143.5], to_m: [75, 150], cover_percent: 75, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+- { key: route.ashen_hollow.vent.smithy_flue, kind: vent, position_m: [57.5, 140.5], to_m: [50, 130], cover_percent: 100, requires: { skill_ref: skill.lockpicking, skill_min: 15 } }
+- { key: route.ashen_hollow.servant.back_door, kind: servant, position_m: [46.5, 126.2], to_m: [30, 120], cover_percent: 60 }
+- { key: route.area.ashen-hollow-standalone.disguise, kind: disguise, position_m: [60, 142], to_m: [70, 150], cover_percent: 50 }
+- { key: route.area.ashen-hollow-standalone.perch, kind: roof, position_m: [60.5, 143.5], to_m: [75, 150], cover_percent: 75, sightline_m: 45, requires: { skill_ref: skill.athletics, skill_min: 15 } }
+gear_makers:
+  - maker.veth.reach_smith
+  - maker.kal.vossgar_forge
+  - maker.ondrek.tenantless_repair
+# D23 S6: the standalone region's own way past the smithy and a perch over it.
 npcs:
   - { npc_ref: npc.ashen_hollow.renn_vale, position_m: [46.5, 126.2], facing_deg: 90 }   # the lodge, facing its door
   - { npc_ref: npc.ashen_hollow.sel_arien, position_m: [72, 122], facing_deg: 135 }    # her survey area, looking towards the Foldscar
@@ -405,6 +427,12 @@ switches:
     verb: Steady
     locked_text: "It slides out from under your hand. Somewhere in the ring a Quiet Stone is still out of line."
     done_text: "The heart holds. The ring goes quiet all at once, and across it Tavar's shadow catches up with him."
+  - key: switch.bell.hollow_yard
+    structure: bellpost_ashen_hollow_yard
+    flag_ref: world.ward.hollow_bell
+    name: the yard bell
+    verb: Ring
+    done_text: "The bell over the yard takes one swinging blow and keeps ringing. Every door on the green opens at the sound."
 # Barriers (M6): a footprint that blocks until a world flag in its cell is set - the fold that holds Tavar (bible §16, §17).
 barriers:
   - key: barrier.foldscar_fold
@@ -412,3 +440,22 @@ barriers:
     circle_m: [145, 42, 3]
     height_m: 2.6
     prompt: "Tavar Orr, half a breath out of true - your hand stops short of him"
+
+# D23 S6 (HOOK.STEALTH.SURFACE): the smithy floor and its steps, so the surface a step is heard on is content.
+walkable_surfaces:
+- id: ah_smithy_floor
+  origin_m: [54, 138]
+  spacing_m: 3
+  columns: 3
+  rows: 3
+  heights_m: [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+
+patrols:
+- key: patrol.ashen_hollow_yard
+  position_m: [60, 142]
+  npc_ref: npc.ashen_hollow.tavar_orr
+  period_s: 100
+  blind_spot_s: 26
+  stops_m: [[60, 142], [46, 126], [30, 158], [60, 142]]
+capture_sites:
+- { key: capture.ashen_hollow_lockup, position_m: [58, 140], holding_ref: location.ashen_hollow.lockup, holds: 1 }

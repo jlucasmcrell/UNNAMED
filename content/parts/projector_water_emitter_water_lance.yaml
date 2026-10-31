@@ -1,0 +1,15 @@
+id: part.projector.water.emitter.water_lance
+kind: part
+schema: 1
+display_key: part.projector.water.emitter.water_lance.name
+tags: [emitter, water, tech, long]
+name: Jet Projector Lance
+notes: "Pump and flood nozzles; water is the ammunition and can be refilled at any source. The long emitter: more reach, more heat, more to maintain."
+noun: "long water projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.water
+slot: emitter
+mesh: mesh.part.projector.water.emitter.water_lance
+material_slots: [emitter_main, lens]
+tier_min: 3
+stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.35, speed_mult: 0.95, durability_add: 5 }

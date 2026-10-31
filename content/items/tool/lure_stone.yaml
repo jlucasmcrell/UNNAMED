@@ -1,0 +1,12 @@
+id: item.tool.lure_stone
+kind: item
+schema: 1
+display_key: item.tool.lure_stone.name
+tags: [item, tool, stealth, thrown]
+name: Lure Stone
+notes: "D23 S7 (STEALTH.md 3.2, 10): a stone with a flat side, thrown to make a noise somewhere else. It disables no ward by itself - it crosses one first, which is how a ward is beaten without the Quiet the Ward working; the creatures it draws turn toward where it landed."
+category: tool
+stack_max: 10
+weight: 0.15
+value_base: 1
+item_class: ordinary

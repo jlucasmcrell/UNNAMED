@@ -1,0 +1,17 @@
+﻿id: item.tool.dampener_pads
+kind: item
+schema: 1
+display_key: item.tool.dampener_pads.name
+tags: [item]
+name: Dampener Pads
+notes: Pads of felted bog-cotton strapped over the soles (STEALTH 10.2; D23 S7). They take a third off the ring a step draws - not silence, but the difference between heard through a door and heard in the room.
+category: tool
+item_class: ordinary
+stack_max: 1
+weight: 0.3
+value_base: 22
+slot: feet
+noise_dampen: 0.35
+material_class: cloth
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.bog_cotton }
+durability_max: 90

@@ -1,0 +1,36 @@
+id: maker.oldworks.old_works
+kind: maker
+schema: 1
+display_key: maker.oldworks.old_works.name
+tags: [maker]
+name: The Old Works
+notes: "A canon D21 maker (GEAR_GENERATION section 11): where its gear drops, who sells it and where it is taught are the world dossiers' rows."
+era: old_works
+fit_family: compact_broad
+part_sets:
+  projector.cosmic:
+    emitter: [{ part_ref: part.projector.cosmic.emitter.cosmic_nozzle, weight: 5 }, { part_ref: part.projector.cosmic.emitter.cosmic_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.cosmic.cell.cosmic_cell, weight: 5 }, { part_ref: part.projector.cosmic.cell.cosmic_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.cosmic.frame.frame_salvage, weight: 5 }, { part_ref: part.projector.cosmic.frame.frame_ceramic, weight: 3 }]
+    optic: [{ part_ref: part.projector.cosmic.optic.optic_lens, weight: 5 }, { part_ref: part.projector.cosmic.optic.optic_iron, weight: 3 }]
+  projector.laser:
+    emitter: [{ part_ref: part.projector.laser.emitter.laser_nozzle, weight: 5 }, { part_ref: part.projector.laser.emitter.laser_lance, weight: 3 }]
+    cell: [{ part_ref: part.projector.laser.cell.laser_cell, weight: 5 }, { part_ref: part.projector.laser.cell.laser_cell_heavy, weight: 3 }]
+    frame: [{ part_ref: part.projector.laser.frame.frame_salvage, weight: 5 }, { part_ref: part.projector.laser.frame.frame_ceramic, weight: 3 }]
+    optic: [{ part_ref: part.projector.laser.optic.optic_lens, weight: 5 }, { part_ref: part.projector.laser.optic.optic_iron, weight: 3 }]
+  marksman:
+    emitter: [{ part_ref: part.marksman.emitter.collimator, weight: 5 }, { part_ref: part.marksman.emitter.lens_stack, weight: 3 }]
+    cell: [{ part_ref: part.marksman.cell.power_cell, weight: 5 }, { part_ref: part.marksman.cell.slug_magazine, weight: 3 }]
+    frame: [{ part_ref: part.marksman.frame.frame, weight: 5 }]
+    optic: [{ part_ref: part.marksman.optic.optic_scope, weight: 5 }, { part_ref: part.marksman.optic.optic_lens, weight: 3 }]
+    stabiliser: [{ part_ref: part.marksman.stabiliser.gyro, weight: 5 }, { part_ref: part.marksman.stabiliser.bipod, weight: 3 }]
+    muzzle: [{ part_ref: part.marksman.muzzle.cold_core, weight: 5 }, { part_ref: part.marksman.muzzle.silencer, weight: 3 }]
+material_palette: [{ material_ref: mat.obsidian, weight: 3 }, { material_ref: mat.glass.lens, weight: 3 }, { material_ref: mat.star_metal, weight: 1 }, { material_ref: mat.iron.charcoal_steel, weight: 3 }]
+signature: { tendency: quiet, stat_bias: { weight_mult: 1.02, durability_mult: 1.1 } }
+tier_range: [1, 5]
+name_grammar: name.maker.oldworks_old_works
+maker_words: ["Old", "Gauge-and-anchor", "Unexplained"]
+tooltip_line_key: maker.oldworks.old_works.line
+source_notes:
+  - "GEAR_GENERATION section 11: pre-arrival, old works; gauge-and-anchor parts, unexplained; quiet."
+  - "Section 4.2: the focused cosmic line is old works and Vaskaal star-metal; hand-placed relics only, never rolled."

@@ -1,0 +1,15 @@
+id: part.spear.head.leaf
+kind: part
+schema: 1
+display_key: part.spear.head.leaf.name
+asset: "D21 Polearm heads: Spear [BK B], PARTIAL"
+noun: "boar spear"
+tags: [head, leaf]
+name: Leaf Spear Point
+notes: "A leaf point on a socket (parts-weapons Spear): the hollow's answer to a boar."
+family: spear
+slot: head
+mesh: mesh.part.spear.head.leaf
+material_slots: [metal_edge]
+tier_min: 1
+stat_contrib: { damage_mult: 1.0, reach_add: 0.1, weight_add: 0.15, speed_mult: 1.0, durability_add: 0 }

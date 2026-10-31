@@ -1,0 +1,12 @@
+id: item.tool.rune_key_archive
+kind: item
+schema: 1
+display_key: item.tool.rune_key_archive.name
+tags: [item, tool, magic, stealth]
+name: Archive Rune Key
+notes: "D23 S7 (STEALTH.md 10): the rune key that answers the Barrowworks gauge ward without the Quiet the Ward working. Carrying it is the whole disabling condition, which is why it is worth carrying."
+category: tool
+stack_max: 1
+weight: 0.05
+value_base: 40
+item_class: ordinary

@@ -1,4 +1,4 @@
-// UNNAMED Content - items, loot tables, merchants and carrying rules from content
+﻿// UNNAMED Content - items, loot tables, merchants and carrying rules from content
 // (DATA_MODEL.md §4.1-§4.3, §4.14, §4.15, §4.19; PROTOTYPE.md §4.2; M3b)
 // No Godot references - pure C#
 
@@ -137,6 +137,11 @@ public static class ItemContent
                 DrawMs = map.ContainsKey("draw_time") ? (int)Grams(map, "draw_time") : 0,
                 StaminaCost = map.ContainsKey("stamina_cost") ? Int(map, "stamina_cost") : null,
                 SneakMultiplier = map.ContainsKey("sneak_multiplier") ? Number(map, "sneak_multiplier") : 1.0,
+                // What the weapon leaves on what it hits (STEALTH §8): a sleep dart is a dart because of these two lines.
+                OnHitEffect = map.GetValueOrDefault("on_hit_effect") as string,
+                OnHitEffectPercent = map.ContainsKey("on_hit_effect_percent") ? Int(map, "on_hit_effect_percent") : 100,
+                SwingNoiseMm = map.ContainsKey("swing_noise_m") ? (long)Math.Round(Number(map, "swing_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
+                ShotNoiseMm = map.ContainsKey("shot_noise_m") ? (long)Math.Round(Number(map, "shot_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
             };
             if (weapon.AttackMs <= 0 && weapon.DrawMs <= 0)
                 throw new FormatException($"{id}: a weapon gives attack_speed (melee) or draw_time (ranged)");
@@ -206,6 +211,7 @@ public static class ItemContent
             map.ContainsKey("armor_value") ? Int(map, "armor_value") : 0)
         {
             Name = map.GetValueOrDefault("name") as string,
+            Assembly = AssemblyOf(id, map),
             Class = itemClass,
             LightRadiusMm = light,
             StealthPenalty = stealth,
@@ -215,6 +221,18 @@ public static class ItemContent
             PackKind = packKind,
             PetCreature = map.GetValueOrDefault("pet_creature") as string,
             Heritage = map.GetValueOrDefault("heritage") as string,
+            ThrowNoiseMm = map.ContainsKey("throw_noise_m") ? (long)Math.Round(Number(map, "throw_noise_m") * 1000, MidpointRounding.AwayFromZero) : 0,
+            ThrowRangeMm = map.ContainsKey("throw_range_m") ? (long)Math.Round(Number(map, "throw_range_m") * 1000, MidpointRounding.AwayFromZero) : 0,
+            // A sound dampener (STEALTH §10.2): what a worn thing takes off the footstep, as a share of the radius, 0 to 0.6.
+            NoiseDampen = map.ContainsKey("noise_dampen") ? Number(map, "noise_dampen") : 0,
+            // A cloak that hides (STEALTH §10.1): the share of a body it takes off the eye, 0 to 0.5, worn rather than carried.
+            StealthBonus = map.ContainsKey("stealth_bonus") ? Number(map, "stealth_bonus") : 0,
+            // What a weapon does to what it hits beyond the wound (STEALTH §8): a sleep dart's whole point.
+
+            // A detection device (STEALTH §10.3): how much further the wearer reads what has noticed them, in metres.
+            DetectRangeMm = map.ContainsKey("detect_range_m") ? Grams(map, "detect_range_m") : 0,
+            // A ward of still air (STEALTH 10.4): worn, it stops a nose finding the wearer downwind.
+            ScentWard = map.TryGetValue("scent_ward", out var ward) && (ward is bool on ? on : ward is string word && word.Equals("true", StringComparison.OrdinalIgnoreCase)),
         };
     }
 
@@ -357,6 +375,27 @@ public static class ItemContent
 
     private static Dictionary<object, object> Read(string? yaml) =>
         string.IsNullOrEmpty(yaml) ? new Dictionary<object, object>() : Yaml.Deserialize<Dictionary<object, object>>(yaml) ?? new Dictionary<object, object>();
+
+    /// <summary>
+    /// The assembly block an item may carry (D21, GEAR_GENERATION.md §2.5): its family, the slots that family has (defaulting to all of them), and the
+    /// maker allowed to build it. Absent means a plain authored item.
+    /// </summary>
+    private static AssemblySpec? AssemblyOf(string id, Dictionary<object, object> map)
+    {
+        if (map.GetValueOrDefault("assembly") is not Dictionary<object, object> assembly)
+            return null;
+        string family = Text(assembly, "family");
+        if (!GearContent.FamilySlots.TryGetValue(family, out var known))
+            throw new FormatException($"{id} assembly.family '{family}' is not one of {string.Join(", ", GearContent.FamilySlots.Keys)}");
+        var slots = assembly.GetValueOrDefault("slots") is List<object> listed
+            ? listed.Select((v, i) => v as string ?? throw new FormatException($"{id} assembly.slots[{i}] is a name")).ToImmutableArray()
+            : known;
+        string? maker = assembly.GetValueOrDefault("maker_ref") as string;
+        int tier = assembly.ContainsKey("part_tier") ? Int(assembly, "part_tier") : 1;
+        if (tier < 1)
+            throw new FormatException($"{id} assembly.part_tier is 1 or more");
+        return new AssemblySpec(family, slots, maker, tier);
+    }
 
     private static List<object> List(Dictionary<object, object> map, string key) =>
         map.TryGetValue(key, out var value) && value is List<object> list ? list : throw new KeyNotFoundException($"'{key}' must be a list");

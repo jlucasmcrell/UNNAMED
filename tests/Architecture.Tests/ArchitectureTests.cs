@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using UNNAMED.Domain;
 using UNNAMED.World;
@@ -122,6 +122,14 @@ public class ArchitectureTests
             nameof(UNNAMED.World.Runtime.Simulation.CaptureRecord), nameof(UNNAMED.World.Runtime.Simulation.StateDigest),
             nameof(UNNAMED.World.Runtime.Simulation.Wares), nameof(UNNAMED.World.Runtime.Simulation.Diagnose),
             nameof(UNNAMED.World.Runtime.Simulation.Aim),   // where a shot would stop, for the aiming reticle (the owner's M6 playtest)
+            nameof(UNNAMED.World.Runtime.Simulation.PlayerVisibilityTo),   // how visible the character is to one creature, for tests and reviews (D23 S1)
+            nameof(UNNAMED.World.Runtime.Simulation.SearchPointOf),   // where a searching creature looks next, for tests and reviews (D23 S3)
+            nameof(UNNAMED.World.Runtime.Simulation.WindBearing),   // which way the air moves today, for tests and reviews (D23 S3)
+            nameof(UNNAMED.World.Runtime.Simulation.WindBearingAt),   // which way the air moves at a place, authored wind first, for tests and reviews (D23 S6)
+            nameof(UNNAMED.World.Runtime.Simulation.WindStrengthAt),   // how hard the authored air moves at a place, for tests and reviews (D23 S6)
+            nameof(UNNAMED.World.Runtime.Simulation.IsLightDoused),   // is an authored light out, for the world view that dims it (D23 S1)
+            nameof(UNNAMED.World.Runtime.Simulation.StealthDetections),   // how many creatures have found the character, for the ghost ledger (D23 S6)
+            nameof(UNNAMED.World.Runtime.Simulation.PlayerDetectionRangeMm),   // how far the HUD reads what has noticed the player (D23 S7)
             nameof(UNNAMED.World.Runtime.Simulation.Walled),   // whether a wall lies across a line, for the talk prompt (the Phase-1 technical audit, L-09)
             nameof(UNNAMED.World.Runtime.Simulation.DialogueVisited), // read-only history for unread dialogue topics
             nameof(UNNAMED.World.Runtime.Simulation.Contributions),   // an encounter's contribution ledger, read only (CMB-45)

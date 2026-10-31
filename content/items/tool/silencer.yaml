@@ -1,0 +1,13 @@
+id: item.tool.silencer
+kind: item
+schema: 1
+display_key: item.tool.silencer.name
+tags: [tool, tech, stealth, marksman]
+name: Silencer
+notes: "A marksman's silencer (STEALTH.md 10, GEAR_GENERATION 4.2): a shot at four tenths of its report, and the rail's crack left uncured. Fits the D21 marksman family's muzzle."
+category: tool
+stack_max: 1
+weight: 0.8
+value_base: 260
+item_class: ordinary
+use: { effect_ref: effect.silenced, consume: false }

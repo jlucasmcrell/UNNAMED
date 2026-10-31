@@ -1,0 +1,15 @@
+id: part.sword.blade.broad_two_hand
+kind: part
+schema: 1
+display_key: part.sword.blade.broad_two_hand.name
+asset: "D21 Blade blank: blade_01 [B], OWNED"
+noun: "greatsword"
+tags: [blade, broad, two_hand]
+name: Broad Two-Hand Blade
+notes: "A greatsword's blade: heavier in the hand and heavier in the hit."
+family: sword
+slot: blade
+mesh: mesh.part.sword.blade.broad_two_hand
+material_slots: [metal_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.08, reach_add: 0.2, weight_add: 0.45, speed_mult: 0.94, durability_add: 10 }

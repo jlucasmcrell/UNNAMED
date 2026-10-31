@@ -38,6 +38,12 @@ public sealed record QuestDefinition(
     public bool OnNewGame { get; init; }
 
     /// <summary>
+    /// A quest that pays for the way through without a kill (<c>non_lethal</c>, STEALTH.md 9): the flag HOOK.STEALTH.NONLETHAL was
+    /// waiting on. It changes no objective - it says what the quest rewards, so a stealth run and a quest can agree.
+    /// </summary>
+    public bool NonLethal { get; init; }
+
+    /// <summary>
     /// A bounty anyone may take (<c>competitive</c>): the first actor to finish it - the character or another - claims it, and it is
     /// closed to everyone else until it is posted again.
     /// </summary>
@@ -193,6 +199,18 @@ public sealed record KillCreature(string CreatureId, int Count) : ObjectiveCondi
 }
 
 /// <summary><c>deliver_item</c>: this many handed to the NPC in conversation while the objective is active.</summary>
+/// <summary>
+/// <c>deed</c>: a stealth deed done while the objective is active (D23 S6). Canon's Ghost, Unseen and Spared tags are deeds, not a hidden score, so a
+/// quest asks for one the same way it asks for a kill - which is how the non-lethal way becomes a route a player can be paid for taking.
+/// A null <paramref name="SubjectId"/> counts the deed in any space.
+/// </summary>
+public sealed record DeedObjective(DeedKind Kind, string? SubjectId, int Count) : ObjectiveCondition
+{
+    public override string Type => "deed";
+
+    public override bool CountsDeeds => true;
+}
+
 public sealed record DeliverItem(string NpcId, string ItemId, int Count) : ObjectiveCondition
 {
     public override string Type => "deliver_item";
@@ -273,7 +291,7 @@ public static class ObjectiveTypes
         "talk_to", "visit_location", "explore_location", "acquire_item", "craft_item", "harvest_resource", "kill_creature",
         "deliver_item", "world_state", "relationship_value", "wait_until",
         "defeat_creature", "defeat_boss", "companion_present", "dialogue_choice", "travel_to", "waystone_known",
-        "faction_reputation");
+        "faction_reputation", "deed");
 
     /// <summary>Named by the closed set and not built yet, each with what it waits for.</summary>
     public static readonly ImmutableSortedDictionary<string, string> NotBuilt = new Dictionary<string, string>
@@ -474,7 +492,7 @@ public interface IQuestFacts
     int StandingLevel(string factionId) => 0;
 }
 
-public enum DeedKind { Crafted, Harvested, Killed, Delivered, Chose, Travelled }
+public enum DeedKind { Crafted, Harvested, Killed, Delivered, Chose, Travelled, Ghosted, Spared, Unseen }
 
 /// <summary>Something the character did that a counting objective may be waiting for.</summary>
 public sealed record Deed(DeedKind Kind, string Subject, int Count, int Quality, string? NpcId, long Tick);
@@ -641,6 +659,11 @@ public static class QuestRules
                 return One(new Term($"arrived at {t.StoneKey} by the stones while active", progress.ToString(), ">= 1", progress >= 1));
             case WaystoneKnown w:
                 return One(Is($"{w.StoneKey} known", facts.KnowsStone(w.StoneKey)));
+            case DeedObjective d:
+                // A deed objective moves only when the deed is recorded (QuestRules.Record); here it reports where it stands, so a quest that
+                // is advanced for any other reason does not reset it.
+                return One(new Term($"a {d.Kind} deed{(d.SubjectId is null ? "" : $" in {d.SubjectId}")}", progress.ToString(),
+                    $">= {d.Count}", progress >= d.Count));
             case FactionReputation f:
             {
                 int level = facts.StandingLevel(f.FactionId);
@@ -669,6 +692,7 @@ public static class QuestRules
         CraftItem c => deed.Kind == DeedKind.Crafted && deed.Subject == c.ItemId && deed.Quality >= c.QualityMin,
         HarvestResource h => deed.Kind == DeedKind.Harvested && deed.Subject == h.ResourceId,
         KillCreature k => deed.Kind == DeedKind.Killed && deed.Subject == k.CreatureId,
+        DeedObjective d => deed.Kind == d.Kind && (d.SubjectId is null || deed.Subject == d.SubjectId),
         DeliverItem d => deed.Kind == DeedKind.Delivered && deed.Subject == d.ItemId && deed.NpcId == d.NpcId,
         ChoiceGiven c => deed.Kind == DeedKind.Chose && deed.Subject == c.Subject && deed.NpcId == c.NpcId,
         TravelTo t => deed.Kind == DeedKind.Travelled && deed.Subject == t.StoneKey,

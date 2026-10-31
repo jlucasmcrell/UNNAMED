@@ -28,7 +28,7 @@ public static class QuestContent
     private static readonly string[] Envelope = { "id", "kind", "schema", "display_key", "tags", "notes" };
 
     private static readonly string[] Fields =
-        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "companion_ref", "confides_at", "people_ref" };
+        { "title", "summary", "giver_ref", "entry_objective", "objectives", "fail_if", "rewards", "repeat_policy", "track", "act", "on_new_game", "competitive", "non_lethal", "companion_ref", "confides_at", "people_ref" };
 
     /// <summary>DATA_MODEL.md §4.11's quest fields that Phase 1 does not build.</summary>
     private static readonly string[] FieldsNotBuilt =
@@ -59,6 +59,8 @@ public static class QuestContent
     /// One quest from its YAML: <c>title</c> and <c>summary</c> (inline until localization), <c>giver_ref</c>, <c>entry_objective</c>,
     /// <c>objectives</c> in authored order, <c>fail_if</c> and <c>rewards</c>. Content references resolve against the loaded content.
     /// </summary>
+    /// <summary>Quest tags that do not change what a quest asks, but what it allows (D23 S6): a non-lethal quest pays for
+    /// the way through without a kill, which is the flag HOOK.STEALTH.NONLETHAL wanted.</summary>
     public static QuestDefinition Parse(string id, string? yaml, ContentLoader loader)
     {
         var map = Read(yaml);
@@ -92,6 +94,7 @@ public static class QuestContent
             Act = map.ContainsKey("act") ? Positive(map, "act", id) : null,
             OnNewGame = Flag(map, "on_new_game", id),
             Competitive = Flag(map, "competitive", id),
+        NonLethal = Flag(map, "non_lethal", id),
             CompanionId = map.GetValueOrDefault("companion_ref") is string companion ? Companion(loader, companion, id) : null,
             ConfidesAt = map.ContainsKey("confides_at") ? (int)LongOf(map, "confides_at", id) : null,
             PeopleId = map.GetValueOrDefault("people_ref") is string people ? Defined(loader, people, "people", id) : null,
@@ -200,6 +203,8 @@ public static class QuestContent
             "craft_item" => new CraftItem(Defined(loader, Text(p, "item_ref"), "item", where), Positive(p, "count", where, 1), QualityMin(p, where)),
             "harvest_resource" => new HarvestResource(Defined(loader, Text(p, "resource_ref"), "resource", where), Positive(p, "count", where, 1)),
             "kill_creature" => new KillCreature(Defined(loader, Text(p, "creature_ref"), "creature", where), Positive(p, "count", where, 1)),
+            "deed" => new DeedObjective(DeedKindOf(Text(p, "deed"), where),
+                p.ContainsKey("subject_ref") ? Text(p, "subject_ref") : null, Positive(p, "count", where, 1)),
             "deliver_item" => new DeliverItem(Defined(loader, Text(p, "npc_ref"), "npc", where), Defined(loader, Text(p, "item_ref"), "item", where),
                 Positive(p, "count", where, 1)),
             "world_state" => new WorldStateObjective(Defined(loader, Text(p, "flag_ref"), "world_flag", where),
@@ -248,6 +253,7 @@ public static class QuestContent
         "craft_item" => new[] { "item_ref", "count", "quality_min", "ever" },
         "harvest_resource" => new[] { "resource_ref", "count" },
         "kill_creature" => new[] { "creature_ref", "count" },
+        "deed" => new[] { "deed", "subject_ref", "count" },
         "deliver_item" => new[] { "npc_ref", "item_ref", "count" },
         "world_state" => new[] { "flag_ref", "location_ref", "value", "min", "max" },
         "relationship_value" => new[] { "npc_ref", "dimension", "min", "max" },
@@ -637,6 +643,15 @@ public static class QuestContent
         loader.Definitions.TryGetValue(id, out var definition) && (definition.Kind == kind || definition.Kind.StartsWith(kind + ".", StringComparison.Ordinal))
             ? id
             : throw new FormatException($"{at}: {id} is not a defined {kind}");
+
+    /// <summary>The deed kinds a quest objective may ask for (D23 S6): the three a stealth crossing leaves.</summary>
+    private static DeedKind DeedKindOf(string deed, string at) => deed switch
+    {
+        "ghosted" => DeedKind.Ghosted,
+        "spared" => DeedKind.Spared,
+        "unseen" => DeedKind.Unseen,
+        _ => throw new FormatException($"{at}: deed is ghosted, spared or unseen, not '{deed}'"),
+    };
 
     private static string Dimension(string dimension, string at) =>
         Relationships.IsDimension(dimension)

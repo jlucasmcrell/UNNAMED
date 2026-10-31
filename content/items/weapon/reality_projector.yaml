@@ -1,0 +1,21 @@
+id: item.weapon.reality_projector
+kind: item.weapon
+schema: 1
+display_key: item.weapon.reality_projector.name
+tags: [weapon, tech, projector, reality]
+name: Fold Projector
+notes: "A reality-bending device on an anchor cell: Other-tech, hand-placed at the Foldscar and the Hinge (4.1.1)."
+category: weapon
+stack_max: 1
+weight: 4.0
+value_base: 900
+item_class: ordinary
+damage: [8, 11]
+damage_type: arcane
+attack_speed: 0.53
+reach: 7.0
+hands: two
+skill_ref: skill.projector
+durability_max: 180
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: projector.reality, maker_ref: maker.other.other_touched, part_tier: 4 }

@@ -1,0 +1,26 @@
+﻿id: item.weapon.sleep_dart
+kind: item.weapon
+schema: 1
+display_key: item.weapon.sleep_dart.name
+tags: [item]
+name: Sleep Dart
+notes: A short pipe and a glass dart of poppy and bog-myrtle (STEALTH 8; D23 S5). It does almost no harm - a scratch, a stumble - and puts what it hits to sleep where it stands, which on a route is worth more than a corpse. The pipe is quiet; the sleeper wakes fighting if anything wounds it.
+category: weapon
+stack_max: 1
+weight: 0.4
+value_base: 90
+rarity: common
+damage: [1, 2]
+damage_type: physical_pierce
+draw_time: 0.5
+hands: one
+reach: 20
+ammo_item_ref: item.consumable.sleep_coating
+skill_ref: skill.bow
+sneak_multiplier: 2.0
+shot_noise_m: 3
+on_hit_effect: effect.sleep
+on_hit_effect_percent: 100
+requirements: { attribute.precision: 7 }
+durability_max: 60
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }

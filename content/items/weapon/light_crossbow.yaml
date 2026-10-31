@@ -1,0 +1,23 @@
+id: item.weapon.light_crossbow
+kind: item.weapon
+schema: 1
+display_key: item.weapon.light_crossbow.name
+tags: [item]
+name: Light Crossbow
+notes: The ambusher's bow (STEALTH §7.3, §7.11). Slower to loose than a bow and far harder when it lands; it can be carried cocked, which is the whole of its argument - a loaded crossbow is a shot already drawn. Loosed like a bow, so it is the bow's skill; 2.5x on a body that has not noticed the archer (§7.1), and its thunk carries 10 m where a bow's twang carries 6 (§7.8).
+category: weapon
+stack_max: 1
+weight: 3.2
+value_base: 120
+rarity: common
+damage: [14, 14]
+damage_type: physical_pierce
+draw_time: 0.5           # the loose; cocking again is the price (§7.3's 3 s reload)
+hands: two
+ammo_item_ref: item.ammo.bolt_iron
+skill_ref: skill.bow
+sneak_multiplier: 2.5    # an unattended body takes a bolt it never heard coming (STEALTH §7.1)
+shot_noise_m: 10         # the thunk at the shoulder (STEALTH §7.8)
+requirements: { attribute.might: 11 }
+durability_max: 260
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 4, item_ref: item.material.iron_ingot }

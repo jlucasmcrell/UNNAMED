@@ -1,0 +1,13 @@
+id: location.ashen_hollow.lockup
+kind: location
+schema: 1
+display_key: location.ashen_hollow.lockup.name
+tags: [location, ashen_hollow]
+name: The Lockup
+notes: "D23 S6 (HOOK.STEALTH.NONLETHAL): the shed behind the smithy with a bar across it. A body taken alive is left here and found on the next bell; the capture site is content because a non-lethal run needs somewhere for its work to end."
+region_ref: region.ashen_hollow
+anchor: { world: [58, 7.2, 140] }
+kind_of_place: building
+discovery: { methods: [visited], radius_m: 8, xp: 5 }
+map: { reveals_radius_m: 12, marker: none }
+fast_travel: { node: false }

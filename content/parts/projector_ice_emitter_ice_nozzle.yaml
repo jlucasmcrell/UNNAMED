@@ -1,0 +1,15 @@
+id: part.projector.ice.emitter.ice_nozzle
+kind: part
+schema: 1
+display_key: part.projector.ice.emitter.ice_nozzle.name
+tags: [emitter, ice, tech]
+name: Cryo Projector Nozzle
+notes: "Cold-plate emitter and cryo lance; the coolant is the Keel's own. The common emitter: what a maintenance shop can replace."
+noun: "ice projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.ice
+slot: emitter
+mesh: mesh.part.projector.ice.emitter.ice_nozzle
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.06, reach_add: 0.0, weight_add: 0.35, speed_mult: 0.98, durability_add: 5 }

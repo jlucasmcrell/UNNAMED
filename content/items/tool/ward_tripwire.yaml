@@ -1,0 +1,12 @@
+id: item.tool.ward_tripwire
+kind: item
+schema: 1
+display_key: item.tool.ward_tripwire.name
+tags: [tool, magic, detector, ward]
+name: Tripwire Ward
+notes: "A ward set across a passage (STEALTH.md 10): an alarm when it is crossed, and a sound that Light spells cannot quiet. Disabled with Quiet the Ward, a rune key, or a distraction that crosses it first."
+category: tool
+stack_max: 1
+weight: 0.3
+value_base: 90
+item_class: ordinary

@@ -1,0 +1,12 @@
+id: mat.ceramic.white
+kind: material
+schema: 1
+display_key: mat.ceramic.white.name
+tags: [material]
+name: Ceramic Frame
+notes: "The Constructed's white ceramic: light, hard, and it shows every crack in the frame before the frame fails."
+word: "Ceramic"
+class: stone
+material_ref_item: item.material.iron_ore
+mult: { damage: 1.0, armor: 1.06, weight: 0.92, durability: 0.95, value: 1.5 }
+tier_min: 2

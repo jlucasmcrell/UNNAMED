@@ -18,5 +18,11 @@ xp_value: 45
 loot_table: loot.bristleback_boar
 carcass_ref: node.carcass.boar
 perception: { sight_m: 20, hearing_m: 25, fov_deg: 150 }
+# The eye is the only way through the skull, and the eye is at the front (STEALTH §7.2): a boar shot from behind the shoulder is a
+# bristled, armoured animal that is now angry.
+hit_zones:
+  head: { multiplier: 2.5, front_only: true }
+  torso: { multiplier: 0.9 }
+  limbs: { multiplier: 0.7 }
 tier_hint: A
 tameable: false

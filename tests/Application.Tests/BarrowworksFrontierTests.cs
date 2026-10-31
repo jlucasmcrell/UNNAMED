@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Spatial;
+using UNNAMED.Domain.Items;
 using UNNAMED.Persistence;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -18,7 +19,11 @@ public class BarrowworksFrontierTests
         var simulation = arena.Simulation;
         var layout = simulation.ActiveLayout;
         var closed = layout.ClosedDoors(d => simulation.Doors.Single(v => v.Site == d).Open,
-            b => !simulation.Barriers.Single(v => v.Site == b).Standing).ToArray();
+            b => !simulation.Barriers.Single(v => v.Site == b).Standing)
+            // The people standing in this space are walked round, as a player walks round the watch at her post.
+            .Concat(simulation.Npcs.Where(n => n.Space == layout.SpaceId)
+                .Select(n => (Blocker)new CircleBlocker(n.Id, n.Body.XMm, n.Body.ZMm, simulation.Setup.Movement.BodyRadiusMm, 0)))
+            .ToArray();
         var body = simulation.Player.Body;
         var start = ((int)Math.Round(body.XMm / 1000.0), (int)Math.Round(body.ZMm / 1000.0));
         var parents = new Dictionary<(int X, int Z), (int X, int Z)?> { [start] = null };
@@ -99,6 +104,48 @@ public class BarrowworksFrontierTests
         Walk(arena, (x, z) => headworks.ClosedFootprint.DistanceTo(x, z) < session.Setup.Movement.InteractReachMm - 200);
         Assert.Equal(headworks.LockedText, arena.Submit(new InteractCommand(arena.Player, headworks.Key)));
         Assert.False(arena.Simulation.Doors.Single(d => d.Site == headworks).Open);
+    }
+
+
+    [Fact]
+    public void TheCratesSword_ArrivesAssembled_AndKeepsItsPartsWhenTaken()
+    {
+        // D21 G4: a piece of gear lying in a chest is a rolled build - maker, part per slot, material - and it stays that build in the pack.
+        using var profile = new TempProfile();
+        using var session = Harness.Boot(profile, barrowworks: true);
+        var arena = AtThreshold(session);
+        Assert.Null(arena.Submit(new EnterSpaceCommand(arena.Player, "portal.barrowworks.threshold")));
+        arena.Tick();
+        var crate = arena.Simulation.ActiveLayout.Containers.Single(c => c.Key == "container.barrowworks.archive_crate");
+        Walk(arena, (x, z) => Math.Sqrt(Math.Pow(x - crate.XMm, 2) + Math.Pow(z - crate.ZMm, 2)) < session.Setup.Items.Inventory.ReachMm - 200);
+        Assert.Null(arena.Submit(new TakeAllCommand(arena.Player, crate.Key)));
+
+        // The character already carries a plain starting sword, so the one from the crate is the one with a build.
+        var rolled = Assert.Single(arena.Simulation.Player.Inventory.Where(i => i.DefId == "item.weapon.rusted_sword" && i.Built is not null));
+        var build = rolled.Built!;
+        Assert.Equal("sword", build.Family);
+        Assert.Equal("maker.veth.reach_smith", build.MakerId);
+        Assert.Equal(4, build.Parts.Count);
+        Assert.All(build.Parts.Keys, slot => Assert.Contains(slot, new[] { "blade", "guard", "grip", "pommel" }));
+        Assert.NotEmpty(build.Materials);
+
+        // And it reads and resolves as that build, not as the template it came from.
+        var item = session.Setup.Items.Catalog.Find(rolled.DefId);
+        var maker = session.Setup.Gear.Makers[build.MakerId];
+        string name = GearNaming.NameOf(item, build, session.Setup.Gear.Parts, session.Setup.Gear.Materials, maker);
+        Assert.Contains(GearNaming.NounOf(item, build, session.Setup.Gear.Parts), name);
+        var resolved = GearResolver.Resolve(item, build, session.Setup.Gear.Parts, session.Setup.Gear.Materials, maker);
+        Assert.False(resolved.Clamped);
+        Assert.True(resolved.DamageMax > 0);
+
+        // A save keeps the build (schema 42), and so does the crate when the sword goes back into it.
+        static string Of(GearBuild? b) => b is null ? "none" : $"{b.Family}|{b.MakerId}|{b.PartTier}|{string.Join(",", b.Parts)}|{string.Join(",", b.Materials)}|{string.Join(",", b.Affixes)}|{b.Sockets}|{b.Name}";
+        var store = new SaveStore(profile.Root);
+        store.Save(SaveSlots.Manual("built"), SaveDocuments.Capture(arena.Simulation.World, arena.Simulation.CaptureRecord(), session.Content, arena.Simulation.WorldTick, 0));
+        var resumed = Arena.Resume(session.Setup, store.Load(SaveSlots.Manual("built"), new LoadContext(session.Generator, session.Content, new Registry())));
+        Assert.Equal(Of(build), Of(resumed.Simulation.Player.Inventory.Single(i => i.ItemId == rolled.ItemId).Built));
+        Assert.Null(arena.Submit(new MoveItemCommand(arena.Player, rolled.ItemId.Value, ItemPlace.Carried, ItemPlace.In(crate.Key), 1)));
+        Assert.Equal(Of(build), Of(arena.Simulation.World.Container(crate.Key)!.Items.Single(i => i.ItemId == rolled.ItemId).Built));
     }
 
     [Fact]

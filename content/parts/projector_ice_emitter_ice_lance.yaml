@@ -1,0 +1,15 @@
+id: part.projector.ice.emitter.ice_lance
+kind: part
+schema: 1
+display_key: part.projector.ice.emitter.ice_lance.name
+tags: [emitter, ice, tech, long]
+name: Cryo Projector Lance
+notes: "Cold-plate emitter and cryo lance; the coolant is the Keel's own. The long emitter: more reach, more heat, more to maintain."
+noun: "long ice projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.ice
+slot: emitter
+mesh: mesh.part.projector.ice.emitter.ice_lance
+material_slots: [emitter_main, lens]
+tier_min: 3
+stat_contrib: { damage_mult: 1.1, reach_add: 0.25, weight_add: 0.35, speed_mult: 0.95, durability_add: 5 }

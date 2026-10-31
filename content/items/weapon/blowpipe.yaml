@@ -1,0 +1,21 @@
+id: item.weapon.blowpipe
+kind: item.weapon
+schema: 1
+display_key: item.weapon.blowpipe.name
+tags: [weapon, low-tech, stealth, sleep]
+name: Blowpipe
+notes: "Reed and a coated dart: no cell, no Resonance, and nearly silent - the low-tech sleep device (4.3.1)."
+category: weapon
+stack_max: 1
+weight: 0.6
+value_base: 25
+item_class: ordinary
+damage: [1, 2]
+damage_type: physical_pierce
+attack_speed: 0.62
+reach: 6.0
+hands: one
+skill_ref: skill.hunting
+durability_max: 90
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }
+assembly: { family: blowpipe, maker_ref: maker.veth.reach_smith, part_tier: 1 }

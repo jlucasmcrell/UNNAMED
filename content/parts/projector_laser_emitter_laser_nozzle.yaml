@@ -1,0 +1,15 @@
+id: part.projector.laser.emitter.laser_nozzle
+kind: part
+schema: 1
+display_key: part.projector.laser.emitter.laser_nozzle.name
+tags: [emitter, laser, tech]
+name: Laser Projector Nozzle
+notes: "Lens stack and resonator, and a glass lens that has to be cleaned. The common emitter: what a maintenance shop can replace."
+noun: "laser projector"
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons-scifi"
+family: projector.laser
+slot: emitter
+mesh: mesh.part.projector.laser.emitter.laser_nozzle
+material_slots: [emitter_main]
+tier_min: 2
+stat_contrib: { damage_mult: 1.06, reach_add: 0.0, weight_add: 0.35, speed_mult: 0.98, durability_add: 5 }

@@ -93,6 +93,7 @@ public static class TeachingContent
             {
                 OnHitEffect = effect is null ? null : Text(effect, "effect_ref"),
                 OnHitEffectPercent = effect is null ? 0 : (int)Math.Round(Number(effect, "chance") * 100, MidpointRounding.AwayFromZero),
+                AimRegion = map.ContainsKey("aim_region") ? BodyRegions.Parse(Text(map, "aim_region")) : null,
             };
             if (technique.OnHitEffect is { } applied && !loader.GetByKind("effect").ContainsKey(applied))
                 throw new FormatException($"{id}: {applied} is not an effect");

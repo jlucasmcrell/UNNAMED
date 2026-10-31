@@ -1,4 +1,4 @@
-// UNNAMED Domain - perception, and the behaviour roles creatures play (STEALTH_DETECTION_AND_THREAT.md §1-§5, §16;
+﻿// UNNAMED Domain - perception, and the behaviour roles creatures play (STEALTH_DETECTION_AND_THREAT.md §1-§5, §16;
 // SYSTEMS.md S-23; M3d)
 // No Godot references - pure C#
 
@@ -7,7 +7,29 @@ using UNNAMED.Domain.Spatial;
 namespace UNNAMED.Domain.Creatures;
 
 /// <summary>An actor's senses (DATA_MODEL.md §4.4 <c>perception</c>): how far it sees, across what arc, and how far it hears.</summary>
-public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm);
+public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm)
+{
+    /// <summary>
+    /// It hunts by night (STEALTH §2.1, <c>night_sight</c>): the dark it stands in costs it 0.9 rather than 0.35. The wolf, the owl and the
+    /// spider read a dark room; a person does not, which is the whole of a stealth player's night.
+    /// </summary>
+    public bool NightSight { get; init; }
+
+    /// <summary>
+    /// How far it can smell the character downwind (STEALTH 4.6; <c>scent_m</c>): zero for a person, a long way for a wolf or a spider. A nose
+    /// ignores the dark, the grass and the crouch, and it gives a place to go rather than a sighting.
+    /// </summary>
+    public long ScentMm { get; init; }
+}
+
+/// <summary>What last told a creature there was something there (STEALTH §2.7a): the four things a body betrays itself by.</summary>
+public enum NoticeKind
+{
+    Sight,
+    Sound,
+    Sign,
+    Scent,
+}
 
 /// <summary>
 /// How awareness grows and fades (STEALTH §3: awareness is not binary). It runs 0..<see cref="Perception.Full"/>: at
@@ -17,14 +39,78 @@ public sealed record Senses(long SightMm, long FieldOfViewMdeg, long HearingMm);
 public sealed record AwarenessRules(int Suspicious, int SightPerSecondAtRange, int SightPerSecondClose, int DecayPerSecond,
     int HeardNoise, int HeardCall, int SearchTicks);
 
-/// <summary>How far each sound carries (STEALTH §7). A walk is quiet, a sprint is not, and a fight is heard across a clearing.</summary>
-public sealed record NoiseRules(long WalkMm, long RunMm, long SprintMm, long SwingMm, long BlowMm, long CallMm);
+/// <summary>
+/// How far each sound carries (STEALTH §7). A walk is quiet, a sprint is not, and a fight is heard across a clearing.
+/// <see cref="KillMm"/> is a body going down where it stood - the sound a silent kill does make, and it is a small one, so a
+/// neighbour across the room is told nothing (§7.7). <see cref="ImpactFleshMm"/> and <see cref="ImpactSolidMm"/> are the
+/// arrow's arrival, heard at the target and never at the shooter (§7.8).
+/// </summary>
+public sealed record NoiseRules(long WalkMm, long RunMm, long SprintMm, long SwingMm, long BlowMm, long CallMm)
+{
+    /// <summary>A body falling where it was killed; small enough to carry no further than the room it fell in.</summary>
+    public long KillMm { get; init; } = 2_000;
+
+    /// <summary>A shot arriving in flesh.</summary>
+    public long ImpactFleshMm { get; init; } = 1_500;
+
+    /// <summary>A shot arriving in wood, stone or ground.</summary>
+    public long ImpactSolidMm { get; init; } = 4_000;
+
+    /// <summary>A weapon's own shot, where the weapon gives none of its own (STEALTH §7.8's bow twang).</summary>
+    public long ShotMm { get; init; } = 6_000;
+
+    /// <summary>Creeping: the one deliberate gait slower than a crouch-walk (§2.6).</summary>
+    public long CreepMm { get; init; } = 500;
+
+    /// <summary>Crouched, a body moves at this radius rather than a walk's (§2.6).</summary>
+    public long CrouchMm { get; init; } = 1_500;
+
+    /// <summary>Prone, crawling (§2.6).</summary>
+    public long ProneMm { get; init; } = 250;
+}
+
+/// <summary>What made a sound (STEALTH §3.1): what a listener hears decides what it does about it.</summary>
+public enum SoundSource
+{
+    /// <summary>A step, a landing, a body's own weight moving.</summary>
+    Footfall,
+
+    /// <summary>A weapon sweeping air: a swing, whether or not it lands.</summary>
+    Swing,
+
+    /// <summary>The weapon itself at release - a string's twang, a bolt's thunk - heard at the shooter.</summary>
+    Shot,
+
+    /// <summary>A shot arriving: into flesh, wood, stone, ground - heard where it landed, never at the shooter.</summary>
+    Impact,
+
+    /// <summary>A body going down for good: the last of it, heard at the place it fell.</summary>
+    Kill,
+
+    /// <summary>Something breaking: a lock, a pot, a thrown stone on a hard floor.</summary>
+    Break,
+
+    /// <summary>A voice: a howl, a shout, a bell.</summary>
+    Call,
+
+    /// <summary>A lure, a noisemaker, a device the player placed.</summary>
+    Device,
+}
 
 /// <summary>
 /// A sound made somewhere: a footfall, a blow, a howl. It carries as far as its radius, and no further. A call is a
-/// creature's, and only its own kind answer it (<see cref="CallerKind"/>).
+/// creature's, and only its own kind answer it (<see cref="CallerKind"/>). <see cref="Source"/> says what was heard, so a listener
+/// can tell a footfall from a crash (STEALTH §3.1) - it is presentation-and-AI detail, and a save taken between the sound and the
+/// listener drops it rather than change the save format for one tick of state.
 /// </summary>
-public readonly record struct Noise(long XMm, long ZMm, long RadiusMm, bool Call = false, string? CallerKind = null);
+public readonly record struct Noise(long XMm, long ZMm, long RadiusMm, bool Call = false, string? CallerKind = null)
+{
+    /// <summary>What made this sound.</summary>
+    public SoundSource Source { get; init; } = SoundSource.Footfall;
+
+    /// <summary>Every sound is a footfall unless it says otherwise, and a call is always a call.</summary>
+    public SoundSource HeardAs => Call ? SoundSource.Call : Source;
+}
 
 public enum UnawareBehaviour
 {
@@ -162,6 +248,22 @@ public static class Perception
         double distance = Math.Sqrt(dx * dx + dz * dz);
         return distance <= noise.RadiusMm && distance <= hearingMm;
     }
+
+    /// <summary>
+    /// What the place covers up (STEALTH §3.4): rain, a river, a forge, a crowd. A footfall is not quieter for it - it is <em>masked</em>,
+    /// which is why standing under a waterfall and shouting still works and standing beside one and whispering does not. A shot, a break or a
+    /// body going down is louder than the masking can swallow: anything that carries past twenty metres keeps half of its reach.
+    /// </summary>
+    public static long MaskedRadiusMm(Noise noise, double ambient)
+    {
+        double masking = Math.Clamp(ambient, 0, 0.8);
+        if (noise.RadiusMm > MaskingProofMm && noise.HeardAs is SoundSource.Shot or SoundSource.Impact or SoundSource.Kill)
+            masking *= 0.5;
+        return Math.Max(1, (long)Math.Round(noise.RadiusMm * (1 - masking), MidpointRounding.AwayFromZero));
+    }
+
+    /// <summary>Past this a sound is loud enough that masking only takes half of it (§3.4).</summary>
+    public const long MaskingProofMm = 20_000;
 
     /// <summary>
     /// One tick of sight: a target seen at the edge of range raises awareness slowly, one seen close raises it fast

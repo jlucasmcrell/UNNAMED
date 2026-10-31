@@ -97,8 +97,9 @@ public class EnemyTacticsTests
     /// <summary>Provoke a wolf with an animal's bite, let it answer, and measure what it did: how far it ended from the character.</summary>
     private static double DistanceToHandler(GameSession session, string role)
     {
-        var arena = Roused(session, (Wolf, 76.0, 152.0, role),
-            r => r.WithPets(ImmutableArray.Create(Hound(77.4, 152.0, 50))));
+        // On the bank, not in the creek at (76, 152): water masks half of a swing's ten metres (STEALTH §3.4) and the wolf would not hear it.
+        var arena = Roused(session, (Wolf, 76.0, 150.0, role),
+            r => r.WithPets(ImmutableArray.Create(Hound(77.4, 150.0, 50))));
         var pet = Assert.Single(arena.Simulation.Pets);
         var started = arena.Record<AttackStarted>();
         // The animal goes for it: a bite is what makes the wolf turn on the party's animal in the first place.

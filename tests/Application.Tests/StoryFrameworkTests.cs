@@ -117,15 +117,16 @@ public class StoryFrameworkTests
         var begun = session.NewGame(Harness.Named("Wanderer"), seed: 42);
         Assert.True(begun.HasOpeningQuests);
         Assert.Equal(0, begun.WorldTick);
-        // and, for a Veth, their heritage questline What Was Kept (owner, 2026-10-24)
-        Assert.Equal(new[] { "quest.heritage.what_was_kept", "quest.main.the_road_in" }, begun.Quests.Select(q => q.Id).Order(StringComparer.Ordinal));
+        // and, for a Veth, their heritage questline What Was Kept (owner, 2026-10-24), and the Quiet Crossing, a way to travel that is always in the
+        // journal (D23 S6)
+        Assert.Equal(new[] { "quest.ashen_hollow.quiet_crossing", "quest.heritage.what_was_kept", "quest.main.the_road_in" }, begun.Quests.Select(q => q.Id).Order(StringComparer.Ordinal));
         var road = begun.Quests.Single(q => q.Id == "quest.main.the_road_in");
         Assert.Equal(("quest.main.the_road_in", QuestStatus.Active), (road.Id, road.Status));
         Assert.IsType<BeginStoryCommand>(Assert.Single(begun.CommandLog).Command);
-        Assert.Equal(new[] { "Took up The Road In.", "Took up What Was Kept." }, session.Journal!.Recent.Select(e => e.Text));
+        Assert.Equal(new[] { "Took up The Road In.", "Took up What Was Kept.", "Took up The Quiet Crossing." }, session.Journal!.Recent.Select(e => e.Text));
 
         // Content with no opening: a new game submits nothing. (A heritage questline opens a game too, so here it is the Ondrek's, not this Veth's.)
-        using var bare = EditedContent.Without("quests/main/the_road_in.yaml");
+        using var bare = EditedContent.Without("quests/main/the_road_in.yaml", "quests/ashen_hollow/quiet_crossing.yaml");
         string heritage = Path.Combine(bare.Root, "quests", "heritage", "what_was_kept.yaml");
         File.WriteAllText(heritage, File.ReadAllText(heritage).Replace("people_ref: people.veth", "people_ref: people.ondrek"));
         using var second = new TempProfile();
@@ -396,7 +397,7 @@ public class StoryFrameworkTests
         using var profile = new TempProfile();
         var session = Harness.Boot(profile);
         session.NewGame(Harness.Named("Wanderer"), seed: 42);
-        string[] opening = { "Took up The Road In.", "Took up What Was Kept." };   // the opening's lines, there from the start (a Veth's heritage too)
+        string[] opening = { "Took up The Road In.", "Took up What Was Kept.", "Took up The Quiet Crossing." };   // the opening's lines, there from the start (a Veth's heritage too)
         Assert.Equal(opening, session.Journal!.Recent.Select(e => e.Text));
         session.NoteAway(0, new[] { "Three days passed.", " ", "Renn sold the last of the salt." });
         Assert.Equal(new[] { "Renn sold the last of the salt.", "Three days passed." }.Concat(opening), session.Journal!.Recent.Select(e => e.Text));

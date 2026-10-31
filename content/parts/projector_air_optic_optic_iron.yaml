@@ -1,0 +1,14 @@
+id: part.projector.air.optic.optic_iron
+kind: part
+schema: 1
+display_key: part.projector.air.optic.optic_iron.name
+tags: [optic, iron]
+name: Iron Sight
+notes: "A plain iron sight: pointing, not aiming."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/weapons"
+family: projector.air
+slot: optic
+mesh: mesh.part.projector.air.optic.optic_iron
+material_slots: [optic]
+tier_min: 1
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.1, speed_mult: 1.0, durability_add: 0 }

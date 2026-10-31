@@ -1,0 +1,17 @@
+﻿id: item.tool.watchglass
+kind: item
+schema: 1
+display_key: item.tool.watchglass.name
+tags: [item]
+name: Watchglass
+notes: A disc of smoked glass on a cord (STEALTH 10.3; D23 S7). Held up, it shows what has noticed you from twice as far - the watch on the wall, the wolf at the treeline - so a route can be replanned before the alarm.
+category: tool
+item_class: ordinary
+stack_max: 1
+weight: 0.2
+value_base: 60
+slot: off_hand
+detect_range_m: 30
+material_class: glass
+durability_max: 80
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }

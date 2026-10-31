@@ -1,0 +1,14 @@
+id: part.blowpipe.mouthpiece.waxed
+kind: part
+schema: 1
+display_key: part.blowpipe.mouthpiece.waxed.name
+tags: [mouthpiece, wax]
+name: Waxed Mouthpiece
+notes: "Waxed and bound: a tighter seal, and the dart flies true further."
+asset: "F:/Otherreach_Libraries/BlenderKit_harvest/nature"
+family: blowpipe
+slot: mouthpiece
+mesh: mesh.part.blowpipe.mouthpiece.waxed
+material_slots: [tube]
+tier_min: 2
+stat_contrib: { damage_mult: 1.0, reach_add: 0.0, weight_add: 0.02, speed_mult: 1.02, durability_add: 0 }

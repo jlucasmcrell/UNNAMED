@@ -1,0 +1,15 @@
+id: ability.bow.weak_point_shot
+kind: ability
+schema: 1
+display_key: ability.bow.weak_point_shot.name
+tags: [ability]
+name: Weak-point Shot
+notes: The archer's placed shot (SKT Weak-point Shot; STEALTH §7.2). Where a plain shot is aimed at the mass, this one is put where the body has a gap - the head of a person, the skull of a wolf - and what that is worth is the body's own anatomy, not the weapon's. Slightly harder than the plain shot and slower to loose; it costs stamina and one arrow like any shot.
+class: active
+discipline: skill.bow
+cost: { stamina: 12 }
+cooldown_s: 5
+windup_multiplier: 1.5
+aim_region: head
+payload:
+  - { type: damage, multiplier_of_weapon: 1.15 }

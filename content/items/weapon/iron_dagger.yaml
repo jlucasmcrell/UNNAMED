@@ -17,5 +17,6 @@ reach: 0.9
 hands: one
 skill_ref: skill.one_hand_blade   # a dagger is a one-handed blade (no separate dagger skill is authored yet)
 sneak_multiplier: 3.0    # a blow on a target that has not noticed the character
+swing_noise_m: 2         # a knife's arm moves quietly: what is heard is the blow, not the sweep (STEALTH §5.1)
 durability_max: 120
 repair: { station: anvil, skill_ref: skill.smithing, skill_min: 0, item_ref: item.material.iron_ingot }

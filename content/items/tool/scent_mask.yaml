@@ -1,0 +1,13 @@
+id: item.tool.scent_mask
+kind: item
+schema: 1
+display_key: item.tool.scent_mask.name
+tags: [tool, stealth, nature]
+name: Scent Mask
+notes: "Herb and tallow in a cloth (STEALTH.md 10): half the scent an animal reads, and a strange smell to anything with a nose. A bleeding wound is not masked."
+category: tool
+stack_max: 1
+weight: 0.2
+value_base: 25
+item_class: ordinary
+use: { effect_ref: effect.scent_masked, consume: true }

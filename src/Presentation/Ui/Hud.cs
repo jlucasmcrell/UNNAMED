@@ -1,4 +1,4 @@
-// UNNAMED Presentation - the heads-up display and the debug overlay (PROTOTYPE.md §4.1 UI panels; WORLD_ARCHITECTURE.md §6.2)
+﻿// UNNAMED Presentation - the heads-up display and the debug overlay (PROTOTYPE.md §4.1 UI panels; WORLD_ARCHITECTURE.md §6.2)
 // Godot presentation only: no gameplay state lives here (D-11)
 
 using Godot;
@@ -56,6 +56,8 @@ public partial class Hud : CanvasLayer
     private readonly Compass _compass = new();
     private readonly Reticle _reticle = new();
     private readonly AwarenessMeter _awareness = new();
+    private readonly ShadowSilhouette _gem = new();
+    private readonly OtherEdge _otherEdge = new();
     private readonly PanelContainer _death = new();
     private readonly Label _deathText = Text(20);
     private double _deathUntil;
@@ -98,6 +100,13 @@ public partial class Hud : CanvasLayer
         _awareness.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
         _awareness.Position = new Vector2(24, -150);
         AddChild(_awareness);
+        // The light gem and the noise ring sit under the awareness rows in both HUD styles (STEALTH §2.7): the three reads belong together, so a
+        // player looks at one place to see how visible they are, how loud, and how close each body is to noticing.
+        _gem.SetAnchorsPreset(Control.LayoutPreset.CenterLeft);
+        _gem.Position = new Vector2(24, -150 + AwarenessMeter.Rows * 26 + 6);
+        AddChild(_gem);
+        // The Other's rim sits over everything and stays hidden until something supernatural has noticed the character.
+        AddChild(_otherEdge);
         if (_production)
         {
             ReadyProduction();
@@ -300,7 +309,27 @@ public partial class Hud : CanvasLayer
     /// <summary>
     /// The awareness of the nearest few creatures (STEALTH §20): an arc each, filled with the real number, never an "invisible" light.
     /// </summary>
-    public void SetAwareness(IReadOnlyList<AwarenessCue> cues) => _awareness.Set(cues);
+    /// <summary>
+    /// One observer's read, and the violet edge when the observer is not a person (STEALTH §2.7a): the Other's colour at the screen's rim so a
+    /// magical or supernatural detection never reads like a guard seeing the character. The edge is drawn round the whole screen, thin enough not to
+    /// fight the picture, and it is the only violet in the HUD.
+    /// </summary>
+    public void SetAwareness(IReadOnlyList<AwarenessCue> cues)
+    {
+        _awareness.Set(cues);
+        bool other = false;
+        foreach (var cue in cues)
+            other |= cue.Other;
+        if (_otherEdge.Visible != other)
+            _otherEdge.Visible = other;
+    }
+
+    /// <summary>
+    /// The stealth read: the character's own shadow in the band they stand in, and the noise they are making (STEALTH 2.7a), and what a carried
+    /// sensor is reading (D23 S7) - empty when none is carried.
+    /// </summary>
+    public void SetStealth(ShadowModel shadow, NoiseRingModel noise, StealthHudMode mode, DetectorReadModel detector = default) =>
+        _gem.Set(shadow, noise, mode, detector);
 
     /// <summary>The creature the character is fighting or facing, or nothing.</summary>
     public void SetTarget(TargetPlate? plate)

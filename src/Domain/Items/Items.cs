@@ -1,4 +1,4 @@
-// UNNAMED Domain - item definitions, equipment rules, loot tables, prices (DATA_MODEL.md §4.1-§4.3, §4.14, §4.15; PROGRESSION.md §11.1)
+﻿// UNNAMED Domain - item definitions, equipment rules, loot tables, prices (DATA_MODEL.md §4.1-§4.3, §4.14, §4.15; PROGRESSION.md §11.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -318,6 +318,27 @@ public sealed record WeaponStats(int DamageMin, int DamageMax, string DamageType
     /// </summary>
     public double SneakMultiplier { get; init; } = 1.0;
 
+    /// <summary>
+    /// The effect this weapon leaves on what it hits, from <c>on_hit_effect</c>, and the chance of it out of a hundred from
+    /// <c>on_hit_effect_percent</c> (STEALTH §8): a sleep dart's whole point.
+    /// </summary>
+    public string? OnHitEffect { get; init; }
+
+    /// <summary>How often that effect lands, out of a hundred: a dart is made for it, a sword is not.</summary>
+    public int OnHitEffectPercent { get; init; } = 100;
+
+    /// <summary>
+    /// How far this weapon's own swing carries, from <c>swing_noise_m</c> (STEALTH §3.3, §5.1): a knife's arm moves quietly, a great
+    /// sword does not. Zero takes <c>config.creature_behaviour.noise_m.swing</c>.
+    /// </summary>
+    public long SwingNoiseMm { get; init; }
+
+    /// <summary>
+    /// How far this weapon is heard <em>at the shooter</em>, from <c>shot_noise_m</c> (STEALTH §7.8): a bow's twang, a crossbow's thunk,
+    /// a thrown blade's almost nothing. Zero takes the build's shot radius. It is never the melee swing radius - a shot is a shot.
+    /// </summary>
+    public long ShotNoiseMm { get; init; }
+
     public bool Ranged => DrawMs > 0;
 }
 
@@ -356,6 +377,36 @@ public sealed record ItemDefinition(
     /// </summary>
     public double StealthPenalty { get; init; }
 
+    /// <summary>
+    /// How much of the step a worn thing swallows, from <c>noise_dampen</c> (STEALTH §10.2): soft soles, a muffled scabbard, cloth over mail. It is a
+    /// share of the radius, 0 to 0.6, and the best piece worn sets it rather than the sum - two pads do not make a silent boot.
+    /// </summary>
+    public double NoiseDampen { get; init; }
+
+    /// <summary>
+    /// How much of a body this worn piece takes off the eye, from <c>stealth_bonus</c> (STEALTH §10.1): a cloak of dark cloth over a still body. It is a
+    /// share, 0 to 0.5, and the best piece worn sets it rather than the sum.
+    /// </summary>
+    public double StealthBonus { get; init; }
+
+    /// <summary>How much further a held device reads what has noticed the wearer, from <c>detect_range_m</c> (STEALTH §10.3).</summary>
+    public long DetectRangeMm { get; init; }
+
+    /// <summary>
+    /// A ward of still air, from <c>scent_ward</c> (STEALTH §10.4): worn, it stops a nose finding the wearer downwind. The animals can still see and
+    /// hear them - it is one sense shut, not a cloak.
+    /// </summary>
+    public bool ScentWard { get; init; }
+
+    /// <summary>
+    /// It can be thrown and what it makes where it lands (STEALTH §3.2): zero for anything that cannot be thrown as a lure. The throw is a
+    /// noise, not a weapon - what an observer gets is a place to look, never the thrower.
+    /// </summary>
+    public long ThrowNoiseMm { get; init; }
+
+    /// <summary>How far it is thrown, from <c>throw_range_m</c>; zero uses the build's own arm.</summary>
+    public long ThrowRangeMm { get; init; }
+
     /// <summary>How much wear it takes before it is worn out (WP3b, D5): weapons, armour and tools only; 0 for none.</summary>
     public int DurabilityMax { get; init; }
 
@@ -373,6 +424,12 @@ public sealed record ItemDefinition(
     /// everything else a pack can hold.
     /// </summary>
     public string? PetCreature { get; init; }
+
+    /// <summary>
+    /// The parts this item is assembled from (D21, <c>GEAR_GENERATION.md</c> §2.5): its family, the slots that family has, and the maker that may
+    /// build it. Null for a plain authored item, which stays exactly as it was.
+    /// </summary>
+    public AssemblySpec? Assembly { get; init; }
 
     /// <summary>
     /// The people whose heritage it is (<c>heritage</c>, owner 2026-10-24): only that people may use, buy, sell, trade or be given it.

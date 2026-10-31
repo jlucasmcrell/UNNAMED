@@ -1,4 +1,4 @@
-// UNNAMED Content - the world-hooks audit (brief D15)
+﻿// UNNAMED Content - the world-hooks audit (brief D15)
 // No Godot references - pure C#
 
 using System.Globalization;
@@ -331,6 +331,8 @@ public static class WorldHookChecks
             {
                 if (TryPosition(item, out double x, out double y))
                     all.Add(new Placement(section, item, x, y));
+                else if (section == "walkable_surfaces" && TryPosition(item, "origin_m", out double surfaceX, out double surfaceZ))
+                    all.Add(new Placement(section, item, surfaceX, surfaceZ));
                 else if (section == "waters" && FirstPathPoint(item) is { } spring)
                     all.Add(new Placement(section, item, spring.X, spring.Y));
                 else if (structures.GetValueOrDefault(Scalar(item, "structure") ?? "") is { } mounted)
@@ -389,9 +391,19 @@ public static class WorldHookChecks
     private static double Distance((double X, double Y, double ReachM) anchor, Placement placement) =>
         Math.Sqrt(Math.Pow(anchor.X - placement.X, 2) + Math.Pow(anchor.Y - placement.Y, 2));
 
-    private static bool TryPosition(YamlMappingNode node, out double x, out double y)
+    private static bool TryPosition(YamlMappingNode node, out double x, out double y) => TryPosition(node, "position_m", out x, out y);
+
+    /// <summary>A placement's coordinates under another name: a walkable surface states its corner as <c>origin_m</c>.</summary>
+    private static bool TryPosition(YamlMappingNode node, string field, out double x, out double y)
     {
         x = y = 0;
+        if (Node(node, field) is YamlSequenceNode pair && pair.Children.Count >= 2
+            && AsNumber(pair.Children[0]) is { } first && AsNumber(pair.Children[1]) is { } second)
+        {
+            x = first;
+            y = second;
+            return true;
+        }
         if (TryCoordinates(node, out x, out y))
             return true;
         return Map(node, "at") is { } at && TryCoordinates(at, out x, out y);
@@ -448,6 +460,12 @@ public static class WorldHookChecks
             case "field_equals":
                 return placed.Count(p => p.Section == Scalar(argument, "section")
                                          && Scalar(p.Node, Scalar(argument, "field")) == Scalar(argument, "equals"));
+            case "placed_section":
+            {
+                // A section of a region's own authoring, counted by its entries (D23 stealth): cover, light and ground are placed in the
+                // region's metres, not defined as their own content kind, so this is how the audit sees them.
+                return placed.Count(p => p.Section == Scalar(argument, "section"));
+            }
             case "node":
             {
                 string prefix = $"node.{Scalar(argument, "prefix")?.TrimEnd('.')}.";

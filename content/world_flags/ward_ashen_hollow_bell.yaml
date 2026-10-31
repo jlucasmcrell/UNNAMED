@@ -1,0 +1,9 @@
+id: world.ward.ashen_hollow_bell
+kind: world_flag
+schema: 1
+display_key: world.ward.ashen_hollow_bell.name
+tags: [world_flag, stealth]
+notes: "D23 S6 (HOOK.STEALTH.ALARM): set when the hollow bell is rung. The creatures' alarm and the law both read it, so a rung bell is a world fact."
+type: bool
+default: false
+owning_system: S-19

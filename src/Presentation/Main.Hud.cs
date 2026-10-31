@@ -1,4 +1,4 @@
-// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
+﻿// UNNAMED Presentation - Main's HUD: what it shows each frame, from the simulation's state (D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using System.Collections.Immutable;
@@ -127,12 +127,39 @@ public partial class Main
         var playerBody = _controller.Authoritative;
         double Nearness(CreatureView c) => Math.Sqrt(Math.Pow(c.Body.XMm - playerBody.XMm, 2) + Math.Pow(c.Body.ZMm - playerBody.ZMm, 2));
         _hud.SetAwareness(simulation.Creatures
-            .Where(c => c.Alive && Nearness(c) < 30_000)
+            .Where(c => c.Alive && Nearness(c) < simulation.PlayerDetectionRangeMm())
             .OrderBy(Nearness)
             .Take(AwarenessMeter.Rows)
-            .Select(c => new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
-                UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged))
+            .Select(c =>
+            {
+                // What told it, and which way it is looking: the sight of the character is an eye at the body; a noise or a sign is an ear at the
+                // place it believes they are, which is exactly the wedge the player uses to move out of the search (STEALTH §2.7).
+                bool saw = c.Knows && c.KnownXMm == playerBody.XMm && c.KnownZMm == playerBody.ZMm;
+                var (bearing, has) = c.Knows
+                    ? AwarenessRead.Toward(playerBody.XMm, playerBody.ZMm, c.KnownXMm, c.KnownZMm)
+                    : (0f, false);
+                return new AwarenessCue(Names.Of(_session, c.DefId), c.Awareness, awarenessRules.HeardNoise, awarenessRules.Suspicious,
+                    UNNAMED.Domain.Creatures.Perception.Full, c.Mind == CreatureMind.Engaged,
+                    // What gave the character away, from the creature's own record of it (STEALTH §2.7a): an eye, an ear, a print, or a nose on the
+                    // wind - not a guess from the geometry, which could only ever say "saw" or "heard".
+                    SenseOf(c) is { } sense ? sense : (saw ? NoticeSense.Eye : NoticeSense.Ear), bearing, has, OtherOf(c.DefId));
+            })
             .ToList());
+        static NoticeSense? SenseOf(CreatureView c) => c.LastNotice switch
+        {
+            UNNAMED.Domain.Creatures.NoticeKind.Sight => NoticeSense.Eye,
+            UNNAMED.Domain.Creatures.NoticeKind.Sound => NoticeSense.Ear,
+            UNNAMED.Domain.Creatures.NoticeKind.Sign => NoticeSense.Footprint,
+            UNNAMED.Domain.Creatures.NoticeKind.Scent => NoticeSense.Nose,
+            _ => null,
+        };
+        bool OtherOf(string defId) => _session.Setup.Combat.Creatures.TryGetValue(defId, out var definition)
+            && definition.Tags.Contains("other");
+        _hud.SetStealth(UNNAMED.Presentation.Ui.Models.ShadowModel.From(simulation.PlayerLightBand),
+            UNNAMED.Presentation.Ui.Models.NoiseRingModel.From(simulation.PlayerNoiseMm, simulation.PlayerSurface),
+            _stealthHud,
+            UNNAMED.Presentation.Ui.Models.DetectorReadModel.From(
+                simulation.DetectorContacts.Select(c => (c.Sense, c.XMm, c.ZMm)), playerBody.XMm, playerBody.ZMm));
         var quests = simulation.Quests;
         string? tracked = simulation.TrackedQuest(_journal.Tracked);
         var questRows = QuestPresentation.Tracker(quests, tracked);

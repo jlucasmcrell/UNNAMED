@@ -1,4 +1,4 @@
-// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
+﻿// UNNAMED World - combat at run time: attacks, the guard, dodging, stamina, status effects, downed and death
 // (SYSTEMS.md S-06, S-07, S-11, S-12; COMBAT_DAMAGE_ARMOR_AND_DEATH.md; PROTOTYPE.md §5 steps 6-7; M3c, M3d; OD-13 = B, WP10)
 // No Godot references - pure C#
 
@@ -36,6 +36,9 @@ public sealed record CombatSetup(
     public AwarenessRules Awareness { get; init; } = new(30, 40, 200, 10, 60, 80, 120);
 
     public NoiseRules Noise { get; init; } = new(3_000, 8_000, 16_000, 10_000, 20_000, 45_000);
+
+    /// <summary>How light, cover and posture make a body visible (STEALTH §2): what an observer's sight is scaled by, and why.</summary>
+    public LightRules Light { get; init; } = new();
 
     /// <summary>When it is night for the creatures that rest by night or by day; null when no role keeps hours.</summary>
     public CreatureHours? Hours { get; init; }
@@ -353,6 +356,27 @@ internal sealed record LieDowned(long Until) : InternalCommand;
 /// <summary>To <see cref="InventorySystem"/>: spend carried items by definition (an arrow at release).</summary>
 internal sealed record ConsumeItem(string DefId, int Count) : InternalCommand;
 
+/// <summary>
+/// Throw something that makes a noise where it lands (STEALTH §3.2): a stone, a bottle, a coin. The landing point is the lure - an observer
+/// drawn by it walks to <em>there</em>, never to the character - and the ground it lands on decides how far the sound carries (§3.1).
+/// </summary>
+public sealed record ThrowCommand(EntityId Actor, EntityId Item, long DirXPermille = 0, long DirZPermille = 0) : GameCommand(Actor);
+
+/// <summary>Something was thrown, from the body to the place it came down: presentation draws the arc, and the ear was given a place to look.</summary>
+public sealed record Thrown(EntityId Actor, string DefId, long FromXMm, long FromZMm, long ToXMm, long ToZMm, long Tick);
+
+/// <summary>A body was put down without a wound: it sleeps where it stood, and wakes fighting if anything wounds it (STEALTH §5.2).</summary>
+public sealed record Subdued(EntityId Actor, EntityId Target, string DefId, long Tick);
+
+/// <summary>A body was carried into cover: presentation moves the corpse, and the ground it lies on stops telling anyone anything.</summary>
+public sealed record BodyHidden(EntityId Actor, EntityId Target, string DefId, string CoverKey, long Tick);
+
+/// <summary>A body pulled a step along the ground: where it was, where it is, and who is doing the pulling (STEALTH §6.2).</summary>
+public sealed record BodyDragged(EntityId Actor, EntityId Target, string DefId, long XMm, long ZMm, long Tick);
+
+/// <summary>An authored light put out, or lit again: the key, and whether it now burns (STEALTH §2.2).</summary>
+public sealed record LightDoused(EntityId Actor, string LightKey, bool Lit, long Tick);
+
 // ── systems ─────────────────────────────────────────────────────────────────
 
 /// <summary>
@@ -409,6 +433,58 @@ internal sealed partial class CombatSystem
             Blocking = false,
         });
         _context.Events.Publish(new AttackStarted(_player, attack.Source, attack.WindupTicks, attack.ActiveTicks, attack.RecoveryTicks, tick));
+        return null;
+    }
+
+    /// <summary>
+    /// Throw a stone or a bottle where the character is looking (STEALTH §3.2). What it buys is a noise at the landing spot: the ground
+    /// decides how far that carries, and every observer drawn by it walks to the stone, never to the thrower. One is spent whether it lands
+    /// in the open or against a wall.
+    /// </summary>
+    public string? Handle(ThrowCommand command, long tick)
+    {
+        if (command.Actor != _player)
+            return $"unknown actor {command.Actor}";
+        var entry = State.Inventory.FirstOrDefault(e => e.ItemId == command.Item);
+        if (entry is null)
+            return "nothing to throw";
+        if (_context.Setup.Items.Catalog.Find(entry.DefId) is not { ThrowNoiseMm: > 0 } item)
+            return $"{entry.DefId} is not a thing to throw";
+        if (_context.ControlOn(_player) == ControlKind.Incapacitates)
+            return "you cannot move";
+        var body = State.Body;
+        // Where the character is looking, or the direction a caller gave: the arm is the build's range, the item's own overrides it, and a wall
+        // stops the throw where it stands.
+        double facing = body.FacingMdeg / 1000.0 * Math.PI / 180;
+        bool aimed = command.DirXPermille != 0 || command.DirZPermille != 0;
+        double dirX = aimed ? command.DirXPermille / 1000.0 : Math.Sin(facing);
+        double dirZ = aimed ? command.DirZPermille / 1000.0 : Math.Cos(facing);
+        double length = Math.Sqrt(dirX * dirX + dirZ * dirZ);
+        if (length < 0.001)
+            return "throw at something";
+        dirX /= length;
+        dirZ /= length;
+        long range = item.ThrowRangeMm > 0 ? item.ThrowRangeMm : 12_000;
+        long landingX = body.XMm, landingZ = body.ZMm;
+        for (long step = 1_000; step <= range; step += 1_000)
+        {
+            long x = body.XMm + (long)Math.Round(dirX * step), z = body.ZMm + (long)Math.Round(dirZ * step);
+            if (_context.Walled(body.XMm, body.ZMm, x, z))
+                break;
+            landingX = x;
+            landingZ = z;
+        }
+        _context.Dispatch(new ConsumeItem(entry.DefId, 1));
+        // The ground it lands on decides how far the sound goes (§3.1), and it is heard as a device rather than a blow.
+        long radius = Math.Max(1, (long)Math.Round(
+            item.ThrowNoiseMm * UNNAMED.Domain.Spatial.Surfaces.Factor(
+                UNNAMED.Domain.Spatial.Surfaces.At(_context.Setup.LayoutFor(State.Space).Surfaces, landingX, landingZ)),
+            MidpointRounding.AwayFromZero));
+        _context.Dispatch(new RaiseNoise(new UNNAMED.Domain.Creatures.Noise(landingX, landingZ, radius)
+        {
+            Source = UNNAMED.Domain.Creatures.SoundSource.Device,
+        }));
+        _context.Events.Publish(new Thrown(_player, entry.DefId, body.XMm, body.ZMm, landingX, landingZ, tick));
         return null;
     }
 
@@ -501,6 +577,11 @@ internal sealed partial class CombatSystem
                 Ranged = true,
                 AmmoDefId = weapon.AmmoDefId,
                 SkillId = weapon.SkillId,
+                // A shot at a target that has not noticed it is the weapon's own sneak blow, as a blade's is (STEALTH §7.1).
+                SneakMultiplier = weapon.SneakMultiplier,
+                  // What the shot leaves behind (STEALTH §8): a sleep dart is a dart because of this line and nothing else.
+                  OnHitEffect = weapon.OnHitEffect,
+                  OnHitEffectPercent = weapon.OnHitEffectPercent,
             };
         }
         int total = Math.Max(3, Ticks(weapon.AttackMs));
@@ -517,8 +598,54 @@ internal sealed partial class CombatSystem
     public void Tick(long tick)
     {
         PlayerTick(tick);
+        ShotsInTheAir(tick);
         Vitals(tick);
     }
+
+    /// <summary>
+    /// A shot is in the air before it arrives (STEALTH §7.3). The release decides the flight; the wound and the impact noise happen when it gets there,
+    /// which is what makes a shot at forty metres something a body can walk out of. Runtime only: a save taken mid-flight loses the arrow, and the
+    /// twang was already heard.
+    /// </summary>
+    private readonly List<InFlight> _inFlight = new();
+
+    private sealed record InFlight(long DueTick, long ToXMm, long ToZMm, long RadiusMm);
+
+    private void ShotsInTheAir(long tick)
+    {
+        if (_inFlight.Count == 0)
+            return;
+        foreach (var shot in _inFlight.Where(s => s.DueTick <= tick).ToList())
+        {
+            _inFlight.Remove(shot);
+            // The arrow arrives: that is when the impact is heard where it lands, not when the string was loosed (STEALTH §7.8).
+            _context.Dispatch(new RaiseNoise(new Noise(shot.ToXMm, shot.ToZMm, shot.RadiusMm) { Source = SoundSource.Impact }));
+        }
+    }
+
+    /// <summary>How far a point lies off the line a shot travels, in millimetres - what decides whether the arrow goes through the lantern.</summary>
+    private static long GapToLine(long px, long pz, long ax, long az, long bx, long bz)
+    {
+        double dx = bx - ax, dz = bz - az;
+        double lengthSq = dx * dx + dz * dz;
+        if (lengthSq <= 0)
+            return (long)Math.Sqrt(Math.Pow(px - ax, 2) + Math.Pow(pz - az, 2));
+        double t = Math.Clamp(((px - ax) * dx + (pz - az) * dz) / lengthSq, 0, 1);
+        double nx = ax + dx * t, nz = az + dz * t;
+        return (long)Math.Sqrt(Math.Pow(px - nx, 2) + Math.Pow(pz - nz, 2));
+    }
+    /// <summary>The profile a weapon's projectile flies with (STEALTH §7.3): a thrown thing lumbers; everything else is an arrow or a bolt.</summary>
+    /// <summary>The air's own bearing today, the same wind the noses read (STEALTH §4.6, §7.5).</summary>
+    private long WindBearing => UNNAMED.Domain.Creatures.WindRules.Bearing(State.World.WorldSeed, State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 1));
+
+    /// <summary>
+    /// How hard the air is moving, in millimetres per second of flight. The wind's bearing is a daily fact; its strength is taken from the same seed so a
+    /// windy day is a windy day for every shot in it, and 0 on a still one means the arrow goes where it was pointed.
+    /// </summary>
+    private long WindStrengthMmPerSecond =>
+        (long)(((ulong)State.World.WorldSeed ^ (ulong)(State.WorldTick / Math.Max(1, Setup.Hours?.TicksPerDay ?? 1))) % 1_400UL);
+    private static ProjectileProfile FlightProfile(AttackProfile attack) =>
+        attack.SkillId is "skill.thrown" ? ProjectileProfile.Thrown : ProjectileProfile.Arrow;
 
     private void PlayerTick(long tick)
     {
@@ -553,10 +680,29 @@ internal sealed partial class CombatSystem
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
                 return;
             }
-            if (Loose(attack.Source, attack.ReachMm, tick) is { } target)
-                PlayerHits(target, attack, tick);
-            else
+            var (stopX, stopZ, target) = Loose(attack.Source, attack.ReachMm, tick);
+            // A shot that hits nothing comes down where the air put it (STEALTH §7.5), not where the eye pointed: the wind's own bearing and strength
+            // carried it for as long as it was in the air.
+            if (target is null)
+            {
+                long carryMm = (long)Math.Sqrt(Math.Pow(stopX - body.XMm, 2) + Math.Pow(stopZ - body.ZMm, 2));
+                var carried = ProjectileRules.CarriedMm(WindBearing, WindStrengthMmPerSecond, carryMm, FlightProfile(attack), TickMs);
+                stopX += carried.XMm;
+                stopZ += carried.ZMm;
+            }
+            if (target is null)
+            {
                 _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
+                _context.Dispatch(new RaiseNoise(new Noise(stopX, stopZ, Setup.Noise.ImpactSolidMm) { Source = SoundSource.Impact }));
+                return;
+            }
+            // The arrow is in the air for a measured time (STEALTH §7.3) and the impact is heard where and when it lands. The wound itself still lands
+            // at the release, because the strike pipeline is bound to the attack action and refuses a blow whose windup is over.
+            var flight = ProjectileRules.Of(
+                (long)Math.Sqrt(Math.Pow(target.Body.XMm - body.XMm, 2) + Math.Pow(target.Body.ZMm - body.ZMm, 2)),
+                FlightProfile(attack), tickMs: TickMs);
+            _inFlight.Add(new InFlight(tick + flight.Ticks, target.Body.XMm, target.Body.ZMm, Setup.Noise.ImpactFleshMm));
+            PlayerHits(target, attack, tick);
             return;
         }
 
@@ -575,13 +721,44 @@ internal sealed partial class CombatSystem
             _context.Events.Publish(new AttackMissed(_player, attack.Source, tick));
     }
 
-    /// <summary>A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned.</summary>
-    private CreatureState? Loose(string source, long rangeMm, long tick)
+    /// <summary>
+    /// The weapon in the main hand, or null bare-handed. The attack's <c>Source</c> is a technique's id while a technique is in flight,
+    /// so a weapon's own numbers (its noise, its family) are read from the hand rather than from the blow.
+    /// </summary>
+    private WeaponStats? WeaponInHand() =>
+        State.Equipment.TryGetValue(EquipSlot.MainHand, out var id)
+        && State.Inventory.FirstOrDefault(e => e.ItemId == id) is { } entry
+            ? _context.Setup.Items.Catalog.Find(entry.DefId)?.Weapon
+            : null;
+
+    /// <summary>
+    /// Where a shot is heard (STEALTH §7.8): at the shooter, as far as the weapon's own crack carries - never the melee swing radius a
+    /// bow never earned.
+    /// </summary>
+    internal long ShotNoiseMm() => WeaponInHand() is { Ranged: true, ShotNoiseMm: > 0 } weapon ? weapon.ShotNoiseMm : Setup.Noise.ShotMm;
+
+    /// <summary>The place a technique puts its shot (STEALTH §7.2), or null for an ordinary blow.</summary>
+    private BodyRegion? AimOf(AttackProfile attack) =>
+        attack.Ranged && _context.Setup.Techniques.TryGetValue(attack.Source, out var technique) ? technique.AimRegion : null;
+
+    /// <summary>
+    /// A shot leaves the body along its facing: where it stops is published for presentation, and whom it strikes returned. The sound of
+    /// it is the creature system's to make (STEALTH §7.8) - it owns the ear - so combat only says what happened, at the shooter and at
+    /// the place it came down.
+    /// </summary>
+    private (long XMm, long ZMm, CreatureState? Target) Loose(string source, long rangeMm, long tick)
     {
         var body = State.Body;
         var (x, z, target) = Trace(body, rangeMm);
         _context.Events.Publish(new ShotLoosed(_player, source, body.XMm, body.ZMm, x, z, target?.Id, tick));
-        return target;
+        // A shot that stops against a lamp puts it out (STEALTH §2.2): the arrow is worth more than the light it kills, and the lane beyond goes dark.
+        var lamp = _context.Setup.LayoutFor(State.Space).Lights.FirstOrDefault(l =>
+            GapToLine(l.XMm, l.ZMm, body.XMm, body.ZMm, x, z) <= 1_000);
+        if (lamp is not null)
+            _context.Dispatch(new ExtinguishLight(lamp.Key));
+        // The string is heard now, at the bow's own radius; the impact is heard where the arrow arrives, not where it was loosed.
+        _context.Dispatch(new RaiseNoise(new Noise(body.XMm, body.ZMm, ShotNoiseMm()) { Source = SoundSource.Shot }));
+        return (x, z, target);
     }
 
     /// <summary>
@@ -641,12 +818,15 @@ internal sealed partial class CombatSystem
     /// <summary>The player's blow on a creature: resolved here, applied by the creature's owner.</summary>
     private void PlayerHits(CreatureState creature, AttackProfile attack, long tick)
     {
+        // A blow that arrives with an arrow was allowed when the string released, and the windup is long over by then, so the attack gate would refuse
+        // every shot at range. Arriving, only the body has to still be a body.
         if (!CombatRules.CanAttemptAttack(_player, creature.Id,
                 new(!State.PlayerCombat.Defeated, creature.Alive, creature.Site.Space == State.Space))) return;
         var definition = creature.Definition;
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, creature.Blocks(State.Body, attack, tick, C), creature.Dodges(tick, C));
-        var strike = CombatRules.LevelGap(SneakStrike(creature, attack, PlayerStrike(attack)), State.Progression.Level, definition.Level + creature.LevelBonus);
+        var strike = CombatRules.LevelGap(PlacedStrike(creature, attack, SneakStrike(creature, attack, PlayerStrike(attack))),
+            State.Progression.Level, definition.Level + creature.LevelBonus);
         // A weak point open from behind is where a blow from behind lands (COMBAT §19): position, not luck - and CMB-40's timed
         // point is only there while its window is open, so the same blow into a guarded gauge finds the armour.
         if (definition.WeakPoint is { FromBehind: true } weak && Behind(creature.Body, State.Body)
@@ -687,12 +867,28 @@ internal sealed partial class CombatSystem
     /// <summary>
     /// The strike a blow resolves as against this creature: a target that has not noticed the character takes the weapon's sneak multiplier
     /// (STEALTH §12 - the dagger class's own number), applied before armour so that armour still decides. A target that has noticed the
-    /// character takes the ordinary blow.
+    /// character takes the ordinary blow. A ranged blow is aimed, and what the aim is worth is the body's own anatomy (§7.2); the two
+    /// together are one shot and come to no more than <c>sneak_cap</c> (§7.1).
     /// </summary>
     private Strike SneakStrike(CreatureState creature, AttackProfile attack, Strike strike) =>
-        StealthRules.Unaware(creature.Awareness, Setup.Awareness)
-            ? strike with { DamageMultiplier = strike.DamageMultiplier * StealthRules.SneakMultiplier(attack, true) }
+        ScaleShot(creature, attack, strike, StealthRules.SneakMultiplier(attack, StealthRules.Unaware(creature.Awareness, Setup.Awareness)));
+
+    /// <summary>A shot placed where the shooter aimed it, and the zone's own worth (STEALTH §7.2).</summary>
+    private Strike PlacedStrike(CreatureState creature, AttackProfile attack, Strike strike) =>
+        AimOf(attack) is { } region
+            ? strike with { ForcedRegion = region }
             : strike;
+
+    /// <summary>The one multiplier a single blow earns, capped (STEALTH §7.1). A swing earns only its sneak multiplier; a shot earns
+    /// that and the zone's, because a shot at a body that has not moved is a shot at a body whose gaps are open.</summary>
+    private Strike ScaleShot(CreatureState creature, AttackProfile attack, Strike strike, double sneak)
+    {
+        double zone = AimOf(attack) is { } region
+            ? WeakPointRules.Multiplier(creature.Definition, C, region, !Behind(creature.Body, State.Body))
+            : 1.0;
+        double total = attack.Ranged ? WeakPointRules.Capped(sneak, zone, C) : sneak;
+        return total == 1.0 ? strike : strike with { DamageMultiplier = strike.DamageMultiplier * total };
+    }
 
     /// <summary>What the character's coated weapon delivers on a wound, or null when nothing is coated (owner finding 27).</summary>
     private string? Coating() =>
@@ -715,11 +911,13 @@ internal sealed partial class CombatSystem
         if (!StealthRules.IsDagger(attack))
             return "a takedown needs a dagger";
         var body = State.Body;
-        // Inside reach: the blade's length, a step, and the target's own body.
+        // Inside reach: the blade's length, a step and the target's own body on the level - and from a ledge, as far as the drop is deep, because
+        // a body that comes down on someone reaches them from further up (STEALTH §5.3).
         var nearest = State.Creatures.Values
             .Where(c => c.Alive && c.Site.Space == State.Space)
             .Select(c => (Creature: c, Distance: Math.Sqrt(Math.Pow(c.Body.XMm - body.XMm, 2) + Math.Pow(c.Body.ZMm - body.ZMm, 2))))
-            .Where(t => t.Distance <= attack.ReachMm + 1_500 + t.Creature.Definition.RadiusMm)
+            .Where(t => TakedownRules.InReach(attack.ReachMm + 1_500 + t.Creature.Definition.RadiusMm, body.YMm, t.Creature.Body.YMm,
+                (long)t.Distance))
             .OrderBy(t => t.Distance)
             .Select(t => (CreatureState?)t.Creature)
             .FirstOrDefault();
@@ -730,6 +928,16 @@ internal sealed partial class CombatSystem
         if (!StealthRules.Unaware(creature.Awareness, Setup.Awareness) && !EffectsOf(creature.Id).Any(e => e.EffectId == "effect.sleep"))
             return "it has noticed you";
         var definition = creature.Definition;
+        // A choke is not a blade (STEALTH §5.2): the body goes down asleep where it stands and wakes fighting if anything wounds it. Same reach,
+        // same unaware target - only what happens at the end of it changes, which is what a route wants where a corpse would raise the street.
+        if (command.NonLethal)
+        {
+            _context.Dispatch(new ApplyEffect(creature.Id, "effect.sleep"));
+            _context.Dispatch(new PracticeSkill(new SkillPractice("skill.stealth", definition.Level, PracticeOutcome.Success, tick)));
+            _context.Events.Publish(new Subdued(_player, creature.Id, definition.Id, tick));
+            State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
+            return null;
+        }
         var defense = new DefenseProfile(definition.MaxHealth, WithBonus(definition.Armor, EffectRules.ArmorBonus(EffectsOf(creature.Id), Setup.Effects)),
             definition.Resistances, Blocking: false, Dodging: false);
         var fromBehind = Behind(creature.Body, body);

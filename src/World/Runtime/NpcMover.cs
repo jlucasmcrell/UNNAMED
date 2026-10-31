@@ -4,6 +4,7 @@
 using System.Collections.Immutable;
 using UNNAMED.Domain;
 using UNNAMED.Domain.Combat;
+using UNNAMED.Domain.Creatures;
 using UNNAMED.Domain.Social;
 using UNNAMED.Domain.Spatial;
 
@@ -31,6 +32,17 @@ internal sealed class NpcTierSimulation : ITierSimulation
 
 internal sealed partial class NpcSystem
 {
+    /// <summary>Where an alarm bell sends the guards, and when they stop answering it (STEALTH §8.2).</summary>
+    private long _alarmXMm, _alarmZMm, _alarmUntilTick;
+
+    /// <summary>A bell has rung: everyone within its earshot goes to the post. The responders answer before their rounds do.</summary>
+    public void RespondToAlarm(long xMm, long zMm, long untilTick)
+    {
+        _alarmXMm = xMm;
+        _alarmZMm = zMm;
+        _alarmUntilTick = untilTick;
+    }
+
     /// <summary>Headway: a step of at least 30% of a walk's travel, else the tick counts as stuck.</summary>
     private const long HeadwayMm = 24;
 
@@ -178,8 +190,51 @@ internal sealed partial class NpcSystem
             return (at.XMm, at.ZMm, at.FacingMdeg);
         }
         int hourOfDay = (int)(((State.World.NpcLife!.Hour % Clock.HoursPerDay) + Clock.HoursPerDay) % Clock.HoursPerDay);
+        // An alarm outranks both the round and the day: a body that hears the bell goes to it (STEALTH §8.2).
+        if (_alarmUntilTick > State.WorldTick)
+        {
+            long dx = _alarmXMm - npc.XMm, dz = _alarmZMm - npc.ZMm;
+            double away = Math.Sqrt((double)dx * dx + (double)dz * dz);
+            if (away <= AlarmSystem.EarshotMm)
+            {
+                // A bell hangs on a post: she answers the alarm beside it, not inside it. Stand off by a body's reach and face the post.
+                double scale = away > AlarmSystem.PostStandOffMm ? (away - AlarmSystem.PostStandOffMm) / away : 0;
+                return (npc.XMm + (long)Math.Round(dx * scale), npc.ZMm + (long)Math.Round(dz * scale), (int)PatrolRules.FacingToward(dx, dz));
+            }
+        }
+        // A patrol (STEALTH §8.2): while she is on duty the round is her goal, so she walks stop to stop and stands at each one. Off duty she
+        // goes back to her routine - the round is the post, not the day.
+        if (PatrolLegFor(npc, routine, hourOfDay) is { } round)
+            return (round.XMm, round.ZMm, (int)round.FacingMdeg);
         var own = routine.AnchorFor(npc.Activity, hourOfDay);
         return (own.XMm, own.ZMm, own.FacingMdeg);
+    }
+
+    /// <summary>
+    /// Where her patrol has her at this tick, or null when she is not on it: the authored round (STEALTH §8.2) is walked at a walk while her
+    /// routine's work hours are open, and she stands at each stop for the rest of its share of the period. A body with no patrol - everyone in
+    /// the game so far - never enters this.
+    /// </summary>
+    private PatrolLeg? PatrolLegFor(NpcLifeRecord life, RoutineDefinition routine, int hourOfDay)
+    {
+        var layout = _context.Layout;
+        if (layout.Patrols.IsDefaultOrEmpty)
+            return null;
+        bool onDuty = routine.WorkFromHour <= routine.WorkToHour
+            ? hourOfDay >= routine.WorkFromHour && hourOfDay < routine.WorkToHour
+            : hourOfDay >= routine.WorkFromHour || hourOfDay < routine.WorkToHour;
+        if (!onDuty)
+            return null;
+        foreach (var patrol in layout.Patrols)
+        {
+            if (patrol.NpcId != routine.Key)
+                continue;
+            int tickMs = TickMs;
+            long walkMmPerSecond = Math.Max(1, _context.Setup.Movement.BaseSpeedMmPerSecond * _context.Setup.Movement.WalkPercent / 100);
+            long step = Math.Max(1, walkMmPerSecond * tickMs / 1000);
+            return PatrolRules.At(patrol, State.WorldTick, step);
+        }
+        return null;
     }
 
     /// <summary>
@@ -251,7 +306,7 @@ internal sealed partial class NpcSystem
         {
             // A body pressed into something cannot plan from where it stands: it steps out to the nearest place it can stand first.
             if (StandingClear(body) is { } clear)
-                Write(npc, life, BodyAt(clear.XMm, clear.ZMm, body.FacingMdeg), NavRoute.None, 0);
+                Write(npc, life, BodyAt(npc.Space, clear.XMm, clear.ZMm, body.FacingMdeg), NavRoute.None, 0);
             else
                 Write(npc, life, body, step.Route, life.StuckTicks + 1);
             return;
@@ -292,7 +347,7 @@ internal sealed partial class NpcSystem
             Write(npc, life, body, route, life.StuckTicks + 1);
             return;
         }
-        Write(npc, life, BodyAt(nx, nz, landed ? goalFacing : facing), landed ? NavRoute.None : route, 0);
+        Write(npc, life, BodyAt(npc.Space, nx, nz, landed ? goalFacing : facing), landed ? NavRoute.None : route, 0);
     }
 
     /// <summary>
@@ -355,7 +410,8 @@ internal sealed partial class NpcSystem
             direction = ((int)Math.Round(dx / length * MoveIntent.FullDeflection), (int)Math.Round(dz / length * MoveIntent.FullDeflection));
         }
         var intent = new MoveIntent(direction.X, direction.Z, Gait.Walk, CombatRules.FacingTowards(body.XMm, body.ZMm, target.XMm, target.ZMm));
-        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.Layout.Space, Obstacles(npc.Definition.Id), TickMs), landing);
+        // She walks on the ground of the space she stands in, not the character's: an exterior villager is not lifted onto an interior's floor.
+        return (Kinematics.Step(body, intent, _context.Setup.Movement, _context.Setup.LayoutFor(npc.Space).Space, Obstacles(npc), TickMs), landing);
     }
 
     private static int DivRound(long numerator, long denominator) =>
@@ -363,17 +419,17 @@ internal sealed partial class NpcSystem
 
     /// <summary>
     /// What a walking NPC's body cannot pass: closed doors, standing barriers, creatures alive, the character, and other people - all in the
-    /// exterior, where every life walks; a character in an interior space (the Barrowworks) is not in their way.
+    /// space she stands in. Interiors have lives of their own now (the Barrowworks' watch), so the exterior is not the only floor walked.
     /// </summary>
-    private List<Blocker> Obstacles(string self)
+    private List<Blocker> Obstacles(NpcState self)
     {
         long r = _context.Setup.Movement.BodyRadiusMm;
-        var obstacles = new List<Blocker>(_context.ClosedDoors(SpaceId.Exterior));
-        obstacles.AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space.IsExterior)
+        var obstacles = new List<Blocker>(_context.ClosedDoors(self.Space));
+        obstacles.AddRange(State.Creatures.Values.Where(c => c.Alive && c.Site.Space == self.Space)
             .Select(c => (Blocker)new CircleBlocker(c.Key, c.Body.XMm, c.Body.ZMm, c.Definition.RadiusMm, 0)));
-        if (State.Space.IsExterior)
+        if (State.Space == self.Space)
             obstacles.Add(new CircleBlocker("player", State.Body.XMm, State.Body.ZMm, r, 0));
-        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != self)
+        obstacles.AddRange(State.Npcs.Values.Where(n => n.Definition.Id != self.Definition.Id && n.Space == self.Space)
             .Select(n => (Blocker)new CircleBlocker(n.Definition.Id, n.Body.XMm, n.Body.ZMm, r, 0)));
         return obstacles;
     }
@@ -392,7 +448,7 @@ internal sealed partial class NpcSystem
     private bool StepAside(NpcState npc, NpcLifeRecord life)
     {
         var intent = _playerIntent();
-        if (!intent.IsMoving || !State.Space.IsExterior)
+        if (!intent.IsMoving || npc.Space != State.Space)
             return false;
         var player = State.Body;
         long r = _context.Setup.Movement.BodyRadiusMm;
@@ -431,7 +487,7 @@ internal sealed partial class NpcSystem
             return null;
         (wx, wz) = (wx / wl, wz / wl);
         long r = _context.Setup.Movement.BodyRadiusMm;
-        var ahead = Obstacles(npc.Definition.Id).OfType<CircleBlocker>()
+        var ahead = Obstacles(npc).OfType<CircleBlocker>()
             .Select(c => (c.Id, Ox: (double)(c.CenterXMm - body.XMm), Oz: (double)(c.CenterZMm - body.ZMm), Reach: (double)(r + c.RadiusMm + PressMm)))
             .Where(c => c.Ox * c.Ox + c.Oz * c.Oz <= c.Reach * c.Reach && c.Ox * wx + c.Oz * wz > 0)
             .OrderBy(c => c.Ox * c.Ox + c.Oz * c.Oz).ThenBy(c => c.Id, StringComparer.Ordinal).ToList();
@@ -455,7 +511,7 @@ internal sealed partial class NpcSystem
     private bool InTheWay(string npcId, MoveIntent intent)
     {
         var from = State.Body;
-        var space = _context.Setup.Layout.Space;
+        var space = _context.Layout.Space;
         var all = _context.Obstacles();
         var (with, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all, TickMs);
         var (without, _) = Kinematics.Step(from, State.Posture, intent, _context.Setup.Movement, space, all.Where(b => b.Id != npcId).ToImmutableArray(), TickMs);

@@ -378,6 +378,29 @@ public static class ContentKindRegistry
             IdPrefix: "ambience"
         );
 
+        // D21 gear generation (GEAR_GENERATION.md section 2.1): the parts a gear family is assembled from, the workshops that build it, and the
+        // material classes their work is finished in.
+        kinds["part"] = new ContentKindDefinition(
+            Kind: "part",
+            FullKind: "part",
+            Directory: "parts",
+            IdPrefix: "part"
+        );
+
+        kinds["maker"] = new ContentKindDefinition(
+            Kind: "maker",
+            FullKind: "maker",
+            Directory: "makers",
+            IdPrefix: "maker"
+        );
+
+        kinds["material"] = new ContentKindDefinition(
+            Kind: "material",
+            FullKind: "material",
+            Directory: "materials",
+            IdPrefix: "mat"
+        );
+
         _kinds = kinds;
         
         // Build directory lookup (first occurrence only to avoid duplicates)

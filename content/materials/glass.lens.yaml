@@ -1,0 +1,12 @@
+id: mat.glass.lens
+kind: material
+schema: 1
+display_key: mat.glass.lens.name
+tags: [material]
+name: Glass Lens
+notes: "Ground and polished lens glass: the laser family's focus, and the first thing to fog, chip or crack."
+word: "Glass"
+class: exotic
+material_ref_item: item.material.iron_ore
+mult: { damage: 1.02, armor: 1.0, weight: 0.95, durability: 0.85, value: 1.9 }
+tier_min: 2

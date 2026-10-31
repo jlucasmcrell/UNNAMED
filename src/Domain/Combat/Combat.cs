@@ -147,6 +147,18 @@ public sealed record CombatConstants
     public int DeathTicks { get; init; } = 80;
 
     /// <summary>
+    /// The most any single shot may multiply by, however many of them it earns (STEALTH §7.1's <c>sneak_cap</c>): an arrow at an
+    /// unaware body that lands in a weak point is devastating, and still not the same thing as a boss falling over.
+    /// </summary>
+    public double SneakCap { get; init; } = 6.0;
+
+    /// <summary>
+    /// The zones a body offers an aimed shot when it does not author its own (STEALTH §7.2): a head, a mass, limbs. A creature whose
+    /// anatomy differs - a boar's skull, a spider's abdomen, a husk's spine - says so in its own content.
+    /// </summary>
+    public ImmutableSortedDictionary<BodyRegion, HitZone> HitZones { get; init; } = ImmutableSortedDictionary<BodyRegion, HitZone>.Empty;
+
+    /// <summary>
     /// Downed (OD-13 = B, SYSTEMS_COMPLETENESS_PLAN_20261017.md Â§2.10 X8): with a companion or hireling up and this near, a character
     /// brought to nothing lies downed for <see cref="DownedTicks"/> and is helped up with <see cref="DownedRevivePercent"/> of their
     /// health; with none, or once the last hand near them falls or leaves, they die as before. The party rule, not a difficulty.
@@ -442,6 +454,13 @@ public sealed record BossPhase(string Name, double? HealthBelow, int? AfterTicks
 }
 
 /// <summary>
+/// A place a shot can be put (STEALTH §7.2): the region, what landing there multiplies the blow by, and whether the shot has to come
+/// from in front to count - a boar's eye is behind its thick skull from anywhere else. A zone is anatomy, not a difficulty knob: it is
+/// why a head shot is worth taking, and why it is not worth taking on a body with no such gap.
+/// </summary>
+public sealed record HitZone(BodyRegion Region, double Multiplier, bool FrontOnly = false);
+
+/// <summary>
 /// A creature as combat knows it (DATA_MODEL.md Â§4.4): an authored level and stat block that nothing scales to the
 /// player (charter Â§1). Its attack comes from its <c>attack_set</c>; a second, charging ability may follow it.
 /// </summary>
@@ -504,6 +523,12 @@ public sealed record CreatureDefinition(
     /// land to reach it; the creature keeps one health pool whatever its parts do.
     /// </summary>
     public ImmutableArray<CreaturePart> Parts { get; init; } = ImmutableArray<CreaturePart>.Empty;
+
+    /// <summary>
+    /// Where a shot can be put on this body (STEALTH §7.2). Empty uses the build's own table (<see cref="CombatConstants.HitZones"/>);
+    /// a body whose anatomy differs - a boar's skull, a spider's abdomen - authors its own.
+    /// </summary>
+    public ImmutableSortedDictionary<BodyRegion, HitZone> HitZones { get; init; } = ImmutableSortedDictionary<BodyRegion, HitZone>.Empty;
 
     /// <summary>Its content tags (<c>undead</c>, <c>construct</c>): effects whose immunity tags meet them do not take.</summary>
     public ImmutableSortedSet<string> Tags { get; init; } = ImmutableSortedSet<string>.Empty;
