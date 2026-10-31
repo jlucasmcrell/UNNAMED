@@ -15,6 +15,8 @@ rope, cargo and parapet placements are preserved.
 - The 24 stair cuts receive 192 native drystone cheek pieces. Their exposed
   tops follow the upper landing; their lower portions sit in the bank. The
   central stair clearance remains at least 2.92 m. No new art is required.
+  Camera colliders use the exposed height up to the upper landing plus 15 cm,
+  rather than the full buried stone-piece height.
 
 Release build: zero errors. Focused people/finishing checks: two pass.
 Content lint: 968 definitions, zero errors. Native eye-height frames and

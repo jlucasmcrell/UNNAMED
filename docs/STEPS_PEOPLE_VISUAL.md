@@ -58,3 +58,27 @@ content records, distinct native faces, sex-compatible parts, people-specific
 shape ranges and period outfit choices. Native eye-height/full-body frames
 are required before this lane is FINISHED. Do not treat this source checkpoint
 as Claude's visual acceptance or merge it directly into `rc/playtest-2`.
+
+## Packager's exact art delta
+
+`D:\Otherreach_Scratch\steps_finish_20261031\delivery_art_delta` contains the
+fifteen period wardrobe variants and both Pirate Boots variants. Its
+`DELIVERY.json` lists 183 file hashes and 148 cache entries. The guard and
+Pirate Boots coverage files are the corrected v2 copies; both robes are the
+accepted B-007 corrected copies. Native garment GLBs are unchanged.
+
+Merge these seventeen rigged folders into the reconciled AssetBase, retaining
+unrelated art. Merge the supplied texture-cache entries by source key and copy
+their referenced DDS files; retain the world's other manifest entries. This
+delta depends on the already accepted native body, rest/control and opaque
+cloth fixes. It is not a replacement or approval of the complete RC AssetBase.
+
+The complete private native baseline used for review is available through
+`D:\Otherreach_Scratch\steps_finish_20261031\art\rigged` (read-only junctions
+into the original handoff). In particular, the native male target SHA is
+`ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28`
+and the female target SHA is
+`263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7`.
+The shared world-only art root lacks these creator body contracts; it cannot
+serve alone as the native-character baseline. Reuse the reconciled accepted
+B-007 native baseline rather than loosening target-body or motion checks.

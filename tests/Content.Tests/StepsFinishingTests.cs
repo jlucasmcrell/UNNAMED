@@ -31,6 +31,17 @@ public class StepsFinishingTests
         foreach (var stair in stairs)
         {
             long x = (stair.OriginXMm + stair.MaxXMm) / 2;
+            long top = Math.Max(stair.HeightsMm.Max(), layout.Space.Terrain.HeightAtMm(x, stair.MaxZMm + 1_000)) + 150;
+            var flightCheeks = cheeks.Where(c => Math.Abs(c.CenterXMm - x) < 10_000
+                && c.CenterZMm >= stair.OriginZMm && c.CenterZMm <= stair.MaxZMm).ToArray();
+            Assert.Equal(8, flightCheeks.Length);
+            foreach (var cheek in flightCheeks)
+            {
+                long low = new[] { (cheek.MinXMm,cheek.MinZMm),(cheek.MaxXMm,cheek.MinZMm),
+                    (cheek.MinXMm,cheek.MaxZMm),(cheek.MaxXMm,cheek.MaxZMm),(cheek.CenterXMm,cheek.CenterZMm) }
+                    .Min(p => layout.Space.Terrain.HeightAtMm(p.Item1,p.Item2));
+                Assert.InRange(Math.Abs(low + cheek.HeightMm - top), 0L, 2L);
+            }
             for (long z = stair.OriginZMm; z <= stair.MaxZMm; z += 1_000)
                 Assert.All(cheeks, c => Assert.True(c.DistanceTo(x,z) >= 350, $"{c.Id} blocks a stair centre at {x},{z}"));
             Assert.DoesNotContain(fills, f => f.OriginXMm < stair.MaxXMm && f.MaxXMm > stair.OriginXMm
