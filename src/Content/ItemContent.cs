@@ -112,7 +112,9 @@ public static class ItemContent
         var map = Config(loader, "config.economy");
         double Setting(string key, double fallback) => map.ContainsKey(key) ? Number(map, key) : fallback;
         var pricing = new Pricing(Number(map, "sell_ratio"), Setting("quality_value_step", 0.25),
-            Setting("maker_mark_premium", 0.1), Setting("recipe_vendor_margin", 0.9));
+            Setting("maker_mark_premium", 0.1), Setting("recipe_vendor_margin", 0.9),
+            // GEN-08: what an era does to a price, from config.economy (a pack without them keeps the defaults).
+            Setting("era_price_modern", 1.0), Setting("era_price_older", 1.4), Setting("era_price_ancient", 2.2));
         if (pricing.SellRatio is < 0 or > 1 || pricing.QualityStep is < 0 or >= 1
             || pricing.MakerPremium is < 0 or > 1 || pricing.RecipeMargin is <= 0 or >= 1)
             throw new FormatException("config.economy needs sell_ratio [0,1], quality_value_step [0,1), maker_mark_premium [0,1], recipe_vendor_margin (0,1)");
@@ -215,6 +217,11 @@ public static class ItemContent
             PackKind = packKind,
             PetCreature = map.GetValueOrDefault("pet_creature") as string,
             Heritage = map.GetValueOrDefault("heritage") as string,
+            // GEN-08: an era is identity, never a filter. An unknown word is a content error, not a silent modern.
+            Era = map.GetValueOrDefault("era") is string eraKey
+                ? ItemEras.Parse(eraKey) ?? throw new FormatException(
+                    $"{id}: '{eraKey}' is not an era ({string.Join(", ", ItemEras.All.Select(ItemEras.Key))})")
+                : ItemEra.Modern,
         };
     }
 

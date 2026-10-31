@@ -6,6 +6,33 @@ using UNNAMED.Domain.Progression;
 
 namespace UNNAMED.Domain.Items;
 
+/// <summary>
+/// How old a piece of gear is (GEN-08). It is identity, not a filter: an era decides what something costs and which traders carry it, and it
+/// never hides an item from a list. The words are the content's own - the world's history has no canon name for its ages yet.
+/// </summary>
+public enum ItemEra
+{
+    Modern,
+    Older,
+    Ancient,
+}
+
+public static class ItemEras
+{
+    public static readonly ImmutableArray<ItemEra> All = ImmutableArray.Create(ItemEra.Modern, ItemEra.Older, ItemEra.Ancient);
+
+    public static string Key(ItemEra era) => era switch
+    {
+        ItemEra.Modern => "modern",
+        ItemEra.Older => "older",
+        ItemEra.Ancient => "ancient",
+        _ => throw new ArgumentOutOfRangeException(nameof(era), era, "Unknown era"),
+    };
+
+    public static ItemEra? Parse(string key) => All.Cast<ItemEra?>().FirstOrDefault(e => Key(e!.Value) == key);
+}
+
+
 /// <summary>Where an equipped item sits. The weapon hands plus <c>DATA_MODEL.md</c> §4.3's armor slots.</summary>
 public enum EquipSlot
 {
@@ -339,6 +366,9 @@ public sealed record ItemDefinition(
     WeaponStats? Weapon,
     int ArmorValue)
 {
+    /// <summary>How old the piece is (GEN-08): a price and an availability, never a filter. Modern unless the content says otherwise.</summary>
+    public ItemEra Era { get; init; } = ItemEra.Modern;
+
     public bool Stacks => StackMax > 1;
 
     /// <summary>Its authored <c>name</c>: what a notable instance is called when its record is made (WP3a). Null when content gives none.</summary>
@@ -554,15 +584,35 @@ public sealed record MerchantStock(string ItemId, int Count, double PriceBias);
 public sealed record Merchant(string Id, ImmutableArray<MerchantStock> Stock, ImmutableArray<string> BuysCategories);
 
 /// <summary>Prices from <c>config.economy</c>. A merchant buys at a fraction of value, so buying to resell loses money.</summary>
-public sealed record Pricing(double SellRatio, double QualityStep = 0.25, double MakerPremium = 0.1, double RecipeMargin = 0.9)
+public sealed record Pricing(
+    double SellRatio,
+    double QualityStep = 0.25,
+    double MakerPremium = 0.1,
+    double RecipeMargin = 0.9,
+    double EraModern = 1.0,
+    double EraOlder = 1.4,
+    double EraAncient = 2.2)
 {
+    /// <summary>What an era does to a price (GEN-08): old work is dearer to buy, and dearer to sell, so resale still loses.</summary>
+    public double EraFactor(ItemEra era) => era switch
+    {
+        ItemEra.Modern => EraModern,
+        ItemEra.Older => EraOlder,
+        ItemEra.Ancient => EraAncient,
+        _ => throw new ArgumentOutOfRangeException(nameof(era), era, "Unknown era"),
+    };
+
     /// <summary>Instance value before market and wear: quality and an authenticated maker mark, never the holder's level.</summary>
     public long Value(ItemDefinition item, int quality = 0, bool makerMarked = false) =>
-        (long)Math.Floor(item.ValueBase * (1 + QualityStep * Math.Clamp(quality, -1, 2)) * (makerMarked ? 1 + MakerPremium : 1));
+        (long)Math.Floor(item.ValueBase * EraFactor(item.Era) * (1 + QualityStep * Math.Clamp(quality, -1, 2))
+            * (makerMarked ? 1 + MakerPremium : 1));
 
-    public long BuyPrice(ItemDefinition item, MerchantStock stock) => (long)Math.Ceiling(item.ValueBase * stock.PriceBias);
+    public long BuyPrice(ItemDefinition item, MerchantStock stock) =>
+        (long)Math.Ceiling(item.ValueBase * EraFactor(item.Era) * stock.PriceBias);
 
     /// <summary>What a merchant pays, or null when it will not buy this item.</summary>
     public long? SellPrice(ItemDefinition item, Merchant merchant) =>
-        item.NoSell || !merchant.BuysCategories.Contains(item.Category) ? null : (long)Math.Floor(item.ValueBase * SellRatio);
+        item.NoSell || !merchant.BuysCategories.Contains(item.Category)
+            ? null
+            : (long)Math.Floor(item.ValueBase * EraFactor(item.Era) * SellRatio);
 }

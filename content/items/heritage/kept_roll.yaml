@@ -10,5 +10,6 @@ stack_max: 1
 weight: 0.1
 value_base: 8
 rarity: common
+era: ancient
 no_drop: true
 heritage: people.veth

@@ -10,5 +10,6 @@ stack_max: 1
 weight: 0.05
 value_base: 0
 rarity: common
+era: older
 no_drop: true
 no_sell: true
