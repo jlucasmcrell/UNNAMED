@@ -88,6 +88,10 @@ public class UpgradeEnchantingTests
         Assert.Equal(skills, arena.Simulation.Player.Progression.Skills);
         var learned = arena.Simulation.Player.Progression.Known["ability.enchanting.keen_edge"];
         Assert.Equal((LearningSource.Teacher, sel), (learned.Source, learned.SourceRef));
+        arena.Tick();
+        Assert.DoesNotContain("ability.enchanting.keen_edge", arena.Simulation.QuickBar);
+        Assert.Equal("ability.enchanting.keen_edge cannot go on an action bar",
+            arena.Submit(new AssignQuickSlotCommand(arena.Player, 5, "ability.enchanting.keen_edge")));
         Assert.Null(arena.Submit(new InscribeCommand(arena.Player, sword.ItemId, "working.keen_edge")));
         Assert.Equal(1, Count(arena, Fang));
         Assert.Equal("Warding Weave is not known; learn it from a teacher first",

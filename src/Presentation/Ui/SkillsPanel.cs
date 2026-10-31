@@ -217,7 +217,8 @@ public partial class SkillsPanel : CanvasLayer
         var linked = progression.Known.Keys.Select(id =>
                 session.Setup.Magic.Formulas.TryGetValue(id, out var f) ? f.DomainSkillId
                 : session.Setup.Crafting.Recipes.TryGetValue(id, out var r) ? r.SkillId
-                : session.Setup.Techniques.TryGetValue(id, out var t) ? t.SkillId : null)
+                : session.Setup.Techniques.TryGetValue(id, out var t) ? t.SkillId
+                : session.Setup.Crafting.Workings.Values.Any(w => w.KnowledgeId == id) ? session.Setup.Crafting.Upgrades.EnchantingSkill : null)
             .OfType<string>().ToHashSet(StringComparer.Ordinal);
         return DisciplineRoster.Shown(session.Setup.Progression.Roster,
             id => progression.Skills.GetValueOrDefault(id) is { } s && (s.Level > 0 || s.ProgressXp > 0), linked, _showAll, _selected);
@@ -454,8 +455,13 @@ public partial class SkillsPanel : CanvasLayer
             {
                 card.AddChild(UiKit.Words(AvailabilityRules.TechniqueSummary(technique, key => Names.Of(session, key)), 16, HudStyle.Ash));
                 card.AddChild(AvailabilityBlock(AvailabilityRules.Technique(technique, context), checklist: true));
+                card.AddChild(SlotPicker(simulation, id));
             }
-            card.AddChild(SlotPicker(simulation, id));
+            else if (session.Setup.Crafting.Workings.Values.FirstOrDefault(w => w.KnowledgeId == id) is { } working)
+            {
+                card.AddChild(UiKit.Words($"Cut at an enchanting bench · {Names.Of(session, session.Setup.Crafting.Upgrades.EnchantingSkill)} {working.SkillMin}"
+                    + $" · {working.MaterialCount} {Names.Of(session, working.MaterialId)}", 16, HudStyle.Ash));
+            }
             list.AddChild(card);
         }
         _panes.Detail.AddChild(list);

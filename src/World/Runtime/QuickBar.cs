@@ -123,6 +123,8 @@ internal sealed class QuickBarSystem
             return State.GearSets.Any(g => g.Index == set) ? null : $"there is no gear set {set}";
         if (id.StartsWith("item.", StringComparison.Ordinal))
             return _context.Setup.Combat.UseEffects.ContainsKey(id) ? null : $"{id} has no use";
+        if (id.StartsWith("ability.", StringComparison.Ordinal) && !_context.Setup.Techniques.ContainsKey(id) && !Racial().Contains(id))
+            return $"{id} cannot go on an action bar";
         return ProgressionEngine.Knows(State.Progression, id) || Racial().Contains(id) ? null : $"{id} is not known";
     }
 
@@ -142,7 +144,7 @@ internal sealed class QuickBarSystem
         var carried = State.Inventory.Select(e => e.DefId).Where(uses.ContainsKey).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToList();
         var magic = _context.Setup.Magic;
         // In the order they were learned, and those learned from one book in the book's own order.
-        var workings = State.Progression.Known.Where(k => magic.Formulas.ContainsKey(k.Key) || k.Key.StartsWith("ability.", StringComparison.Ordinal))
+        var workings = State.Progression.Known.Where(k => magic.Formulas.ContainsKey(k.Key) || _context.Setup.Techniques.ContainsKey(k.Key))
             .OrderBy(k => k.Value.Tick)
             .ThenBy(k => k.Value.SourceRef is { } book && magic.Teaches.TryGetValue(book, out var taught) && taught.Contains(k.Key) ? taught.IndexOf(k.Key) : int.MaxValue)
             .ThenBy(k => k.Key, StringComparer.Ordinal).Select(k => k.Key).ToList();
