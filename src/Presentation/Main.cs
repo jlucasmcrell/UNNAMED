@@ -407,6 +407,8 @@ public partial class Main : Node3D
             LockProfile = true,
             RegionId = region,
             Barrowworks = VisualOptions.Barrowworks,
+            // The accessibility windows the player chose (GEN-10), read live so a change lands in the next blow.
+            TimingWindows = static () => Settings.SettingsStore.Current.Profile.Assist.Windows,
             // A --shot names a place to stand, so the session opens the player there instead of making the
             // capture walk him across the region - which measured about a quarter of an hour per room in the
             // Barrowworks (plan P2h). Absent, the region's own spawn is used and nothing changes.

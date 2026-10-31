@@ -64,6 +64,13 @@ public sealed record GameOptions(string ContentRoot, string ProfileRoot)
     public ImmutableArray<(string ItemId, int Count)> StartItems { get; init; } = [];
 
     /// <summary>
+    /// How wide the player's own parry and dodge windows are (GEN-10), read as the fight uses them: the game hands over its preferences, a
+    /// capture or a test hands over a constant.
+    /// </summary>
+    public Func<UNNAMED.Domain.Combat.TimingWindows> TimingWindows { get; init; } =
+        static () => UNNAMED.Domain.Combat.TimingWindows.Normal;
+
+    /// <summary>
     /// The level a capture's new character starts at; 0 - a player's own level 1 - unless a capture fixture asks for more. A capture that
     /// has to show a fight in its band (the Stopped Gate's level-5 court) is given the TTK table's character - level L, its L-1 points in
     /// Might - rather than a softer creature.
@@ -294,6 +301,8 @@ public sealed class GameSession : IDomainEvents, IDisposable
             Offline = WorldContent.BuildOffline(loader),
             Calendar = WorldContent.BuildCalendar(loader),
             Weather = WorldContent.BuildWeather(loader),
+            // The player's own parry and dodge windows, as Settings has them (GEN-10).
+            TimingWindows = options.TimingWindows,
             Economy = EconomyContent.Build(loader),
             Techniques = TeachingContent.BuildTechniques(loader),
             Chat = ChatterContent.Build(loader),

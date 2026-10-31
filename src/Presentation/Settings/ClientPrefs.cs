@@ -195,6 +195,9 @@ public sealed record ProfilePrefs
     public CameraPrefs Camera { get; init; } = new();
     public InterfacePrefs Interface { get; init; } = new();
 
+    /// <summary>The assists that change a rule rather than a picture (GEN-10).</summary>
+    public AssistPrefs Assist { get; init; } = new();
+
     /// <summary>Whether the first-launch screen has been answered (PJ02 §3.2); it is offered once.</summary>
     public bool FirstLaunchDone { get; init; }
 
@@ -216,6 +219,7 @@ public sealed record ProfilePrefs
         Controls = (Controls ?? new ControlPrefs()).Normalised(),
         Camera = (Camera ?? new CameraPrefs()).Normalised(),
         Interface = (Interface ?? new InterfacePrefs()).Normalised(),
+        Assist = (Assist ?? new AssistPrefs()).Normalised(),
     };
 }
 
@@ -246,7 +250,7 @@ public sealed record ControlPrefs
     /// <summary>The actions that can be held or toggled, and their defaults: crouch toggles (the owner's M6 playtest), the rest are held.</summary>
     public static readonly IReadOnlyDictionary<string, bool> Toggleable = new Dictionary<string, bool>(StringComparer.Ordinal)
     {
-        ["sprint"] = false, ["walk"] = false, ["crouch"] = true, ["guard"] = false,
+        ["sprint"] = false, ["walk"] = false, ["crouch"] = true, ["guard"] = false, ["aim"] = false,
     };
 
     /// <summary>An action renamed after players could have bound it, by its old name: a file that names the old one is read as the new.</summary>
@@ -265,6 +269,26 @@ public sealed record ControlPrefs
         Bindings = (Bindings ?? new()).Where(b => b.Key.Length > 0 && b.Value is not null)
             .ToDictionary(b => RenamedActions.GetValueOrDefault(b.Key, b.Key), b => b.Value.Where(Binding.IsValid).Distinct(StringComparer.Ordinal).Take(Binding.PerAction).ToArray(), StringComparer.Ordinal),
         Toggles = (Toggles ?? new()).Where(t => Toggleable.ContainsKey(t.Key)).ToDictionary(t => t.Key, t => t.Value, StringComparer.Ordinal),
+    };
+}
+
+/// <summary>
+/// The assists that change a rule rather than a picture (GEN-10): how wide the player's own parry and dodge windows are, and which telegraph
+/// palette is drawn. Held and toggled presses are the controls' own (`ControlPrefs.Toggles`), and the shake and the captions are the camera's
+/// and the interface's.
+/// </summary>
+public sealed record AssistPrefs
+{
+    /// <summary>How wide the player's parry and dodge windows are: as tuned, or half again as long.</summary>
+    public UNNAMED.Domain.Combat.TimingWindows Windows { get; init; } = UNNAMED.Domain.Combat.TimingWindows.Normal;
+
+    /// <summary>Which telegraph colours are drawn; violet stays the Other's in every one of them.</summary>
+    public UNNAMED.Domain.Combat.TelegraphPalette Telegraphs { get; init; } = UNNAMED.Domain.Combat.TelegraphPalette.Default;
+
+    public AssistPrefs Normalised() => this with
+    {
+        Windows = Enum.IsDefined(Windows) ? Windows : UNNAMED.Domain.Combat.TimingWindows.Normal,
+        Telegraphs = Enum.IsDefined(Telegraphs) ? Telegraphs : UNNAMED.Domain.Combat.TelegraphPalette.Default,
     };
 }
 

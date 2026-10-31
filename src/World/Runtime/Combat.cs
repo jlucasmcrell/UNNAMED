@@ -410,6 +410,13 @@ internal sealed partial class CombatSystem
 
     private CombatSetup Setup => _context.Setup.Combat;
     private CombatConstants C => Setup.Constants;
+
+    /// <summary>
+    /// The constants the PLAYER's own action is judged by: generous timing widens their dodge window (GEN-10). A creature's phases stay on
+    /// <see cref="C"/>, so the assist never lengthens an enemy's dodge.
+    /// </summary>
+    private CombatConstants PlayerC =>
+        UNNAMED.Domain.Combat.AssistRules.Windowed(C, _context.Setup.TimingWindows());
     private RuntimeState State => _context.State;
     private int TickMs => _context.Setup.TickMilliseconds;
 
@@ -466,7 +473,7 @@ internal sealed partial class CombatSystem
         if (command.Actor != _player)
             return $"unknown actor {command.Actor}";
         var combat = State.PlayerCombat;
-        var (phase, _) = combat.Action.PhaseAt(tick, C);
+        var (phase, _) = combat.Action.PhaseAt(tick, PlayerC);
         // A windup can still be abandoned; a committed blow and a stagger cannot.
         if (phase is not (CombatPhase.Idle or CombatPhase.Windup))
             return phase == CombatPhase.Staggered ? "staggered" : $"cannot dodge while {phase.ToString().ToLowerInvariant()}";
@@ -491,7 +498,7 @@ internal sealed partial class CombatSystem
         return null;
     }
 
-    private string? Busy(ActionState action, long tick) => action.PhaseAt(tick, C).Phase switch
+    private string? Busy(ActionState action, long tick) => action.PhaseAt(tick, PlayerC).Phase switch
     {
         CombatPhase.Idle => State.PlayerCombat.DownedUntil > 0 ? "downed" : State.PlayerCombat.Defeated ? "dead" : null,
         CombatPhase.Staggered => "staggered",
@@ -567,7 +574,7 @@ internal sealed partial class CombatSystem
         var action = combat.Action;
         if (action.Kind == ActionKind.Idle || combat.Defeated)
             return;
-        var (phase, _) = action.PhaseAt(tick, C);
+        var (phase, _) = action.PhaseAt(tick, PlayerC);
         if (phase == CombatPhase.Idle)
         {
             State.SetPlayerCombat(_owner, combat with { Action = ActionState.Idle });
@@ -878,7 +885,7 @@ internal sealed partial class CombatSystem
             StaggerPlayer(tick, force: true);
             combat = State.PlayerCombat;
         }
-        bool dodging = combat.Action.Kind == ActionKind.Dodge && combat.Action.PhaseAt(tick, C).Phase == CombatPhase.Dodge;
+        bool dodging = combat.Action.Kind == ActionKind.Dodge && combat.Action.PhaseAt(tick, PlayerC).Phase == CombatPhase.Dodge;
         // Wraith-step (Orenth): a physical blow passes through a body half elsewhere; soul and phase damage find it all the more.
         bool phased = _context.Phased();
         var defense = new DefenseProfile(MaxHealth(), PlayerArmor(), PlayerResistances(phased), guarding,
@@ -894,7 +901,7 @@ internal sealed partial class CombatSystem
         State.SetPlayerCombat(_owner, State.PlayerCombat with { LastCombat = tick });
         int health = result.Final > 0 ? LosePlayerHealth(result.Final, creature.Definition.Id, attack.Source, tick) : Health();
         // Concentration under damage: a wound breaks a working still in its tell.
-        if (result.Final > 0 && combat.Action.Kind == ActionKind.Cast && combat.Action.PhaseAt(tick, C).Phase == CombatPhase.Windup)
+        if (result.Final > 0 && combat.Action.Kind == ActionKind.Cast && combat.Action.PhaseAt(tick, PlayerC).Phase == CombatPhase.Windup)
         {
             BreakCast(combat.Action, "wounded", tick);
             State.SetPlayerCombat(_owner, State.PlayerCombat with { Action = ActionState.Idle });
@@ -1016,7 +1023,7 @@ internal sealed partial class CombatSystem
     public AttackRecord? AttackUnderWay()
     {
         var action = State.PlayerCombat.Action;
-        return action.Kind == ActionKind.Attack && action.PhaseAt(State.WorldTick, C).Phase != CombatPhase.Idle
+        return action.Kind == ActionKind.Attack && action.PhaseAt(State.WorldTick, PlayerC).Phase != CombatPhase.Idle
             ? new AttackRecord(action.Attack!.Source, action.StartTick, action.Struck.ToImmutableArray())
             : null;
     }
@@ -1083,7 +1090,7 @@ internal sealed partial class CombatSystem
             return;
         int stamina = Stamina(), maxStamina = MaxStamina(), health = Health(), maxHealth = MaxHealth();
         var intent = _intent();
-        var (phase, _) = combat.Action.PhaseAt(tick, C);
+        var (phase, _) = combat.Action.PhaseAt(tick, PlayerC);
         int staminaDelta = 0, healthDelta = 0;
         var next = combat;
         if (State.Swimming)
@@ -1158,7 +1165,7 @@ internal sealed partial class CombatSystem
     public CombatView View()
     {
         var combat = State.PlayerCombat;
-        var (phase, left) = combat.Action.PhaseAt(State.WorldTick, C);
+        var (phase, left) = combat.Action.PhaseAt(State.WorldTick, PlayerC);
         return new CombatView(phase, left, combat.Action.Attack?.Source, combat.Blocking, PlayerAttack(), Health(), MaxHealth(), Stamina(),
             MaxStamina(), EffectsOf(_player))
         {

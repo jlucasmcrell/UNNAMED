@@ -243,7 +243,9 @@ public partial class Main
         // Combat: the left button swings or shoots, the right holds a guard (or aims a bow), C dodges, H uses a salve.
         // A swing, a guard and an aimed bow all go where the camera looks.
         bool captured = Input.MouseMode == Input.MouseModeEnum.Captured;
-        bool holding = captured && Engaged("guard");
+        // Whichever the weapon makes of the right button is the action read: a bow holds an aim, a blade a guard. Either may be a toggle
+        // (Settings, Controls: hold or press on, press off), which is what an accessibility assist needs of it.
+        bool aiming = captured && Engaged(combat.Weapon.Ranged ? "aim" : "guard");
         bool swing = captured && Input.IsActionJustPressed("attack");
         // The quick bar (WP9): a slot's key uses what is on it - an item, or a formula or technique worked where the camera looks, like a swing (M3e).
         // The page keys first: the page modifier held with 1 to 6 pages the main bar, and the digit is then not a slot's.
@@ -256,12 +258,14 @@ public partial class Main
         if (gear >= 0)
             _session.Submit(new SwapGearSetCommand(_session.Simulation!.PlayerId, gear + 1));
         bool working = captured && quick is not null && (_session.Setup.Magic.Formulas.ContainsKey(quick) || _session.Setup.Techniques.ContainsKey(quick));
-        _controller.Steer(_camera, stick, gait, faceCamera: _avatar is MHCharacters.MetaHumanFigure || VisualOptions.ComparisonCast is not null || holding || swing || working || combat.Phase == CombatPhase.Windup);
+        // An aimed bow stands: the stick is the aim, not the walk. The dodge below still reads the stick itself, so a held or toggled aim
+        // never costs a dodge its direction.
+        _controller.Steer(_camera, aiming && combat.Weapon.Ranged ? Vector2.Zero : stick, gait, faceCamera: _avatar is MHCharacters.MetaHumanFigure || VisualOptions.ComparisonCast is not null || aiming || swing || working || combat.Phase == CombatPhase.Windup);
         if (swing)
             _controller.Attack();
         if (slot >= 0)
             UseQuickSlot(slot, quick, captured);
-        bool guard = holding && !combat.Weapon.Ranged;
+        bool guard = aiming && !combat.Weapon.Ranged;
         if (guard != combat.Blocking && (!guard || combat.Phase == CombatPhase.Idle))
             _controller.Guard(guard);
         if (captured && Input.IsActionJustPressed("dodge"))
@@ -474,7 +478,11 @@ public partial class Main
         Bind("bar_scroll_modifier", Key.Alt);
         foreach (string action in GearSetKeys)
             Bind(action);
-        foreach (var (action, button) in new[] { ("attack", MouseButton.Left), ("guard", MouseButton.Right) })
+        // Guard and aim are one press by default: the right button holds a guard in the melee and an aim with a bow.
+        foreach (var (action, button) in new[]
+                 {
+                     ("attack", MouseButton.Left), ("guard", MouseButton.Right), ("aim", MouseButton.Right),
+                 })
         {
             if (!InputMap.HasAction(action))
                 InputMap.AddAction(action);

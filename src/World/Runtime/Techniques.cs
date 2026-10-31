@@ -57,7 +57,13 @@ internal sealed partial class CombatSystem
         {
             case TechniqueKind.Parry:
                 // The window opens now: a blow that reaches the character inside it is gone (Handle(CreatureStrike)).
-                State.SetPlayerCombat(_owner, used with { ParryUntil = tick + technique.ParryTicks, Blocking = false });
+                // The window opens now, and it is the player's own: generous timing makes it half again as long (GEN-10).
+                State.SetPlayerCombat(_owner, used with
+                {
+                    ParryUntil = tick + UNNAMED.Domain.Combat.AssistRules.WindowTicks(
+                        technique.ParryTicks, _context.Setup.TimingWindows()),
+                    Blocking = false,
+                });
                 _context.Events.Publish(new TechniqueUsed(_player, technique.Id, weapon.Source, readyAt, tick));
                 return null;
             case TechniqueKind.GivingGround:

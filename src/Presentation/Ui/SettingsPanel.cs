@@ -522,6 +522,18 @@ public partial class SettingsPanel : CanvasLayer
             0, 100, 5, camera.Shake * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Shake = (float)(v / 100) } })));
         comfort.AddChild(Slider("camera.bob", "Head bob", "How much the view sways with the step in first person; 0 is a steady eye.",
             0, 100, 5, camera.Bob * 100, v => $"{v:0} %", v => Profile(p => p with { Camera = p.Camera with { Bob = (float)(v / 100) } })));
+        // The assists that change a rule rather than a picture (GEN-10): the windows the player's own parry and dodge are judged by, and the
+        // telegraph colours. Guard, aim and sprint are held or toggled on the Controls page, beside each action's keys.
+        var windows = Enum.GetValues<UNNAMED.Domain.Combat.TimingWindows>();
+        comfort.AddChild(Choice("assist.windows", "Parry and dodge windows",
+            "How long a blow may be answered: as the fight was tuned, or half again as long.",
+            new[] { "Normal", "Generous" }, Array.IndexOf(windows, SettingsStore.Current.Profile.Assist.Windows),
+            i => Change(p => p with { Profile = p.Profile with { Assist = p.Profile.Assist with { Windows = windows[i] } } })));
+        var telegraphs = Enum.GetValues<UNNAMED.Domain.Combat.TelegraphPalette>();
+        comfort.AddChild(Choice("assist.telegraphs", "Telegraph colours",
+            "The warning a blow is coming, in colours that keep their contrast. Violet stays the Other's.",
+            new[] { "As drawn", "Amber", "Orange" }, Array.IndexOf(telegraphs, SettingsStore.Current.Profile.Assist.Telegraphs),
+            i => Change(p => p with { Profile = p.Profile with { Assist = p.Profile.Assist with { Telegraphs = telegraphs[i] } } })));
         comfort.AddChild(Toggle("camera.flashes", "Reduce flashes", "A burst of light from a working or an impact reaches a third of its brightness.",
             camera.ReduceFlashes, on => Profile(p => p with { Camera = p.Camera with { ReduceFlashes = on } })));
         Reset("camera.reset", () => Profile(p => p with { Camera = new CameraPrefs() }));

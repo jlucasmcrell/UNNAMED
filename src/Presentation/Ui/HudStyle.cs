@@ -28,6 +28,17 @@ public static class HudStyle
     public static Color Ash => _contrast ? new(0.9f, 0.89f, 0.85f) : new(0.76f, 0.74f, 0.69f);
     public static Color Muted => _contrast ? new(0.86f, 0.85f, 0.81f) : new(0.67f, 0.66f, 0.62f);
     public static readonly Color Ember = new(0.93f, 0.66f, 0.33f);
+
+    /// <summary>
+    /// The colour a telegraph is drawn in, in the palette the player chose (GEN-10): the amber and orange sets replace the red-orange warning
+    /// for eyes that lose it. Violet answers every palette, because it means the Other and nothing else.
+    /// </summary>
+    public static Color Telegraph(UNNAMED.Domain.Combat.TelegraphRole role)
+    {
+        var colour = UNNAMED.Domain.Combat.Telegraphs.Of(
+            SettingsStore.Current.Profile.Assist.Telegraphs, role);
+        return new Color(colour.R / 255f, colour.G / 255f, colour.B / 255f);
+    }
     public static readonly Color Brass = new(0.83f, 0.69f, 0.45f);
 
     /// <summary>Harm, a refusal, a wound: a soft red, or for red-green colour vision a vermilion, for blue-yellow a rose.</summary>

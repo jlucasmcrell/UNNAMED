@@ -1,4 +1,4 @@
-﻿// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
+// UNNAMED World - the running simulation: composition root, command queue, fixed tick (ARCHITECTURE.md Â§4.5, Â§7, Â§8.1)
 // No Godot references - pure C#
 
 using System.Collections.Immutable;
@@ -135,6 +135,13 @@ public sealed record SimulationSetup(RegionLayout Layout, MovementRules Movement
     /// </summary>
     public UNNAMED.Domain.Combat.IArmourGapReader ArmourGaps { get; init; } = UNNAMED.Domain.Combat.StubArmourGaps.Instance;
     public WeatherRules Weather { get; init; } = WeatherRules.Default;
+
+    /// <summary>
+    /// How wide the player's own parry and dodge windows are (GEN-10). Read when a window is opened, so a player who changes it in Settings
+    /// gets it on their next dodge or parry rather than at the next save.
+    /// </summary>
+    public Func<UNNAMED.Domain.Combat.TimingWindows> TimingWindows { get; init; } =
+        static () => UNNAMED.Domain.Combat.TimingWindows.Normal;
 
     /// <summary>The factions, the standing ladder and the act log's capacity (WP6).</summary>
     public FactionSetup Factions { get; init; } = FactionSetup.Empty;
