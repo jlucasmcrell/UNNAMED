@@ -28,6 +28,20 @@ public sealed record AdventurerArrived(string Key, string Name, string Settlemen
 /// <summary>An adventurer died out at a ground (DN2: by the outcome table); their gear is gone with them, and their slot waits for an arrival.</summary>
 public sealed record AdventurerDied(string Key, string Name, string Where, long Tick);
 
+/// <summary>
+/// A party left a settlement on an expedition (GEN-06): where they went, who went, and the days they are away. The news, the coin and the hurts
+/// come back in <see cref="ExpeditionReturned"/> days later.
+/// </summary>
+public sealed record ExpeditionLeft(string Settlement, string AreaKey, string AreaName, System.Collections.Immutable.ImmutableArray<string> Party,
+    long LeftDay, long ReturnDay, long Tick);
+
+/// <summary>
+/// A party came home (GEN-06): what the ground gave them, who is hurt, and the sentence a player reads in the away sheet.
+/// </summary>
+public sealed record ExpeditionReturned(string Settlement, string AreaKey, string AreaName, System.Collections.Immutable.ImmutableArray<string> Party,
+    long Coin, System.Collections.Immutable.ImmutableArray<string> Loot, System.Collections.Immutable.ImmutableArray<string> Injured, bool Lost,
+    string News, long Tick);
+
 /// <summary>An adventurer came back hurt and rests at the lodge until <see cref="UntilDay"/>.</summary>
 public sealed record AdventurerInjured(string Key, string Name, long UntilDay, long Tick);
 
@@ -299,10 +313,130 @@ internal sealed class AdventurerSystem : IAbstractAdvance, IAgentTrade, ISetting
             var (next, happenings) = AdventurerEngine.Midnight(Current!, setup.Rules, Day(d));
             State.SetAdventurers(_owner, next);
             Carry(state, happenings, midnight, log);
+            Expeditions(d, midnight, log, Day(d));
         }
     }
 
     /// <summary>What a midnight did, carried to its owners by command, published, and logged for the away sheet.</summary>
+    /// <summary>What one market actually trades (GEN-06): a ground's loot pool is real goods the settlement already sells. The simulation fills
+    /// this in, because the market's view belongs to the market system and not to this one.</summary>
+    public Func<string, ImmutableArray<string>> MarketGoods { get; set; } = _ => ImmutableArray<string>.Empty;
+
+    /// <summary>One expedition out per settlement: the party that is away, where, and when they are due back (GEN-06).</summary>
+    private readonly Dictionary<string, Expedition> _expeditions = new(StringComparer.Ordinal);
+
+    /// <summary>
+    /// The expedition half of a midnight (GEN-06): a party at a settlement with nothing better on leaves for a real ground for days, and a party
+    /// that is due back comes home with coin, goods, hurts and news. It runs after the engine's own midnight, so it works on the day just
+    /// settled and never fights the adventurer's own plan.
+    /// </summary>
+    private void Expeditions(long day, long midnight, AdvanceLog? log, AdventurerDay today)
+    {
+        if (Current is not { } state || Setup is not { } setup)
+            return;
+
+        foreach (string settlement in setup.Settlements.Keys)
+        {
+            if (_expeditions.TryGetValue(settlement, out var trip))
+            {
+                if (trip.ReturnDay <= day)
+                {
+                    _expeditions.Remove(settlement);
+                    Conclude(trip, settlement, day, midnight, setup, log);
+                }
+                continue;
+            }
+
+            // A party goes out: two of the settlement's own, about their business and not in the character's company, working the hardest
+            // ground their level can survive.
+            var party = state.Agents.Values
+                .Where(a => a.Settlement == settlement && a.Condition == AdventurerCondition.Active && a.Party is null)
+                .OrderBy(a => a.Key, StringComparer.Ordinal)
+                .Take(2)
+                .ToList();
+            if (party.Count < 2)
+                continue;
+            var areas = AreasOf(settlement, setup, today);
+            if (ExpeditionRules.Choose(areas, party.Max(a => a.Level)) is not { } area)
+                continue;
+
+            var planned = ExpeditionRules.Plan(area, party.Select(a => a.Key).ToImmutableArray(), day);
+            _expeditions[settlement] = planned;
+            _context.Events.Publish(new ExpeditionLeft(settlement, planned.AreaKey, planned.AreaName, planned.Party, planned.LeftDay, planned.ReturnDay, midnight));
+            log?.Add(new AdvanceLine(midnight, AdventurerAdvanceKinds.Returned, planned.AreaKey, party.Count)
+            {
+                ActorName = party[0].Name,
+                PlaceId = setup.Settlements[settlement].LocationId,
+                SubjectId = planned.AreaName,
+            });
+        }
+    }
+
+    /// <summary>
+    /// A party comes home (GEN-06): the rules decide what they bring, and the world takes it the way the world takes anything - coin into each
+    /// agent's own purse, goods onto the settlement's market through the market's own trade, hurts onto the adventurer that carries them, and a
+    /// sentence to the advance log the away sheet reads.
+    /// </summary>
+    private void Conclude(Expedition trip, string settlement, long day, long midnight, AdventurerSetup setup, AdvanceLog? log)
+    {
+        if (Current is not { } state)
+            return;
+        var areas = AreasOf(settlement, setup, Day(day * Clock.TicksPerDay - Clock.StartTicks));
+        // The loot a ground can give is the settlement market's own goods: real items the world already trades, not a list invented here.
+        string market = Setup!.Settlements[settlement].MarketId;
+        var lootPool = MarketGoods(market).ToArray();
+
+        var back = ExpeditionRules.Resolve(trip, areas, lootPool, day);
+        long share = trip.Party.IsEmpty ? 0 : back.Coin / trip.Party.Length;
+        var agents = state.Agents.ToBuilder();
+        foreach (string key in trip.Party)
+        {
+            if (!agents.TryGetValue(key, out var agent))
+                continue;
+            long coin = agent.Coin + share;
+            var hurt = back.Injured.Contains(key);
+            agents[key] = agent with
+            {
+                Coin = coin,
+                Condition = hurt ? AdventurerCondition.Injured : agent.Condition,
+                InjuredUntilDay = hurt ? day + 2 : agent.InjuredUntilDay,
+            };
+            if (hurt)
+                _context.Events.Publish(new AdventurerInjured(key, agent.Name, day + 2, midnight));
+        }
+        State.SetAdventurers(_owner, state with { Agents = agents.ToImmutable() });
+
+        // The goods go onto the settlement's own market, so the expedition shows up in the living economy rather than in a footnote.
+        foreach (string itemId in back.Loot)
+            _context.Dispatch(new MarketTrade(setup.Settlements[settlement].MarketId, itemId, 0, 1));
+
+        _context.Events.Publish(new ExpeditionReturned(settlement, trip.AreaKey, trip.AreaName, trip.Party, back.Coin, back.Loot, back.Injured, back.Lost, back.News, midnight));
+        log?.Add(new AdvanceLine(midnight, AdventurerAdvanceKinds.Claimed, trip.AreaKey, back.Coin)
+        {
+            ActorName = state.Agents.GetValueOrDefault(trip.Party.FirstOrDefault())?.Name,
+            PlaceId = setup.Settlements[settlement].LocationId,
+            SubjectId = back.News,
+            Wounded = !back.Injured.IsEmpty,
+            Loot = back.Loot.Select(id => (id, 1)).ToImmutableArray(),
+        });
+    }
+
+    /// <summary>The real grounds one settlement works, as the expedition rules want them: the world's own spawns, their danger, and a name.</summary>
+    private ImmutableArray<ExpeditionArea> AreasOf(string settlement, AdventurerSetup setup, AdventurerDay today)
+    {
+        if (!setup.Settlements.TryGetValue(settlement, out var town))
+            return ImmutableArray<ExpeditionArea>.Empty;
+        var areas = ImmutableArray.CreateBuilder<ExpeditionArea>();
+        foreach (string key in town.Grounds)
+        {
+            if (!today.Grounds.TryGetValue(key, out var ground))
+                continue;
+            areas.Add(new ExpeditionArea(key, setup.Names.GetValueOrDefault(key, ground.CreatureId),
+                DistanceDays: 1, DangerLevel: ground.Danger, DaysOfWork: 1 + ground.Danger / 2));
+        }
+        return areas.ToImmutable();
+    }
+
     private void Carry(AdventurerState before, ImmutableArray<AdventurerHappening> happenings, long tick, AdvanceLog? log)
     {
         var setup = Setup!;

@@ -400,6 +400,9 @@ public sealed class Simulation
         _approval.Listen(bus);
         _adventurers = new AdventurerSystem(_context, _state.Claim(nameof(AdventurerSystem), StateSlice.Adventurers), player.Id);
         _yard = new YardSystem(_context, player.Id, () => _adventurers.Views());
+        // GEN-06: a ground brings home real goods, so the adventurers read what the settlement market actually trades.
+        _adventurers.MarketGoods = market => _markets.Views().FirstOrDefault(m => m.MarketId == market)?.Goods.Select(g => g.ItemId).ToImmutableArray()
+            ?? ImmutableArray<string>.Empty;
         _trips = new CombinedSettingOuts(setup.SettingOuts ?? _npcs, _adventurers);
         _hiring = new CombinedHireability(_adventurers, _npcs);
         _lfg = new LfgSystem(_context, _state.Claim(nameof(LfgSystem), StateSlice.Lfg), player.Id, _trips);
