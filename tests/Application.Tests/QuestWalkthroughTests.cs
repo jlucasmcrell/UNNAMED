@@ -373,10 +373,10 @@ public class QuestWalkthroughTests
 
 
     /// <summary>
-    /// The hunting starter: a wolf, its carcass, the pelt off it, and the hide tanned into leather. Expected to fail until the pelt yield
-    /// fix on `claude/bug-gate` merges (B-031), so it is skipped with that id rather than left red in every run.
+    /// The hunting starter: a wolf, its carcass - the meat off it first, then the pelt - and the pelt tanned into leather at the
+    /// hollow's tanning rack, which teaches the tanning by experiment (B-031).
     /// </summary>
-    [Fact(Skip = "B-031: skinning a wolf carcass yields no pelt (fix in progress on claude/bug-gate) - unskip when it merges")]
+    [Fact]
     public void SkinningAndTanning_FromAWolfToLeather()
     {
         using var profile = new TempProfile();
@@ -396,10 +396,17 @@ public class QuestWalkthroughTests
             $"never reached the carcass: at {arena.At}");
         Assert.Null(arena.Submit(new GatherCommand(arena.Player, carcass.Key)));
         arena.Tick(4);
+        Assert.True(Carried(arena, "item.material.meat_raw") > 0, "the carcass's first harvest gave no meat");
+        Assert.Null(arena.Submit(new GatherCommand(arena.Player, carcass.Key)));
+        arena.Tick(4);
 
-        int pelts = Carried(arena, "item.material.small_hide");
+        int pelts = Carried(arena, "item.material.pelt_grey_wolf");
         Assert.True(pelts > 0, $"skinning the carcass yielded no pelt: carried {pelts}");
 
+        var rack = arena.Simulation.Setup.Layout.Stations.Single(s => s.Key == "station.ah_tanning");
+        Assert.True(arena.WalkTo(rack.XMm / 1000.0 - arena.Origin.X, rack.ZMm / 1000.0 - arena.Origin.Z - 1.0, maxTicks: 40000),
+            $"never reached the tanning rack: at {arena.At}");
+        Assert.Null(arena.Submit(new ExperimentCommand(arena.Player, rack.Key)));
         Assert.Null(arena.Submit(new CraftCommand(arena.Player, "recipe.tanning.wolf_hide")));
         arena.Tick(4);
         Assert.True(Carried(arena, "item.material.leather") > 0, "tanning the pelt yielded no leather");
