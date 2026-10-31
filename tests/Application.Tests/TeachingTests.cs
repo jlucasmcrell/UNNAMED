@@ -3,6 +3,7 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Items;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Progression;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Social;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -70,6 +71,14 @@ public class TeachingTests
         var gate = Assert.Single(strike.Requirements);
         Assert.Equal((new SkillBandRequirement(Blade, "familiar", 15) as TeachingRequirement, false, 4L), (gate.Requirement, gate.Met, gate.Have));
         Assert.False(strike.Met);
+
+        // PRG-29: the technique's own record runs alongside the teacher's gates and is shown as its own chip. The authored bar is the
+        // lowest there is (Might 1), so a starting character meets it - and the requirement is on the setup the simulation actually runs.
+        var own = Assert.Single(strike.Technique);
+        Assert.Equal(UNNAMED.Domain.Combat.TechniqueRequirementKind.Attribute, own.Requirement.Kind);
+        Assert.Equal("Might", own.Requirement.Ref);
+        Assert.True(own.Met);
+        Assert.Single(arena.Simulation.Setup.Techniques[PowerStrike].Requirements);
         Assert.Null(arena.Simulation.Teaching("npc.ashen_hollow.renn_vale"));   // Renn teaches nothing
     }
 

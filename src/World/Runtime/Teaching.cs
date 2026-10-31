@@ -7,6 +7,8 @@ using UNNAMED.Domain;
 using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Social;
 
+using UNNAMED.Domain.Combat;
+
 namespace UNNAMED.World.Runtime;
 
 /// <summary>
@@ -30,7 +32,10 @@ public sealed record TeachingView(string NpcId, string? Unavailable, ImmutableAr
 /// <summary>One lesson as the Learn column lists it: met and unmet requirement chips, the fee, and whether the conversation gives it.</summary>
 public sealed record LessonView(TeachingKind Kind, string DefinitionId, long Fee, bool Known, bool ByDialogue, ImmutableArray<RequirementCheck> Requirements)
 {
-    public bool Met => Requirements.All(r => r.Met);
+    /// <summary>The technique's own requirements (PRG-29), each met or not, with the words for why not.</summary>
+    public ImmutableArray<TechniqueRequirementVerdict> Technique { get; init; } = ImmutableArray<TechniqueRequirementVerdict>.Empty;
+
+    public bool Met => Requirements.All(r => r.Met) && Technique.All(t => t.Met);
 }
 
 /// <summary>To <see cref="TeachingSystem"/>: a <c>teach</c> consequence - the speaker teaches these entries of their block, all or nothing.</summary>
@@ -113,6 +118,10 @@ internal sealed class TeachingSystem : IAbstractAdvance
         {
             if (TeachingRules.Check(offer, npcId, facts, Knows).FirstOrDefault(c => !c.Met) is { } unmet)
                 return $"{teacher.Name} will not teach {offer.DefinitionId} yet: {Reason(unmet, teacher)}";
+            // PRG-29: the technique's own record gates the lesson too, whatever the teacher thinks of the character.
+            if (TechniqueRequirements.FirstUnmet(TechniqueCandidates.RequirementsOf(_context.Setup, offer.DefinitionId),
+                    TechniqueCandidates.Of(State, _context.Setup)) is { } short_)
+                return $"{teacher.Name} will not teach {offer.DefinitionId} yet: {short_.Why}";
         }
         long fee = offers.Sum(o => o.Fee);
         if (State.Currency < fee)
@@ -140,7 +149,12 @@ internal sealed class TeachingSystem : IAbstractAdvance
             return null;
         var facts = _facts(npcId);
         return new TeachingView(npcId, _hours.Unavailable(npcId, tick), npc.Definition.Teaches
-            .Select(o => new LessonView(o.Kind, o.DefinitionId, o.Fee, Knows(o.DefinitionId), o.ByDialogue, TeachingRules.Check(o, npcId, facts, Knows)))
+            .Select(o => new LessonView(o.Kind, o.DefinitionId, o.Fee, Knows(o.DefinitionId), o.ByDialogue, TeachingRules.Check(o, npcId, facts, Knows))
+            {
+                // PRG-29: the technique's own record is a chip like any other, so the Learn column says why a lesson is shut.
+                Technique = TechniqueRequirements.Check(
+                    TechniqueCandidates.RequirementsOf(_context.Setup, o.DefinitionId), TechniqueCandidates.Of(State, _context.Setup)),
+            })
             .ToImmutableArray());
     }
 

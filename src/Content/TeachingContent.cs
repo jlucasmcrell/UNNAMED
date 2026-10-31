@@ -91,7 +91,7 @@ public static class TeachingContent
                 map.ContainsKey("windup_multiplier") ? Number(map, "windup_multiplier") : 1.0,
                 map.ContainsKey("reach_bonus_m") ? Mm(map, "reach_bonus_m") : 0, Int(cost, "stamina"), ToTicks(Number(map, "cooldown_s"), tickMs))
             {
-                Requirements = Requirements(map, id),
+                Requirements = RequirementsContent.TechniqueRequirementsOf(map, id),
                 OnHitEffect = effect is null ? null : Text(effect, "effect_ref"),
                 OnHitEffectPercent = effect is null ? 0 : (int)Math.Round(Number(effect, "chance") * 100, MidpointRounding.AwayFromZero),
             };
@@ -102,49 +102,6 @@ public static class TeachingContent
             techniques.Add(id, technique);
         }
         return techniques.ToImmutable();
-    }
-
-    /// <summary>
-    /// PRG-29: what a technique asks of a character - <c>attribute</c> (a name and a least value), <c>skill</c> (a level), <c>known</c> (another
-    /// definition), <c>equipment</c> (a carried or worn one), <c>body</c> (a people or lineage), <c>knowledge</c> (a record) or <c>standing</c>
-    /// (with whom, and how much). A kind the rule cannot answer is refused at load rather than never met in game.
-    /// </summary>
-    private static ImmutableArray<TechniqueRequirement> Requirements(Dictionary<object, object> map, string id)
-    {
-        if (!map.ContainsKey("requires"))
-            return ImmutableArray<TechniqueRequirement>.Empty;
-        return Rows(map, "requires", id).Select(row =>
-        {
-            string kind = Text(row, "kind");
-            TechniqueRequirementKind? parsed = kind switch
-            {
-                "skill" => TechniqueRequirementKind.Skill,
-                "attribute" => TechniqueRequirementKind.Attribute,
-                "known" => TechniqueRequirementKind.Known,
-                "equipment" => TechniqueRequirementKind.Equipment,
-                "body" => TechniqueRequirementKind.Body,
-                "knowledge" => TechniqueRequirementKind.Knowledge,
-                "standing" => TechniqueRequirementKind.Standing,
-                _ => null,
-            };
-            if (parsed is not { } named)
-                throw new FormatException($"{id}: requires kind '{kind}' is not one of skill, attribute, known, equipment, body, knowledge, standing");
-            string? reference = kind switch
-            {
-                "skill" => row.GetValueOrDefault("skill_ref") as string,
-                "known" => row.GetValueOrDefault("technique_ref") as string,
-                "equipment" => row.GetValueOrDefault("item_ref") as string,
-                "body" => row.GetValueOrDefault("people_ref") as string,
-                "knowledge" => row.GetValueOrDefault("knowledge_ref") as string,
-                "standing" => row.GetValueOrDefault("npc_ref") as string,
-                _ => Text(row, "attribute"),
-            };
-            int min = row.ContainsKey("min") ? Int(row, "min") : 1;
-            var requirement = new TechniqueRequirement(named, reference, min);
-            if (requirement.Problem() is { } problem)
-                throw new FormatException($"{id}: {problem}");
-            return requirement;
-        }).ToImmutableArray();
     }
 
     /// <summary>
