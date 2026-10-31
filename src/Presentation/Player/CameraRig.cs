@@ -118,7 +118,43 @@ public partial class CameraRig : Node3D
         Pitch = Mathf.Clamp(Pitch - mouseDelta.Y * Sensitivity * (InvertY ? -1 : 1), -1.35f, 1.2f);
     }
 
-    public void Zoom(float metres) => TargetDistance = Mathf.Clamp(TargetDistance + metres, 0, MaxDistance);
+    /// <summary>What the character is doing (CMB-147): each activity remembers its own distance.</summary>
+    public CameraActivity Activity { get; private set; } = CameraActivity.Exploring;
+
+    /// <summary>How far back this character likes the camera for each activity, as the prefs file last left it.</summary>
+    public CameraMemory Memory { get; private set; } = CameraMemory.Default;
+
+    /// <summary>Whether the camera is settling toward the activity's remembered distance (it stops the moment the player zooms).</summary>
+    private bool _settling;
+
+    /// <summary>A manual zoom (CMB-147): the wheel moves the camera now and the activity the character is in remembers where it was left.</summary>
+    public void Zoom(float metres)
+    {
+        (TargetDistance, Memory) = CameraMemoryRules.Zoom(Memory, Activity, TargetDistance, metres);
+        _settling = false;
+        MemoryChanged?.Invoke(Memory);
+    }
+
+    /// <summary>The activity's remembered distance from a save, taken as the new resting place for that activity.</summary>
+    public void Remember(CameraMemory memory)
+    {
+        Memory = memory.Normalised();
+        TargetDistance = Memory.For(Activity);
+        _restoreDistance = TargetDistance;
+        _settling = false;
+    }
+
+    /// <summary>The character moved into another kind of work (CMB-147): the camera eases back to that activity's own distance.</summary>
+    public void Enter(CameraActivity activity)
+    {
+        if (activity == Activity)
+            return;
+        Activity = activity;
+        _settling = true;
+    }
+
+    /// <summary>A manual zoom changed the memory, so the caller can keep it per character.</summary>
+    public event Action<CameraMemory>? MemoryChanged;
 
     /// <summary>Jump straight to first person, or back to the last third-person distance.</summary>
     public void ToggleFirstPerson()
@@ -145,6 +181,12 @@ public partial class CameraRig : Node3D
     public void Follow(Vector3 feet, double delta)
     {
         float blend = 1f - Mathf.Exp(-10f * (float)delta);
+        // CMB-147: after a change of activity the chosen distance eases back to what that activity last remembered.
+        if (_settling)
+        {
+            TargetDistance = CameraMemoryRules.Ease(TargetDistance, Memory.For(Activity), delta);
+            _settling = Mathf.Abs(TargetDistance - Memory.For(Activity)) > 0.01f;
+        }
         Distance = Mathf.Abs(Distance - TargetDistance) < 0.005f ? TargetDistance : Mathf.Lerp(Distance, TargetDistance, blend);
         // No shoulder offset near the eye: the offset fades in with distance so the zoom stays seamless.
         float side = Side switch { Shoulder.Right => 1f, Shoulder.Left => -1f, _ => 0f };
