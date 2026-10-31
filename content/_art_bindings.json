@@ -13223,6 +13223,319 @@
       "model": "prop_bp_merchant_cart",
       "material": "wood",
       "note": "Claude steps-visual: the north quay's working dress."
+    },
+    "oh_nq3_crane": {
+      "model": "prop_bk_harbour_crane",
+      "material": "wood",
+      "offset": [
+        -2.2,
+        0,
+        0
+      ],
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Shifted 2.2 m west inside its box so the jib head stands over the berth."
+    },
+    "oh_nq3_boat_00": {
+      "model": "prop_bk_rowboat",
+      "material": "wood",
+      "offset": [
+        0,
+        0.45,
+        0
+      ],
+      "yaw_spread": 6,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_01": {
+      "model": "prop_bk_rowboat_rustic",
+      "material": "wood",
+      "offset": [
+        0,
+        0.47,
+        0
+      ],
+      "yaw_spread": 8,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_02": {
+      "model": "prop_bk_rowboat",
+      "material": "wood",
+      "offset": [
+        0,
+        0.45,
+        0
+      ],
+      "yaw_spread": 8,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_03": {
+      "model": "prop_bk_rowboat_rustic",
+      "material": "wood",
+      "offset": [
+        0,
+        0.73,
+        0
+      ],
+      "yaw_spread": 8,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_04": {
+      "model": "prop_bk_rowboat",
+      "material": "wood",
+      "offset": [
+        0,
+        0.78,
+        0
+      ],
+      "yaw_spread": 8,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_05": {
+      "model": "prop_bk_rowboat",
+      "material": "wood",
+      "offset": [
+        0,
+        0.78,
+        0
+      ],
+      "yaw_spread": 60,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_06": {
+      "model": "prop_bk_rowboat_rustic",
+      "material": "wood",
+      "offset": [
+        0,
+        0.83,
+        0
+      ],
+      "yaw_spread": 60,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_boat_07": {
+      "model": "prop_bk_rowboat",
+      "material": "wood",
+      "offset": [
+        0,
+        0.78,
+        0
+      ],
+      "yaw_spread": 60,
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+    },
+    "oh_nq3_rope_00": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_00": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_02": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_barrel_01": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_01": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_03": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_05": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_barrel_03": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_02": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_03": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_07": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_09": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_barrel_05": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_04": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_05": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_11": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_13": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_barrel_07": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_06": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_07": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_15": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_17": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_barrel_09": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_08": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_09": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_19": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_21": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_barrel_11": {
+      "model": "prop_cos_barrel_met_01",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_10": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_hauled_00": {
+      "model": "prop_bk_rowboat",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_rope_20": {
+      "model": "prop_bk_rope_coil",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_40": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_01": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_04": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_06": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_08": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_10": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_12": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_14": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_16": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_18": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_20": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
+    },
+    "oh_nq3_fish_22": {
+      "model": "prop_bk_fish_crate_net",
+      "material": "wood",
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31)."
     }
   },
   "doors": {
