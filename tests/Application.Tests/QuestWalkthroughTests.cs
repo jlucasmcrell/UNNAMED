@@ -1,4 +1,5 @@
 using UNNAMED.Domain.Quests;
+using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
 
@@ -18,6 +19,11 @@ public class QuestWalkthroughTests
     private const string RoadIn = "quest.main.the_road_in";
     private const string WhatWasKept = "quest.heritage.what_was_kept";
     private const string LodgeSupplies = "quest.bounty.lodge_supplies";
+
+    private const string Sel = "npc.ashen_hollow.sel_arien";
+    private const string WhatStands = "quest.field.what_stands_on_the_top";
+    private const string NameDandelion = "quest.story.name_dandelion";
+    private const string NameRobin = "quest.story.name_robin";
 
     private const string Mara = "npc.cairnwold.mara_ling";
     private const string Kera = "npc.ashen_hollow.kera_voss";
@@ -106,6 +112,14 @@ public class QuestWalkthroughTests
 
     private static Func<PlayerRecord, PlayerRecord> Carrying(params (string DefId, int Count)[] stacks) =>
         r => r.WithInventory(r.Inventory.Concat(stacks.Select(s => Arena.Stack(s.DefId, s.Count))));
+
+    /// <summary>Stand a body on a point of the world, the way a test that is not about pathfinding puts one at a switch.</summary>
+    private static void StandAt(Arena arena, long xMm, long zMm)
+    {
+        long height = arena.Simulation.Setup.Layout.Space.HeightAtMm(xMm, zMm);
+        Assert.Null(arena.Simulation.Submit(new Relocate(new Body(xMm, height, zMm, 0))));
+        arena.Tick(2);
+    }
 
     /// <summary>Walk to where a person is right now: their routine moves them, so their placement is not a fixed coordinate.</summary>
     private static void StandWith(Arena arena, string npcId)
@@ -428,5 +442,96 @@ public class QuestWalkthroughTests
             Assert.True(Quest(arena, post.Quest) is { Status: QuestStatus.Active },
                 $"{post.Giver} did not offer {post.Quest}: {State(arena, post.Quest)}");
         }
+    }
+
+    /// <summary>
+    /// What Stands on the Top, played from Sel's offer to her closing line: the Spill, the court beneath it, the three anchors stilled by
+    /// hand, the foot of the Needle, and the walk back to tell her.
+    /// </summary>
+    [Fact]
+    public void WhatStandsOnTheTop_IsOfferedBySel_AndCompletesWhenTheCourtIsStilled()
+    {
+        using var profile = new TempProfile();
+        var arena = InRegion(Harness.Boot(profile), (Harness.Hollow.X + 71, Harness.Hollow.Z + 123));
+
+        Take(arena, Sel, WhatStands);
+        Assert.Equal(QuestStatus.Active, Quest(arena, WhatStands)!.Status);
+
+        // the Spill, then the court at its heart - both are the world's own places, so their metres are read rather than written here
+        foreach (string place in new[] { "location.field.the_spill", "location.field.stopped_gate" })
+        {
+            var site = arena.Simulation.Setup.Layout.Locations.Single(l => l.Id == place);
+            double x = site.XMm / 1000.0 - arena.Origin.X;
+            double z = site.ZMm / 1000.0 - arena.Origin.Z;
+            Assert.True(arena.WalkTo(x, z, maxTicks: 60000), $"never reached {place}: at {arena.At}");
+            arena.Tick(4);
+        }
+        Assert.Equal(ObjectiveStatus.Satisfied, Step(arena, WhatStands, "o_court"));
+
+        // The three anchors, by hand, then the foot of the Needle. The court is walled and walking inside it is B-028's pathfinding problem,
+        // not this quest's; the reach it does ask for - the Spill and the court - was walked above, and a hand on a switch only needs the body
+        // at the switch, which is how ActOneStoryTests stands at the Quiet Stones.
+        foreach (string key in new[] { "switch.field.anchor_west", "switch.field.anchor_northeast", "switch.field.anchor_south" })
+        {
+            var anchor = arena.Simulation.Setup.Layout.Switches.Single(s => s.Key == key);
+            var (ax, az) = Footprints.Center(anchor.Body);
+            StandAt(arena, ax, az);
+            string? refusal = arena.Submit(new InteractCommand(arena.Player, key));
+            arena.Tick(4);
+            Assert.True(refusal is null, $"{key} refused: {refusal}, standing {arena.At}");
+        }
+        foreach (string step in new[] { "o_west", "o_northeast", "o_south" })
+            Assert.Equal(ObjectiveStatus.Satisfied, Step(arena, WhatStands, step));
+
+        var needle = arena.Simulation.Setup.Layout.Switches.Single(s => s.Key == "switch.field.needle");
+        var (nx, nz) = Footprints.Center(needle.Body);
+        StandAt(arena, nx, nz);
+        string? stillRefused = arena.Submit(new InteractCommand(arena.Player, "switch.field.needle"));
+        arena.Tick(4);
+        Assert.True(stillRefused is null, $"the Needle refused: {stillRefused}, standing {arena.At}");
+        Assert.Equal(ObjectiveStatus.Satisfied, Step(arena, WhatStands, "o_still"));
+
+        Advance(arena, WhatStands, "o_tell", Sel);
+        Assert.Equal(QuestStatus.Completed, Quest(arena, WhatStands)!.Status);
+    }
+
+    [Fact]
+    public void NameDandelion_IsRecordedWhenThePlayerGivesSelTheWord()
+    {
+        using var profile = new TempProfile();
+        var arena = InRegion(Harness.Boot(profile), (Harness.Hollow.X + 71, Harness.Hollow.Z + 123));
+
+        // the route a player takes: Sel's greeting, the pages of her notes, and back to the talk she was having
+        Talk(arena, Sel);
+        Say(arena, "books");
+        Say(arena, "take");
+        Say(arena, "back");
+
+        Say(arena, "story_species_dandelion");
+        Assert.Equal(QuestStatus.Active, Quest(arena, NameDandelion)!.Status);
+        Say(arena, "name");
+
+        Assert.Equal(QuestStatus.Completed, Quest(arena, NameDandelion)!.Status);
+        Assert.Equal(ObjectiveStatus.Satisfied, Step(arena, NameDandelion, "o_name"));
+    }
+
+    [Fact]
+    public void NameRobin_IsRecordedWhenThePlayerGivesSelTheWord()
+    {
+        using var profile = new TempProfile();
+        var arena = InRegion(Harness.Boot(profile), (Harness.Hollow.X + 71, Harness.Hollow.Z + 123));
+
+        // the route a player takes: Sel's greeting, the pages of her notes, and back to the talk she was having
+        Talk(arena, Sel);
+        Say(arena, "books");
+        Say(arena, "take");
+        Say(arena, "back");
+
+        Say(arena, "story_species_robin");
+        Assert.Equal(QuestStatus.Active, Quest(arena, NameRobin)!.Status);
+        Say(arena, "name");
+
+        Assert.Equal(QuestStatus.Completed, Quest(arena, NameRobin)!.Status);
+        Assert.Equal(ObjectiveStatus.Satisfied, Step(arena, NameRobin, "o_name"));
     }
 }
