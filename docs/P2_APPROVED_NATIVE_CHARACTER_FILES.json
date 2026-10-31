@@ -1,0 +1,469 @@
+{
+  "schema": 2,
+  "kind": "accepted_native_character_delivery",
+  "approval": "Existing accepted B014/B007/B020 native body/motion receipts; no body or motion edits and no self-approval of candidate bytes.",
+  "source_receipts_sha256": {
+    "43_native_body_motion_target_guard": "f916728128108d5b68762ce3add0e80266ba6839dc36fe18d438160d5f9e5505",
+    "71_motion_delivery_files": "1f4cd742ab898f6006ea8921c716235f63d4a1bf7bd2fb64fc765583d754013e"
+  },
+  "bodies": 43,
+  "motion_files": 71,
+  "files": {
+    "primary/rigged/humgen_creator_female/humgen_creator_female_rigged.glb": {
+      "bytes": 177412268,
+      "sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+    },
+    "primary/rigged/humgen_creator_male/humgen_creator_male_rigged.glb": {
+      "bytes": 173943836,
+      "sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+    },
+    "fallback/rigged/humgen_kal_f/humgen_kal_f_rigged.glb": {
+      "bytes": 79889364,
+      "sha256": "052e6d2355b766783b85942d91e8b14f87f6b3a112da623f6f44d4a90ee7cc87"
+    },
+    "fallback/rigged/humgen_kal_m/humgen_kal_m_rigged.glb": {
+      "bytes": 87675844,
+      "sha256": "5adddd4163b496d4f3d174a387e98f40ce19dd503f8d7a71c9ceb1a3f0c756a7"
+    },
+    "primary/rigged/humgen_mob_drowned/humgen_mob_drowned_rigged.glb": {
+      "bytes": 160832892,
+      "sha256": "a0fba9dac942f86979b129ad522531a209d7441a5b6e0e69460e0fc2a7e8e2bf"
+    },
+    "primary/rigged/humgen_mob_raider/humgen_mob_raider_rigged.glb": {
+      "bytes": 162996108,
+      "sha256": "2cb31da31fd3c9409c907f4f0d885e218e0d22ab95dcc776c88dbee834c29792"
+    },
+    "fallback/rigged/humgen_named_berrin_garth/humgen_named_berrin_garth_rigged.glb": {
+      "bytes": 87179820,
+      "sha256": "89c52f9fcdb1b3d5562e3b06cb9257f72f1bfb19941bd7627f98499fac0ce2a8"
+    },
+    "fallback/rigged/humgen_named_durn_skell/humgen_named_durn_skell_rigged.glb": {
+      "bytes": 86305628,
+      "sha256": "a651838980d4684b8644f5760cb2f8e7584b8ea33a8108c5d3ebd0ecb99a75b4"
+    },
+    "fallback/rigged/humgen_named_kera_voss/humgen_named_kera_voss_rigged.glb": {
+      "bytes": 71769104,
+      "sha256": "f990df0df4d2354b4fe34a89c0a7fda03d863af7cb8afb6e63714b4baa6d5a37"
+    },
+    "fallback/rigged/humgen_named_mara_ling/humgen_named_mara_ling_rigged.glb": {
+      "bytes": 83906324,
+      "sha256": "0ff491675caef2ad90c52749e669944115393ad4ce68fa2136403a84c1ec54c3"
+    },
+    "fallback/rigged/humgen_named_renn_vale/humgen_named_renn_vale_rigged.glb": {
+      "bytes": 85376992,
+      "sha256": "d9348e575fd03a7c73f6bc710e87c569116d5c683c1c1ad59ec5b0009cfdd007"
+    },
+    "fallback/rigged/humgen_named_sel_arien/humgen_named_sel_arien_rigged.glb": {
+      "bytes": 69132564,
+      "sha256": "56dcf86ea899ef7fb715ecf91e43548f145f533569682c9008b73e3fd4b952a1"
+    },
+    "fallback/rigged/humgen_named_tam_crowden/humgen_named_tam_crowden_rigged.glb": {
+      "bytes": 71808876,
+      "sha256": "de03f1f8b74dcbea1bc5040afd1d3e48bc1161c12100a16f04d76a992e2654f5"
+    },
+    "fallback/rigged/humgen_named_tavar_orr/humgen_named_tavar_orr_rigged.glb": {
+      "bytes": 84535984,
+      "sha256": "873703d440d0d0d23610e7976959035a43c2a4d9013128891b391dc14e99ef13"
+    },
+    "fallback/rigged/humgen_npc_kera_voss_rb/humgen_npc_kera_voss_rb_rigged.glb": {
+      "bytes": 90000556,
+      "sha256": "1eeec6f25f33dadcdaa11326cff73fff03f9bb6438672c8c46a6ad0e5564fb46"
+    },
+    "fallback/rigged/humgen_npc_sel_arien_rb/humgen_npc_sel_arien_rb_rigged.glb": {
+      "bytes": 85878612,
+      "sha256": "21ca814f6b7b9076001faca324f4203e5cabb4cf86b3274ac0f055e1eb5eee8b"
+    },
+    "fallback/rigged/humgen_npc_tavar_orr_rb/humgen_npc_tavar_orr_rb_rigged.glb": {
+      "bytes": 97788984,
+      "sha256": "ed53409531a694f1f9d49eb757334c7aa3fe6eaf5c2eb93cb2d6a45626d1d3cc"
+    },
+    "fallback/rigged/humgen_orenth_f/humgen_orenth_f_rigged.glb": {
+      "bytes": 89576852,
+      "sha256": "290bd07f8ab26070fe4fc489fc8e04f9579ae52e04a8e1931e39aa4fd2ab90c1"
+    },
+    "fallback/rigged/humgen_orenth_m/humgen_orenth_m_rigged.glb": {
+      "bytes": 81482412,
+      "sha256": "92f8cf181ff9509e759bd4a5cb311b8cab98f2fdf4989e2ea353350b8b138017"
+    },
+    "fallback/rigged/humgen_player_ada_f/humgen_player_ada_f_rigged.glb": {
+      "bytes": 72467296,
+      "sha256": "0ec0339dbaa8443e41f50ae83a26ed35d3b3c764d5fa5574152fccde56ca8782"
+    },
+    "fallback/rigged/humgen_player_mateo_m/humgen_player_mateo_m_rigged.glb": {
+      "bytes": 74956724,
+      "sha256": "b60a03c52858c6480f333abdb26a5ff54bd106a6159f946e9fd7f06b52f285f2"
+    },
+    "fallback/rigged/humgen_pool_00/humgen_pool_00_rigged.glb": {
+      "bytes": 75006692,
+      "sha256": "1b79f3e93f4a69be1ec1cc01888d52de8a75d90e43b6f4eecdb7cdc91d36ea64"
+    },
+    "fallback/rigged/humgen_pool_01/humgen_pool_01_rigged.glb": {
+      "bytes": 74548976,
+      "sha256": "53b53b9be199d82d911b777eb1b8493eb91cff11d5ea5328fa6bb00012fa02c8"
+    },
+    "fallback/rigged/humgen_pool_02/humgen_pool_02_rigged.glb": {
+      "bytes": 72542508,
+      "sha256": "9af0c7cddd105c640d26fe072c2173f945f887f425292fcb99d5072a37f90478"
+    },
+    "fallback/rigged/humgen_pool_03/humgen_pool_03_rigged.glb": {
+      "bytes": 73374220,
+      "sha256": "60ab853379101f7b93f20f0f598041577d71f22a4a705a8978935c5d3fad280b"
+    },
+    "fallback/rigged/humgen_pool_04/humgen_pool_04_rigged.glb": {
+      "bytes": 73733856,
+      "sha256": "5af59232b51df9748ef291efc6cad3d915ae9b1aef56b0aec5c9f88caf2b080e"
+    },
+    "fallback/rigged/humgen_pool_05/humgen_pool_05_rigged.glb": {
+      "bytes": 82077484,
+      "sha256": "81bb405ce1871b3d44e64b3a6de9b2a5df6c6545aced504555b18e613df55339"
+    },
+    "fallback/rigged/humgen_race_kal_f_compact/humgen_race_kal_f_compact_rigged.glb": {
+      "bytes": 63440248,
+      "sha256": "be39133467fedfec18ef669d30f80aa34313a99d12ec5435ecbb24d63c4d5d10"
+    },
+    "fallback/rigged/humgen_race_kal_f_frontier/humgen_race_kal_f_frontier_rigged.glb": {
+      "bytes": 75819600,
+      "sha256": "b063045df353d4579d9cc3891f344037ef684f1edf4326967d978502b2ebb4d5"
+    },
+    "fallback/rigged/humgen_race_kal_m_compact/humgen_race_kal_m_compact_rigged.glb": {
+      "bytes": 65268964,
+      "sha256": "41edf7ec2393ae24dfb0ea4d74feef8368383d9f197e2550fad019eb89cfa4a4"
+    },
+    "fallback/rigged/humgen_race_kal_m_frontier/humgen_race_kal_m_frontier_rigged.glb": {
+      "bytes": 81268256,
+      "sha256": "0315b50c204eb058d6d19781c0f9edb80a29b3f267a680baa3a3c26d55f73527"
+    },
+    "fallback/rigged/humgen_race_orenth_f_frontier/humgen_race_orenth_f_frontier_rigged.glb": {
+      "bytes": 76229824,
+      "sha256": "a899ddbc4270a278d8da02143fb4036151c54c1d4ea3b344d2e1d055655212db"
+    },
+    "fallback/rigged/humgen_race_orenth_m_frontier/humgen_race_orenth_m_frontier_rigged.glb": {
+      "bytes": 78591728,
+      "sha256": "76ffa2fb39de30502b98b818589ef3f90d3f325b3de506359b66ae01bdbc095c"
+    },
+    "fallback/rigged/humgen_race_siann_f_long/humgen_race_siann_f_long_rigged.glb": {
+      "bytes": 256132536,
+      "sha256": "d9cfb57adce6bd169322481fd2a7248c4ab1c3af850fb6ac6efbb112f5ec17c9"
+    },
+    "fallback/rigged/humgen_race_siann_m_long/humgen_race_siann_m_long_rigged.glb": {
+      "bytes": 262424896,
+      "sha256": "ca394b59f891f8201dbb53e00f8a8484ffdd71b1d0b4500c893350d736055d10"
+    },
+    "fallback/rigged/humgen_siann_f/humgen_siann_f_rigged.glb": {
+      "bytes": 78491280,
+      "sha256": "fb09119642ece82243b3483a904edd019a35edf99b562358aa13fe3564619fc4"
+    },
+    "fallback/rigged/humgen_siann_m/humgen_siann_m_rigged.glb": {
+      "bytes": 81964928,
+      "sha256": "ccebef6036ea0aa781aaee9c0bd87a15ff4d49e4205665aac014a9004f2dda0b"
+    },
+    "fallback/rigged/humgen_veth_f_face_holt/humgen_veth_f_face_holt_rigged.glb": {
+      "bytes": 77292548,
+      "sha256": "5c3c34b64677cd972dad0e53f78f4230cea1c4af049fc36df6d4bb74be77d373"
+    },
+    "fallback/rigged/humgen_veth_f_face_marsh/humgen_veth_f_face_marsh_rigged.glb": {
+      "bytes": 76386864,
+      "sha256": "a95973292dce8a84817ed47b1c71fab4ba8721d3efc4ee6f21f7ef257a2d34b6"
+    },
+    "fallback/rigged/humgen_veth_f_face_tarr/humgen_veth_f_face_tarr_rigged.glb": {
+      "bytes": 76593124,
+      "sha256": "0e03ab7d959dbf65b69f72d18ee594a2e41af5d673e44891a2387a22cb3ea4a8"
+    },
+    "fallback/rigged/humgen_veth_m_face_holt/humgen_veth_m_face_holt_rigged.glb": {
+      "bytes": 89907624,
+      "sha256": "db257d37a53c89b90f5508899f4b6177962b7bf4de8986464d4a088b6412e406"
+    },
+    "fallback/rigged/humgen_veth_m_face_marsh/humgen_veth_m_face_marsh_rigged.glb": {
+      "bytes": 78979448,
+      "sha256": "de38bd79135f407a24253f8757c630e1867b7dfb0a139e0ea33d1bb8d4928185"
+    },
+    "fallback/rigged/humgen_veth_m_face_tarr/humgen_veth_m_face_tarr_rigged.glb": {
+      "bytes": 90795552,
+      "sha256": "fa19637eacf92caf6b4b7b8582421144d62121b9c5e00b2fb4cf2434e5772a5b"
+    },
+    "humgen_characters/mocap_motion/humgen_creator_female_motion.res": {
+      "bytes": 2418298,
+      "sha256": "e20f3c2a12f269434070f13e299d4c64c83a2c79d2a89f4005239b5fddfb5435"
+    },
+    "humgen_characters/mocap_motion/humgen_creator_male_motion.res": {
+      "bytes": 2434482,
+      "sha256": "95cbb522c70d6cf7e03cee49c7fc7e3603e11bb2b0ae5bfeee7200c240f47092"
+    },
+    "humgen_characters/mocap_motion/humgen_kal_f_motion.res": {
+      "bytes": 2238776,
+      "sha256": "6f6d60172c0089cc4cf02560b58c62ff7befbd4c7ec83ad77a8b1774c8d1dc00"
+    },
+    "humgen_characters/mocap_motion/humgen_kal_m_motion.res": {
+      "bytes": 2177828,
+      "sha256": "7b27b5e1e84adb2732cb3bac633d91fa506a073133786bb6cd10462b5926e394"
+    },
+    "humgen_characters/mocap_motion/humgen_mob_drowned_motion.res": {
+      "bytes": 2483182,
+      "sha256": "a4d1ff1563719d8dde57768ffdf1e0ea9a891e7cbf5f0b9933926d131e13bd0e"
+    },
+    "humgen_characters/mocap_motion/humgen_mob_raider_motion.res": {
+      "bytes": 2551097,
+      "sha256": "c1f6afe7957fc6da885cec6dbbb57a0969495fa3ba44f019aa5591545aa053e9"
+    },
+    "humgen_characters/mocap_motion/humgen_named_berrin_garth_motion.res": {
+      "bytes": 2367875,
+      "sha256": "7288f4a08345ef1b4bcf67ed6bd30693e66b05ae8b30f21fd75742dc355f2513"
+    },
+    "humgen_characters/mocap_motion/humgen_named_berrin_garth_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "eb33f98df29c663c5939b73c27e486f2dfd03fcb47e0e0d6b0d60654f7e3f256"
+    },
+    "humgen_characters/mocap_motion/humgen_named_durn_skell_motion.res": {
+      "bytes": 2365998,
+      "sha256": "cea03d17d4bf000ef9d39065552f6bceddf259be6575e3ec7a4283ca5103e19e"
+    },
+    "humgen_characters/mocap_motion/humgen_named_durn_skell_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "47161d26eec277da7a46d757359c3ed1439ffb363f50800d8df28070afcf98f5"
+    },
+    "humgen_characters/mocap_motion/humgen_named_kera_voss_motion.res": {
+      "bytes": 2257399,
+      "sha256": "f143acfe6f7855d75d723bc8cb8c2a4644961304e4aba7182a7e678402c91d69"
+    },
+    "humgen_characters/mocap_motion/humgen_named_kera_voss_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "a025e22b184afbb315a55440741626f37f997144e64b17fa1d87f06ca5c1b164"
+    },
+    "humgen_characters/mocap_motion/humgen_named_mara_ling_motion.res": {
+      "bytes": 2297914,
+      "sha256": "bafafdd4c84fb144b018df6b822806f5a7be9016fb1e8b63f93b5e2ccca743b0"
+    },
+    "humgen_characters/mocap_motion/humgen_named_mara_ling_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "139dcfd7e56e2c62a907789a0326033b81daa5d495ff4f0f10a934f7fdb9d36c"
+    },
+    "humgen_characters/mocap_motion/humgen_named_renn_vale_motion.res": {
+      "bytes": 2335107,
+      "sha256": "5efcc229fd7d1d093551b7e7ced8a8dc7165e4b1836946e9be1e78c3fa50e887"
+    },
+    "humgen_characters/mocap_motion/humgen_named_renn_vale_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "ee788ca67baa3ebadf237c28f340d851c5e50a649b4cb17b5e2fcbd30de8ddd5"
+    },
+    "humgen_characters/mocap_motion/humgen_named_sel_arien_motion.res": {
+      "bytes": 2201191,
+      "sha256": "862fc94df6c317c1468323feea22a30ab3d6feaa4761cce438e023a91f2df71f"
+    },
+    "humgen_characters/mocap_motion/humgen_named_sel_arien_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "669f685147972a1de195eccc6a28aeafed30a809478a740d31f310b4e03f5429"
+    },
+    "humgen_characters/mocap_motion/humgen_named_tam_crowden_motion.res": {
+      "bytes": 2099353,
+      "sha256": "c84d516ca21dc64c8f95669aff983bff7cc2852e422668ad83addf6627c1416a"
+    },
+    "humgen_characters/mocap_motion/humgen_named_tam_crowden_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "e000afe81a7558795780dec1c5b69ae0f6d41fdb6036f025d8387c65ff2a3ce8"
+    },
+    "humgen_characters/mocap_motion/humgen_named_tavar_orr_motion.res": {
+      "bytes": 2459140,
+      "sha256": "fb61c2963c8d29554143f39226fe2b6a8c7cc571d0f1704b5d01d15e405a8e9b"
+    },
+    "humgen_characters/mocap_motion/humgen_named_tavar_orr_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "dd0701f891413fd2dc7735037e12f2992e2566f875aae479327f5169c83f23a0"
+    },
+    "humgen_characters/mocap_motion/humgen_npc_kera_voss_rb_motion.res": {
+      "bytes": 2238776,
+      "sha256": "79e9a62604d7638b3f757365a37144a10aea90fd280f1db6e71cedb86936b9e1"
+    },
+    "humgen_characters/mocap_motion/humgen_npc_sel_arien_rb_motion.res": {
+      "bytes": 2005838,
+      "sha256": "daf1c8f48e85a33aa705a658ecac55245f30c77a30fb380463a84627de9d50c4"
+    },
+    "humgen_characters/mocap_motion/humgen_npc_tavar_orr_rb_motion.res": {
+      "bytes": 2098930,
+      "sha256": "85e4d4fddc0cc4bc61268576e6535ebfd7a8c61416ec6719b424306f9f529d57"
+    },
+    "humgen_characters/mocap_motion/humgen_orenth_f_motion.res": {
+      "bytes": 2222379,
+      "sha256": "ede4da7796cffff7c4dee7bba2b8a2c9fdb2daaca9e635faeae50f5c187ab691"
+    },
+    "humgen_characters/mocap_motion/humgen_orenth_m_motion.res": {
+      "bytes": 2337883,
+      "sha256": "3483a754f02d7d55884628763d14b9cd23d962bed7c91f998c5e9cc6c96ffc52"
+    },
+    "humgen_characters/mocap_motion/humgen_player_ada_f_motion.res": {
+      "bytes": 2241793,
+      "sha256": "5e15b8a4714975f6dcff662f7407a3dfff04aa9e497ea12511aa79fa851f60a9"
+    },
+    "humgen_characters/mocap_motion/humgen_player_ada_f_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "c0aee30745083fa4e3777784102d77ad3fbacc9230896de29259a7646f1b8cc0"
+    },
+    "humgen_characters/mocap_motion/humgen_player_mateo_m_motion.res": {
+      "bytes": 2428292,
+      "sha256": "711464528bea1fe0641d19d289af0a5e774ece1d19d15c0b0c40fb6761954473"
+    },
+    "humgen_characters/mocap_motion/humgen_player_mateo_m_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "f3904b88beb1c8569d60be809b6ef883f37c02b8690eff14208bc12d22447531"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_00_motion.res": {
+      "bytes": 2179923,
+      "sha256": "956f8ee216ef8792cd09a5155026c56b42546968c07be9a6ff44cb0b6aaab53d"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_00_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "7aca8bcc4d9b4dea9ec23525981687981a9560d8e3b9926f7bb16d4301be2fed"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_01_motion.res": {
+      "bytes": 2365620,
+      "sha256": "fcf030f1c439eaf61d955b043c4178b69cd3f4651200c5f4f9a6e14be831ae4d"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_01_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "210fef9a7a6f39916e8266da7788c74efc9017b726f6d10d8a6458b93469edde"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_02_motion.res": {
+      "bytes": 2241631,
+      "sha256": "456ab5cd8a167c318396edfa362db6d1dd08692de3b3c5959a6f95db025d9a9d"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_02_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "4236d3c1b9735d0838a04791122a612b79e29625bc5301d00f01b40ce3905845"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_03_motion.res": {
+      "bytes": 2403243,
+      "sha256": "19b2d0f9cdbe1abdc0551f17fd845394875bff907ebb9961aedf6cd0a67b73de"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_03_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "e244395ea827b207fa502587daec1639699ff5ca2e3fabf55ca41544c35495e1"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_04_motion.res": {
+      "bytes": 2272436,
+      "sha256": "aa9da36d6487be2fc1991ee9ead5efa3f4b78651aee492b79bdb0707fe760ae5"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_04_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "63447a7d86a3fee9bb003eb2a5357bd4da7c90a2c20ab28636e49796f67f9f47"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_05_motion.res": {
+      "bytes": 2005697,
+      "sha256": "2f8f9a3504ddd3f841a38ba27fd1843e5da3638f65b00339cc023421676a9eef"
+    },
+    "humgen_characters/mocap_motion/humgen_pool_05_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "b0088d6aea6781b218b70f3d4bcce7fa01bf45412d1ef3ea7c37435e70954dcf"
+    },
+    "humgen_characters/mocap_motion/humgen_race_kal_f_compact_motion.res": {
+      "bytes": 2239174,
+      "sha256": "46ffc78dc922e1767dec5cc93da08b9f5e3a89dc598365fe756bc1bf74748e79"
+    },
+    "humgen_characters/mocap_motion/humgen_race_kal_f_compact_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "f0856dc99184f3e5b18ed55ca373f216d2a1b875f442cfadf0e1f69969935419"
+    },
+    "humgen_characters/mocap_motion/humgen_race_kal_f_frontier_motion.res": {
+      "bytes": 2288384,
+      "sha256": "0d7675510c2395031c278c25653a9514147c768e961ea07673c446f575d099a7"
+    },
+    "humgen_characters/mocap_motion/humgen_race_kal_m_compact_motion.res": {
+      "bytes": 2257393,
+      "sha256": "bf77f5d845f725d4f506ab6a854184ade545bf7d11345a89a9d87d43df8bd49a"
+    },
+    "humgen_characters/mocap_motion/humgen_race_kal_m_compact_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "5f8fae777a90f12f204c0e0ee13d30b9df25bb2de94a15e97b49e0e6ba3d651e"
+    },
+    "humgen_characters/mocap_motion/humgen_race_kal_m_frontier_motion.res": {
+      "bytes": 2490125,
+      "sha256": "28220db57779df3565acf462dd5e24f6a11a212665fa594fe5778e0a087f886b"
+    },
+    "humgen_characters/mocap_motion/humgen_race_orenth_f_frontier_motion.res": {
+      "bytes": 2288384,
+      "sha256": "6769e5869172ade649e3336dd1c986537c5f9a6ff42d8abd3845a60cca1cfb79"
+    },
+    "humgen_characters/mocap_motion/humgen_race_orenth_f_frontier_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "59aa5601b71a15fc6ff7062fdd526ea0c25f7bfb75cb90e165a2845011c5c341"
+    },
+    "humgen_characters/mocap_motion/humgen_race_orenth_m_frontier_motion.res": {
+      "bytes": 2490125,
+      "sha256": "3affb561796919bc1c1da613fd41421a6a715a8fec7d214458ce75f7ab17222c"
+    },
+    "humgen_characters/mocap_motion/humgen_race_orenth_m_frontier_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "727882ed0c692ba16b658f7316afb8be3ca6ffaf83675c47392ee4e2ca233ada"
+    },
+    "humgen_characters/mocap_motion/humgen_race_siann_f_long_motion.res": {
+      "bytes": 2201349,
+      "sha256": "fec9e2bc9ca13ceec69624eeea7526ace6610c9afb55ae3963dbed7ee61f2adc"
+    },
+    "humgen_characters/mocap_motion/humgen_race_siann_f_long_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "8d98bcd20f9cd0c862f6e675fbb38f7b756211dfa92928901ee8d83128c73197"
+    },
+    "humgen_characters/mocap_motion/humgen_race_siann_m_long_motion.res": {
+      "bytes": 2428449,
+      "sha256": "007f8fc07b454f3dae606df0e6a90567e509401e78cad7484f65cdbc26c07f27"
+    },
+    "humgen_characters/mocap_motion/humgen_race_siann_m_long_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "efda894e0defd08c4f5cf60168c0f7b01a6385e81fe17c0d940a7a1ff8e256f2"
+    },
+    "humgen_characters/mocap_motion/humgen_siann_f_motion.res": {
+      "bytes": 2005970,
+      "sha256": "7bdd488b1427962973ff941a50f5989ad4ce63166d4573cd65200b2c3fe28859"
+    },
+    "humgen_characters/mocap_motion/humgen_siann_m_motion.res": {
+      "bytes": 1986538,
+      "sha256": "8122ce7c2863291432da522f9860dc1b63dfc2173e39794ed80a8163629f810a"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_f_face_holt_motion.res": {
+      "bytes": 2241696,
+      "sha256": "5e08bb5561306fda14e1eb9420d6dfe61423a43dd54ddf312a396e7ab30512f0"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_f_face_holt_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "f7b3404d021972892c73bdc6537af37d5a588efb692b8322b6dccc57564a5c1e"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_f_face_marsh_motion.res": {
+      "bytes": 2241696,
+      "sha256": "5a1a48d53169e3f10a44bba4d72ada0f2dc98f012a7e4b9b9c085ba915207f89"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_f_face_marsh_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "af80382936dcd2e044121b32cae49ee86c7ac2294b58701fea03ecb7044a5516"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_f_face_tarr_motion.res": {
+      "bytes": 2216382,
+      "sha256": "60a2f6a8f2e75fb82ed2f07328b0e64c97125ef5cda5e2b2c1360b8d55cbe204"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_f_face_tarr_motion.res.merge.json": {
+      "bytes": 395,
+      "sha256": "350a1f06ecdbb787a63a449c5536d856e54fbcc5ad0364fb5221e3af0aa1ee7c"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_m_face_holt_motion.res": {
+      "bytes": 2428111,
+      "sha256": "dc2cac3624e9984d1d9216165b09fbe01d888a079c224e931cfffe50af7f4b9a"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_m_face_holt_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "f1d3dd1b03e7043f8e7ca2f326184d1818d38a123eac2148389913dbdc17db21"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_m_face_marsh_motion.res": {
+      "bytes": 2428111,
+      "sha256": "021f052f3d9262d8950266eddb7c51421a651d8d55b13e1c4ea4500009dc0531"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_m_face_marsh_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "022369eee2c5a4d9ed079296762aed097ca8d48d0376328fe70952da8697564d"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_m_face_tarr_motion.res": {
+      "bytes": 2428111,
+      "sha256": "172953df982f6210c7a4e785bf00686d47d93212ac94ff032ec50e61b13574e7"
+    },
+    "humgen_characters/mocap_motion/humgen_veth_m_face_tarr_motion.res.merge.json": {
+      "bytes": 396,
+      "sha256": "aaeb149c6e68c0aa267c349c4a7cb15b49004d28fe719b117fdd98229edb96cf"
+    }
+  }
+}
