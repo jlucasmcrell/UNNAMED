@@ -787,6 +787,9 @@ public sealed class GameSession : IDomainEvents, IDisposable
     /// <summary>The running character's journal notes; null before a world runs.</summary>
     public JournalNotes? Notes { get; private set; }
 
+    /// <summary>The running character's map pins (GEN-01); null before a world runs.</summary>
+    public MapPins? Pins { get; private set; }
+
     /// <summary>Write a note in the journal, at the current world tick; the reason it was refused, or null.</summary>
     public string? AddNote(string text) =>
         Notes is { } notes ? notes.Add(text, _simulation!.WorldTick) : "there is no running world";
@@ -822,6 +825,7 @@ public sealed class GameSession : IDomainEvents, IDisposable
         _autosaveRequested = false;
         _awayNotes.Clear();
         Notes = new JournalNotes(Options.ProfileRoot, simulation.PlayerId);
+        Pins = new MapPins(Options.ProfileRoot, simulation.PlayerId);
         _worldTimeAdvanced = worldTimeAdvanced;
         _away = away;
         LastLogin = null;

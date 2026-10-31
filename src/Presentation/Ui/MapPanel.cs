@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - the map: what the character knows of the region and nothing else (MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md; the
+// UNNAMED Presentation - the map: what the character knows of the region and nothing else (MAPS_CARTOGRAPHY_AND_WORLD_KNOWLEDGE.md; the
 // owner's second-play brief Â§24; NEXT_AREA_TRAVEL_CITY_PLAN.md D.6 map v1)
 // Godot presentation only: it draws Simulation.Map, which the simulation owns; nothing here holds state (D-11)
 
@@ -48,6 +48,7 @@ public partial class MapPanel : CanvasLayer
         legend.AddChild(UiKit.Chip("Waystone you know", HudStyle.Brass));
         legend.AddChild(UiKit.Chip("Return point", HudStyle.Lichen));
         legend.AddChild(UiKit.Chip("Road walked", HudStyle.Iron, HudStyle.Ash));
+        legend.AddChild(UiKit.Chip("Your pin", HudStyle.Ember));
         _sheet.Body.AddChild(legend);
         _known = UiKit.Words(string.Empty, 17, HudStyle.Ash);
         _sheet.Body.AddChild(_known);
@@ -107,7 +108,8 @@ public partial class MapPanel : CanvasLayer
         foreach (var place in forgotten)
             notes.Remove(place);
         _canvas.Show(_session.Setup.Layout, map, stones.Select(w => (w.Site, w.ReturnPoint)).ToList(),
-            map.Places.Select(p => (p, forgotten.Contains(p.LocationId) ? "Somewhere you knew" : Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes);
+            map.Places.Select(p => (p, forgotten.Contains(p.LocationId) ? "Somewhere you knew" : Names.Of(_session, p.LocationId))).ToList(), simulation.Player.Body, notes,
+            _session.Pins?.All);
         _known.Text = stones.Count == 0
             ? "You know no Waystone yet. Touch one, and it will be on your map."
             : $"Waystones you know: {string.Join(", ", stones.Select(w => w.Site.Name + (w.ReturnPoint ? " (your return point)" : "")))}.";
@@ -124,6 +126,9 @@ public partial class MapPanel : CanvasLayer
 
         /// <summary>What the journal holds about a place, by its location id: drawn under the place's name.</summary>
         private IReadOnlyDictionary<string, List<string>> _notes = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        /// <summary>The player's own marks (GEN-01): drawn last, in their own colour, never confused with a place the game put there.</summary>
+        private IReadOnlyList<MapPin> _pins = Array.Empty<MapPin>();
         private Body? _player;
         private string _drawn = string.Empty;
 
@@ -143,9 +148,11 @@ public partial class MapPanel : CanvasLayer
         }
 
         public void Show(RegionLayout layout, KnownMap map, IReadOnlyList<(WaystoneSite Site, bool ReturnPoint)> stones,
-            IReadOnlyList<(KnownPlace Place, string Name)> places, Body player, IReadOnlyDictionary<string, List<string>>? notes = null)
+            IReadOnlyList<(KnownPlace Place, string Name)> places, Body player, IReadOnlyDictionary<string, List<string>>? notes = null,
+            IReadOnlyList<MapPin>? pins = null)
         {
             _layout = layout;
+            _pins = pins ?? Array.Empty<MapPin>();
             _notes = notes ?? new Dictionary<string, List<string>>(StringComparer.Ordinal);
             float width = Math.Max(320, Size.X);
             var space = layout.Space;
@@ -153,7 +160,8 @@ public partial class MapPanel : CanvasLayer
             if (Math.Abs(CustomMinimumSize.Y - height) > 0.5f)
                 CustomMinimumSize = new Vector2(0, height);
             string signature = $"{map.Places.Length}:{map.Roads.Length}:{string.Join(",", stones.Select(s => s.Site.Key + s.ReturnPoint))}:" +
-                               $"{player.XMm / 500}:{player.ZMm / 500}:{player.FacingMdeg / 5000}:{Size.X}";
+                               $"{player.XMm / 500}:{player.ZMm / 500}:{player.FacingMdeg / 5000}:{Size.X}:" +
+                               string.Join("|", _pins.Select(p => $"{p.XMm},{p.ZMm},{p.Label}"));
             _map = map;
             _stones = stones;
             _places = places;
@@ -218,6 +226,19 @@ public partial class MapPanel : CanvasLayer
                 // that overlaps one already drawn.
                 if (_notes.TryGetValue(place.LocationId, out var note))
                     Label(at + new Vector2(20, 26), string.Join(" · ", note), HudStyle.Ash);
+            }
+
+            // The player's own pins (GEN-01): an open diamond and their words. Nothing the game placed looks like this.
+            foreach (var pin in _pins)
+            {
+                var at = At(pin.XMm, pin.ZMm);
+                var diamond = new[]
+                {
+                    at + new Vector2(0, -8), at + new Vector2(8, 0), at + new Vector2(0, 8), at + new Vector2(-8, 0),
+                    at + new Vector2(0, -8),
+                };
+                DrawPolyline(diamond, HudStyle.Ember, 2f, antialiased: true);
+                Label(at + new Vector2(10, 0), pin.Label.ToUpperInvariant(), HudStyle.Ember);
             }
 
             // Where the character stands, and which way they face (0 is north, +Z; clockwise towards east, +X).
