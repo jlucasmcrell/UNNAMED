@@ -1,0 +1,18 @@
+id: recipe.outfitting.satchel_cotton
+kind: recipe
+schema: 1
+display_key: recipe.outfitting.satchel_cotton.name
+tags: [recipe]
+name: Cotton Satchel
+notes: Bog-cotton canvas stitched over a leather frame - the bag a gatherer works out for himself in the first afternoon.
+station: workbench
+skill_ref: skill.survival
+complexity: 2
+inputs:
+  - { item_ref: item.material.bog_cotton, count: 3 }
+  - { item_ref: item.material.leather, count: 1 }
+outputs:
+  - { item_ref: item.bag.satchel, count: 1, quality_roll: false }
+xp_award: { xp: 15 }
+discovery:
+  experiment: true

@@ -1,0 +1,18 @@
+id: recipe.cooking.herb_tea_ashbloom
+kind: recipe
+schema: 1
+display_key: recipe.cooking.herb_tea_ashbloom.name
+tags: [recipe]
+name: Ashbloom Tea
+notes: The ashbloom that grows on the burnt ground steeps into two cups instead of one. Known to anyone who has drunk the woundmoss tea.
+station: cookfire
+skill_ref: skill.cooking
+complexity: 2
+inputs:
+  - { item_ref: item.material.boiled_water, count: 1 }
+  - { item_ref: item.material.herb_ashbloom, count: 1 }
+outputs:
+  - { item_ref: item.consumable.herb_tea, count: 2, quality_roll: false }
+xp_award: { xp: 10 }
+discovery:
+  experiment: true

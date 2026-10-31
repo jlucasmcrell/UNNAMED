@@ -1,0 +1,18 @@
+id: recipe.leatherwork.hide_boots_deer
+kind: recipe
+schema: 1
+display_key: recipe.leatherwork.hide_boots_deer.name
+tags: [recipe]
+name: Deerhide Boots
+notes: Two deer hides and a strip of tanned leather for the soles. Deer are on the Charwood ground an hour's walk from the start.
+station: workbench
+skill_ref: skill.survival
+complexity: 3
+inputs:
+  - { item_ref: item.material.deer_hide, count: 2 }
+  - { item_ref: item.material.leather, count: 1 }
+outputs:
+  - { item_ref: item.armor.hide_boots, count: 1, quality_roll: true }
+xp_award: { xp: 20 }
+discovery:
+  experiment: true

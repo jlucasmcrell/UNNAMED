@@ -1,0 +1,19 @@
+id: recipe.herbal.salve_field
+kind: recipe
+schema: 1
+display_key: recipe.herbal.salve_field.name
+tags: [recipe]
+name: Field Salve
+notes: One woundmoss, one cotton and a mouthful of water makes the same salve as two moss - the first thing a new herbalist discovers at the fire.
+station: cookfire
+skill_ref: skill.herbalism
+complexity: 2
+inputs:
+  - { item_ref: item.material.herb_woundmoss, count: 2 }
+  - { item_ref: item.material.bog_cotton, count: 1 }
+  - { item_ref: item.material.boiled_water, count: 1 }
+outputs:
+  - { item_ref: item.consumable.salve_minor, count: 1, quality_roll: false }
+xp_award: { xp: 15 }
+discovery:
+  experiment: true
