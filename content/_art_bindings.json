@@ -13211,88 +13211,88 @@
       "material": "wood",
       "offset": [
         0,
-        0.45,
+        0.27,
         0
       ],
       "yaw_spread": 6,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_01": {
       "model": "prop_bk_rowboat_rustic",
       "material": "wood",
       "offset": [
         0,
-        0.47,
+        0.29,
         0
       ],
       "yaw_spread": 8,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_02": {
       "model": "prop_bk_rowboat",
       "material": "wood",
       "offset": [
         0,
-        0.45,
+        0.27,
         0
       ],
       "yaw_spread": 8,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_03": {
       "model": "prop_bk_rowboat_rustic",
       "material": "wood",
       "offset": [
         0,
-        0.73,
+        0.55,
         0
       ],
       "yaw_spread": 8,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_04": {
       "model": "prop_bk_rowboat",
       "material": "wood",
       "offset": [
         0,
-        0.78,
+        0.6,
         0
       ],
       "yaw_spread": 8,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_05": {
       "model": "prop_bk_rowboat",
       "material": "wood",
       "offset": [
         0,
-        0.78,
+        0.6,
         0
       ],
       "yaw_spread": 60,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_06": {
       "model": "prop_bk_rowboat_rustic",
       "material": "wood",
       "offset": [
         0,
-        0.83,
+        0.65,
         0
       ],
       "yaw_spread": 60,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_boat_07": {
       "model": "prop_bk_rowboat",
       "material": "wood",
       "offset": [
         0,
-        0.78,
+        0.6,
         0
       ],
       "yaw_spread": 60,
-      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.2 m."
+      "note": "Claude steps-visual: the north quay's berth and boats (BlenderKit, owner-approved 2026-10-31). Afloat: lifted from the bed to draw 0.4 m."
     },
     "oh_nq3_rope_00": {
       "model": "prop_bk_rope_coil",
