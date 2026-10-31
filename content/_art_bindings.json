@@ -4442,7 +4442,10 @@
           "item.armor.smith_gloves": [
             "frontier_smith_gloves__mh_veth_m"
           ],
-          "item.armor.cloak": []
+          "item.armor.cloak": [],
+          "item.armor.gorget": [
+            "gap_gorget__humgen_creator_female"
+          ]
         }
       }
     },
@@ -4526,7 +4529,10 @@
           "item.armor.smith_gloves": [
             "frontier_smith_gloves__mh_veth_m"
           ],
-          "item.armor.cloak": []
+          "item.armor.cloak": [],
+          "item.armor.gorget": [
+            "gap_gorget__humgen_creator_female"
+          ]
         }
       }
     },
@@ -4610,7 +4616,10 @@
           "item.armor.smith_gloves": [
             "frontier_smith_gloves__mh_veth_f"
           ],
-          "item.armor.cloak": []
+          "item.armor.cloak": [],
+          "item.armor.gorget": [
+            "gap_gorget__humgen_creator_female"
+          ]
         }
       }
     }

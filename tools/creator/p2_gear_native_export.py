@@ -61,12 +61,15 @@ def export_candidate(human,row,work,creator,sex,source,solver,adjusted,fit_audit
     bpy.ops.export_scene.gltf(filepath=str(destination),export_format='GLB',use_selection=True,export_animations=False,export_morph=True,export_skins=True,export_yup=True)
     target_path=creator/'game/primary/rigged'/base/(base+'_rigged.glb')
     target,exported=Glb(target_path),Glb(destination)
-    assert target.names.keys()==exported.names.keys(),'Native joint vocabulary changed'
+    extra=set(exported.names)-set(target.names)
+    prefixes=row.get('garment_bone_prefixes',[])
+    assert set(target.names)<=set(exported.names) and all(any(name.startswith(prefix) for prefix in prefixes) for name in extra),'Native joint vocabulary changed'
     a,b=target.globals(),exported.globals()
     rest_error=max(float(np.max(np.abs(a[n]-b[n]))) for n in a)
     assert rest_error<.0001,('Native rest changed',rest_error)
     identity=json.loads((target_path.parent/'identity_weights.json').read_text())
     contract=dict(kind='equipment',slot=row['slot'],item=row['item_id'],review_id=row['review_id'],target_base=base,target_body_sha256=identity['target_body_sha256'],source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),native_meshes=[m.name for m in meshes],status='NATIVE_REVIEW_CANDIDATE_NOT_BOUND',clearance_m=.0035,clearance_vertices_adjusted=adjusted,native_rest_error=rest_error,lod_geometry='Original native source geometry retained at all four levels; no reduction claimed',solver=solver)
+    if extra:contract['declared_garment_helpers']=sorted(extra)
     if fit_audit:contract['fit_audit']=fit_audit
     contract['export_hook_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in hooks.glob('*.py')}
     (folder/'creator_part.json').write_text(json.dumps(contract,indent=2))

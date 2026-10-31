@@ -11,12 +11,14 @@ from HumGen3D.human.human import Human
 repo=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(repo/'tools/creator'))
 from p2_gear_native_export import export_candidate
-work=Path(sys.argv[sys.argv.index('--')+1])
-carrier=Path(r'D:\Otherreach_Scratch\p2_gear_20261031\armour_native_headcontrols_v2\sources\gear_old_ward_greathelm__humgen_creator_female\native_outfit.blend')
-source=work/'rigged_native_base01/gap_gorget__humgen_creator_female/gap_gorget__humgen_creator_female_rigged.glb'
+args=sys.argv[sys.argv.index('--')+1:];work=Path(args[0]);sex=args[1] if len(args)>1 else 'female'
+assert sex in ['female','male']
+base='humgen_creator_'+sex;identifier='gap_gorget__'+base
+carrier=Path(r'D:\Otherreach_Scratch\p2_gear_20261031\armour_native_headcontrols_v2\sources')/('gear_old_ward_greathelm__'+base)/'native_outfit.blend'
+source=work/'rigged_native_base01'/identifier/(identifier+'_rigged.glb')
 bpy.ops.wm.open_mainfile(filepath=str(carrier))
 bpy.context.scene.render.threads_mode='FIXED';bpy.context.scene.render.threads=4
-human=Human.from_existing(bpy.data.objects['humgen_creator_female'])
+human=Human.from_existing(bpy.data.objects[base])
 human.clothing.outfit.remove();human.clothing.footwear.remove()
 rig=human.objects.rig
 rests={b.name:tuple(float(v) for row in b.matrix_local for v in row) for b in rig.data.bones}
@@ -32,5 +34,10 @@ obj.name='gap_gorget'
 solver=human.clothing.outfit.add_obj(obj,'full',recalculate_weights=False)
 assert rests=={b.name:tuple(float(v) for row in b.matrix_local for v in row) for b in rig.data.bones}
 row=dict(art_id='gap_gorget',item_id='item.armor.gorget',review_id='CMB04-01',slot='head',native_candidate_root='native_gorget_probe01')
-export_candidate(human,row,work,work/'native_reference','female',source,solver,0,dict(method='Original gorget authored directly on unchanged native creator59 bind; same UpperChest ownership mapped to original HumGen spine.003 group, then normal custom-clothing field/export. Native carrier body and rig unmodified.'))
+export_candidate(human,row,work,work/'native_reference',sex,source,solver,0,dict(method='Original gorget authored directly on unchanged native creator59 bind; same UpperChest ownership mapped to original HumGen spine.003 group, then normal custom-clothing field/export. Native carrier body and rig unmodified.'))
+folder=work/'native_gorget_probe01/primary/rigged'/identifier
+contract=json.loads((folder/'creator_part.json').read_text());contract.update(covers_hair=False,preserve_underlayers=True)
+(folder/'creator_part.json').write_text(json.dumps(contract,indent=2))
+sidecar=folder/(identifier+'_garment.json')
+layer=json.loads(sidecar.read_text());layer['layer']=3;sidecar.write_text(json.dumps(layer,indent=2))
 print('CMB04_NATIVE_GORGET_EXPORT_COMPLETE',flush=True)

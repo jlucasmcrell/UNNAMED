@@ -24,8 +24,12 @@ public static partial class Outfit
     /// <summary>Remove only meshes/springs installed by Dress, retaining the body, pose and animation player.</summary>
     public static void Clear(SkinnedModel figure)
     {
+        var removed = figure.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(n => n.HasMeta(OwnedGarment)).ToArray();
+        figure.SwapParts(removed, Array.Empty<MeshInstance3D>());
+        HumGenCreatorAppearance.GarmentsChanged(figure, removed, Array.Empty<MeshInstance3D>());
         foreach (var child in figure.Skeleton.GetChildren().Where(n => n.HasMeta(OwnedGarment)).ToList())
             child.Free();
+        HumGenCreatorAppearance.EquipmentChanged(figure);
         foreach (var mesh in figure.Skeleton.FindChildren("*", nameof(MeshInstance3D), true, false).Cast<MeshInstance3D>())
         {
             if (BodyRegion(mesh) is not null)
@@ -54,6 +58,19 @@ public static partial class Outfit
             if (art.Rigged(id) is not { } model)
                 continue;
             using var json = JsonDocument.Parse(File.ReadAllText(spec!));
+            string? contract = art.RiggedFile(id, "creator_part.json");
+            bool native = contract is not null;
+            if (native)
+            {
+                using var target = JsonDocument.Parse(File.ReadAllText(contract!));
+                using var identity = JsonDocument.Parse(File.ReadAllText(art.RiggedFile(body, "identity_weights.json")
+                    ?? throw new InvalidDataException("Native garment target identity missing: " + body)));
+                if (target.RootElement.GetProperty("target_base").GetString() != body
+                    || target.RootElement.GetProperty("target_body_sha256").GetString() != identity.RootElement.GetProperty("target_body_sha256").GetString())
+                    throw new InvalidDataException("Native garment targets another body: " + id);
+                CharacterMaterials.Upgrade(model, out _, new Dictionary<string, HumanEye.Maps>(), nativeHumGen: true);
+                HumGenMaterials.Apply(model, art, id);
+            }
             int layer = json.RootElement.GetProperty("layer").GetInt32();
             int hides = json.RootElement.GetProperty("hides_mask").GetInt32();
             if (json.RootElement.TryGetProperty("hide_regions", out var regions))
@@ -98,15 +115,28 @@ public static partial class Outfit
                 mesh.Transform = Transform3D.Identity;
                 mesh.Skeleton = new NodePath("..");
                 mesh.SetMeta(OwnedGarment, id);
+                if (native)
+                {
+                    using var target = JsonDocument.Parse(File.ReadAllText(contract!));
+                    mesh.SetMeta("native_equipment_slot", target.RootElement.GetProperty("slot").GetString()!);
+                    mesh.SetMeta("native_equipment_covers_hair", !target.RootElement.TryGetProperty("covers_hair", out var coversHair) || coversHair.GetBoolean());
+                    mesh.SetMeta("native_equipment_preserve_underlayers", target.RootElement.TryGetProperty("preserve_underlayers", out var preserve) && preserve.GetBoolean());
+                    if (art.RiggedFile(id, "body_coverage.png") is { } coverage)
+                        mesh.SetMeta("native_equipment_coverage", coverage);
+                }
                 for (int s = 0; s < mesh.Mesh.GetSurfaceCount(); s++)
                 {
-                    if (Cloth(mesh.Mesh.SurfaceGetMaterial(s)) is { } cloth)
+                    if (!native && Cloth(mesh.Mesh.SurfaceGetMaterial(s)) is { } cloth)
                         mesh.SetSurfaceOverrideMaterial(s, cloth);
                 }
             }
             model.Free();
             worn.Add((meshes, layer, hides));
         }
+        var added = worn.SelectMany(g => g.Meshes).ToArray();
+        figure.SwapParts(Array.Empty<MeshInstance3D>(), added);
+        HumGenCreatorAppearance.GarmentsChanged(figure, Array.Empty<MeshInstance3D>(), added);
+        HumGenCreatorAppearance.EquipmentChanged(figure);
         int all = worn.Aggregate(0, (mask, g) => mask | g.Hides);
         foreach (var mesh in skin)
         {

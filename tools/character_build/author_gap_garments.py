@@ -106,6 +106,8 @@ class Garment:
             for index, node in enumerate(self.body.doc['nodes']):
                 if 'mesh' not in node:
                     continue
+                if getattr(self,'fit_outer_only',False) and node.get('name','').endswith('_lining'):
+                    continue
                 names = getattr(self, 'fit_mesh_name', ['Body_LOD0'])
                 if isinstance(names, str):
                     names = [names]
@@ -221,13 +223,16 @@ class Garment:
         if hasattr(self, 'materials'):
             doc['materials'] = self.materials
         texture_sources = []
-        if hasattr(self, 'fabric'):
+        if hasattr(self, 'fabric') or hasattr(self, 'mailkit'):
             doc['images'], doc['textures'] = [], []
             doc['samplers'] = [{'magFilter':9729,'minFilter':9987,'wrapS':10497,'wrapT':10497}]
             for kind in ['diff','arm','nor_gl']:
-                source = self.fabric / ('rough_linen_'+kind+'_4k.jpg')
-                if kind=='diff' and (self.fabric/'rough_linen_diff_4k.png').exists():
-                    source=self.fabric/'rough_linen_diff_4k.png'
+                if hasattr(self,'mailkit'):
+                    source=self.mailkit/{'diff':'mail_albedo.png','arm':'mail_orm.png','nor_gl':'mail_normal.png'}[kind]
+                else:
+                    source = self.fabric / ('rough_linen_'+kind+'_4k.jpg')
+                    if kind=='diff' and (self.fabric/'rough_linen_diff_4k.png').exists():
+                        source=self.fabric/'rough_linen_diff_4k.png'
                 raw = source.read_bytes()
                 data.extend(b'\0'*(-len(data) % 4))
                 view = len(doc['bufferViews'])
@@ -235,8 +240,10 @@ class Garment:
                 data.extend(raw)
                 doc['images'].append({'bufferView':view,'mimeType':'image/png' if source.suffix=='.png' else 'image/jpeg','name':source.name})
                 doc['textures'].append({'source':len(doc['images'])-1,'sampler':0})
-                texture_sources.append({'source':str(source),'sha256':hashlib.sha256(raw).hexdigest(),'license':'Poly Haven CC0; full source dimensions retained','colour_grade':source.suffix=='.png'})
-            material = doc['materials'][2]
+                texture_sources.append({'source':str(source),'sha256':hashlib.sha256(raw).hexdigest(),'license':'Original OTHERREACH geometry/Cycles bake' if hasattr(self,'mailkit') else 'Poly Haven CC0; full source dimensions retained','colour_grade':not hasattr(self,'mailkit') and source.suffix=='.png'})
+            material = doc['materials'][getattr(self,'mail_material',2)]
+            if hasattr(self,'mailkit'):
+                material.update(alphaMode='MASK',alphaCutoff=.45)
             material['pbrMetallicRoughness'].update(baseColorTexture={'index':0},metallicRoughnessTexture={'index':1})
             material['normalTexture']={'index':2,'scale':.65}
             material['occlusionTexture']={'index':1,'strength':.7}
@@ -329,6 +336,14 @@ def besagews(g):
 
 
 def voiders(g):
+    if hasattr(g,'mailkit'):
+        for side in ['Left','Right']:
+            shoulder=g.point(side+'UpperArm');sign=1 if side=='Left' else -1;rows=[]
+            for angle in np.linspace(math.pi*.17,math.pi*.92,17):
+                rows.append([g.fit_surface(shoulder+[sign*along,-.049*math.sin(angle),.049*math.cos(angle)])[0].tolist() for along in np.linspace(-.044,.066,33)])
+            start=len(g.uv);g.grid(rows,0,lambda point:g.fit_surface(point)[1])
+            for uv in g.uv[start:]:uv[0]*=.110/.0504;uv[1]*=math.pi*.75*.049/.048
+        return
     for side in ('Left', 'Right'):
         shoulder = g.point(side+'UpperArm')
         sign = 1 if side == 'Left' else -1
@@ -365,6 +380,18 @@ def bevor(g):
 
 def mail_collar(g, curtain=False):
     neck = g.point('Neck')
+    if hasattr(g,'mailkit'):
+        rows=[];height=.210 if curtain else .048;top=.088 if curtain else .018
+        for y in np.linspace(top,top-height,37 if curtain else 13):
+            flare=max(0,-y-.035);rx,rz=(.115+flare*.65,.128+flare*.5) if curtain else (.077,.076)
+            rows.append([(neck+[rx*math.cos(a),y,rz*math.sin(a)]).tolist() for a in np.linspace(0,2*math.pi,97)])
+        def binding(point):
+            upper=float(np.clip((point[1]-neck[1]+.08)/.17,0,1)) if curtain else 0
+            return [('Head',upper),('UpperChest',1-upper)] if curtain else [('UpperChest',1)]
+        start=len(g.uv);g.grid(rows,0,binding)
+        repeats=round(2*math.pi*(.122 if curtain else .0765)/.0504)
+        for uv in g.uv[start:]:uv[0]*=repeats;uv[1]*=height/.048
+        return
     # Alternating interlinked rings; widened lower courses drape over the shoulders.
     courses = 36 if curtain else 9
     for row in range(courses):
@@ -564,6 +591,23 @@ def whispergorget(g):
 
 def jointward_mesh(g):
     g.materials=exotic_materials()
+    if hasattr(g,'mailkit'):
+        for side in ['Left','Right']:
+            sign=1 if side=='Left' else -1
+            for joint,axis,radius,length in [('LowerArm','x',.073,.105),('LowerLeg','y',.070,.110)]:
+                centre=g.point(side+joint);rows=[]
+                for along in np.linspace(-length/2,length/2,27):
+                    row=[]
+                    for a in np.linspace(0,2*math.pi,65):
+                        point=centre+([sign*along,radius*math.cos(a),radius*math.sin(a)] if axis=='x' else [radius*math.cos(a),along,radius*math.sin(a)])
+                        row.append(g.fit_surface(point)[0].tolist())
+                    rows.append(row)
+                start=len(g.uv);g.grid(rows,1,lambda point:g.fit_surface(point)[1])
+                for uv in g.uv[start:]:uv[0]*=round(2*math.pi*radius/.0504);uv[1]*=length/.048
+        start=len(g.positions);voiders(g)
+        moved=[i for i in g.faces[0] if i>=start];g.faces[0]=[i for i in g.faces[0] if i<start];g.faces[1].extend(moved)
+        g.materials[1]['pbrMetallicRoughness'].update(baseColorFactor=[.45,.48,.45,1],roughnessFactor=.85)
+        return
     for side in ['Left','Right']:
         sign=1 if side=='Left' else -1
         for joint,axis,radius,length in [('LowerArm','x',.073,.105),('LowerLeg','y',.070,.110)]:
@@ -642,6 +686,8 @@ def main():
     parser.add_argument('--out', type=Path, required=True)
     parser.add_argument('--underlayer', type=Path, help='Native frontier garment for the sewn voider seam; source bytes retained')
     parser.add_argument('--fabric',type=Path,help='Owned original Poly Haven rough_linen4K folder for the veil')
+    parser.add_argument('--mail-kit',type=Path,help='Original geometry/native Cycles four-in-one full4K bake kit')
+    parser.add_argument('--underlayer-mesh',default='Frontier_Shirt_LOD0',help='Actual native shirt mesh suffix used for seam fitting')
     parser.add_argument('--parts', nargs='+', default=['gorget','besagews','voiders'], choices=['gorget','besagews','voiders','bevor','aventail','mail_standard','couters','poleyns','groin_guard','faulds','sabatons','gauntlets','whispergorget','jointward_mesh','veil_collar','phase_laminate'])
     args = parser.parse_args()
     body = Glb(args.body)
@@ -654,17 +700,25 @@ def main():
     for part in args.parts:
         author,layer=authors[part]
         garment = Garment(body, 'gap_'+part+'__'+args.body_id)
+        if args.mail_kit and part in ['voiders','aventail','mail_standard','jointward_mesh']:
+            garment.mailkit=args.mail_kit;garment.mail_material=1 if part=='jointward_mesh' else 0
         if part=='veil_collar':
             assert args.fabric,'Veil requires the owned original linen maps'
             garment.fabric=args.fabric
         if part in ['voiders','bevor','aventail','couters','faulds','groin_guard','gauntlets','whispergorget','jointward_mesh','phase_laminate'] and args.underlayer:
             reference=Garment(Glb(args.underlayer),'seam_reference')
-            reference.fit_mesh_name='Frontier_Shirt_LOD0'
+            reference.fit_mesh_name=args.underlayer_mesh
             if part=='jointward_mesh':
                 reference.fit_mesh_name=['Frontier_Shirt_LOD0','Frontier_Pants_LOD0']
             reference.fit_clearance=.002
+            if args.body_id.startswith('humgen_creator_'):
+                reference.fit_clearance=.008
+                reference.fit_outer_only=True
             garment.fit_reference=reference
         author(garment)
+        if hasattr(garment,'mailkit') and part!='jointward_mesh':
+            garment.materials=exotic_materials()
+            garment.materials[0]={'name':'Original four-in-one steel','pbrMetallicRoughness':{'baseColorFactor':[1,1,1,1],'metallicFactor':.94,'roughnessFactor':1},'doubleSided':True}
         if args.underlayer and part in ['bevor','aventail','couters','faulds','groin_guard','gauntlets']:
             garment.clear_underlayer(cuff_only=part=='gauntlets')
         if args.underlayer and part=='phase_laminate':
