@@ -129,9 +129,12 @@ public partial class AcceptanceWalkthroughTests
         Step("4.4", () =>
         {
             const string bench = "station.hollow.workbench";
+            // What every workbench experiment asks for: the bench's set is seeded from its candidates, so carrying one recipe's inputs only finds
+            // something while that recipe is the one the seed picked - and a new candidate anywhere in content changes the pick.
+            var kit = session.Setup.Crafting.Recipes.Values.Where(r => r.Experiment && r.StationKind == "workbench").SelectMany(r => r.Inputs)
+                .GroupBy(i => i.ItemId).Select(g => Arena.Stack(g.Key, g.Max(i => i.Count))).ToArray();
             var arena = Arena.OpenCreatures(session, session.Setup, (38, 144.5), 0, Array.Empty<(string, double, double, string)>(),
-                r => r.WithInventory(r.Inventory.Concat(new[] { Arena.Stack("item.material.wolf_hide", 1), Arena.Stack("item.material.bog_cotton", 2),
-                    Arena.Stack("item.material.timber", 2), Arena.Stack("item.material.small_hide", 1) })));
+                r => r.WithInventory(r.Inventory.Concat(kit)));
             var (found, total) = arena.Simulation.Experiments(bench);
             Equal(0, found, "findings before experimenting");
             That(total > 0, "the workbench has nothing to find");

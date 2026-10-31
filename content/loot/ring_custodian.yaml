@@ -8,3 +8,13 @@ rolls: 0
 entries:
   - { item_ref: item.material.iron_ingot, chance: 1.0, count_range: [2, 3] }
   - { item_ref: item.material.iron_ore, chance: 0.5, count_range: [1, 2] }
+  # What the works' own watch carried (D23 S7, D21): Keelward and Vaskaal kit, each a chance, so the ring is where the far kit turns up.
+  - { item_ref: item.weapon.marksman_rifle, chance: 0.25, count_range: [1, 1] }
+  - { item_ref: item.weapon.marksman_laser, chance: 0.1, count_range: [1, 1] }
+  - { item_ref: item.weapon.charge_rifle, chance: 0.1, count_range: [1, 1] }
+  - { item_ref: item.weapon.dart_launcher, chance: 0.2, count_range: [1, 1] }
+  - { item_ref: item.ammo.dart_cartridge, chance: 0.4, count_range: [4, 8] }
+  - { item_ref: item.weapon.stun_device, chance: 0.2, count_range: [1, 1] }
+  - { item_ref: item.tool.silencer, chance: 0.3, count_range: [1, 1] }
+  - { item_ref: item.tool.detector_thermal, chance: 0.3, count_range: [1, 1] }
+  - { item_ref: item.armor.boots_muffled, chance: 0.3, count_range: [1, 1] }

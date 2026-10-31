@@ -567,9 +567,10 @@ public class CreatureTests
         Walk(walker, (158, 80), Gait.Walk);   // 8 m past it: out of its 6 m sight, and a walk carries 3 m
         Assert.Equal(CreatureMind.Unaware, Only(walker).Mind);
 
-        var runner = Place(session, (158, 40), 0, (Spider, 150, 60, "ambusher"));
+        // The run passes five metres off: a run carries 8 m, and the road's mud takes it to 5.6 m (STEALTH §3.1) - it feels it and goes for it.
+        var runner = Place(session, (155, 40), 0, (Spider, 150, 60, "ambusher"));
         var noticed = runner.Record<CreatureNoticed>();
-        Walk(runner, (158, 62), Gait.Run);   // a run carries 8 m: it feels it and goes for it
+        Walk(runner, (155, 62), Gait.Run);
         Assert.Contains(noticed, n => n.Mind == CreatureMind.Engaged);
         double furthest = 0;
         for (int i = 0; i < 400; i++)
