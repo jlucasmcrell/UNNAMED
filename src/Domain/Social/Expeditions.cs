@@ -106,9 +106,6 @@ public static class SparRules
     /// <summary>How far apart two levels may be and still be worth sparring: beyond this a bout teaches nothing and the yard won't call it.</summary>
     public const int MatchSpread = 2;
 
-    /// <summary>Whether these two can be matched: same yard, within <see cref="MatchSpread"/> levels, not the same person.</summary>
-    public static bool Match(int levelA, int levelB) => levelA != levelB || levelA == levelB;
-
     /// <summary>Whether two different levels are close enough to spar.</summary>
     public static bool CloseEnough(int levelA, int levelB) => Math.Abs(levelA - levelB) <= MatchSpread;
 
