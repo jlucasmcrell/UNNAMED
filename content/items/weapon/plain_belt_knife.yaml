@@ -1,0 +1,21 @@
+id: item.weapon.plain_belt_knife
+kind: item.weapon
+schema: 1
+display_key: item.weapon.plain_belt_knife.name
+tags: [item]
+name: Plain Belt Knife
+notes: A plain steel blade riveted between two slabs of wood. Easy to carry and easy to mend.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 0.35
+value_base: 12
+damage: [5, 7]
+damage_type: physical_pierce
+hands: one
+requirements: { attribute.might: 7 }
+attack_speed: 1.9
+reach: 1.1
+skill_ref: skill.one_hand_blade
+durability_max: 200
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 2, item_ref: item.material.iron_ingot }

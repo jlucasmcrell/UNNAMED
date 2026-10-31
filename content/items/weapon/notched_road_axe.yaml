@@ -1,0 +1,20 @@
+id: item.weapon.notched_road_axe
+kind: item.weapon
+schema: 1
+display_key: item.weapon.notched_road_axe.name
+tags: [item]
+name: Notched Road Axe
+notes: A notched iron bit on a bent wooden haft, bound in faded red cloth.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 2.4
+value_base: 28
+damage: [8, 10]
+damage_type: physical_slash
+hands: one
+requirements: { attribute.might: 10 }
+attack_speed: 1.1
+reach: 1.5
+durability_max: 200
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 2, item_ref: item.material.iron_ingot }

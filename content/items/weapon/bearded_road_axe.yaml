@@ -1,0 +1,20 @@
+id: item.weapon.bearded_road_axe
+kind: item.weapon
+schema: 1
+display_key: item.weapon.bearded_road_axe.name
+tags: [item]
+name: Bearded Road Axe
+notes: A broad bearded bit on a dark wooden haft. The carving has outlasted its first owner.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 2.8
+value_base: 31
+damage: [9, 11]
+damage_type: physical_slash
+hands: one
+requirements: { attribute.might: 10 }
+attack_speed: 1.0
+reach: 1.6
+durability_max: 200
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 2, item_ref: item.material.iron_ingot }

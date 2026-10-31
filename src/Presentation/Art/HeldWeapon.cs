@@ -49,7 +49,7 @@ public static class HeldWeapon
     /// <summary>The weapon <paramref name="modelId"/> with its grip socket on <paramref name="grip"/>; null without the model or the socket.</summary>
     public static Node3D? Mount(ArtLibrary art, string modelId, Transform3D grip, float scale = 1)
     {
-        if (art.Model(modelId) is not { } model)
+        if (art.ModelWithLods(modelId) is not { } model)
         {
             art.Coverage.Fallback("weapon", modelId, $"{art.Why(modelId) ?? "not drawn"}: a greybox weapon", modelId);
             return null;

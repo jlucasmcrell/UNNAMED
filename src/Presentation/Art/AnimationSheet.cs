@@ -37,6 +37,8 @@ public partial class AnimationSheet : Node3D
     private readonly string? _profileCompare;
     private readonly bool _profileFacesOnly;
     private readonly int? _profilePhase;
+    private readonly string? _gearItems;
+    private readonly string? _gearBody;
     private Action? _profileFaceAim;
     private readonly List<(SkinnedModel Model, string State)> _profileModels = new();
     private readonly Camera3D _camera = new() { Fov = 40, Current = true, Near = 0.05f };
@@ -84,7 +86,7 @@ public partial class AnimationSheet : Node3D
     /// <summary>How far into a reach (its clip is 1.4 s) its picture is taken: the middle of its hold at full stretch.</summary>
     private const double ReachSeconds = 0.7;
 
-    public AnimationSheet(ArtLibrary art, ArtBindings bindings, string directory, bool profiles = false, string? profileStates = null, string profilePerson = "player", bool profileFaces = false, string? profileCompare = null, bool profileFacesOnly = false, string? profilePhase = null)
+    public AnimationSheet(ArtLibrary art, ArtBindings bindings, string directory, bool profiles = false, string? profileStates = null, string profilePerson = "player", bool profileFaces = false, string? profileCompare = null, bool profileFacesOnly = false, string? profilePhase = null, string? gearItems = null, string? gearBody = null)
     {
         _art = art;
         _bindings = bindings;
@@ -96,6 +98,8 @@ public partial class AnimationSheet : Node3D
         _profileCompare = profileCompare;
         _profileFacesOnly = profileFacesOnly;
         _profilePhase = profilePhase is null ? null : int.Parse(profilePhase);
+        _gearItems = gearItems;
+        _gearBody = gearBody;
         if (_profilePhase is < 0 or > 11) throw new ArgumentOutOfRangeException(nameof(profilePhase));
     }
 
@@ -116,10 +120,16 @@ public partial class AnimationSheet : Node3D
         AddChild(new WorldEnvironment { Environment = environment });
         AddChild(new DirectionalLight3D { RotationDegrees = new Vector3(-50, 30, 0), ShadowEnabled = true, LightEnergy = 1.2f });
         var floor = new MeshInstance3D { Mesh = new PlaneMesh { Size = new Vector2(800, 800) }, Position = new Vector3(40, 0, -200) };
-        floor.MaterialOverride = _art.WorldMaterial("material_packed_dirt_ground") ?? new StandardMaterial3D { AlbedoColor = new Color(0.4f, 0.38f, 0.33f) };
+        floor.MaterialOverride = (_gearItems is null ? _art.WorldMaterial("material_packed_dirt_ground") : null)
+            ?? new StandardMaterial3D { AlbedoColor = new Color(0.4f, 0.38f, 0.33f) };
         AddChild(floor);
         AddChild(_camera);
 
+        if (_gearItems is not null)
+        {
+            AddGearProfiles();
+            return;
+        }
         if (_profiles)
         {
             AddPlayerProfiles();
@@ -412,6 +422,62 @@ public partial class AnimationSheet : Node3D
         }
     }
 
+    /// <summary>Bound gear on the game's normal figure in ready/active poses, with full-body and hand views.</summary>
+    private void AddGearProfiles()
+    {
+        var figure = SkinnedFigure.Create(_art, _bindings, _profilePerson, _gearBody, people: "people.veth")
+            ?? throw new InvalidDataException("Gear review body did not load: " + _profilePerson);
+        AddChild(figure);
+        var stance = CombatStance.AtRest;
+        string? selected = null;
+        _poses.Add(new Pose("gear review", figure, f => f.SetStance(stance), 0));
+        foreach (string id in _gearItems!.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            var weapon = _bindings.Weapons.GetValueOrDefault(id)
+                ?? throw new InvalidDataException("Gear review has no weapon binding: " + id);
+            var held = weapon.Family switch { "sword" => Held.Sword, "bow" => Held.Bow, "polearm" => Held.Spear,
+                _ => throw new InvalidDataException("Gear review has no held family: " + weapon.Family) };
+            foreach (bool strike in new[] { false, true })
+            {
+                var shotStance = new CombatStance(strike ? CombatPhase.Active : CombatPhase.Idle, strike ? .5f : 0, held, false);
+                string name = id.Replace('.', '_') + (strike ? "_strike" : "_ready");
+                void SelectGear()
+                {
+                    if (selected == name) return;
+                    figure.Hold(id);
+                    if (strike)
+                    {
+                        figure.SetStance(new CombatStance(CombatPhase.Windup, .9f, held, false));
+                        figure.Pose(figure.Position, Mathf.DegToRad(30), 0, 0);
+                    }
+                    stance = shotStance;
+                    selected = name;
+                }
+                var at = figure.Position;
+                foreach (bool side in new[] { false, true })
+                    _shots.Add((name + (side ? "_side" : "_three"), () =>
+                    {
+                        SelectGear();
+                        _profileFaceAim = null;
+                        Aim(at + (side ? new Vector3(3.8f, 1.5f, .3f) : new Vector3(2.8f, 1.6f, 3.2f)), at + new Vector3(0, 1, 0));
+                    }));
+                _shots.Add((name + "_grip", () =>
+                {
+                    SelectGear();
+                    _profileFaceAim = () =>
+                    {
+                        int bone = BoneNames.Find(figure.Skeleton, weapon.OffHand ? "hand_l" : "hand_r");
+                        if (bone < 0) throw new InvalidDataException("Gear review hand is missing: " + id);
+                        var hand = figure.Skeleton.GlobalTransform * figure.Skeleton.GetBoneGlobalPose(bone).Origin;
+                        Aim(hand + new Vector3(.45f, .15f, .75f), hand);
+                    };
+                    _profileFaceAim();
+                }));
+                _notes.Add($"Gear: {id} / {weapon.Model} / {figure.ModelId} / {(strike ? "active" : "ready")}; game's own figure, grip and stance.");
+            }
+        }
+    }
+
     /// <summary>One real player skin per bound state, held at twelve reproducible phases, with runtime retargeting, correctives and outfit.</summary>
     private void AddPlayerProfiles()
     {
@@ -629,6 +695,19 @@ public partial class AnimationSheet : Node3D
         // The reach waits until it is at full stretch.
         if (++_wait < 8 || _shots[_shot].Name == "player_close_interact" && _clockAtShot + ReachSeconds > _clock)
             return;
+        if (_gearItems is not null)
+        {
+            if (_clock < _clockAtShot + .45) return;
+            string? clip = _poses[0].Figure.ClipState;
+            if (_shots[_shot].Name.Contains("_strike_", StringComparison.Ordinal)
+                && (clip is null || !new[] { "sword_attack", "spear_thrust", "bow_draw" }.Any(prefix => clip.StartsWith(prefix, StringComparison.Ordinal))))
+            {
+                GD.PushError($"Gear active pose did not resolve: {_shots[_shot].Name} / {clip}");
+                GetTree().Quit(1);
+                return;
+            }
+            _notes.Add($"Native pose: {_shots[_shot].Name} / clip={clip}");
+        }
         Main.SaveScreenshot(GetViewport(), _directory, _shots[_shot].Name);
         // The creature pictures are the only place two fractions of one clip are held for long enough to compare, so the
         // movement between them is measured here rather than guessed from the frames afterwards.

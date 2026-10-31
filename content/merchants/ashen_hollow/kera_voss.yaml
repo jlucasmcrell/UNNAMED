@@ -21,6 +21,21 @@ stock:
   # Light for the road (owner note 13): a lantern and the oil that fills it again. The torch she does not sell - it is made at her forge.
   - { item_ref: item.tool.lantern, count: 1, price_bias: 1.0 }
   - { item_ref: item.material.lamp_oil, count: 4, price_bias: 1.0 }
+  - { item_ref: item.weapon.engraved_road_sword, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.iron_curved_sword, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.bronze_broadsword, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.bronze_curved_sword, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.bearded_road_axe, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.stone_haft_hammer, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.carved_old_bow, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.red_grip_hunting_knife, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.plain_belt_knife, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.weathered_double_bit_axe, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.brass_hilt_sword, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.wood_grip_knife, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.carving_knife, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.double_bit_axe, count: 1, price_bias: 1.0 }
+  - { item_ref: item.weapon.notched_road_axe, count: 1, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [60, 400]   # her purse (WP14): the floor each restock brings it back to, and the most it holds
 restock_min: 1            # game days between restocks: her shelf is drawn again from Ashen Hollow's market   # Phase 1 matches these against the item category

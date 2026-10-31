@@ -41,7 +41,24 @@ for row in rows:
             radius=min(math.hypot(p[0]-grip[0],p[2]-grip[2]) for p in slab)
             assert radius<.06,id+': grip floats away from the handle'
         for lod in (1,2):
-            assert (file.parent/(id+f'_lod{lod}.glb')).exists(),id+': missing LOD'
+            lod_file=file.parent/(id+f'_lod{lod}.glb')
+            assert lod_file.exists(),id+': missing LOD'
+            lod_data,_=read_glb(lod_file)
+            assert not lod_data.get('skins') and lod_data.get('materials'),id+': invalid LOD surface'
+            for mesh in lod_data.get('meshes',[]):
+                for primitive in mesh['primitives']:
+                    assert {'POSITION','NORMAL','TEXCOORD_0'}<=primitive['attributes'].keys(),id+': invalid LOD attributes'
+            # The normal exporter keeps sockets on LOD0; lighter meshes share
+            # its coordinate frame when ModelWithLods mounts the whole ladder.
+            lod_grip=next((n for n in lod_data['nodes'] if n.get('name')=='SOCK_grip_primary'),None)
+            if lod_grip:
+                for field in ('translation','rotation'):
+                    assert all(abs(a-b)<1e-6 for a,b in zip(lod_grip[field],socket[field])),id+': LOD grip moved'
+            lod_positions=load_positions(lod_file)
+            for axis in range(3):
+                low,high=min(p[axis] for p in positions),max(p[axis] for p in positions)
+                tolerance=max(.02,(high-low)*.06)
+                assert abs(min(p[axis] for p in lod_positions)-low)<tolerance and abs(max(p[axis] for p in lod_positions)-high)<tolerance,id+': LOD silhouette bounds changed'
     results.append(dict(item_id=row['item_id'],asset_id=id,sha256=hashlib.sha256(file.read_bytes()).hexdigest(),bounds=world_bounds(data),image_sizes=maps))
 assert results,'No gear prepared'
 if not partial:

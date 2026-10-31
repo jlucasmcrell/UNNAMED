@@ -1,0 +1,15 @@
+# Playtest 2 weapon batch
+
+Fifteen additional ordinary/common weapons are sold singly by Kera Voss in Ashen Hollow. Each uses a real credited source model, native rendered 128/256px icons, the existing complete item schema, durability/repair and attribute/ammo rules. No new skill, level gate or combat system is introduced.
+
+The first-hour tuning is anchored to the Rusted Sword, Hunting Bow, Halda’s Bow and existing hide/lamework armour. Knives trade reach and per-hit effectiveness against armour for speed and carry weight; the stone hammer is slow/heavy but effective against the reference construct. The carved bow is lighter/cheaper than the Hunting Bow and draws more slowly. The weathered axe costs less and wears out sooner than its clean counterpart. Full values and repair keys are in [P2_GEAR_STATS.md](P2_GEAR_STATS.md) and [P2_GEAR_STATS.json](P2_GEAR_STATS.json).
+
+[TtkTableTests](../tests/Application.Tests/TtkTableTests.cs) measures every new weapon at levels 1, 3 and 5 over 24 worlds with real ammunition, stamina, hit rolls and mitigation. [P2_GEAR_TTK.md](P2_GEAR_TTK.md) compares each to the same-level starter-family anchor within 25%, rounded outward to a simulation tick. [P2_GEAR_BARROWWORKS.md](P2_GEAR_BARROWWORKS.md) measures all fifteen and two anchors in twelve level-5 reference fights each. These are the requested build2-integ balance definitions; the RC boss lane owns its replacement encounter.
+
+Native proof covers all fifteen on both current creator bodies in ready/active poses, plus all forty-five source distance-level views. Numbered sword strikes enter through windup. Nine already small models retain native geometry at all three distance levels; six larger models reduce their meshes. Native maps and complete GPU mip chains are retained everywhere. [P2_GEAR_NATIVE_PROOF.json](P2_GEAR_NATIVE_PROOF.json) pins sources, images and limits. Manufacturer marks on W23/W24 were removed with ordinary same-source pixel cloning, never a generative model.
+
+## Integration
+
+Merge the code/data branch and the filtered art delta recorded in `P2_GEAR_DELIVERY.json`. It contains only fifteen weapon ready folders, fifteen icon pairs and their signed native cache. It is **not a standalone AssetBase**. Merge `manifests/ui_icons.json` by icon key and `texture_cache/manifest.json` by cache key, copying referenced DDS files. Preserve the full existing world/character manifests and assets. All model and DDS hashes must match the delivery receipt. No source .blend/FBX files or character payload is part of this delta.
+
+Twenty armour pieces have real source preparation, icons and complete proposed stat blocks, but remain **unbound and unavailable** under Claude’s release fit ruling. No invisible armour, unsupported native-wear claim or overlapping garment workaround is shipped. W08’s polearm and W02’s greatsword are likewise deferred for proper two-hand motion. See [P2_GEAR_ARMOUR_PREPARATION.md](P2_GEAR_ARMOUR_PREPARATION.md).

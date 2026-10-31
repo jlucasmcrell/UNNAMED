@@ -20,7 +20,7 @@ recipes={
  'W07':(1,1,.72,.20),'W08':(1,1,1.90,.48),'W09':(0,1,1.65,.50),
  'W10':(0,1,1.40,.50),'W13':(1,1,.45,.22),'W14':(1,-1,.34,.23),
  'W15':(1,-1,.29,.24),'W16':(2,1,1.88,.37),'W17':(1,1,1.45,.15),
- 'W18':(1,1,.50,.20),'W20':(1,-1,1.12,.15),
+ 'W18':(1,-1,.50,.20),'W20':(1,-1,1.12,.15),
  'W21':(1,-1,.28,.22),'W22':(1,-1,.22,.25),'W23':(1,1,.68,.22),'W24':(1,1,.68,.22),
 }
 receipts=[]
@@ -86,6 +86,10 @@ for row in rows:
         centre=sum(section,Vector())/len(section)
         weapon.data.transform(Matrix.Translation((-centre.x,-centre.y,0)))
     # Real grip centre is specified per source; it is never inferred from the item reach.
+    # These source hafts were 41-54 mm across at the hand. Correct transverse
+    # metric sizing for a 28 mm grip while retaining length, UVs and native maps.
+    grip_scale={'W06':(1,.5),'W07':(.75,.67),'W08':(.55,.55)}.get(row['review_id'],(1,1))
+    if grip_scale!=(1,1):weapon.data.transform(Matrix.Diagonal((*grip_scale,1,1)))
     sockets=[pipeline['add_socket']('SOCK_grip_primary',length*grip),pipeline['add_socket']('SOCK_attach',length*.45),pipeline['add_socket']('SOCK_head',length)]
     if row['family']=='polearm':sockets.append(pipeline['add_socket']('SOCK_grip_secondary',length*.66))
     if row['family']=='bow':sockets.append(pipeline['add_socket']('SOCK_ammo',length*.5+.06,0,-.08))
@@ -95,6 +99,7 @@ for row in rows:
     assert not missing,'Missing native images: '+str(missing)
     native_px=max([max(im.size) for im in images]+[2048])
     triangles=sum(len(p.vertices)-2 for p in weapon.data.polygons)
-    rec=pipeline['export'](weapon,id,sockets,[0,max(200,triangles//2),max(100,triangles//4)],[native_px,2048,1024],dict(source=row['source'],source_sha256=hashlib.sha256(Path(row['source']).read_bytes()).hexdigest(),review_id=row['review_id'],licence='See source licence receipt; no generative processing',status='PRIVATE_CANDIDATE_REQUIRES_SOURCE_AND_ENGINE_VERDICT'))
+    lod_tris=[0,0,0] if triangles<=5000 else [0,max(200,triangles//2),max(100,triangles//4)]
+    rec=pipeline['export'](weapon,id,sockets,lod_tris,[native_px,native_px,native_px],dict(source=row['source'],source_sha256=hashlib.sha256(Path(row['source']).read_bytes()).hexdigest(),review_id=row['review_id'],transverse_metric_scale=grip_scale,lod_geometry_policy='Sources at or below 5000 triangles retain native geometry on every level; larger sources reduce by half and quarter.',lod_material_policy='All geometry LODs retain the same native maps; runtime uses the complete native GPU mip chain.',licence='See source licence receipt; no generative processing',status='PRIVATE_CANDIDATE_REQUIRES_SOURCE_AND_ENGINE_VERDICT'))
     receipts.append(rec);(root/'weapon_export_receipts.json').write_text(json.dumps(receipts,indent=2))
     print('P2_WEAPON_PREPARED',row['review_id'],id,flush=True)

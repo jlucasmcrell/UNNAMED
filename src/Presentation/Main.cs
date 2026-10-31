@@ -351,7 +351,7 @@ public partial class Main : Node3D
                 Art.ArtLibrary.FallbackRoot = sheetFallback;
             AddChild(new Art.AnimationSheet(new Art.ArtLibrary(catalog.Root),
                 Art.ArtBindings.LoadWithOverlay(Art.ArtBindings.ResourcePath, _options.GetValueOrDefault("--bindings-overlay")), Path.GetFullPath(sheet),
-                _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states"), _options.GetValueOrDefault("--anim-person") ?? "player", (_flags.Contains("--anim-faces") || _flags.Contains("--anim-faces-only")), _options.GetValueOrDefault("--anim-compare"), _flags.Contains("--anim-faces-only"), _options.GetValueOrDefault("--anim-phase")));
+                _flags.Contains("--anim-profiles"), _options.GetValueOrDefault("--anim-states"), _options.GetValueOrDefault("--anim-person") ?? "player", (_flags.Contains("--anim-faces") || _flags.Contains("--anim-faces-only")), _options.GetValueOrDefault("--anim-compare"), _flags.Contains("--anim-faces-only"), _options.GetValueOrDefault("--anim-phase"), _options.GetValueOrDefault("--anim-gear"), _options.GetValueOrDefault("--anim-body")));
             SetProcess(false); // This sheet owns the frame loop; front-end input actions have not been bound.
             return;
         }
@@ -1994,7 +1994,7 @@ public partial class Main : Node3D
                     or "--asset-fallback" or "--bindings-overlay" or "--scatter-rules" or "--connected-check" or "--menu-escape" or "--capture-size"
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--inn-shots" or "--lore-shots" or "--pet-shots"
-                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
+                    or "--anim-person" or "--anim-compare" or "--anim-phase" or "--anim-gear" or "--anim-body" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];
             else

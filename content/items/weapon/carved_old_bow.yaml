@@ -1,0 +1,21 @@
+id: item.weapon.carved_old_bow
+kind: item.weapon
+schema: 1
+display_key: item.weapon.carved_old_bow.name
+tags: [item]
+name: Carved Old Bow
+notes: An old carved bow, its grip worn smooth and its string renewed.
+category: weapon
+item_class: ordinary
+stack_max: 1
+weight: 1.2
+value_base: 28
+damage: [8, 10]
+damage_type: physical_pierce
+hands: two
+requirements: { attribute.might: 9 }
+draw_time: 1.0
+ammo_item_ref: item.ammo.arrow_rough
+skill_ref: skill.bow
+durability_max: 200
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }

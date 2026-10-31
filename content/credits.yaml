@@ -326,3 +326,56 @@ sections:
     entries:
       - ledger: [G01, G02, G03, AU05]
         text: "Some content was made with generative AI tools run locally: sound effects, ambience and the opening cue (Stable Audio); remaining image-to-3D props and flora (TRELLIS and Pixal3D); interface icons (Z-Image Turbo); magic effect flipbooks. Ambient chat: 3,000 World and Local lines were written with generative AI (DeepSeek); these lines are marked ai_generated in the content. AI-generated image textures accompany the remaining image-to-3D props and flora, UI icons and magic flipbooks. The current wardrobe uses scanned Poly Haven and ambientCG PBR materials. The opening narration and the spoken lines of the main characters of Ashen Hollow and Cairnwold were generated with ElevenLabs text-to-speech, an online service, and chosen by the developer; the game itself never connects to it, and every voiced line is also shown as text. The music was composed with ElevenLabs Music, an online service, and chosen by the developer; the game never connects to it either. The recorded sound libraries and the Fab, Cosmos and WildMesh assets were not fed to any AI model."
+
+
+# P2_GEAR_CREDITS_BEGIN
+  - id: playtest2_gear
+    title: "Road weapons"
+    entries:
+      - binds: [gear_engraved_road_sword]
+        text: "Engraved Road Sword source model by Dr toxic, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/6201b2f5-c0ec-4dbb-b58e-5c24784facca/"
+      - binds: [gear_iron_curved_sword]
+        text: "Iron Sickle-Sword source model by z1, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/318309c7-f5c3-49b4-ab7b-2484bdf3c17c/"
+      - binds: [gear_bronze_broadsword]
+        text: "Bronze Broadsword source model by z1, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/e64388b8-c363-4da1-8bca-3ffc990a87a9/"
+      - binds: [gear_bronze_curved_sword]
+        text: "Bronze Sickle-Sword source model by z1, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/5871f307-42c8-4daf-b69e-7609449b5051/"
+      - binds: [gear_bearded_road_axe]
+        text: "Bearded Road Axe source model by Crazy0_0Cat, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/464a2d66-0443-467b-98f3-3c75088b7abb/"
+      - binds: [gear_stone_haft_hammer]
+        text: "Stone Haft Hammer source model by 3D Addicts, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/1957620b-f527-4661-a2bd-ca51df02be19/"
+      - binds: [gear_weathered_double_bit_axe]
+        text: "Weathered Double Bit Axe source model by Joachim Bornemann, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/b4ec399a-2a83-481f-94c9-8e93cce68f20/"
+      - binds: [gear_carved_old_bow]
+        text: "Carved Old Bow source model by Mijan 3d, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/daddccf8-c5d6-40eb-a874-da1722fbdea9/"
+      - binds: [gear_red_grip_hunting_knife]
+        text: "Red Grip Hunting Knife source model by AMK 3D, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/1bbbd74b-ae5d-4cbd-8489-ab5947d17fc1/"
+      - binds: [gear_plain_belt_knife]
+        text: "Plain Belt Knife source model by Polary Studios, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/8c1f4fd7-3a2c-465f-8a4d-08fd0dca8126/"
+      - binds: [gear_brass_hilt_sword]
+        text: "Brass Hilt Sword source model by Josue Morales, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/c7813f41-e345-41a9-bde9-90ce9ebdb863/"
+      - binds: [gear_wood_grip_knife]
+        text: "Wood Grip Knife source model by Vadim Gubey, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/b4ac9583-a957-498d-be53-6263d74d6276/"
+      - binds: [gear_carving_knife]
+        text: "Carving Knife source model by Future/Past Creatives, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/b0481a5a-988a-4067-a327-bba3892cfc09/"
+      - binds: [gear_double_bit_axe]
+        text: "Double Bit Axe source model by Joachim Bornemann, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/3cab72ec-e02d-458a-952a-01bb4a5fa77b/"
+      - binds: [gear_notched_road_axe]
+        text: "Notched Road Axe source model by Vladislav Kuznetsov, BlenderKit Royalty Free License. Metric preparation, grip sockets, LODs and native rendered icons for Otherreach."
+        url: "https://www.blenderkit.com/asset-gallery-detail/3e92cb0c-1b46-4d92-a4de-080794a1e75d/"
+      - text: "These gear icons were rendered from the credited source models. No source gear was fed to a generative model."
+# P2_GEAR_CREDITS_END
