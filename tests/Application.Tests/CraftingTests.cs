@@ -12,7 +12,7 @@ namespace UNNAMED.Application.Tests;
 
 /// <summary>
 /// M3f: one gather, craft and equip loop over the game's own content - two nodes, two recipes, and quality on the thing made
-/// (PROTOTYPE.md C12-C14; the content bible's §12). No rank gates a recipe; the first of each thing made earns level XP once.
+/// (PROTOTYPE.md C12-C14; the content bible's Ã‚Â§12). No rank gates a recipe; the first of each thing made earns level XP once.
 /// </summary>
 public class CraftingTests
 {
@@ -77,7 +77,7 @@ public class CraftingTests
     private static Arena Reload(GameSession session, TempProfile profile, Arena before, string slot) =>
         Arena.Resume(before.Simulation.Setup, new SaveStore(profile.Root).Load(SaveSlots.Manual(slot), new LoadContext(session.Generator, session.Content, new Registry())));
 
-    // ── the nodes ───────────────────────────────────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ the nodes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
     [Fact]
     public void TheHollow_HasItsSeamAndItsStand_InTheWorldsBaseline()
@@ -165,7 +165,7 @@ public class CraftingTests
 
         // The same strike of the same seam each time: the roll is the node's and its harvest's, not the gatherer's.
         Assert.Equal(Strike(0), Strike(2));
-        Assert.Equal(Strike(2) + 1, Strike(3));   // PROTOTYPE.md §4.1: mining 3 takes one more
+        Assert.Equal(Strike(2) + 1, Strike(3));   // PROTOTYPE.md Ã‚Â§4.1: mining 3 takes one more
     }
 
     [Fact]
@@ -198,7 +198,7 @@ public class CraftingTests
         Assert.Null(cut.Submit(new GatherCommand(cut.Player, standKey)));
     }
 
-    // ── the recipes ─────────────────────────────────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ the recipes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
     [Fact]
     public void ARecipe_NeedsKnowing_ItsStation_AndItsMaterials()
@@ -332,7 +332,7 @@ public class CraftingTests
         Assert.True(crude.Hit < standard.Hit && standard.Hit < fine.Hit, $"{crude.Hit} < {standard.Hit} < {fine.Hit}");   // one thrust, one roll
     }
 
-    // ── the whole loop ──────────────────────────────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ the whole loop Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
     /// <summary>
     /// ROADMAP.md M3f's exit: one character in one world, every step through the commands the keys send - strike the seam
@@ -389,7 +389,7 @@ public class CraftingTests
         Assert.DoesNotContain(hits, h => h.Attacker == arena.Player && h.Source != Spear);
     }
 
-    // ── what making teaches ─────────────────────────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ what making teaches Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
     [Fact]
     public void OnlyTheFirstOfEachThingMade_EarnsLevelXp()
@@ -441,7 +441,7 @@ public class CraftingTests
         Assert.Equal(new[] { novelty, 0, 0 }, gathering.Where(p => p.SkillId == Mining).Select(p => p.Xp));
     }
 
-    // ── saves from before the nodes ─────────────────────────────────────────
+    // Ã¢â€â‚¬Ã¢â€â‚¬ saves from before the nodes Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬
 
     [Fact]
     public void ASaveFromBeforeTheNodes_LoadsOntoTheBaselineThatHasThem()
@@ -510,5 +510,42 @@ public class CraftingTests
         Assert.Contains(loaded.Report.Loss, l => l.Contains("iron_seam", StringComparison.Ordinal) && l.Contains("is not in the new baseline", StringComparison.Ordinal));
         Assert.True(session.Simulation!.Nodes.Single(n => n.Name == "iron_seam").Ready);   // the seam in Blackvein Cut is untouched
         Assert.InRange(session.Simulation.Player.Inventory.Where(e => e.DefId == Ore).Sum(e => e.Count), 1, 2);   // the ore carried is kept
+    }
+    // Playtest 2, first-hour recipes: each one is learnable (the stations offer it as an experiment) and craftable in a
+    // fresh session from materials an hour of gathering gives. The station's place comes from the world, and the arena is
+    // opened at absolute world coordinates (origin 0,0) because its place argument is an offset from the hollow.
+    private static PlayerRecord Knowing(PlayerRecord r, params string[] ids) =>
+        r.WithProgression(r.Progression with
+        {
+            Known = r.Progression.Known.SetItems(ids.Select(id =>
+                KeyValuePair.Create(id, new KnownTechnique(LearningSource.Teacher, Kera, 0)))),
+        });
+
+    [Theory]
+    [InlineData("recipe.cooking.trail_stew", "cookfire", "skill.cooking", 2, "item.material.boiled_water:1,item.material.raw_meat:1,item.material.herb_woundmoss:1", "item.consumable.roast_meat", 2)]
+    [InlineData("recipe.cooking.herb_tea_ashbloom", "cookfire", "skill.cooking", 3, "item.material.boiled_water:1,item.material.herb_ashbloom:1", "item.consumable.herb_tea", 2)]
+    [InlineData("recipe.herbal.salve_field", "cookfire", "skill.herbalism", 3, "item.material.herb_woundmoss:2,item.material.bog_cotton:1,item.material.boiled_water:1", "item.consumable.salve_minor", 1)]
+    [InlineData("recipe.leatherwork.hide_boots_deer", "workbench", "skill.survival", 4, "item.material.deer_hide:2,item.material.leather:1", "item.armor.hide_boots", 1)]
+    [InlineData("recipe.leatherwork.hide_cap_pelt", "workbench", "skill.survival", 4, "item.material.pelt_grey_wolf:1,item.material.leather:1", "item.armor.hide_cap", 1)]
+    [InlineData("recipe.outfitting.satchel_cotton", "workbench", "skill.survival", 3, "item.material.bog_cotton:3,item.material.leather:1", "item.bag.satchel", 1)]
+    [InlineData("recipe.fletching.arrow_rough_timber", "workbench", "skill.woodworking", 3, "item.material.timber:1,item.material.feathers:2,item.material.iron_ore:1", "item.ammo.arrow_rough", 8)]
+    [InlineData("recipe.tanning.leather_small_smoked", "tanning", "skill.skinning", 4, "item.material.small_hide:2,item.material.timber:1", "item.material.leather", 1)]
+    public void AFirstHourRecipe_IsLearnableAndCraftableInAFreshSession(string recipe, string stationKind, string skill,
+        int level, string inputs, string output, int count)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        Assert.True(session.Setup.Crafting.Recipes[recipe].Experiment, $"{recipe} has no learn source");
+        var site = session.Setup.Layout.Stations.First(s => s.Kind == stationKind);
+        var stacks = inputs.Split(',').Select(pair => pair.Split(':')).Select(pair => Stack(pair[0], int.Parse(pair[1]))).ToArray();
+        var arena = Arena.OpenCreatures(session, session.Setup, (site.XMm / 1000.0, site.ZMm / 1000.0), 0,
+            Array.Empty<(string, double, double, string)>(),
+            r => Usual(Knowing(Skilled(Carrying(r, stacks), skill, level), recipe)), origin: (0, 0));
+
+        string? refused = arena.Submit(new CraftCommand(arena.Player, recipe));
+        Assert.True(refused is null, $"{recipe}: {refused}");
+
+        // At least the recipe's own yield: a skill above its complexity may add to it.
+        Assert.True(Carried(arena, output) >= count, " gave {Carried(arena, output)} of {output}, wanted {count}");
     }
 }
