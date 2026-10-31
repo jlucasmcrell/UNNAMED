@@ -572,7 +572,7 @@ public class ContentLoaderTests
                 "hint.points_keep", "hint.prices", "hint.quality", "hint.raw_meat",
                 "hint.reputation", "hint.skills", "hint.specialised_bags", "hint.stash",
                 "hint.station_storage", "hint.stuck", "hint.teacher_practise", "hint.trade",
-                "hint.trainers", "hint.waystones", "hint.worn_price", "item.ammo.arrow_rough",
+                "hint.trainers", "hint.waystones", "hint.worn_price", "home.ashen_hollow.waystation_plot", "home.cairnwold.mill_plot", "item.ammo.arrow_rough",
                 "item.armor.cloak", "item.armor.hide_boots", "item.armor.hide_cap", "item.armor.hide_vest",
                 "item.armor.lame_coif", "item.armor.lame_sabatons", "item.armor.lamework_jack", "item.armor.smith_gloves",
                 "item.armor.timber_shield", "item.armor.wool_trousers", "item.artefact.lantern_foot", "item.bag.herb_pouch",
