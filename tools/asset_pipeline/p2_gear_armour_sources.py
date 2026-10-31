@@ -79,6 +79,15 @@ for row in rows:
     # A06 has an accidental isolated strap below the outfit. Remove only loose
     # components separated vertically from the main garment by over half a metre.
     removed=0
+    icon_selection=None
+    if row['review_id'] in ('A09','A12'):
+        edit=bmesh.new();edit.from_mesh(mesh)
+        assert min(v.co.x for v in edit.verts)<-.1 and max(v.co.x for v in edit.verts)>.1
+        assert min(abs(v.co.x) for v in edit.verts)>.1,'Pair is not separated at the body midline'
+        negative=[v for v in edit.verts if v.co.x<0]
+        bmesh.ops.delete(edit,geom=negative,context='VERTS')
+        edit.to_mesh(mesh);edit.free()
+        icon_selection='positive-X gauntlet only; original pair retained in source FBX'
     if row['review_id']=='A06':
         edit=bmesh.new();edit.from_mesh(mesh);remaining=set(edit.verts);components=[]
         while remaining:
@@ -99,6 +108,6 @@ for row in rows:
     clean.select_set(True);bpy.context.view_layer.objects.active=clean
     folder.mkdir(parents=True,exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=str(folder/(id+'.glb')),export_format='GLB',use_selection=True,export_animations=False,export_skins=False,export_yup=True)
-    rec=dict(asset_id=id,source=str(source),source_object=row.get('source_object'),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),review_id=row['review_id'],loose_vertices_removed=removed,status='PRIVATE_STATIC_SOURCE_NOT_A_HUMGEN_FIT')
+    rec=dict(asset_id=id,source=str(source),source_object=row.get('source_object'),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),review_id=row['review_id'],loose_vertices_removed=removed,icon_selection=icon_selection,status='PRIVATE_STATIC_SOURCE_NOT_A_HUMGEN_FIT')
     (folder/(id+'.json')).write_text(json.dumps(rec,indent=2))
     print('P2_ARMOUR_SOURCE_PREPARED',row['review_id'],id,flush=True)

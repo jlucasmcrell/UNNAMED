@@ -21,7 +21,7 @@ recipes={
  'W10':(0,1,1.40,.50),'W13':(1,1,.45,.22),'W14':(1,-1,.34,.23),
  'W15':(1,-1,.29,.24),'W16':(2,1,1.88,.37),'W17':(1,1,1.45,.15),
  'W18':(1,1,.50,.20),'W20':(1,-1,1.12,.15),
- 'W21':(1,1,.28,.22),'W22':(1,1,.22,.25),'W23':(1,1,.68,.22),'W24':(1,1,.68,.22),
+ 'W21':(1,-1,.28,.22),'W22':(1,-1,.22,.25),'W23':(1,1,.68,.22),'W24':(1,1,.68,.22),
 }
 receipts=[]
 for row in rows:
@@ -51,10 +51,40 @@ for row in rows:
     axis,sign,length,grip=recipes[row['review_id']]
     direction=Vector((int(axis==0)*sign,int(axis==1)*sign,int(axis==2)*sign))
     weapon.data.transform(direction.rotation_difference(Vector((0,0,1))).to_matrix().to_4x4())
+    low,high=pipeline['bounds'](weapon)
+    if high.x-low.x > high.y-low.y:
+        # The established socket frame expects the guard/edge along glTF Z,
+        # with the broad face normal along glTF X.
+        import math
+        weapon.data.transform(Matrix.Rotation(math.pi/2,4,'Z'))
+    if row['review_id'] in ('W02','W04'):
+        pipeline['flip_if_guard_high'](weapon,1)
+    if row['review_id']=='W22':
+        # The round wooden grip is wider than this fine carving blade. Use the
+        # blade's own section to choose edge roll, rather than the grip's box.
+        low,high=pipeline['bounds'](weapon)
+        blade=[v.co for v in weapon.data.vertices if v.co.z>low.z+(high.z-low.z)*.65]
+        if max(v.x for v in blade)-min(v.x for v in blade)>max(v.y for v in blade)-min(v.y for v in blade):
+            import math
+            weapon.data.transform(Matrix.Rotation(math.pi/2,4,'Z'))
     low,high=pipeline['bounds'](weapon);scale=length/(high.z-low.z)
     weapon.data.transform(Matrix.Scale(scale,4))
     low,high=pipeline['bounds'](weapon)
-    weapon.data.transform(Matrix.Translation((-(low.x+high.x)/2,-(low.y+high.y)/2,-low.z)))
+    weapon.data.transform(Matrix.Translation((0,0,-low.z)))
+    grip_z=length*grip
+    if any(abs(v.co.z-grip_z)<.035 for v in weapon.data.vertices):
+        pipeline['centre_xy_on_axis'](weapon,grip_z-.035,grip_z+.035)
+    else:
+        # A low-poly shaft can have no vertices near the hand. Its actual edge
+        # intersections still locate the shaft, without centring on the head.
+        section=[]
+        for edge in weapon.data.edges:
+            a,b=(weapon.data.vertices[index].co for index in edge.vertices)
+            if min(a.z,b.z)<=grip_z<=max(a.z,b.z) and abs(a.z-b.z)>1e-7:
+                section.append(a.lerp(b,(grip_z-a.z)/(b.z-a.z)))
+        assert section,'Grip plane misses source geometry: '+row['review_id']
+        centre=sum(section,Vector())/len(section)
+        weapon.data.transform(Matrix.Translation((-centre.x,-centre.y,0)))
     # Real grip centre is specified per source; it is never inferred from the item reach.
     sockets=[pipeline['add_socket']('SOCK_grip_primary',length*grip),pipeline['add_socket']('SOCK_attach',length*.45),pipeline['add_socket']('SOCK_head',length)]
     if row['family']=='polearm':sockets.append(pipeline['add_socket']('SOCK_grip_secondary',length*.66))
