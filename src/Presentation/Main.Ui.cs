@@ -147,12 +147,36 @@ public partial class Main
     /// The settings in force from the start: the keys (the defaults taken first, for Reset), the camera, the interface and, for a player's
     /// run, the picture once the world's sky and sun exist. Every later change applies the part it touched.
     /// </summary>
+    /// <summary>The character whose camera memory is kept: null before a world runs, when there is nothing to remember.</summary>
+    private string? CameraCharacter => _session.Simulation is { } running ? running.PlayerId.Value : null;
+
+    /// <summary>Take this character's remembered camera out of the prefs file and give it to the rig (CMB-147).</summary>
+    private void RestoreCameraMemory()
+    {
+        if (CameraCharacter is not { } key)
+            return;
+        _camera.Remember(_applied.Profile.CameraByCharacter.TryGetValue(key, out var memory) ? memory : CameraMemory.Default);
+    }
+
+    /// <summary>Keep the character's camera memory: one page each, so two characters have two habits (CMB-147).</summary>
+    private void RememberCamera(CameraMemory memory)
+    {
+        if (CameraCharacter is not { } key)
+            return;
+        var prefs = SettingsStore.Current;
+        SettingsStore.Remember(prefs with
+        {
+            Profile = prefs.Profile with { CameraByCharacter = prefs.Profile.CameraByCharacter.SetItem(key, memory.Normalised()) },
+        });
+    }
+
     private void UseSettings(bool applyPicture)
     {
         SettingsStore.CaptureDefaults();
         _applied = SettingsStore.Current;
         SettingsStore.ApplyBindings();
         _camera.Use(_applied.Profile.Camera);
+        RestoreCameraMemory();
         if (_applied.Profile.Interface != new InterfacePrefs { SeenHints = _applied.Profile.Interface.SeenHints })
             SettingsStore.ApplyInterface(GetTree());
         // Sky3D makes its sun as it enters the tree, after this frame: the picture's dials are applied once it has.

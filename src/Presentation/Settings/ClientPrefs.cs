@@ -4,6 +4,9 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+using System.Collections.Immutable;
+
+using System.Linq;
 namespace UNNAMED.Presentation.Settings;
 
 /// <summary>
@@ -195,6 +198,13 @@ public sealed record ProfilePrefs
     public CameraPrefs Camera { get; init; } = new();
     public InterfacePrefs Interface { get; init; } = new();
 
+    /// <summary>
+    /// Each character's camera memory, by character id (CMB-147): the distance it likes for exploring, fighting, talking, working and being
+    /// indoors. Per character, because two characters are two players.
+    /// </summary>
+    public ImmutableSortedDictionary<string, CameraMemory> CameraByCharacter { get; init; } =
+        ImmutableSortedDictionary.Create<string, CameraMemory>(StringComparer.Ordinal);
+
     /// <summary>Whether the first-launch screen has been answered (PJ02 §3.2); it is offered once.</summary>
     public bool FirstLaunchDone { get; init; }
 
@@ -216,6 +226,10 @@ public sealed record ProfilePrefs
         Controls = (Controls ?? new ControlPrefs()).Normalised(),
         Camera = (Camera ?? new CameraPrefs()).Normalised(),
         Interface = (Interface ?? new InterfacePrefs()).Normalised(),
+        CameraByCharacter = (CameraByCharacter ?? ImmutableSortedDictionary.Create<string, CameraMemory>(StringComparer.Ordinal))
+            .Where(e => !string.IsNullOrWhiteSpace(e.Key))
+            .Aggregate(ImmutableSortedDictionary.Create<string, CameraMemory>(StringComparer.Ordinal),
+                (kept, e) => kept.SetItem(e.Key, (e.Value ?? CameraMemory.Default).Normalised())),
     };
 }
 

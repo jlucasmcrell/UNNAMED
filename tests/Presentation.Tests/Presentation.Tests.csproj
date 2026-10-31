@@ -40,6 +40,7 @@
     <Compile Include="..\..\src\Presentation\Ui\AwayWords.cs" Link="Linked\AwayWords.cs" />
     <Compile Include="..\..\src\Presentation\Ui\StandingWords.cs" Link="Linked\StandingWords.cs" />
     <Compile Include="..\..\src\Presentation\Settings\ClientPrefs.cs" Link="Linked\ClientPrefs.cs" />
+    <Compile Include="..\..\src\Presentation\Settings\CameraMemory.cs" Link="Linked\CameraMemory.cs" />
     <Compile Include="..\..\src\Presentation\Diagnostics\CrashLog.cs" Link="Linked\CrashLog.cs" />
     <Compile Include="..\..\src\Presentation\Diagnostics\ProblemReport.cs" Link="Linked\ProblemReport.cs" />
     <Compile Include="..\..\src\Presentation\Art\LookSwatches.cs" Link="Linked\LookSwatches.cs" />

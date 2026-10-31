@@ -14,6 +14,9 @@ using UNNAMED.Presentation.Spike;
 using UNNAMED.Presentation.Ui;
 using UNNAMED.World.Runtime;
 
+using UNNAMED.Domain.Creatures;
+using UNNAMED.Presentation.Settings;
+using UNNAMED.World;
 namespace UNNAMED.Presentation;
 
 /// <summary>
@@ -1154,6 +1157,8 @@ public partial class Main : Node3D
         if (VisualOptions.PlayerBody != "none")
             AddChild(_avatar);
         _camera = new CameraRig { Name = "CameraRig" };
+        // CMB-147: a manual zoom rewrites the memory for the activity it happened in, and the memory is kept per character.
+        _camera.MemoryChanged += camera => RememberCamera(camera);
         AddChild(_camera);
         if (MHCharacters.MetaHumanFigure.Available || VisualOptions.ComparisonCast is not null)
         {
@@ -1797,6 +1802,13 @@ public partial class Main : Node3D
         _frontierPerf?.Phase("npcs", npcsStarted);
         LogStates(simulation, delta, speed);
         _camera.Lift = GiantLift(simulation);
+        // CMB-147: the camera keeps a distance per kind of work, and the work is read from the world rather than declared by the camera.
+        if (!_innFreeCamera)
+            _camera.Enter(CameraMemoryRules.Classify(
+                inConversation: simulation.Conversation is not null,
+                crafting: simulation.Camp is not null || simulation.RestingAtCamp,
+                inCombat: simulation.Creatures.Any(c => c.Mind == CreatureMind.Engaged),
+                interior: simulation.ActiveLayout.SpaceId != SpaceId.Exterior));
         if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
         _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
