@@ -89,7 +89,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         controller.Standoff(model); // Dye starts from the native material; keep clearance on the final drawn copy.
         // Only now do the body's skin surfaces exist with their final materials, so this is where the covered fragments are
         // dropped for the outfit that is actually worn (a part without a mask clears the stencil).
-        Stencil(art, model, controller._worn);
+        Stencil(art, model, controller._worn, controller._parts.GetValueOrDefault(CreatorChoice.Footwear));
         controller._face = face;
         controller.People(model, people, look, art, sex);
         var nativeBase = controller._data.Preset(controller._catalogue.Options(CreatorChoice.Face, sex)
@@ -168,11 +168,31 @@ public sealed partial class HumGenCreatorAppearance : Node
     /// Drop the body fragments the worn part covers, using the coverage mask that part's export carries in the body's UV space. A
     /// part without a mask clears the stencil, so no outfit inherits another's holes.
     /// </summary>
-    private static void Stencil(ArtLibrary art, Node model, string? part)
+    private static void Stencil(ArtLibrary art, Node model, params string?[] parts)
     {
         Texture2D? mask = null;
-        if (part is not null && art.RiggedFile(part, "body_coverage.png") is { } path && Image.LoadFromFile(path) is { } painted)
+        byte[]? covered = null;
+        int width = 0, height = 0;
+        foreach (string part in parts.OfType<string>().Distinct(StringComparer.Ordinal))
+        {
+            if (art.RiggedFile(part, "body_coverage.png") is not { } path) continue;
+            using var painted = Image.LoadFromFile(path);
+            if (painted is null || painted.IsEmpty()) continue;
+            painted.Convert(Image.Format.R8);
+            byte[] layer = painted.GetData();
+            if (covered is null) { covered = layer; width = painted.GetWidth(); height = painted.GetHeight(); }
+            else
+            {
+                if (painted.GetWidth() != width || painted.GetHeight() != height)
+                    throw new InvalidDataException("Native clothing coverage layers have different dimensions");
+                for (int i = 0; i < covered.Length; i++) covered[i] = Math.Max(covered[i], layer[i]);
+            }
+        }
+        if (covered is not null)
+        {
+            using var painted = Image.CreateFromData(width, height, false, Image.Format.R8, covered);
             mask = ImageTexture.CreateFromImage(painted);
+        }
         int stencilled = 0;
         foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
         {
@@ -192,7 +212,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             }
         }
         if (OS.GetEnvironment("UNNAMED_KAL_GROWTH_PROBE") == "1")
-            GD.Print($"creator stencil: {part}, {stencilled} surface(s) stencilled, mask {(mask is null ? "none" : "set")}");
+            GD.Print($"creator stencil: {string.Join(", ", parts)}, {stencilled} surface(s) stencilled, mask {(mask is null ? "none" : "set")}");
     }
 
     /// <summary>The stand-off a worn garment keeps from the body, so the body cannot break through the cloth.</summary>

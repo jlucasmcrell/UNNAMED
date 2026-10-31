@@ -35,6 +35,17 @@ The cloak's already double-sided authored mesh does not draw a generated
 intersecting reverse shell. Guard boots are part of its outfit, so no second
 pair is fitted over them. Dye retains the garment's native texture.
 
+The first native guard frame exposed toes below the integrated boots. Coverage
+now combines the outfit and footwear masks, rather than dropping the footwear
+layer. `tools/creator/bake_boot_coverage.py BODY.glb PART_FOLDER...` supplies a
+full-boot foot/toe layer from the unchanged native body's skin weights and UVs.
+It checks the boot collar covers the selected anatomy and asserts the face,
+neck, hands and garment GLB bytes remain unchanged. Both guard variants and
+both Pirate Boots variants need their delivered coverage PNG/JSON alongside
+the existing native parts. The four private deliveries are staged under
+`D:\Otherreach_Scratch\steps_finish_20261031\boot_coverage\rigged`.
+Native post-fix frames remain the visual gate; a passing bake is not a verdict.
+
 ## Validation and verdict
 
 Release build and `StepsPeopleLooksTests` pass. The test checks all 27 live
