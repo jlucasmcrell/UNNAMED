@@ -8,19 +8,19 @@ The fighter is the review route's: it closes, circles toward the Custodian's slo
 
 | Loadout | Level | Wins | Median s to kill (wins) | Median blows taken |
 |---|---|---|---|---|
-| Rusted Sword, hide kit, 3 salves | 1 | 0/12 | - | 2 |
-| March Spear, hide kit, 3 salves | 1 | 0/12 | - | 2 |
-| Rusted Sword, hide kit, 3 salves | 3 | 0/12 | - | 4 |
-| March Spear, hide kit, 3 salves | 3 | 0/12 | - | 4 |
-| Rusted Sword, hide kit, 3 salves | 5 | 5/12 | 9.8 | 7 |
-| March Spear, hide kit, 3 salves | 5 | 10/12 | 8.6 | 4 |
+| Rusted Sword, hide kit, 3 salves | 1 | 12/12 | 82.0 | 0 |
+| March Spear, hide kit, 3 salves | 1 | 12/12 | 48.8 | 0 |
+| Rusted Sword, hide kit, 3 salves | 3 | 12/12 | 29.6 | 0 |
+| March Spear, hide kit, 3 salves | 3 | 12/12 | 16.9 | 0 |
+| Rusted Sword, hide kit, 3 salves | 5 | 12/12 | 9.3 | 0 |
+| March Spear, hide kit, 3 salves | 5 | 12/12 | 6.9 | 0 |
 
 ## Custodian blows to fell a character standing still
 
 | Level | Kit | Blows |
 |---|---|---|
 | 1 | none | 2 |
-| 5 | hide vest, cap, boots | 6 |
+| 5 | hide vest, cap, boots | 5 |
 
 ## The ring's ordinary creatures, one at a time (rusted sword, hide kit)
 

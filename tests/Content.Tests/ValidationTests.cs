@@ -1395,7 +1395,6 @@ public class ContentLoaderTests
             "spawn.barrowworks.sorting_spider_south",
             "spawn.barrowworks.wash_spider",
             "spawn.boss.ashen_hollow.wayholder_trial",
-            "spawn.boss.barrowworks.ring_custodian.deep",
             "spawn.boss.cairnwold.the_unpaid",
             "spawn.boss.caldera.foreman_nine",
             "spawn.boss.colophon.the_specification",
