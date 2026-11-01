@@ -1,0 +1,17 @@
+Hunting Spider Matriarch replacement body
+
+This work is based on "Spider with Animation"
+(https://sketchfab.com/3d-models/spider-with-animation-ba8149ca471a4708bfdba07460450815)
+by maksroberthut (https://sketchfab.com/maksroberthut), licensed under CC BY 4.0
+(https://creativecommons.org/licenses/by/4.0/).
+
+The original 34,396-triangle surface and authored 4K maps were fitted to the
+existing Matriarch skeleton. Rest fitting and skin weights were adapted for
+Otherreach; no generated geometry or generated image textures were used.
+
+The retained 70-joint skeleton and six unchanged animation files are from
+"Spiders - characters with animations" by Mixall, licensed under CC BY 4.0:
+https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2
+
+Both sources are credited on the game's Credits screen. Source license and
+provenance are retained with the Matriarch re-body delivery receipt.

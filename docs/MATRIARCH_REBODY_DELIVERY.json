@@ -1,0 +1,514 @@
+{
+  "status": "VERDICT_REQUESTED_NOT_ACCEPTED",
+  "public_base": "aeba2f8c2d4b264b6bc9301b0d78dc30ff0ec90a",
+  "model": "creature_matriarch_real_spider",
+  "surface_triangles": 34396,
+  "skeleton_joints": 70,
+  "source": {
+    "status": "READY_FOR_CLAUDE_VERDICT_NOT_ACCEPTED",
+    "version": "candidate4",
+    "catalogue": "MR-0392",
+    "source_archive": "D:\\Otherreach_Depot\\Creatures_20261017\\sketchfab\\spider_with_animation.zip",
+    "source_url": "https://sketchfab.com/3d-models/spider-with-animation-ba8149ca471a4708bfdba07460450815",
+    "source_archive_sha256": "6c065c87c609582f52f4d88b69607f8301eec1eab7979b79a07f8c1d77ba0a4b",
+    "native_exit": 0,
+    "lease_seconds": 137.059,
+    "contact_sheet_sha256": "af23b3e4243114315e4c000aaa4ecd43c32ebe1374377a066549c9a8bbc45547"
+  },
+  "delivery_root": "D:\\Otherreach_Scratch\\matriarch_rebody_20261031\\delivery_v4",
+  "primary_files": [
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.attack_1.json",
+      "bytes": 629,
+      "sha256": "0574d8b36312163c5d355c5e75dd8cbd7ba1d592af571a1812d951d21de3d874"
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.attack_2.json",
+      "bytes": 629,
+      "sha256": "5e8334a8103c191e05d1f0e47c38b3b07729a24494748f1e7d865a148ba26fb4"
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.dead.json",
+      "bytes": 616,
+      "sha256": "28cbf1e6859b7476f5d0c939286b41113462dc54e94637934b50361590a71c4d"
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.idle.json",
+      "bytes": 615,
+      "sha256": "7e0f814767cabd2f93aaa74ad89397e6f240c1a5877f1cf274aab92ae27f3777"
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.idle_2.json",
+      "bytes": 621,
+      "sha256": "139dfd475d8ac6e348667fc69d6340f6f77694b51edb1e43eef3933d775363ce"
+    },
+    {
+      "path": "animation/clips/anim.creature.creature_d5_tarantula_matriarch.walk.json",
+      "bytes": 615,
+      "sha256": "760c457280d1d6aa530fbfaba858e3ea0c0ab81fe857be869e3ff55e20d285ea"
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.attack_1.glb",
+      "bytes": 139884,
+      "sha256": "45f0e43fc282033eca0654ff12904e0b1e6228dd25cc151b7142e4366080c2f2"
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.attack_2.glb",
+      "bytes": 117256,
+      "sha256": "082a95055db5c32eca7fc04ce0b99d8d583a8ca5dea6e57f71b1e8602368a5c1"
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.dead.glb",
+      "bytes": 128916,
+      "sha256": "40c7447654dddefd9f2d960f571607b19c54c4ca08b58e9e1bcc3c3b82623a7a"
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.idle.glb",
+      "bytes": 333620,
+      "sha256": "8df95dc810622a7c606bc18b61ddcbfe17ef0169185f0c3d43be7c92b011aa9a"
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.idle_2.glb",
+      "bytes": 328420,
+      "sha256": "0b8a5845aedd0f5255618cd84f0cb143bf28fda79e7c32162d046370d2a778aa"
+    },
+    {
+      "path": "animation/ready/creatures/anim.creature.creature_d5_tarantula_matriarch.walk.glb",
+      "bytes": 125172,
+      "sha256": "2e5a91fe82f2633c7f263e0ac8ad48be95293e65e0be0538df6ac1ce79870de2"
+    },
+    {
+      "path": "rigged/creature_matriarch_real_spider/creature_matriarch_real_spider_rigged.glb",
+      "bytes": 41785776,
+      "sha256": "32eac2cd6714c23ed7a085417d105f26bc41ddad11eed924b7733c0ee7616fc5"
+    },
+    {
+      "path": "texture_cache/4d4b00dcd93edd034cfb6b2f.normal.dds",
+      "bytes": 22369796,
+      "sha256": "b542e33711e14c574dd8f129610f6225d9deb7b9581ca0f1c50da29c14f9c735"
+    },
+    {
+      "path": "texture_cache/5b34069da423279ed2e329c2.data.dds",
+      "bytes": 22369796,
+      "sha256": "e06451c25ef3770e2485ef132c4afbe962738866f4239c2d3b616556d6b33a8e"
+    },
+    {
+      "path": "texture_cache/b7bfc8794326d67fb62fdfb4.color.dds",
+      "bytes": 22369796,
+      "sha256": "7f1fb4de60dadb90ed59fd448c134518d1485218e3fbb6d80a5d34137b3f6ef1"
+    },
+    {
+      "path": "texture_cache/f30cd194af734685c757c485.data.dds",
+      "bytes": 22369796,
+      "sha256": "3c330ded84b7d7ed567f96f05a549ec6453cf459898adb7aaf1f7f208221e296"
+    },
+    {
+      "path": "texture_cache/manifest.json",
+      "bytes": 1136,
+      "sha256": "3c2ae582a75df968359699910ae8a1b2c6263a8072771ab67c0a010ae2b55156"
+    }
+  ],
+  "rig_guard": {
+    "status": "PASS",
+    "joints": 70,
+    "parents_unchanged": true,
+    "max_global_rest_error": 0.0,
+    "source_triangles_retained": 34396,
+    "native_clips_unchanged": [
+      {
+        "file": "anim.creature.creature_d5_tarantula_matriarch.attack_1.glb",
+        "sha256": "45f0e43fc282033eca0654ff12904e0b1e6228dd25cc151b7142e4366080c2f2",
+        "max_rest_error": 0.0
+      },
+      {
+        "file": "anim.creature.creature_d5_tarantula_matriarch.attack_2.glb",
+        "sha256": "082a95055db5c32eca7fc04ce0b99d8d583a8ca5dea6e57f71b1e8602368a5c1",
+        "max_rest_error": 0.0
+      },
+      {
+        "file": "anim.creature.creature_d5_tarantula_matriarch.dead.glb",
+        "sha256": "40c7447654dddefd9f2d960f571607b19c54c4ca08b58e9e1bcc3c3b82623a7a",
+        "max_rest_error": 0.0
+      },
+      {
+        "file": "anim.creature.creature_d5_tarantula_matriarch.idle.glb",
+        "sha256": "8df95dc810622a7c606bc18b61ddcbfe17ef0169185f0c3d43be7c92b011aa9a",
+        "max_rest_error": 0.0
+      },
+      {
+        "file": "anim.creature.creature_d5_tarantula_matriarch.idle_2.glb",
+        "sha256": "0b8a5845aedd0f5255618cd84f0cb143bf28fda79e7c32162d046370d2a778aa",
+        "max_rest_error": 0.0
+      },
+      {
+        "file": "anim.creature.creature_d5_tarantula_matriarch.walk.glb",
+        "sha256": "2e5a91fe82f2633c7f263e0ac8ad48be95293e65e0be0538df6ac1ce79870de2",
+        "max_rest_error": 0.0
+      }
+    ]
+  },
+  "motion_floor_guard": {
+    "rows": [
+      {
+        "model": "original",
+        "take": "idle",
+        "samples": 41,
+        "min_height_m": 0.052475038915872574,
+        "worst_fraction": 0.75
+      },
+      {
+        "model": "original",
+        "take": "idle_2",
+        "samples": 41,
+        "min_height_m": 0.09880062192678452,
+        "worst_fraction": 0.75
+      },
+      {
+        "model": "original",
+        "take": "walk",
+        "samples": 41,
+        "min_height_m": 0.11986520141363144,
+        "worst_fraction": 0.75
+      },
+      {
+        "model": "original",
+        "take": "attack_1",
+        "samples": 41,
+        "min_height_m": 0.08326157182455063,
+        "worst_fraction": 0.425
+      },
+      {
+        "model": "original",
+        "take": "attack_2",
+        "samples": 41,
+        "min_height_m": 0.2527678310871124,
+        "worst_fraction": 0.0
+      },
+      {
+        "model": "original",
+        "take": "dead",
+        "samples": 41,
+        "min_height_m": -0.1565244197845459,
+        "worst_fraction": 0.2
+      },
+      {
+        "model": "replacement",
+        "take": "idle",
+        "samples": 41,
+        "min_height_m": 0.16015662252902985,
+        "worst_fraction": 0.75
+      },
+      {
+        "model": "replacement",
+        "take": "idle_2",
+        "samples": 41,
+        "min_height_m": 0.2001252919435501,
+        "worst_fraction": 0.2
+      },
+      {
+        "model": "replacement",
+        "take": "walk",
+        "samples": 41,
+        "min_height_m": 0.0797138512134552,
+        "worst_fraction": 0.75
+      },
+      {
+        "model": "replacement",
+        "take": "attack_1",
+        "samples": 41,
+        "min_height_m": 0.14169791340827942,
+        "worst_fraction": 0.75
+      },
+      {
+        "model": "replacement",
+        "take": "attack_2",
+        "samples": 41,
+        "min_height_m": 0.20011495053768158,
+        "worst_fraction": 0.575
+      },
+      {
+        "model": "replacement",
+        "take": "dead",
+        "samples": 41,
+        "min_height_m": -0.10857933014631271,
+        "worst_fraction": 0.2
+      }
+    ],
+    "rule": "Original 41-frame-fraction samples per native take, no animation changes; compare the actual surface to floor"
+  },
+  "preserved": [
+    "All 70 joint names, parents, node transforms and inverse-bind bytes",
+    "Six original animation GLBs byte-for-byte",
+    "Three canonical attack mappings and timings",
+    "Stats, loot, spawn and 29 x 21 m approved great chamber",
+    "Grand uniform scale 2.3"
+  ],
+  "binding_cleanup": "Removed four stale foreign 53-joint Nephila aliases; kept six native 70-joint takes and all three canonical attacks.",
+  "install": [
+    "Copy relative primary paths into the target asset root.",
+    "Merge texture_cache/manifest.json entries by key; do not replace the target global manifest.",
+    "Apply this branch bindings and credit/notice alongside the art delta.",
+    "Do not merge into RC without Claude verdict."
+  ],
+  "native_proof": {
+    "folder": "D:\\Otherreach_Scratch\\matriarch_rebody_20261031\\delivery_v4\\evidence",
+    "contact_sheet": "docs/reviews/matriarch_rebody/CONTACT_SHEET.jpg",
+    "contact_sheet_sha256": "af23b3e4243114315e4c000aaa4ecd43c32ebe1374377a066549c9a8bbc45547",
+    "frames": [
+      {
+        "file": "idle_game_distance.png",
+        "native_size": [
+          1920,
+          1080
+        ],
+        "sha256": "e1d0d09817a38b404ab8fb02e532eda7083f9cb57fb819e147c9e0ba7c705166"
+      },
+      {
+        "file": "attack_00_spider_bite_active_mid.png",
+        "native_size": [
+          1920,
+          1080
+        ],
+        "sha256": "6686ab2272634ba4c12f14b04a620c3c706675e1e51157925c420ab3a3b52e05"
+      },
+      {
+        "file": "attack_01_matriarch_lunge_active_mid.png",
+        "native_size": [
+          1920,
+          1080
+        ],
+        "sha256": "6c23961e115a81e372643b03f00acd69fcf177d38b315c54db8be66ee2d0ae44"
+      },
+      {
+        "file": "attack_02_hunting_spider_matriarch_heavy_active_mid.png",
+        "native_size": [
+          1920,
+          1080
+        ],
+        "sha256": "da45f6b16851c0e327931553836bed635018bddb82c8a3601c5913e5aaa96b40"
+      },
+      {
+        "file": "death_game_distance.png",
+        "native_size": [
+          1920,
+          1080
+        ],
+        "sha256": "ea482baf33a18530c48837f1721a2297acaa1a0d3eafdaa0df7a114856d501e8"
+      }
+    ],
+    "exit": 0,
+    "gpu_lease_seconds": 137.059,
+    "live_instances": 1,
+    "art_problems": {},
+    "assembly_receipt": {
+      "public_base": "aeba2f8c2d4b264b6bc9301b0d78dc30ff0ec90a",
+      "fixture_sha256": "4f5823f723003913af77170d5818f8838f0fc057ef25055e1403c6123c9ad175",
+      "assemblies": [
+        {
+          "file": "UNNAMED.Application.dll",
+          "sha256": "0d647dcdc7ff672dc7c8d24fea5aa0687c1af3ce9867a2f407e189067784f5d2"
+        },
+        {
+          "file": "UNNAMED.Content.dll",
+          "sha256": "a9c42af2ef80974750201655ddfd1066a84b53ea89d7256fda9eb104e074b72f"
+        },
+        {
+          "file": "UNNAMED.Domain.dll",
+          "sha256": "48b9b3d70763a47b224bda38e8e4b5b8a5f22188d40d65316458a397bec43aa0"
+        },
+        {
+          "file": "UNNAMED.EntityRegistry.dll",
+          "sha256": "9e3e5596d990b90b6fe0e071049e91e56ed228ff06cfb18a6012fac15805b832"
+        },
+        {
+          "file": "UNNAMED.Persistence.dll",
+          "sha256": "b3168328154554a1909e87da048a40633ce363bd1d30e49495f187d030c15df2"
+        },
+        {
+          "file": "UNNAMED.Presentation.dll",
+          "sha256": "2a678b550c3061efba009cb666e4dda366a637e6d9b816c6e937d9a3896f8d7d"
+        },
+        {
+          "file": "UNNAMED.World.dll",
+          "sha256": "a6f2459e0988386ee2a7566baf4c00d6134fa697588238773f2e80daa75828c7"
+        }
+      ],
+      "host": "D:\\Otherreach_Scratch\\codex_upgrades_finish_wt\\work\\matriarch\\proof_host_camera2",
+      "scope": "Private camera revision only: full posed surface in frame, roof clear, normal far-third-person eye height, player FOV range. No public simulation changes."
+    },
+    "receipt_correction": "Raw launch_owned.json accidentally names the earlier assembly receipt and 1.7m camera description. Actual argv selects proof_host_camera2; its DLL hashes were verified against PRIVATE_ASSEMBLY_CAMERA2.log. Complete.json records actual camera 3.473m eye height and FOV. Raw records retained unedited.",
+    "scope": "Staged public CreatureView phases on the actual live boss in the actual cave, production skin/material path. Not a gameplay, combat, performance or release gate.",
+    "producer_review": "All five requested poses inspected in contact sheet. Full frame margins pass. Cave remains dark and native foreground rocks occlude portions of the silhouette. Retained attack_2 raises front limbs sharply; lunge and heavy share the original take. Claude must judge this fit and silhouette.",
+    "engine_stderr": "Exit 0. GodotGAS cue-registry warning plus Godot shutdown static-string/RID leak diagnostics retained in game.stderr; not claimed warning-free."
+  },
+  "checks": {
+    "public_presentation_build": "0 errors, 25 warnings after restoring public source",
+    "content_tests": "23/23",
+    "presentation_tests": "579/579",
+    "content_lint": "1365 definitions, zero errors",
+    "texture_cache": "PACKAGE_TEXTURE_CACHE_PASS 4",
+    "rig_rest_max_error": 0
+  },
+  "evidence_files": [
+    {
+      "path": "attack_00_spider_bite_active_mid.png",
+      "sha256": "6686ab2272634ba4c12f14b04a620c3c706675e1e51157925c420ab3a3b52e05",
+      "bytes": 2511231
+    },
+    {
+      "path": "attack_00_spider_bite_windup.png",
+      "sha256": "14efad5f627bbe4a64fbd54f6ff254c8c605a21f8bec960abc41df2d9d3036d8",
+      "bytes": 2591842
+    },
+    {
+      "path": "attack_01_matriarch_lunge_active_end_CONTACT_ONLY.png",
+      "sha256": "3ed24d1f6e55af386ae5bd265d2a19aecbd7a65cc3d361458e0680f96cdbdc0c",
+      "bytes": 2564443
+    },
+    {
+      "path": "attack_01_matriarch_lunge_active_mid.png",
+      "sha256": "6c23961e115a81e372643b03f00acd69fcf177d38b315c54db8be66ee2d0ae44",
+      "bytes": 2543903
+    },
+    {
+      "path": "attack_01_matriarch_lunge_windup.png",
+      "sha256": "ea289599ee1dd3fc25282124a1b724846af4bc7b56fe02728b0162917eda5ae9",
+      "bytes": 2516176
+    },
+    {
+      "path": "attack_02_hunting_spider_matriarch_heavy_active_mid.png",
+      "sha256": "da45f6b16851c0e327931553836bed635018bddb82c8a3601c5913e5aaa96b40",
+      "bytes": 2577889
+    },
+    {
+      "path": "attack_02_hunting_spider_matriarch_heavy_windup.png",
+      "sha256": "7f3263702396922f31d35ae45ae8983af9b53103636fce2038b18dbcc901ad78",
+      "bytes": 2506699
+    },
+    {
+      "path": "cache4-verified.log",
+      "sha256": "34af8674461d2d2af209a6907b435abd8c304654c75833866b5a56043d060352",
+      "bytes": 110
+    },
+    {
+      "path": "CAPTURED.json",
+      "sha256": "abd7cf69191bc858a2b13f202fe1595a7dfb200f93bb4f851804333d9ab1aa10",
+      "bytes": 102
+    },
+    {
+      "path": "complete.json",
+      "sha256": "a6813a1f4953e26f1b01d0a1781a74d53f23ba951633da10af441afc9685c377",
+      "bytes": 13710
+    },
+    {
+      "path": "CONTACT_SHEET.jpg",
+      "sha256": "af23b3e4243114315e4c000aaa4ecd43c32ebe1374377a066549c9a8bbc45547",
+      "bytes": 1710248
+    },
+    {
+      "path": "CONTACT_SHEET_RECEIPT.json",
+      "sha256": "1591b0908120f2525cc5b42c306e519bb1ef1f72123e449211c7a884f667f352",
+      "bytes": 1387
+    },
+    {
+      "path": "content-lint.log",
+      "sha256": "819af3f8285adbcfab345fb0ce1461fe89c389062e99004966dab22182fc9de4",
+      "bytes": 112
+    },
+    {
+      "path": "content-tests.log",
+      "sha256": "530b0b5f2d57f78bc401f03c89001684ff33fc154a1cc1d1888c82920db09b49",
+      "bytes": 526
+    },
+    {
+      "path": "death_game_distance.png",
+      "sha256": "ea482baf33a18530c48837f1721a2297acaa1a0d3eafdaa0df7a114856d501e8",
+      "bytes": 2604412
+    },
+    {
+      "path": "engine.log",
+      "sha256": "d72f559033402308151f80b3c72e37baebf1062445c0a59a0991a522f84fbd13",
+      "bytes": 36830
+    },
+    {
+      "path": "final-public-build.log",
+      "sha256": "50fcb5a7d9d0d0b679464e262fdb2b57c9a3ebd0c16e14aaa07ed4386550b4b6",
+      "bytes": 16346
+    },
+    {
+      "path": "game.log",
+      "sha256": "2ef00a5b4c98610ef85c64b7c205460a371f0f03c842165e3e3bf3dea0d71cad",
+      "bytes": 32514
+    },
+    {
+      "path": "game.stderr",
+      "sha256": "757f6420bcee5582c380ace152924a0bd32c45ba35f2a8d260f288f581f23095",
+      "bytes": 4803
+    },
+    {
+      "path": "idle_game_distance.png",
+      "sha256": "e1d0d09817a38b404ab8fb02e532eda7083f9cb57fb819e147c9e0ba7c705166",
+      "bytes": 2481325
+    },
+    {
+      "path": "launch_owned.json",
+      "sha256": "62b5f00406212d65833c138d08b667cd077c9aa70db07e817d126ce20e4401f6",
+      "bytes": 1896
+    },
+    {
+      "path": "Main.MatriarchRebodyProof.private.cs",
+      "sha256": "4f5823f723003913af77170d5818f8838f0fc057ef25055e1403c6123c9ad175",
+      "bytes": 12942
+    },
+    {
+      "path": "make_contact_sheet.py",
+      "sha256": "a2c52227da1fd534f6015f906f009daa6e1f155af0cbab82fb6881a8093dd10c",
+      "bytes": 2481
+    },
+    {
+      "path": "phase_0.png",
+      "sha256": "29e2b6953521079b95bbed8cfa5ee6006e67017ecb88e2d0ab5668ab92c27441",
+      "bytes": 2445055
+    },
+    {
+      "path": "phase_1.png",
+      "sha256": "4c18ff97e2146e64000eb373a4e440b7b436be2d9cdb790ff1eac5fe9d5c99a9",
+      "bytes": 2463804
+    },
+    {
+      "path": "phase_2.png",
+      "sha256": "447e72e15f1fb5469540e2e8ac7d12cc1692bd1195eb41b96c498b96bbe5a9ca",
+      "bytes": 2469132
+    },
+    {
+      "path": "plan.json",
+      "sha256": "d7f854f5bc0a9d80b0bd9edb7f8e8ec0196669b5e47cfea75e1450259540703b",
+      "bytes": 137
+    },
+    {
+      "path": "presentation-tests.log",
+      "sha256": "7166f0810c7866a2ae5f4b5244a61f459be6b6eddfb4e9f519e04ae7552484a2",
+      "bytes": 530
+    },
+    {
+      "path": "PRIVATE_ASSEMBLY_CAMERA2.log",
+      "sha256": "5d6a7f4b066c370d3a216586f3db9c526af40871ce12283be2c1e8e3f65f7121",
+      "bytes": 1424
+    },
+    {
+      "path": "recovery_no_stale_attack_mark.png",
+      "sha256": "3330b1bb1d2d124292ba1180bd872d4d7377d6df0b6054a019ce52cd62fcd0ad",
+      "bytes": 2660777
+    },
+    {
+      "path": "roof_roots.json",
+      "sha256": "dfc96f8724548ac1ff236584ec6529f427b076f55ead42a7ffea1118154e5e44",
+      "bytes": 216
+    },
+    {
+      "path": "run_native_proof.py",
+      "sha256": "6521babe58268b3c8a2d479c1d6d00d19b8784b6c062bc9161c8fcac19a59db7",
+      "bytes": 5873
+    }
+  ]
+}
