@@ -126,6 +126,13 @@ public sealed class WaterShore
     /// <summary>How far the surface reaches past the authored edge where the ground, not the mesh, is what ends the water.</summary>
     private float Reach => _pan ? MarginM : Math.Clamp(_half * 0.5f + 0.5f, 0.9f, 4.5f);
 
+    /// <summary>The same bed-to-surface depth used by the water's shoreline falloff.</summary>
+    public float DepthAt(float ground) => MathF.Max(0f, Level - ground);
+
+    /// <summary>Wet ground inside the drawn surface, including its shoreline margin.</summary>
+    public float DepthAt(float x, float z, float ground) =>
+        Find(x, z).Inside + Reach > 0 ? DepthAt(ground) : 0;
+
     /// <summary>The body's own line in metres, for the mesh that draws its surface.</summary>
     public IReadOnlyList<Vector2> Line => _line;
 

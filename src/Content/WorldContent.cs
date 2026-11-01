@@ -383,6 +383,11 @@ public static class WorldContent
                     Mm(discovery, "radius_m"), Long(discovery, "xp"))
                 {
                     RevealRadiusMm = place.ContainsKey("map") ? Mm(Map(place, "map"), "reveals_radius_m") : 0,
+                    SettlementFootprint = place.ContainsKey("settlement_footprint")
+                        ? Blocker(new Dictionary<object, object>(Map(place, "settlement_footprint")) { ["id"] = location.Id, ["height_m"] = "0" })
+                        : place.GetValueOrDefault("kind_of_place") as string is "settlement" or "town"
+                            ? new CircleBlocker(location.Id, ToMm(anchor[0], "anchor.world"), ToMm(anchor[2], "anchor.world"), Mm(discovery, "radius_m"), 0)
+                            : null,
                 };
                 Check(site.XMm >= minX && site.XMm <= maxX && site.ZMm >= minZ && site.ZMm <= maxZ, "WLD005", $"{location.Id} lies outside the walkable bounds");
                 Check(site.DiscoveryRadiusMm > 0 && site.DiscoveryXp >= 0, "WLD005", $"{location.Id} needs a positive discovery radius and non-negative XP");

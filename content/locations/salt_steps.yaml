@@ -10,6 +10,8 @@ fast_travel:
 id: location.salt_steps
 kind: location
 kind_of_place: town
+# The quay, terraces and plateau market; the 700 m discovery radius also covers the wild shore.
+settlement_footprint: { box_m: [1380, 480, 1730, 794] }
 map:
   marker: town
   reveals_radius_m: 700

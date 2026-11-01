@@ -15,6 +15,7 @@ anchor:
   - 0.0
   - 670.0
 kind_of_place: settlement
+settlement_footprint: { box_m: [925, 628, 1010, 695] }
 discovery:
   methods:
   - visited

@@ -18,7 +18,7 @@ public static class ArenaMarks
     private const string Chalk = "arena_chalk_ring";
     private const string Measure = "arena_measure_floor";
 
-    /// <summary>Adds a mark to <paramref name="view"/> for every boss spawn of <paramref name="layout"/> that has a court.</summary>
+    /// <summary>Paint only authored sporting/measured courts, not the recovery bounds of wild encounters.</summary>
     public static void Build(Node3D view, ArtLibrary art, IEnumerable<SpawnSite> spawns, RegionLayout layout)
     {
         foreach (var spawn in spawns)
@@ -26,6 +26,8 @@ public static class ArenaMarks
             if (spawn.Recovery is not { } court || spawn.Space != layout.SpaceId)
                 continue;
             bool measured = spawn.Key.Contains("custodian", StringComparison.Ordinal);
+            if (!court.Forfeit && !measured)
+                continue;
             string asset = measured ? Measure : Chalk;
             string relative = Path.Combine("ready", asset, asset + ".glb");
             // Paint is a complete first-party alternative, not withheld art.
