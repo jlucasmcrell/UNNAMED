@@ -574,6 +574,8 @@ public static class CombatContent
         return loader.GetByKind("spawn").Values
             .Select(definition => (Definition: definition, Map: Read(definition.YamlSource)))
             .Where(s => s.Map.GetValueOrDefault("region_ref") as string == regionId)
+            // A spawn tagged held_unopened_region is authored but held out of the build until its place is ready (coordinator).
+            .Where(s => !Tags(s.Map, "tags").Contains("held_unopened_region"))
             .OrderBy(s => s.Definition.Id, StringComparer.Ordinal)
             .Select(s =>
             {

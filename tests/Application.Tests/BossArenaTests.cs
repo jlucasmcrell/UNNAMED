@@ -128,7 +128,7 @@ public class BossArenaTests
         using var session = Harness.Boot(profile, "region.starting_frontier");
         // canon/BOSSES.md 3.1: Old Grey on the Old East Road, the Unpaid in Cairnwold's moss, the Gate Warden's deeper court.
         AssertInsideItsArena(Find(session, "spawn.boss.the_road.old_grey"));
-        AssertInsideItsArena(Find(session, "spawn.boss.cairnwold.the_unpaid"));
+        // The Unpaid is held out of Playtest 2 (BossCourtPlacesTests keeps its court data); it returns in the next update.
         var warden = Find(session, "spawn.boss.field_ruins.gate_warden.deep");
         AssertInsideItsArena(warden);
         // DUNGEON END: the deep court keeps its kill.

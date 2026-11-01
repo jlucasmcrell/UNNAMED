@@ -104,16 +104,14 @@ public class BossCourtPlacesTests
     }
 
     [Fact]
-    public void TheUnpaid_StandsInTheSinkingMoss()
+    public void TheUnpaid_IsHeldOutOfPlaytestTwo_WithItsCourtStillInTheSinkingMoss()
     {
+        // Held (coordinator, 2026-11-01): the court covers the bog ashbloom of What the Bog Kept. Its data stays for its return.
+        string text = File.ReadAllText(Path.Combine(Harness.RepoRoot(), "content", "spawns", "bosses", "the_unpaid.yaml"));
+        Assert.Contains("- held_unopened_region", text);
+        Assert.Contains("encounter_recovery: { min_x_m: 1040.0, min_z_m: 760.0, max_x_m: 1060.0, max_z_m: 780.0", text);
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile);
-        var site = session.Setup.Combat.Spawns.Single(s => s.Key == "spawn.boss.cairnwold.the_unpaid");
-        // The bog anchors at (1050, 770): the bull is in the moss, not in Ashen Hollow's yard.
-        Assert.InRange(site.XMm, 1_030_000, 1_070_000);
-        Assert.InRange(site.ZMm, 750_000, 790_000);
-        Assert.NotNull(site.Recovery);
-        Assert.InRange(site.Recovery!.MinXMm, 1_030_000, 1_045_000);
-        Assert.InRange(site.Recovery.MaxXMm, 1_055_000, 1_070_000);
+        Assert.DoesNotContain(session.Setup.Combat.Spawns, s => s.Key == "spawn.boss.cairnwold.the_unpaid");
     }
 }

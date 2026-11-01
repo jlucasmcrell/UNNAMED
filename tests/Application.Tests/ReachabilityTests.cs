@@ -23,6 +23,8 @@ public class ReachabilityTests
     /// out of a player build until the area is built (2026-10-30) - the D19 bosses of the areas to come. Like the Ondrek heritage, they wait
     /// for their region; a creature with no spawn at all, or with one in an open region, is not held.
     /// </summary>
+    private const string HeldSpawn = "(held spawn)";
+
     private static HashSet<string> HeldForUnopenedRegions()
     {
         string content = Path.Combine(Harness.RepoRoot(), "content");
@@ -31,11 +33,14 @@ public class ReachabilityTests
             .Where(head => head.Contains("- dev_scaffold"))
             .Select(head => head.First(l => l.StartsWith("id: ", StringComparison.Ordinal))[4..].Trim())
             .ToHashSet(StringComparer.Ordinal);
+        scaffolds.Add(HeldSpawn);
         var regions = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
         foreach (string file in Directory.EnumerateFiles(Path.Combine(content, "spawns"), "*.yaml", SearchOption.AllDirectories))
         {
             string text = File.ReadAllText(file);
-            string region = Regex.Match(text, @"^region_ref:\s*(\S+)", RegexOptions.Multiline).Groups[1].Value;
+            // A spawn held out of the build (tag held_unopened_region) waits like a scaffold region's.
+            string region = text.Contains("- held_unopened_region", StringComparison.Ordinal) ? HeldSpawn
+                : Regex.Match(text, @"^region_ref:\s*(\S+)", RegexOptions.Multiline).Groups[1].Value;
             foreach (Match creature in Regex.Matches(text, @"creature_ref:\s*([\w.]+)"))
                 (regions.TryGetValue(creature.Groups[1].Value, out var named) ? named : regions[creature.Groups[1].Value] = new(StringComparer.Ordinal)).Add(region);
         }
