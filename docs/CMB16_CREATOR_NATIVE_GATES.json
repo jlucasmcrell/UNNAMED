@@ -1,6 +1,6 @@
 {
   "status": "IN_PROGRESS_NATIVE_CPU_GATES_PASS_RENDERED_CREATOR_REVIEW_DUE",
-  "recorded": "2026-10-31T20:16:24.814658-04:00",
+  "recorded": "2026-10-31T21:03:06.712428-04:00",
   "preservation": {
     "reports": [
       {
@@ -1295,7 +1295,7 @@
             "modifierObserved": true,
             "clothActive": false,
             "clothReset": true,
-            "frames": 119
+            "frames": 111
           },
           {
             "scenario": "rising_hit",
@@ -1304,7 +1304,7 @@
             "modifierObserved": true,
             "clothActive": false,
             "clothReset": true,
-            "frames": 118
+            "frames": 106
           },
           {
             "scenario": "weapon_drop",
@@ -1313,7 +1313,7 @@
             "modifierObserved": false,
             "clothActive": false,
             "clothReset": true,
-            "frames": 119
+            "frames": 109
           }
         ],
         "art_problems": {},
@@ -1321,19 +1321,20 @@
       },
       "timing_exit": {
         "exit": 0,
-        "seconds": 23.40402429999085
+        "seconds": 39.05019690000336,
+        "watchdog_seconds": 180
       },
       "pickup": {
         "status": "PASS",
-        "pickedInstance": 410521705174,
+        "pickedInstance": 532257181366,
         "everGrasped": true,
-        "contactError": 2.527237e-05,
+        "contactError": 3.0517578e-05,
         "art_problems": {},
         "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
       },
       "pickup_exit": {
         "exit": 0,
-        "seconds": 40.6171187999862
+        "seconds": 79.26823840000725
       },
       "motion_source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\character_payload01\\mocap_motion\\humgen_creator_female_motion.res"
     },
@@ -2611,7 +2612,7 @@
             "modifierObserved": true,
             "clothActive": false,
             "clothReset": true,
-            "frames": 119
+            "frames": 107
           },
           {
             "scenario": "rising_hit",
@@ -2620,7 +2621,7 @@
             "modifierObserved": true,
             "clothActive": false,
             "clothReset": true,
-            "frames": 118
+            "frames": 110
           },
           {
             "scenario": "weapon_drop",
@@ -2629,7 +2630,7 @@
             "modifierObserved": false,
             "clothActive": false,
             "clothReset": true,
-            "frames": 119
+            "frames": 109
           }
         ],
         "art_problems": {},
@@ -2637,22 +2638,109 @@
       },
       "timing_exit": {
         "exit": 0,
-        "seconds": 24.758582399997977
+        "seconds": 38.22416159999557,
+        "watchdog_seconds": 180
       },
       "pickup": {
         "status": "PASS",
-        "pickedInstance": 411410897512,
+        "pickedInstance": 523482698821,
         "everGrasped": true,
-        "contactError": 0.00058012584,
+        "contactError": 0.00025609706,
         "art_problems": {},
         "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
       },
       "pickup_exit": {
         "exit": 0,
-        "seconds": 39.5008921000117
+        "seconds": 79.30832609999925
       },
       "motion_source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\character_payload01\\mocap_motion\\humgen_creator_male_motion.res"
     }
+  },
+  "accepted_office_baseline": {
+    "scope": "Only this lane private QA overlay; queued captures use accepted Office collar/lining and native controls. Original baseline junctions/files and all prior footage preserved. No accepted/shared asset writes.",
+    "parts": {
+      "humgen_creator_f_outfit_outfit_office_new_intern": {
+        "old_file": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\primary\\rigged\\humgen_creator_f_outfit_outfit_office_new_intern\\humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb",
+        "old_sha256": "5de2e882ede2e0bfafcfe0faf9d8e47af729d6e16801c569bd96ffa302d4d863",
+        "accepted_file": "D:\\Otherreach_Scratch\\release_assetbase_p2\\primary\\rigged\\humgen_creator_f_outfit_outfit_office_new_intern\\humgen_creator_f_outfit_outfit_office_new_intern_rigged.glb",
+        "accepted_sha256": "2433c2079e15afaa53571407f453d3b340e4b2a6ed6f8aec93ee1a1d07529754"
+      },
+      "humgen_creator_m_outfit_outfit_office_new_intern": {
+        "old_file": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\primary\\rigged\\humgen_creator_m_outfit_outfit_office_new_intern\\humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb",
+        "old_sha256": "97cff5d7ece73cf9d13ac6db112305da3bf5945f922f128f7a517c18bbd0ad48",
+        "accepted_file": "D:\\Otherreach_Scratch\\release_assetbase_p2\\primary\\rigged\\humgen_creator_m_outfit_outfit_office_new_intern\\humgen_creator_m_outfit_outfit_office_new_intern_rigged.glb",
+        "accepted_sha256": "57c7652019f0a3854a7f679b9e919955c3bd62fd9f470fbdf5fe157fb13af206"
+      }
+    },
+    "cache_references": 36,
+    "old_private_cache_manifest_sha256": "cfd54bfa0f48c9c1694052089df3353213481f863c6bb08f25f67b16d3ea0d46"
+  },
+  "portable_four_target_preservation": {
+    "reports": [
+      {
+        "body": "humgen_creator_female",
+        "new_clips": 8,
+        "payload_sha256": "a86987df7d46fab44c07dab2abd5680be90b4ee89b6bab5abe6288baa835ee9f",
+        "preserved_clips": 49,
+        "preserved_keys": 106336
+      },
+      {
+        "body": "humgen_creator_male",
+        "new_clips": 8,
+        "payload_sha256": "cfa863d80f2f91d75c5f537946879e9ac578062777b60d4db41261cf0e998dba",
+        "preserved_clips": 49,
+        "preserved_keys": 107252
+      },
+      {
+        "body": "humgen_player_ada_f",
+        "new_clips": 8,
+        "payload_sha256": "0a0cb8c8e61f739fb163b1c8c825848a701813e1fab50b3cf7275dc154c225ac",
+        "preserved_clips": 49,
+        "preserved_keys": 98429
+      },
+      {
+        "body": "humgen_player_mateo_m",
+        "new_clips": 8,
+        "payload_sha256": "8a59bd871ee00cf3fc8566222718bd22ee091417b0fe9a06befba8c1cbfd1610",
+        "preserved_clips": 49,
+        "preserved_keys": 106941
+      }
+    ],
+    "status": "PASS"
+  },
+  "mateo_native_cloth_clock": {
+    "status": "NATIVE_TIMING_REQUIRES_REVIEW",
+    "evidence": [
+      {
+        "scenario": "early_hit",
+        "risingDuringHit": true,
+        "stoodOnTime": true,
+        "modifierObserved": true,
+        "clothActive": true,
+        "clothReset": true,
+        "frames": 110
+      },
+      {
+        "scenario": "rising_hit",
+        "risingDuringHit": true,
+        "stoodOnTime": true,
+        "modifierObserved": true,
+        "clothActive": true,
+        "clothReset": true,
+        "frames": 116
+      },
+      {
+        "scenario": "weapon_drop",
+        "risingDuringHit": false,
+        "stoodOnTime": false,
+        "modifierObserved": false,
+        "clothActive": false,
+        "clothReset": true,
+        "frames": 110
+      }
+    ],
+    "art_problems": {},
+    "scope": "Actual Footing.Tick and production figure stance/reaction. Native source stage, not landed combat or accepted cloth fit."
   },
   "rejected_fixture": "cpu_creator_*01 waited for FramePostDraw in headless mode, stopped only the two verified own PIDs; corrected CPU fixture uses ProcessFrame and clean *02 receipts above. No old attempt claimed as a pass.",
   "limitations": [
