@@ -1,0 +1,40 @@
+id: quest.otherhome.ledger_stops
+kind: quest
+schema: 1
+display_key: quest.otherhome.ledger_stops.name
+tags: [quest]
+notes: "Oren Tesk's, the Long Survey's archivist at the Steps: the cistern ledger stops eleven days in, in a hand that is not the winter's, and the court it measures is where the pack hunts. A reading quest with one fight in it - the hide is the evidence the Survey files with the page - for a character of levels 3-6. Canon: canon/areas/the-steps.md (the undercity's water is not safe), lore.otherhome_cistern_ledger."
+title: The Ledger Stops
+summary: The Long Survey's archivist cannot finish a page, because the reader who kept it stopped eleven days ago and the court it measures has a pack in it.
+track: side
+giver_ref: npc.otherhome.survey_archivist
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Ask the Long Survey's archivist about the cistern ledger.
+    params: { npc_ref: npc.otherhome.survey_archivist, nodes: [cistern] }
+    next: [o_court]
+  - id: o_court
+    type: visit_location
+    description: Go down to the cistern court under the fourth terrace.
+    params: { location_ref: location.cistern_court }
+    next: [o_pack]
+  - id: o_pack
+    type: acquire_item
+    description: Break the pack that hunts at the court's edge, and keep a hide for the Survey.
+    params: { item_ref: item.material.wolf_hide, count: 1 }
+    next: [o_read]
+  - id: o_read
+    type: explore_location
+    description: Read the depth at the cistern's threshold.
+    params: { location_ref: location.cistern_court, within_m: 12 }
+    next: [o_report]
+  - id: o_report
+    type: talk_to
+    description: Bring the reading back to the archivist.
+    params: { npc_ref: npc.otherhome.survey_archivist, nodes: [ledger] }
+rewards:
+  - { kind: xp, amount: 170 }
+  - { kind: currency, amount: 35 }
+  - { kind: relationship, npc_ref: npc.otherhome.survey_archivist, dimension: respect, amount: 8 }

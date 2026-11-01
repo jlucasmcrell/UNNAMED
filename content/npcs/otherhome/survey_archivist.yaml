@@ -7,5 +7,6 @@ tags: [npc]
 name: Oren Tesk
 notes: "The Long Survey's archivist: every survey plaque in the frontier answers to this desk, and the plates are copied here before the surveyors carry them out."
 unique: true
+dialogue_ref: dialogue.otherhome.survey_archivist
 role: scholar
 services: []

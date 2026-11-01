@@ -1,0 +1,35 @@
+id: quest.otherhome.what_the_ground_did
+kind: quest
+schema: 1
+display_key: quest.otherhome.what_the_ground_did.name
+tags: [quest]
+notes: "Itha Meren's, a Concord gate-geometer: the survey plate's margin says the last movement of the terraces was the Gate's and not the ground's, and a geometer cannot measure a ring from the terrace. A sighting taken at the harbour mouth and carried back; no fight, levels 3-6. Canon: lore.otherhome_survey_plaque, norm of the Drowned Gate as a measuring point (canon/areas/the-steps.md)."
+title: What the Ground Did
+summary: The plate in the harbour wall blames the Drowned Gate for the last movement of the terraces, and the Concord's geometer cannot measure a ring from the terrace.
+track: side
+giver_ref: npc.otherhome.concord_geometer
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Ask the Concord's geometer what the plate blames.
+    params: { npc_ref: npc.otherhome.concord_geometer, nodes: [reading] }
+    next: [o_gate]
+  - id: o_gate
+    type: visit_location
+    description: Reach the harbour mouth where the Drowned Gate stands.
+    params: { location_ref: location.drowned_gate }
+    next: [o_measure]
+  - id: o_measure
+    type: explore_location
+    description: Take the sighting from the shore opposite the ring.
+    params: { location_ref: location.drowned_gate, within_m: 25 }
+    next: [o_report]
+  - id: o_report
+    type: talk_to
+    description: Carry the sighting back to the geometer.
+    params: { npc_ref: npc.otherhome.concord_geometer, nodes: [measured] }
+rewards:
+  - { kind: xp, amount: 190 }
+  - { kind: currency, amount: 30 }
+  - { kind: relationship, npc_ref: npc.otherhome.concord_geometer, dimension: respect, amount: 10 }

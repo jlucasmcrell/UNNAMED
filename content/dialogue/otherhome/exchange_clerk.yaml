@@ -1,0 +1,58 @@
+id: dialogue.otherhome.exchange_clerk
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.exchange_clerk.name
+tags: [dialogue]
+notes: "Sena Varr, the Tidepearl Exchange's clerk at the Salt Steps - buys what the harbour brings in, sells what it needs, and posts a tariff with no hidden charge because arguing is expensive. Her quest opens from her own line (Nothing Here Is Hidden). Canon lore.otherhome_exchange_tariff, canon/areas/the-steps.md."
+participants: [npc.otherhome.exchange_clerk]
+root_node: greet
+nodes:
+  greet:
+    text: "\"Sena Varr, Tidepearl Exchange.\" She does not stop ruling the column. \"The tariff is posted. Fish by the barrel, timber by the length, iron by the billet, and the week is the fee. Hold out what you've got and I'll tell you what it's worth.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: tariff
+        text: "One line of that tariff isn't in your hand."
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.exchange_clerk, dimension: trust, delta: 5, event: noticed_the_amendment }
+          - { command: start_quest, quest_ref: quest.otherhome.week_is_the_fee }
+        next: tariff
+      - id: trade
+        text: "What have you got?"
+        consequences: [{ command: open_service, service: trade }]
+      - id: leave
+        text: "Later."
+  again:
+    text: "\"Prices move; the week doesn't. That's the fee.\""
+    choices:
+      - id: tariff
+        text: "About the amended line."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.otherhome.week_is_the_fee, is: not_started }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.exchange_clerk, dimension: trust, delta: 5, event: noticed_the_amendment }
+          - { command: start_quest, quest_ref: quest.otherhome.week_is_the_fee }
+        next: tariff
+      - id: report
+        text: "Witnessed, counted, and here it is."
+        conditions: [{ kind: quest_state, quest_ref: quest.otherhome.week_is_the_fee, is: active }]
+        next: posted
+      - id: trade
+        text: "What have you got?"
+        consequences: [{ command: open_service, service: trade }]
+      - id: leave
+        text: "Later."
+  tariff:
+    text: "\"Last week's week, in a hand that isn't mine, against the iron.\" She squares the tariff. \"I'd rather not argue about it later. Arguing is expensive.\" A tap on the column. \"Take it to the Assize for a witness, then get Tess's count of what actually landed. Then it's a fact, and facts are cheap.\""
+    choices:
+      - id: take
+        text: "Witness, count, bring it back."
+        next: again
+  posted:
+    text: "\"Witnessed, and counted, and the line is mine again.\" She rules it once, flat. \"A merchant who hides a charge has to argue about it later. A merchant who posts it argues once, in writing, and charges for the copy.\" Coin on the counter. \"The week's goodwill. I'll remember you at the counter.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: back
+        text: "I'll take it."

@@ -1,0 +1,35 @@
+id: quest.otherhome.week_is_the_fee
+kind: quest
+schema: 1
+display_key: quest.otherhome.week_is_the_fee.name
+tags: [quest]
+notes: "Sena Varr's, the Tidepearl Exchange's clerk: a line of the posted tariff has been amended in a hand that is not hers, and the Exchange's whole method is that nothing is hidden - so she has it witnessed and the landing counted. Three institutions, no fight, levels 3-6. Canon: lore.otherhome_exchange_tariff, lore.otherhome_assize_terms, npc.otherhome.porter."
+title: Nothing Here Is Hidden
+summary: Someone amended the Exchange's posted tariff, and its clerk would rather have the line witnessed and the landing counted than argue about it later.
+track: side
+giver_ref: npc.otherhome.exchange_clerk
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Hear the Exchange's clerk out about the amended line.
+    params: { npc_ref: npc.otherhome.exchange_clerk, nodes: [tariff] }
+    next: [o_assize]
+  - id: o_assize
+    type: talk_to
+    description: Take the amended line to the Assize to be witnessed.
+    params: { npc_ref: npc.otherhome.assize_sergeant, nodes: [witness] }
+    next: [o_count]
+  - id: o_count
+    type: talk_to
+    description: Get the porter's count of what actually landed.
+    params: { npc_ref: npc.otherhome.porter, nodes: [landing] }
+    next: [o_posted]
+  - id: o_posted
+    type: talk_to
+    description: Bring the witness and the count back to the Exchange.
+    params: { npc_ref: npc.otherhome.exchange_clerk, nodes: [posted] }
+rewards:
+  - { kind: xp, amount: 140 }
+  - { kind: currency, amount: 50 }
+  - { kind: relationship, npc_ref: npc.otherhome.exchange_clerk, dimension: trust, amount: 10 }

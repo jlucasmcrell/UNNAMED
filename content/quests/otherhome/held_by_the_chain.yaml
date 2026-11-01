@@ -1,0 +1,41 @@
+id: quest.otherhome.held_by_the_chain
+kind: quest
+schema: 1
+display_key: quest.otherhome.held_by_the_chain.name
+tags: [quest]
+notes: "Bal Corrin's, the Gate Assize's sergeant: the chain that holds the line between the buoys has slipped its floats, and while it is down every hull that crosses is a forfeit the Assize has to argue. Two billets to the harbour smith, then walk the line; levels 3-6. Canon: lore.otherhome_assize_terms (the line between the two buoys, and dormancy is not licence), npc.otherhome.harbour_smith (the Assize's chain, mended in the same hour)."
+title: Held by the Chain
+summary: The chain between the buoys has slipped its floats, and the Assize would rather mend it than argue forfeits with every hull that crosses the line.
+track: side
+giver_ref: npc.otherhome.assize_sergeant
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Ask the Assize's sergeant why the line is not held.
+    params: { npc_ref: npc.otherhome.assize_sergeant, nodes: [chain] }
+    next: [o_iron]
+  - id: o_iron
+    type: acquire_item
+    description: Find two iron billets for the chain.
+    params: { item_ref: item.material.iron_ingot, count: 2 }
+    next: [o_smith]
+  - id: o_smith
+    type: talk_to
+    description: Put the billets into the harbour smith's hands.
+    params: { npc_ref: npc.otherhome.harbour_smith, nodes: [chain_fit] }
+    next: [o_line]
+  - id: o_line
+    type: visit_location
+    description: Walk the line out to the ring and see the chain hold.
+    params: { location_ref: location.drowned_gate }
+    next: [o_report]
+  - id: o_report
+    type: talk_to
+    description: Report the line held to the sergeant.
+    params: { npc_ref: npc.otherhome.assize_sergeant, nodes: [line] }
+rewards:
+  - { kind: xp, amount: 180 }
+  - { kind: currency, amount: 45 }
+  - { kind: relationship, npc_ref: npc.otherhome.assize_sergeant, dimension: respect, amount: 8 }
+  - { kind: relationship, npc_ref: npc.otherhome.harbour_smith, dimension: trust, amount: 5 }

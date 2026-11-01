@@ -10,6 +10,18 @@ nodes:
   greet:
     text: "\"Stand there, not there.\" She points at the terrace's lip with two fingers. \"Stone tells you where it will let you stand. Most people argue with it.\""
     choices:
+      - id: report
+        text: "I have your sighting."
+        conditions: [{ kind: quest_state, quest_ref: quest.otherhome.what_the_ground_did, is: active }]
+        next: measured
+      - id: reading
+        text: "What moved the terraces, then?"
+        conditions:
+          - { kind: quest_state, quest_ref: quest.otherhome.what_the_ground_did, is: not_started }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.concord_geometer, dimension: respect, delta: 5, event: asked_about_the_plate }
+          - { command: start_quest, quest_ref: quest.otherhome.what_the_ground_did }
+        next: reading
       - id: read
         text: "Show me what the stone is telling you."
         consequences:
@@ -23,3 +35,30 @@ nodes:
     next: again
   again:
     text: "\"Mind the wet course. It reads dry and it is not.\""
+    choices:
+      - id: report
+        text: "I have your sighting."
+        conditions: [{ kind: quest_state, quest_ref: quest.otherhome.what_the_ground_did, is: active }]
+        next: measured
+      - id: reading
+        text: "About the plate's margin note."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.otherhome.what_the_ground_did, is: not_started }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.concord_geometer, dimension: respect, delta: 5, event: asked_about_the_plate }
+          - { command: start_quest, quest_ref: quest.otherhome.what_the_ground_did }
+        next: reading
+  reading:
+    text: "\"The plate says when the terraces last moved. The margin, in a hand older than mine, says the movement was the Gate's and not the ground's.\" She sets two fingers on the wall. \"I can measure a wall. I cannot measure a ring from a terrace. Take a sighting at the mouth and bring it back, and I will know whether to thank you or rewrite the plate.\""
+    choices:
+      - id: take
+        text: "I'll take the sighting."
+        next: again
+  measured:
+    text: "\"Then the ground is where I left it and the ring is not where the plate put it.\" She is quiet a moment. \"That is either very good news or a sentence I will be writing for a hundred years.\" She is pleased, in the way of someone cataloguing a large problem. \"Thank you. I will need another reader for the next plate.\""
+    choices:
+      - id: back
+        text: "Find me when you do."
+        consequences:
+          - { command: tell_lore, lore_ref: lore.otherhome_survey_plaque }
+

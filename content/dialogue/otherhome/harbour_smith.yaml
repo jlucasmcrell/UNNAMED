@@ -10,6 +10,10 @@ nodes:
   greet:
     text: "\"Mind the iron - it's still deciding what shape it wants.\" She doesn't look up. \"You're the one the clerk wrote down. Good. Somebody's been bending my boat-hooks out of true and I'd like to know who.\""
     choices:
+      - id: chain_fit
+        text: "About the Assize's chain."
+        conditions: [{ kind: quest_state, quest_ref: quest.otherhome.held_by_the_chain, is: active }]
+        next: chain_fit
       - id: teach
         text: "Teach me the forge."
         consequences:
@@ -22,5 +26,24 @@ nodes:
   lesson:
     text: "\"Billet first. You don't make a spear out of impatience.\" She sets the tongs in your hand and closes your fingers round them, hard. \"That's the whole of it. The rest is how long you're willing to be wrong about the heat.\""
     next: again
+  chain_fit:
+    text: "\"Two billets, and one of them has been in the sea.\" She turns it, finds the sound side, and sets it down anyway. \"It will go in the chain. Floats are new and the splice is honest, which is all a chain needs to be believed.\" She looks up. \"Tell the sergeant that. It will be the best news in the rota.\""
+    choices:
+      - id: give
+        text: "Here they are - two billets."
+        conditions: [{ kind: has_item, item_ref: item.material.iron_ingot, count: 2 }]
+        consequences:
+          - { command: transfer_item, item_ref: item.material.iron_ingot, count: 2, to: npc }
+          - { command: record_relationship_event, npc_ref: npc.otherhome.harbour_smith, dimension: trust, delta: 5, event: brought_the_chain_iron }
+        next: again
+      - id: later
+        text: "I'll bring them."
+        next: again
   again:
     text: "\"Still here? Then here - hold this while I lace the coffin.\""
+    choices:
+      - id: chain_fit
+        text: "About the Assize's chain."
+        conditions: [{ kind: quest_state, quest_ref: quest.otherhome.held_by_the_chain, is: active }]
+        next: chain_fit
+

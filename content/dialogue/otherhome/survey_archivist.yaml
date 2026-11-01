@@ -1,0 +1,59 @@
+id: dialogue.otherhome.survey_archivist
+kind: dialogue
+schema: 1
+display_key: dialogue.otherhome.survey_archivist.name
+tags: [dialogue]
+notes: "Oren Tesk, the Long Survey's archivist at the Steps (Siann) - the desk every survey plate in the frontier answers to. His quest opens from his own line (The Ledger Stops), because a record that stops is the one thing a Siann cannot leave alone. Canon MYTHOLOGY.md Siann (the Record, accurate testimony), canon/areas/the-steps.md, lore.otherhome_cistern_ledger."
+participants: [npc.otherhome.survey_archivist]
+root_node: greet
+nodes:
+  greet:
+    text: "\"You're standing on a measurement.\" He does not look up from the plate. \"Third terrace, eighteen metres above mean water, and the wall has said so for two hundred years. Oren Tesk. The Long Survey. Mind the wet course - it reads dry.\""
+    once: true
+    next_if_exhausted: again
+    choices:
+      - id: cistern
+        text: "Something under the terraces is bothering you."
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.survey_archivist, dimension: respect, delta: 5, event: asked_about_the_ledger }
+          - { command: start_quest, quest_ref: quest.otherhome.ledger_stops }
+        next: cistern
+      - id: again
+        text: "I'll let you get on."
+  again:
+    text: "\"The plate wants copying and the hand wants resting. One of them will win.\""
+    choices:
+      - id: cistern
+        text: "About that ledger."
+        conditions:
+          - { kind: quest_state, quest_ref: quest.otherhome.ledger_stops, is: not_started }
+        consequences:
+          - { command: record_relationship_event, npc_ref: npc.otherhome.survey_archivist, dimension: respect, delta: 5, event: asked_about_the_ledger }
+          - { command: start_quest, quest_ref: quest.otherhome.ledger_stops }
+        next: cistern
+      - id: work
+        text: "Whose water is coming up?"
+        next: work
+      - id: report
+        text: "The ledger's read. The court is quiet enough to read it in."
+        conditions: [{ kind: quest_state, quest_ref: quest.otherhome.ledger_stops, is: active }]
+        next: ledger
+  cistern:
+    text: "\"The cistern ledger stops eleven days in. Same hand every day before that, and then it is not the winter's hand and it is not the rain's.\" He turns the plate face down. \"A record does not end. It is ended, and someone ended it. The court it measures is where the pack hunts, and I am not built for the undercity.\""
+    choices:
+      - id: go
+        text: "I'll go down and read it for you."
+        next: again
+  work:
+    text: "\"The terraces are moving at a rate I could measure if I had a century of Thursdays. The Kal would have cut it into the wall by now and argued about the wall. They are not wrong, and it is very irritating.\""
+    choices:
+      - id: back
+        text: "I'll leave you to it."
+        next: again
+  ledger:
+    text: "\"Depth drawn, the date, and who drew it - and the last page short. You went down for a page and came back with one. Good.\" He writes your name at the foot of it. \"Now the Survey has it, and the Survey keeps what it is given. That is the whole of my religion, and it is cheaper than yours.\""
+    choices:
+      - id: back
+        text: "Then it's yours."
+        consequences:
+          - { command: tell_lore, lore_ref: lore.otherhome_cistern_ledger }
