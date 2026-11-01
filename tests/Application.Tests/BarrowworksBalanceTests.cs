@@ -181,8 +181,13 @@ public class BarrowworksBalanceTests
         // The ring is beatable by the reference visitor at the intended level, and being under-levelled costs attempts. The
         // 40-60% band the owner asked for is NOT asserted yet: with the duplicate keeper retired, the single keeper barely
         // threatens the visitor (see the table), so the band has nothing to hold. Fixing the keeper's aggression comes first.
-        Assert.True(sword.Wins >= Worlds / 2, $"{sword.Label} L5 won {sword.Wins}/{Worlds}");
-        Assert.All(boss.Where(r => r.Level == 1), r => Assert.True(r.Wins <= sword.Wins, $"{r.Label} L1 beat the intended level"));
+        // Playtest 2's target (owner, 2026-10-31): the first hour's weapon wins a fair share at the intended level - a band, not a
+        // "beatable". A level-1 visitor wins at most one attempt in five; a level-5 visitor at the sword wins 40-60% of twelve.
+        Assert.True(sword.Wins * 100 >= Worlds * 40 && sword.Wins * 100 <= Worlds * 60,
+            $"{sword.Label} L5 won {sword.Wins}/{Worlds}: the intended level must sit in 40-60%");
+        Assert.All(boss.Where(r => r.Level == 1), r => Assert.True(r.Wins * 100 <= Worlds * 20,
+            $"{r.Label} L1 won {r.Wins}/{Worlds}: under-levelled must stay at or below 20%"));
+        Assert.All(boss.Where(r => r.Level == 3), r => Assert.True(r.Wins <= sword.Wins, $"{r.Label} L3 beat the intended level"));
         // M8 08: four to six unmitigated blows fell the reference character; an unarmoured level-1 character falls in fewer.
         Assert.InRange(falls.Single(f => f.Item1 == 5).Item3, 4, 6);
         Assert.True(falls.Single(f => f.Item1 == 1).Item3 < falls.Single(f => f.Item1 == 5).Item3, "the poorly equipped visitor is in more danger");

@@ -6,12 +6,12 @@ tags: [ability]
 name: Gauge Fall
 notes: "Both arms come down together over the ring's mark: rare, slow and the one blow that must not be eaten."
 class: creature
-range_m: 2.9
-windup_s: 1.6
+range_m: 3.2
+windup_s: 0.5
 active_s: 0.3
-recovery_s: 2.6
+recovery_s: 1.2
 commit_facing: true
 cost: { stamina: 0 }
 payload:
-  - { type: damage, damage_type: physical_blunt, amount: [30, 36] }
+  - { type: damage, damage_type: physical_blunt, amount: [42, 50] }
 cooldown_s: 10

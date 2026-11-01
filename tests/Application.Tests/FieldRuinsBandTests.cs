@@ -15,7 +15,7 @@ namespace UNNAMED.Application.Tests;
 /// The Spill and the Stopped Gate hold their band (docs/FIELD_RUINS.md; FIELD_RUINS_PROPOSAL.md 3.3): the outer field is level 4,
 /// the court level 5, and each fight is measured in the real simulation over the game's own content, the way the M3c table is. A
 /// gate tender dies in the 4-8 s band to a level-4 sword; a pair of them kills a level-3 character who stands still in the 8-15 s
-/// band; the Gate Warden is a long fight (30-60 s) that a level-5 character wins by staying behind it; and the nameplate reads the
+/// band; the Gate Warden (the D19 boss, 130 health, 55 deg/s turn, sweep/grasp/fall) is a long fight (40-60 s; measured 46-52 s) that a level-5 character wins by staying behind it; and the nameplate reads the
 /// band as designed for a character arriving at level 3, 4 or 5.
 /// </summary>
 public class FieldRuinsBandTests(ITestOutputHelper output)
@@ -125,7 +125,11 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
         double median = Median(seconds);
         output.WriteLine($"gate warden, level-5 sword from behind: median {median:0.00} s ({seconds.Min():0.00}-{seconds.Max():0.00}); " +
                          $"damage taken median {Median(taken.Select(t => (double)t).ToList()):0}");
-        Assert.InRange(median, 30, 60);
+        Assert.InRange(median, 40, 60);   // the boss measures 46-52 s from behind; the construct it replaced was tuned to 30-60
+        // A fight, not a ceremony: standing behind it wins, but the warden lands blows while it lasts.
+        double dealt = Median(taken.Select(t => (double)t).ToList());
+        Assert.True(dealt >= 15, $"gate warden: {dealt:0} damage taken from behind - the fight cost nothing");
+        Assert.All(taken, damage => Assert.True(damage > 0, "gate warden: a world where the boss never landed a blow"));
     }
 
     /// <summary>The TTK table's character: a level-L body with its L-1 points in Might and the Rusted Sword in hand.</summary>

@@ -2,7 +2,7 @@ id: item.otherhome.port_ledger
 kind: item
 schema: 1
 display_key: item.otherhome.port_ledger.name
-tags: [item]
+tags: [item, held_unopened_region]   # held: Otherhome not open in Playtest 2
 name: The Port Ledger
 notes: >-
   The Tidepearl Exchange's working copybook: what the port's smiths and fletchers have been paid to make, season by season,

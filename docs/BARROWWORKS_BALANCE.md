@@ -4,23 +4,23 @@
 
 The fighter is the review route's: it closes, circles toward the Custodian's slow side, dodges a late windup with stamina to spare, swings whenever free and takes a minor salve below a third of health. A level-L character has put its L-1 points into Might.
 
-## The Ring Custodian (level 5, 70 health)
+## The Ring Custodian (level 5, 120 health)
 
 | Loadout | Level | Wins | Median s to kill (wins) | Median blows taken |
 |---|---|---|---|---|
-| Rusted Sword, hide kit, 3 salves | 1 | 12/12 | 82.2 | 0 |
-| March Spear, hide kit, 3 salves | 1 | 12/12 | 46.1 | 1 |
-| Rusted Sword, hide kit, 3 salves | 3 | 12/12 | 29.9 | 0 |
-| March Spear, hide kit, 3 salves | 3 | 12/12 | 16.4 | 0 |
-| Rusted Sword, hide kit, 3 salves | 5 | 12/12 | 8.5 | 0 |
-| March Spear, hide kit, 3 salves | 5 | 12/12 | 6.9 | 0 |
+| Rusted Sword, hide kit, 3 salves | 1 | 0/12 | - | 2 |
+| March Spear, hide kit, 3 salves | 1 | 0/12 | - | 2 |
+| Rusted Sword, hide kit, 3 salves | 3 | 0/12 | - | 3 |
+| March Spear, hide kit, 3 salves | 3 | 1/12 | 30.6 | 3 |
+| Rusted Sword, hide kit, 3 salves | 5 | 6/12 | 27.0 | 5 |
+| March Spear, hide kit, 3 salves | 5 | 12/12 | 13.6 | 2 |
 
 ## Custodian blows to fell a character standing still
 
 | Level | Kit | Blows |
 |---|---|---|
 | 1 | none | 2 |
-| 5 | hide vest, cap, boots | 7 |
+| 5 | hide vest, cap, boots | 6 |
 
 ## The ring's ordinary creatures, one at a time (rusted sword, hide kit)
 
