@@ -25,7 +25,7 @@ namespace UNNAMED.Presentation;
 /// the journal and the quest debugger on screen - smelts a billet at the hearth, makes the spear at the anvil and takes it in
 /// hand, (M4) trades the old sword to Kera for arrows, (M5) shows her the spear and completes the quest, and wounds a valley stray
 /// with the spear; then walks up to the wolves' den, wounds one of the pack and stands
-/// until the pack kills the character (`PROTOTYPE.md` ยง5 step 7's deliberate death: a wounded stray only flees, and a
+/// until the pack kills the character (`PROTOTYPE.md` ง5 step 7's deliberate death: a wounded stray only flees, and a
 /// character fighting back with the spear has cleared the den). A screenshot after each step, mid-fight, and of the death
 /// recap. Windowed; exit code 0, or 1 when a step does not happen.
 /// </summary>
@@ -110,7 +110,8 @@ public sealed class UiShots
     /// The management screens pictured first, each opened by name through Main (the Field Instrument UI); "" closes them. Then a screen
     /// chosen on the System Menu, and Escape pressed on it: back to play, or back to the menu with <c>--menu-escape back</c>.
     /// </summary>
-    private static readonly string[] Screens = (System.Environment.GetCommandLineArgs().Contains("--pack-shots") ? PackScreens : Array.Empty<string>()).Concat(new[]
+    private static readonly bool FieldGuideOnly = System.Environment.GetCommandLineArgs().Contains("--field-guide-only");
+    private static readonly string[] Screens = FieldGuideOnly ? new[] { "help" } : (System.Environment.GetCommandLineArgs().Contains("--pack-shots") ? PackScreens : Array.Empty<string>()).Concat(new[]
     {
         "hud_stack", "scale_hud_stack", "large_hud_stack", "bars", "scale_hud_stack_bars", "large_hud_stack_bars", "subtitles", "large_subtitles", "compass", "", "bars_side", "", "menu", "character", "skills", "skills_formulas", "skills_recipes", "skills_map", "journal", "effects", "party", "chat", "chat_groups", "reputation", "away", "map",
         "large_menu", "large_reputation", "large_away", "large_map", "large_party", "large_chat", "text_menu", "text_reputation", "text_away", "text_map", "text_party", "text_chat", "help", "saves",
@@ -170,6 +171,7 @@ public sealed class UiShots
     public string? Update()
     {
         _frame++;
+        if (FieldGuideOnly && _frame <= 180) return null;
         if (_wait > 0)
         {
             // Let the panel lay out (and the take land) before the picture.
@@ -204,10 +206,12 @@ public sealed class UiShots
             if (name.Length > 0)
             {
                 _pending = "screen_" + name;
-                _wait = name.StartsWith("announce", StringComparison.Ordinal) ? 40 : 12;
+                _wait = FieldGuideOnly ? 60 : name.StartsWith("announce", StringComparison.Ordinal) ? 40 : 12;
             }
             return null;
         }
+        if (FieldGuideOnly && _screens == Screens.Length)
+            return "done";
         var simulation = _session.Simulation!;
         var magic = _session.Setup.Magic;
         if (_step == 5 && _screen is not null && _people < 2 * PeopleShots)
@@ -560,7 +564,7 @@ public sealed class UiShots
                 Next();
                 break;
             case 28:
-                // The quest the lesson started (M5): the ore and the shelf are behind the character already (bible ยง32), so it
+                // The quest the lesson started (M5): the ore and the shelf are behind the character already (bible ง32), so it
                 // asks for a billet now - the tracker at the top right says so, and the journal and the quest debugger say more.
                 _journal.Visible = true;
                 _journal.Refresh(_session);

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # R12 rival notices â€” FINISHED visual handoff; Claude verdict pending
 
 Branch: visual/rivals, based on systems/rivals 438bdd59.
@@ -13,3 +14,16 @@ This is native UI visual proof with deterministic Jessa data from the existing m
 FINISHED means the requested visual implementation, push and review-artifact handoff are complete. Claude's visual verdict and integration remain pending; no visual PASS is self-awarded.
 
 Claude's15:30 verdict: PASS for the card/board, conditional on the announcement-overlap fix. The public HUD now holds its banner queue and clock while the notice board is visible, then resumes the first card and subsequent queued notices on close. Existing quest-card/landmark holding still applies. NATIVE_TOAST_GATE.json records the native headless integration check through the actual Hud facade, HudView and NoticeBoardPanel: visible before open; hidden/clock held while covered; a second notice retained; first card restored after close; second follows. Exit0 after5.97s. The accepted design/screenshots are unchanged. This fix is source/UI state proof, not a new full-world screenshot or package gate.
+=======
+# Field Guide in-game proof — IN REVIEW
+
+Branch: visual/field-guide, based on systems/field-guide33d0dbed. Runtime source ae8599ef.
+
+The public UI screenshot route accepts --field-guide-only alongside --ui-shots <output-directory>. It opens the ordinary F1 HelpPanel over the running world, waits180 real world frames and60 layout frames, writes screen_help.png, and quits before the unrelated walkthrough.
+
+Personally inspected the original1920x1080 viewport: title, search field, three control columns, keycaps and close controls are readable over the real game/HUD. Unaltered original posted at C:/Otherreach_External_Assets/NEXT_SYSTEMS_VISUALS/field_guide/FIELD_GUIDE_OPEN.png for Claude's verdict. No mock/composite/generated art, no population/plant changes, no owner profile used.
+
+The source tree is clean; public Release0errors /31existing warnings, FieldGuide domain tests5/5. docs/FIELD_GUIDE_PROOF.json records exact assembly, older native-host binary/PCK, image hashes and launch scope. Capture used a frozen public assembly in an older private native host, not a fresh RC export: it aborted0xC0000374 after capture/normal CaptureQuit (451.52-second lease). This is the requested in-game visual artifact, not clean-exit/world/performance acceptance. Claude's visual verdict remains pending; NOT FINISHED yet.
+>>>>>>> 5775d4b6
+
+Integrator check (23:24): the input map binds shoulder_swap to Key.Q and party to Key.O (Main.Input.cs); no shared key, so the O/Q question was the keycap glyph only. Merged as is.
