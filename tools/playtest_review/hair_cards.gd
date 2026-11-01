@@ -56,8 +56,9 @@ func picture(name: String, creator: Node) -> void:
 	var expected := name.substr(2)
 	if not expected.begins_with("face"):
 		var attached := false
+		var asset_prefix := "humgen_creator_" + name.substr(0, 1) + "_hair_hair_long_" + expected + "_Hair"
 		for mesh in audit:
-			if mesh.kind == "Hair" and mesh.in_tree and mesh.visible and expected in mesh.name:
+			if mesh.kind == "Hair" and mesh.in_tree and mesh.visible and str(mesh.name).begins_with(asset_prefix):
 				attached = true
 		if not attached:
 			push_error("B043 FAILED: Selected hair not drawn: " + name)
