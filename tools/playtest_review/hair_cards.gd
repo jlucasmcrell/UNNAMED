@@ -76,11 +76,25 @@ func _run() -> void:
 	# The same handler as the title's New game button, before title-world prewarming.
 	main.call("OpenCreator")
 	await create_timer(4).timeout
+	var viewports := []
+	for viewport in creator.find_children("*", "SubViewport", true, false):
+		viewports.append({"name":str(viewport.name), "taa":viewport.use_taa, "msaa":viewport.msaa_3d, "screen_space_aa":viewport.screen_space_aa})
+		if not viewport.use_taa:
+			push_error("B043 FAILED: Creator hair viewport has no temporal filtering")
+			quit(1)
+			return
+	if viewports.is_empty():
+		push_error("B043 FAILED: Creator viewport missing")
+		quit(1)
+		return
+	var viewport_file := FileAccess.open(output.path_join("viewports.json"), FileAccess.WRITE)
+	viewport_file.store_string(JSON.stringify(viewports, "  "))
 	creator.call("UsePeople", "people.veth", "")
 	for sex in ["m", "f"]:
 		creator.call("UseFace", "body.veth_" + sex + ".average", "face." + sex + ".caucasian_presets.caucasian_2")
 		creator.call("Go", 3)
 		creator.call("Frame", 1.0)
+		creator.call("Turn", -0.6)
 		await create_timer(3).timeout
 		if not await click(creator, "creator.options.Hair.long"):
 			return
@@ -88,6 +102,7 @@ func _run() -> void:
 			if not await click(creator, "creator.hair.hair.long." + hair):
 				return
 			await picture(sex + "_" + hair, creator)
+		creator.call("Turn", 0.6)
 		creator.call("Go", 2)
 		await picture(sex + "_face", creator)
 		creator.call("Turn", -0.96)
