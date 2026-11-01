@@ -1,4 +1,5 @@
 using UNNAMED.Domain;
+using UNNAMED.Domain.Combat;
 using UNNAMED.Domain.Companions;
 using UNNAMED.Domain.Character;
 using UNNAMED.Domain.Spatial;
@@ -38,6 +39,10 @@ public sealed class MotionSoakTests(ITestOutputHelper output)
                 Assert.True(dx * dx + dz * dz <= 2002.0 * 2002.0, "party arrival outside documented 2 m ring");
                 allowed[npc.InstanceId.Value] = npc.Body;
             }
+        });
+        // A party member downed too long falls (DN9): they leave the party and go home, the event publishing where.
+        w.Bus(sim).Subscribe<CompanionFell>(e => {
+            if (sim.Npcs.FirstOrDefault(n => n.Id == e.NpcId) is { } fallen) allowed[fallen.InstanceId.Value] = e.At;
         });
         int blinked = 0;
         w.Bus(sim).Subscribe<Blinked>(e => {
@@ -112,7 +117,10 @@ public sealed class MotionSoakTests(ITestOutputHelper output)
         foreach (var creature in sim.Creatures)
         {
             var def = sim.Setup.Combat.Creatures[creature.DefId];
-            double speed = Math.Max(def.MoveSpeedMmPerSecond, def.Charge?.ChargeSpeedMmPerSecond ?? 0);
+            // A lunge carries the body forward through the blow's active window (CreatureSystem.Strike): the speed it needs is the move's, not the walk's.
+            double lunge = def.Moves.Concat(def.CloseAttack is { } close ? new[] { close } : Array.Empty<AttackProfile>())
+                .Where(a => a.LungeMm > 0).Select(a => a.LungeMm * 1000.0 / Math.Max(1, a.ActiveTicks * sim.Setup.TickMilliseconds)).DefaultIfEmpty(0).Max();
+            double speed = Math.Max(Math.Max(def.MoveSpeedMmPerSecond, def.Charge?.ChargeSpeedMmPerSecond ?? 0), lunge);
             result[creature.Id.Value] = new(creature.Body, speed * tick + 2, def.RadiusMm, creature.Key, false);
         }
         foreach (var item in sim.WorldItems) result[item.Id.Value] = new(new Body(item.XMm, 0, item.ZMm, 0), 2, 0, item.Id.Value, false);

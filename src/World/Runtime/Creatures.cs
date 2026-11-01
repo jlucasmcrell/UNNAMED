@@ -586,9 +586,17 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 int grace = court.Forfeit ? 1 : 20;
                 if (count >= grace)
                 {
-                    Save(AtHome(creature) with { Health = creature.ScaledMaxHealth });
-                    var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
-                    _context.Dispatch(new RestageEncounterParty(arrival, court));
+                    // A character who walked out is still in sight of the court: the creature forgets the fight and walks home on its
+                    // own, and the party follows them out, so nobody is carried across the yard (B-039). Only a defeat is out of
+                    // sight - the character is back at a respawn - and there the court is quietly put back and the party restaged.
+                    bool defeated = State.PlayerCombat.Defeated;
+                    Save(defeated ? AtHome(creature) with { Health = creature.ScaledMaxHealth }
+                        : AtHome(creature) with { Health = creature.ScaledMaxHealth, Body = creature.Body });
+                    if (defeated)
+                    {
+                        var arrival = new Body(court.SafeXMm, _context.Setup.SpaceFor(State.Space).HeightAtMm(court.SafeXMm, court.SafeZMm), court.SafeZMm, 0);
+                        _context.Dispatch(new RestageEncounterParty(arrival, court));
+                    }
                     _context.Events.Publish(new EncounterRestarted(creature.Site.Key, false, tick));
                     _outsideAttemptTicks.Remove(key);
                     continue;
