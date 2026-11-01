@@ -179,5 +179,7 @@
     "run.mp4": "450f4b02f7f35d6538e4aeb1ae10211472e9f51c81752fc3f50f1102bf364111",
     "sword_attack_1.mp4": "51ed0f69f6d02957ba08517849ed02eb5012b27199e0f09dd511efa76ae2ea2b",
     "walk.mp4": "7638119b4dd5fdc6fb9a408e3131348947f81837e19af460185d38f337ac1398"
-  }
+  },
+  "final_delivery": "CMB04_DELIVERY.json",
+  "receipt_scope": "Historic source/progress receipt. Install only the32 final current-Creator variants and source hashes in CMB04_DELIVERY.json, not earlier candidates."
 }

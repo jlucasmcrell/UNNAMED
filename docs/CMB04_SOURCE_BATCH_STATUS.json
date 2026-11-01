@@ -276,5 +276,7 @@
       "mail_normal.png": "d6a7c56ffed463d781b7fba3e4e2892dbdc57a9b147239171772900acc08773f",
       "mail_orm.png": "edf5832365f9fa2ffe83a39996a778764cf2fac768d57960dc500916e01af87f"
     }
-  }
+  },
+  "final_delivery": "CMB04_DELIVERY.json",
+  "receipt_scope": "Historic source/progress receipt. Install only the32 final current-Creator variants and source hashes in CMB04_DELIVERY.json, not earlier candidates."
 }

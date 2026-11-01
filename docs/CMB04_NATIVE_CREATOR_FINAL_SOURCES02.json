@@ -4471,5 +4471,7 @@
     "Gorget head-turn extremes; glove open/fist, footwear stride, skirt clearance, veil idle drift, laminate doubled silhouette and shipped LOD gates",
     "Final approved-art bindings, portable relative DDS subset, credit/source trail and Claude verdict handoff",
     "No FINISHED or self-awarded Claude PASS"
-  ]
+  ],
+  "final_delivery": "CMB04_DELIVERY.json",
+  "receipt_scope": "Historic source/progress receipt. Install only the32 final current-Creator variants and source hashes in CMB04_DELIVERY.json, not earlier candidates."
 }

@@ -1167,5 +1167,7 @@
     "Final item bindings/portable relative DDS subset/credit trail and verdict handoff",
     "Native authoring library publication for final accepted variants; early voider preset is superseded, not game acceptance"
   ],
-  "scope": "Current Creator female/male targets only. Native source and setup gates do not establish all identities, world/inventory/save-load fit or visual acceptance. No FINISHED or self-awarded Claude PASS."
+  "scope": "Current Creator female/male targets only. Native source and setup gates do not establish all identities, world/inventory/save-load fit or visual acceptance. No FINISHED or self-awarded Claude PASS.",
+  "final_delivery": "CMB04_DELIVERY.json",
+  "receipt_scope": "Historic source/progress receipt. Install only the32 final current-Creator variants and source hashes in CMB04_DELIVERY.json, not earlier candidates."
 }

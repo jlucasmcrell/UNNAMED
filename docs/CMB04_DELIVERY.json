@@ -1,8 +1,8 @@
 {
-  "status": "DELIVERY_CANDIDATE_NATIVE_CPU_PASS_FINAL_RENDERED_VERDICT_PENDING",
-  "recorded": "2026-10-31T22:24:54.196025-04:00",
+  "status": "DELIVERED_FOR_CLAUDE_VISUAL_VERDICT",
+  "recorded": "2026-10-31T22:53:12.296855-04:00",
   "branch": "visual/armour-gaps",
-  "portable_delta": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\portable_candidate04",
+  "portable_delta": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\portable_candidate06",
   "sources": [
     {
       "identifier": "gap_aventail__humgen_creator_female",
@@ -410,20 +410,20 @@
       "slot": "hands",
       "target": "humgen_creator_female",
       "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
-      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_jointward_mesh__humgen_creator_female\\gap_jointward_mesh__humgen_creator_female_rigged.glb",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_gap01\\primary\\rigged\\gap_jointward_mesh__humgen_creator_female\\gap_jointward_mesh__humgen_creator_female_rigged.glb",
       "glb_sha256": "e0ee62d9ef014ed0fb7bf7dc6a4a01a090ccaea2c4c88905846240b4500114a3",
-      "contract_sha256": "f2a6a2f1521bec3c08dfb9b2ab96f7c0767465b32976badf9632acf4fbdf91c8",
-      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_jointward_mesh__humgen_creator_female\\native_outfit.blend",
+      "contract_sha256": "5fe7d66299a001e1b18ff2a78e470ab6b90113ee27a8c3a2b98277ab39402697",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_gap01\\sources\\gap_jointward_mesh__humgen_creator_female\\native_outfit.blend",
       "native_library": {
         "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
         "identifier": "gap_jointward_mesh__humgen_creator_female",
         "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
-        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_jointward_mesh__humgen_creator_female.blend",
-        "sha256": "fa1f396768a125aa3d578fce616fdcd031afa986a5557feeeb32b450e414b633",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library07\\outfits\\female\\Otherreach_CMB04_20261031\\gap_jointward_mesh__humgen_creator_female.blend",
+        "sha256": "cbccb0654d38b816fe9719b500b82da2857c50318d0210483bb35fd293c97072",
         "owned_optimizer_pids": [
-          51048
+          12084
         ],
-        "source_blend_sha256": "5cc289a033d84982d4feb616af91dd0ae9a28ccf0efe69f17905cad5815dd38f",
+        "source_blend_sha256": "0ce839946dcefa936e17bb4738076c7834b7f26c39c657328647e14bcf733531",
         "source_blend_unchanged": true,
         "blender_preferences_saved": false,
         "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
@@ -435,20 +435,20 @@
       "slot": "hands",
       "target": "humgen_creator_male",
       "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
-      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_jointward_mesh__humgen_creator_male\\gap_jointward_mesh__humgen_creator_male_rigged.glb",
-      "glb_sha256": "58e6b7244af6b230fb41c8574e576490dd50d1358be0965fc37738050dba032e",
-      "contract_sha256": "48ed34b095946e72bc2d664ccd5f94d4dac61a73e2cc22f613969cc881af4f3d",
-      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_jointward_mesh__humgen_creator_male\\native_outfit.blend",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_gap01\\primary\\rigged\\gap_jointward_mesh__humgen_creator_male\\gap_jointward_mesh__humgen_creator_male_rigged.glb",
+      "glb_sha256": "f851e9a8b88c820118fe29a5ba04ea10a7f964df1d65ec5a35aebc096fedc615",
+      "contract_sha256": "9681832d1b9a1ca61fa22f9d4c379c76d06e4a083521b4e08ef8229fe22fd8df",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_gap01\\sources\\gap_jointward_mesh__humgen_creator_male\\native_outfit.blend",
       "native_library": {
         "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
         "identifier": "gap_jointward_mesh__humgen_creator_male",
         "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
-        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_jointward_mesh__humgen_creator_male.blend",
-        "sha256": "e7445365f1da5540cb1c1be08d0d99fe18c77fd95b85f97281af256a0ce9de8e",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library07\\outfits\\male\\Otherreach_CMB04_20261031\\gap_jointward_mesh__humgen_creator_male.blend",
+        "sha256": "b1e16320c5ecf326760d66b29b38c7ee98f4ee5f73d98e331606ff25c903f585",
         "owned_optimizer_pids": [
-          22360
+          19100
         ],
-        "source_blend_sha256": "33d1980bd3f3a2360fa121de50d14fb1d62846b14fafb5e4c43632cc45dc6480",
+        "source_blend_sha256": "8d722a408f305cea22df2b6cb238efd04e7449374423da16d25fb5383b4e60e8",
         "source_blend_unchanged": true,
         "blender_preferences_saved": false,
         "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
@@ -660,20 +660,20 @@
       "slot": "head",
       "target": "humgen_creator_female",
       "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
-      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_female\\gap_veil_collar__humgen_creator_female_rigged.glb",
-      "glb_sha256": "bc6ba6120c81a4bc7019ea97c319228ebfb38d635f379b9914d9d1641c2e3958",
-      "contract_sha256": "d38a892ae17109106e2f63fd63b583d3c3493ff727c4d2ed4b7961533000849a",
-      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\sources\\gap_veil_collar__humgen_creator_female\\native_outfit.blend",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_female\\gap_veil_collar__humgen_creator_female_rigged.glb",
+      "glb_sha256": "da1411e40cfbfdc63ec09c0500dbb589bf24346e14a89392d686e24623ec4b7c",
+      "contract_sha256": "b26ed6654c0fb15e22c721f58779c94f387d1fad94558ed4a50c844111b6c5c3",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_gap01\\sources\\gap_veil_collar__humgen_creator_female\\native_outfit.blend",
       "native_library": {
         "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
         "identifier": "gap_veil_collar__humgen_creator_female",
         "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
-        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library05\\outfits\\female\\Otherreach_CMB04_20261031\\gap_veil_collar__humgen_creator_female.blend",
-        "sha256": "2ea8f3c647a9a71b73bc1df667ea847a66f5559c1cc0f3b59de72be32721a03b",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library06\\outfits\\female\\Otherreach_CMB04_20261031\\gap_veil_collar__humgen_creator_female.blend",
+        "sha256": "212e756845561a992568aba921e5c09b30e1fed4d47b3a2414d280fc52f258f5",
         "owned_optimizer_pids": [
-          18812
+          48552
         ],
-        "source_blend_sha256": "461d1b7e5080018c51130f200758f7071d1ed5618a2cb74b64cc773679dc99ef",
+        "source_blend_sha256": "f470fdac97e67253db63fcd8f01ba2ad6ec6f51e9dab6cb0bf093a54a0cc974e",
         "source_blend_unchanged": true,
         "blender_preferences_saved": false,
         "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
@@ -685,20 +685,20 @@
       "slot": "head",
       "target": "humgen_creator_male",
       "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
-      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_male\\gap_veil_collar__humgen_creator_male_rigged.glb",
-      "glb_sha256": "3f916649d8310db3e720ef3a8e598809b2a57321e2ee3944e62629a5615d73d6",
-      "contract_sha256": "01ee22e9edc43123c58e60b84a648fc7b2af6874f282639cb4c633d4aac922fb",
-      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\sources\\gap_veil_collar__humgen_creator_male\\native_outfit.blend",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_male\\gap_veil_collar__humgen_creator_male_rigged.glb",
+      "glb_sha256": "1a195919f6a0827b619edbbff9eeddb932d76f65ae0d114f9806fccc54f598a6",
+      "contract_sha256": "ad7b556c2c619e39f9bb65d175344256f2262d63a0111df0ca8f8f1c7491d084",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_gap01\\sources\\gap_veil_collar__humgen_creator_male\\native_outfit.blend",
       "native_library": {
         "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
         "identifier": "gap_veil_collar__humgen_creator_male",
         "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
-        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library05\\outfits\\male\\Otherreach_CMB04_20261031\\gap_veil_collar__humgen_creator_male.blend",
-        "sha256": "45f8185a01f0d99fba00ccaab05f6521b9bacc487bf0124685743755924ffcdd",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library06\\outfits\\male\\Otherreach_CMB04_20261031\\gap_veil_collar__humgen_creator_male.blend",
+        "sha256": "13db397043a8f995d5bdcd96e015ae051071abbc2be86b6f5059a8ce49177d00",
         "owned_optimizer_pids": [
-          15128
+          49800
         ],
-        "source_blend_sha256": "96cca2a7d2418825d815081012094dbe45526424c37bae26bc0dc67d39cac190",
+        "source_blend_sha256": "4c658864eb50878a1f0ff52ade6f1aeb5dc9b7c0abc191fc1e36444c5f59028c",
         "source_blend_unchanged": true,
         "blender_preferences_saved": false,
         "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
@@ -808,21 +808,615 @@
   "cpu": {
     "female": {
       "public_all16": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\cpu_final_binding_female07",
-      "final_face_fitted_veil": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\cpu_female08"
+      "final_hanging_veil": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\cpu_female10",
+      "final_actual_trouser_lattice": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\cpu_female12"
     },
     "male": {
       "public_all16": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\cpu_final_binding_male07",
-      "final_face_fitted_veil": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\cpu_male08"
+      "final_hanging_veil": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\cpu_male10",
+      "final_actual_trouser_lattice": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\cpu_male12"
     }
   },
   "checks": {
     "worn_outfit_tests": "3/3",
-    "sparse_glb_accessor_test": "PASS; strided dense + sparse overlay + implicit zero base; source bytes unchanged"
+    "sparse_glb_accessor_test": "PASS; strided dense + sparse overlay + implicit zero base; source bytes unchanged",
+    "public_build": "Release0errors/31warnings"
   },
   "scope": "Original conventionally authored garment meshes. Native HumGen outfit/footwear authoring, save_to_library and optimizer, four original geometry LODs, exact59 target rests and native fitting controls. Body, hair and all normal underlayers retained; no body cuts. Optional append-only declared cloth helpers for besagews and veil. Source-resolution owned maps and original CPU Cycles four-in-one mail bake; no generative art or motion service.",
   "limitations": [
     "Only current Creator female and male garment target contracts certified; no all-identity fit claim.",
     "Normal item bindings and production WearEquipment in neutral fixtures, not played inventory/save route or full-world performance acceptance.",
     "Claude owns visual verdict; producer does not self-PASS or merge RC."
-  ]
+  ],
+  "rendered_review": "C:\\Otherreach_External_Assets\\NEXT_SYSTEMS_VISUALS\\armour_gaps\\final_native13",
+  "rendered_proof": {
+    "status": "PRODUCER_INSPECTED_FINAL_DETAIL_RUN_AND_HEAD_VIEWS_CLAUDE_VERDICT_REQUESTED",
+    "bodies": {
+      "female": [
+        {
+          "part": "gorget",
+          "glb_sha256": "91a7616e2221e6403d0678d10dd687433b4e1045c334b35a935fefea1387eb2c",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\gorget",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "bevor",
+          "glb_sha256": "19fa631ed355380777de0ed1d98e97b06d065de2a5c4f53699abb5c1cdcc615a",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_female06\\bevor",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 71.68519309999829,
+            "lease_seconds": 72.99161399999866
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "aventail",
+          "glb_sha256": "3b2ce9de7d32d28968c6cb508017185465e72db373124f8e85259728ccf6efec",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\aventail",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "mail_standard",
+          "glb_sha256": "c3b6be994f39c24dcc684d7979b02bb5afffcf7e08d8a99bc4075d5471de502e",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\mail_standard",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "voiders",
+          "glb_sha256": "3ed94bdd656c48942f8c1f99ddc1493012c328a7c4826f2e961eea21a74c6b3d",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\voiders",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "besagews",
+          "glb_sha256": "e95a627977a50d6927586432654c1a6f5c5c09fd903d7fec274ec09dbf6b1a8f",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\besagews",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "couters",
+          "glb_sha256": "396fcd5e7f3d4db0a6313233fc385afcc05addbe317a198c5e7e69a91f5943c1",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\couters",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "poleyns",
+          "glb_sha256": "0cab108c54b5d4e8a1449f46b56797c495f60a195ad77f89fe8a3c71f9212040",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\poleyns",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "faulds",
+          "glb_sha256": "5aebfc2eae76721f5e2c2006f87d57728d787cac918e95bb41f7acb55be381d1",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\faulds",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "groin_guard",
+          "glb_sha256": "a20752ce450d6d21c255e8770abf1e5ed25088b098c6153151802a4a79433d06",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\groin_guard",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "sabatons",
+          "glb_sha256": "01d3df4ed6de9a3c150f83982c4be302a7d60e0935634b83a03904e0175ae23b",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\sabatons",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "gauntlets",
+          "glb_sha256": "1767002ba4d228400a3578a375e88f41ae15c66a1e3e11ed636e243c752502cd",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01\\gauntlets",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 287.7999773000047,
+            "lease_seconds": 324.9655567000009
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "whispergorget",
+          "glb_sha256": "7affcda2dacfbafc0e5ab3e16c57c0152a1bcc09c3b8a6634604bf424bc6f192",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_female04\\whispergorget",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 100.68782370000554,
+            "lease_seconds": 206.78403070000059
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "jointward_mesh",
+          "glb_sha256": "e0ee62d9ef014ed0fb7bf7dc6a4a01a090ccaea2c4c88905846240b4500114a3",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_female12\\jointward_mesh",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 36.14292939999723,
+            "lease_seconds": 37.47682130000612
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "veil_collar",
+          "glb_sha256": "da1411e40cfbfdc63ec09c0500dbb589bf24346e14a89392d686e24623ec4b7c",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_female10\\veil_collar",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 44.18210890000046,
+            "lease_seconds": 45.83954639999138
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "phase_laminate",
+          "glb_sha256": "8bc399c380c0cd11e1985e473d1cf45b736a92a5961b2584d5b86340d3bb240b",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_female06\\phase_laminate",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 71.68519309999829,
+            "lease_seconds": 72.99161399999866
+          },
+          "art_problems": {}
+        }
+      ],
+      "male": [
+        {
+          "part": "gorget",
+          "glb_sha256": "c12e43da32108af6020b2dff23294e33201f5338573559eea142d5e3d7d6f51f",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\gorget",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "bevor",
+          "glb_sha256": "b98b36e0e63f80220727e993850ccc1cd85d199eddc4957c9baa169fbd7146eb",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_male06\\bevor",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 72.18277390000003,
+            "lease_seconds": 145.1770075000095
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "aventail",
+          "glb_sha256": "cdbf13d36da30e958e85309a71a7e970e4caf382fe9458be96312004d8c7ef63",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\aventail",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "mail_standard",
+          "glb_sha256": "441ed90112d4fa9f6a7b380f3a509fba59a7ba95f507fd965749b1eaece7f044",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\mail_standard",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "voiders",
+          "glb_sha256": "643e0a95c1e20a5ec0f97d9cdb0f7142f4052e327cc9332e66013fc1841d7567",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\voiders",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "besagews",
+          "glb_sha256": "4e1bf647a11f076e4aa195a040ac8f132b6aa2a98e0d6d694c801bb10403d7e4",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\besagews",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "couters",
+          "glb_sha256": "dc0e5a7b25157966bbcb73e650812114d469354c971c0af006d1509583e307e5",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\couters",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "poleyns",
+          "glb_sha256": "3f09d954ce865b2d992f7b3183bb9f7290a664c97c772eabdd6679238c1d6b3a",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\poleyns",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "faulds",
+          "glb_sha256": "111cfdebcec1d1c77640f8feb009352959ba3c45bce98d88e94d0ebe25e8e630",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\faulds",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "groin_guard",
+          "glb_sha256": "d138519bde7a2a08ef1c4a6fd638a07b92eec5e51d4d0b64ea5548054ab89053",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\groin_guard",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "sabatons",
+          "glb_sha256": "c2112628f31e59f281d531eae7da2b13b1c3d2c7fcd5c40a9de4b7a3ddf15380",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\sabatons",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "gauntlets",
+          "glb_sha256": "444ee508ad74d859fec0808f449fd7ceaed6c17a3561ea8c7b14ce0d831b480f",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01\\gauntlets",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 285.9389138999977,
+            "lease_seconds": 428.42269049999595
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "whispergorget",
+          "glb_sha256": "827f508f3a66e51fb852c4af80a2ee8ab76d5c44a84d5bd7e8c159720627cbda",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_male04\\whispergorget",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 87.72162630000093,
+            "lease_seconds": 294.50977600000624
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "jointward_mesh",
+          "glb_sha256": "f851e9a8b88c820118fe29a5ba04ea10a7f964df1d65ec5a35aebc096fedc615",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_male12\\jointward_mesh",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 37.65923950000433,
+            "lease_seconds": 75.1394266999996
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "veil_collar",
+          "glb_sha256": "1a195919f6a0827b619edbbff9eeddb932d76f65ae0d114f9806fccc54f598a6",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_male10\\veil_collar",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 43.65299010000308,
+            "lease_seconds": 89.49561089999042
+          },
+          "art_problems": {}
+        },
+        {
+          "part": "phase_laminate",
+          "glb_sha256": "cc1e27d46f5c7950c705635e6904700106193010db1517913b899725afe0e36b",
+          "original_native_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_male06\\phase_laminate",
+          "native_exit": {
+            "exit": 0,
+            "seconds": 72.18277390000003,
+            "lease_seconds": 145.1770075000095
+          },
+          "art_problems": {}
+        }
+      ]
+    },
+    "scope": "Both accepted current Creator bodies/Office/Pirate Boots. Actual ordinary item binding/WearEquipment, original source movement and normal native fitting controls. Neutral stage; no played inventory/save route, all-identity or world/performance acceptance. Head sheets use production LookAt configured140/70 limits; no numeric post-restored-bone-angle claim.",
+    "special_native_clocks": {
+      "female": {
+        "veil_collar": {
+          "frames": 239,
+          "source_start": 0.001743,
+          "source_end": 8.343057,
+          "source_duration": 8.341314,
+          "encoded_duration": 8.342,
+          "sha256": "7464b876d110a0303167684cb4497bc6942044dd11ebafc28a321bf6e0d73d72",
+          "scope": "Continuous native captured frames, original wall-time durations, no interpolation or speed adjustment."
+        },
+        "phase_laminate": {
+          "frames": 129,
+          "source_start": 0.000928,
+          "source_end": 4.326941,
+          "source_duration": 4.326013,
+          "encoded_duration": 4.327,
+          "sha256": "e0b63d65a238f22d03d8d8bbd32b125fd631b83b68883e086ee813f8b23539cb",
+          "scope": "Continuous native captured frames, original wall-time durations, no interpolation or speed adjustment."
+        }
+      },
+      "male": {
+        "veil_collar": {
+          "frames": 183,
+          "source_start": 0.001837,
+          "source_end": 8.385506,
+          "source_duration": 8.383669,
+          "encoded_duration": 8.385,
+          "sha256": "07f1e17540a7cb6afb4cafdea515692304403844e0afc78170e041613b59a464",
+          "scope": "Continuous native captured frames, original wall-time durations, no interpolation or speed adjustment."
+        },
+        "phase_laminate": {
+          "frames": 129,
+          "source_start": 0.000974,
+          "source_end": 4.310587,
+          "source_duration": 4.309613,
+          "encoded_duration": 4.311,
+          "sha256": "35859922428d242982b9021a1255981e7c3cfba83e11431479b05e5e390bfa5d",
+          "scope": "Continuous native captured frames, original wall-time durations, no interpolation or speed adjustment."
+        }
+      }
+    },
+    "specific_review_points": [
+      "Judge all16 reads, particularly raised-arm voider visibility, besagew swing, veil continuous idle drift and the laminate subtle doubled silhouette/orbit.",
+      "Veil extreme down-look folds close to the collar: judge its clearance/read in the full-resolution head frames; no producer self-PASS.",
+      "Head clearance sheets are supplied for gorget/bevor/whispergorget/veil only; no universal head/identity/wardrobe clearance claim."
+    ]
+  },
+  "native_gpu_leases": {
+    "native_all_female_lease01": {
+      "results": [
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\legacy_contact02\\native_mateo_direct03",
+          "exit": 0,
+          "seconds": 35.64098989999911,
+          "lease_seconds": 37.16329529999348
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_female01",
+          "exit": 0,
+          "seconds": 287.7999773000047,
+          "lease_seconds": 324.9655567000009
+        }
+      ],
+      "lease_seconds": 324.96686800000316
+    },
+    "native_all_male_lease01": {
+      "results": [
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_creator_female_pickup04",
+          "exit": 0,
+          "seconds": 48.26962969999295,
+          "lease_seconds": 50.191101299991715
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_creator_male_pickup04",
+          "exit": 0,
+          "seconds": 38.592130899996846,
+          "lease_seconds": 88.78643799999554
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_head_female02",
+          "exit": 0,
+          "seconds": 27.07582659999025,
+          "lease_seconds": 115.86496160000388
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_head_male02",
+          "exit": 0,
+          "seconds": 26.613378900001408,
+          "lease_seconds": 142.48127950000344
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_all_male01",
+          "exit": 0,
+          "seconds": 285.9389138999977,
+          "lease_seconds": 428.42269049999595
+        }
+      ],
+      "lease_seconds": 428.4239554999949
+    },
+    "refinement03/native_lease04": {
+      "results": [
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_creator_female_pickup05",
+          "exit": 0,
+          "seconds": 43.52826069999719,
+          "lease_seconds": 44.84415530000115
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_creator_male_pickup05",
+          "exit": 0,
+          "seconds": 61.24559980000777,
+          "lease_seconds": 106.09222950000549
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_female04",
+          "exit": 0,
+          "seconds": 100.68782370000554,
+          "lease_seconds": 206.78403070000059
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_male04",
+          "exit": 0,
+          "seconds": 87.72162630000093,
+          "lease_seconds": 294.50977600000624
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_head_female04",
+          "exit": 0,
+          "seconds": 47.50913400000718,
+          "lease_seconds": 342.0211115000129
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_head_male04",
+          "exit": 0,
+          "seconds": 44.14387070000521,
+          "lease_seconds": 386.17605050001293
+        }
+      ],
+      "lease_seconds": 386.1774434000108
+    },
+    "refinement05/native_lease06": {
+      "results": [
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_female06",
+          "exit": 0,
+          "seconds": 71.68519309999829,
+          "lease_seconds": 72.99161399999866
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_male06",
+          "exit": 0,
+          "seconds": 72.18277390000003,
+          "lease_seconds": 145.1770075000095
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_head_female06",
+          "exit": 0,
+          "seconds": 35.66621740000846,
+          "lease_seconds": 180.84689010000147
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_head_male06",
+          "exit": 0,
+          "seconds": 33.63117280000006,
+          "lease_seconds": 214.48090030001185
+        }
+      ],
+      "lease_seconds": 214.48264040000504
+    },
+    "refinement09/native_lease10": {
+      "results": [
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_female10",
+          "exit": 0,
+          "seconds": 44.18210890000046,
+          "lease_seconds": 45.83954639999138
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_male10",
+          "exit": 0,
+          "seconds": 43.65299010000308,
+          "lease_seconds": 89.49561089999042
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_head_female10",
+          "exit": 0,
+          "seconds": 29.131928799994057,
+          "lease_seconds": 118.63098229999014
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement09\\native_head_male10",
+          "exit": 0,
+          "seconds": 27.642606199995498,
+          "lease_seconds": 146.27661639999133
+        }
+      ],
+      "lease_seconds": 146.27867799998785
+    },
+    "jointward_refit11/native_lease12": {
+      "results": [
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_female12",
+          "exit": 0,
+          "seconds": 36.14292939999723,
+          "lease_seconds": 37.47682130000612
+        },
+        {
+          "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\jointward_refit11\\native_male12",
+          "exit": 0,
+          "seconds": 37.65923950000433,
+          "lease_seconds": 75.1394266999996
+        }
+      ],
+      "lease_seconds": 75.1414289999957
+    }
+  },
+  "jointward_fitting_reference": {
+    "female": [
+      "Sweater_1_Female_LOD0",
+      "Skinny_Jeans_Female_LOD0"
+    ],
+    "male": [
+      "Sweater_1_Male_LOD0",
+      "Chinos_Male_LOD0"
+    ]
+  },
+  "superseded": "Earlier flat/bib exotics, face-fitted mask-like veil and male lattice with an absent trouser reference are not final source variants. Use the32 exact final hashes and portable_candidate06."
 }

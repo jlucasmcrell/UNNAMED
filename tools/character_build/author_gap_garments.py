@@ -104,16 +104,20 @@ class Garment:
             return self.fit_reference.fit_surface(centre)
         if not hasattr(self, 'surface_tree'):
             points, normals, bindings = [], [], []
+            names = getattr(self, 'fit_mesh_name', ['Body_LOD0'])
+            if isinstance(names, str):
+                names = [names]
+            matched = set()
             for index, node in enumerate(self.body.doc['nodes']):
                 if 'mesh' not in node:
                     continue
                 if getattr(self,'fit_outer_only',False) and node.get('name','').endswith('_lining'):
                     continue
-                names = getattr(self, 'fit_mesh_name', ['Body_LOD0'])
-                if isinstance(names, str):
-                    names = [names]
-                if not any(name in node.get('name', '') + self.body.doc['meshes'][node['mesh']].get('name', '') for name in names):
+                mesh_name = node.get('name', '') + self.body.doc['meshes'][node['mesh']].get('name', '')
+                found = {name for name in names if name in mesh_name}
+                if not found:
                     continue
+                matched.update(found)
                 transform = self.world(index)
                 skin = self.body.doc['skins'][node['skin']]
                 for primitive in self.body.doc['meshes'][node['mesh']]['primitives']:
@@ -132,6 +136,7 @@ class Garment:
                     for joints, weights in zip(self.body.read(at['JOINTS_0']).astype(int), self.body.read(at['WEIGHTS_0'])):
                         bindings.append([(self.body.doc['nodes'][skin['joints'][joint]]['name'], float(weight))
                                          for joint, weight in zip(joints, weights) if weight > 0])
+            assert not set(names)-matched, f'Missing actual fitting mesh: {sorted(set(names)-matched)}'
             self.surface_points, self.surface_normals, self.surface_bindings = np.array(points), np.array(normals), bindings
             self.surface_tree = cKDTree(self.surface_points)
         _, nearest = self.surface_tree.query(centre)
@@ -677,20 +682,13 @@ def jointward_mesh(g):
 def veil_collar(g):
     g.materials=exotic_materials();head=g.point('Head');neck=g.point('Neck')
     g.materials[2]['pbrMetallicRoughness']['baseColorFactor']=[1,1,1,1]
-    # The cloth follows this body's actual face envelope, including its nose;
-    # a constant plane either floats at the cheeks or intersects the nose.
+    # Measure the face's forward envelope, then hang the cloth freely below
+    # that profile. Fitting every row onto the face would make a tight mask.
     g.fit_surface(head)
     face_tree=cKDTree(g.surface_points[:,:2])
     def face_front(x,y):
         _,near=face_tree.query([x,y],k=min(24,len(g.surface_points)))
         return float(g.surface_points[np.atleast_1d(near),2].max())
-    for chain,x in enumerate([-.085,0,.085]):
-        parent='Head'
-        for segment in range(4):
-            y=head[1]+.065-segment*.070
-            point=np.array([x,y,face_front(x,y)+.020])
-            name=f'cloth_gap_veil_{chain}_{segment}';g.secondary_bone(name,parent,point);parent=name
-    g.chains['cloth_gap_veil']={'stiffness':.82,'drag':.72,'gravity':.025,'radius':.004,'idle_drift':.06}
     rows=[]
     for row in range(49):
         t=row/48
@@ -701,8 +699,19 @@ def veil_collar(g):
             x,y,_=cloth[row,column];cloth[row,column,2]=face_front(x,y)+.020
     smooth=gaussian_filter(cloth[:,:,2],sigma=3,mode='nearest')
     smooth+=max(0,float(np.max(cloth[:,:,2]-smooth)))
-    cloth[:,:,2]=smooth
+    hanging=np.max(smooth,axis=0)
+    for row in range(len(cloth)):
+        t=row/(len(cloth)-1)
+        cloth[row,:,2]=hanging+.0025*np.cos(np.linspace(-4*math.pi,4*math.pi,len(hanging)))*(t*.8+.2)
     rows=cloth.tolist()
+    for chain,x in enumerate([-.085,0,.085]):
+        parent='Head'
+        for segment in range(4):
+            row=min(48,round(segment*.070/.210*48))
+            column=int(np.argmin(abs(cloth[row,:,0]-x)))
+            point=cloth[row,column]
+            name=f'cloth_gap_veil_{chain}_{segment}';g.secondary_bone(name,parent,point);parent=name
+    g.chains['cloth_gap_veil']={'stiffness':.82,'drag':.72,'gravity':.025,'radius':.004,'idle_drift':.06}
     def binding(point):
         horizontal=float(np.clip((point[0]+.085)/.085,0,2));left=min(1,int(horizontal));blend=horizontal-left
         vertical=float(np.clip((head[1]+.065-point[1])/.07,0,3));top=min(2,int(vertical));lower=vertical-top

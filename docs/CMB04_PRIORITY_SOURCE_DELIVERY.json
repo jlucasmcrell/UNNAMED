@@ -73,5 +73,7 @@
       "bytes": 3952748,
       "sha256": "e346a346f3278f14aed3425ba2ac5765bab0be91cf73b943944015dccbd0cca5"
     }
-  ]
+  ],
+  "final_delivery": "CMB04_DELIVERY.json",
+  "receipt_scope": "Historic source/progress receipt. Install only the32 final current-Creator variants and source hashes in CMB04_DELIVERY.json, not earlier candidates."
 }
