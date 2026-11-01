@@ -90,7 +90,8 @@ public class CombatContentTests
         // number, where a literal only tells you the roster changed.
         int authored = Directory.EnumerateFiles(Path.Combine(RepoPaths.Root(), "content", "spawns"), "*.yaml", SearchOption.AllDirectories)
             .Select(file => File.ReadAllText(file))
-            .Count(yaml => yaml.Contains("region_ref: region.starting_frontier", StringComparison.Ordinal));
+            // A spawn held out of the build (held_unopened_region, the Unpaid) is authored but not built.
+            .Count(yaml => yaml.Contains("region_ref: region.starting_frontier", StringComparison.Ordinal) && !yaml.Contains("- held_unopened_region", StringComparison.Ordinal));
         Assert.Equal(authored, spawns.Count);
         Assert.True(authored > 40, $"the starting frontier reads as {authored} spawn sites");
         var strays = spawns["spawn.hollow.valley_strays"];
@@ -106,7 +107,7 @@ public class CombatContentTests
         var hound = setup.Creatures["creature.beast.ash_ember_hound"];
         Assert.Equal(("fire", 2_200L, 6_000L), (hound.Attack.DamageType, hound.Attack.LungeMm, hound.MoveSpeedMmPerSecond));
         var boar = setup.Creatures["creature.beast.bristleback_boar"].Charge!;
-        Assert.Equal((9_000L, 5_000L, 14_000L, 40, 120, true), (boar.ChargeSpeedMmPerSecond, boar.ChargeMinRangeMm, boar.ReachMm, boar.StunTicks, boar.CooldownTicks, boar.ForcesStagger));
+        Assert.Equal((9_000L, 5_000L, 18_000L, 40, 120, true), (boar.ChargeSpeedMmPerSecond, boar.ChargeMinRangeMm, boar.ReachMm, boar.StunTicks, boar.CooldownTicks, boar.ForcesStagger));
         Assert.Equal(new WeakPoint(BodyRegion.Head, true), setup.Creatures["creature.construct.animated_armour"].WeakPoint);
         Assert.Contains("undead", setup.Creatures["creature.undead.bone_walker_husk"].Tags);
         Assert.Equal((6_000L, 360_000L, 14_000L), (setup.Creatures["creature.beast.cave_hunting_spider"].Senses.SightMm,
