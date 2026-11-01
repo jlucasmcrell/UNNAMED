@@ -43,7 +43,7 @@ public class BarrowworksCustodianTests
 
         var custodian = setup.Combat.Creatures[Custodian];
         Assert.Equal(5, custodian.Level);
-        Assert.Equal(150, custodian.MaxHealth);
+        Assert.Equal(140, custodian.MaxHealth);   // fix/court-exit (56fbac24)
 
         // Phase 1 builds one blow and one charge; the brief asks for three telegraphed attacks, so the third is
         // recorded in OPEN_QUESTIONS rather than smuggled in as a second blow. Both of these telegraph: a windup

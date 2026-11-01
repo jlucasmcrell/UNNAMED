@@ -243,8 +243,9 @@ public class JumpAndCrouchTests
         // Crouched, it goes under - and halfway through, it cannot stand or jump.
         var crouched = Open(session, (149, 129.5), 0);
         Assert.Null(crouched.Submit(new CrouchCommand(crouched.Player, true)));
-        while (crouched.At.Z < 132)
+        for (int tick = 0; crouched.At.Z < 132; tick++)
         {
+            Assert.True(tick < 200, $"the crouched run stalled at z={crouched.At.Z} before reaching the beam's midline");
             crouched.Simulation.Enqueue(new MoveCommand(crouched.Player, new MoveIntent(0, 1000, Gait.Run, 0)));
             crouched.Tick();
         }
