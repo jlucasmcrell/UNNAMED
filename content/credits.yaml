@@ -195,6 +195,13 @@ sections:
       - binds: [creature_d5_tarantula_matriarch]
         text: "Spiders - characters with animations by Mixall, CC BY 4.0. Native tarantula skin, rig and six animations; converted and scaled for the hunting spider matriarch."
         url: "https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2"
+      - binds: [creature_matriarch_real_spider]
+        text: 'This work is based on "Spider with Animation" by maksroberthut, CC BY 4.0. The original surface and 4K maps are fitted to the unchanged rig and six animations from "Spiders - characters with animations" by Mixall, CC BY 4.0, and scaled for the Hunting Spider Matriarch.'
+        url: "https://sketchfab.com/3d-models/spider-with-animation-ba8149ca471a4708bfdba07460450815"
+        lines:
+          - "maksroberthut: https://sketchfab.com/maksroberthut"
+          - "Mixall: https://www.fab.com/listings/41eeeaca-af9e-43b2-8a71-0874356cebb2"
+          - "Creative Commons Attribution 4.0: https://creativecommons.org/licenses/by/4.0/"
       - binds: [creature_d5_stan_carved]
         text: "Stan - The Golem by ShyrAssets, CC BY 4.0. Original rig, native 2K surfaces and animations; Blender chipped-edge/surface geometry and faint violet joint seams for Otherreach. Rock064 surface normal texture by ambientCG, CC0."
         url: "https://www.fab.com/listings/0a80c04e-ad02-4bf3-a059-f98ee9bf782e"

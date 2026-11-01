@@ -16835,35 +16835,7 @@
       }
     },
     "creature.boss.den_gorge.matriarch": {
-      "model": "creature_d5_tarantula_matriarch",
-      "clips": {
-        "idle": "creature.creature_d5_tarantula_matriarch.idle",
-        "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
-        "walk": "creature.creature_d5_tarantula_matriarch.walk",
-        "run": "creature.creature_d5_tarantula_matriarch.walk",
-        "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
-        "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "death": "creature.creature_d5_tarantula_matriarch.dead",
-        "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
-        "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2",
-        "hit": "creature.creature_cave_hunting_spider.hit",
-        "idle_b": "creature.creature_cave_hunting_spider.idle_b",
-        "ability.creature.spider_bite_b": "creature.creature_cave_hunting_spider.attack_b",
-        "ability.creature.spider_bite_c": "creature.creature_cave_hunting_spider.attack_c"
-      },
-      "voice": "cave_hunting_spider",
-      "flesh": "chitin",
-      "blow": "sting",
-      "note": "D19 alias of the accepted 7a47ff2f native Mixall tarantula and all six matching 70-joint takes. Restore the private art delivery with this binding. No Nephila hit take: that skeleton is incompatible. No change to boss stats or canonical size.",
-      "steps": {
-        "walk": "scuttle",
-        "run": "scuttle_fast"
-      },
-      "uniform_scale": 2.3
-    },
-    "creature.beast.hunting_spider_matriarch": {
-      "model": "creature_d5_tarantula_matriarch",
+      "model": "creature_matriarch_real_spider",
       "clips": {
         "idle": "creature.creature_d5_tarantula_matriarch.idle",
         "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
@@ -16879,7 +16851,31 @@
       "voice": "cave_hunting_spider",
       "flesh": "chitin",
       "blow": "sting",
-      "note": "Distinct Mixall native brown/orange tarantula, 3m body length, original six takes/rig and full native 2K diffuse. Source has no dedicated hit take; not falsely borrowed from Nephila. Gait pace remains subject to native conversion review.",
+      "note": "Matriarch re-body: owned MR-0392 Spider with Animation by maksroberthut (CC BY 4.0), full native 34,396-triangle surface and 4K maps fitted to the unchanged Mixall 70-joint rest/inverse-bind contract. All six existing tarantula takes remain byte-identical; no incompatible Nephila variants or invented hit take. Install the pinned Matriarch re-body art delta. Same grand scale, moves, timings, stats, loot and great chamber.",
+      "steps": {
+        "walk": "scuttle",
+        "run": "scuttle_fast"
+      },
+      "uniform_scale": 2.3
+    },
+    "creature.beast.hunting_spider_matriarch": {
+      "model": "creature_matriarch_real_spider",
+      "clips": {
+        "idle": "creature.creature_d5_tarantula_matriarch.idle",
+        "idle_2": "creature.creature_d5_tarantula_matriarch.idle_2",
+        "walk": "creature.creature_d5_tarantula_matriarch.walk",
+        "run": "creature.creature_d5_tarantula_matriarch.walk",
+        "attack": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "attack_2": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "death": "creature.creature_d5_tarantula_matriarch.dead",
+        "ability.creature.spider_bite": "creature.creature_d5_tarantula_matriarch.attack_1",
+        "ability.creature.matriarch_lunge": "creature.creature_d5_tarantula_matriarch.attack_2",
+        "ability.creature.hunting_spider_matriarch_heavy": "creature.creature_d5_tarantula_matriarch.attack_2"
+      },
+      "voice": "cave_hunting_spider",
+      "flesh": "chitin",
+      "blow": "sting",
+      "note": "Retired beast binding shares the Matriarch's real MR-0392 spider surface, fitted to the unchanged Mixall 70-joint contract and six native takes. No invented hit or foreign-rig variants. See the Matriarch re-body delivery receipt and credits.",
       "steps": {
         "walk": "scuttle",
         "run": "scuttle_fast"
