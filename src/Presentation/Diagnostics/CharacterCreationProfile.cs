@@ -48,11 +48,25 @@ public partial class CharacterCreationProfile : Node
                     figure.Free();
                 }
             bool mutationControls = false;
+            string? otherRoot = args.FirstOrDefault(arg => arg.StartsWith("--other-root=", StringComparison.Ordinal))?["--other-root=".Length..];
             if (args.Contains("--mutation-controls"))
             {
+                ArtLibrary rightArt = art;
+                if (otherRoot is not null)
+                {
+                    otherRoot = Path.GetFullPath(otherRoot);
+                    if (string.Equals(otherRoot, package, StringComparison.OrdinalIgnoreCase))
+                        throw new InvalidDataException("Root isolation requires distinct directories");
+                    ArtLibrary.FallbackRoot = Path.Combine(otherRoot, "fallback");
+                    rightArt = new ArtLibrary(Path.Combine(otherRoot, "primary"), useTextureCache: true);
+                    art.ReleaseModels("humgen_named_mara_ling");
+                }
                 var left = SkinnedFigure.Create(art, bindings, "npc.cairnwold.mara_ling")!;
-                var right = SkinnedFigure.Create(art, bindings, "npc.cairnwold.mara_ling")!;
+                var right = SkinnedFigure.Create(rightArt, bindings, "npc.cairnwold.mara_ling")!;
                 AddChild(left); AddChild(right);
+                if (otherRoot is not null && (GeometryFingerprint(left) != GeometryFingerprint(right)
+                    || TextureFingerprint(left) != TextureFingerprint(right)))
+                    throw new InvalidDataException("Identical relocated roots produced different actors");
                 var leftBody = left.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
                     .First(mesh => mesh.Name.ToString().EndsWith("_Body_LOD0", StringComparison.Ordinal));
                 var rightBody = right.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
@@ -73,7 +87,7 @@ public partial class CharacterCreationProfile : Node
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                 left.Free(); right.Free();
             }
-            File.WriteAllText(args[1], JsonSerializer.Serialize(new { development_only = true, gpu = false, timings, mutationControls, artProblems = art.Problems }));
+            File.WriteAllText(args[1], JsonSerializer.Serialize(new { development_only = true, gpu = false, timings, mutationControls, otherRoot, artProblems = art.Problems }));
             CaptureQuit.At(this);
         }
         catch (Exception error) { GD.PushError(error.ToString()); CaptureQuit.At(this, 1); }

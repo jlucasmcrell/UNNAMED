@@ -101,23 +101,25 @@ public sealed partial class ArtLibrary
     private const string SceneCacheFormat = "v7"; // Original geometry casts shadows; invalidate custom position-only proxies in v6.
     private readonly TextureCache? _interiorBuildCache;
     private readonly TextureCache? _fallbackCache;
+    private readonly string? _fallbackRoot;
 
     public ArtLibrary(string? root, bool useTextureCache = false, string? sceneCachePrefix = null, bool buildSceneCache = false)
     {
         Root = root;
+        _fallbackRoot = FallbackRoot;
         _sceneCachePrefix = sceneCachePrefix;
         _buildSceneCache = buildSceneCache;
-        _nativeSceneRoot = sceneCachePrefix is not null && FallbackRoot is not null
-            ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString(), SceneCacheFormat) : null;
+        _nativeSceneRoot = sceneCachePrefix is not null && _fallbackRoot is not null
+            ? Path.Combine(_fallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString(), SceneCacheFormat) : null;
         Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache,
             _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache && _nativeSceneRoot is not null);
-        if (FallbackRoot is not null && !string.Equals(root, FallbackRoot, StringComparison.OrdinalIgnoreCase))
-            _fallbackCache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? FallbackRoot : null,
+        if (_fallbackRoot is not null && !string.Equals(root, _fallbackRoot, StringComparison.OrdinalIgnoreCase))
+            _fallbackCache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? _fallbackRoot : null,
                 BuildTextureCache, _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache && _nativeSceneRoot is not null);
         // Build-only cache in the owned depot, never its primary texture-cache junction. Normal play loads the
         // shared BC7 resources referenced by the native scenes; no extra texture dictionary retains the interior.
-        _interiorBuildCache = buildSceneCache && _nativeSceneRoot is not null && FallbackRoot is not null
-            ? new TextureCache(Path.Combine(FallbackRoot, "barrowworks_materials"), true,
+        _interiorBuildCache = buildSceneCache && _nativeSceneRoot is not null && _fallbackRoot is not null
+            ? new TextureCache(Path.Combine(_fallbackRoot, "barrowworks_materials"), true,
                 Path.Combine(_nativeSceneRoot, "textures"), true) : null;
     }
 
@@ -138,8 +140,8 @@ public sealed partial class ArtLibrary
         {
             if (Root is not null)
                 yield return Root;
-            if (FallbackRoot is not null && !string.Equals(FallbackRoot, Root, StringComparison.OrdinalIgnoreCase))
-                yield return FallbackRoot;
+            if (_fallbackRoot is not null && !string.Equals(_fallbackRoot, Root, StringComparison.OrdinalIgnoreCase))
+                yield return _fallbackRoot;
         }
     }
 
@@ -183,7 +185,7 @@ public sealed partial class ArtLibrary
     public TextureCache Cache { get; }
 
     private TextureCache CacheFor(string path) => _fallbackCache is not null
-        && string.Equals(WorkspaceOf(path), FallbackRoot, StringComparison.OrdinalIgnoreCase) ? _fallbackCache : Cache;
+        && string.Equals(WorkspaceOf(path), _fallbackRoot, StringComparison.OrdinalIgnoreCase) ? _fallbackCache : Cache;
 
     /// <summary>What the views drew from this library and what they drew in greybox, by semantic ID (Phase A's coverage report).</summary>
     public ArtCoverage Coverage { get; } = new();
@@ -499,7 +501,7 @@ public sealed partial class ArtLibrary
 
     /// <summary>A workspace named in a report: <c>depot</c> for the fallback, <c>region</c> for the primary, with the path for the log.</summary>
     private string WorkspaceLabel(string workspace) =>
-        string.Equals(workspace, FallbackRoot, StringComparison.OrdinalIgnoreCase) ? $"the depot ({workspace})"
+        string.Equals(workspace, _fallbackRoot, StringComparison.OrdinalIgnoreCase) ? $"the depot ({workspace})"
         : string.Equals(workspace, Root, StringComparison.OrdinalIgnoreCase) ? $"the region ({workspace})"
         : workspace;
 
@@ -1411,8 +1413,8 @@ public sealed partial class ArtLibrary
         try
         {
             string folder = Path.Combine(Root, "materials", id);
-            if (!Directory.Exists(folder) && FallbackRoot is not null && Directory.Exists(Path.Combine(FallbackRoot, "materials", id)))
-                folder = Path.Combine(FallbackRoot, "materials", id);
+            if (!Directory.Exists(folder) && _fallbackRoot is not null && Directory.Exists(Path.Combine(_fallbackRoot, "materials", id)))
+                folder = Path.Combine(_fallbackRoot, "materials", id);
             string record = Path.Combine(folder, id + "_material.json");
             if (!File.Exists(record))
             {

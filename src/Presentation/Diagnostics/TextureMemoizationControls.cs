@@ -12,6 +12,7 @@ public partial class TextureMemoizationControls : Node
         try
         {
             if (DisplayServer.GetName() != "headless") throw new InvalidOperationException("Controls require --headless");
+            VerifyRootIsolation();
             OS.SetEnvironment("OTHERREACH_TEXTURE_AUDIT", "1");
             using var compressed = Image.CreateFromData(2048, 2048, false, Image.Format.BptcRgba, new byte[2048 * 2048]);
             var signed = new ReadbackCountingTexture { Data = compressed };
@@ -50,12 +51,44 @@ public partial class TextureMemoizationControls : Node
             finally { File.Delete(file); }
             File.WriteAllText(OS.GetCmdlineUserArgs()[0], JsonSerializer.Serialize(new { status = "PASS", development_only = true,
                 compressed_audit_reads = signed.Reads, dye_mean_reads = raw.Reads - before, uncompressed_rejected = refused,
-                same_dye_output = first.AlbedoColor == second.AlbedoColor, source_hash_scope = "per ArtLibrary" }));
+                same_dye_output = first.AlbedoColor == second.AlbedoColor, source_hash_scope = "per ArtLibrary", root_isolation = true }));
             GD.Print("TEXTURE_MEMOIZATION_CONTROLS_PASS");
             figure.Free();
             CaptureQuit.At(this);
         }
         catch (Exception error) { GD.PushError(error.ToString()); CaptureQuit.At(this, 1); }
+    }
+
+    private static void VerifyRootIsolation()
+    {
+        string fixture = Path.Combine(Path.GetTempPath(), "otherreach-root-control-" + Guid.NewGuid().ToString("N"));
+        string? original = ArtLibrary.FallbackRoot;
+        try
+        {
+            string FileAt(string scope)
+            {
+                string path = Path.Combine(fixture, scope, "fallback", "rigged", "synthetic", "marker.txt");
+                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+                File.WriteAllText(path, scope);
+                return path;
+            }
+            string expectedA = FileAt("a"), expectedB = FileAt("b");
+            ArtLibrary.FallbackRoot = Path.Combine(fixture, "a", "fallback");
+            var left = new ArtLibrary(Path.Combine(fixture, "a", "primary"));
+            ArtLibrary.FallbackRoot = Path.Combine(fixture, "b", "fallback");
+            var right = new ArtLibrary(Path.Combine(fixture, "b", "primary"));
+            if (left.RiggedFile("synthetic", "marker.txt") != expectedA || right.RiggedFile("synthetic", "marker.txt") != expectedB)
+                throw new InvalidDataException("Changing a new world's fallback redirected an existing ArtLibrary");
+        }
+        finally
+        {
+            ArtLibrary.FallbackRoot = original;
+            string absolute = Path.GetFullPath(fixture);
+            if (!absolute.StartsWith(Path.GetFullPath(Path.GetTempPath()), StringComparison.OrdinalIgnoreCase)
+                || !Path.GetFileName(absolute).StartsWith("otherreach-root-control-", StringComparison.Ordinal))
+                throw new InvalidDataException("Unexpected synthetic fixture cleanup path");
+            Directory.Delete(absolute, recursive: true);
+        }
     }
 }
 
