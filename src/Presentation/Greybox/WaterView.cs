@@ -450,11 +450,12 @@ void vertex() {
 }
 
 void fragment() {
-    // Two phases of the ripple field carried downstream, each reset as the other peaks, so the pattern flows without stretching.
+    // Carry both procedural fields continuously downstream. Only the blend weight wraps:
+    // resetting sampling coordinates rewinds a fully visible field every half-cycle.
     vec2 p = world_pos.xz * ripple_scale;
     float t = TIME * flow_speed * 0.25;
-    float ph0 = fract(t), ph1 = fract(t + 0.5);
-    float w = abs(1.0 - 2.0 * ph0);
+    float ph0 = t, ph1 = t + 0.5;
+    float w = abs(1.0 - 2.0 * fract(t));
     vec2 s = mix(slope(p - flow_dir * ph0 * 2.0), slope(p - flow_dir * ph1 * 2.0 + vec2(3.7, 1.3)), 1.0 - w);
     s += slope(p * 2.7 - flow_dir * TIME * flow_speed * 0.35) * 0.35;
     vec3 n = normalize(vec3(-s.x * ripple_strength, 1.0, -s.y * ripple_strength));
