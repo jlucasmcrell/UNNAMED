@@ -1,0 +1,1171 @@
+{
+  "status": "IN_PROGRESS_NATIVE_CREATOR_PIPELINE_NOT_VISUALLY_APPROVED",
+  "recorded": "2026-10-31T20:39:26.324861-04:00",
+  "native_exports": [
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_aventail__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.aventail",
+        "review_id": "CMB04-aventail",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_aventail__humgen_creator_female\\gap_aventail__humgen_creator_female_rigged.glb",
+        "source_sha256": "4b19907628daa7490c1490906be7b90bfcac426abd0a168e612a679deca0fba8",
+        "native_meshes": [
+          "gap_aventail_humgen_creator_female_gap_aventail_LOD0",
+          "gap_aventail_humgen_creator_female_gap_aventail_LOD1",
+          "gap_aventail_humgen_creator_female_gap_aventail_LOD2",
+          "gap_aventail_humgen_creator_female_gap_aventail_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_aventail__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.aventail",
+        "review_id": "CMB04-aventail",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_aventail__humgen_creator_male\\gap_aventail__humgen_creator_male_rigged.glb",
+        "source_sha256": "eb800bb23e995c6bd4d8a7c75fb530249d5199a3733ba814b5ea79ab9bd1f583",
+        "native_meshes": [
+          "gap_aventail_humgen_creator_male_gap_aventail_LOD0",
+          "gap_aventail_humgen_creator_male_gap_aventail_LOD1",
+          "gap_aventail_humgen_creator_male_gap_aventail_LOD2",
+          "gap_aventail_humgen_creator_male_gap_aventail_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_besagews__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "chest",
+        "item": "item.armor.besagews",
+        "review_id": "CMB04-besagews",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_besagews__humgen_creator_female\\gap_besagews__humgen_creator_female_rigged.glb",
+        "source_sha256": "62fa2e65af328c1d34bfa22cf81f28fc572518e1d105376275cb40cbaeb8c9df",
+        "native_meshes": [
+          "gap_besagews_humgen_creator_female_gap_besagews_LOD0",
+          "gap_besagews_humgen_creator_female_gap_besagews_LOD1",
+          "gap_besagews_humgen_creator_female_gap_besagews_LOD2",
+          "gap_besagews_humgen_creator_female_gap_besagews_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "declared_garment_helpers": [
+          "cloth_gap_besagew_Left_0",
+          "cloth_gap_besagew_Left_1",
+          "cloth_gap_besagew_Right_0",
+          "cloth_gap_besagew_Right_1"
+        ],
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": [
+            "cloth_gap_besagew_Left_0",
+            "cloth_gap_besagew_Left_1",
+            "cloth_gap_besagew_Right_0",
+            "cloth_gap_besagew_Right_1"
+          ]
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_besagews__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "chest",
+        "item": "item.armor.besagews",
+        "review_id": "CMB04-besagews",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_besagews__humgen_creator_male\\gap_besagews__humgen_creator_male_rigged.glb",
+        "source_sha256": "46dd1cd60e5323351bbf58904314502b82f9fa2dd77b674a20b832665ceb0dc4",
+        "native_meshes": [
+          "gap_besagews_humgen_creator_male_gap_besagews_LOD0",
+          "gap_besagews_humgen_creator_male_gap_besagews_LOD1",
+          "gap_besagews_humgen_creator_male_gap_besagews_LOD2",
+          "gap_besagews_humgen_creator_male_gap_besagews_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "declared_garment_helpers": [
+          "cloth_gap_besagew_Left_0",
+          "cloth_gap_besagew_Left_1",
+          "cloth_gap_besagew_Right_0",
+          "cloth_gap_besagew_Right_1"
+        ],
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": [
+            "cloth_gap_besagew_Left_0",
+            "cloth_gap_besagew_Left_1",
+            "cloth_gap_besagew_Right_0",
+            "cloth_gap_besagew_Right_1"
+          ]
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_bevor__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.bevor",
+        "review_id": "CMB04-bevor",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_bevor__humgen_creator_female\\gap_bevor__humgen_creator_female_rigged.glb",
+        "source_sha256": "8f495db95cc1fc25052c6bd39a62d533e3102a27121b2c5753fb5fdf5fb036fe",
+        "native_meshes": [
+          "gap_bevor_humgen_creator_female_gap_bevor_LOD0",
+          "gap_bevor_humgen_creator_female_gap_bevor_LOD1",
+          "gap_bevor_humgen_creator_female_gap_bevor_LOD2",
+          "gap_bevor_humgen_creator_female_gap_bevor_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_bevor__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.bevor",
+        "review_id": "CMB04-bevor",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_bevor__humgen_creator_male\\gap_bevor__humgen_creator_male_rigged.glb",
+        "source_sha256": "7f2923f2817d663b2c790c0a2176675b85d01657ba1429da06d26f986b2433f7",
+        "native_meshes": [
+          "gap_bevor_humgen_creator_male_gap_bevor_LOD0",
+          "gap_bevor_humgen_creator_male_gap_bevor_LOD1",
+          "gap_bevor_humgen_creator_male_gap_bevor_LOD2",
+          "gap_bevor_humgen_creator_male_gap_bevor_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_couters__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "hands",
+        "item": "item.armor.couters",
+        "review_id": "CMB04-couters",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_couters__humgen_creator_female\\gap_couters__humgen_creator_female_rigged.glb",
+        "source_sha256": "d61363af1a008f0ea0db9166603a1289d1b8f86b7ccdd192000663fd61f9be84",
+        "native_meshes": [
+          "gap_couters_humgen_creator_female_gap_couters_LOD0",
+          "gap_couters_humgen_creator_female_gap_couters_LOD1",
+          "gap_couters_humgen_creator_female_gap_couters_LOD2",
+          "gap_couters_humgen_creator_female_gap_couters_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_couters__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "hands",
+        "item": "item.armor.couters",
+        "review_id": "CMB04-couters",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_couters__humgen_creator_male\\gap_couters__humgen_creator_male_rigged.glb",
+        "source_sha256": "017b47af9d0bcfafaa36be25370ac7d2ded9d37132ba474b14ed8a84ba7fb3c9",
+        "native_meshes": [
+          "gap_couters_humgen_creator_male_gap_couters_LOD0",
+          "gap_couters_humgen_creator_male_gap_couters_LOD1",
+          "gap_couters_humgen_creator_male_gap_couters_LOD2",
+          "gap_couters_humgen_creator_male_gap_couters_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_faulds__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "legs",
+        "item": "item.armor.faulds",
+        "review_id": "CMB04-faulds",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_faulds__humgen_creator_female\\gap_faulds__humgen_creator_female_rigged.glb",
+        "source_sha256": "9be13a95e3a3a72eca1ebe5abfa40ef57eeb478c8aaadbd69969d77fdf9482c6",
+        "native_meshes": [
+          "gap_faulds_humgen_creator_female_gap_faulds_LOD0",
+          "gap_faulds_humgen_creator_female_gap_faulds_LOD1",
+          "gap_faulds_humgen_creator_female_gap_faulds_LOD2",
+          "gap_faulds_humgen_creator_female_gap_faulds_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_faulds__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "legs",
+        "item": "item.armor.faulds",
+        "review_id": "CMB04-faulds",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_faulds__humgen_creator_male\\gap_faulds__humgen_creator_male_rigged.glb",
+        "source_sha256": "34ed176145138aa46f85c91f5e7e9c1b542a2568dbbe8b6b4058a3dc9d2d977e",
+        "native_meshes": [
+          "gap_faulds_humgen_creator_male_gap_faulds_LOD0",
+          "gap_faulds_humgen_creator_male_gap_faulds_LOD1",
+          "gap_faulds_humgen_creator_male_gap_faulds_LOD2",
+          "gap_faulds_humgen_creator_male_gap_faulds_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_groin_guard__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "legs",
+        "item": "item.armor.groin_guard",
+        "review_id": "CMB04-groin_guard",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_groin_guard__humgen_creator_female\\gap_groin_guard__humgen_creator_female_rigged.glb",
+        "source_sha256": "8b30f551cab0184f4db13abf5cbf870af7eea78f189fcc78c2a32ecce5c5efee",
+        "native_meshes": [
+          "gap_groin_guard_humgen_creator_female_gap_groin_guard_LOD0",
+          "gap_groin_guard_humgen_creator_female_gap_groin_guard_LOD1",
+          "gap_groin_guard_humgen_creator_female_gap_groin_guard_LOD2",
+          "gap_groin_guard_humgen_creator_female_gap_groin_guard_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_groin_guard__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "legs",
+        "item": "item.armor.groin_guard",
+        "review_id": "CMB04-groin_guard",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_groin_guard__humgen_creator_male\\gap_groin_guard__humgen_creator_male_rigged.glb",
+        "source_sha256": "328028522c59fabba91d165e4f3fb748402fe3cbe4f1b9361e9512677484d893",
+        "native_meshes": [
+          "gap_groin_guard_humgen_creator_male_gap_groin_guard_LOD0",
+          "gap_groin_guard_humgen_creator_male_gap_groin_guard_LOD1",
+          "gap_groin_guard_humgen_creator_male_gap_groin_guard_LOD2",
+          "gap_groin_guard_humgen_creator_male_gap_groin_guard_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_mail_standard__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.mail_standard",
+        "review_id": "CMB04-mail_standard",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_mail_standard__humgen_creator_female\\gap_mail_standard__humgen_creator_female_rigged.glb",
+        "source_sha256": "378d88ded563094cf7609a84a0103c05ccd99e2efddd79185414d988a7f715d1",
+        "native_meshes": [
+          "gap_mail_standard_humgen_creator_female_gap_mail_standard_LOD0",
+          "gap_mail_standard_humgen_creator_female_gap_mail_standard_LOD1",
+          "gap_mail_standard_humgen_creator_female_gap_mail_standard_LOD2",
+          "gap_mail_standard_humgen_creator_female_gap_mail_standard_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_mail_standard__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.mail_standard",
+        "review_id": "CMB04-mail_standard",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_mail_standard__humgen_creator_male\\gap_mail_standard__humgen_creator_male_rigged.glb",
+        "source_sha256": "c3a5d53cba52e650c91d570801bea101ae2a41f80be3db40ee829fb658ce8bb1",
+        "native_meshes": [
+          "gap_mail_standard_humgen_creator_male_gap_mail_standard_LOD0",
+          "gap_mail_standard_humgen_creator_male_gap_mail_standard_LOD1",
+          "gap_mail_standard_humgen_creator_male_gap_mail_standard_LOD2",
+          "gap_mail_standard_humgen_creator_male_gap_mail_standard_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_poleyns__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "legs",
+        "item": "item.armor.poleyns",
+        "review_id": "CMB04-poleyns",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_poleyns__humgen_creator_female\\gap_poleyns__humgen_creator_female_rigged.glb",
+        "source_sha256": "4d68a5156a06f381cb61c1b75bab3fc974d670c7f4b1cf41842058a5894528d7",
+        "native_meshes": [
+          "gap_poleyns_humgen_creator_female_gap_poleyns_LOD0",
+          "gap_poleyns_humgen_creator_female_gap_poleyns_LOD1",
+          "gap_poleyns_humgen_creator_female_gap_poleyns_LOD2",
+          "gap_poleyns_humgen_creator_female_gap_poleyns_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_poleyns__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "legs",
+        "item": "item.armor.poleyns",
+        "review_id": "CMB04-poleyns",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_poleyns__humgen_creator_male\\gap_poleyns__humgen_creator_male_rigged.glb",
+        "source_sha256": "9db8ca7c842b5039733a37bbe12d65f4e9793110d2d14a532b255cccab3cad1f",
+        "native_meshes": [
+          "gap_poleyns_humgen_creator_male_gap_poleyns_LOD0",
+          "gap_poleyns_humgen_creator_male_gap_poleyns_LOD1",
+          "gap_poleyns_humgen_creator_male_gap_poleyns_LOD2",
+          "gap_poleyns_humgen_creator_male_gap_poleyns_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_sabatons__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "feet",
+        "item": "item.armor.sabatons",
+        "review_id": "CMB04-sabatons",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_sabatons__humgen_creator_female\\gap_sabatons__humgen_creator_female_rigged.glb",
+        "source_sha256": "d21a0794cd39e973b95d029fea929eff4d696ad93e52e984e7be58b429aefba1",
+        "native_meshes": [
+          "gap_sabatons_humgen_creator_female_gap_sabatons_LOD0",
+          "gap_sabatons_humgen_creator_female_gap_sabatons_LOD1",
+          "gap_sabatons_humgen_creator_female_gap_sabatons_LOD2",
+          "gap_sabatons_humgen_creator_female_gap_sabatons_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_sabatons__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "feet",
+        "item": "item.armor.sabatons",
+        "review_id": "CMB04-sabatons",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_sabatons__humgen_creator_male\\gap_sabatons__humgen_creator_male_rigged.glb",
+        "source_sha256": "1809ad4cc052cdd860b2b234bd4f731920b5a531eaf4e833337a61d82819e58f",
+        "native_meshes": [
+          "gap_sabatons_humgen_creator_male_gap_sabatons_LOD0",
+          "gap_sabatons_humgen_creator_male_gap_sabatons_LOD1",
+          "gap_sabatons_humgen_creator_male_gap_sabatons_LOD2",
+          "gap_sabatons_humgen_creator_male_gap_sabatons_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.veil_collar",
+        "review_id": "CMB04-veil_collar",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_veil_collar__humgen_creator_female\\gap_veil_collar__humgen_creator_female_rigged.glb",
+        "source_sha256": "170e637bfaf895cea63dd3a0cfc4cef6ec2c3811b5099854dc7bb6d33c89c26f",
+        "native_meshes": [
+          "gap_veil_collar_humgen_creator_female_gap_veil_collar_LOD0",
+          "gap_veil_collar_humgen_creator_female_gap_veil_collar_LOD1",
+          "gap_veil_collar_humgen_creator_female_gap_veil_collar_LOD2",
+          "gap_veil_collar_humgen_creator_female_gap_veil_collar_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "declared_garment_helpers": [
+          "cloth_gap_veil_0_0",
+          "cloth_gap_veil_0_1",
+          "cloth_gap_veil_0_2",
+          "cloth_gap_veil_0_3",
+          "cloth_gap_veil_1_0",
+          "cloth_gap_veil_1_1",
+          "cloth_gap_veil_1_2",
+          "cloth_gap_veil_1_3",
+          "cloth_gap_veil_2_0",
+          "cloth_gap_veil_2_1",
+          "cloth_gap_veil_2_2",
+          "cloth_gap_veil_2_3"
+        ],
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": [
+            "cloth_gap_veil_0_0",
+            "cloth_gap_veil_0_1",
+            "cloth_gap_veil_0_2",
+            "cloth_gap_veil_0_3",
+            "cloth_gap_veil_1_0",
+            "cloth_gap_veil_1_1",
+            "cloth_gap_veil_1_2",
+            "cloth_gap_veil_1_3",
+            "cloth_gap_veil_2_0",
+            "cloth_gap_veil_2_1",
+            "cloth_gap_veil_2_2",
+            "cloth_gap_veil_2_3"
+          ]
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.veil_collar",
+        "review_id": "CMB04-veil_collar",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_veil_collar__humgen_creator_male\\gap_veil_collar__humgen_creator_male_rigged.glb",
+        "source_sha256": "b1f24009227ffe54bcd8f7f808be217084ac70981bad916331377a882dbfa48c",
+        "native_meshes": [
+          "gap_veil_collar_humgen_creator_male_gap_veil_collar_LOD0",
+          "gap_veil_collar_humgen_creator_male_gap_veil_collar_LOD1",
+          "gap_veil_collar_humgen_creator_male_gap_veil_collar_LOD2",
+          "gap_veil_collar_humgen_creator_male_gap_veil_collar_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "declared_garment_helpers": [
+          "cloth_gap_veil_0_0",
+          "cloth_gap_veil_0_1",
+          "cloth_gap_veil_0_2",
+          "cloth_gap_veil_0_3",
+          "cloth_gap_veil_1_0",
+          "cloth_gap_veil_1_1",
+          "cloth_gap_veil_1_2",
+          "cloth_gap_veil_1_3",
+          "cloth_gap_veil_2_0",
+          "cloth_gap_veil_2_1",
+          "cloth_gap_veil_2_2",
+          "cloth_gap_veil_2_3"
+        ],
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": [
+            "cloth_gap_veil_0_0",
+            "cloth_gap_veil_0_1",
+            "cloth_gap_veil_0_2",
+            "cloth_gap_veil_0_3",
+            "cloth_gap_veil_1_0",
+            "cloth_gap_veil_1_1",
+            "cloth_gap_veil_1_2",
+            "cloth_gap_veil_1_3",
+            "cloth_gap_veil_2_0",
+            "cloth_gap_veil_2_1",
+            "cloth_gap_veil_2_2",
+            "cloth_gap_veil_2_3"
+          ]
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_voiders__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "chest",
+        "item": "item.armor.voiders",
+        "review_id": "CMB04-voiders",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_voiders__humgen_creator_female\\gap_voiders__humgen_creator_female_rigged.glb",
+        "source_sha256": "cd8bc131556edd969a8a63ba01c343510c0ac609e097f41cd987ed7a5271951e",
+        "native_meshes": [
+          "gap_voiders_humgen_creator_female_gap_voiders_LOD0",
+          "gap_voiders_humgen_creator_female_gap_voiders_LOD1",
+          "gap_voiders_humgen_creator_female_gap_voiders_LOD2",
+          "gap_voiders_humgen_creator_female_gap_voiders_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_voiders__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "chest",
+        "item": "item.armor.voiders",
+        "review_id": "CMB04-voiders",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_voiders__humgen_creator_male\\gap_voiders__humgen_creator_male_rigged.glb",
+        "source_sha256": "2468740788446c6d0c52b71ee7fa3580c599eda6be661b77e726c2fba734047e",
+        "native_meshes": [
+          "gap_voiders_humgen_creator_male_gap_voiders_LOD0",
+          "gap_voiders_humgen_creator_male_gap_voiders_LOD1",
+          "gap_voiders_humgen_creator_male_gap_voiders_LOD2",
+          "gap_voiders_humgen_creator_male_gap_voiders_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_whispergorget__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.whispergorget",
+        "review_id": "CMB04-whispergorget",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_whispergorget__humgen_creator_female\\gap_whispergorget__humgen_creator_female_rigged.glb",
+        "source_sha256": "0a81bf66a572243ce311d5cd6b0d07fc6c1717f63c114e19fe84628ef3858802",
+        "native_meshes": [
+          "gap_whispergorget_humgen_creator_female_gap_whispergorget_LOD0",
+          "gap_whispergorget_humgen_creator_female_gap_whispergorget_LOD1",
+          "gap_whispergorget_humgen_creator_female_gap_whispergorget_LOD2",
+          "gap_whispergorget_humgen_creator_female_gap_whispergorget_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_whispergorget__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.whispergorget",
+        "review_id": "CMB04-whispergorget",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_whispergorget__humgen_creator_male\\gap_whispergorget__humgen_creator_male_rigged.glb",
+        "source_sha256": "6a0faa0467d170b8530d83cbd8afc0a90d1fffef9b5ca95d7c9782299981106a",
+        "native_meshes": [
+          "gap_whispergorget_humgen_creator_male_gap_whispergorget_LOD0",
+          "gap_whispergorget_humgen_creator_male_gap_whispergorget_LOD1",
+          "gap_whispergorget_humgen_creator_male_gap_whispergorget_LOD2",
+          "gap_whispergorget_humgen_creator_male_gap_whispergorget_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls",
+          "original_authoring_bones": 102,
+          "original_authoring_rest_exact": true,
+          "declared_garment_helpers": []
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gorget_probe01\\primary\\rigged\\gap_gorget__humgen_creator_female\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.gorget",
+        "review_id": "CMB04-01",
+        "target_base": "humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_gorget__humgen_creator_female\\gap_gorget__humgen_creator_female_rigged.glb",
+        "source_sha256": "a7c258af38920adbedd8476247fee180d663bb5c86664ce98f8583ad7135335e",
+        "native_meshes": [
+          "gap_gorget_humgen_creator_female_gap_gorget_LOD0",
+          "gap_gorget_humgen_creator_female_gap_gorget_LOD1",
+          "gap_gorget_humgen_creator_female_gap_gorget_LOD2",
+          "gap_gorget_humgen_creator_female_gap_gorget_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Original gorget authored directly on unchanged native creator59 bind; same UpperChest ownership mapped to original HumGen spine.003 group, then normal custom-clothing field/export. Native carrier body and rig unmodified."
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    },
+    {
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gorget_probe01\\primary\\rigged\\gap_gorget__humgen_creator_male\\creator_part.json",
+      "contract": {
+        "kind": "equipment",
+        "slot": "head",
+        "item": "item.armor.gorget",
+        "review_id": "CMB04-01",
+        "target_base": "humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\rigged_native_base01\\gap_gorget__humgen_creator_male\\gap_gorget__humgen_creator_male_rigged.glb",
+        "source_sha256": "6e6c89b9068acd210aada39f0ac6574bcc7516e1c5e067cb0509fdac52192782",
+        "native_meshes": [
+          "gap_gorget_humgen_creator_male_gap_gorget_LOD0",
+          "gap_gorget_humgen_creator_male_gap_gorget_LOD1",
+          "gap_gorget_humgen_creator_male_gap_gorget_LOD2",
+          "gap_gorget_humgen_creator_male_gap_gorget_LOD3"
+        ],
+        "status": "NATIVE_REVIEW_CANDIDATE_NOT_BOUND",
+        "clearance_m": 0.0035,
+        "clearance_vertices_adjusted": 0,
+        "native_rest_error": 0.0,
+        "lod_geometry": "Original native source geometry retained at all four levels; no reduction claimed",
+        "solver": "kept",
+        "fit_audit": {
+          "method": "Original gorget authored directly on unchanged native creator59 bind; same UpperChest ownership mapped to original HumGen spine.003 group, then normal custom-clothing field/export. Native carrier body and rig unmodified."
+        },
+        "export_hook_sha256": {
+          "keep_humgen_clothing_keys.py": "e142b3478a70cb24f8b66df10bf99240b2e70f4683da4a525b4d978bc46db983",
+          "keep_humgen_headwear_keys.py": "cd5c7ac5b866c92e5478f8c9fa42691f76c002e0ef8a5d5e0c468d9ecdd5413a"
+        },
+        "covers_hair": false,
+        "preserve_underlayers": true
+      }
+    }
+  ],
+  "priority_cpu": {
+    "female_voiders": {
+      "status": "PASS",
+      "body": "humgen_creator_female",
+      "part": "voiders",
+      "hairBefore": 2,
+      "native_body_bones": 59,
+      "worn_lods": 4,
+      "art_problems": {},
+      "scope": "Staged normal item binding and WearEquipment/equip/unequip, native creator controls/hair/underlayers; not inventory-command/world-route or rendered-fit acceptance."
+    },
+    "female_besagews": {
+      "status": "PASS",
+      "body": "humgen_creator_female",
+      "part": "besagews",
+      "hairBefore": 2,
+      "native_body_bones": 59,
+      "worn_lods": 4,
+      "art_problems": {},
+      "scope": "Staged normal item binding and WearEquipment/equip/unequip, native creator controls/hair/underlayers; not inventory-command/world-route or rendered-fit acceptance."
+    },
+    "male_voiders": {
+      "status": "PASS",
+      "body": "humgen_creator_male",
+      "part": "voiders",
+      "hairBefore": 2,
+      "native_body_bones": 59,
+      "worn_lods": 4,
+      "art_problems": {},
+      "scope": "Staged normal item binding and WearEquipment/equip/unequip, native creator controls/hair/underlayers; not inventory-command/world-route or rendered-fit acceptance."
+    },
+    "male_besagews": {
+      "status": "PASS",
+      "body": "humgen_creator_male",
+      "part": "besagews",
+      "hairBefore": 2,
+      "native_body_bones": 59,
+      "worn_lods": 4,
+      "art_problems": {},
+      "scope": "Staged normal item binding and WearEquipment/equip/unequip, native creator controls/hair/underlayers; not inventory-command/world-route or rendered-fit acceptance."
+    }
+  },
+  "native_library": [
+    {
+      "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+      "identifier": "gap_besagews__humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_besagews__humgen_creator_female.blend",
+      "sha256": "941de7e95c433332fdf48e267b83919781690cdaca6c2e6c9e143ac137017974",
+      "owned_optimizer_pids": [
+        49568
+      ],
+      "source_blend_sha256": "66aeee81de60d9be9861ce4e5937c56b9340414500aacf2dc7a5e58bc18b5564",
+      "source_blend_unchanged": true,
+      "blender_preferences_saved": false,
+      "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+    },
+    {
+      "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+      "identifier": "gap_besagews__humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_besagews__humgen_creator_male.blend",
+      "sha256": "6e46cea30ef5076d912b2b18aa28c8828d304370c2a1e60ce324b1a53c2ff3ca",
+      "owned_optimizer_pids": [
+        42416
+      ],
+      "source_blend_sha256": "47089238383aac481f5062fd592688c628413d021d08800bc4ae882d79027876",
+      "source_blend_unchanged": true,
+      "blender_preferences_saved": false,
+      "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+    },
+    {
+      "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+      "identifier": "gap_voiders__humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_voiders__humgen_creator_female.blend",
+      "sha256": "b503077aabaf77e39fcf49ea45794a001779ad2e6b4813c0a603f9dbd7a56626",
+      "owned_optimizer_pids": [
+        22452
+      ],
+      "source_blend_sha256": "df674c65252c30d8336681ac27c8d99b90c0c79dd1c072f4c84c65138e4781f1",
+      "source_blend_unchanged": true,
+      "blender_preferences_saved": false,
+      "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+    },
+    {
+      "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+      "identifier": "gap_voiders__humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_voiders__humgen_creator_male.blend",
+      "sha256": "4067345faaa441388c8d492969c31cec1c979e1324badc4337045d6d644410fc",
+      "owned_optimizer_pids": [
+        44200
+      ],
+      "source_blend_sha256": "2a6c1365557d52ed1950e18e808cd8ee799cb6cb34e4699f249d4f1029e8ecc8",
+      "source_blend_unchanged": true,
+      "blender_preferences_saved": false,
+      "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+    },
+    {
+      "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+      "identifier": "gap_gorget__humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_gorget__humgen_creator_female.blend",
+      "sha256": "07bfb59a01c07604fe86931b9211f273dc7c8accb71509ad8bdf8d3333fc03b8",
+      "owned_optimizer_pids": [
+        34400
+      ],
+      "source_blend_sha256": "14fd75bdb8d7bd147bf56b498f99bfb937db1f25bd8aa2256b2706fdc8a1efdf",
+      "source_blend_unchanged": true,
+      "blender_preferences_saved": false,
+      "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+    },
+    {
+      "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+      "identifier": "gap_gorget__humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_gorget__humgen_creator_male.blend",
+      "sha256": "0c2e632660f4125418cee6c7ee6e285efd1d7790579d04c4632642a26e9d2708",
+      "owned_optimizer_pids": [
+        52988
+      ],
+      "source_blend_sha256": "c89f8a0332be40173101d7fc88024dfa79e7ddc2196507f002bb6e26afd112fd",
+      "source_blend_unchanged": true,
+      "blender_preferences_saved": false,
+      "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+    }
+  ],
+  "review": {
+    "gorget_female": "C:\\Otherreach_External_Assets\\NEXT_SYSTEMS_VISUALS\\armour_gaps\\gorget_native_female01",
+    "gorget_male": "C:\\Otherreach_External_Assets\\NEXT_SYSTEMS_VISUALS\\armour_gaps\\gorget_native_male01"
+  },
+  "voider_v1_rejection": "Producer inspected full-resolution attack details: mail reads too far onto outer upper sleeve. V1 clips/contracts/source preserved, not submitted as final art. Native downward-facing real-shirt underarm seam v2 exports separately in voider_seam02 and is required by the larger review overlay.",
+  "native_mail_kit": {
+    "source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\mail_kit01\\MAIL_KIT_SOURCE.json",
+    "material": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\mail_kit01\\MAIL_KIT_MATERIAL.json",
+    "method": "Original physically modelled four-in-one ring geometry baked by native Cycles CPU to full4K colour/coverage/normal, traditional linear alpha assembly, constant ORM; no learned synthesis or AO bake claim"
+  },
+  "remaining": [
+    "Native exports and real-time motion/clearance review for remaining pieces",
+    "Revised native voiders on both bodies; initial male v1 may be captured by already-frozen review batch and remains excluded from final handoff",
+    "Gorget six head-turn extremes",
+    "Actual glove open/fist, articulated shoe stride, skirt clearance, exotic silhouette/drift and all shipped LOD gates",
+    "Final item bindings/portable relative DDS subset/credit trail and verdict handoff",
+    "Native authoring library publication for final accepted variants; early voider preset is superseded, not game acceptance"
+  ],
+  "scope": "Current Creator female/male targets only. Native source and setup gates do not establish all identities, world/inventory/save-load fit or visual acceptance. No FINISHED or self-awarded Claude PASS."
+}

@@ -164,6 +164,25 @@ class Garment:
         result /= np.maximum(np.linalg.norm(result, axis=1)[:, None], 1e-12)
         self.normals = result.tolist()
 
+    def fit_underarm(self, centre, side):
+        """Sewn mail uses the actual downward-facing shirt seam, never the outer sleeve."""
+        reference=getattr(self,'fit_reference',self)
+        reference.fit_surface(centre)
+        if not hasattr(self,'underarm_surfaces'):self.underarm_surfaces={}
+        if side not in self.underarm_surfaces:
+            shoulder=self.point(side+'UpperArm');sign=1 if side=='Left' else -1
+            delta=reference.surface_points-shoulder
+            mask=((delta[:,0]*sign>-.055)&(delta[:,0]*sign<.055)
+                  &(delta[:,1]<-.025)&(delta[:,1]>-.15)
+                  &(np.abs(delta[:,2])<.105)&(reference.surface_normals[:,1]<-.45))
+            selected=np.flatnonzero(mask)
+            assert len(selected)>=8,('Native downward underarm seam absent',side,len(selected))
+            self.underarm_surfaces[side]=(cKDTree(reference.surface_points[selected]),selected)
+        tree,selected=self.underarm_surfaces[side];_,at=tree.query(centre);nearest=selected[at]
+        normal=reference.surface_normals[nearest]
+        fitted=np.asarray(centre)+normal*(getattr(reference,'fit_clearance',.008)-np.dot(np.asarray(centre)-reference.surface_points[nearest],normal))
+        return fitted,reference.surface_bindings[nearest],normal
+
     def clear_front(self, clearance=.015):
         """A rigid breastpiece clears the forward envelope, retaining both layers' spacing."""
         reference = self.fit_reference
@@ -340,9 +359,9 @@ def voiders(g):
         for side in ['Left','Right']:
             shoulder=g.point(side+'UpperArm');sign=1 if side=='Left' else -1;rows=[]
             for angle in np.linspace(math.pi*.17,math.pi*.92,17):
-                rows.append([g.fit_surface(shoulder+[sign*along,-.049*math.sin(angle),.049*math.cos(angle)])[0].tolist() for along in np.linspace(-.044,.066,33)])
-            start=len(g.uv);g.grid(rows,0,lambda point:g.fit_surface(point)[1])
-            for uv in g.uv[start:]:uv[0]*=.110/.0504;uv[1]*=math.pi*.75*.049/.048
+                rows.append([g.fit_underarm(shoulder+[sign*along,-.049*math.sin(angle),.049*math.cos(angle)],side)[0].tolist() for along in np.linspace(-.034,.034,33)])
+            start=len(g.uv);g.grid(rows,0,lambda point:g.fit_underarm(point,side)[1])
+            for uv in g.uv[start:]:uv[0]*=.068/.0504;uv[1]*=math.pi*.75*.049/.048
         return
     for side in ('Left', 'Right'):
         shoulder = g.point(side+'UpperArm')
@@ -687,7 +706,7 @@ def main():
     parser.add_argument('--underlayer', type=Path, help='Native frontier garment for the sewn voider seam; source bytes retained')
     parser.add_argument('--fabric',type=Path,help='Owned original Poly Haven rough_linen4K folder for the veil')
     parser.add_argument('--mail-kit',type=Path,help='Original geometry/native Cycles four-in-one full4K bake kit')
-    parser.add_argument('--underlayer-mesh',default='Frontier_Shirt_LOD0',help='Actual native shirt mesh suffix used for seam fitting')
+    parser.add_argument('--underlayer-mesh',nargs='+',default=['Frontier_Shirt_LOD0'],help='Actual native outer mesh suffixes used for seam fitting')
     parser.add_argument('--parts', nargs='+', default=['gorget','besagews','voiders'], choices=['gorget','besagews','voiders','bevor','aventail','mail_standard','couters','poleyns','groin_guard','faulds','sabatons','gauntlets','whispergorget','jointward_mesh','veil_collar','phase_laminate'])
     args = parser.parse_args()
     body = Glb(args.body)
@@ -705,10 +724,10 @@ def main():
         if part=='veil_collar':
             assert args.fabric,'Veil requires the owned original linen maps'
             garment.fabric=args.fabric
-        if part in ['voiders','bevor','aventail','couters','faulds','groin_guard','gauntlets','whispergorget','jointward_mesh','phase_laminate'] and args.underlayer:
+        if part in ['voiders','bevor','aventail','couters','poleyns','faulds','groin_guard','sabatons','gauntlets','whispergorget','jointward_mesh','phase_laminate'] and args.underlayer:
             reference=Garment(Glb(args.underlayer),'seam_reference')
             reference.fit_mesh_name=args.underlayer_mesh
-            if part=='jointward_mesh':
+            if part=='jointward_mesh' and args.underlayer_mesh==['Frontier_Shirt_LOD0']:
                 reference.fit_mesh_name=['Frontier_Shirt_LOD0','Frontier_Pants_LOD0']
             reference.fit_clearance=.002
             if args.body_id.startswith('humgen_creator_'):
@@ -719,7 +738,7 @@ def main():
         if hasattr(garment,'mailkit') and part!='jointward_mesh':
             garment.materials=exotic_materials()
             garment.materials[0]={'name':'Original four-in-one steel','pbrMetallicRoughness':{'baseColorFactor':[1,1,1,1],'metallicFactor':.94,'roughnessFactor':1},'doubleSided':True}
-        if args.underlayer and part in ['bevor','aventail','couters','faulds','groin_guard','gauntlets']:
+        if args.underlayer and part in ['bevor','aventail','couters','poleyns','faulds','groin_guard','sabatons','gauntlets']:
             garment.clear_underlayer(cuff_only=part=='gauntlets')
         if args.underlayer and part=='phase_laminate':
             garment.clear_front()

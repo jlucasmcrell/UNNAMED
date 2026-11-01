@@ -61,9 +61,10 @@ for vertex in obj.data.vertices:
 for group in obj.vertex_groups:
  if group.name in aliases:group.name=aliases[group.name]
 obj.name='gap_'+part;obj.data.update()
-solver=human.clothing.outfit.add_obj(obj,'full',recalculate_weights=False)
-assert all(rests[name]==(rig.data.bones[name].parent.name if rig.data.bones[name].parent else None,tuple(v for row in rig.data.bones[name].matrix_local for v in row)) for name in rests)
 slot=re.search(r'^slot:\s*(\w+)',(repo/'content/items/armor'/(part+'.yaml')).read_text(),re.M).group(1)
+solver=(human.clothing.footwear.add_obj(obj,recalculate_weights=False) if slot=='feet'
+        else human.clothing.outfit.add_obj(obj,'full',recalculate_weights=False))
+assert all(rests[name]==(rig.data.bones[name].parent.name if rig.data.bones[name].parent else None,tuple(v for row in rig.data.bones[name].matrix_local for v in row)) for name in rests)
 row=dict(art_id='gap_'+part,item_id='item.armor.'+part,review_id='CMB04-'+part,slot=slot,native_candidate_root='native_gap01',garment_bone_prefixes=['cloth_gap_'])
 export_candidate(human,row,work,work/'native_reference',sex,source,solver,0,dict(method='Exact canonical garment skin placed in original HumGen authoring rest, normal native custom-clothing field, complete native body/face controls',original_authoring_bones=len(rests),original_authoring_rest_exact=True,declared_garment_helpers=helpers))
 folder=work/'native_gap01/primary/rigged'/identifier
