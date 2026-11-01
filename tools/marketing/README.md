@@ -28,6 +28,12 @@ frames without a simulation tick. Use moving fixed-world overhead/orbit shots fo
 this check. Existing frames can only resume with the same plan, build, content and
 cadence; incompatible old output is retained and refused.
 
+Straight-down shots choose a stable up axis once per shot; the roll does not
+switch axes as the view approaches vertical. A path crossing that chosen axis
+must explicitly set `camera.up`, for example `[1, 0, 0]`. An explicit
+`OTHERREACH_MKT_CHARACTER` requires all seven comma-separated fields:
+`Name,people,body,He/She/They,face,hair,stature_mm`; malformed values fail loudly.
+
 The editor reads `shot_done.json` and refuses old 30 fps sources. Existing EDLs
 count 30 fps edit frames by default, so their timings are preserved when sources
 are reshot at 60 fps. Set `edit_fps: 60` at EDL or clip level to use native frame

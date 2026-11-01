@@ -18,16 +18,8 @@ public partial class Main
 {
     private MarketingFilm? _film;
 
-    /// <summary>OTHERREACH_MKT_CHARACTER="Name,people.x,body.x_f.average,She": the created character a film's new game makes.</summary>
-    private static CharacterSpec FilmCharacter()
-    {
-        if (OS.GetEnvironment("OTHERREACH_MKT_CHARACTER").Split(',') is not [var name, var people, var body, var pronouns, var face, var hair, var stature])
-            return DefaultCharacter;
-        return new CharacterSpec(name, Enum.Parse<Pronouns>(pronouns), people, body, null)
-        {
-            Appearance = new CharacterAppearance(int.Parse(stature), face, hair, null, null, null),
-        };
-    }
+    /// <summary>OTHERREACH_MKT_CHARACTER="Name,people.x,body.x_f.average,She,face.x,hair.x,1680"; unset uses the normal character.</summary>
+    private static CharacterSpec FilmCharacter() => FilmOptions.Character(OS.GetEnvironment("OTHERREACH_MKT_CHARACTER"), DefaultCharacter);
 
     private sealed class MarketingFilm : IDisposable
     {
@@ -54,6 +46,8 @@ public partial class Main
         private readonly HashSet<string> _fired = new();
         private Vector3 _orbitCentre;
         private Vector3 _aim;
+        private System.Numerics.Vector3? _cameraUp;
+        private bool _disposed;
         private int _settleFrames;
         private float? _trackYaw;
         private bool _advance;
@@ -160,11 +154,16 @@ public partial class Main
 
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
+            _drawDue = false;
+            _shot = _shots.Length;
             RenderingServer.FramePreDraw -= BeforeDraw;
             RenderingServer.FramePostDraw -= Saved;
             try { _poses?.Dispose(); }
             catch (IOException e) { GD.PushWarning($"Film telemetry could not finish: {e.Message}"); }
             _poses = null;
+            if (GodotObject.IsInstanceValid(_camera) && !_camera.IsQueuedForDeletion()) _camera.QueueFree();
         }
 
         private void Failed(Exception e)
@@ -284,6 +283,7 @@ public partial class Main
             _settleUntil = Time.GetTicksMsec() + (ulong)(Num(shot, "settle_seconds", 4) * 1000);
             _settleFrames = (int)Num(shot, "settle_frames", 0);
             _trackYaw = null;
+            _cameraUp = null;
             Note($"shot {name} begins: {_frames} frames at {_fps} fps, preroll {_preroll}, hud {hud}");
         }
 
@@ -323,7 +323,15 @@ public partial class Main
             }
             _camera.GlobalPosition = eye;
             _aim = aim;
-            _camera.LookAt(aim);
+            var direction = aim - eye;
+            if (_cameraUp is null && camera.TryGetProperty("up", out var authoredUp))
+            {
+                var up = V(authoredUp);
+                _cameraUp = new System.Numerics.Vector3(up.X, up.Y, up.Z);
+            }
+            var stableUp = FilmOptions.CameraUp(new System.Numerics.Vector3(direction.X, direction.Y, direction.Z), _cameraUp);
+            _cameraUp = stableUp;
+            _camera.LookAt(aim, new Vector3(stableUp.X, stableUp.Y, stableUp.Z));
             _camera.MakeCurrent();
         }
 

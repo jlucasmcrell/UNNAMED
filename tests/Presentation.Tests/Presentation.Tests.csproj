@@ -74,6 +74,8 @@
     <Using Include="Xunit" />
     <Compile Include="..\..\src\Presentation\Capture\FilmTiming.cs" Link="Linked\FilmTiming.cs" />
     <Compile Include="..\..\src\Presentation\Capture\AviClipWriter.cs" Link="Linked\AviClipWriter.cs" />
+    <Compile Include="..\..\src\Presentation\Capture\ClipRecorder.Result.cs" Link="Linked\ClipRecorder.Result.cs" />
+    <Compile Include="..\..\src\Presentation\Capture\FilmOptions.cs" Link="Linked\FilmOptions.cs" />
   </ItemGroup>
 
 </Project>

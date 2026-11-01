@@ -1441,7 +1441,12 @@ public partial class Main : Node3D
                     return;
                 }
             }
-            catch (Exception e) { CannotStart("The film capture failed. See the capture log.", e); return; }
+            catch (Exception e)
+            {
+                _film.Dispose(); _film = null;
+                CannotStart("The film capture failed. See the capture log.", e);
+                return;
+            }
         }
         else if (_shots is not null)
         {

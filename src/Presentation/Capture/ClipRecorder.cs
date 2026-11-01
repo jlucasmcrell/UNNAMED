@@ -5,10 +5,9 @@ using Godot;
 namespace UNNAMED.Presentation.Capture;
 
 /// <summary>Real-time viewport + Master bus capture. Only readbacks run on the game thread; JPEG and disk work have a bounded queue.</summary>
-public sealed class ClipRecorder : IDisposable
+public sealed partial class ClipRecorder : IDisposable
 {
     public const int Fps = 30;
-    public sealed record Result(string Path, int VideoFrames, long AudioFrames, bool Finalised, string? Problem);
     private sealed record Packet(Image? Image, Vector2[] Audio, float Gain, int Frames);
     private readonly Channel<Packet> _queue = Channel.CreateBounded<Packet>(new BoundedChannelOptions(8)
         { SingleReader = true, SingleWriter = true, FullMode = BoundedChannelFullMode.Wait });
@@ -23,7 +22,7 @@ public sealed class ClipRecorder : IDisposable
     public string Path { get; }
     public bool Recording { get; private set; }
     public double Seconds => (Time.GetTicksUsec() - _started) / 1_000_000.0;
-    public Result? Finished => _writing.IsCompletedSuccessfully ? _writing.Result : null;
+    public Result? Finished => Result.Poll(_writing, Path);
 
     public ClipRecorder(Viewport viewport, string directory)
     {
