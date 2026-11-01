@@ -440,5 +440,133 @@ sections:
       - binds: [gear_old_ward_greathelm__humgen_creator_female, gear_old_ward_greathelm__humgen_creator_male]
         text: "Old Ward Kettle Helm source model by reza bendokht. BlenderKit Royalty Free License. Native fit and rendered inventory icon; original real art, no generative processing."
         url: "https://www.blenderkit.com/asset-gallery-detail/b82fc5e7-0cb2-475f-95ca-6dccce9abfc2/"
+      - binds: [gear_sealed_road_boots__humgen_creator_female, gear_sealed_road_boots__humgen_creator_male]
+        text: "Sealed Road Boots original source: Leather Armor by Blueprint Games. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_sealed_road_boots__humgen_creator_female, gear_sealed_road_boots__humgen_creator_male]
+        text: "Sealed Road Boots adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1"
+      - binds: [gear_sealed_road_breeches__humgen_creator_female, gear_sealed_road_breeches__humgen_creator_male]
+        text: "Sealed Road Breeches original source: Leather Armor by Blueprint Games. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_sealed_road_breeches__humgen_creator_female, gear_sealed_road_breeches__humgen_creator_male]
+        text: "Sealed Road Breeches adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1"
+      - binds: [gear_quilted_ward_boots__humgen_creator_female, gear_quilted_ward_boots__humgen_creator_male]
+        text: "Quilted Ward Boots original source: Mercenary by Fghdd42. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_quilted_ward_boots__humgen_creator_female, gear_quilted_ward_boots__humgen_creator_male]
+        text: "Quilted Ward Boots adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db"
+      - binds: [gear_quilted_ward_breeches__humgen_creator_female, gear_quilted_ward_breeches__humgen_creator_male]
+        text: "Quilted Ward Breeches original source: Mercenary by Fghdd42. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_quilted_ward_breeches__humgen_creator_female, gear_quilted_ward_breeches__humgen_creator_male]
+        text: "Quilted Ward Breeches adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db"
+      - binds: [gear_ward_plate_gauntlets__humgen_creator_female, gear_ward_plate_gauntlets__humgen_creator_male]
+        text: "Ward Plate Gauntlets original source: Realistic armor by GreenG. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_ward_plate_gauntlets__humgen_creator_female, gear_ward_plate_gauntlets__humgen_creator_male]
+        text: "Ward Plate Gauntlets adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db"
+      - binds: [gear_river_lame_boots__humgen_creator_female, gear_river_lame_boots__humgen_creator_male]
+        text: "River Lame Boots original source: Fantasy scaled armor by nordwar. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_river_lame_boots__humgen_creator_female, gear_river_lame_boots__humgen_creator_male]
+        text: "River Lame Boots adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f"
+      - binds: [gear_river_lame_gloves__humgen_creator_female, gear_river_lame_gloves__humgen_creator_male]
+        text: "River Lame Gloves original source: Fantasy scaled armor by nordwar. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_river_lame_gloves__humgen_creator_female, gear_river_lame_gloves__humgen_creator_male]
+        text: "River Lame Gloves adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f"
+      - binds: [gear_river_lame_breeches__humgen_creator_female, gear_river_lame_breeches__humgen_creator_male]
+        text: "River Lame Tassets original source: Fantasy scaled armor by nordwar. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_river_lame_breeches__humgen_creator_female, gear_river_lame_breeches__humgen_creator_male]
+        text: "River Lame Tassets adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f"
+      - binds: [gear_sealed_brass_gauntlets__humgen_creator_female, gear_sealed_brass_gauntlets__humgen_creator_male]
+        text: "Sealed Leather Wristguards original source: Leather Armor by Blueprint Games. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_sealed_brass_gauntlets__humgen_creator_female, gear_sealed_brass_gauntlets__humgen_creator_male]
+        text: "Sealed Leather Wristguards adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1"
+      - binds: [gear_sealed_road_jack__humgen_creator_female, gear_sealed_road_jack__humgen_creator_male]
+        text: "Sealed Road Jack original source: Leather Armor by Blueprint Games. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_sealed_road_jack__humgen_creator_female, gear_sealed_road_jack__humgen_creator_male]
+        text: "Sealed Road Jack adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1"
+      - binds: [gear_quilted_ward_jack__humgen_creator_female, gear_quilted_ward_jack__humgen_creator_male]
+        text: "Quilted Ward Jack original source: Mercenary by Fghdd42. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_quilted_ward_jack__humgen_creator_female, gear_quilted_ward_jack__humgen_creator_male]
+        text: "Quilted Ward Jack adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db"
+      - binds: [gear_river_lame_jack__humgen_creator_female, gear_river_lame_jack__humgen_creator_male]
+        text: "River Lame Jack original source: Fantasy scaled armor by nordwar. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_river_lame_jack__humgen_creator_female, gear_river_lame_jack__humgen_creator_male]
+        text: "River Lame Jack adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f"
+      - binds: [gear_repaired_proof_helm__humgen_creator_female, gear_repaired_proof_helm__humgen_creator_male]
+        text: "Repaired Proof Helm original source: Realistic armor by GreenG. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_repaired_proof_helm__humgen_creator_female, gear_repaired_proof_helm__humgen_creator_male]
+        text: "Repaired Proof Helm adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608"
+      - binds: [gear_repaired_proof_sabatons__humgen_creator_female, gear_repaired_proof_sabatons__humgen_creator_male]
+        text: "Repaired Road Shoes original source: Realistic armor by GreenG. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_repaired_proof_sabatons__humgen_creator_female, gear_repaired_proof_sabatons__humgen_creator_male]
+        text: "Repaired Road Shoes adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608"
+      - binds: [gear_repaired_proof_jack__humgen_creator_female, gear_repaired_proof_jack__humgen_creator_male]
+        text: "Repaired Proof Jack original source: Realistic armor by GreenG. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_repaired_proof_jack__humgen_creator_female, gear_repaired_proof_jack__humgen_creator_male]
+        text: "Repaired Proof Jack adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608"
+      - binds: [gear_repaired_proof_cuisses__humgen_creator_female, gear_repaired_proof_cuisses__humgen_creator_male]
+        text: "Repaired Proof Cuisses original source: Realistic armor by GreenG. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_repaired_proof_cuisses__humgen_creator_female, gear_repaired_proof_cuisses__humgen_creator_male]
+        text: "Repaired Proof Cuisses adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608"
       - text: "Fitted boot backing trousers derive from the owned HumGen Office/New Intern outfit for the corresponding current Creator body. Source geometry and material attribution remains with HumGen3D. Explicit source-vertex layer masks; no body mesh or source art sent to a generative model."
 # P2_ARMOUR_CREDITS_END

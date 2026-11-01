@@ -27,6 +27,13 @@ stock:
   - { item_ref: item.ammo.blowpipe_dart, count: 12, price_bias: 1.0 }
   - { item_ref: item.weapon.sleep_dart, count: 6, price_bias: 1.0 }
   - { item_ref: item.tool.ward_tripwire, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.sealed_road_boots, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.sealed_road_breeches, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.quilted_ward_boots, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.quilted_ward_breeches, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.sealed_brass_gauntlets, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.sealed_road_jack, count: 1, price_bias: 1.0 }
+  - { item_ref: item.armor.quilted_ward_jack, count: 1, price_bias: 1.0 }
 buys_tags: [material, consumable, weapon, armor, misc, bag]
 gold_reserve: [40, 250]   # a village smith's purse (WP14)
 restock_min: 1

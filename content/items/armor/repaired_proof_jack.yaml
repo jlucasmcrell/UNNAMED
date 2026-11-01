@@ -1,0 +1,17 @@
+id: item.armor.repaired_proof_jack
+kind: item.armor
+schema: 1
+display_key: item.armor.repaired_proof_jack.name
+tags: [item]
+name: Repaired Proof Jack
+notes: Old protection kept serviceable with new straps and careful repairs.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 7.4
+value_base: 69
+slot: chest
+armor_value: 10
+material_class: plate
+durability_max: 400
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 4, item_ref: item.material.iron_ingot }

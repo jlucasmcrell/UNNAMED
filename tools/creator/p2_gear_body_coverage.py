@@ -28,10 +28,11 @@ for folder in folders:
         polygons.extend([offset+i for i in p.vertices] for p in evaluated.data.polygons)
     tree=BVHTree.FromPolygons(points,polygons)
     body=human.objects.body;mesh=body.evaluated_get(deps).data
+    ray_length=.20 if contract['slot']=='chest' else .015
     normals=body.matrix_world.to_3x3().inverted().transposed();covered=set()
     for vertex in mesh.vertices:
         origin=body.matrix_world@vertex.co;direction=(normals@vertex.normal).normalized()
-        hit=tree.ray_cast(origin+direction*.00001,direction,.015)
+        hit=tree.ray_cast(origin+direction*.00001,direction,ray_length)
         if hit[0] is not None:covered.add(vertex.index)
     uv=mesh.uv_layers.active.data;triangles=[]
     # Fully covered polygons only: exposed skin along openings must survive.
@@ -40,8 +41,8 @@ for folder in folders:
         corners=[uv[i].uv for i in polygon.loop_indices]
         for step in range(1,len(corners)-1):
             triangles.append([float(v) for p in (corners[0],corners[step],corners[step+1]) for v in p])
-    receipt=dict(method='Outward native-body normal rays, 15mm; fully occluded source polygons only; never rig-weight masks',
+    receipt=dict(method='Outward native-body normal rays to actual garment surface; fully occluded source polygons only; never rig-weight masks',
         target_body_sha256=contract['target_body_sha256'],body_vertex_count=len(mesh.vertices),
-        source_vertex_indices=sorted(covered),covered=len(covered),uv_triangles=triangles,ray_length_m=.015)
+        source_vertex_indices=sorted(covered),covered=len(covered),uv_triangles=triangles,ray_length_m=ray_length)
     (folder/'body_coverage.json').write_text(json.dumps(receipt))
     print('P2_NATIVE_BODY_COVERAGE',folder.name,len(covered),len(triangles),flush=True)

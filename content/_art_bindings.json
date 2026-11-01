@@ -14948,6 +14948,66 @@
         ],
         "item.armor.old_ward_greathelm": [
           "gear_old_ward_greathelm__humgen_creator_female"
+        ],
+        "item.armor.sealed_road_boots": [
+          "gear_sealed_road_boots__humgen_creator_female"
+        ],
+        "under:item.armor.sealed_road_boots": [
+          "gear_sealed_road_boots_underlayer__humgen_creator_female"
+        ],
+        "item.armor.sealed_road_breeches": [
+          "gear_sealed_road_breeches__humgen_creator_female"
+        ],
+        "item.armor.quilted_ward_boots": [
+          "gear_quilted_ward_boots__humgen_creator_female"
+        ],
+        "under:item.armor.quilted_ward_boots": [
+          "gear_quilted_ward_boots_underlayer__humgen_creator_female"
+        ],
+        "item.armor.quilted_ward_breeches": [
+          "gear_quilted_ward_breeches__humgen_creator_female"
+        ],
+        "item.armor.ward_plate_gauntlets": [
+          "gear_ward_plate_gauntlets__humgen_creator_female"
+        ],
+        "item.armor.river_lame_boots": [
+          "gear_river_lame_boots__humgen_creator_female"
+        ],
+        "under:item.armor.river_lame_boots": [
+          "gear_river_lame_boots_underlayer__humgen_creator_female"
+        ],
+        "item.armor.river_lame_gloves": [
+          "gear_river_lame_gloves__humgen_creator_female"
+        ],
+        "item.armor.river_lame_breeches": [
+          "gear_river_lame_breeches__humgen_creator_female"
+        ],
+        "item.armor.sealed_brass_gauntlets": [
+          "gear_sealed_brass_gauntlets__humgen_creator_female"
+        ],
+        "item.armor.sealed_road_jack": [
+          "gear_sealed_road_jack__humgen_creator_female"
+        ],
+        "item.armor.quilted_ward_jack": [
+          "gear_quilted_ward_jack__humgen_creator_female"
+        ],
+        "item.armor.river_lame_jack": [
+          "gear_river_lame_jack__humgen_creator_female"
+        ],
+        "item.armor.repaired_proof_helm": [
+          "gear_repaired_proof_helm__humgen_creator_female"
+        ],
+        "item.armor.repaired_proof_sabatons": [
+          "gear_repaired_proof_sabatons__humgen_creator_female"
+        ],
+        "under:item.armor.repaired_proof_sabatons": [
+          "gear_repaired_proof_sabatons_underlayer__humgen_creator_female"
+        ],
+        "item.armor.repaired_proof_jack": [
+          "gear_repaired_proof_jack__humgen_creator_female"
+        ],
+        "item.armor.repaired_proof_cuisses": [
+          "gear_repaired_proof_cuisses__humgen_creator_female"
         ]
       },
       "clips": {
@@ -15080,6 +15140,66 @@
           ],
           "item.armor.old_ward_greathelm": [
             "gear_old_ward_greathelm__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_boots": [
+            "gear_sealed_road_boots__humgen_creator_female"
+          ],
+          "under:item.armor.sealed_road_boots": [
+            "gear_sealed_road_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_breeches": [
+            "gear_sealed_road_breeches__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_boots": [
+            "gear_quilted_ward_boots__humgen_creator_female"
+          ],
+          "under:item.armor.quilted_ward_boots": [
+            "gear_quilted_ward_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_breeches": [
+            "gear_quilted_ward_breeches__humgen_creator_female"
+          ],
+          "item.armor.ward_plate_gauntlets": [
+            "gear_ward_plate_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.river_lame_boots": [
+            "gear_river_lame_boots__humgen_creator_female"
+          ],
+          "under:item.armor.river_lame_boots": [
+            "gear_river_lame_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.river_lame_gloves": [
+            "gear_river_lame_gloves__humgen_creator_female"
+          ],
+          "item.armor.river_lame_breeches": [
+            "gear_river_lame_breeches__humgen_creator_female"
+          ],
+          "item.armor.sealed_brass_gauntlets": [
+            "gear_sealed_brass_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_jack": [
+            "gear_sealed_road_jack__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_jack": [
+            "gear_quilted_ward_jack__humgen_creator_female"
+          ],
+          "item.armor.river_lame_jack": [
+            "gear_river_lame_jack__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_helm": [
+            "gear_repaired_proof_helm__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_sabatons": [
+            "gear_repaired_proof_sabatons__humgen_creator_female"
+          ],
+          "under:item.armor.repaired_proof_sabatons": [
+            "gear_repaired_proof_sabatons_underlayer__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_jack": [
+            "gear_repaired_proof_jack__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_cuisses": [
+            "gear_repaired_proof_cuisses__humgen_creator_female"
           ]
         }
       }
@@ -15176,6 +15296,66 @@
           ],
           "item.armor.old_ward_greathelm": [
             "gear_old_ward_greathelm__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_boots": [
+            "gear_sealed_road_boots__humgen_creator_female"
+          ],
+          "under:item.armor.sealed_road_boots": [
+            "gear_sealed_road_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_breeches": [
+            "gear_sealed_road_breeches__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_boots": [
+            "gear_quilted_ward_boots__humgen_creator_female"
+          ],
+          "under:item.armor.quilted_ward_boots": [
+            "gear_quilted_ward_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_breeches": [
+            "gear_quilted_ward_breeches__humgen_creator_female"
+          ],
+          "item.armor.ward_plate_gauntlets": [
+            "gear_ward_plate_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.river_lame_boots": [
+            "gear_river_lame_boots__humgen_creator_female"
+          ],
+          "under:item.armor.river_lame_boots": [
+            "gear_river_lame_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.river_lame_gloves": [
+            "gear_river_lame_gloves__humgen_creator_female"
+          ],
+          "item.armor.river_lame_breeches": [
+            "gear_river_lame_breeches__humgen_creator_female"
+          ],
+          "item.armor.sealed_brass_gauntlets": [
+            "gear_sealed_brass_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_jack": [
+            "gear_sealed_road_jack__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_jack": [
+            "gear_quilted_ward_jack__humgen_creator_female"
+          ],
+          "item.armor.river_lame_jack": [
+            "gear_river_lame_jack__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_helm": [
+            "gear_repaired_proof_helm__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_sabatons": [
+            "gear_repaired_proof_sabatons__humgen_creator_female"
+          ],
+          "under:item.armor.repaired_proof_sabatons": [
+            "gear_repaired_proof_sabatons_underlayer__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_jack": [
+            "gear_repaired_proof_jack__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_cuisses": [
+            "gear_repaired_proof_cuisses__humgen_creator_female"
           ]
         }
       }
@@ -15272,6 +15452,66 @@
           ],
           "item.armor.old_ward_greathelm": [
             "gear_old_ward_greathelm__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_boots": [
+            "gear_sealed_road_boots__humgen_creator_female"
+          ],
+          "under:item.armor.sealed_road_boots": [
+            "gear_sealed_road_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_breeches": [
+            "gear_sealed_road_breeches__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_boots": [
+            "gear_quilted_ward_boots__humgen_creator_female"
+          ],
+          "under:item.armor.quilted_ward_boots": [
+            "gear_quilted_ward_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_breeches": [
+            "gear_quilted_ward_breeches__humgen_creator_female"
+          ],
+          "item.armor.ward_plate_gauntlets": [
+            "gear_ward_plate_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.river_lame_boots": [
+            "gear_river_lame_boots__humgen_creator_female"
+          ],
+          "under:item.armor.river_lame_boots": [
+            "gear_river_lame_boots_underlayer__humgen_creator_female"
+          ],
+          "item.armor.river_lame_gloves": [
+            "gear_river_lame_gloves__humgen_creator_female"
+          ],
+          "item.armor.river_lame_breeches": [
+            "gear_river_lame_breeches__humgen_creator_female"
+          ],
+          "item.armor.sealed_brass_gauntlets": [
+            "gear_sealed_brass_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.sealed_road_jack": [
+            "gear_sealed_road_jack__humgen_creator_female"
+          ],
+          "item.armor.quilted_ward_jack": [
+            "gear_quilted_ward_jack__humgen_creator_female"
+          ],
+          "item.armor.river_lame_jack": [
+            "gear_river_lame_jack__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_helm": [
+            "gear_repaired_proof_helm__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_sabatons": [
+            "gear_repaired_proof_sabatons__humgen_creator_female"
+          ],
+          "under:item.armor.repaired_proof_sabatons": [
+            "gear_repaired_proof_sabatons_underlayer__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_jack": [
+            "gear_repaired_proof_jack__humgen_creator_female"
+          ],
+          "item.armor.repaired_proof_cuisses": [
+            "gear_repaired_proof_cuisses__humgen_creator_female"
           ]
         }
       }
@@ -17925,6 +18165,22 @@
     "item.armor.ward_closed_helm": "ui.item.ward_closed_helm",
     "item.armor.river_open_helm": "ui.item.river_open_helm",
     "item.armor.open_road_barbute": "ui.item.open_road_barbute",
-    "item.armor.old_ward_greathelm": "ui.item.old_ward_greathelm"
+    "item.armor.old_ward_greathelm": "ui.item.old_ward_greathelm",
+    "item.armor.sealed_road_boots": "ui.item.sealed_road_boots",
+    "item.armor.sealed_road_breeches": "ui.item.sealed_road_breeches",
+    "item.armor.quilted_ward_boots": "ui.item.quilted_ward_boots",
+    "item.armor.quilted_ward_breeches": "ui.item.quilted_ward_breeches",
+    "item.armor.ward_plate_gauntlets": "ui.item.ward_plate_gauntlets",
+    "item.armor.river_lame_boots": "ui.item.river_lame_boots",
+    "item.armor.river_lame_gloves": "ui.item.river_lame_gloves",
+    "item.armor.river_lame_breeches": "ui.item.river_lame_breeches",
+    "item.armor.sealed_brass_gauntlets": "ui.item.sealed_brass_gauntlets",
+    "item.armor.sealed_road_jack": "ui.item.sealed_road_jack",
+    "item.armor.quilted_ward_jack": "ui.item.quilted_ward_jack",
+    "item.armor.river_lame_jack": "ui.item.river_lame_jack",
+    "item.armor.repaired_proof_helm": "ui.item.repaired_proof_helm",
+    "item.armor.repaired_proof_sabatons": "ui.item.repaired_proof_sabatons",
+    "item.armor.repaired_proof_jack": "ui.item.repaired_proof_jack",
+    "item.armor.repaired_proof_cuisses": "ui.item.repaired_proof_cuisses"
   }
 }

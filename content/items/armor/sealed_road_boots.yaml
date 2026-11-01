@@ -1,0 +1,17 @@
+id: item.armor.sealed_road_boots
+kind: item.armor
+schema: 1
+display_key: item.armor.sealed_road_boots.name
+tags: [item]
+name: Sealed Road Boots
+notes: Old protection kept serviceable with new straps and careful repairs.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 1.1
+value_base: 18
+slot: feet
+armor_value: 2
+material_class: leather
+durability_max: 250
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }

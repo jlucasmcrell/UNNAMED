@@ -1,7 +1,9 @@
 # P2 armour continuation — owner overnight window, 31 October 2026
 
 Source branch: `content/p2-gear`, continuing the accepted weapon delivery at
-`75cd1904`. No new armour is bound or claimed accepted by this preparation note.
+`75cd1904`. Claude accepted the FINAL20 both-body worn packet at00:25 Nov1.
+All20 pieces are now bound and pass normal item equip/movement/unequip on both bodies.
+P2_ARMOUR_DELIVERY.json and P2_ARMOUR_INSTALL.md are the final delivery index.
 Proof cutoff: 01:30 EDT on 1 November; integration window ends at 02:00.
 
 | Batch | Source-review IDs | Native worn proof required |
@@ -18,8 +20,8 @@ walk, run, attack and crouch footage, a contact sheet and Claude's verdict.
 Close inspection and all shipped garment LODs remain part of the fit review.
 Neither a static source render nor a numerical rest check substitutes for it.
 
-Stats remain the complete first-hour proposals in `P2_GEAR_STATS.json` until a
-piece passes worn review. Binding must include its full existing-schema block,
+The final first-hour stat blocks are in `P2_GEAR_STATS.json` and the one-page
+`P2_ARMOUR_FINAL_STATS_REVIEW.md`. Every bound piece includes its full existing-schema block,
 repair, native icons and a real merchant source, followed by content lint,
 hooks, balance-table regeneration and the relevant tests. Unproven pieces wait.
 

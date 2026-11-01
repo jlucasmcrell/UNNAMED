@@ -1,0 +1,17 @@
+id: item.armor.sealed_brass_gauntlets
+kind: item.armor
+schema: 1
+display_key: item.armor.sealed_brass_gauntlets.name
+tags: [item]
+name: Sealed Leather Wristguards
+notes: Old protection kept serviceable with new straps and careful repairs.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.35
+value_base: 16
+slot: hands
+armor_value: 2
+material_class: leather
+durability_max: 180
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }

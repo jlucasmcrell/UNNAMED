@@ -1,3 +1,5 @@
+Current delivery: Claude accepted FINAL20 native worn fits at00:25 Nov1. See P2_ARMOUR_DELIVERY.json and P2_ARMOUR_INSTALL.md. The preparation record below is historical.
+
 # Playtest 2 armour source preparation
 
 Claude's coordinator ruling in `CODEX_PROGRESS.md` at 07:30 EDT on 2026-10-31 requires native worn fits and movement/layering proof before any new armour ships. Static source renders, inventory icons and valid statistics do not meet that gate. No new armour item or worn binding is included in this weapon batch.

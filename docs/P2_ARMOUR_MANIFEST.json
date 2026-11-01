@@ -15,7 +15,7 @@
       1,
       5
     ],
-    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
     "merchant": "merchant.ashen_hollow.kera_voss",
     "author": "DevonLux",
     "licence": "CC BY 4.0",
@@ -32,7 +32,7 @@
       "primary_metadata_sha256": "cca42604d0d6339b85dc4ceae36a7066beabe0ba95297238d8d62c3a2c8f2d74",
       "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
     },
-    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_headcontrols_v2",
     "native_contracts": [
       {
         "body": "humgen_creator_female",
@@ -54,9 +54,9 @@
     "normal_equipment_proof": [
       {
         "body": "humgen_creator_female",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
-        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
-        "clock_sha256": "b70bddc3075414d6821ace1b3f86cb3fd0093faf32be9384281822283abfd5c5",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "a43d6db10d88f4998f4e68a319a3dc6e65c0b84e8ae8fce549bc16c5b77b3c52",
         "states": [
           "idle",
           "walk",
@@ -68,9 +68,9 @@
       },
       {
         "body": "humgen_creator_male",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
-        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
-        "clock_sha256": "75494ee66c1c025612902a04f75e29af0aafe5edb2a77174aef4d5fb4937144e",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "54e68660d18062b287f5bf31301630d95e0a9c92e9a21d2607eca61ab9a8c41b",
         "states": [
           "idle",
           "walk",
@@ -80,7 +80,8 @@
           "unequipped"
         ]
       }
-    ]
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
   },
   {
     "item_id": "item.armor.river_open_helm",
@@ -98,7 +99,7 @@
       1,
       5
     ],
-    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
     "merchant": "merchant.ashen_hollow.kera_voss",
     "author": "DevonLux",
     "licence": "CC BY 4.0",
@@ -115,7 +116,7 @@
       "primary_metadata_sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00",
       "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
     },
-    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_headcontrols_v2",
     "native_contracts": [
       {
         "body": "humgen_creator_female",
@@ -137,9 +138,9 @@
     "normal_equipment_proof": [
       {
         "body": "humgen_creator_female",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
-        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
-        "clock_sha256": "8957899b699680d040027782e0c2266e9e4781eba7e085d72e2fc8f6ed356655",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1416c7d6d2cdfa496647d409a73f6b627dd9b91e41d7fd00a1dd58ba7612edb0",
         "states": [
           "idle",
           "walk",
@@ -151,9 +152,9 @@
       },
       {
         "body": "humgen_creator_male",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
-        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
-        "clock_sha256": "012efc1b247e4561da165ddbec8e6d332ff61323ff0cc7dd0c3de5116ddf6e4b",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "6be2ba0ed9c45790aeca0bbce56837451ccd1eecafb04cb1f32ab9aa0f504d3b",
         "states": [
           "idle",
           "walk",
@@ -163,7 +164,8 @@
           "unequipped"
         ]
       }
-    ]
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
   },
   {
     "item_id": "item.armor.open_road_barbute",
@@ -181,7 +183,7 @@
       1,
       5
     ],
-    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
     "merchant": "merchant.ashen_hollow.kera_voss",
     "author": "Kasit Studio",
     "licence": "BlenderKit Royalty Free License",
@@ -193,7 +195,7 @@
       "licence": "BlenderKit Royalty Free License",
       "identification": "Original held BlenderKit asset and author receipt; no DevonLux compilation involved."
     },
-    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_headcontrols_v2",
     "native_contracts": [
       {
         "body": "humgen_creator_female",
@@ -215,9 +217,9 @@
     "normal_equipment_proof": [
       {
         "body": "humgen_creator_female",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
-        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
-        "clock_sha256": "5c7ba3f28369eac7fd66f9e441045c7d14d2ce0343fd775e7b652ea759d2997c",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "d6b68103f4898bae6ea3bff3fe184916240a75aad044467f0e9d1fbb85038ad7",
         "states": [
           "idle",
           "walk",
@@ -229,9 +231,9 @@
       },
       {
         "body": "humgen_creator_male",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
-        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
-        "clock_sha256": "a26adef37393d627032c6ea902ef5c3b2ec4e1b5ac989cc9508bbdcda432433b",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "3475c1a3b10cc8880f68ef9237856980788362b39e3c00d07d2effbc1ca3af73",
         "states": [
           "idle",
           "walk",
@@ -241,7 +243,8 @@
           "unequipped"
         ]
       }
-    ]
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
   },
   {
     "item_id": "item.armor.old_ward_greathelm",
@@ -259,7 +262,7 @@
       1,
       5
     ],
-    "wear_status": "REQUIRES_NATIVE_FIT_LAYERING_AND_ENGINE_GATE",
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
     "merchant": "merchant.ashen_hollow.kera_voss",
     "author": "reza bendokht",
     "licence": "BlenderKit Royalty Free License",
@@ -271,7 +274,7 @@
       "licence": "BlenderKit Royalty Free License",
       "identification": "Original held BlenderKit asset and author receipt; no DevonLux compilation involved."
     },
-    "native_candidate_root": "armour_native_headcontrols_v2",
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_headcontrols_v2",
     "native_contracts": [
       {
         "body": "humgen_creator_female",
@@ -293,9 +296,9 @@
     "normal_equipment_proof": [
       {
         "body": "humgen_creator_female",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\female\\native_movement.mp4",
-        "video_sha256": "11c9fcd645ada44b5958fd99edccfda163b517d28b30042b067bd7b83db586be",
-        "clock_sha256": "38d27ee5d8e287445a505c29c4fa32d3f44c94e18490fa7e495cd95474730f24",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "7c7f52fdeac89b1a97b0a6cb906c6a547f7ffddb9c5d0c33a035531eab6db268",
         "states": [
           "idle",
           "walk",
@@ -307,9 +310,9 @@
       },
       {
         "body": "humgen_creator_male",
-        "video": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_batch1_native_v2\\normal_items_v1\\male\\native_movement.mp4",
-        "video_sha256": "b5281422a28163616ac201b4723e09644ed63a29e4aa7a8dc7073d442dcee17f",
-        "clock_sha256": "5cd6bf25bb0ff25d4607d5394af147b54d3ca48e0db87bdb9a8213980bdf4234",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "0841819ee033ee70020f5e9dce26fde023027ad167e3a02a8c20dd4a4b2639c9",
         "states": [
           "idle",
           "walk",
@@ -319,6 +322,1355 @@
           "unequipped"
         ]
       }
-    ]
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.sealed_road_boots",
+    "name": "Sealed Road Boots",
+    "review_id": "A01",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_4_piece_leather_armor\\extracted\\source\\LeatherArmor_Complete.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_sealed_road_boots",
+    "icon": "ui.item.sealed_road_boots",
+    "slot": "feet",
+    "era": "Medieval / renaissance",
+    "source_object": "Leather_Boots",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "d80cbf64f224f9743148d40858653fe5e134d1fd6bbd2c1f9be96f881a532094",
+    "upstream": {
+      "title": "Leather Armor",
+      "author": "Blueprint Games",
+      "author_url": "https://sketchfab.com/Vahil",
+      "source_url": "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "a2d17e8aa93e2dcf47f5cacdf63e0b11406dd60432c07b99503fefdec531a527",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_boot_v5",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_sealed_road_boots__humgen_creator_female",
+        "contract_sha256": "e16d512d76df32a8f8d60d61469c1c7c100c37c76e2e9ddb2b5f6bf491fd7e09",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_sealed_road_boots__humgen_creator_male",
+        "contract_sha256": "23701f74aa5ff0c6892060cfd81c5ae15f61ec8f7e0e650e86f3edd9b3bd8f56",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "d6b68103f4898bae6ea3bff3fe184916240a75aad044467f0e9d1fbb85038ad7",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "3475c1a3b10cc8880f68ef9237856980788362b39e3c00d07d2effbc1ca3af73",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.sealed_road_breeches",
+    "name": "Sealed Road Breeches",
+    "review_id": "A04",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_4_piece_leather_armor\\extracted\\source\\LeatherArmor_Complete.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_sealed_road_breeches",
+    "icon": "ui.item.sealed_road_breeches",
+    "slot": "legs",
+    "era": "Medieval / renaissance",
+    "source_object": "Leather_Pants",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "d80cbf64f224f9743148d40858653fe5e134d1fd6bbd2c1f9be96f881a532094",
+    "upstream": {
+      "title": "Leather Armor",
+      "author": "Blueprint Games",
+      "author_url": "https://sketchfab.com/Vahil",
+      "source_url": "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "a2d17e8aa93e2dcf47f5cacdf63e0b11406dd60432c07b99503fefdec531a527",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_legs_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_sealed_road_breeches__humgen_creator_female",
+        "contract_sha256": "42dcc40ab13141fe0040fda80a6c714c790d9dfe3c0981658e9eef65db71fea3",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_sealed_road_breeches__humgen_creator_male",
+        "contract_sha256": "73cf3837cb22162e6cea7a96bec7032749af7d816133936ad9f1e589dbd45033",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "d6b68103f4898bae6ea3bff3fe184916240a75aad044467f0e9d1fbb85038ad7",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "3475c1a3b10cc8880f68ef9237856980788362b39e3c00d07d2effbc1ca3af73",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.quilted_ward_boots",
+    "name": "Quilted Ward Boots",
+    "review_id": "A05",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_heavy_armor\\extracted\\source\\Outfit_Heavy_Armor.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_quilted_ward_boots",
+    "icon": "ui.item.quilted_ward_boots",
+    "slot": "feet",
+    "era": "Medieval / renaissance",
+    "source_object": "Boots_Heavy_Armor",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "0b98c064f31b5e1eacde96172777aa79dadd25f9e954374518898a42a3e9f189",
+    "upstream": {
+      "title": "Mercenary",
+      "author": "Fghdd42",
+      "author_url": "https://sketchfab.com/Fghdd42",
+      "source_url": "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "cca42604d0d6339b85dc4ceae36a7066beabe0ba95297238d8d62c3a2c8f2d74",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_boot_v5",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_quilted_ward_boots__humgen_creator_female",
+        "contract_sha256": "7532f2df4bc560d032e004931fcec52046bd8d1ca93d1fdf69148c838f45a659",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_quilted_ward_boots__humgen_creator_male",
+        "contract_sha256": "16c4d6e673f2f72c6b4cbf61ef2dbe0300a8c1b1981d8a242cb166737977d672",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "a43d6db10d88f4998f4e68a319a3dc6e65c0b84e8ae8fce549bc16c5b77b3c52",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "54e68660d18062b287f5bf31301630d95e0a9c92e9a21d2607eca61ab9a8c41b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.quilted_ward_breeches",
+    "name": "Quilted Ward Breeches",
+    "review_id": "A08",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_heavy_armor\\extracted\\source\\Outfit_Heavy_Armor.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_quilted_ward_breeches",
+    "icon": "ui.item.quilted_ward_breeches",
+    "slot": "legs",
+    "era": "Medieval / renaissance",
+    "source_object": "Pants_Heavy_Armor",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "0b98c064f31b5e1eacde96172777aa79dadd25f9e954374518898a42a3e9f189",
+    "upstream": {
+      "title": "Mercenary",
+      "author": "Fghdd42",
+      "author_url": "https://sketchfab.com/Fghdd42",
+      "source_url": "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "cca42604d0d6339b85dc4ceae36a7066beabe0ba95297238d8d62c3a2c8f2d74",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_legs_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_quilted_ward_breeches__humgen_creator_female",
+        "contract_sha256": "c7b11341bf05133875f887fb914f2693277064428e934b0bf2957bfa4862f993",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_quilted_ward_breeches__humgen_creator_male",
+        "contract_sha256": "a07abb5b0a0a945bfe00d853e04fc5825b4d84fb0ae8f6cca7221b5b573c4116",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "a43d6db10d88f4998f4e68a319a3dc6e65c0b84e8ae8fce549bc16c5b77b3c52",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "54e68660d18062b287f5bf31301630d95e0a9c92e9a21d2607eca61ab9a8c41b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.ward_plate_gauntlets",
+    "name": "Ward Plate Gauntlets",
+    "review_id": "A09",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_heavy_armor\\extracted\\source\\Outfit_Heavy_Armor.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_ward_plate_gauntlets",
+    "icon": "ui.item.ward_plate_gauntlets",
+    "slot": "hands",
+    "era": "Medieval / renaissance",
+    "source_object": "Platemail_gloves",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "0b98c064f31b5e1eacde96172777aa79dadd25f9e954374518898a42a3e9f189",
+    "upstream": {
+      "title": "Realistic armor",
+      "author": "GreenG",
+      "author_url": "https://sketchfab.com/GreenG",
+      "source_url": "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "d6c7986f7e3727ad97ef036c44b4238ab0fcdd99f6be0acb7ae4f619fb52963b",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_gloves_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_ward_plate_gauntlets__humgen_creator_female",
+        "contract_sha256": "78ad09446282011c4dab8bb29f436dd1bce7fa8966f87d8a19cd7fce668c7283",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_ward_plate_gauntlets__humgen_creator_male",
+        "contract_sha256": "d12b0d44f400c6e621361ac1c23a791d08db538778ee9c623f39684b253a3cff",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1d0a0106a12e43e0ce02997864d471d3cd3b2631c4d26dfa7f5e0c980470e421",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "eae145b130092ce1b5589b81eac4b272a8b22bb398a9517e6e19f879835ce2fe",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.river_lame_boots",
+    "name": "River Lame Boots",
+    "review_id": "A10",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_scalemail_armor\\extracted\\source\\Outfit_Scalemail_Armor_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_river_lame_boots",
+    "icon": "ui.item.river_lame_boots",
+    "slot": "feet",
+    "era": "Medieval / renaissance",
+    "source_object": "Boots_Scalemail",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "9af13256d5795d2fea341ce5812cf965d6637311ef9d057dc6d664114bffa45c",
+    "upstream": {
+      "title": "Fantasy scaled armor",
+      "author": "nordwar",
+      "author_url": "https://sketchfab.com/nordwar",
+      "source_url": "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_boot_v5",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_river_lame_boots__humgen_creator_female",
+        "contract_sha256": "355dccb0882fe9eac5d3a642dbb49a2f326e178bf02989c4e1f294584790279c",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_river_lame_boots__humgen_creator_male",
+        "contract_sha256": "e9da8887bacc924be53b7a04c2d28176140b39da23bf41456f80c0807745122d",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1416c7d6d2cdfa496647d409a73f6b627dd9b91e41d7fd00a1dd58ba7612edb0",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "6be2ba0ed9c45790aeca0bbce56837451ccd1eecafb04cb1f32ab9aa0f504d3b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.river_lame_gloves",
+    "name": "River Lame Gloves",
+    "review_id": "A12",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_scalemail_armor\\extracted\\source\\Outfit_Scalemail_Armor_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_river_lame_gloves",
+    "icon": "ui.item.river_lame_gloves",
+    "slot": "hands",
+    "era": "Medieval / renaissance",
+    "source_object": "Gloves_Scalemail",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "9af13256d5795d2fea341ce5812cf965d6637311ef9d057dc6d664114bffa45c",
+    "upstream": {
+      "title": "Fantasy scaled armor",
+      "author": "nordwar",
+      "author_url": "https://sketchfab.com/nordwar",
+      "source_url": "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_cuff_authoring_gap_m": 0.0095,
+    "native_finish_after_binding": true,
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_gloves_v5",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_river_lame_gloves__humgen_creator_female",
+        "contract_sha256": "0392791e34d6778e4b05c523056717102e6afeda455194a6cce0a18e10529b47",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_river_lame_gloves__humgen_creator_male",
+        "contract_sha256": "2e524b5461c9ae0bada798811405ede0eac6d94121b65e0601a115afebdde18e",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1416c7d6d2cdfa496647d409a73f6b627dd9b91e41d7fd00a1dd58ba7612edb0",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "6be2ba0ed9c45790aeca0bbce56837451ccd1eecafb04cb1f32ab9aa0f504d3b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.river_lame_breeches",
+    "name": "River Lame Tassets",
+    "review_id": "A14",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_scalemail_armor\\extracted\\source\\Outfit_Scalemail_Armor_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_river_lame_breeches",
+    "icon": "ui.item.river_lame_breeches",
+    "slot": "legs",
+    "era": "Medieval / renaissance",
+    "source_object": "Pants_Scalemail",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "9af13256d5795d2fea341ce5812cf965d6637311ef9d057dc6d664114bffa45c",
+    "upstream": {
+      "title": "Fantasy scaled armor",
+      "author": "nordwar",
+      "author_url": "https://sketchfab.com/nordwar",
+      "source_url": "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_legs_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_river_lame_breeches__humgen_creator_female",
+        "contract_sha256": "5b7f09546198df6a76b233498c735735273c4b110d29b806ca51865f423dce7d",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_river_lame_breeches__humgen_creator_male",
+        "contract_sha256": "2535e18a8625409894211f87d61b3f03ce2d840eb90f4efc07a5b9b9b973f0cd",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1416c7d6d2cdfa496647d409a73f6b627dd9b91e41d7fd00a1dd58ba7612edb0",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "6be2ba0ed9c45790aeca0bbce56837451ccd1eecafb04cb1f32ab9aa0f504d3b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.sealed_brass_gauntlets",
+    "name": "Sealed Leather Wristguards",
+    "review_id": "A22",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_4_piece_leather_armor\\extracted\\source\\LeatherArmor_Complete.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_sealed_brass_gauntlets",
+    "icon": "ui.item.sealed_brass_gauntlets",
+    "slot": "hands",
+    "era": "Medieval / renaissance",
+    "source_object": "Leather_Gloves",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1",
+    "source_sha256": "d80cbf64f224f9743148d40858653fe5e134d1fd6bbd2c1f9be96f881a532094",
+    "upstream": {
+      "title": "Leather Armor",
+      "author": "Blueprint Games",
+      "author_url": "https://sketchfab.com/Vahil",
+      "source_url": "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "a2d17e8aa93e2dcf47f5cacdf63e0b11406dd60432c07b99503fefdec531a527",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "source_review_id": "A03",
+    "material_reference_art_id": "gear_sealed_road_jack",
+    "source_replacement_note": "Replaces the unrigged BlenderKit long gauntlet after repeated native finger-fit failures; original A03 paired leather wristguards, pending both-body native motion and Claude review.",
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_gloves_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_sealed_brass_gauntlets__humgen_creator_female",
+        "contract_sha256": "9ee2c399a73a382859683f432c66a836ee10f4baabbe90fcb29480e5558187df",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_sealed_brass_gauntlets__humgen_creator_male",
+        "contract_sha256": "6daf0ef6b75c1267740d5751a45f91113e573086e61ed247834aac2cc7f4e853",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "d6b68103f4898bae6ea3bff3fe184916240a75aad044467f0e9d1fbb85038ad7",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "3475c1a3b10cc8880f68ef9237856980788362b39e3c00d07d2effbc1ca3af73",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.sealed_road_jack",
+    "name": "Sealed Road Jack",
+    "review_id": "A02",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_4_piece_leather_armor\\extracted\\source\\LeatherArmor_Complete.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_sealed_road_jack",
+    "icon": "ui.item.sealed_road_jack",
+    "slot": "chest",
+    "era": "Medieval / renaissance",
+    "source_object": "Leather_Chest",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/4-piece-leather-armor-metahuman-rigged-4c10a03dbf3a440c943d383d664248c1",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "d80cbf64f224f9743148d40858653fe5e134d1fd6bbd2c1f9be96f881a532094",
+    "upstream": {
+      "title": "Leather Armor",
+      "author": "Blueprint Games",
+      "author_url": "https://sketchfab.com/Vahil",
+      "source_url": "https://sketchfab.com/3d-models/leather-armor-0693e6cbc82b47f7a8c08a7bb87ae72b",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "a2d17e8aa93e2dcf47f5cacdf63e0b11406dd60432c07b99503fefdec531a527",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_chest_final_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_sealed_road_jack__humgen_creator_female",
+        "contract_sha256": "876bbfd3d8f1c1202abec081273e2860e47c5ed9b90d42b77b414bc977680dfc",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_sealed_road_jack__humgen_creator_male",
+        "contract_sha256": "a3c10df7ec61c2ee40c30de7c12e3bb1b94d269a0d69cd1034acafa709f11777",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "d6b68103f4898bae6ea3bff3fe184916240a75aad044467f0e9d1fbb85038ad7",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "3475c1a3b10cc8880f68ef9237856980788362b39e3c00d07d2effbc1ca3af73",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.quilted_ward_jack",
+    "name": "Quilted Ward Jack",
+    "review_id": "A06",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_heavy_armor\\extracted\\source\\Outfit_Heavy_Armor.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_quilted_ward_jack",
+    "icon": "ui.item.quilted_ward_jack",
+    "slot": "chest",
+    "era": "Medieval / renaissance",
+    "source_object": "Chest_Heavy_Armor",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.cairnwold.durn_skell",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "0b98c064f31b5e1eacde96172777aa79dadd25f9e954374518898a42a3e9f189",
+    "upstream": {
+      "title": "Mercenary",
+      "author": "Fghdd42",
+      "author_url": "https://sketchfab.com/Fghdd42",
+      "source_url": "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "cca42604d0d6339b85dc4ceae36a7066beabe0ba95297238d8d62c3a2c8f2d74",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_chest_final_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_quilted_ward_jack__humgen_creator_female",
+        "contract_sha256": "4cbe1f71241fa63503a7c1bceed2e29cb7331790ab0c04ce566e2099036b4361",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_quilted_ward_jack__humgen_creator_male",
+        "contract_sha256": "162ba777b7250807e4dcbb955ce5039508f3aeac455da0de6a254ba9c2d113ff",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "a43d6db10d88f4998f4e68a319a3dc6e65c0b84e8ae8fce549bc16c5b77b3c52",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "54e68660d18062b287f5bf31301630d95e0a9c92e9a21d2607eca61ab9a8c41b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.river_lame_jack",
+    "name": "River Lame Jack",
+    "review_id": "A11",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_scalemail_armor\\extracted\\source\\Outfit_Scalemail_Armor_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_river_lame_jack",
+    "icon": "ui.item.river_lame_jack",
+    "slot": "chest",
+    "era": "Medieval / renaissance",
+    "source_object": "Chest_Scalemail",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "9af13256d5795d2fea341ce5812cf965d6637311ef9d057dc6d664114bffa45c",
+    "upstream": {
+      "title": "Fantasy scaled armor",
+      "author": "nordwar",
+      "author_url": "https://sketchfab.com/nordwar",
+      "source_url": "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_chest_final_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_river_lame_jack__humgen_creator_female",
+        "contract_sha256": "9518777349c65c000d4d6a727acdcfff3373c12c656bcb426e8e0b681d463b31",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_river_lame_jack__humgen_creator_male",
+        "contract_sha256": "5482eb7aeb9c3418e2900a132e77fb2342d72736da53fc431460481fca0393c8",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1416c7d6d2cdfa496647d409a73f6b627dd9b91e41d7fd00a1dd58ba7612edb0",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "6be2ba0ed9c45790aeca0bbce56837451ccd1eecafb04cb1f32ab9aa0f504d3b",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.repaired_proof_helm",
+    "name": "Repaired Proof Helm",
+    "review_id": "A15",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_platemail\\extracted\\source\\Platemail_Full_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_repaired_proof_helm",
+    "icon": "ui.item.repaired_proof_helm",
+    "slot": "head",
+    "era": "Medieval / renaissance",
+    "source_object": "Helm",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "28cfe00a87d571dc570acb22aefc5a4997d3ed46743032de9012edb8aac6d58b",
+    "upstream": {
+      "title": "Realistic armor",
+      "author": "GreenG",
+      "author_url": "https://sketchfab.com/GreenG",
+      "source_url": "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "d6c7986f7e3727ad97ef036c44b4238ab0fcdd99f6be0acb7ae4f619fb52963b",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_helm_art_v6",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_repaired_proof_helm__humgen_creator_female",
+        "contract_sha256": "e72c1763dac806655460e29edd759a8830205693f7463c9b60cd76929eccd414",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_repaired_proof_helm__humgen_creator_male",
+        "contract_sha256": "fd9622f3e727fe721baf29796f2b1fc0ce0ec11d78cf975378be973eb66df6c9",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1d0a0106a12e43e0ce02997864d471d3cd3b2631c4d26dfa7f5e0c980470e421",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "eae145b130092ce1b5589b81eac4b272a8b22bb398a9517e6e19f879835ce2fe",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.repaired_proof_sabatons",
+    "name": "Repaired Road Shoes",
+    "review_id": "A16",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_platemail\\extracted\\source\\Platemail_Full_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_repaired_proof_sabatons",
+    "icon": "ui.item.repaired_proof_sabatons",
+    "slot": "feet",
+    "era": "Medieval / renaissance",
+    "source_object": "Platemail_Boots",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "28cfe00a87d571dc570acb22aefc5a4997d3ed46743032de9012edb8aac6d58b",
+    "upstream": {
+      "title": "Realistic armor",
+      "author": "GreenG",
+      "author_url": "https://sketchfab.com/GreenG",
+      "source_url": "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "d6c7986f7e3727ad97ef036c44b4238ab0fcdd99f6be0acb7ae4f619fb52963b",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_boot_v5",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_repaired_proof_sabatons__humgen_creator_female",
+        "contract_sha256": "71a8512dd6c7b3fa51bdc5908da2c3fd716e27e179b2d070023d711e5ff695e0",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_repaired_proof_sabatons__humgen_creator_male",
+        "contract_sha256": "6dd993ba76fd55523d6da58e8522b2349ff0892bfd99fa838ac69a8d2be83854",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1d0a0106a12e43e0ce02997864d471d3cd3b2631c4d26dfa7f5e0c980470e421",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "eae145b130092ce1b5589b81eac4b272a8b22bb398a9517e6e19f879835ce2fe",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.repaired_proof_jack",
+    "name": "Repaired Proof Jack",
+    "review_id": "A17",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_platemail\\extracted\\source\\Platemail_Full_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_repaired_proof_jack",
+    "icon": "ui.item.repaired_proof_jack",
+    "slot": "chest",
+    "era": "Medieval / renaissance",
+    "source_object": "Platemail_Chest",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "28cfe00a87d571dc570acb22aefc5a4997d3ed46743032de9012edb8aac6d58b",
+    "upstream": {
+      "title": "Realistic armor",
+      "author": "GreenG",
+      "author_url": "https://sketchfab.com/GreenG",
+      "source_url": "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "d6c7986f7e3727ad97ef036c44b4238ab0fcdd99f6be0acb7ae4f619fb52963b",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_authoring\\armour_native_chest_final_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_repaired_proof_jack__humgen_creator_female",
+        "contract_sha256": "ccd82c078f060b4122c2ace165fc2ee59590361b9f08d1d356d1fcaa94057901",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_repaired_proof_jack__humgen_creator_male",
+        "contract_sha256": "7baf73c65ff29c205854da10f81720289fd0ba90e1f2f22c7adcfdbe0ddd0530",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1d0a0106a12e43e0ce02997864d471d3cd3b2631c4d26dfa7f5e0c980470e421",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "eae145b130092ce1b5589b81eac4b272a8b22bb398a9517e6e19f879835ce2fe",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
+  },
+  {
+    "item_id": "item.armor.repaired_proof_cuisses",
+    "name": "Repaired Proof Cuisses",
+    "review_id": "A18",
+    "source": "C:\\Otherreach_External_Assets\\Sourced_Clothing_20261019\\devonlux_5_piece_platemail\\extracted\\source\\Platemail_Full_Rigged.fbx",
+    "status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "art_id": "gear_repaired_proof_cuisses",
+    "icon": "ui.item.repaired_proof_cuisses",
+    "slot": "legs",
+    "era": "Medieval / renaissance",
+    "source_object": "Platemail_Pants",
+    "source_hint": "Kera for iron work; Durn for hide work",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "wear_status": "CLAUDE_ACCEPTED_BOTH_NORMAL_EQUIPMENT_VERIFIED",
+    "merchant": "merchant.ashen_hollow.kera_voss",
+    "author": "DevonLux",
+    "licence": "CC BY 4.0",
+    "source_url": "https://sketchfab.com/3d-models/5-piece-platemail-metahuman-rigged-d5a36fd5d69640b29bb7e92f72f61608",
+    "upstream_compilation_credit": "Traced to original model; retain original author AND DevonLux adaptation credits.",
+    "source_sha256": "28cfe00a87d571dc570acb22aefc5a4997d3ed46743032de9012edb8aac6d58b",
+    "upstream": {
+      "title": "Realistic armor",
+      "author": "GreenG",
+      "author_url": "https://sketchfab.com/GreenG",
+      "source_url": "https://sketchfab.com/3d-models/realistic-armor-e281da5c2578439189f2f17106bf63fc",
+      "licence": "CC BY 4.0",
+      "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+      "primary_metadata_sha256": "d6c7986f7e3727ad97ef036c44b4238ab0fcdd99f6be0acb7ae4f619fb52963b",
+      "identification": "Matching distinctive source silhouette, component ornament and native texture layouts, corroborated by compiler public liked-model list. Primary source metadata retained. Not a claim of byte identity between adapted and upstream geometry."
+    },
+    "native_candidate_root": "D:\\Otherreach_Scratch\\p2_gear_20261031\\armour_native_legs_v3",
+    "native_contracts": [
+      {
+        "body": "humgen_creator_female",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "identifier": "gear_repaired_proof_cuisses__humgen_creator_female",
+        "contract_sha256": "6fb9d0c6d1c56ed8f1910283982721798dec6ba5f3913cf18cef8e0765c761ec",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7"
+      },
+      {
+        "body": "humgen_creator_male",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "identifier": "gear_repaired_proof_cuisses__humgen_creator_male",
+        "contract_sha256": "2e1d93337ca136d3606f423a666065601361819dbc8dae454d3b0327fa449e21",
+        "native_rest_error": 0,
+        "accepted_assetbase_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+      }
+    ],
+    "normal_equipment_proof": [
+      {
+        "body": "humgen_creator_female",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\female\\native_movement.mp4",
+        "video_sha256": "1908af8a7bc0cc3dc3a8c500b85903b1db4bf592e8ad721acd888e81c7d8e159",
+        "clock_sha256": "1d0a0106a12e43e0ce02997864d471d3cd3b2631c4d26dfa7f5e0c980470e421",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      },
+      {
+        "body": "humgen_creator_male",
+        "video": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_complete_sets_final_v1\\normal_candidate_items_v1\\male\\native_movement.mp4",
+        "video_sha256": "4d9fed0b998a25dda1cdfb5ee693e5383edb558aaae15caa522ec50aa8282dcc",
+        "clock_sha256": "eae145b130092ce1b5589b81eac4b272a8b22bb398a9517e6e19f879835ce2fe",
+        "states": [
+          "idle",
+          "walk",
+          "run",
+          "crouch",
+          "attack",
+          "unequipped"
+        ]
+      }
+    ],
+    "claude_verdict": "FINAL20 PASS00:25 Nov1 CODEX_PROGRESS.md"
   }
 ]

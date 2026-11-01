@@ -1,0 +1,2749 @@
+{
+  "status": "READY_FOR_INTEGRATOR_MERGE",
+  "branch": "content/p2-gear",
+  "base": "build2-integ@303bdbe8",
+  "claude_verdict": "CODEX_PROGRESS.md VERDICT00:25 Nov1: FINAL20 PASS bind now",
+  "source_root": "E:\\Otherreach_Scratch\\p2_gear_20261031_native_review\\armour_delivery_final20_candidate",
+  "counts": {
+    "items": 20,
+    "body_variants": 40,
+    "boot_backing_variants": 8,
+    "icons": 20,
+    "signed_texture_references": 220,
+    "signed_large_images": 172
+  },
+  "body_sha256": {
+    "humgen_creator_female": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+    "humgen_creator_male": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28"
+  },
+  "review_packets": [
+    "C:\\Otherreach_External_Assets\\asset_library\\playtest2_gear_20261031\\ARMOUR_FINAL20_NATIVE_SETS",
+    "C:\\Otherreach_External_Assets\\asset_library\\playtest2_gear_20261031\\ARMOUR_FINAL20_NORMAL_ITEMS"
+  ],
+  "normal_equipment_proof_sha256": "fe02b29f7b02e01b4ea5192ece8879edce276071ee5b0d0bfe0cfb9d7fece29b",
+  "normal_capture_gpu_lease_seconds": 313.5023097,
+  "source_resolution_preserved": true,
+  "no_generative_processing": true,
+  "checks": {
+    "public_application_vendor_save_ttk_barrowworks": "6/6 PASS",
+    "presentation": "533/533 PASS",
+    "architecture": "23/23 PASS",
+    "content": "PASS; P2_ARMOUR_CHECKS.json / private source_receipts/CHECKS.json",
+    "lint": "914 definitions,0errors",
+    "world_hooks": "exit0;128placed/59development-missing/70unmodelled, unchanged placement scope",
+    "debug_rebuild": "0errors/33existing warnings",
+    "release_rebuild": "0errors/25existing warnings",
+    "canonical_python_imports": "compile/import dependency audit PASS;16 scripts"
+  },
+  "install": "P2_ARMOUR_INSTALL.md: copy48 gear directories+icons; MERGE cache/ui icon manifests BY KEY; preserve baseline Creator/Office and full manifests. Reconcile chest-only replaces_creator_sweater with independent CMB04 flags.",
+  "balance_scope": "Tables measure this build2-based checkout, not later RC boss replacement. Keep integrated RC bow YAML and regenerate RC boss tables after merge.",
+  "limits": [
+    "Both current Creator bodies/default native controls; ordinary camera native gameplay-animation stage, not all dial settings/whole-world route/performance certification.",
+    "Sampled native3.5mm/body+garment overlap receipts plus accepted real motion; no universal mathematical motion claim.",
+    "Four garment LOD bands retain source geometry; no geometry reduction claim.",
+    "W08polearm/W02greatsword deferred until actual2hand motion is proven."
+  ],
+  "files": [
+    {
+      "path": "CACHE_VERIFY.json",
+      "bytes": 148487,
+      "sha256": "d0fcd28f3887ae544dcb4f645973f84d5966f67c35bc16c3d28cb1a107cbeff5"
+    },
+    {
+      "path": "CANDIDATE_SCOPE.json",
+      "bytes": 3162,
+      "sha256": "da502c27a78aff4e27481de0856e4fdffae898703268cbd9661dc2f29c458317"
+    },
+    {
+      "path": "INSTALL.md",
+      "bytes": 3353,
+      "sha256": "eb1fc1443419d27594874aa54fe39b01e8d9151effd9c46328f982e1fcf02e41"
+    },
+    {
+      "path": "primary/manifests/ui_icons.json",
+      "bytes": 8675,
+      "sha256": "60231ecff32b0a16f03d87ccf10db4296987f14148f218a7611d7bea1df0ec2e"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_female/body_coverage.json",
+      "bytes": 412447,
+      "sha256": "3d82f8a0c4ef703713372c71fb28005088bde1761a4fe3270db559f7c6e3be64"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_female/body_coverage.png",
+      "bytes": 3287,
+      "sha256": "08ef113deee0bbe8effbdbedc992de39acb3fe20f612ac31fd13eb7e70f136bf"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_female/creator_part.json",
+      "bytes": 1454,
+      "sha256": "b1d30a8a7f0eabffe29dc57df0e7f76a59e7ea4044503d04cf24246963b157d5"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_female/gear_old_ward_greathelm__humgen_creator_female_garment.json",
+      "bytes": 198,
+      "sha256": "dec2f238c1e6f9ab34bcc245edb3116605de705d62443aca7877d44c14a4e214"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_female/gear_old_ward_greathelm__humgen_creator_female_rigged.glb",
+      "bytes": 102114312,
+      "sha256": "2d38dab7a7b0ec3374cc9d120f5a40bffd9032dce483681e651f39ae3cce102c"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_male/body_coverage.json",
+      "bytes": 428186,
+      "sha256": "d56b2634b97fb5d37aa9d92ee80cdfb372a34f8416e7d8dcd5dcd36417a03e74"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_male/body_coverage.png",
+      "bytes": 3373,
+      "sha256": "78e9d8d4bf59aec8978a244a7ed35b93437ed4523f971121f007fbbea95c7a8e"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_male/creator_part.json",
+      "bytes": 1444,
+      "sha256": "5308b7c77c7f547e756e82d715fe10c437a4c072dc0ce08cd2188c6f264e28c7"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_male/gear_old_ward_greathelm__humgen_creator_male_garment.json",
+      "bytes": 198,
+      "sha256": "3067ece360a8b4b7634544ecb47f4fb4ba5cadf8f816ca5096658230e13bab25"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_male/gear_old_ward_greathelm__humgen_creator_male_rigged.glb",
+      "bytes": 102930588,
+      "sha256": "c44b5aafb9011d00cfd2396fb231b5982911e6800979134221fc7f6a9f4cc566"
+    },
+    {
+      "path": "primary/rigged/gear_old_ward_greathelm__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_female/body_coverage.json",
+      "bytes": 537722,
+      "sha256": "d61f5f8bf83a759a6c099be10073700385649cdab1acca8f5e6594857a6cfe04"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_female/body_coverage.png",
+      "bytes": 3632,
+      "sha256": "d433d223ffaabd9662ada358ad482ea1fb399453c04ad64e7960d6cc25b44ab4"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_female/creator_part.json",
+      "bytes": 1200,
+      "sha256": "073a21404d3393561b18026a1cd1e4069073c2c22442486f0a8607ee2dbd3537"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_female/gear_open_road_barbute__humgen_creator_female_garment.json",
+      "bytes": 197,
+      "sha256": "fd9135b2fc77972d483f15272a1c39ff4b2b47e83dbdab3a76e6023a6f211279"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_female/gear_open_road_barbute__humgen_creator_female_rigged.glb",
+      "bytes": 11052032,
+      "sha256": "796a519f2b041019d2e902d6c287de6f8baaa2b066ddb345ef1a0dfb44829ac4"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_male/body_coverage.json",
+      "bytes": 569241,
+      "sha256": "30388d3dabb663ffe9f35b7154fabb47909864a895065b4a58e110e1135452ec"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_male/body_coverage.png",
+      "bytes": 3769,
+      "sha256": "834f5b183db6416f36d762a9cd7f6790a9368389b3db6fbeb0a2acc453a8423b"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_male/creator_part.json",
+      "bytes": 1432,
+      "sha256": "b52b09b4d9802adb94439ef60cadb02ba2524b971079ad243719db6a1f82ffa7"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_male/gear_open_road_barbute__humgen_creator_male_garment.json",
+      "bytes": 197,
+      "sha256": "1676d976c25f93f6669837642d88282c9e2388829491093ac4664a9525ccaa4b"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_male/gear_open_road_barbute__humgen_creator_male_rigged.glb",
+      "bytes": 11219832,
+      "sha256": "db6c867609d5c8063298a2a8240eda67968f4edd0832fc0e5659f9a142dfbe55"
+    },
+    {
+      "path": "primary/rigged/gear_open_road_barbute__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_female/body_coverage.json",
+      "bytes": 447899,
+      "sha256": "80c4c537752f3b3cb4e9902d5fb614ae574633f05af0bfadd5961af2132175f8"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_female/body_coverage.png",
+      "bytes": 3636,
+      "sha256": "637160a58d2552e554cc37b9bdb975b614811d01490efbeb2f1d3735d33946f9"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_female/creator_part.json",
+      "bytes": 1036348,
+      "sha256": "7532f2df4bc560d032e004931fcec52046bd8d1ca93d1fdf69148c838f45a659"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_female/gear_quilted_ward_boots__humgen_creator_female_garment.json",
+      "bytes": 198,
+      "sha256": "29eb1ca394e23c874bada52af78d39c92fe697dab67b3ffe20ddd44f27eda555"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_female/gear_quilted_ward_boots__humgen_creator_female_rigged.glb",
+      "bytes": 23170452,
+      "sha256": "e2b17ee1164f5a1f14e637d534e3772a7ae198351d5475964717c202fda37d5c"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_male/body_coverage.json",
+      "bytes": 450247,
+      "sha256": "b4f4ec5d7b2f2bd711f51de27d84d2989c3d730ceb31cb92421eb281fc3dd5f0"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_male/body_coverage.png",
+      "bytes": 3417,
+      "sha256": "44b20d2c6f0c7dfb776b422d95ba8b78a928748d64cebb74a581e9f018cf8d8c"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_male/creator_part.json",
+      "bytes": 907705,
+      "sha256": "16c4d6e673f2f72c6b4cbf61ef2dbe0300a8c1b1981d8a242cb166737977d672"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_male/gear_quilted_ward_boots__humgen_creator_male_garment.json",
+      "bytes": 198,
+      "sha256": "529161cf29bd55b0166dc09fda3ba736fefff8dce880f3d62ddf45c0eaa671f3"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_male/gear_quilted_ward_boots__humgen_creator_male_rigged.glb",
+      "bytes": 20576664,
+      "sha256": "17f517309271edfd626bad654de8e83b8398885071669234879195387c41fe63"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_female/body_coverage.json",
+      "bytes": 589930,
+      "sha256": "c687c38a864fdf0f2181678c0b174c053d2bc4266ea458dde1316306f7e03b24"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_female/body_coverage.png",
+      "bytes": 3298,
+      "sha256": "bde268eb833f10f2a4f31c59fe447aa54d74f69986c258dbdbfc32afa9c9070d"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_female/creator_part.json",
+      "bytes": 1036426,
+      "sha256": "8ef16b60c4b377f1b867484eec17b1e90db373c052652c61551206a11776e0b7"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_female/gear_quilted_ward_boots_underlayer__humgen_creator_female_garment.json",
+      "bytes": 198,
+      "sha256": "85b0a75c4b7a9c1c5ad651356d65253cee109d92f4b7e002788135205a754279"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_female/gear_quilted_ward_boots_underlayer__humgen_creator_female_rigged.glb",
+      "bytes": 111686372,
+      "sha256": "3c82913b260e35896aa0943de119f3449c9c856154780b699c3fc2a4f2488444"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_male/body_coverage.json",
+      "bytes": 569771,
+      "sha256": "f685d1f0beb211ee3195c11cfc2fcc45e7a1595bc9a52b505afb781dc3510215"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_male/body_coverage.png",
+      "bytes": 3732,
+      "sha256": "68438f3e988d3b70b90466f13c1d8d214e8636f09438047ac707917d8b2e433f"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_male/creator_part.json",
+      "bytes": 907784,
+      "sha256": "7f611a59598c037fa687e7a8cc3508d0c3516feb08efb5199792847d161fb5c9"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_male/gear_quilted_ward_boots_underlayer__humgen_creator_male_garment.json",
+      "bytes": 198,
+      "sha256": "09cb7a252c5bf66dd8dc2f75cc1ddbed68305c71814d988b082b8b0d4e966e45"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_male/gear_quilted_ward_boots_underlayer__humgen_creator_male_rigged.glb",
+      "bytes": 64835196,
+      "sha256": "0965e7f8f5435bf343520129d910557989f8d10c9b954b32bf44645c42dcee5f"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_boots_underlayer__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_female/body_coverage.json",
+      "bytes": 363887,
+      "sha256": "ffbb03cb3f911f5f73a8d091b2330cb42ecf2b1a041f93516a154711830ae95c"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_female/body_coverage.png",
+      "bytes": 3834,
+      "sha256": "4d64a10a8b86ca51af76cd36b6f9f533eeaf29361e8535e6e1dbbffc482f43fa"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_female/creator_part.json",
+      "bytes": 115269,
+      "sha256": "c7b11341bf05133875f887fb914f2693277064428e934b0bf2957bfa4862f993"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_female/gear_quilted_ward_breeches__humgen_creator_female_garment.json",
+      "bytes": 201,
+      "sha256": "7a21c4e418ba096f596a147f136042d89f8b74f9d5add23a897d075bf775ee64"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_female/gear_quilted_ward_breeches__humgen_creator_female_rigged.glb",
+      "bytes": 77538452,
+      "sha256": "ffb8fc8435126fbaa5b3187fc0ebadf9857b4b681b1b7207c4e885c6b5c608d4"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_male/body_coverage.json",
+      "bytes": 338484,
+      "sha256": "00d3e43beaab68e2cc5a69f518a2525f9769ade947d348f50668e79df3107ece"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_male/body_coverage.png",
+      "bytes": 4044,
+      "sha256": "f1791c19eb8dff20404c2db6b932ee79db5b9e5e851e220ac92ef2c3205b2919"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_male/creator_part.json",
+      "bytes": 116264,
+      "sha256": "a07abb5b0a0a945bfe00d853e04fc5825b4d84fb0ae8f6cca7221b5b573c4116"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_male/gear_quilted_ward_breeches__humgen_creator_male_garment.json",
+      "bytes": 201,
+      "sha256": "70af435abd3c55d922784413a5e47cf2600f27c63260a7e904504ac9e11e7d97"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_male/gear_quilted_ward_breeches__humgen_creator_male_rigged.glb",
+      "bytes": 79957488,
+      "sha256": "9581561fc56b8ca39c2bd8178530e435a3adc3836e6d3b5254ed7150a368dd40"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_breeches__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_female/body_coverage.json",
+      "bytes": 1250222,
+      "sha256": "dd3382c5bcba4a5264148e5631a0208de0ff4861f69e60f9d2e5d8ef9a4e3c1f"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_female/body_coverage.png",
+      "bytes": 6526,
+      "sha256": "b8531d0a87493eea0dda672b050f9107bbd2c43d85eb201f15e9d31b8331e06d"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_female/creator_part.json",
+      "bytes": 1088945,
+      "sha256": "4cbe1f71241fa63503a7c1bceed2e29cb7331790ab0c04ce566e2099036b4361"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_female/gear_quilted_ward_jack__humgen_creator_female_garment.json",
+      "bytes": 197,
+      "sha256": "919b5f551a0cf9534051a602cfb9a90a8d40d86bfa876d6394558c2078a71e64"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_female/gear_quilted_ward_jack__humgen_creator_female_rigged.glb",
+      "bytes": 89118532,
+      "sha256": "813d75d37e5e9ed8ab3e640a2ef4f0bcb07788cdaa1be4ad03e2ddbcababcc04"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_male/body_coverage.json",
+      "bytes": 1265589,
+      "sha256": "f03277bc2ef690d2626955255653bda6e18afe1b9f1204e228b04cac5780626b"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_male/body_coverage.png",
+      "bytes": 5977,
+      "sha256": "c612646834edff65c84ef583c88af3a8457d26648b3467a7d4eee72c69770dc2"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_male/creator_part.json",
+      "bytes": 1098316,
+      "sha256": "162ba777b7250807e4dcbb955ce5039508f3aeac455da0de6a254ba9c2d113ff"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_male/gear_quilted_ward_jack__humgen_creator_male_garment.json",
+      "bytes": 197,
+      "sha256": "832ff7a1add9dbe7bc7138454cb3e8105526f08579c1c64c212a6a605e9c05a0"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_male/gear_quilted_ward_jack__humgen_creator_male_rigged.glb",
+      "bytes": 89650952,
+      "sha256": "8dd67283f00f2db0f01d8cbbaf168be360dd3c2a5287e78efeba15eadf3246ef"
+    },
+    {
+      "path": "primary/rigged/gear_quilted_ward_jack__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_female/body_coverage.json",
+      "bytes": 514028,
+      "sha256": "6cbd553f70e486e1b97ae92783890fe17b17e266696215e33dbc325e85e4ea2d"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_female/body_coverage.png",
+      "bytes": 3583,
+      "sha256": "f35f382e80341b37d9102630bcfa4ed539fd7c2ccd16600c50f5d29aea01e434"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_female/creator_part.json",
+      "bytes": 423438,
+      "sha256": "6fb9d0c6d1c56ed8f1910283982721798dec6ba5f3913cf18cef8e0765c761ec"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_female/gear_repaired_proof_cuisses__humgen_creator_female_garment.json",
+      "bytes": 202,
+      "sha256": "cfd2da9b99aa99436b497c48928a12667acda1361fc7a64de15351b475215372"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_female/gear_repaired_proof_cuisses__humgen_creator_female_rigged.glb",
+      "bytes": 100665180,
+      "sha256": "2af34e59b9233ab2e16965a6e3fc5b99573b4d2b3d1c6747c8360545adfbab0f"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_male/body_coverage.json",
+      "bytes": 473015,
+      "sha256": "f9b8553e4b206aeb74f23823041c72d3ff9fd997c5568484c3cf8d84f12f6708"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_male/body_coverage.png",
+      "bytes": 3277,
+      "sha256": "2d0754004db37cc46c8ae13ef28b14a5b36e2e5ae78d1cc2e32a1a89ef730b28"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_male/creator_part.json",
+      "bytes": 423550,
+      "sha256": "2e1d93337ca136d3606f423a666065601361819dbc8dae454d3b0327fa449e21"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_male/gear_repaired_proof_cuisses__humgen_creator_male_garment.json",
+      "bytes": 202,
+      "sha256": "e367a6e90ccf727af8e2daea1e845a4e45fd4a12dc35ac1f4bd8d65b2b2496ad"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_male/gear_repaired_proof_cuisses__humgen_creator_male_rigged.glb",
+      "bytes": 100810208,
+      "sha256": "938002cfc1afeaf4e4058230f6c2bc476418951caab216b4335d7c7cdea28aba"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_cuisses__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_female/body_coverage.json",
+      "bytes": 667261,
+      "sha256": "418df7155f8f636d7621492ae68426223624efb7356ea5551dc582e2e6fb6bc7"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_female/body_coverage.png",
+      "bytes": 5273,
+      "sha256": "65b76b24684a69cc04553f9f9eac844434dc9f491d941f2bc485eeae7c853719"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_female/creator_part.json",
+      "bytes": 5052,
+      "sha256": "e72c1763dac806655460e29edd759a8830205693f7463c9b60cd76929eccd414"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_female/gear_repaired_proof_helm__humgen_creator_female_garment.json",
+      "bytes": 199,
+      "sha256": "6d210d4a2ff06cbd86a538f65b5a6f36c7954c9fe61ac221dabda269ae9ed30a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_female/gear_repaired_proof_helm__humgen_creator_female_rigged.glb",
+      "bytes": 78936192,
+      "sha256": "e8da9cbdba201eb591a30b5926d203215a9748a21d72b9355d236064406290d2"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_male/body_coverage.json",
+      "bytes": 747674,
+      "sha256": "fc2f684451f5bfeef999fe11dde22a89da77b0ed6228cd4414c68213b540ff47"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_male/body_coverage.png",
+      "bytes": 4741,
+      "sha256": "e19ebc8976ac41ae1cbaaaeccb497a35950e169db94aec8e3ae973a12a803c8d"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_male/creator_part.json",
+      "bytes": 5042,
+      "sha256": "fd9622f3e727fe721baf29796f2b1fc0ce0ec11d78cf975378be973eb66df6c9"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_male/gear_repaired_proof_helm__humgen_creator_male_garment.json",
+      "bytes": 199,
+      "sha256": "f517be494a5c4cf70950e015fdf67298063cacdab4cf588027934a87b888de92"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_male/gear_repaired_proof_helm__humgen_creator_male_rigged.glb",
+      "bytes": 79037416,
+      "sha256": "e0501590f9edd999d515c66e81a9efcaccb2fc30fe334f477166bb70068a36f7"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_helm__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_female/body_coverage.json",
+      "bytes": 1324362,
+      "sha256": "fde6d780b7ae4bbb75d3b7b0dd561b94bf0b99e2cc83b7adb025eaa8a27c2793"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_female/body_coverage.png",
+      "bytes": 7360,
+      "sha256": "b34bcc7952653a07cd3030b0d4643977fc73473939eabb60b390ba69c864ae52"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_female/creator_part.json",
+      "bytes": 1278061,
+      "sha256": "ccd82c078f060b4122c2ace165fc2ee59590361b9f08d1d356d1fcaa94057901"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_female/gear_repaired_proof_jack__humgen_creator_female_garment.json",
+      "bytes": 199,
+      "sha256": "0e0cb7e3c68e53bf70d2fc235bf7c0c85072fccdc6cfdb7f5942e00aec38f014"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_female/gear_repaired_proof_jack__humgen_creator_female_rigged.glb",
+      "bytes": 98197604,
+      "sha256": "dfe1c9ba2d327dfbc5b0c20c612386007da5373a2f0d6520f789640cc01fa27e"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_male/body_coverage.json",
+      "bytes": 1316390,
+      "sha256": "a8115dcef8c874a5d03f2df980f107cbae50c71b1866991de3e796f41edfd371"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_male/body_coverage.png",
+      "bytes": 7433,
+      "sha256": "548620e25984e3e8261659b830c381fc7df1e4f2c67270d7358fca97dbcf2260"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_male/creator_part.json",
+      "bytes": 1328247,
+      "sha256": "7baf73c65ff29c205854da10f81720289fd0ba90e1f2f22c7adcfdbe0ddd0530"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_male/gear_repaired_proof_jack__humgen_creator_male_garment.json",
+      "bytes": 199,
+      "sha256": "4e471eef83c08024538fc7647277e42158a6a7c2fd7c0327628cd5153fec3a1c"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_male/gear_repaired_proof_jack__humgen_creator_male_rigged.glb",
+      "bytes": 101495568,
+      "sha256": "9dcfcc73f565f16c245525ce853ed98ee82ad4955e042befee4240d102f4144a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_jack__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_female/body_coverage.json",
+      "bytes": 494420,
+      "sha256": "68d67e933caf586215bb37d4ecfed86d6b0dd3dc54c2bccde7cca076d72404c7"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_female/body_coverage.png",
+      "bytes": 2492,
+      "sha256": "9eb43f1ab3824e8cb685a7c0cf1c9ba7997179fb9e55857af1b88e8fc07d3ab0"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_female/creator_part.json",
+      "bytes": 865746,
+      "sha256": "71a8512dd6c7b3fa51bdc5908da2c3fd716e27e179b2d070023d711e5ff695e0"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_female/gear_repaired_proof_sabatons__humgen_creator_female_garment.json",
+      "bytes": 203,
+      "sha256": "5f9c30bbbbfdcf35581a1cfcf30f01822a3d3b2484fb61fe51fdfba3b2144012"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_female/gear_repaired_proof_sabatons__humgen_creator_female_rigged.glb",
+      "bytes": 59420440,
+      "sha256": "31290f61f067ffff85579da5c918cbd6a35089c927dce52ead8368846c11d3e4"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_male/body_coverage.json",
+      "bytes": 496494,
+      "sha256": "b44c66a3b872d7c6ed5849bbec8f7bbb3196e4c36b786d85ff1145945bf869b2"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_male/body_coverage.png",
+      "bytes": 2395,
+      "sha256": "e374d8290085955a9c58c3490d1f5069b68b6e6431fe1bb5b97713b160fe9d04"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_male/creator_part.json",
+      "bytes": 850418,
+      "sha256": "6dd993ba76fd55523d6da58e8522b2349ff0892bfd99fa838ac69a8d2be83854"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_male/gear_repaired_proof_sabatons__humgen_creator_male_garment.json",
+      "bytes": 203,
+      "sha256": "b5803eee5e2840fe8cebd3b4f20f7829b95e90c15785a38084ded37cacafeba2"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_male/gear_repaired_proof_sabatons__humgen_creator_male_rigged.glb",
+      "bytes": 55748848,
+      "sha256": "6876d93942b94d2857d0ae932077cf07f1881db1d8383e1882eadf877915fe77"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_female/body_coverage.json",
+      "bytes": 795508,
+      "sha256": "1d839c1e5bdbd67addd8ea1d29a7f6783ce9fb2f05d90180c5c9a26c182882bb"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_female/body_coverage.png",
+      "bytes": 3499,
+      "sha256": "bbbf1fddd703749578083f016816e2ebf7130c3131c5eb2165fb533962ee0014"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_female/creator_part.json",
+      "bytes": 865826,
+      "sha256": "abf243fa49775cedb709bbafdcef8508605cfb5a4d665914ec234efd5559b8a8"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_female/gear_repaired_proof_sabatons_underlayer__humgen_creator_female_garment.json",
+      "bytes": 203,
+      "sha256": "332cfa6fa12bc4508165ad93e7c0bf1594d6d3aaacc5e3195cede509f7acec08"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_female/gear_repaired_proof_sabatons_underlayer__humgen_creator_female_rigged.glb",
+      "bytes": 137881624,
+      "sha256": "fa2e398c45d6eac2eaaf572c6b4988ae647f1b8b25d4c1a3ba31ccd705d6d008"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_male/body_coverage.json",
+      "bytes": 695820,
+      "sha256": "c2189f919eaac822cae76a563e06236cbb04a362ab5569ad6185661099b7ee9c"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_male/body_coverage.png",
+      "bytes": 4110,
+      "sha256": "5e44cda0a1e292aacb14983d0efcdabbff86c923c83dcda1b835dd4298136df4"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_male/creator_part.json",
+      "bytes": 850497,
+      "sha256": "86981a2e06e9d5536061d2aef51e1d677da1141d6f44faa3c403a2a32e56bb2d"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_male/gear_repaired_proof_sabatons_underlayer__humgen_creator_male_garment.json",
+      "bytes": 203,
+      "sha256": "ae8216f4959ddb831e334d6e56d76a2de4976a5b3638a59dc2bfb149ac56a194"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_male/gear_repaired_proof_sabatons_underlayer__humgen_creator_male_rigged.glb",
+      "bytes": 71249796,
+      "sha256": "2ba977b8d6d99280ecaeb08aaa9ae7dc53566d810dd32403d0e28562636766e7"
+    },
+    {
+      "path": "primary/rigged/gear_repaired_proof_sabatons_underlayer__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_female/body_coverage.json",
+      "bytes": 427053,
+      "sha256": "b104409d176c07e5422d593be596f5f9e92632ea96291c1d351bb7ed7d2b7ee4"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_female/body_coverage.png",
+      "bytes": 3373,
+      "sha256": "71cf7db765e78d2e7a77b0990dd14ae3ec37e0170b9a3f65092fb7a9f1bb7a4b"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_female/creator_part.json",
+      "bytes": 1061819,
+      "sha256": "355dccb0882fe9eac5d3a642dbb49a2f326e178bf02989c4e1f294584790279c"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_female/gear_river_lame_boots__humgen_creator_female_garment.json",
+      "bytes": 196,
+      "sha256": "a4e2fbc7d78d63f2f2edb68e9f0588a8e1b22a87a6202d5515725e3862b4d66e"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_female/gear_river_lame_boots__humgen_creator_female_rigged.glb",
+      "bytes": 9435788,
+      "sha256": "6cebf52a99be114e27d7f0a03d0f0fec5a86334ffe1d40179a4b55b2b2c19464"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_male/body_coverage.json",
+      "bytes": 437618,
+      "sha256": "899847d86b15d182811da778faae389a8be96e98c8d5c680140bf8e23bd01776"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_male/body_coverage.png",
+      "bytes": 3263,
+      "sha256": "8d800e56e75d938b58b6b1d5e14a565d63f079ead92639c97a24254c7bd19cf6"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_male/creator_part.json",
+      "bytes": 899764,
+      "sha256": "e9da8887bacc924be53b7a04c2d28176140b39da23bf41456f80c0807745122d"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_male/gear_river_lame_boots__humgen_creator_male_garment.json",
+      "bytes": 196,
+      "sha256": "56eebc3ae2541193791d80bbfd640c616ec3543f22366e4cc77ca9a9a07a9e88"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_male/gear_river_lame_boots__humgen_creator_male_rigged.glb",
+      "bytes": 8301972,
+      "sha256": "1872a211d357969c045c17f555d6918811b7665c885efd0baf7c4ca79d0f9681"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_female/body_coverage.json",
+      "bytes": 528407,
+      "sha256": "61857eb8fa39ec3409b2429f36f96ad7617abf4ac3a77283c9971bffd8c71aa9"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_female/body_coverage.png",
+      "bytes": 3360,
+      "sha256": "7ef1b9b0ddb9e866081a82af4846e08ee5ba8794c019db8d970b79f551c03297"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_female/creator_part.json",
+      "bytes": 1061885,
+      "sha256": "fe01b0042e447bd9eebebf339afbbbd47362c15ebbe5225a8222074cde392070"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_female/gear_river_lame_boots_underlayer__humgen_creator_female_garment.json",
+      "bytes": 196,
+      "sha256": "63bcd35a59b8460219977fc4193aef47f1b1fc7625aa0bc551e511df7d1f34ef"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_female/gear_river_lame_boots_underlayer__humgen_creator_female_rigged.glb",
+      "bytes": 101015372,
+      "sha256": "ea8e923f2f7f332f03d1535bc8561bd11dc55827c22b1273a4daf8d687c664a8"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_male/body_coverage.json",
+      "bytes": 534649,
+      "sha256": "1249b51e3a7cff2005953f7ffbcae0bd1ee5c372d9bcacf5e8486804ce3dac63"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_male/body_coverage.png",
+      "bytes": 3599,
+      "sha256": "fc579618ec1068f30ca31dff93595fd91ccd3d344fa1a0f5bd8bd2cc48d71dad"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_male/creator_part.json",
+      "bytes": 899829,
+      "sha256": "7fdcdac0defb66208afea82ae300759f927e1c2ec07b0fc2b07da6aedd14c110"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_male/gear_river_lame_boots_underlayer__humgen_creator_male_garment.json",
+      "bytes": 196,
+      "sha256": "1b928ddae2800fb72cabb28f2613b5faae8f042f3a94982e488f61d062c91b3a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_male/gear_river_lame_boots_underlayer__humgen_creator_male_rigged.glb",
+      "bytes": 63166084,
+      "sha256": "52e86762a3289e59b288a85f29ce63768b94315f3860516879e622a1c8b4fc00"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_boots_underlayer__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_female/body_coverage.json",
+      "bytes": 413338,
+      "sha256": "d01e2399c784516c1090875de3a222983cc50947dea1ee5a2b8ebbe418781bb9"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_female/body_coverage.png",
+      "bytes": 3622,
+      "sha256": "8c36ca71b85e6d7eebc4b2c6efde567f3af7fb0f7664bab0f13d757ce8549d7b"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_female/creator_part.json",
+      "bytes": 7859,
+      "sha256": "5b7f09546198df6a76b233498c735735273c4b110d29b806ca51865f423dce7d"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_female/gear_river_lame_breeches__humgen_creator_female_garment.json",
+      "bytes": 199,
+      "sha256": "1359f1a47f86fd3901c192d7471d2975d3a30bad05e24c39de7e271084034e58"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_female/gear_river_lame_breeches__humgen_creator_female_rigged.glb",
+      "bytes": 44831004,
+      "sha256": "12eb78da9cd86d79bbfae11fbcdf153dc88ea80ec311e580712889281a04a3c3"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_male/body_coverage.json",
+      "bytes": 365562,
+      "sha256": "06c5471fcdcdff9cfd1dd9344ce4933d076780cdfdd0ff2e6e7d0957926b41ef"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_male/body_coverage.png",
+      "bytes": 3218,
+      "sha256": "e9a79dd6e1ac2118311470455a33fed6cf99853d1ee57597415ae2f78cdb3ca4"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_male/creator_part.json",
+      "bytes": 7845,
+      "sha256": "2535e18a8625409894211f87d61b3f03ce2d840eb90f4efc07a5b9b9b973f0cd"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_male/gear_river_lame_breeches__humgen_creator_male_garment.json",
+      "bytes": 199,
+      "sha256": "3166679d9588fe7e9c8aed5d855bbccd34f4f367441c99749985716da66b4804"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_male/gear_river_lame_breeches__humgen_creator_male_rigged.glb",
+      "bytes": 44923148,
+      "sha256": "f2d4c6ddf0919713e1529e11f0b40bcc4aad0d1331e8c6eaec29c8805178100f"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_breeches__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_female/body_coverage.json",
+      "bytes": 843498,
+      "sha256": "33d68989a552de7c23acc6f94f585bfdde64af529fb12c53c1523a5d8e29e920"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_female/body_coverage.png",
+      "bytes": 2268,
+      "sha256": "51a3736d18457e7941e2bbe2c29821b656dfe17af0fc766a43839615c4ba4e72"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_female/creator_part.json",
+      "bytes": 36550,
+      "sha256": "0392791e34d6778e4b05c523056717102e6afeda455194a6cce0a18e10529b47"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_female/gear_river_lame_gloves__humgen_creator_female_garment.json",
+      "bytes": 197,
+      "sha256": "86c5a3b46816cd7af20f3fa1e81f505f22b856e5c3b6165fb44751bc02b8a2a1"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_female/gear_river_lame_gloves__humgen_creator_female_rigged.glb",
+      "bytes": 12911728,
+      "sha256": "19f60b639df4eb2dfa42cf4826fbf9690f4d256200cbdfc8daa1f20f4999fad8"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_male/body_coverage.json",
+      "bytes": 860034,
+      "sha256": "b9187bc1d6c543a6909cd7036e5f32c28a6e4441fbc727983a01471aeaeeeb50"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_male/body_coverage.png",
+      "bytes": 2227,
+      "sha256": "e7f74e3b3d7a817774e48424f4e3cb2219fd20d745068535f67c2327548dce68"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_male/creator_part.json",
+      "bytes": 40755,
+      "sha256": "2e524b5461c9ae0bada798811405ede0eac6d94121b65e0601a115afebdde18e"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_male/gear_river_lame_gloves__humgen_creator_male_garment.json",
+      "bytes": 197,
+      "sha256": "273202d1c00a308319a814522ff11147b832bb7ec43f0212e7bcfb48ea5b4419"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_male/gear_river_lame_gloves__humgen_creator_male_rigged.glb",
+      "bytes": 13061756,
+      "sha256": "18b95347e9eb869ec5b30ef9cf903ea2238013990f9e8a5c6aee97431640af67"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_gloves__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_female/body_coverage.json",
+      "bytes": 1296125,
+      "sha256": "7fbe0629a317d8679a6711c05cb1aac03c5a8a3a259862a42edf6729884a97a0"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_female/body_coverage.png",
+      "bytes": 7457,
+      "sha256": "09fd2d251d31f4c94080c00325b8ce0d4d7741ac39ec59cbb13d38faeb1ea756"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_female/creator_part.json",
+      "bytes": 965470,
+      "sha256": "9518777349c65c000d4d6a727acdcfff3373c12c656bcb426e8e0b681d463b31"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_female/gear_river_lame_jack__humgen_creator_female_garment.json",
+      "bytes": 195,
+      "sha256": "94207b197beb4d3064fefed59291e32c43495522c27a0fd2575e97cc370ec867"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_female/gear_river_lame_jack__humgen_creator_female_rigged.glb",
+      "bytes": 59108912,
+      "sha256": "ca9aac8cd7e7f06680bab7606e53fde77467d7a63f25d9a3ae6a3c6cc4300b49"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_male/body_coverage.json",
+      "bytes": 1320736,
+      "sha256": "4525fb65a105b19335e5cbb3725c5e4ecc30d1636cfc29a7a0bec1323885cf04"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_male/body_coverage.png",
+      "bytes": 7272,
+      "sha256": "726cd0f88015c6331053afeb8193bdba6f3f3d2996e578f09a22ee29ca66e5c6"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_male/creator_part.json",
+      "bytes": 969007,
+      "sha256": "5482eb7aeb9c3418e2900a132e77fb2342d72736da53fc431460481fca0393c8"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_male/gear_river_lame_jack__humgen_creator_male_garment.json",
+      "bytes": 195,
+      "sha256": "11f479c396a7718666099e43a54fa040dc995ec8f8b04765b8e1d4a984e2a991"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_male/gear_river_lame_jack__humgen_creator_male_rigged.glb",
+      "bytes": 57350700,
+      "sha256": "8409c2c5b186f2a485049321b931de85d0e4c7469504d409855ab86ab2f5f2a3"
+    },
+    {
+      "path": "primary/rigged/gear_river_lame_jack__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_female/body_coverage.json",
+      "bytes": 407589,
+      "sha256": "c6c16e497b55199ff167921adbf619fccb25f64726f519dcbc9d6a94f0a6bfaf"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_female/body_coverage.png",
+      "bytes": 3681,
+      "sha256": "c4b396ce4266b323f67fb7d589c6fff44b6a7dd762a2462e33634c79bd059502"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_female/creator_part.json",
+      "bytes": 1419,
+      "sha256": "a5a167168e32313a6b2f3b77850e1b553b473a16fd429a0e03ae3eda0b757759"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_female/gear_river_open_helm__humgen_creator_female_garment.json",
+      "bytes": 195,
+      "sha256": "8a1705745156b9a0b95ba851213a8cab4ad21d8bdbf822e7db7c03e0bd40c7f5"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_female/gear_river_open_helm__humgen_creator_female_rigged.glb",
+      "bytes": 23607056,
+      "sha256": "dc18a677ef7b7da9cde0e504fd109de0c434adccbfb4d685d2c0f5fefbfb8e5b"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_male/body_coverage.json",
+      "bytes": 456104,
+      "sha256": "bb8c742cd0a7511113ae2b3650918384587fd1fb7b4c05f344b91573ab0fdd09"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_male/body_coverage.png",
+      "bytes": 3962,
+      "sha256": "84b3a2745e2c1c7d64b30f21a2dfd13e7728ad088babfcdd2fc3004977a74315"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_male/creator_part.json",
+      "bytes": 1409,
+      "sha256": "111f8753e64b5008694a9c2bf6d885734d4d8548b0b65dde012edf60b2df247e"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_male/gear_river_open_helm__humgen_creator_male_garment.json",
+      "bytes": 195,
+      "sha256": "8456089deefb2a44bb176b299eb2ab07b9ddf5a9fe4423c03b28375a72cc2d80"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_male/gear_river_open_helm__humgen_creator_male_rigged.glb",
+      "bytes": 23762128,
+      "sha256": "99be3533dbbcc0d9a82d9281a6bb8ef7694f11772a9f23a00b6749e329860897"
+    },
+    {
+      "path": "primary/rigged/gear_river_open_helm__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_female/body_coverage.json",
+      "bytes": 89471,
+      "sha256": "21fc52206179f739dd77144f13d5e87075c6b90c1c8781d295e1361342e5f6f8"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_female/body_coverage.png",
+      "bytes": 1768,
+      "sha256": "0218fd4da1a879b41d64839452c69bb1fd9624c5b23d033038cf4245191daf3e"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_female/creator_part.json",
+      "bytes": 9234,
+      "sha256": "9ee2c399a73a382859683f432c66a836ee10f4baabbe90fcb29480e5558187df"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_female/gear_sealed_brass_gauntlets__humgen_creator_female_garment.json",
+      "bytes": 202,
+      "sha256": "dd28995e19c43b31ae1729cb35cb5d2e576eaed178ee14d33d22b17c9e9cb658"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_female/gear_sealed_brass_gauntlets__humgen_creator_female_rigged.glb",
+      "bytes": 8420040,
+      "sha256": "e354517b41a3a4f96962d9fb5ca2cb015ef0f068f6917f7354ea1b39fa46a249"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_male/body_coverage.json",
+      "bytes": 98167,
+      "sha256": "67fe714b68ddd5cae4861b5b9eaf919fc29e6154960b658545816b9ccf81d6c7"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_male/body_coverage.png",
+      "bytes": 1799,
+      "sha256": "420fa14ab63fee4349d86a79bedcf6d635b8f72d2c41f06205d81eab285f54fc"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_male/creator_part.json",
+      "bytes": 9112,
+      "sha256": "6daf0ef6b75c1267740d5751a45f91113e573086e61ed247834aac2cc7f4e853"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_male/gear_sealed_brass_gauntlets__humgen_creator_male_garment.json",
+      "bytes": 202,
+      "sha256": "6220857b5cb97a2d153781a2ef9bc73937fc854780a2068001867a914fe6ecc2"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_male/gear_sealed_brass_gauntlets__humgen_creator_male_rigged.glb",
+      "bytes": 8490108,
+      "sha256": "3a29c397d801c61dbc99beb24b305b20a6ebda79dc1a3399185b4e2a0df9bd1c"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_brass_gauntlets__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_female/body_coverage.json",
+      "bytes": 572397,
+      "sha256": "b9f8855d2781b2b25dd931f0107d668a220c17fb744530d4069bc0d4f5f9f8ea"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_female/body_coverage.png",
+      "bytes": 3581,
+      "sha256": "9eccacd552313e381cc8be76c228fc2e15a2707450e027b0fc87e0fa3e3e8080"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_female/creator_part.json",
+      "bytes": 1066923,
+      "sha256": "e16d512d76df32a8f8d60d61469c1c7c100c37c76e2e9ddb2b5f6bf491fd7e09"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_female/gear_sealed_road_boots__humgen_creator_female_garment.json",
+      "bytes": 197,
+      "sha256": "d5cfb592a8a87bdbee2d579aeda0d8f2bb5981105db8e89e93b74c5ea0dee261"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_female/gear_sealed_road_boots__humgen_creator_female_rigged.glb",
+      "bytes": 15435836,
+      "sha256": "a7d4fcaba72ed70ea34b1263a54075254ca8b6283867430f4ab76da0c4e6203a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_male/body_coverage.json",
+      "bytes": 576133,
+      "sha256": "24c1e26f99da4ffcef311ab5ac04e21f59d029d84c6e7fd12ee4a5c9743c04b7"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_male/body_coverage.png",
+      "bytes": 3563,
+      "sha256": "c3b7c517afd975268c266672e179e8b3cab26db8eb53f23bd3f53e868f3a3ffa"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_male/creator_part.json",
+      "bytes": 896704,
+      "sha256": "23701f74aa5ff0c6892060cfd81c5ae15f61ec8f7e0e650e86f3edd9b3bd8f56"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_male/gear_sealed_road_boots__humgen_creator_male_garment.json",
+      "bytes": 197,
+      "sha256": "df9b434d9b8661e4008e64015cd5edf11c3dfb6e0033cb1a4ec8f22e6605e97a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_male/gear_sealed_road_boots__humgen_creator_male_rigged.glb",
+      "bytes": 13205088,
+      "sha256": "2a7688666ab87edacb674ad8330f10ab3b8eb74a852f431cfc33cc8ab6396071"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_female/body_coverage.json",
+      "bytes": 529673,
+      "sha256": "c0c5d3b119af177fa9eca0026541fa1a73db1a2a9171980b95542f172d72ac86"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_female/body_coverage.png",
+      "bytes": 3344,
+      "sha256": "ff593a0a31c5ceece68fb73b874acce83986eb317749b81c089539904a351008"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_female/creator_part.json",
+      "bytes": 1066996,
+      "sha256": "dd2af83ab0f76fb0e94fce878ba4b9e543a6c69441b71cee2a263d7155a748f6"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_female/gear_sealed_road_boots_underlayer__humgen_creator_female_garment.json",
+      "bytes": 197,
+      "sha256": "0a9e23b908cd36a0080db28b6a6b00afb56d8d6a5443e3c3d7791f76ac473efa"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_female/gear_sealed_road_boots_underlayer__humgen_creator_female_rigged.glb",
+      "bytes": 100918944,
+      "sha256": "1974f6be6f2f657f654c51561584588bb833c7d1dc87e997df82b92f3c6b4e8d"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_male/body_coverage.json",
+      "bytes": 535659,
+      "sha256": "a48600f0afc91c26e206cd8a01b2d6b451aeb893ac78ac64e64cb8635f6751c1"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_male/body_coverage.png",
+      "bytes": 3599,
+      "sha256": "dbcc5a9fa8bc4569530c96f2754845cfdff6a7a9816937bbb7a9f293b4ab2e83"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_male/creator_part.json",
+      "bytes": 896779,
+      "sha256": "503e49c446fd9a9ac1bfe14f382c8092199b30dabe009582335f86f38e5365dd"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_male/gear_sealed_road_boots_underlayer__humgen_creator_male_garment.json",
+      "bytes": 197,
+      "sha256": "8fe46a4cdd776bc17821a3c6ea3026afa532bcd5e1a88a56886b7310090d2126"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_male/gear_sealed_road_boots_underlayer__humgen_creator_male_rigged.glb",
+      "bytes": 63173128,
+      "sha256": "933d045d6621100646972f80c0c5b36726625626d8aff4013dcda64aa5856f60"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_boots_underlayer__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_female/body_coverage.json",
+      "bytes": 327536,
+      "sha256": "4e95957c946151c4ad86b9f17c775baf59943d2172b3a80b896adc3368ce376f"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_female/body_coverage.png",
+      "bytes": 3725,
+      "sha256": "55cdbac53c8142dab933a192e1f1ad6f688524f7bf83c75c6b07b6e2ff4776f6"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_female/creator_part.json",
+      "bytes": 39839,
+      "sha256": "42dcc40ab13141fe0040fda80a6c714c790d9dfe3c0981658e9eef65db71fea3"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_female/gear_sealed_road_breeches__humgen_creator_female_garment.json",
+      "bytes": 200,
+      "sha256": "d795a1bc6778054f4353d799026590e23a5dd3fe79894d574df79167ca5866f9"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_female/gear_sealed_road_breeches__humgen_creator_female_rigged.glb",
+      "bytes": 13283516,
+      "sha256": "269d8a4502c0ab3f1f4acde185ee9978b0b5772bbd73eafe72c0b1eec064ecdd"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_male/body_coverage.json",
+      "bytes": 283966,
+      "sha256": "56e318759ad2108bb1b9a5e66896189bbfd0066399eed72133dfb5e1a07f4f0e"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_male/body_coverage.png",
+      "bytes": 2892,
+      "sha256": "fc3de7f83bec929be632c2a59f5c3ca48519780852b06562af696bb76cf7ee17"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_male/creator_part.json",
+      "bytes": 39826,
+      "sha256": "73cf3837cb22162e6cea7a96bec7032749af7d816133936ad9f1e589dbd45033"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_male/gear_sealed_road_breeches__humgen_creator_male_garment.json",
+      "bytes": 200,
+      "sha256": "5022a9a422bd9cbb505392726ec8b6b5144bec1a4dd6fb0f8b5f130b5448d1ec"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_male/gear_sealed_road_breeches__humgen_creator_male_rigged.glb",
+      "bytes": 13550320,
+      "sha256": "156da32894d9fc240f8ff7037865a7d8388aa3ba1f212207ac94c2aa2475cb9b"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_breeches__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_female/body_coverage.json",
+      "bytes": 1571845,
+      "sha256": "b63372b9fbd1ff9591e2320558359b0cf9c8bb0bfd99f2415c53ccb48ea6c3b2"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_female/body_coverage.png",
+      "bytes": 6650,
+      "sha256": "7c621f9fdb001d8f14256c12298c137dc6f691e11b51588338e34afd4724ed64"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_female/creator_part.json",
+      "bytes": 1187170,
+      "sha256": "876bbfd3d8f1c1202abec081273e2860e47c5ed9b90d42b77b414bc977680dfc"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_female/gear_sealed_road_jack__humgen_creator_female_garment.json",
+      "bytes": 196,
+      "sha256": "00242ab60802c99114c1eef94a824670aa2ca725e20decaf7b5ee0e00de120b2"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_female/gear_sealed_road_jack__humgen_creator_female_rigged.glb",
+      "bytes": 48296068,
+      "sha256": "ff22355b4802719b8ef573d6fa88fe97f4edcaf8f49acce5f740d3255775ab58"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_male/body_coverage.json",
+      "bytes": 1575728,
+      "sha256": "ed849418ce4eeb3c0090e34efd763492632dabf0f1ad6e2b5da2728c8839aaa5"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_male/body_coverage.png",
+      "bytes": 6433,
+      "sha256": "48bbf53a289caddcd712c0952ccf3693ee60a7a6cabc23d3a4995cc80b041e69"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_male/creator_part.json",
+      "bytes": 1224248,
+      "sha256": "a3c10df7ec61c2ee40c30de7c12e3bb1b94d269a0d69cd1034acafa709f11777"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_male/gear_sealed_road_jack__humgen_creator_male_garment.json",
+      "bytes": 196,
+      "sha256": "79bdfe5a4ad46de195353a77a096db8e044cc335de54dbaefdadb6ee9260c987"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_male/gear_sealed_road_jack__humgen_creator_male_rigged.glb",
+      "bytes": 48876912,
+      "sha256": "e09725652dc55ac036c7eea1e7ff34ef5039beddaabf98d68c7eee2c21ea96cd"
+    },
+    {
+      "path": "primary/rigged/gear_sealed_road_jack__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_female/body_coverage.json",
+      "bytes": 531973,
+      "sha256": "a211207c087c69c12ab728e2de77f81615ec7ce223504a4233c0cf4020b755e5"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_female/body_coverage.png",
+      "bytes": 3896,
+      "sha256": "77e6703991f704a45adf9ce1ffa9a2d1283577809429cd0e3c7f08924eb417ea"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_female/creator_part.json",
+      "bytes": 1431,
+      "sha256": "6356ea4180320e472c611adc50d48c1835c2179d5db3ff34b2799bab1b8e8e98"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_female/gear_ward_closed_helm__humgen_creator_female_garment.json",
+      "bytes": 196,
+      "sha256": "9c8f0acd05bcd67627ccc59ea5991a8d2eaf55dbf054a125eac7a8907b1c0e83"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_female/gear_ward_closed_helm__humgen_creator_female_rigged.glb",
+      "bytes": 30972372,
+      "sha256": "88ff9e1e4314706e3b1a3f0bc8b7b044e4dac7516829c0fa9b38e03d8c532bc0"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_male/body_coverage.json",
+      "bytes": 554073,
+      "sha256": "9d4c1283423c9425f42e8d8d0c0ea060674325f87f0bee4c7e7b4f22595f57ab"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_male/body_coverage.png",
+      "bytes": 3911,
+      "sha256": "a73910caee5ebe7683c15e0aaf7348ef8ef2c50e5a5a3a831785ff1ceb300b0f"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_male/creator_part.json",
+      "bytes": 1421,
+      "sha256": "440495557e15c29139b5604353b3e8d9674fa8b054c1ebcef8f6b1777a6eca99"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_male/gear_ward_closed_helm__humgen_creator_male_garment.json",
+      "bytes": 196,
+      "sha256": "b40cc2f772b8354cd493246ff96075d8ac7dd603a3fa506b4194e70000fa15b8"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_male/gear_ward_closed_helm__humgen_creator_male_rigged.glb",
+      "bytes": 30977728,
+      "sha256": "735293732cb753af654ed619eabb7c92742c478368a3fa6a8b88caefc4054dda"
+    },
+    {
+      "path": "primary/rigged/gear_ward_closed_helm__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_female/body_coverage.json",
+      "bytes": 671849,
+      "sha256": "c84e5a5901e4ef93c3405b9215cd46f15ba8f39b7c2b93a62c9261c1d926c233"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_female/body_coverage.png",
+      "bytes": 2736,
+      "sha256": "9a2009d7463e712db0e9a7f7f02a0e2d224b6e17cb8ca4cb38271a4cf792b92b"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_female/creator_part.json",
+      "bytes": 26319,
+      "sha256": "78ad09446282011c4dab8bb29f436dd1bce7fa8966f87d8a19cd7fce668c7283"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_female/gear_ward_plate_gauntlets__humgen_creator_female_garment.json",
+      "bytes": 200,
+      "sha256": "7296e5b70a3ca858924c3addafe02aa226ec9a422d8f8480774638fda164de98"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_female/gear_ward_plate_gauntlets__humgen_creator_female_rigged.glb",
+      "bytes": 62887852,
+      "sha256": "279b1bbd0eb1584e23c5b0bfb4f32e7a30ac6a1aa50e699f62a5322dc1bc5eb6"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_female/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_male/body_coverage.json",
+      "bytes": 696452,
+      "sha256": "0075ee3f6b6bef8130a724bb7a5ecbe0aecc224a39f709ad7de92bacd6a1e559"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_male/body_coverage.png",
+      "bytes": 2694,
+      "sha256": "7fe4702efc09950aa0d9b935c24a43067fe4377c6830663e43b25659c04859e1"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_male/creator_part.json",
+      "bytes": 26321,
+      "sha256": "d12b0d44f400c6e621361ac1c23a791d08db538778ee9c623f39684b253a3cff"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_male/gear_ward_plate_gauntlets__humgen_creator_male_garment.json",
+      "bytes": 200,
+      "sha256": "6e74110dbed1060261a5bb16cbf24d56771250c4ff1a3d244fce1a1cd765b2cf"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_male/gear_ward_plate_gauntlets__humgen_creator_male_rigged.glb",
+      "bytes": 62879916,
+      "sha256": "1cd820a43d3fac2bb5c2db74e26f615e51122efd061e23a1ee8e19f5f531c77b"
+    },
+    {
+      "path": "primary/rigged/gear_ward_plate_gauntlets__humgen_creator_male/native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary/texture_cache/0038963132aa3126064c9ef0.color.dds",
+      "bytes": 87556,
+      "sha256": "b6db6d48308fa197ed2afff35a585bf5c87fc83672d4987fcecd42da2ba3c7c3"
+    },
+    {
+      "path": "primary/texture_cache/027c29f352698081899bf0e0.data.dds",
+      "bytes": 5592580,
+      "sha256": "fb44aa45ccf30e5ec368a4b6274e8a2246662049d75115cb3189b543461d0acf"
+    },
+    {
+      "path": "primary/texture_cache/04f8751e73a78e08a4ba3a50.color.dds",
+      "bytes": 1398276,
+      "sha256": "0579c9ec0387c734986e476b52d91d2abf287c484c16a51d18651dc6a4127f29"
+    },
+    {
+      "path": "primary/texture_cache/0bbf1a7921954f3099a0ae0b.data.dds",
+      "bytes": 5592580,
+      "sha256": "fded1ec09a746a4345d5149d32d236c5a079adb3e411fdb63b521a6e0cf08f14"
+    },
+    {
+      "path": "primary/texture_cache/108da94725414f440dc56657.data.dds",
+      "bytes": 22369796,
+      "sha256": "4dac1ca9f185c93c5779eb9b359afe1ccd6a1a05b5c61d096c650ca94f4d2e13"
+    },
+    {
+      "path": "primary/texture_cache/19bc6755d85e06ce5d535f2b.data.dds",
+      "bytes": 22369796,
+      "sha256": "66b2b5fb9f0fa617f4665fe5bb1866bdab0f9ed7950186facadc53987f748309"
+    },
+    {
+      "path": "primary/texture_cache/19ee47a76b2cd7f93c7a9369.color.dds",
+      "bytes": 22020,
+      "sha256": "e2cc1c774fad961846fe14ac7e8a7546d7bbd259e952ae904b927b20f6752834"
+    },
+    {
+      "path": "primary/texture_cache/1c29d93898265b5c3ec8c957.color.dds",
+      "bytes": 87556,
+      "sha256": "ec582b7c3c428f640d4569d117508dfd36df675269c40f292574419c134a00ed"
+    },
+    {
+      "path": "primary/texture_cache/2284654e7dbebc2791b7cce1.color.dds",
+      "bytes": 22020,
+      "sha256": "91072e4ff4452cd9179e930a3fc17deb1b37025dc653bf524143e8167be16f5c"
+    },
+    {
+      "path": "primary/texture_cache/22daed05b0534503cd2ec567.color.dds",
+      "bytes": 5592580,
+      "sha256": "747a7ac73f46698b126add924a7ac3679d978d9ad0f2b301ecce4e44634b89ed"
+    },
+    {
+      "path": "primary/texture_cache/23c22e6d478650c942bbb768.color.dds",
+      "bytes": 22020,
+      "sha256": "65fde085adbd2e54c58162741039f89e0d374cf71815d6dada65ae5574003588"
+    },
+    {
+      "path": "primary/texture_cache/26379466622f72a4e713aaa9.color.dds",
+      "bytes": 22020,
+      "sha256": "5f792ad3d78b9d996a6765a8ced66ab4a0afe3e165d40b91b36f33048bfc94c8"
+    },
+    {
+      "path": "primary/texture_cache/2675ec3e8f32182e81df49e3.color.dds",
+      "bytes": 22020,
+      "sha256": "7fa05a243c7b82a1bef3cd628624bb70bc70ae484228f3204c3831c86f0b2897"
+    },
+    {
+      "path": "primary/texture_cache/268028e368821f2c19841db8.normal.dds",
+      "bytes": 22369796,
+      "sha256": "88fda46e2259372488bd14f32006f08ecb86e3e448827e8a94d4e5de235f00c6"
+    },
+    {
+      "path": "primary/texture_cache/27ec0870850b680291ce9682.color.dds",
+      "bytes": 22020,
+      "sha256": "44f9f7c80cbbe1f86e657da07076da4352567bc7a052a7f3962ce2d584e16564"
+    },
+    {
+      "path": "primary/texture_cache/2872754e91abd39626c14395.color.dds",
+      "bytes": 22369796,
+      "sha256": "874b3976803471411907e45b287c378a933ec29a3b23a48d2ad00c17eb99ecda"
+    },
+    {
+      "path": "primary/texture_cache/28d34032777f8f946e9ce782.data.dds",
+      "bytes": 5592580,
+      "sha256": "1a816ec0f902f762ac973ac2ff3d6339117190a2b19364bc4dd3cb29cbe48e5a"
+    },
+    {
+      "path": "primary/texture_cache/2a85689e7029bb6b0d071bf1.color.dds",
+      "bytes": 87556,
+      "sha256": "5a61a83a362c90153aa39b73acf5bb9f0e5e1b5ca53c74577c40da1fd955697a"
+    },
+    {
+      "path": "primary/texture_cache/304633837dc9876a1733e5bf.normal.dds",
+      "bytes": 5592580,
+      "sha256": "4b27b18c7982a981ee44370ecc7b1106df3240836ede488ad32106873e7a3a1c"
+    },
+    {
+      "path": "primary/texture_cache/37f2de78b54c97dd956530f7.color.dds",
+      "bytes": 22020,
+      "sha256": "2532e898150f3bfce527afd9569de18c9b2e0cbbb31ae4ccf6d5f4ace9ec148d"
+    },
+    {
+      "path": "primary/texture_cache/3c21af9dca8b8aa9f63eed4b.color.dds",
+      "bytes": 87556,
+      "sha256": "7d4acd7b126f53b228b11aae0c366089f34621f8aebf5f5acba9ee32cb6ea5e9"
+    },
+    {
+      "path": "primary/texture_cache/3e9e46da0cda0d5fb2655340.color.dds",
+      "bytes": 87556,
+      "sha256": "bad57be349b55da4aad867e839df796a83d103abeb643e7e1ddc5d4ec1f1f9ca"
+    },
+    {
+      "path": "primary/texture_cache/41f1b2a9a7d4faa9e0882250.color.dds",
+      "bytes": 5592580,
+      "sha256": "a50edbe74c5d00aa19c6d379b3b8682f1950669b09c0480eb055bbf9a0fe8b56"
+    },
+    {
+      "path": "primary/texture_cache/4571a45562870efcbcbaacbe.color.dds",
+      "bytes": 1398276,
+      "sha256": "2f760fab7a16d0a272daed290cf9fcc02399f896a6396b0a9b0bd0004b40154f"
+    },
+    {
+      "path": "primary/texture_cache/45881a192386fa165ef0f2ca.normal.dds",
+      "bytes": 22369796,
+      "sha256": "e37002d64d1e7835ccb1ec1fbe6c4cb948b505da64e7dc9616fe88e69172ec5c"
+    },
+    {
+      "path": "primary/texture_cache/4a5fc1e1ec00847c9de90154.color.dds",
+      "bytes": 87556,
+      "sha256": "f062377451bdb2a1e4aa0271b5ec40a37745fe0232b8c1bccd13def5a45b6872"
+    },
+    {
+      "path": "primary/texture_cache/4a9a5212ffcfb0dac22bf46d.color.dds",
+      "bytes": 5592580,
+      "sha256": "a98f03e152804557658def3c45d3159b287b56e7f8518cdaa54b345565330ea3"
+    },
+    {
+      "path": "primary/texture_cache/4d5b0ee7008bce4f8d1131f0.color.dds",
+      "bytes": 22020,
+      "sha256": "57e640a17f0a6d731d8d3c2676483f35e2cbb7958f67b4a95c6fa63aa4588d46"
+    },
+    {
+      "path": "primary/texture_cache/53092a9225cb45cefe66fe9f.color.dds",
+      "bytes": 22369796,
+      "sha256": "3df3ed194ad923daacbcf1915d8985d0a0a23ec017b08f00282656f80dac311d"
+    },
+    {
+      "path": "primary/texture_cache/5407ec0d993dcfd35dd630b1.normal.dds",
+      "bytes": 5592580,
+      "sha256": "7d1355d11535bbc9f6f39b637a26bf67276e763387adf1b93d54cf0ddc9670eb"
+    },
+    {
+      "path": "primary/texture_cache/5a19280b6fa1f6a7846dff36.normal.dds",
+      "bytes": 22369796,
+      "sha256": "ea6a0276afddb42d0a0a3b8f524c35854079044369720f0985d5c410de72c9c6"
+    },
+    {
+      "path": "primary/texture_cache/5b511c97a2f1eb44cc6ff00a.color.dds",
+      "bytes": 22020,
+      "sha256": "d5130af1da2d191242fb71491217a1c552d7c12230068cfc28d5291f57c6d783"
+    },
+    {
+      "path": "primary/texture_cache/5f3f42fa5e55327175454254.data.dds",
+      "bytes": 22369796,
+      "sha256": "164de57b3d2ef2c6c9971a67083e78f4271a0cd27aecd964dcd88aa6fe575cd2"
+    },
+    {
+      "path": "primary/texture_cache/5fdf0bfc772b4c75164f3f98.color.dds",
+      "bytes": 22369796,
+      "sha256": "57450eca99ba6ccbe6d4f34fff62f9790631e15ff5422bddaae5e9c173b21982"
+    },
+    {
+      "path": "primary/texture_cache/603da793ccf10615d22add73.color.dds",
+      "bytes": 5592580,
+      "sha256": "c061d08034b9af5c9b6f0a3a41b9d29325ca1924b6d8f8a2e8dcd2530e04e5eb"
+    },
+    {
+      "path": "primary/texture_cache/69795c3c65bd7c09eee72cde.color.dds",
+      "bytes": 87556,
+      "sha256": "f1f40bc3a9808eee2ac758921282385675fc16b1df046f14d89bf4e47f835651"
+    },
+    {
+      "path": "primary/texture_cache/69c4f6999aa3fdd36ad2ac6c.normal.dds",
+      "bytes": 5592580,
+      "sha256": "a1dea649f34f3323a0396456ef3166c036248cc9d1bf0fe0f8a71edf23f62a11"
+    },
+    {
+      "path": "primary/texture_cache/6a6ca837518b3361fcf323cc.normal.dds",
+      "bytes": 5592580,
+      "sha256": "c8b3413859949683e98e4a621017bf41da9193689e22773af1891b62971b3058"
+    },
+    {
+      "path": "primary/texture_cache/7010338414992abc4f09c376.color.dds",
+      "bytes": 87556,
+      "sha256": "45a58a0833d1449db624529bbbc57d19604ba1ce41241ae45fc9f09db6356a6d"
+    },
+    {
+      "path": "primary/texture_cache/704c88ab66fa3928fbec5943.color.dds",
+      "bytes": 87556,
+      "sha256": "85e6a2390dccf48084a72c40578d7e0d68619db620296988c13ffdca2fb8a13f"
+    },
+    {
+      "path": "primary/texture_cache/7349b50e631f474286ad61e0.color.dds",
+      "bytes": 22020,
+      "sha256": "d36a7349355a3cab6e622ccd8e9bb8ac7bf2f4856bc8ca15a2133180f32e4b8b"
+    },
+    {
+      "path": "primary/texture_cache/73d5e427d7515778218c10e6.normal.dds",
+      "bytes": 5592580,
+      "sha256": "1a9f95eaa3fd8bac86fb98c86d60c11fd6f4a686bf65aded17f23148b23691c1"
+    },
+    {
+      "path": "primary/texture_cache/779b9d50a862d4827050165c.color.dds",
+      "bytes": 87556,
+      "sha256": "27e6f355de06c54699aa92ad740d1881d775e957578534d61e3596e0a4ac457b"
+    },
+    {
+      "path": "primary/texture_cache/7bf09a7beb88b7126083ee7b.normal.dds",
+      "bytes": 5592580,
+      "sha256": "0282e97b271191fbdb7cb7d755a6f7d393de43b657d786cda80f02eb745001ed"
+    },
+    {
+      "path": "primary/texture_cache/7d800bf65a0d4c69e56ea054.color.dds",
+      "bytes": 5592580,
+      "sha256": "f74371d29a7f79e85add8df7e0b315649a2c9125a38ffd0c60cf0068361e87f3"
+    },
+    {
+      "path": "primary/texture_cache/7fcd8e560354a1e146d79dd4.color.dds",
+      "bytes": 87556,
+      "sha256": "e2600326297c2dba5cdf3f4bab2118b2d22fb5c099ea2e20ac494c250c607521"
+    },
+    {
+      "path": "primary/texture_cache/814639cbf2d4d74d26f6aae7.color.dds",
+      "bytes": 22020,
+      "sha256": "16386b17694dad5f64c1f1a9c415bf40691afe5f8941a04644630c4552c285bb"
+    },
+    {
+      "path": "primary/texture_cache/82439ca766a664aa98b7e08a.color.dds",
+      "bytes": 22020,
+      "sha256": "c323e5c052ea3c341329fb0e5fc6ab95cb00404c84ead20b07925729e269a7de"
+    },
+    {
+      "path": "primary/texture_cache/828d3b3b0740494818d8d2ab.data.dds",
+      "bytes": 22369796,
+      "sha256": "51ad8b4b8b152ec50d03168a67155f18f2a0c8cdc7d79cbac8267429f92ae14d"
+    },
+    {
+      "path": "primary/texture_cache/83b694dc73269dd70dcb08f8.data.dds",
+      "bytes": 22369796,
+      "sha256": "5bf3994158556941f8c79ed0e333f8838dd3ba1bc87ff234d280d616a2e82bbb"
+    },
+    {
+      "path": "primary/texture_cache/87f4c9e1a4d90a29ce86423b.color.dds",
+      "bytes": 5592580,
+      "sha256": "1f8b00e7d803d6a5a2ea319e2c56124f2e857776a7058fe414a359055d44b5bd"
+    },
+    {
+      "path": "primary/texture_cache/8b995953864640722cabb4e1.color.dds",
+      "bytes": 22020,
+      "sha256": "5097ed7808b07dc18cbdc6c918c7260722399a4539db6be601e6eff35d642593"
+    },
+    {
+      "path": "primary/texture_cache/8c95f0758795d532a1d7317f.data.dds",
+      "bytes": 5592580,
+      "sha256": "a5f36e5bde3d286f63c16f427bd098d45a88e2bbf33117087902cfd37be9a95f"
+    },
+    {
+      "path": "primary/texture_cache/9766b6a9bc1cb5668e6badb5.data.dds",
+      "bytes": 1398276,
+      "sha256": "ba744920bbcfd755428d4b58d4bee7cdcc4af1300f04c6fff0a16dfe04d76b32"
+    },
+    {
+      "path": "primary/texture_cache/9e87e607963ea67f72442964.color.dds",
+      "bytes": 22369796,
+      "sha256": "486ab34a25e0a9d5bbe303a26f0c71fca19c761ad62c429cfaf7349c0d779c52"
+    },
+    {
+      "path": "primary/texture_cache/9ed68c5dfb9d9fa44c3c3ca1.color.dds",
+      "bytes": 87556,
+      "sha256": "860287ec46d96be6201559a00cd5448b6419386401877efe96b92a8c5902b07b"
+    },
+    {
+      "path": "primary/texture_cache/a00dd43722f960dc42868c38.color.dds",
+      "bytes": 22369796,
+      "sha256": "f0b2ea6732959efd27ed731e9505920e00b0c36c8fbcb6bf767ea1b0270e495d"
+    },
+    {
+      "path": "primary/texture_cache/a1a57fa6fe0aeff5a4c8ab36.color.dds",
+      "bytes": 87556,
+      "sha256": "cae7ac10708f388685b15712c4cf8e2c51f6af8921bd32f084af3cda27631070"
+    },
+    {
+      "path": "primary/texture_cache/a202d00cec6cdc73144657cd.data.dds",
+      "bytes": 5592580,
+      "sha256": "8674d46c5913d8b7d11cfda459b4f5ca2a61d3319d6d3c465c07341f9db79786"
+    },
+    {
+      "path": "primary/texture_cache/a7a7f23af30847ca0f14884a.data.dds",
+      "bytes": 5592580,
+      "sha256": "a7e41b54590c60b5fadfebc20edc44acc34dbaaf8b4dc7f6b1e64ac2241004d0"
+    },
+    {
+      "path": "primary/texture_cache/ac5521ab0ccf696757a8b210.color.dds",
+      "bytes": 87556,
+      "sha256": "01f24de2b045e91e6caef9a5af7fcc8e89682ddd977d18bd890d926bdcbcc119"
+    },
+    {
+      "path": "primary/texture_cache/b449073c788c8e82e06d6843.color.dds",
+      "bytes": 87556,
+      "sha256": "efb01548cfda87bfc8cce486a22e41817dab33f6d764127dcf335455f1d9bce8"
+    },
+    {
+      "path": "primary/texture_cache/b4fb10aa0241b92475faae5f.color.dds",
+      "bytes": 22020,
+      "sha256": "93369eb3d70d51f93cfd388b65650bcb0b3dbb3000901d0b0d70335333d646db"
+    },
+    {
+      "path": "primary/texture_cache/b6e6b1d2275f97d608cecfb1.color.dds",
+      "bytes": 87556,
+      "sha256": "d5b033f69f5b801589e685b5f483b5c9e8468425cbe44e58c765e4933ad83495"
+    },
+    {
+      "path": "primary/texture_cache/c1100206c1fb02dce947bc64.data.dds",
+      "bytes": 5592580,
+      "sha256": "9f70b52a6d7b1d3195af50e4e4f8bb30c6b986b6d8f9d18fbf121b3312882125"
+    },
+    {
+      "path": "primary/texture_cache/c126dddda6b2ab401ee13407.color.dds",
+      "bytes": 5592580,
+      "sha256": "a997a5ff6d5dfa39cd200e353d637d89d916dfce3a2541371332a6bef3fd280e"
+    },
+    {
+      "path": "primary/texture_cache/c328fd828943a30dae3e12d8.color.dds",
+      "bytes": 87556,
+      "sha256": "d47762147bc2eb8d199a77e86551490c68ebe124d3801a4006e86795ed07376a"
+    },
+    {
+      "path": "primary/texture_cache/c5655bf058923b31253b04d5.color.dds",
+      "bytes": 5592580,
+      "sha256": "057a0d24c511286526591436b5cb3f1e8c0c0d79e10479791bcaf61723500f43"
+    },
+    {
+      "path": "primary/texture_cache/c9ec2f7d81758a23dc9b927f.color.dds",
+      "bytes": 22020,
+      "sha256": "11c182a2c0134a000e4eff42b88c44315807c616ceb05f3cdf1846d32921785b"
+    },
+    {
+      "path": "primary/texture_cache/cc0b116bb80d768c262b062f.color.dds",
+      "bytes": 22020,
+      "sha256": "944c04c3ff7beeda27882bfd36cefe2ae8e4aaa801c26d9b7ffcaa7b2089a6c5"
+    },
+    {
+      "path": "primary/texture_cache/cd07f964bbedc9e6b1dc8f26.normal.dds",
+      "bytes": 5592580,
+      "sha256": "dde492e1cedb67de8ffe2aad8c94cc35cd32c53d1a346db9c6f9bdd5ce188f98"
+    },
+    {
+      "path": "primary/texture_cache/d3fe2ce935e24dfefef894da.normal.dds",
+      "bytes": 22369796,
+      "sha256": "28db573ed599df05e3b0ecba039cd2fd3322d72e2fb2a934b280cc432aa1e1ed"
+    },
+    {
+      "path": "primary/texture_cache/dd15ee481bd84389165c570a.color.dds",
+      "bytes": 22369796,
+      "sha256": "9b21e930322923daccfc851f830d9d92aa585abea389f187ecbac6a104ebda32"
+    },
+    {
+      "path": "primary/texture_cache/e0ac79a9bb1208e073e943c4.data.dds",
+      "bytes": 5592580,
+      "sha256": "cafe74a88e968edfcb829623a49b3bfda82539bf96700ae41dff1b1483c9357c"
+    },
+    {
+      "path": "primary/texture_cache/e566af99118cb3358353f2cc.normal.dds",
+      "bytes": 22369796,
+      "sha256": "c8081afd8b17e00095b3da5a7e3ece9a58b7642fa214eee494385183fc887862"
+    },
+    {
+      "path": "primary/texture_cache/e7b192ba833b3cff308b06e9.color.dds",
+      "bytes": 87556,
+      "sha256": "772dd44bf756e8b8b57694ac3d2dfcdcd4d76d9904170183959ca779ccd0bc84"
+    },
+    {
+      "path": "primary/texture_cache/ea3ffb6f5e50d795e5c3ab4e.color.dds",
+      "bytes": 22020,
+      "sha256": "cf06c02a94c5cdac31ce835dd4bcf445d46a973856012961e5800d09a396f433"
+    },
+    {
+      "path": "primary/texture_cache/ec4de1b5db35ec5c3720b8a7.color.dds",
+      "bytes": 87556,
+      "sha256": "5c439c55704b931d35b0d53b21289bc358159a571d386564460d02c85ceffb1c"
+    },
+    {
+      "path": "primary/texture_cache/efec30b6de9772006da90822.color.dds",
+      "bytes": 22020,
+      "sha256": "87ace3353d5f3ad77436c033cead953f4ff37c5b22eba49408c61d609d622a9e"
+    },
+    {
+      "path": "primary/texture_cache/f13583ebd642ee286154b45f.normal.dds",
+      "bytes": 1398276,
+      "sha256": "a951cce29dc6844969b43483d5b82da8e5d1cfee040bf859f4b0e3051b0b9eba"
+    },
+    {
+      "path": "primary/texture_cache/f8ac98080cbd331800500921.color.dds",
+      "bytes": 22020,
+      "sha256": "1b79ec9d9dac73fd479ce2bb8247d7ce770449e2cc0e38ae108b7017709ec2d5"
+    },
+    {
+      "path": "primary/texture_cache/fb5b48f5f35341b9d9276bd6.color.dds",
+      "bytes": 87556,
+      "sha256": "55df4a0ee919d620035d4b2b406be31698dc7839c0448cbf124f1fc0aa18dcaf"
+    },
+    {
+      "path": "primary/texture_cache/fb8a789d509b1ccc49a18c5d.color.dds",
+      "bytes": 22020,
+      "sha256": "b322eeb88b9f6872080ac674aca0deff8c8be07c667a0fa387f5679e03817862"
+    },
+    {
+      "path": "primary/texture_cache/manifest.json",
+      "bytes": 57901,
+      "sha256": "6528e24b4428d3e3a57f5fb51fcdec9aced1e39451974191968801f2dfe3a663"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_old_ward_greathelm_128.png",
+      "bytes": 5989,
+      "sha256": "78aa644f32494be2dd7b04ed29f43220b63010624e9592452326044e28546656"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_old_ward_greathelm_256.png",
+      "bytes": 18937,
+      "sha256": "ee58ebb73baba5e307d13612fd75aec79ca28a169a72bb39861266b4c684d581"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_open_road_barbute_128.png",
+      "bytes": 4825,
+      "sha256": "5d70b51eb3f756cdef30d6f3829767ce7dd0c17001fb1a39089b334ef214b166"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_open_road_barbute_256.png",
+      "bytes": 13306,
+      "sha256": "84e6d2c1f843eca0ca2225d75c08a0b420731e287f83ae8049b8304082ab7faa"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_quilted_ward_boots_128.png",
+      "bytes": 8583,
+      "sha256": "df8ae0f0ab72dd44eaf77c62691ed9850ce37d3bed775927d7532407c6152a7d"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_quilted_ward_boots_256.png",
+      "bytes": 25474,
+      "sha256": "087a0a697621fd4108b132168fe8fd216c41fff09d5240907701f2ef6688adf6"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_quilted_ward_breeches_128.png",
+      "bytes": 8583,
+      "sha256": "e3422458f43d97aa0e1e5a870205e73ea258836acfd8024dc6f7a0fe501a0081"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_quilted_ward_breeches_256.png",
+      "bytes": 28782,
+      "sha256": "257910cf855c2ec84bcd99f649c7f31912fa61071e9c74abe839d68478d9511b"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_quilted_ward_jack_128.png",
+      "bytes": 5480,
+      "sha256": "bb2299fc5243e050dcee6929269367895f96cad57ef461baad005786603f4668"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_quilted_ward_jack_256.png",
+      "bytes": 17144,
+      "sha256": "5c450bf7b4a7b976cb534e32ade4d07cdf91d91419466682079f7f80a3b52214"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_cuisses_128.png",
+      "bytes": 7163,
+      "sha256": "59c69e5d998b10dc8946fc91bd8e621eec5aa15735daa66fdc5ac9392964b8fe"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_cuisses_256.png",
+      "bytes": 21284,
+      "sha256": "7388252c039c12d6a1d9c07306f4731879ab193952d3de88363344cc8e7fdbd2"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_helm_128.png",
+      "bytes": 4846,
+      "sha256": "266f82970752ac2138b582cf4ccea83edae7a40c02da0e352d2aaada6b82ea86"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_helm_256.png",
+      "bytes": 13797,
+      "sha256": "ea79063d3bd320a3346eb6e8c741655a37b22f2f4f7019a485f0fffcfac90e13"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_jack_128.png",
+      "bytes": 5913,
+      "sha256": "44ffb63c9d43cf3845b48bf29256d367eef5adba0f1a9057aeeb43f14560bfbc"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_jack_256.png",
+      "bytes": 17505,
+      "sha256": "114215e7591bc5b7468dc7215cf1d1e30922930d6dbdc1666bf0806fb703146f"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_sabatons_128.png",
+      "bytes": 5700,
+      "sha256": "795ad51e51b974f4ef43386d7f72a2fd36057be52ab0d689fffb8d8c12ca437f"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_repaired_proof_sabatons_256.png",
+      "bytes": 16855,
+      "sha256": "9ef0a60ccc8e4f75993c9fd56d93fdb9dcaf90f262cf06ba40448b5dbacb3c09"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_boots_128.png",
+      "bytes": 8330,
+      "sha256": "7b421724622e123f624069bca80d363859170060b79016b9ef62b88a41f361a7"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_boots_256.png",
+      "bytes": 27064,
+      "sha256": "d320fdd376f21ab96e4880fc2f97f38b73bf9985d5c2d2db71caf3801cea81c3"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_breeches_128.png",
+      "bytes": 7458,
+      "sha256": "639e618439ed2eae4cec6cd35488416a0188806b4d8e16ecc803cdfbdd29fa81"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_breeches_256.png",
+      "bytes": 23703,
+      "sha256": "20280007ab1b66804ad27d4625f046dbdaaf50db9ac4ca2899d2b041df1dd5e5"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_gloves_128.png",
+      "bytes": 6528,
+      "sha256": "f572c434eaf93f39814ab0abb0d7fe7e79adbc2b939b251581736f8ad3c81f8c"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_gloves_256.png",
+      "bytes": 21215,
+      "sha256": "dd4c4c2b814ebef086b1ec7c7373edbb41bc8bfb844ec53fc7475f6672900ea5"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_jack_128.png",
+      "bytes": 7208,
+      "sha256": "5ed2c1aca1b28961776476859523db1ee42bb91b6021f776f8565611bbd0327c"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_lame_jack_256.png",
+      "bytes": 24638,
+      "sha256": "309c37feb047202088c8267f967c2f1e8e9309a429af7557c57827dc8a9fa44b"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_open_helm_128.png",
+      "bytes": 6161,
+      "sha256": "88bad72bfaca80e56b142b64e6df2f0e788adb880336e1426658e0be1042836b"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_river_open_helm_256.png",
+      "bytes": 20378,
+      "sha256": "dd7e2e3ab7dcf40bf7429183c80b9455886c1f9406b18e3185b9df1d103e5bee"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_brass_gauntlets_128.png",
+      "bytes": 7683,
+      "sha256": "c6beb5e710d10feb8fe95ddc3b0f4ad16a02ab61d1c06e3e74b350f0498f219a"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_brass_gauntlets_256.png",
+      "bytes": 22276,
+      "sha256": "357b32c485e1fcceb9ffdd58efaa2b8ab2898e0826de4370c9f01bd11f25692e"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_road_boots_128.png",
+      "bytes": 7640,
+      "sha256": "92b2ddd76f7242b530396b6e1621257bf28cf3658a9866e3a56245e50c4b4221"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_road_boots_256.png",
+      "bytes": 23916,
+      "sha256": "ffaa9cba94359444709ea3826bce873638f162b23ad662b0717edeb78061122a"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_road_breeches_128.png",
+      "bytes": 7314,
+      "sha256": "7f1b1146ee4624f25773422fa8c7e8b32d70427744a3b3357bb31557a7128454"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_road_breeches_256.png",
+      "bytes": 23896,
+      "sha256": "afbbb892c81b003ed6cad4904cac4549ab933f222f39eae4c24eb7800099d99c"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_road_jack_128.png",
+      "bytes": 5762,
+      "sha256": "acc651505f2788f6c7a6bbb851c56099a8a588061c18bf4823fdfe7757621964"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_sealed_road_jack_256.png",
+      "bytes": 18481,
+      "sha256": "fdbebb72dee0d9564d31e2bb9ddeee1d08885dcc380e4e4d632a7eeb112391e6"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_ward_closed_helm_128.png",
+      "bytes": 6266,
+      "sha256": "3359b8acd2c273b01a7448a0b8fe79970fa1910455ee22688817d9ea79b36c07"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_ward_closed_helm_256.png",
+      "bytes": 18726,
+      "sha256": "126fd9fe61b7b80ef59d90566955c41b6d2183472cc46f80c97efbce41514a69"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_ward_plate_gauntlets_128.png",
+      "bytes": 5502,
+      "sha256": "bdbc38836cd9d9ce419af0c2f07cb45c9d498ee833f079cf4c6a905e466c5592"
+    },
+    {
+      "path": "primary/ui/icons/ui_item_ward_plate_gauntlets_256.png",
+      "bytes": 15478,
+      "sha256": "c4ea2f4166aa6cbebf84012bc3cdc7939052484243cd5f908d329c0319c46cf5"
+    },
+    {
+      "path": "source_receipts/CHECKS.json",
+      "bytes": 3396,
+      "sha256": "382e7b78b95ee3d413f321e530375254662283fd437fd7008e9495e236acfb7f"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_old_ward_greathelm__humgen_creator_female/creator_part.json",
+      "bytes": 1454,
+      "sha256": "b1d30a8a7f0eabffe29dc57df0e7f76a59e7ea4044503d04cf24246963b157d5"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_old_ward_greathelm__humgen_creator_female/native_library.json",
+      "bytes": 578,
+      "sha256": "429765fb336e24f72c7a05ca6a374772921750b57a7f4124fa7e6a95ddc4b47b"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_old_ward_greathelm__humgen_creator_male/creator_part.json",
+      "bytes": 1444,
+      "sha256": "5308b7c77c7f547e756e82d715fe10c437a4c072dc0ce08cd2188c6f264e28c7"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_old_ward_greathelm__humgen_creator_male/native_library.json",
+      "bytes": 572,
+      "sha256": "ba5358c5c9a0205a7522d76c4fa54e6e404fd46f9ac020d58a43db73e4557089"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_open_road_barbute__humgen_creator_female/creator_part.json",
+      "bytes": 1200,
+      "sha256": "073a21404d3393561b18026a1cd1e4069073c2c22442486f0a8607ee2dbd3537"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_open_road_barbute__humgen_creator_female/native_library.json",
+      "bytes": 576,
+      "sha256": "cad4deaf72d8965d3c5889ca96ada7fb99e8f9a5ecea2bc6f423bfdf55da8a6e"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_open_road_barbute__humgen_creator_male/creator_part.json",
+      "bytes": 1432,
+      "sha256": "b52b09b4d9802adb94439ef60cadb02ba2524b971079ad243719db6a1f82ffa7"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_open_road_barbute__humgen_creator_male/native_library.json",
+      "bytes": 570,
+      "sha256": "e6ee5df17e928e9489b5d2c4e7e62a3636629a093b9c6cce1aed49ec5640552a"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_boots__humgen_creator_female/creator_part.json",
+      "bytes": 1036348,
+      "sha256": "7532f2df4bc560d032e004931fcec52046bd8d1ca93d1fdf69148c838f45a659"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_boots__humgen_creator_female/native_library.json",
+      "bytes": 601,
+      "sha256": "821665c5f0e9cea73f11d28b8a1da390a0baca25ec72a4fd183743473325cf9b"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_boots__humgen_creator_male/creator_part.json",
+      "bytes": 907705,
+      "sha256": "16c4d6e673f2f72c6b4cbf61ef2dbe0300a8c1b1981d8a242cb166737977d672"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_boots__humgen_creator_male/native_library.json",
+      "bytes": 595,
+      "sha256": "8f10dc7bc4f354b81ce6fc7dd9ada85118192f58d9af66fc058e0fb01c0edc58"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_breeches__humgen_creator_female/creator_part.json",
+      "bytes": 115269,
+      "sha256": "c7b11341bf05133875f887fb914f2693277064428e934b0bf2957bfa4862f993"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_breeches__humgen_creator_female/native_library.json",
+      "bytes": 606,
+      "sha256": "2d1a2faf6cfb2d6a78c378ea5f37072ae7bb0caf753f3fc8069ca342b7637a2a"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_breeches__humgen_creator_male/creator_part.json",
+      "bytes": 116264,
+      "sha256": "a07abb5b0a0a945bfe00d853e04fc5825b4d84fb0ae8f6cca7221b5b573c4116"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_breeches__humgen_creator_male/native_library.json",
+      "bytes": 600,
+      "sha256": "5e525854bce0fd3d0de639e58671a37b08b685e7945314d552a62248f794eb79"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_jack__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 2163,
+      "sha256": "e40d4bdf9f9e1bc0aa50b982891a919f1cc6336d4cac2e1d081e8349f1d03feb"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_jack__humgen_creator_female/creator_part.json",
+      "bytes": 1088945,
+      "sha256": "4cbe1f71241fa63503a7c1bceed2e29cb7331790ab0c04ce566e2099036b4361"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_jack__humgen_creator_female/native_library.json",
+      "bytes": 605,
+      "sha256": "151b3fa2fe8535b00b125f0c946ae7b8b5972be0afbe3684d42fbf1fccd7076f"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_jack__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 2148,
+      "sha256": "6017b5ddf5e02d2221d81f98e32df7629c248708b0750a60d2ae8d84c22e91d7"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_jack__humgen_creator_male/creator_part.json",
+      "bytes": 1098316,
+      "sha256": "162ba777b7250807e4dcbb955ce5039508f3aeac455da0de6a254ba9c2d113ff"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_quilted_ward_jack__humgen_creator_male/native_library.json",
+      "bytes": 598,
+      "sha256": "fb7262fa4271dffbf2c6c1669330623b303494af6f74f9cecc689e892f460eb4"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_cuisses__humgen_creator_female/creator_part.json",
+      "bytes": 423438,
+      "sha256": "6fb9d0c6d1c56ed8f1910283982721798dec6ba5f3913cf18cef8e0765c761ec"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_cuisses__humgen_creator_female/native_library.json",
+      "bytes": 608,
+      "sha256": "be2b9f74cc5212de39810045f620bd7accda4cd3aa427bf34bd54b9fc5b3c8f1"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_cuisses__humgen_creator_male/creator_part.json",
+      "bytes": 423550,
+      "sha256": "2e1d93337ca136d3606f423a666065601361819dbc8dae454d3b0327fa449e21"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_cuisses__humgen_creator_male/native_library.json",
+      "bytes": 602,
+      "sha256": "9a43ec25774ee26986915794f948cc90b65718db16a8065a4ef419c223b580ad"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_helm__humgen_creator_female/creator_part.json",
+      "bytes": 5052,
+      "sha256": "e72c1763dac806655460e29edd759a8830205693f7463c9b60cd76929eccd414"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_helm__humgen_creator_female/native_library.json",
+      "bytes": 606,
+      "sha256": "72e9d7a486b071faf74badf9d8ae12d8684b3f403ca27e3169cf3f746e9f06a4"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_helm__humgen_creator_male/creator_part.json",
+      "bytes": 5042,
+      "sha256": "fd9622f3e727fe721baf29796f2b1fc0ce0ec11d78cf975378be973eb66df6c9"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_helm__humgen_creator_male/native_library.json",
+      "bytes": 600,
+      "sha256": "24b1d0d1e9bf2f8291ff552d2bd96213355bf9f00a725b908439a4ea81fef28d"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_jack__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 2178,
+      "sha256": "231f72918c56e51291300dd8f3da84ef48ce384047dfc6346dc8717dad5ed41f"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_jack__humgen_creator_female/creator_part.json",
+      "bytes": 1278061,
+      "sha256": "ccd82c078f060b4122c2ace165fc2ee59590361b9f08d1d356d1fcaa94057901"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_jack__humgen_creator_female/native_library.json",
+      "bytes": 609,
+      "sha256": "0c4f17f96514cc143fceaabc88d9b2eb2e8e46aaf89d9ef2d4c3a6c0b02b01e0"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_jack__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 2163,
+      "sha256": "5a18beb6177435a7293b96cc38227f4afadc763b40fa054efc34a6c1f72f1775"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_jack__humgen_creator_male/creator_part.json",
+      "bytes": 1328247,
+      "sha256": "7baf73c65ff29c205854da10f81720289fd0ba90e1f2f22c7adcfdbe0ddd0530"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_jack__humgen_creator_male/native_library.json",
+      "bytes": 603,
+      "sha256": "bd16fd3ad8e444e303b74515cb54cf0a247cf84ec67f0398dee18964e56fda40"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_sabatons__humgen_creator_female/creator_part.json",
+      "bytes": 865746,
+      "sha256": "71a8512dd6c7b3fa51bdc5908da2c3fd716e27e179b2d070023d711e5ff695e0"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_sabatons__humgen_creator_female/native_library.json",
+      "bytes": 611,
+      "sha256": "ea2809699f54d54015fca0bb19623e3dfff9af1290a5aa877ae75c07853ebe97"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_sabatons__humgen_creator_male/creator_part.json",
+      "bytes": 850418,
+      "sha256": "6dd993ba76fd55523d6da58e8522b2349ff0892bfd99fa838ac69a8d2be83854"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_repaired_proof_sabatons__humgen_creator_male/native_library.json",
+      "bytes": 605,
+      "sha256": "8d6653fabf082c4f0e0c428d9e6b9793380a34fdf50183a7c31d94292d377fb0"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_boots__humgen_creator_female/creator_part.json",
+      "bytes": 1061819,
+      "sha256": "355dccb0882fe9eac5d3a642dbb49a2f326e178bf02989c4e1f294584790279c"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_boots__humgen_creator_female/native_library.json",
+      "bytes": 597,
+      "sha256": "7401c80dc0965d036550c783c2fde19eff324716d6365c64fd4a9ce8f3c26fe0"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_boots__humgen_creator_male/creator_part.json",
+      "bytes": 899764,
+      "sha256": "e9da8887bacc924be53b7a04c2d28176140b39da23bf41456f80c0807745122d"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_boots__humgen_creator_male/native_library.json",
+      "bytes": 591,
+      "sha256": "abe044c76cb90064ded76b5b18a5980df56beb4d4e2b4463ace6da3beb55f280"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_breeches__humgen_creator_female/creator_part.json",
+      "bytes": 7859,
+      "sha256": "5b7f09546198df6a76b233498c735735273c4b110d29b806ca51865f423dce7d"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_breeches__humgen_creator_female/native_library.json",
+      "bytes": 602,
+      "sha256": "6a735a6330e084bf7bd063b00ec13ab6699d215a226d015c6fb83232fbfd1b8d"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_breeches__humgen_creator_male/creator_part.json",
+      "bytes": 7845,
+      "sha256": "2535e18a8625409894211f87d61b3f03ce2d840eb90f4efc07a5b9b9b973f0cd"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_breeches__humgen_creator_male/native_library.json",
+      "bytes": 596,
+      "sha256": "461e91e737a124d9b69d96798fe2e78b12b606f084609e2077930cde2a431dd7"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 1706,
+      "sha256": "41d8b9b87ffbc14cea1425707d8624d4aac6de2d4e4a4d7b8ce368a1be5eeef2"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_female/creator_part.json",
+      "bytes": 36550,
+      "sha256": "0392791e34d6778e4b05c523056717102e6afeda455194a6cce0a18e10529b47"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_female/NATIVE_CONTROL_INTEGRITY.json",
+      "bytes": 429,
+      "sha256": "8247d3f5403caa94fb06aa017e09950597ea3b8fca0dbeb4e79e9c35cb5ffdfd"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_female/native_library.json",
+      "bytes": 600,
+      "sha256": "52052eb2807c4c5c4a7658352524161099e06e906c08b2bcf6ccfba0a35301fb"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 1693,
+      "sha256": "da3e2255d05f48deaf225a046c025965d13f0712230ff84d86affd128346081a"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_male/creator_part.json",
+      "bytes": 40755,
+      "sha256": "2e524b5461c9ae0bada798811405ede0eac6d94121b65e0601a115afebdde18e"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_male/NATIVE_CONTROL_INTEGRITY.json",
+      "bytes": 411,
+      "sha256": "2dec924f71ec2714347684d2944dec6965bf0b7f5de673242836c6b26797dd34"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_gloves__humgen_creator_male/native_library.json",
+      "bytes": 594,
+      "sha256": "6814c1a7055de081cc49f6a1609ea32ce571de3707449b892a73336c84dd370c"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_jack__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 2163,
+      "sha256": "ac34562770faef454a4f1689f33348d319b7929dcdc56e009082b610305b7539"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_jack__humgen_creator_female/creator_part.json",
+      "bytes": 965470,
+      "sha256": "9518777349c65c000d4d6a727acdcfff3373c12c656bcb426e8e0b681d463b31"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_jack__humgen_creator_female/native_library.json",
+      "bytes": 601,
+      "sha256": "856fa5b1d091489033c69558080883d65b8d1a8eefa1dff7f9b01161bfbd9e7f"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_jack__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 2147,
+      "sha256": "a0f2a346ff5a0e12934be993c6a39e086b37937f21eab8ad4a8b02d3beb380ed"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_jack__humgen_creator_male/creator_part.json",
+      "bytes": 969007,
+      "sha256": "5482eb7aeb9c3418e2900a132e77fb2342d72736da53fc431460481fca0393c8"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_lame_jack__humgen_creator_male/native_library.json",
+      "bytes": 595,
+      "sha256": "39daea6546f905e55df4d3a9df4e2923c28972f043ca387c9775de1f9c519eaa"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_open_helm__humgen_creator_female/creator_part.json",
+      "bytes": 1419,
+      "sha256": "a5a167168e32313a6b2f3b77850e1b553b473a16fd429a0e03ae3eda0b757759"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_open_helm__humgen_creator_female/native_library.json",
+      "bytes": 572,
+      "sha256": "035b3b7684760ca091b72cb993068b1159998b77044c68caf762115f005a7f26"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_open_helm__humgen_creator_male/creator_part.json",
+      "bytes": 1409,
+      "sha256": "111f8753e64b5008694a9c2bf6d885734d4d8548b0b65dde012edf60b2df247e"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_river_open_helm__humgen_creator_male/native_library.json",
+      "bytes": 566,
+      "sha256": "c6fd296136a913decb0e3a19b37fd75b04a8a236a876b1c527c026086d45465e"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_brass_gauntlets__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 1703,
+      "sha256": "44a8f8c5e371da68cca38ea8b6a8af5d45eaabfde18333669659d15a6c1556d8"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_brass_gauntlets__humgen_creator_female/creator_part.json",
+      "bytes": 9234,
+      "sha256": "9ee2c399a73a382859683f432c66a836ee10f4baabbe90fcb29480e5558187df"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_brass_gauntlets__humgen_creator_female/native_library.json",
+      "bytes": 610,
+      "sha256": "10e3808137901630a82616c481e33e3899665a86d319d9dd7f13cfb8f46ef844"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_brass_gauntlets__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 1691,
+      "sha256": "33b6705cc32ff08c0428b5ec34732e5c24738250f625a84185d34676e3acc31a"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_brass_gauntlets__humgen_creator_male/creator_part.json",
+      "bytes": 9112,
+      "sha256": "6daf0ef6b75c1267740d5751a45f91113e573086e61ed247834aac2cc7f4e853"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_brass_gauntlets__humgen_creator_male/native_library.json",
+      "bytes": 604,
+      "sha256": "048f76d558c87451e062c5c19e1d214ada4c0c13dde14a637eec25c54ad73118"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_boots__humgen_creator_female/creator_part.json",
+      "bytes": 1066923,
+      "sha256": "e16d512d76df32a8f8d60d61469c1c7c100c37c76e2e9ddb2b5f6bf491fd7e09"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_boots__humgen_creator_female/native_library.json",
+      "bytes": 599,
+      "sha256": "9811f66f49754c22b52ec8e3b516efae642167a6439df356562f506517433d63"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_boots__humgen_creator_male/creator_part.json",
+      "bytes": 896704,
+      "sha256": "23701f74aa5ff0c6892060cfd81c5ae15f61ec8f7e0e650e86f3edd9b3bd8f56"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_boots__humgen_creator_male/native_library.json",
+      "bytes": 593,
+      "sha256": "a88e440d52399497693ace2ab918a0067d3dd6519580b7c5c05f3c859d308556"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_breeches__humgen_creator_female/creator_part.json",
+      "bytes": 39839,
+      "sha256": "42dcc40ab13141fe0040fda80a6c714c790d9dfe3c0981658e9eef65db71fea3"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_breeches__humgen_creator_female/native_library.json",
+      "bytes": 604,
+      "sha256": "b7995d9323d4533c8b4f776e95c4aec7b41e40cbde2196ba42eecf3d2fd3f74e"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_breeches__humgen_creator_male/creator_part.json",
+      "bytes": 39826,
+      "sha256": "73cf3837cb22162e6cea7a96bec7032749af7d816133936ad9f1e589dbd45033"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_breeches__humgen_creator_male/native_library.json",
+      "bytes": 598,
+      "sha256": "34dbcb68189bd478d344192b8baed33a90d6eeb21f7b956f7c40a1fc95765db5"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_jack__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 2170,
+      "sha256": "31f9c73d64aa9abed7fcf696a72f714d3c38cad93123aeb8ade0df00fac71e54"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_jack__humgen_creator_female/creator_part.json",
+      "bytes": 1187170,
+      "sha256": "876bbfd3d8f1c1202abec081273e2860e47c5ed9b90d42b77b414bc977680dfc"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_jack__humgen_creator_female/native_library.json",
+      "bytes": 605,
+      "sha256": "e3a3a34a8bf9cc21e338d619c3afa1bde9d30a6ee9dd02e5d33243108dcfbc43"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_jack__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 2159,
+      "sha256": "02141c776d737b855068f3612007f37ab21f2f4764417fa09a8f5c89e1ac27c5"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_jack__humgen_creator_male/creator_part.json",
+      "bytes": 1224248,
+      "sha256": "a3c10df7ec61c2ee40c30de7c12e3bb1b94d269a0d69cd1034acafa709f11777"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_sealed_road_jack__humgen_creator_male/native_library.json",
+      "bytes": 599,
+      "sha256": "d5cab32fdfe2f1c156c96bf2f238756cfd772fbfe5d3619fb72fc9e55c341aa1"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_closed_helm__humgen_creator_female/creator_part.json",
+      "bytes": 1431,
+      "sha256": "6356ea4180320e472c611adc50d48c1835c2179d5db3ff34b2799bab1b8e8e98"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_closed_helm__humgen_creator_female/native_library.json",
+      "bytes": 574,
+      "sha256": "dd5ef3d5ddcca85dce544519ae50585b3c38ccf75737df2614cf5871f9d929a7"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_closed_helm__humgen_creator_male/creator_part.json",
+      "bytes": 1421,
+      "sha256": "440495557e15c29139b5604353b3e8d9674fa8b054c1ebcef8f6b1777a6eca99"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_closed_helm__humgen_creator_male/native_library.json",
+      "bytes": 567,
+      "sha256": "3b56628d711c01108ec4ef93aead482d1b46378f8c89f0e70aca5b32450b517c"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_plate_gauntlets__humgen_creator_female/CLEARANCE_AUDIT.json",
+      "bytes": 1703,
+      "sha256": "b09c412ea3c0cdde1c1d92757a1180e41c418d444ae6a01b6bdccf82bf559f9a"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_plate_gauntlets__humgen_creator_female/creator_part.json",
+      "bytes": 26319,
+      "sha256": "78ad09446282011c4dab8bb29f436dd1bce7fa8966f87d8a19cd7fce668c7283"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_plate_gauntlets__humgen_creator_female/native_library.json",
+      "bytes": 606,
+      "sha256": "773dde7f6e806c43bd9073cafe107f062176f8b9aed3b621a351561fd078f31d"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_plate_gauntlets__humgen_creator_male/CLEARANCE_AUDIT.json",
+      "bytes": 1691,
+      "sha256": "ccdad158b3dd23dc8c364e20b68b3e4a44074752487f66be0260cc37cbc82793"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_plate_gauntlets__humgen_creator_male/creator_part.json",
+      "bytes": 26321,
+      "sha256": "d12b0d44f400c6e621361ac1c23a791d08db538778ee9c623f39684b253a3cff"
+    },
+    {
+      "path": "source_receipts/native_contracts_and_audits/gear_ward_plate_gauntlets__humgen_creator_male/native_library.json",
+      "bytes": 599,
+      "sha256": "9429793259a5b042a29312206b0b3f31f9b05e194e84f0d5bc04e719360117f6"
+    },
+    {
+      "path": "source_receipts/NORMAL_EQUIPMENT_PROOF.json",
+      "bytes": 20938,
+      "sha256": "fe02b29f7b02e01b4ea5192ece8879edce276071ee5b0d0bfe0cfb9d7fece29b"
+    },
+    {
+      "path": "source_receipts/P2_ARMOUR_BARROWWORKS.md",
+      "bytes": 1254,
+      "sha256": "f5352c80aaa8e196145f36595785253fb9cb0a73b0a085c35605e5741cfb1096"
+    },
+    {
+      "path": "source_receipts/P2_ARMOUR_CREDITS.md",
+      "bytes": 12908,
+      "sha256": "6e1306bd20d853188ae9add5bbed88b2d289b60e2386f95e755bfe148c83493f"
+    },
+    {
+      "path": "source_receipts/P2_ARMOUR_FINAL_STATS_REVIEW.md",
+      "bytes": 3176,
+      "sha256": "cb517e0e9b9af29523e841810387a32fbce7dbbb053cc4fae209a94d171ec28b"
+    },
+    {
+      "path": "source_receipts/P2_ARMOUR_INSTALL.md",
+      "bytes": 3353,
+      "sha256": "eb1fc1443419d27594874aa54fe39b01e8d9151effd9c46328f982e1fcf02e41"
+    },
+    {
+      "path": "source_receipts/P2_ARMOUR_MANIFEST.json",
+      "bytes": 82696,
+      "sha256": "d0eba73abffdcf9d99679b1d50adf4d496538a55221633cb9b6040c8cae1386a"
+    },
+    {
+      "path": "source_receipts/P2_ARMOUR_PROVENANCE.json",
+      "bytes": 38806,
+      "sha256": "285e4679205be607177500f95074e1e229d46082934bdd232dd5026502453bd9"
+    },
+    {
+      "path": "source_receipts/P2_GEAR_BARROWWORKS.md",
+      "bytes": 1499,
+      "sha256": "aa421ba83edfb97fa28194a7efa09907242ae9d48eb60c29a54ad2328350f1cb"
+    },
+    {
+      "path": "source_receipts/P2_GEAR_TTK.md",
+      "bytes": 3790,
+      "sha256": "7de1c8c94a9d741c6e2527fe4e5d3135045bcee34dfd641e48c95e16b7a3eb5e"
+    },
+    {
+      "path": "source_receipts/PIPELINE_SOURCES.json",
+      "bytes": 2373,
+      "sha256": "9c803483143d98615f94e04db48691919ed676102b910edcbed72dfbaef12191"
+    },
+    {
+      "path": "source_receipts/SOURCES.json",
+      "bytes": 14441,
+      "sha256": "1f78f57d3f11cf5a73421d84b3c2ee9c77ee6dede8663a550a369789e4ea3907"
+    },
+    {
+      "path": "source_receipts/STAGE.json",
+      "bytes": 3013,
+      "sha256": "d1d36699dd90f3e597bb98506f23b44dc297169214ca5da7a1a31c8539ba1007"
+    },
+    {
+      "path": "source_receipts/test_results/p2_final20_application.trx",
+      "bytes": 9992,
+      "sha256": "7bd5c440734478651b5d2d963921e55da81cb29f35d86bc0fcf4fc52e978feff"
+    },
+    {
+      "path": "source_receipts/test_results/p2_final20_content_final_v2.trx",
+      "bytes": 537544,
+      "sha256": "cfc4833608422ee8beefdc0a1f9e1c7ca84e071aea3a6779283586fa9919ef91"
+    },
+    {
+      "path": "source_receipts/test_results/p2_final_architecture.trx",
+      "bytes": 33273,
+      "sha256": "c9924d292e795d4f4be4408962acfb14b519bd770fbd026f81481b27c8c9170c"
+    },
+    {
+      "path": "source_receipts/test_results/p2_final_presentation.trx",
+      "bytes": 763835,
+      "sha256": "3424099453599086ce8d22203e15da7c0f66dd9faf1dfda14b675c60461a493c"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/A21_blenderkit.json",
+      "bytes": 322,
+      "sha256": "66e850440f905a1e81a8db68d36e0d3f5062097d473ac8cac2d4b4cbc56ead99"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/A23_blenderkit.json",
+      "bytes": 4069,
+      "sha256": "8cff104ed6e6c1e66c8fab8a1565f6927a8b73644e0f7de07a434edbeac0922e"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/a2d17e8aa93e_0693e6cbc82b47f7a8c08a7bb87ae72b.json",
+      "bytes": 4752,
+      "sha256": "a2d17e8aa93e2dcf47f5cacdf63e0b11406dd60432c07b99503fefdec531a527"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/adaptation_33858247654b47e68d26d6fdf070ca7f.json",
+      "bytes": 9711,
+      "sha256": "4ba652f9a281adde84c2d8d4fabacabae26f6f0add11a5dd21fba27452b3006c"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/adaptation_38758fc7c96847d78dd5f6da4c3db1db.json",
+      "bytes": 9845,
+      "sha256": "89dd4bde7d44b14ffad86a6923eee28c467c2fed260e8e1251301df8a0906c1f"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/adaptation_4c10a03dbf3a440c943d383d664248c1.json",
+      "bytes": 8882,
+      "sha256": "593750433b8d9f53f728d86da9b83b1746bd6901e01010c61ce8692a07dcaff3"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/adaptation_d5a36fd5d69640b29bb7e92f72f61608.json",
+      "bytes": 9581,
+      "sha256": "afdcc9f6b134c73eba83db5336225b269b5513061cee7a652ac5c542042cffed"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/c6f5323172fa_c592ef6e41b346bca2e7de9109388276.json",
+      "bytes": 5236,
+      "sha256": "c6f5323172fa945feb8034c8c84f4e6786e73ae882d7ea71cdd847282039dd00"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/cca42604d0d6_69439353368d4a99b358f7211a82d9c2.json",
+      "bytes": 7638,
+      "sha256": "cca42604d0d6339b85dc4ceae36a7066beabe0ba95297238d8d62c3a2c8f2d74"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/d6c7986f7e37_e281da5c2578439189f2f17106bf63fc.json",
+      "bytes": 6500,
+      "sha256": "d6c7986f7e3727ad97ef036c44b4238ab0fcdd99f6be0acb7ae4f619fb52963b"
+    },
+    {
+      "path": "source_receipts/upstream_metadata/INDEX.json",
+      "bytes": 25165,
+      "sha256": "5a6ca5346f4508e958a141a096d780f3a27149b93d7e1d4d62db1b5f470e140c"
+    }
+  ],
+  "total_bytes": 3222092619
+}

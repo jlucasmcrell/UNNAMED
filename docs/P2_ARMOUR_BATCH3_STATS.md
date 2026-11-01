@@ -5,10 +5,10 @@ Existing schema 1, ordinary item class (common rarity), stack 1; first-hour leve
 | ID | Item / slot | Armour / material | kg | Coin | Durability | Repair station / skill / material | Vendor |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- |
 | A12 | River Lame Gloves / hands | 2 / plate | 0.8 | 22 | 400 | anvil / smithing 4 / iron_ingot | Kera |
-| A22 | Sealed Brass Gauntlets / hands | 2 / leather | 0.7 | 20 | 250 | workbench / survival 2 / small_hide | Durn |
+| A22 | Sealed Leather Wristguards / hands | 2 / leather | 0.35 | 16 | 180 | workbench / survival 2 / small_hide | Durn |
 | A04 | Sealed Road Breeches / legs | 3 / leather | 2.2 | 26 | 250 | workbench / survival 2 / small_hide | Durn |
 | A08 | Quilted Ward Breeches / legs | 4 / leather | 2.8 | 33 | 250 | workbench / survival 2 / small_hide | Durn |
-| A14 | River Lame Breeches / legs | 4 / plate | 3.0 | 35 | 400 | anvil / smithing 4 / iron_ingot | Kera |
+| A14 | River Lame Tassets / legs | 4 / plate | 3.0 | 35 | 400 | anvil / smithing 4 / iron_ingot | Kera |
 
 Anchors: Hide Cap 3 armour / 1 kg / 12 coin / 150 durability; Hide Vest 6 / 4 kg / 30 / 150; Lamework Jack 10 / 7 kg / 71 / 500. Iron repairs use an anvil, smithing 4 and iron ingot; hide repairs use workbench, survival 2 and small hide. Weight, coin and repair access remain costs alongside protection and durability. Material class is authored in the existing schema; this branch does not implement separate material resistance multipliers.
 

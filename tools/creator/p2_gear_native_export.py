@@ -67,6 +67,9 @@ def export_candidate(human,row,work,creator,sex,source,solver,adjusted,fit_audit
     assert rest_error<.0001,('Native rest changed',rest_error)
     identity=json.loads((target_path.parent/'identity_weights.json').read_text())
     contract=dict(kind='equipment',slot=row['slot'],item=row['item_id'],review_id=row['review_id'],target_base=base,target_body_sha256=identity['target_body_sha256'],source=str(source),source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),native_meshes=[m.name for m in meshes],status='NATIVE_REVIEW_CANDIDATE_NOT_BOUND',clearance_m=.0035,clearance_vertices_adjusted=adjusted,native_rest_error=rest_error,lod_geometry='Original native source geometry retained at all four levels; no reduction claimed',solver=solver)
+    if row.get('replaces_creator_sweater'):
+        assert row['slot']=='chest'
+        contract['replaces_creator_sweater']=True
     if fit_audit:contract['fit_audit']=fit_audit
     contract['export_hook_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in hooks.glob('*.py')}
     (folder/'creator_part.json').write_text(json.dumps(contract,indent=2))

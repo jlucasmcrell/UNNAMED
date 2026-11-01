@@ -1,0 +1,17 @@
+id: item.armor.repaired_proof_sabatons
+kind: item.armor
+schema: 1
+display_key: item.armor.repaired_proof_sabatons.name
+tags: [item]
+name: Repaired Road Shoes
+notes: Repaired leather shoes with light, affordable foot protection and less coverage than a boot.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 0.7
+value_base: 10
+slot: feet
+armor_value: 1
+material_class: leather
+durability_max: 120
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }

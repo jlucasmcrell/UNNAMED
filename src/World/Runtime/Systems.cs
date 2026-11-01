@@ -253,7 +253,7 @@ internal sealed class SystemContext
             .Select(p => p.Site).OrderBy(c => c.Key, StringComparer.Ordinal);
 
     /// <summary>How many stacks a trader's wares hold (M4).</summary>
-    public const int WaresStackSlots = 48;
+    public const int WaresStackSlots = 96;
 
     /// <summary>Every trader's wares (M4): a container keyed by the merchant, standing at the trader.</summary>
     public IEnumerable<ContainerSite> MerchantSites() =>
