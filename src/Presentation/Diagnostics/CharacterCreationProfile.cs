@@ -79,11 +79,11 @@ public partial class CharacterCreationProfile : Node
         catch (Exception error) { GD.PushError(error.ToString()); CaptureQuit.At(this, 1); }
     }
 
-    private static string TextureFingerprint(SkinnedFigure figure)
+    internal static string TextureFingerprint(Node figure)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var images = new Dictionary<ulong, string>();
-        foreach (var mesh in figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+        foreach (var mesh in figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Prepend(figure as MeshInstance3D).OfType<MeshInstance3D>()
                      .Where(mesh => mesh.Mesh is not null).OrderBy(mesh => mesh.Name.ToString(), StringComparer.Ordinal))
             for (int surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is BaseMaterial3D material)
@@ -103,21 +103,23 @@ public partial class CharacterCreationProfile : Node
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();
     }
 
-    private static string GeometryFingerprint(SkinnedFigure figure)
+    internal static string GeometryFingerprint(Node figure)
     {
         using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         void Text(string value) => hash.AppendData(Encoding.UTF8.GetBytes(value + "\n"));
-        var rig = figure.Skeleton;
-        for (int bone = 0; bone < rig.GetBoneCount(); bone++)
-        {
-            Text(rig.GetBoneName(bone) + ":" + rig.GetBoneParent(bone));
-            hash.AppendData(GD.VarToBytes(rig.GetBoneRest(bone)));
-        }
-        foreach (var mesh in figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
+        var rig = ArtLibrary.Find<Skeleton3D>(figure);
+        if (rig is not null)
+            for (int bone = 0; bone < rig.GetBoneCount(); bone++)
+            {
+                Text(rig.GetBoneName(bone) + ":" + rig.GetBoneParent(bone));
+                hash.AppendData(GD.VarToBytes(rig.GetBoneRest(bone)));
+            }
+        foreach (var mesh in figure.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().Prepend(figure as MeshInstance3D).OfType<MeshInstance3D>()
                      .Where(mesh => mesh.Mesh is ArrayMesh).OrderBy(mesh => mesh.Name.ToString(), StringComparer.Ordinal))
         {
             var array = (ArrayMesh)mesh.Mesh;
             Text(mesh.Name + ":" + array.GetBlendShapeCount());
+            Text(mesh.Visible + ":" + mesh.CastShadow + ":" + mesh.VisibilityRangeBegin + ":" + mesh.VisibilityRangeEnd + ":" + mesh.Layers);
             hash.AppendData(GD.VarToBytes(mesh.Transform));
             if (mesh.Skin is { } skin)
                 for (int bind = 0; bind < skin.GetBindCount(); bind++)
@@ -134,6 +136,17 @@ public partial class CharacterCreationProfile : Node
                 var shapes = array.SurfaceGetBlendShapeArrays(surface);
                 hash.AppendData(GD.VarToBytes(shapes));
                 ((Godot.Collections.Array)shapes).Dispose();
+            }
+        }
+        foreach (var node in figure.FindChildren("*", nameof(OccluderInstance3D), true, false).OfType<OccluderInstance3D>()
+                     .OrderBy(node => figure.GetPathTo(node).ToString(), StringComparer.Ordinal))
+        {
+            Text(figure.GetPathTo(node));
+            hash.AppendData(GD.VarToBytes(node.Transform));
+            if (node.Occluder is { } occluder)
+            {
+                hash.AppendData(GD.VarToBytes(occluder.GetVertices()));
+                hash.AppendData(GD.VarToBytes(occluder.GetIndices()));
             }
         }
         return Convert.ToHexString(hash.GetHashAndReset()).ToLowerInvariant();

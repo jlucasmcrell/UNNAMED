@@ -11,12 +11,43 @@ public sealed partial class ArtLibrary
     private const string NativeRiggedVersion = "v2";
     internal int NativeRiggedHits { get; private set; }
     private readonly Dictionary<string, Dictionary<string, string>> _nativeTextureSignatures = new(StringComparer.OrdinalIgnoreCase);
+    private HashSet<string>? _nativeStaticSources;
+
+    private bool NativeStaticSelected(string path)
+    {
+        if (!Path.GetRelativePath(WorkspaceOf(path), path).Replace('\\','/').StartsWith("ready/", StringComparison.Ordinal)) return false;
+        if (_nativeStaticSources is null)
+        {
+            _nativeStaticSources = new(StringComparer.OrdinalIgnoreCase);
+            string manifest = Path.Combine(Root ?? "", "manifests", "native_static_sources.json");
+            if (File.Exists(manifest))
+            {
+                using var json = JsonDocument.Parse(File.ReadAllText(manifest));
+                if (json.RootElement.GetProperty("schema").GetInt32() != 1) throw new InvalidDataException("Invalid native static source manifest");
+                string baseRoot = Path.GetDirectoryName(Path.GetFullPath(Root!))!;
+                foreach (var entry in json.RootElement.GetProperty("paths").EnumerateArray())
+                {
+                    string relative = entry.GetString()!.Replace('\\','/');
+                    if (!relative.StartsWith("primary/ready/", StringComparison.Ordinal) && !relative.StartsWith("fallback/ready/", StringComparison.Ordinal))
+                        throw new InvalidDataException("Native static source must identify a packaged ready model");
+                    string file = Path.GetFullPath(Path.Combine(baseRoot, relative));
+                    if (!Workspaces.Any(root => file.StartsWith(Path.GetFullPath(root) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
+                        || !file.Contains(Path.DirectorySeparatorChar + "ready" + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                        || !File.Exists(file)) throw new InvalidDataException("Missing/external native static source: " + file);
+                    _nativeStaticSources.Add(file);
+                }
+            }
+        }
+        return _nativeStaticSources.Contains(Path.GetFullPath(path));
+    }
 
     private bool NativeRiggedEligible(string path) => VisualOptions.Tier == "ultra"
-        && Path.GetRelativePath(WorkspaceOf(path), path).Replace('\\', '/').StartsWith("rigged/", StringComparison.Ordinal);
+        && (Path.GetRelativePath(WorkspaceOf(path), path).Replace('\\', '/').StartsWith("rigged/", StringComparison.Ordinal) || NativeStaticSelected(path));
 
     private string NativeRiggedFile(string path) => Path.Combine(WorkspaceOf(path), "character_native",
-        Engine.GetVersionInfo()["string"].AsString(), NativeRiggedVersion, Path.GetFileName(path) + ".scn");
+        Engine.GetVersionInfo()["string"].AsString(), NativeRiggedVersion,
+        (NativeStaticSelected(path) ? "static_" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(
+            Path.GetRelativePath(WorkspaceOf(path), path).Replace('\\','/'))))[..16] + "_" : "") + Path.GetFileName(path) + ".scn");
 
     private string NativeRiggedStamp(string path)
     {
@@ -32,8 +63,12 @@ public sealed partial class ArtLibrary
                         + "|" + p.Value.GetProperty("role").GetString()))))), StringComparer.Ordinal);
             _nativeTextureSignatures[workspace] = signatures;
         }
-        return "native-rigged-" + NativeRiggedVersion + " " + Engine.GetVersionInfo()["string"].AsString()
+        string stamp = "native-rigged-" + NativeRiggedVersion + (NativeStaticSelected(path) ? " static-template-v1" : "") + " " + Engine.GetVersionInfo()["string"].AsString()
             + " " + SourceSha256(path) + " " + signatures.GetValueOrDefault(relative, "untextured");
+        if (OS.GetEnvironment("UNNAMED_AO_ALL_OFF") == "1") stamp += " ao-off";
+        if (OS.GetEnvironment("UNNAMED_BUILDING_OCCLUSION") == "0") stamp += " no-occluders";
+        if (OS.GetEnvironment("UNNAMED_RUNTIME_MESH_LODS") == "0") stamp += " no-runtime-lods";
+        return stamp;
     }
 
     private PackedScene? TryNativeRigged(string path)
@@ -64,11 +99,29 @@ public sealed partial class ArtLibrary
             NativeRiggedHits++;
             return shared;
         }
-        catch (Exception error) when (_buildSceneCache && error is IOException or JsonException)
+        catch (Exception error) when (_buildSceneCache && error is IOException or JsonException or InvalidDataException)
         {
             GD.Print("UNNAMED rebuilding native rigged scene: " + error.Message);
             return null;
         }
+    }
+
+    internal Node3D? NativeStaticSource(string relative, bool requireSelected = true)
+    {
+        relative = relative.Replace('\\', '/');
+        string? expected = null;
+        if (relative.StartsWith("primary/", StringComparison.Ordinal) || relative.StartsWith("fallback/", StringComparison.Ordinal))
+        {
+            expected = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Path.GetFullPath(Root!))!, relative));
+            relative = relative[(relative.IndexOf('/') + 1)..];
+        }
+        if (!relative.StartsWith("ready/", StringComparison.Ordinal) || relative.Contains("../", StringComparison.Ordinal))
+            throw new InvalidDataException("Native static source must be an explicit ready path");
+        string actual = At(relative) ?? throw new InvalidDataException("Native static source missing: " + relative);
+        if (expected is not null && !string.Equals(expected, Path.GetFullPath(actual), StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("Native static source is shadowed: " + expected);
+        if (requireSelected && !NativeStaticSelected(actual)) throw new InvalidDataException("Native static source is not selected: " + relative);
+        return Instance(Path.GetFileName(Path.GetDirectoryName(relative))!, relative.Replace('/', Path.DirectorySeparatorChar));
     }
 
     private static IEnumerable<BaseMaterial3D> NativeRiggedMaterials(Node root) => root

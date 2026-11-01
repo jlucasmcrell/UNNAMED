@@ -34,3 +34,23 @@ with `CharacterCreationProfile`: complete geometry/morph/skin-bind fingerprints,
 texture formats/mips/bytes, actor isolation, relocation and required native hits.
 These are CPU controls. Measure the normal packaged launcher and populated world
 separately before claiming a loading improvement or character acceptance.
+
+Selected static sources use the same loader and cache, without changing its
+GenerateStaticMeshLods, original shadow geometry or building occluder steps.
+Declare them in primary/manifests/native_static_sources.json:
+
+    {"schema":1,"paths":["primary/ready/model/model.glb","fallback/ready/other/other.glb"]}
+
+Paths must exist inside the declared packaged workspaces. Scoped verification
+rejects shadowed files. Static cache filenames include a relative-path hash.
+Build static scenes with the matching **exported template EXE**, headless, using
+the same gate scene and --build: editor/runtime mesh importer types differ.
+Verify on the freshly exported final game without --build. Input JSON arrays
+may contain canonical rigged IDs and scoped ready paths, in bounded batches.
+Receipt must have status PASS, packaged true, build false, the exact models
+and nativeHits equal to distinct input count, together with process exit zero.
+Keep primary and fallback character_native payloads plus their proof JSON.
+
+NativeRawSceneProfile compares full raw geometry, morphs, skin binds, texture
+formats/mips/bytes and occluder data between source and cache in fresh exported
+processes. This is CPU development evidence, never character acceptance.
