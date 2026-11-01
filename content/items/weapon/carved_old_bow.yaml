@@ -10,16 +10,14 @@ item_class: ordinary
 stack_max: 1
 weight: 1.2
 value_base: 28
-# Its slower draw is the trade-off; a steady hit avoids an extra-arrow breakpoint at peer level.
-damage: [9, 9]
+damage: [8, 10]
 damage_type: physical_pierce
 hands: two
 requirements: { attribute.might: 9 }
-draw_time: 1.0
+draw_time: 0.95
+sneak_multiplier: 2.25   # an arrow into a target that has not noticed the archer (STEALTH §7.1); a little over the hunting bow's double, to keep its lighter draw-for-damage trade level
+shot_noise_m: 6          # the twang, heard at the shooter (STEALTH §7.8)
 ammo_item_ref: item.ammo.arrow_rough
 skill_ref: skill.bow
-# The bow family's unaware hit and twang (D23 / STEALTH 7.1, 7.8), as on the Hunting Bow.
-sneak_multiplier: 2.0
-shot_noise_m: 6
 durability_max: 200
 repair: { station: workbench, skill_ref: skill.survival, skill_min: 3, item_ref: item.material.bog_cotton }

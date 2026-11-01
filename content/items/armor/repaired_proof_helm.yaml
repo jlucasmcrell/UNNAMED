@@ -1,0 +1,17 @@
+id: item.armor.repaired_proof_helm
+kind: item.armor
+schema: 1
+display_key: item.armor.repaired_proof_helm.name
+tags: [item]
+name: Repaired Proof Helm
+notes: Old protection kept serviceable with new straps and careful repairs.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 2.2
+value_base: 38
+slot: head
+armor_value: 5
+material_class: plate
+durability_max: 400
+repair: { station: anvil, skill_ref: skill.smithing, skill_min: 4, item_ref: item.material.iron_ingot }

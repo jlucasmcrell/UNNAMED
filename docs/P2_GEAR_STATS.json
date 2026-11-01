@@ -35,7 +35,11 @@
     },
     "review_id": "W01",
     "era": "Salvage / reverse engineering",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.iron_curved_sword",
@@ -73,7 +77,11 @@
     },
     "review_id": "W03",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.bronze_broadsword",
@@ -111,7 +119,11 @@
     },
     "review_id": "W04",
     "era": "Primitive / ancient",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.bronze_curved_sword",
@@ -149,7 +161,11 @@
     },
     "review_id": "W05",
     "era": "Primitive / ancient",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.bearded_road_axe",
@@ -186,7 +202,11 @@
     },
     "review_id": "W06",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.stone_haft_hammer",
@@ -223,7 +243,11 @@
     },
     "review_id": "W07",
     "era": "Primitive / ancient",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.weathered_double_bit_axe",
@@ -260,7 +284,11 @@
     },
     "review_id": "W24",
     "era": "Salvage / reverse engineering",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.carved_old_bow",
@@ -278,15 +306,17 @@
     "weight": 1.2,
     "value_base": 28,
     "damage": [
-      9,
-      9
+      8,
+      10
     ],
     "damage_type": "physical_pierce",
     "hands": "two",
     "requirements": {
       "attribute.might": 9
     },
-    "draw_time": 1.0,
+    "draw_time": 0.95,
+    "sneak_multiplier": 2.25,
+    "shot_noise_m": 6,
     "ammo_item_ref": "item.ammo.arrow_rough",
     "skill_ref": "skill.bow",
     "durability_max": 200,
@@ -299,8 +329,10 @@
     "review_id": "W09",
     "era": "Primitive / ancient",
     "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
-    "sneak_multiplier": 2.0,
-    "shot_noise_m": 6
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.red_grip_hunting_knife",
@@ -338,7 +370,11 @@
     },
     "review_id": "W14",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.plain_belt_knife",
@@ -376,7 +412,11 @@
     },
     "review_id": "W15",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.brass_hilt_sword",
@@ -414,7 +454,11 @@
     },
     "review_id": "W20",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.wood_grip_knife",
@@ -452,7 +496,11 @@
     },
     "review_id": "W21",
     "era": "Modern",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.carving_knife",
@@ -490,7 +538,11 @@
     },
     "review_id": "W22",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.weapon.double_bit_axe",
@@ -527,7 +579,11 @@
     },
     "review_id": "W23",
     "era": "Modern",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   },
   {
     "id": "item.armor.sealed_road_boots",
@@ -556,7 +612,12 @@
     },
     "review_id": "A01",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.sealed_road_jack",
@@ -585,7 +646,12 @@
     },
     "review_id": "A02",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.sealed_road_breeches",
@@ -614,7 +680,12 @@
     },
     "review_id": "A04",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.quilted_ward_boots",
@@ -643,7 +714,12 @@
     },
     "review_id": "A05",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.quilted_ward_jack",
@@ -672,7 +748,12 @@
     },
     "review_id": "A06",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.ward_closed_helm",
@@ -701,7 +782,12 @@
     },
     "review_id": "A07",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.quilted_ward_breeches",
@@ -730,7 +816,12 @@
     },
     "review_id": "A08",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.ward_plate_gauntlets",
@@ -759,7 +850,12 @@
     },
     "review_id": "A09",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.river_lame_boots",
@@ -788,7 +884,12 @@
     },
     "review_id": "A10",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.river_lame_jack",
@@ -817,7 +918,12 @@
     },
     "review_id": "A11",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.river_lame_gloves",
@@ -846,7 +952,12 @@
     },
     "review_id": "A12",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.river_open_helm",
@@ -875,7 +986,12 @@
     },
     "review_id": "A13",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.river_lame_breeches",
@@ -885,7 +1001,7 @@
     "tags": [
       "item"
     ],
-    "name": "River Lame Breeches",
+    "name": "River Lame Tassets",
     "notes": "Old protection kept serviceable with new straps and careful repairs.",
     "category": "armor",
     "item_class": "ordinary",
@@ -904,7 +1020,12 @@
     },
     "review_id": "A14",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.repaired_proof_helm",
@@ -933,7 +1054,12 @@
     },
     "review_id": "A15",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.repaired_proof_sabatons",
@@ -943,26 +1069,31 @@
     "tags": [
       "item"
     ],
-    "name": "Repaired Proof Sabatons",
-    "notes": "Old protection kept serviceable with new straps and careful repairs.",
+    "name": "Repaired Road Shoes",
+    "notes": "Repaired leather shoes with light, affordable foot protection and less coverage than a boot.",
     "category": "armor",
     "item_class": "ordinary",
     "stack_max": 1,
-    "weight": 1.9,
-    "value_base": 33,
+    "weight": 0.7,
+    "value_base": 10,
     "slot": "feet",
-    "armor_value": 3,
-    "material_class": "plate",
-    "durability_max": 550,
+    "armor_value": 1,
+    "material_class": "leather",
+    "durability_max": 120,
     "repair": {
-      "station": "anvil",
-      "skill_ref": "skill.smithing",
-      "skill_min": 4,
-      "item_ref": "item.material.iron_ingot"
+      "station": "workbench",
+      "skill_ref": "skill.survival",
+      "skill_min": 2,
+      "item_ref": "item.material.small_hide"
     },
     "review_id": "A16",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.repaired_proof_jack",
@@ -991,7 +1122,12 @@
     },
     "review_id": "A17",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.repaired_proof_cuisses",
@@ -1020,7 +1156,12 @@
     },
     "review_id": "A18",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.open_road_barbute",
@@ -1049,7 +1190,12 @@
     },
     "review_id": "A21",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.armor.sealed_brass_gauntlets",
@@ -1059,17 +1205,17 @@
     "tags": [
       "item"
     ],
-    "name": "Sealed Brass Gauntlets",
+    "name": "Sealed Leather Wristguards",
     "notes": "Old protection kept serviceable with new straps and careful repairs.",
     "category": "armor",
     "item_class": "ordinary",
     "stack_max": 1,
-    "weight": 0.7,
-    "value_base": 20,
+    "weight": 0.35,
+    "value_base": 16,
     "slot": "hands",
     "armor_value": 2,
     "material_class": "leather",
-    "durability_max": 250,
+    "durability_max": 180,
     "repair": {
       "station": "workbench",
       "skill_ref": "skill.survival",
@@ -1078,7 +1224,12 @@
     },
     "review_id": "A22",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.cairnwold.durn_skell"
   },
   {
     "id": "item.armor.old_ward_greathelm",
@@ -1107,7 +1258,12 @@
     },
     "review_id": "A23",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ],
+    "merchant": "merchant.ashen_hollow.kera_voss"
   },
   {
     "id": "item.weapon.notched_road_axe",
@@ -1144,6 +1300,10 @@
     },
     "review_id": "W18",
     "era": "Medieval / renaissance",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "target_level_band": [
+      1,
+      5
+    ]
   }
 ]

@@ -27,8 +27,8 @@ public partial class AnimationSheet
     private bool _wornUsesItemBinding;
     private static readonly (string State, double Seconds)[] WornMotionStates =
         { ("idle", 1), ("walk", 3), ("run", 3), ("crouch", 3), ("attack", 3.3) };
-    private IEnumerable<(string State, double Seconds)> CurrentWornMotionStates => _wornUsesItemBinding
-        ? WornMotionStates.Append(("unequipped", 1.5)) : WornMotionStates;
+    private IEnumerable<(string State, double Seconds)> CurrentWornMotionStates =>
+        WornMotionStates.Append(("unequipped", 1.5));
 
     private void AddWornMotion()
     {
@@ -60,24 +60,31 @@ public partial class AnimationSheet
     {
         var figure = _wornMotionFigure!;
         string selected = _wornMotionGarments[_wornMotionItem];
+        string selection = selected.Contains('@') ? selected.Split('@', 2)[1] : selected;
         _wornUsesItemBinding = selected.Contains('=');
         if (_wornUsesItemBinding)
         {
-            string[] parts = selected.Split('=', 2);
-            if (!parts[1].StartsWith("item.armor.", StringComparison.Ordinal))
-                throw new InvalidDataException("Normal worn review requires an actual armour item ID");
-            figure.WearEquipment(default);
-            figure.WearEquipment(parts[0] switch
+            WornOutfit outfit = default;
+            var slots = new HashSet<string>(StringComparer.Ordinal);
+            foreach (string piece in selection.Split('+'))
             {
-                "head" => new WornOutfit(Head: parts[1]),
-                "chest" => new WornOutfit(Chest: parts[1]),
-                "feet" => new WornOutfit(Feet: parts[1]),
-                "hands" => new WornOutfit(Hands: parts[1]),
-                "legs" => new WornOutfit(Legs: parts[1]),
-                _ => throw new InvalidDataException("Unknown armour review slot: " + parts[0])
-            });
+                string[] parts = piece.Split('=', 2);
+                if (parts.Length != 2 || !parts[1].StartsWith("item.armor.", StringComparison.Ordinal) || !slots.Add(parts[0]))
+                    throw new InvalidDataException("Normal worn review requires unique slots and actual armour item IDs");
+                outfit = parts[0] switch
+                {
+                    "head" => outfit with { Head = parts[1] },
+                    "chest" => outfit with { Chest = parts[1] },
+                    "feet" => outfit with { Feet = parts[1] },
+                    "hands" => outfit with { Hands = parts[1] },
+                    "legs" => outfit with { Legs = parts[1] },
+                    _ => throw new InvalidDataException("Unknown armour review slot: " + parts[0])
+                };
+            }
+            figure.WearEquipment(default);
+            figure.WearEquipment(outfit);
         }
-        else figure.ReviewNativeGarment(selected);
+        else figure.ReviewNativeGarment(selection);
         figure.Position = Vector3.Zero;
         figure.Hold(null);
         figure.SetPosture(false, false);
@@ -86,7 +93,7 @@ public partial class AnimationSheet
         _wornMotionLoaded = false;
         _wornMotionFrame = 0;
         _wornMotionFrames.Clear();
-        Directory.CreateDirectory(Path.Combine(_directory, _wornMotionGarments[_wornMotionItem]));
+        Directory.CreateDirectory(Path.Combine(_directory, _wornMotionGarments[_wornMotionItem].Split('@', 2)[0]));
     }
 
     private void WornMotionFrame(double delta)
@@ -132,14 +139,14 @@ public partial class AnimationSheet
             if (inState < phase.Seconds) { state = phase.State; done = false; break; }
             inState -= phase.Seconds;
         }
-        string garment = _wornMotionGarments[_wornMotionItem];
+        string garment = _wornMotionGarments[_wornMotionItem].Split('@', 2)[0];
         if (done)
         {
             if (_wornMotionCapturePending) return;
             string folder = Path.Combine(_directory, garment);
             File.WriteAllText(Path.Combine(folder, "FRAME_CLOCKS.json"), JsonSerializer.Serialize(new
             {
-                body = figure.ModelId, garment, frames = _wornMotionFrames, end_monotonic_us = now,
+                body = figure.ModelId, garment, selection = _wornMotionGarments[_wornMotionItem], frames = _wornMotionFrames, end_monotonic_us = now,
                 camera_distance_m = 3.5, camera_fov_degrees = _camera.Fov,
                 method = _wornWindowRecording
                     ? "Primary movement evidence is the continuous Windows Graphics Capture recording of the actual game window; these are animation telemetry samples, not reconstructed video frames. Native gameplay clips, ordinary CameraRig on a lit QA floor. Not a world-route or performance gate."
@@ -161,7 +168,11 @@ public partial class AnimationSheet
             return;
         }
         if (!_wornMotionLoaded) state = "idle";
-        if (state == "unequipped") figure.WearEquipment(default);
+        if (state == "unequipped")
+        {
+            if (_wornUsesItemBinding) figure.WearEquipment(default);
+            else figure.ReviewNativeGarment("");
+        }
         float speed = state == "walk" ? 1.4f : state == "run" ? 3.2f : state == "crouch" && inState > .5 ? .8f : 0;
         figure.SetPosture(state == "crouch", false);
         if (state == "attack")
@@ -190,7 +201,12 @@ public partial class AnimationSheet
         if (_wornWindowRecording)
         {
             if (_wornMotionLoaded) _wornMotionFrames.Add(new { process_frame = Engine.GetProcessFrames(), monotonic_us = now,
-                elapsed_s = elapsed, state, clip = figure.ClipState, x = figure.Position.X, y = figure.Position.Y, z = figure.Position.Z });
+                elapsed_s = elapsed, state, clip = figure.ClipState, x = figure.Position.X, y = figure.Position.Y, z = figure.Position.Z,
+                creator_outfit_visible = figure.Skeleton.GetChildren().OfType<MeshInstance3D>()
+                    .Where(m => m.GetMeta("creator_part_kind", "").AsString() == "Outfit" && m.Visible)
+                    .Select(m => m.Name.ToString()).ToArray(),
+                replaces_creator_sweater = figure.Skeleton.GetChildren().OfType<MeshInstance3D>()
+                    .Any(m => m.GetMeta("native_equipment_replaces_sweater", false).AsBool()) });
             return;
         }
         if (!_wornMotionLoaded || _wornMotionCapturePending || now - _wornMotionLastFrame < 100_000) return;

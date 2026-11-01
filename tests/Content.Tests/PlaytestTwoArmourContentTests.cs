@@ -6,12 +6,35 @@ namespace UNNAMED.Content.Tests;
 public class PlaytestTwoArmourContentTests
 {
     [Fact]
+    public void NewArmourPaysForProtectionOrDurabilityWithWeightOrCoin()
+    {
+        string root = RepoPaths.Root();
+        using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "docs", "P2_ARMOUR_MANIFEST.json")));
+        var loader = new ContentLoader();
+        loader.LoadAll(Path.Combine(root, "content"));
+        Assert.Empty(loader.Errors);
+        var catalog = ItemContent.BuildCatalog(loader);
+        foreach (var row in manifest.RootElement.EnumerateArray())
+        {
+            var item = catalog.Get(row.GetProperty("item_id").GetString()!);
+            foreach (var other in catalog.Definitions.Values.Where(i => i.Category == "armor" && i.Slot == item.Slot && i.Id != item.Id))
+            {
+                bool noCost = item.ArmorValue >= other.ArmorValue && item.DurabilityMax >= other.DurabilityMax
+                    && item.WeightGrams <= other.WeightGrams && item.ValueBase <= other.ValueBase;
+                bool advantage = item.ArmorValue > other.ArmorValue || item.DurabilityMax > other.DurabilityMax
+                    || item.WeightGrams < other.WeightGrams || item.ValueBase < other.ValueBase;
+                Assert.False(noCost && advantage, $"{item.Id} strictly dominates {other.Id} in protection, durability, weight and coin");
+            }
+        }
+    }
+
+    [Fact]
     public void EveryBoundPieceHasCompleteStatsRepairStockCreditsAndBothNativeBodyContracts()
     {
         string root = RepoPaths.Root();
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(root, "docs", "P2_ARMOUR_MANIFEST.json")));
         var rows = manifest.RootElement.EnumerateArray().ToArray();
-        Assert.NotEmpty(rows);
+        Assert.Equal(20, rows.Length);
         Assert.Equal(rows.Length, rows.Select(r => r.GetProperty("item_id").GetString()).Distinct().Count());
         var loader = new ContentLoader();
         loader.LoadAll(Path.Combine(root, "content"));

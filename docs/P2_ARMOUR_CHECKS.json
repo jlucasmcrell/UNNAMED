@@ -1,0 +1,123 @@
+{
+  "content": {
+    "result": "PASS",
+    "counters": {
+      "total": "388",
+      "executed": "388",
+      "passed": "388",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trx_sha256": "cfc4833608422ee8beefdc0a1f9e1c7ca84e071aea3a6779283586fa9919ef91",
+    "receipt": "C:\\Users\\jluca\\Documents\\Codex\\2026-10-31\\you-are-a-codex-lane-on\\work\\test-results\\p2_final20_content_final_v2.trx"
+  },
+  "application": {
+    "result": "PASS",
+    "counters": {
+      "total": "6",
+      "executed": "6",
+      "passed": "6",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trx_sha256": "7bd5c440734478651b5d2d963921e55da81cb29f35d86bc0fcf4fc52e978feff",
+    "receipt": "C:\\Users\\jluca\\Documents\\Codex\\2026-10-31\\you-are-a-codex-lane-on\\work\\test-results\\p2_final20_application.trx"
+  },
+  "presentation": {
+    "result": "PASS",
+    "counters": {
+      "total": "533",
+      "executed": "533",
+      "passed": "533",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trx_sha256": "3424099453599086ce8d22203e15da7c0f66dd9faf1dfda14b675c60461a493c",
+    "receipt": "C:\\Users\\jluca\\Documents\\Codex\\2026-10-31\\you-are-a-codex-lane-on\\work\\test-results\\p2_final_presentation.trx"
+  },
+  "architecture": {
+    "result": "PASS",
+    "counters": {
+      "total": "23",
+      "executed": "23",
+      "passed": "23",
+      "failed": "0",
+      "error": "0",
+      "timeout": "0",
+      "aborted": "0",
+      "inconclusive": "0",
+      "passedButRunAborted": "0",
+      "notRunnable": "0",
+      "notExecuted": "0",
+      "disconnected": "0",
+      "warning": "0",
+      "completed": "0",
+      "inProgress": "0",
+      "pending": "0"
+    },
+    "trx_sha256": "c9924d292e795d4f4be4408962acfb14b519bd770fbd026f81481b27c8c9170c",
+    "receipt": "C:\\Users\\jluca\\Documents\\Codex\\2026-10-31\\you-are-a-codex-lane-on\\work\\test-results\\p2_final_architecture.trx"
+  },
+  "lint": {
+    "result": "PASS",
+    "definitions": 914,
+    "errors": 0
+  },
+  "hooks": {
+    "result": "PASS_EXIT0",
+    "placed": 128,
+    "development_missing": 59,
+    "unmodelled": 70,
+    "placement_changes": false
+  },
+  "debug_rebuild": {
+    "errors": 0,
+    "warnings": 33
+  },
+  "release_rebuild": {
+    "errors": 0,
+    "warnings": 25
+  },
+  "native_normal": {
+    "result": "BOTH_BODIES_ALL20_EQUIP_MOVEMENT_UNEQUIP",
+    "gpu_lease_seconds": 313.5023097
+  },
+  "cache": {
+    "result": "PASS",
+    "references": 220,
+    "failures": 0
+  }
+}

@@ -26,6 +26,8 @@ public sealed partial class HumGenCreatorAppearance : Node
         var controller = (body.GetParent() ?? body).FindChildren("*", "", true, false).OfType<HumGenCreatorAppearance>().FirstOrDefault(c => c._body == body);
         if (controller is null) return;
         var slots = body.Skeleton.GetChildren().OfType<MeshInstance3D>().Select(m => m.GetMeta("native_equipment_slot", "").AsString()).ToHashSet(StringComparer.Ordinal);
+        bool replacesSweater = body.Skeleton.GetChildren().OfType<MeshInstance3D>()
+            .Any(m => m.GetMeta("native_equipment_replaces_sweater", false).AsBool());
         controller._equipmentHead = slots.Contains("head");
         controller.DressHead();
         foreach (var (mesh, _) in controller._meshes)
@@ -33,6 +35,8 @@ public sealed partial class HumGenCreatorAppearance : Node
             string kind = mesh.GetMeta("creator_part_kind", "").AsString();
             if (kind is "Hair" or "FacialHair") body.OutfitVisible(mesh, !controller._equipmentHead);
             if (kind == "Footwear") body.OutfitVisible(mesh, !slots.Contains("feet"));
+            if (kind == "Outfit" && mesh.Name.ToString().Contains("sweater", StringComparison.OrdinalIgnoreCase))
+                body.OutfitVisible(mesh, !replacesSweater);
             if (kind == "Outfit" && IsTrousers(mesh.Name.ToString())) body.OutfitVisible(mesh, !slots.Contains("legs"));
         }
         if (controller._art is { } art) Stencil(art, controller.GetParent(), controller._worn);

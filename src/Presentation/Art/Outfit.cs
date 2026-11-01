@@ -119,6 +119,12 @@ public static partial class Outfit
                 {
                     using var target = JsonDocument.Parse(File.ReadAllText(contract!));
                     mesh.SetMeta("native_equipment_slot", target.RootElement.GetProperty("slot").GetString()!);
+                    if (target.RootElement.TryGetProperty("replaces_creator_sweater", out var replaces) && replaces.GetBoolean())
+                    {
+                        if (target.RootElement.GetProperty("slot").GetString() != "chest")
+                            throw new InvalidDataException("Only complete chest garments replace the Creator sweater: " + id);
+                        mesh.SetMeta("native_equipment_replaces_sweater", true);
+                    }
                     if (art.RiggedFile(id, "body_coverage.png") is { } coverage)
                         mesh.SetMeta("native_equipment_coverage", coverage);
                 }

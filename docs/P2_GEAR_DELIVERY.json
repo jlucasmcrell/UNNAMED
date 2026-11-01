@@ -17,7 +17,7 @@
   "full_mip_chains": true,
   "merge_delta_only": true,
   "integration": "Merge fifteen ready folders. Merge ui_icons.json by icon key and texture_cache/manifest.json by cache key with its DDS files. Preserve all existing world/character assets and full manifests. This delta is not a standalone AssetBase.",
-  "deferred": "Twenty armour pieces, W08 polearm and W02 greatsword: no unproven worn/two-hand fits shipped.",
+  "deferred": "W08 polearm and W02 greatsword: proper two-hand motion remains unproven.",
   "source_blends_or_character_payload_distributed": false,
   "files": [
     {
@@ -925,5 +925,12 @@
       "bytes": 1756,
       "sha256": "e121c7c11a0d0b266d7294fe6dd98227e2b13e3101adb59c563f71c3a787949d"
     }
-  ]
+  ],
+  "armour_continuation": {
+    "receipt": "P2_ARMOUR_DELIVERY.json",
+    "install": "P2_ARMOUR_INSTALL.md",
+    "items": 20,
+    "claude": "FINAL20 both-body worn PASS00:25 Nov1",
+    "note": "This original receipt remains the15-weapon art delta only. Armour ships in its own separately hashed native delta."
+  }
 }

@@ -1,0 +1,17 @@
+id: item.armor.quilted_ward_jack
+kind: item.armor
+schema: 1
+display_key: item.armor.quilted_ward_jack.name
+tags: [item]
+name: Quilted Ward Jack
+notes: Old protection kept serviceable with new straps and careful repairs.
+category: armor
+item_class: ordinary
+stack_max: 1
+weight: 5.0
+value_base: 47
+slot: chest
+armor_value: 8
+material_class: leather
+durability_max: 250
+repair: { station: workbench, skill_ref: skill.survival, skill_min: 2, item_ref: item.material.small_hide }

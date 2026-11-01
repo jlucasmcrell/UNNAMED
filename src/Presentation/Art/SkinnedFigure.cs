@@ -41,14 +41,23 @@ public sealed partial class SkinnedFigure : Figure
     {
         if (_reviewGarment == garment) return;
         Outfit.Clear(_model);
-        var garments = new List<string> { garment };
-        using (var contract = System.Text.Json.JsonDocument.Parse(File.ReadAllText(_art.RiggedFile(garment, "creator_part.json")
-            ?? throw new InvalidDataException("Native review contract missing: " + garment))))
+        var garments = garment.Split('+', StringSplitOptions.RemoveEmptyEntries).ToList();
+        var slots = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string part in garments)
         {
-            if (contract.RootElement.GetProperty("slot").GetString() == "feet")
+            using var contract = System.Text.Json.JsonDocument.Parse(File.ReadAllText(_art.RiggedFile(part, "creator_part.json")
+                ?? throw new InvalidDataException("Native review contract missing: " + part)));
+            string slot = contract.RootElement.GetProperty("slot").GetString()!;
+            if (!slots.Add(slot)) throw new InvalidDataException("Duplicate native review slot: " + slot);
+        }
+        if (slots.Contains("feet") && !slots.Contains("legs"))
+        {
+            foreach (string part in garments.ToArray())
             {
-                int at = garment.IndexOf("__", StringComparison.Ordinal);
-                string underlayer = garment[..at] + "_underlayer" + garment[at..];
+                using var contract = System.Text.Json.JsonDocument.Parse(File.ReadAllText(_art.RiggedFile(part, "creator_part.json")!));
+                if (contract.RootElement.GetProperty("slot").GetString() != "feet") continue;
+                int at = part.IndexOf("__", StringComparison.Ordinal);
+                string underlayer = part[..at] + "_underlayer" + part[at..];
                 if (_art.RiggedFile(underlayer, "creator_part.json") is null) throw new InvalidDataException("Native boot underlayer missing: " + underlayer);
                 garments.Add(underlayer);
             }

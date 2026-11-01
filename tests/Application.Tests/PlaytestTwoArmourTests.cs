@@ -12,7 +12,7 @@ public class PlaytestTwoArmourTests
     {
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(Harness.RepoRoot(), "docs", "P2_ARMOUR_MANIFEST.json")));
         var rows = manifest.RootElement.EnumerateArray().ToArray();
-        Assert.NotEmpty(rows);
+        Assert.Equal(20, rows.Length);
         foreach (var group in rows.GroupBy(r => r.GetProperty("merchant").GetString()!))
         {
             string npcId = group.Key.Replace("merchant.", "npc.", StringComparison.Ordinal);
