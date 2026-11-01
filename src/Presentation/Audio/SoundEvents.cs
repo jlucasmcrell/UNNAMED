@@ -762,6 +762,14 @@ public partial class SoundEvents : Node
         }
         foreach (string sound in bindings.SwitchSounds.Values.Distinct(StringComparer.Ordinal))
             Add(sound, "switch_set()");
+        // The player in water (audio.water): the movement states the swimming code names, the depths a wade is heard at, and the bed under
+        // the surface. Registered here so the coverage report counts them among the sounds the game can ask for.
+        foreach (string state in bindings.WaterStates.Keys)
+            Add(bindings.WaterStates[state], $"water({state})");
+        foreach (string depth in bindings.WaterDepths.Keys)
+            Add(bindings.WaterDepths[depth], $"wade({depth})");
+        if (bindings.UnderwaterBed is { Length: > 0 } bed)
+            Add(bed, "underwater()");
         Add("sfx.interaction.door.open", "interaction_open(door)");
         Add("sfx.interaction.door.close", "interaction_close(door)");
         Add("sfx.interaction.loot.take_all", "loot_take_all()");

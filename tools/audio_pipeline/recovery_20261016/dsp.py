@@ -49,10 +49,12 @@ def window(x, start=None, length=None, from_peak=None, fade_in=0.002, fade_out=0
     b = len(x) if length is None else min(len(x), a + int(length * SR))
     y = x[a:b].copy()
     fi, fo = min(len(y), int(fade_in * SR)), min(len(y), int(fade_out * SR))
+    # A stereo take fades on both channels: the ramp is a column when the take is 2-D.
+    column = (lambda ramp: ramp[:, None]) if y.ndim > 1 else (lambda ramp: ramp)
     if fi:
-        y[:fi] *= np.linspace(0, 1, fi)
+        y[:fi] *= column(np.linspace(0, 1, fi))
     if fo:
-        y[-fo:] *= np.linspace(1, 0, fo) ** 2
+        y[-fo:] *= column(np.linspace(1, 0, fo) ** 2)
     return y
 
 
@@ -118,7 +120,7 @@ def level(x, target, measure='momentary_max', ceiling=-1.0, tail_db=-60):
     keep = np.nonzero(a > a.max() * 10 ** (tail_db / 20))[0]
     x = x[:keep[-1] + int(0.02 * SR)] if len(keep) else x
     fo = min(len(x), int(0.015 * SR))
-    x[-fo:] *= np.linspace(1, 0, fo)
+    x[-fo:] *= (np.linspace(1, 0, fo)[:, None] if x.ndim > 1 else np.linspace(1, 0, fo))
     meas = lufs_momentary_max if measure == 'momentary_max' else lufs_integrated
     x = x * 10 ** ((target - meas(x[:, None])) / 20)
     lim = 10 ** (ceiling / 20) * 0.92
