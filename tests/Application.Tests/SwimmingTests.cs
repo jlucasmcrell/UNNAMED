@@ -52,7 +52,7 @@ public class SwimmingTests
         pond.Tick(1);
         Assert.True(pond.Simulation.Swimming);
         var floating = pond.Simulation.Player.Body;
-        Assert.Equal(4_350 - movement.SwimFloatMm, floating.YMm);
+        Assert.Equal(4_350 - pond.Simulation.PlayerMovement.SwimFloatMm, floating.YMm);
         Assert.True(floating.YMm + movement.StandHeightMm > 4_350, "the head is above the surface");
         Assert.Equal(4_000, session.Setup.Layout.Space.HeightAtMm(floating.XMm, floating.ZMm));   // the pond's bed, under the feet
 
@@ -187,5 +187,64 @@ public class SwimmingTests
         Assert.False(sprinted.Simulation.Posture.Airborne);
         Assert.True(sprinted.Simulation.Swimming);
         Assert.Empty(wings);
+    }
+
+    [Fact]
+    public void CrossingDeepWaterInTheAirOnlyStartsSwimmingOnLanding()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var bank = At(session, (544.6, 100)); // 0.4 m west of the millpond's edge.
+        bank.Tick(1);
+        Assert.False(bank.Simulation.Swimming);
+        Assert.Null(bank.Submit(new MoveCommand(bank.Player, new MoveIntent(1000, 0, Gait.Run, 90_000))));
+        Assert.Null(bank.Submit(new JumpCommand(bank.Player)));
+        bool crossed = false;
+        for (int tick = 0; tick < 80 && !bank.Simulation.Swimming; tick++)
+        {
+            bank.Tick(1);
+            var body = bank.Simulation.Player.Body;
+            if (Kinematics.SwimWater(body.XMm, body.ZMm, session.Setup.Layout.Space) is null) continue;
+            crossed = true;
+            if (bank.Simulation.Posture.Airborne) Assert.False(bank.Simulation.Swimming);
+        }
+        Assert.True(crossed);
+        Assert.False(bank.Simulation.Posture.Airborne);
+        Assert.True(bank.Simulation.Swimming);
+    }
+
+    [Theory]
+    [InlineData(1400)]
+    [InlineData(1900)]
+    public void TheWaterlineScalesWithTheCreatorsActualStature(int stature)
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var pond = At(session, AtThePond, record => record with
+        {
+            Identity = record.Identity with
+            {
+                Appearance = new UNNAMED.Domain.Character.CharacterAppearance(stature, null, null, null, null, null),
+            },
+        });
+        pond.Tick(1);
+        long depth = session.Setup.Movement.SwimFloatMm * stature / session.Setup.Movement.StandHeightMm;
+        Assert.True(pond.Simulation.Swimming);
+        Assert.Equal(depth, pond.Simulation.PlayerMovement.SwimFloatMm);
+        Assert.Equal(4_350 - depth, pond.Simulation.Player.Body.YMm);
+    }
+
+    [Fact]
+    public void AnOldSiannWithoutCreatorAppearanceUsesItsBodyStature()
+    {
+        using var profile = new TempProfile();
+        var session = Harness.Boot(profile);
+        var pond = At(session, AtThePond, record => record with
+        {
+            Identity = record.Identity with { PeopleId = "people.siann", BodyPresetId = "body.siann_f.average", Appearance = null },
+        });
+        pond.Tick(1);
+        Assert.Equal(980, pond.Simulation.PlayerMovement.SwimFloatMm);
+        Assert.Equal(4_350 - 980, pond.Simulation.Player.Body.YMm);
     }
 }

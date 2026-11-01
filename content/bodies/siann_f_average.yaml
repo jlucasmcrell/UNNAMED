@@ -13,5 +13,5 @@ build_label: Average
 order: 1
 offered: true
 arm_splay_deg: 0
-measurements_mm: {}
+measurements_mm: { stature: 1470 }
 rest_offsets_mm: {}

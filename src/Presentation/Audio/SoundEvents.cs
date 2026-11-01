@@ -58,8 +58,18 @@ public partial class SoundEvents : Node
     private float _stepSpeed;
     private bool _stepAirborne;
 
-    public void ObserveFootPlants(Figure figure,float speed,bool airborne)
+    private readonly Ui.Models.WaterMovement _water = new();
+    private long _waterDepthMm;
+    private double _nextWaterMotion;
+    private AudioStreamPlayer? _underwater;
+
+    public void ObserveFootPlants(Figure figure,Vector3 feet,float speed,bool airborne)
     {
+        var simulation = _session.Simulation!;
+        var space = _session.Setup.SpaceFor(simulation.ActiveLayout.SpaceId);
+        var water = space.WaterUnder((long)(feet.X * 1000), (long)(feet.Z * 1000));
+        _waterDepthMm = !airborne && water is not null ? water.LevelMm - (long)(feet.Y * 1000) : 0;
+        _water.Observe(_waterDepthMm > 20, simulation.Swimming, speed);
         _stepSpeed=speed;_stepAirborne=airborne;
         if(_stepFigure==figure)return;
         if(_stepFigure is not null)_stepFigure.FootPlanted-=OnFootPlant;
@@ -69,10 +79,10 @@ public partial class SoundEvents : Node
 
     private void OnFootPlant(string clip,string side,double seconds)
     {
-        if(_bank.Count==0 || _stepFigure is null || _stepAirborne || _stepSpeed<=.3f)return;
+        if(_bank.Count==0 || _stepFigure is null || _stepAirborne || _stepSpeed<=.3f || _water.State is "swim" or "tread")return;
         var feet=_stepFigure.GlobalPosition;string surface=Surface(feet);
         string gait=_crouched && _bank.Has($"sfx.player.footstep.{surface}.crouch")?"crouch":_stepSpeed>RunSpeed?"run":"walk";
-        bool played=_bank.Play($"sfx.player.footstep.{surface}.{gait}",feet);
+        bool played=_water.State == "wade" ? Wade(feet) : _bank.Play($"sfx.player.footstep.{surface}.{gait}",feet);
         if(OS.GetEnvironment("OTHERREACH_FOOTSTEP_REVIEW")=="1")
             GD.Print("FOOT_PLANT_AUDIO "+System.Text.Json.JsonSerializer.Serialize(new{clip,side,contact_seconds=seconds,played,ticks_usec=Time.GetTicksUsec()}));
     }
@@ -103,6 +113,7 @@ public partial class SoundEvents : Node
         }
         if (bindings.ForgeStation is not null)
             _forge = bank.Loop("sfx.crafting.forge.ambience.01");
+        if (bindings.UnderwaterBed is { } underwater) _underwater = bank.Loop(underwater);
         _nextDetail = Irregular();
         Subscribe();
     }
@@ -119,15 +130,16 @@ public partial class SoundEvents : Node
         var moved = new Vector2(feet.X - _feet.X, feet.Z - _feet.Z).Length();
         _feet = feet;
         string surface = Surface(feet);
+        Water(feet, delta);
         // footstep(surface, gait): one per stride on the ground; a sprint uses the run family.
-        if (airborne)
+        if (airborne || _water.State is "swim" or "tread")
         {
             _airborneFor += delta;
             _walked = 0;
         }
         else
         {
-            if (_airborneFor > 0.3)
+            if (_airborneFor > 0.3 && _water.State is null)
                 _bank.Play(_bank.Has($"sfx.player.land.{surface}") ? $"sfx.player.land.{surface}" : $"sfx.player.land.{(surface == "stone" ? "stone" : "dirt")}", feet);
             _airborneFor = 0;
             _walked += moved < 2f ? moved : 0;
@@ -136,11 +148,12 @@ public partial class SoundEvents : Node
             {
                 _walked = 0;
                 string gait = _crouched && _bank.Has($"sfx.player.footstep.{surface}.crouch") ? "crouch" : run ? "run" : "walk";
-                _bank.Play($"sfx.player.footstep.{surface}.{gait}", feet);
+                if (_water.State == "wade") Wade(feet);
+                else _bank.Play($"sfx.player.footstep.{surface}.{gait}", feet);
             }
         }
         // The weapon a new game or a load starts with is simply in hand; only a change is heard.
-        string? family = Family(_session.Simulation!.Combat.Weapon.Source);
+        string? family = _session.Simulation!.Swimming ? null : Family(_session.Simulation.Combat.Weapon.Source);
         if (_wieldedKnown)
             Wielding(family);
         _wielded = family;
@@ -161,6 +174,36 @@ public partial class SoundEvents : Node
         {
             _bank.Play(panelsOpen ? "sfx.ui.menu.open" : "sfx.ui.menu.close");
             _panelsOpen = panelsOpen;
+        }
+    }
+
+    private bool Wade(Vector3 feet)
+    {
+        string depth = _waterDepthMm >= 450 ? "knee_deep" : "shallow";
+        return (_bindings.WaterDepths.GetValueOrDefault(depth) ?? _bindings.WaterStates.GetValueOrDefault("wade")) is { } sound
+            && _bank.Play(sound, feet);
+    }
+
+    private void Water(Vector3 feet, double delta)
+    {
+        if (_water.Transition is { } transition)
+        {
+            if (_bindings.WaterStates.GetValueOrDefault(transition) is { } sound) _bank.Play(sound, feet);
+            _nextWaterMotion = _clock + .5;
+        }
+        if (_water.State is "swim" or "tread" && _clock >= _nextWaterMotion)
+        {
+            if (_bindings.WaterStates.GetValueOrDefault(_water.State) is { } sound) _bank.Play(sound, feet);
+            _nextWaterMotion = _clock + (_water.State == "swim" ? .9 : 1.6);
+        }
+        if (_underwater is not null && GetViewport().GetCamera3D() is { } camera)
+        {
+            var at = camera.GlobalPosition;
+            var space = _session.Setup.SpaceFor(_session.Simulation!.ActiveLayout.SpaceId);
+            var water = space.WaterUnder((long)(at.X * 1000), (long)(at.Z * 1000));
+            bool submerged = water is not null && at.Y * 1000 < water.LevelMm && at.Y * 1000 > water.LevelMm - water.DepthMm;
+            float level = Mathf.MoveToward(Mathf.DbToLinear(_underwater.VolumeDb), submerged ? 1f : 0f, (float)delta * 3f);
+            _underwater.VolumeDb = Mathf.LinearToDb(Math.Max(.0001f, level));
         }
     }
 

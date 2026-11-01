@@ -103,7 +103,7 @@ func build() -> void:
  var plants := {}
  var action_phases := {}
  var report := {"body":manifest.body,"bones":59,"clips":[]}
- var loops := ["idle","idle_look","idle_foldarms","walk","run","sprint","crouch_idle","crouch_walk","sword_ready","sword_block","spear_ready","bow_ready","talk","sit","sit_talk","fall","walk_strafe_left","walk_strafe_right","strafe_left","strafe_right","walk_back","run_back","captive_kneel"]
+ var loops := ["idle","idle_look","idle_foldarms","walk","run","sprint","crouch_idle","crouch_walk","sword_ready","sword_block","spear_ready","bow_ready","talk","sit","sit_talk","fall","walk_strafe_left","walk_strafe_right","strafe_left","strafe_right","walk_back","run_back","captive_kneel","swim","tread"]
  var gaits := ["walk","run","sprint","crouch_walk","walk_strafe_left","walk_strafe_right","strafe_left","strafe_right","walk_back","run_back"]
  for entry in manifest.clips:
   assert(not "kaykit" in entry.source.to_lower())

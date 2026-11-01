@@ -13,5 +13,5 @@ build_label: Average
 order: 3
 offered: true
 arm_splay_deg: 0
-measurements_mm: { chest: 995, waist: 806, hips: 1035, thigh: 570 }
+measurements_mm: { stature: 1750, chest: 995, waist: 806, hips: 1035, thigh: 570 }
 rest_offsets_mm: {}

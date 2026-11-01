@@ -13,5 +13,5 @@ build_label: Heavy
 order: 4
 offered: false
 arm_splay_deg: 3
-measurements_mm: { chest: 930, waist: 759, hips: 1092, thigh: 574 }
+measurements_mm: { stature: 1750, chest: 930, waist: 759, hips: 1092, thigh: 574 }
 rest_offsets_mm: {}

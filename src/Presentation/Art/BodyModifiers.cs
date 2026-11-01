@@ -2,6 +2,7 @@
 // Godot presentation only (D-11): bones are posed after the clip plays; the body's position, its collision and every rule stay the simulation's
 
 using Godot;
+using UNNAMED.Presentation.Player;
 
 namespace UNNAMED.Presentation.Art;
 
@@ -176,7 +177,8 @@ public partial class FootPlanting : SkeletonModifier3D
         var toWorld = skeleton.GlobalTransform;
         float baseY = Ground(Body.GlobalPosition.X, Body.GlobalPosition.Z);
         // Off the ground (a jump, a fall) or lying down, the clip keeps its legs: the planting fades out, and back in on landing.
-        bool grounded = Body.GlobalPosition.Y - baseY < 0.12f && Mathf.Abs(Body.Rotation.X) < 0.3f;
+        bool water = Body is Figure figure && figure.ClipState is "enter_water" or "exit_water" or "swim" or "tread";
+        bool grounded = !water && Body.GlobalPosition.Y - baseY < 0.12f && Mathf.Abs(Body.Rotation.X) < 0.3f;
         _weight = delta <= 0 ? (grounded ? 1f : 0f) : Mathf.MoveToward(_weight, grounded ? 1f : 0f, (float)delta * 6f);
         if (Ik is not null)
             Ik.Influence = _weight;

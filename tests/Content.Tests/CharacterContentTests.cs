@@ -192,7 +192,8 @@ public class CharacterContentTests
             Assert.All(builds, b => Assert.Equal(("people.veth", type.Item2, $"body.{type.Item1}.{b.Build}"), (b.PeopleId, b.TypeLabel, b.Id)));
             // Heavy and the extremes are held until the clipping gate passes them (owner 2026-10-17)
             Assert.All(builds.Where(b => b.Build is "lean" or "average"), b => Assert.True(b.Offered));
-            Assert.All(builds, b => Assert.Equal(new[] { "chest", "hips", "thigh", "waist" }, b.MeasurementsMm.Keys));
+            Assert.All(builds, b => Assert.Equal(new[] { "chest", "hips", "stature", "thigh", "waist" }, b.MeasurementsMm.Keys));
+            Assert.All(builds, b => Assert.Equal(1_750, b.MeasurementsMm["stature"]));
             // heavier builds measure more round the waist, and swing their arms wider of their own sides
             Assert.True(builds.Zip(builds.Skip(1)).All(p => p.First.MeasurementsMm["waist"] < p.Second.MeasurementsMm["waist"]
                                                               && p.First.ArmSplayDegrees <= p.Second.ArmSplayDegrees));

@@ -508,7 +508,7 @@ public sealed partial class SkinnedFigure : Figure
             : Mathf.LerpAngle(_yaw, facingRadians, 1f - Mathf.Exp(-follow * (float)delta));
         Rotation = new Vector3(0, _yaw, 0);
         Position = feet;
-        _crouch = Mathf.MoveToward(_crouch, _crouched ? 1f : 0f, (float)delta * 5f);
+        _crouch = Mathf.MoveToward(_crouch, _crouched && !_swimming ? 1f : 0f, (float)delta * 5f);
         _tuck = Mathf.MoveToward(_tuck, _airborne ? 1f : 0f, (float)delta * 8f);
         Animate(speedMetresPerSecond, delta);
         _crouchHead.Crouched=_crouched && _model.Current is "crouch_idle" or "crouch_walk" or "crouch_move";
@@ -517,8 +517,9 @@ public sealed partial class SkinnedFigure : Figure
         {
             // A crouch clip already holds the head under the crouch height; the bend is for what has none (a body without
             // crouch clips, a blow struck crouched).
-            _posture.Crouch = _model.Current is "crouch_idle" or "crouch_walk" or "captive_kneel" ? 0 : _crouch;
-            _posture.Tuck = _tuck;
+            bool water = _swimming || _model.Current is "enter_water" or "exit_water";
+            _posture.Crouch = water || _model.Current is "crouch_idle" or "crouch_walk" or "captive_kneel" ? 0 : _crouch;
+            _posture.Tuck = water ? 0 : _tuck;
         }
     }
 
@@ -582,7 +583,7 @@ public sealed partial class SkinnedFigure : Figure
     private void Animate(float speed, double delta)
     {
         var m = _model;
-        if (speed > .25f || _downed || _talking || _airborne || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
+        if (speed > .25f || _downed || _talking || _airborne || _swimming || (_stance.Holds != Held.Nothing || _equipped is not null)) _idles.Interrupt();
         if (_waking is { } waking)
         {
             if (m.Has("get_up"))
@@ -594,6 +595,15 @@ public sealed partial class SkinnedFigure : Figure
         if (_downed)
         {
             m.Play("death", 0.25f);
+            return;
+        }
+        var waterVelocity = GlobalBasis.Inverse() * _moveDirection * speed;
+        if (m.WaterBlend(_swimming, new Vector2(waterVelocity.X, waterVelocity.Z), delta, _paces, _uniformScale))
+        {
+            _wasAirborne = false;
+            _landing = 0;
+            _wasGaiting = false;
+            _stopping = -1;
             return;
         }
         if (speed < .25f && _restPose is { } resting)
@@ -765,13 +775,6 @@ public sealed partial class SkinnedFigure : Figure
         if (_talking && speed < 0.3f && m.Has("talk"))
         {
             m.Play("talk", 0.3f);
-            return;
-        }
-        // In the water the body swims, and the art root has no swim clip: the swim state bound here is the crouch's low travelling loop, at
-        // the pace the simulation swims at - half a walk - and the body's own height, floating its feet at the surface, is the rest of it.
-        if (_swimming && m.Has("swim"))
-        {
-            m.Play("swim", 0.25f, Mathf.Clamp(speed / Pace("swim", 0.8f), MinRate, MaxRate));
             return;
         }
         // Crouched, a body with crouch clips plays them (a crouched walk is authored at 1.6 m/s, the simulation's crouched pace).

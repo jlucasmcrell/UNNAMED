@@ -8,10 +8,11 @@ public static class HumGenMotionPolicy
         "crouch_idle", "crouch_walk", "sword_ready", "sword_attack_1", "sword_attack_2", "sword_attack_3",
         "spear_ready", "spear_thrust", "sit", "sit_talk", "lie_to_idle", "get_up", "jump_start", "captive_kneel"];
 
-    public static void Validate(IEnumerable<string> states, IReadOnlyDictionary<string, string> sources, int contactsSchema, int playbackSchema)
+    public static void Validate(IEnumerable<string> states, IReadOnlyDictionary<string, string> sources, int contactsSchema, int playbackSchema, bool swimming = false)
     {
         var present = states.ToHashSet(StringComparer.Ordinal);
-        var missing = Required.Where(state => !present.Contains(state)).ToArray();
+        var required = swimming ? Required.Concat(new[] { "swim", "tread" }) : Required;
+        var missing = required.Where(state => !present.Contains(state)).ToArray();
         if (missing.Length > 0) throw new InvalidDataException("HumGen motion is incomplete: " + string.Join(", ", missing));
         foreach (string state in present)
         {
@@ -20,6 +21,10 @@ public static class HumGenMotionPolicy
             if (source.Contains("kaykit", StringComparison.OrdinalIgnoreCase))
                 throw new InvalidDataException("KayKit is forbidden for any animation: " + state);
         }
+        if (swimming)
+            foreach (string state in new[] { "swim", "tread" })
+                if (!sources[state].Contains("Swim", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidDataException("HumGen water motion must name an owned swim source: " + state);
         if (contactsSchema != 1) throw new InvalidDataException("HumGen motion lacks measured foot contacts");
         if (playbackSchema != 1) throw new InvalidDataException("HumGen motion lacks original source playback timing");
     }

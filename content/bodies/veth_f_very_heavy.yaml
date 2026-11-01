@@ -13,5 +13,5 @@ build_label: Very heavy
 order: 5
 offered: false
 arm_splay_deg: 6
-measurements_mm: { chest: 1018, waist: 848, hips: 1208, thigh: 637 }
+measurements_mm: { stature: 1750, chest: 1018, waist: 848, hips: 1208, thigh: 637 }
 rest_offsets_mm: {}

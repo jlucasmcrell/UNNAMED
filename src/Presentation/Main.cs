@@ -1861,14 +1861,15 @@ public partial class Main : Node3D
         DrawOpening(delta);
         // Downed is not dead (OD-13 = B): the character lies in view until helped up, and the fade waits for a death.
         _hud.FadeToBlack(combat.Defeated && !combat.Downed && combat.RespawnTicksLeft * _session.TickSeconds <= DeathFadeLeadSeconds);
-        _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
+        bool swimmingArt = simulation.Swimming || _avatar.ClipState is "enter_water" or "exit_water" or "swim" or "tread";
+        _avatar.Hold(swimmingArt || combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
         _avatar.WearEquipment(new Art.WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
             Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak)));
         // A torch or lantern in the off hand is a real light, from its own content, and not only a number in a tooltip (finding 25).
         // It reaches as far as its content says while it has fuel, and goes out when it has burned down (note 13).
-        _avatar.LightInOffHand(simulation.Player.Equipment.TryGetValue(EquipSlot.OffHand, out var litId)
+        _avatar.LightInOffHand(!swimmingArt && simulation.Player.Equipment.TryGetValue(EquipSlot.OffHand, out var litId)
             && simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == litId) is { } lit
             && _session.Setup.Items.Catalog.Find(lit.DefId) is { } lightItem
                 ? UNNAMED.Domain.Items.Durability.LitRadius(lightItem.LightRadiusMm, lightItem.DurabilityMax, lit.Wear)
@@ -1888,7 +1889,7 @@ public partial class Main : Node3D
         _avatar.SetGliding(posture.Aloft && posture.Wing != UNNAMED.Domain.Spatial.WingState.Fall);
         _avatar.Swimming(simulation.Swimming);
         _avatar.SetMovementDirection(new Vector3(_controller.Intent.DirXPermille, 0, _controller.Intent.DirZPermille));
-        _soundEvents.ObserveFootPlants(_avatar,speed,airborne);
+        _soundEvents.ObserveFootPlants(_avatar,feet,speed,airborne);
         _avatar.Pose(feet, facing, speed, delta);
         _camera.Crouch = _avatar.Crouch;
         Probe("avatar/world");

@@ -11,6 +11,10 @@ var jog := 0.0
 var rate := 1.0
 var walk_strafes := false
 var jog_back := false
+var water_weight := 0.0
+var water_motion := 0.0
+var water_state := ""
+const WATER_TRANSITION_SECONDS := .45
 
 func clip(name_: String) -> AnimationNodeAnimation:
  var node := AnimationNodeAnimation.new()
@@ -61,7 +65,26 @@ func configure(source: AnimationPlayer, measured: Dictionary, manual: bool = tru
  blend.add_node("direction",space)
  blend.add_node("pace",AnimationNodeTimeScale.new())
  blend.connect_node("pace",0,"direction")
- blend.connect_node("output",0,"pace")
+ if source.has_animation("swim") and source.has_animation("tread"):
+  var water_clips := AnimationNodeBlendSpace1D.new()
+  # These takes retain their original durations and playback rates. A stationary
+  # swimmer treads at full speed; slowing the travel must never freeze the arms.
+  for state in ["tread","swim"]:
+   var take := AnimationNodeAnimation.new()
+   take.animation = state
+   water_clips.add_blend_point(take,0.0 if state=="tread" else 1.0,-1,state)
+  blend.add_node("water_motion",water_clips)
+  var idle := AnimationNodeAnimation.new()
+  idle.animation="idle"
+  blend.add_node("land_idle",idle)
+  blend.add_node("land",AnimationNodeBlend2.new())
+  blend.connect_node("land",0,"land_idle")
+  blend.connect_node("land",1,"pace")
+  blend.add_node("water",AnimationNodeBlend2.new())
+  blend.connect_node("water",0,"land")
+  blend.connect_node("water",1,"water_motion")
+  blend.connect_node("output",0,"water")
+ else:blend.connect_node("output",0,"pace")
  tree=AnimationTree.new()
  tree.active=false
  player.get_parent().add_child(tree)
@@ -123,16 +146,39 @@ func move(local_velocity: Vector2, delta: float) -> bool:
   tree.set("parameters/direction/right/blend_position",jog)
  if jog_back:tree.set("parameters/direction/back/blend_position",jog)
  tree.set("parameters/pace/scale",rate)
+ if player.has_animation("tread"):
+  tree.set("parameters/land/blend_amount",1.0)
  player.active=false
  tree.active=true
  active=true
  return true
+
+func water(swimming: bool, local_velocity: Vector2, delta: float) -> bool:
+ if not swimming and water_weight<=0.0:return false
+ var speed:=local_velocity.length()
+ if speed>.1:move(local_velocity,delta)
+ # Blend into/out of water on the same tree as land locomotion. In particular,
+ # exiting while moving never switches AnimationMixers or snaps to a walk pose.
+ water_weight=move_toward(water_weight,1.0 if swimming else 0.0,delta/WATER_TRANSITION_SECONDS)
+ water_motion=lerpf(water_motion,smoothstep(.1,.6,speed),1.0-exp(-10.0*delta))
+ tree.set("parameters/land/blend_amount",smoothstep(.1,.3,speed))
+ tree.set("parameters/water/blend_amount",water_weight)
+ tree.set("parameters/water_motion/blend_position",water_motion)
+ water_state=("enter_water" if swimming else "exit_water") if water_weight>0.0 and water_weight<1.0 else ("swim" if speed>.25 else "tread")
+ player.active=false
+ tree.active=true
+ active=true
+ return swimming or water_weight>0.0
 
 func stop() -> bool:
  if not active:return false
  tree.active=false
  player.active=true
  active=false
+ water_weight=0.0
+ water_motion=0.0
+ water_state=""
+ if player.has_animation("tread"):tree.set("parameters/water/blend_amount",0.0)
  return true
 
 func advance(delta: float) -> void:

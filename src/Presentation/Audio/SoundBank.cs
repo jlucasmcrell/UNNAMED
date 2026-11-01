@@ -189,23 +189,20 @@ public partial class SoundBank : Node
         return length;
     }
 
-    /// <summary>A looping sound on a player of its own, silent until its volume is set (a bed, a Strain layer, the forge).</summary>
+    /// <summary>A looping ID or family on a player of its own, silent until its volume is set (a bed, a Strain layer, the forge).</summary>
     public AudioStreamPlayer? Loop(string id)
     {
         if (_sounds.Count > 0)
             Asked(id);
-        if (!_sounds.TryGetValue(id, out var sound))
-        {
-            _unknown.Add(id);
+        if (Pick(id) is not { } sound)
             return null;
-        }
         if (Stream(sound) is not { } stream)
             return null;
         _resolved.Add(id);
         var player = new AudioStreamPlayer { Stream = stream, VolumeDb = -80f, Bus = sound.Bus };
         AddChild(player);
         player.Play();
-        _played.Add(id);
+        _played.Add(sound.Id);
         return player;
     }
 

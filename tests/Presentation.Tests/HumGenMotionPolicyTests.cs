@@ -29,4 +29,16 @@ public class HumGenMotionPolicyTests
     [Fact]
     public void RawTransportWithoutSourcePlaybackTimingIsRefused() => Assert.Throws<InvalidDataException>(() =>
         HumGenMotionPolicy.Validate(HumGenMotionPolicy.Required, Sources(), 1, 0));
+
+    [Fact]
+    public void PlayerRequiresOwnedSwimAndTreadRatherThanTheOldCrouchAlias()
+    {
+        var sources = Sources();
+        Assert.Throws<InvalidDataException>(() => HumGenMotionPolicy.Validate(sources.Keys, sources, 1, 1, swimming: true));
+        sources["swim"] = "fal/anim_Swim_Surface_Fwd";
+        sources["tread"] = "fal/anim_SwimIdle";
+        HumGenMotionPolicy.Validate(sources.Keys, sources, 1, 1, swimming: true);
+        sources["swim"] = "ual1/Crouch_Walk_Loop";
+        Assert.Throws<InvalidDataException>(() => HumGenMotionPolicy.Validate(sources.Keys, sources, 1, 1, swimming: true));
+    }
 }

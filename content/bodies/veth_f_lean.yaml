@@ -13,5 +13,5 @@ build_label: Lean
 order: 2
 offered: true
 arm_splay_deg: 0
-measurements_mm: { chest: 816, waist: 652, hips: 896, thigh: 491 }
+measurements_mm: { stature: 1750, chest: 816, waist: 652, hips: 896, thigh: 491 }
 rest_offsets_mm: {}

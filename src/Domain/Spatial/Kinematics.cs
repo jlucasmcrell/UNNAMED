@@ -400,7 +400,7 @@ public static class Kinematics
         if (length > 0 && dtMs > 0)
         {
             double deflection = Math.Min(length, MoveIntent.FullDeflection) / MoveIntent.FullDeflection;
-            double speed = SwimWater(body.XMm, body.ZMm, space) is not null
+            double speed = !posture.Airborne && SwimWater(body.XMm, body.ZMm, space) is not null
                 ? rules.SpeedMmPerSecond(Gait.Walk) * rules.SwimPercent / 100.0
                 : rules.JumpSpeed(intent.Gait, posture.Stance);
             // Scramble (BRIEF D6 point 4): across ground, the grade ahead decides the pace. A hill is walked, a mountain slope is

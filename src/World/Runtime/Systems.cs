@@ -66,7 +66,7 @@ internal sealed class SystemContext
 {
     private readonly Dictionary<object, SpaceId> _siteSpaces = new();
 
-    public SystemContext(RuntimeState state, SimulationSetup setup, IEventBus events, Func<InternalCommand, string?> dispatch)
+    public SystemContext(RuntimeState state, SimulationSetup setup, IEventBus events, Func<InternalCommand, string?> dispatch, CharacterIdentity identity)
     {
         State = state;
         Setup = setup;
@@ -74,7 +74,14 @@ internal sealed class SystemContext
         Dispatch = dispatch;
         PlayerTraits = setup.Character.TraitsOf(state.PeopleId);
         PlayerAbilities = setup.Character.AbilitiesOf(state.PeopleId);
-        PlayerMovement = PeopleRules.Movement(setup.Movement, PlayerTraits, PlayerAbilities);
+        long stature = identity.Appearance?.StatureMm
+            ?? setup.Character.Bodies.GetValueOrDefault(identity.BodyPresetId)?.MeasurementsMm.GetValueOrDefault("stature", (int)setup.Movement.StandHeightMm)
+            ?? setup.Movement.StandHeightMm;
+        // Keep the waterline at the same fraction of a short or tall body's stature.
+        PlayerMovement = PeopleRules.Movement(setup.Movement, PlayerTraits, PlayerAbilities) with
+        {
+            SwimFloatMm = setup.Movement.SwimFloatMm * stature / setup.Movement.StandHeightMm,
+        };
         // Layouts are immutable for this context. Resolve authored sites once, preserving the
         // first matching layout, instead of rescanning every space for every collision probe.
         void Register<T>(Func<RegionLayout, IEnumerable<T>> sites) where T : notnull
@@ -625,7 +632,7 @@ internal sealed class MovementSystem
         var (to, next) = Kinematics.Step(from, posture, intent, rules, space, _context.Obstacles(), _context.Setup.TickMilliseconds);
         // In deep water or out of it, as the point it has come to says: the body's own slice, and the tick's own body, so the HUD and the
         // stamina both read the water the body is in now (D20).
-        bool swimming = Kinematics.SwimWater(to.XMm, to.ZMm, space) is not null;
+        bool swimming = !next.Airborne && Kinematics.SwimWater(to.XMm, to.ZMm, space) is not null;
         if (swimming != _context.State.Swimming)
             _context.State.SetSwimming(_owner, swimming);
         // A climb or a vault (BRIEF D6): the feet come up more than a step in one tick. It costs stamina by the metre, and a body with none

@@ -119,7 +119,7 @@ public sealed partial class SkinnedModel : Node3D
                 art.Coverage.Resolved("clip", $"{owner}:{state}", clipId);
         }
         if (IsComparisonBody(assetId))
-            figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
+            figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"), owner == "player");
         // Finish state selection before AnimationPlayer/FootPlants cache lookups and add per-state contact method tracks.
         if (nativeStates is not null)
             foreach (var (state, native) in nativeStates) figure.Alias(library, state, native);
@@ -183,7 +183,7 @@ public sealed partial class SkinnedModel : Node3D
     private static string ComparisonMotionFolder => VisualOptions.ComparisonCast == "humgen" ? "HumGenMotion" : "MPFBMotion";
 
     // Every clip in these libraries was retargeted onto this exact body offline; only node paths are copied here.
-    private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
+    private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath, bool swimming)
     {
         // Production HumGen motion stays in its installed payload, outside the public source repository.
         // The old resource fallback is for explicit reference casts only.
@@ -205,7 +205,7 @@ public sealed partial class SkinnedModel : Node3D
             Ui.Models.HumGenMotionPolicy.Validate(motion.GetAnimationList().Select(name => name.ToString()),
                 motion.GetMeta("animation_sources", new Godot.Collections.Dictionary()).AsGodotDictionary()
                     .ToDictionary(p => p.Key.AsString(), p => p.Value.AsString(), StringComparer.Ordinal),
-                motion.GetMeta("foot_plants_schema", 0).AsInt32(), motion.GetMeta("source_playback_schema", 0).AsInt32());
+                motion.GetMeta("foot_plants_schema", 0).AsInt32(), motion.GetMeta("source_playback_schema", 0).AsInt32(), swimming);
         foreach (string clip in motion.GetAnimationList())
         {
             var animation = (Animation)motion.GetAnimation(clip).Duplicate();
@@ -255,7 +255,7 @@ public sealed partial class SkinnedModel : Node3D
         GD.Print($"UNNAMED {VisualOptions.ComparisonCast} motion: {assetId}, {motion.GetAnimationList().Count} offline target clips; no runtime retarget");
     }
 
-    public bool MoveBlend(Vector2 velocity, double delta, IReadOnlyDictionary<string, float> paces, float scale)
+    private bool Locomotion(IReadOnlyDictionary<string, float> paces, float scale)
     {
         if (!IsComparisonBody(Name) || !Has("strafe_left")) return false;
         if (_locomotion is null)
@@ -266,7 +266,22 @@ public sealed partial class SkinnedModel : Node3D
             foreach (var (name, pace) in paces) measured[name] = pace * scale;
             if (!_locomotion.Call("configure", _player, measured, _throttled, _contacts).AsBool()) return false;
         }
-        bool moving = _locomotion.Call("move", velocity, delta).AsBool();
+        return true;
+    }
+
+    // One native AnimationTree blends water entry/exit into the same land graph; no bone posing or gait aliases.
+    public bool WaterBlend(bool swimming, Vector2 velocity, double delta, IReadOnlyDictionary<string, float> paces, float scale)
+    {
+        if (!Has("swim") || !Has("tread") || !Locomotion(paces, scale)) return false;
+        bool active = _locomotion!.Call("water", swimming, velocity, delta).AsBool();
+        if (active) Current = _locomotion.Get("water_state").AsString();
+        return active;
+    }
+
+    public bool MoveBlend(Vector2 velocity, double delta, IReadOnlyDictionary<string, float> paces, float scale)
+    {
+        if (!Locomotion(paces, scale)) return false;
+        bool moving = _locomotion!.Call("move", velocity, delta).AsBool();
         if (moving) Current = "locomotion_2d";
         return moving;
     }
