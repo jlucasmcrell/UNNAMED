@@ -294,6 +294,15 @@ nodes:
         consequences:
         - command: start_quest
           quest_ref: quest.story.name_dandelion
+      - id: beds_offer
+        text: "Your survey has a blank line in it."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.counting_tonight, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.counting_tonight }]
+        next: beds_ask
+      - id: beds_back
+        text: "Nine, by Renn's beds. Twelve, by Kera's crew."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.counting_tonight, objective: o_file, is: active }]
+        next: beds_filed
   barrowworks_report:
     text: "\"That's a reading I didn't have.\" She opens her notebook. \"Start with what you saw. I'll keep what we think in the margin.\""
     once: true
@@ -756,6 +765,27 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.long_survey }]
+        next: again
+  beds_ask:
+    text: "\"Occupancy, expected, tonight.\" She taps the line with the pen. \"I have written 'some'. I would rather write a number.\" She squares the page. \"Renn keeps the beds and Kera keeps the crew, and neither of them will be wrong. Ask them both. Bring me what they say, not what you think they meant.\""
+    choices:
+      - id: take
+        text: "Both of them. Right."
+        next: again
+      - id: ask
+        text: "What if they disagree?"
+        next: beds_ask_why
+  beds_ask_why:
+    text: "\"Then I shall have two facts instead of one, which is better.\" She says it without heat, the way she says everything. \"People think a disagreement is the end of a number. It is usually the beginning of one.\""
+    choices:
+      - id: back
+        text: "Two facts. I'll get them."
+        next: again
+  beds_filed:
+    text: "\"Nine, and twelve.\" She writes both, draws a line under them, and adds, in the margin, 'unknown: three'. \"Two honest people, two numbers, and the difference is the only interesting thing in the column.\" She looks up. \"Thank you. I have six reliable facts this season and this is the only one with a margin in it.\""
+    choices:
+      - id: back
+        text: "That's the survey?"
         next: again
 
 barks:

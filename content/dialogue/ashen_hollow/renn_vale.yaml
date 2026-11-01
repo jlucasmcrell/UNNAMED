@@ -224,6 +224,19 @@ nodes:
         consequences:
         - command: start_quest
           quest_ref: quest.main.road_east
+      - id: beds_count_ask
+        text: "Sel wants a number for tonight's beds."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.counting_tonight, objective: o_renn, is: active }]
+        next: beds_count
+      - id: debt
+        text: "You've had that flask on the shelf a while."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.a_fair_price_for_a_night, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.ashen_hollow.a_fair_price_for_a_night }]
+        next: debt_ask
+      - id: debt_back
+        text: "It's out at the fold, under the stone."
+        conditions: [{ kind: quest_state, quest_ref: quest.ashen_hollow.a_fair_price_for_a_night, objective: o_told, is: active }]
+        next: debt_left
   tell_old_late:
     text: "\"The giant down the east road. Nobody here cut it and nobody here remembers it arriving, so we tell it instead.\" He sets his cloth down. \"The Quiet-folk raised it as a marker, before the road was a road. Crowned it, left it to hold the crossing, walked on. That's the version. I was told it, I've told it a hundred times, and I'll tell you honestly that I cannot name who told me first.\" He shrugs. \"Ask Sel. She'll give you a measurement instead of a story, and you can decide which one you'd rather carry.\""
     choices:
@@ -530,6 +543,33 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.vessmere }]
+        next: again
+  beds_count:
+    text: "\"Nine. Seven along the wall and two by the fire, and I'll not make it ten by inventing a mattress.\" He does not look up from the board. \"Tell her nine. The beds are a fact. The road is a guess.\""
+    choices:
+      - id: back
+        text: "Nine. She'll want it written down."
+        next: again
+  debt_ask:
+    text: "\"That flask is Tavar's. He paid for a night, then paid again for the same night, and he cannot tell me which of the two he remembers.\" He turns it so the label shows. \"I will not take a third. But I keep the house, and he stops a breath short of the fold and will not come in - so it sits on my shelf, being a debt neither of us can put down.\""
+    choices:
+      - id: take
+        text: "I'll carry it out to the fold."
+        next: again
+      - id: ask
+        text: "Why not just keep it?"
+        next: debt_why
+  debt_why:
+    text: "\"Because it isn't mine.\" He says it simply, and then, drier: \"A walker measures a thing by what it cost him. If I keep it, he'll measure the night at three flasks and I'll have taught him to.\""
+    choices:
+      - id: back
+        text: "The fold, then."
+        next: again
+  debt_left:
+    text: "\"Under the stone.\" He nods slowly, and puts the shelf back the way it was, and there is less weight in the room for it. \"He'll find it in the morning and count himself square, and neither of us will have said a word about it. That is how a thing like this gets paid.\""
+    choices:
+      - id: back
+        text: "That's how it gets paid."
         next: again
 
 barks:

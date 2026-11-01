@@ -1,0 +1,31 @@
+id: quest.cairnwold.a_page_of_winter
+kind: quest
+schema: 1
+display_key: quest.cairnwold.a_page_of_winter.name
+tags: [quest]
+notes: "A side quest for Berrin Garth (people.veth) built on his own lodge book: births, burials, who owes who a ewe, strangers (his lodge_book line) and his plainest canon trait, that the Veth grievance is 'what they actually did' (MYTHOLOGY.md Part 3 - the Veth and the missing part of their history). A page has been cut out of the lodge book, and the winter it held is the winter the long roof was re-laid: the work is obvious, the record is not. Berrin's horror is not the missing winter, it is the missing line. Tam counted that winter (Berrin's own line: 'Tam will tell you exactly how many of anything'), so the quest is two doors in one winter - no item, no travel out of the village, no fight."
+title: A Page of Winter
+summary: A page has been cut from the lodge book, and Berrin Garth cannot bear a winter that is standing but not written down.
+track: side
+giver_ref: npc.cairnwold.berrin_garth
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Let Berrin show you the gap in the lodge book.
+    params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [page_ask] }
+    next: [o_tam]
+  - id: o_tam
+    type: talk_to
+    description: Ask Tam what her granary book counted that winter.
+    params: { npc_ref: npc.cairnwold.tam_crowden, nodes: [the_page] }
+    next: [o_tell]
+  - id: o_tell
+    type: talk_to
+    description: Take Tam's count back to Berrin.
+    params: { npc_ref: npc.cairnwold.berrin_garth, nodes: [page_kept] }
+rewards:
+  - { kind: xp, amount: 55 }
+  - { kind: currency, amount: 10 }
+  - { kind: relationship, npc_ref: npc.cairnwold.berrin_garth, dimension: trust, amount: 4 }
+  - { kind: relationship, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, amount: 2 }

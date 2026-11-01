@@ -1,0 +1,36 @@
+id: quest.ashen_hollow.counting_tonight
+kind: quest
+schema: 1
+display_key: quest.ashen_hollow.counting_tonight.name
+tags: [quest]
+notes: "A side quest for Sel Arien (people.siann, MYTHOLOGY.md Part 3: Siann patronise the Veth, rival the Kal as scholars, and find the Orenth useful - and they have time in surplus, RACES.md 'Siann - the long view'). Her survey has one line she cannot fill honestly: how many will sleep in the hollow tonight. She will not guess and will not take one account. Renn keeps the beds and says nine; Kera counts the road crew still out and says twelve. Sel files the interval, which is the first interesting number she has had all season. No item, no fight, no travel: three doors in one yard, and the joke is that the Siann is right about what an honest number is and wrong about why anyone would want one."
+title: Counting Tonight
+summary: Sel Arien has one line of her survey she cannot write, because it is a number and she will not guess it.
+track: side
+giver_ref: npc.ashen_hollow.sel_arien
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Ask Sel which line of the survey she cannot fill.
+    params: { npc_ref: npc.ashen_hollow.sel_arien, nodes: [beds_ask] }
+    next: [o_renn, o_kera]
+  - id: o_renn
+    type: talk_to
+    description: Ask Renn how many the waystation will bed tonight.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [beds_count] }
+    next: [o_file]
+  - id: o_kera
+    type: talk_to
+    description: Ask Kera how many of the road crew are still out on the cut.
+    params: { npc_ref: npc.ashen_hollow.kera_voss, nodes: [crew_count] }
+    next: [o_file]
+  - id: o_file
+    type: talk_to
+    description: Bring Sel both accounts.
+    params: { npc_ref: npc.ashen_hollow.sel_arien, nodes: [beds_filed] }
+    all_of: [o_renn, o_kera]
+rewards:
+  - { kind: xp, amount: 45 }
+  - { kind: currency, amount: 8 }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.sel_arien, dimension: respect, amount: 3 }

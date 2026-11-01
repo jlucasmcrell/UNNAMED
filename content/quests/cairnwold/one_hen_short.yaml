@@ -1,0 +1,31 @@
+id: quest.cairnwold.one_hen_short
+kind: quest
+schema: 1
+display_key: quest.cairnwold.one_hen_short.name
+tags: [quest]
+notes: "A side quest for Tam Crowden (people.veth), the granary's counter. Tam counts what comes off the moor and what comes out of the sacks; her canon trait is the count itself, and her sister's tally was 'notched so nobody could argue her count' (Halda's Tally). Something is taking hens from the yard behind the granary and the count will not close, so it is a fox by the wall - creature.beast.red_fox at the cairnwold_fox spawn, hens at cairnwold_hens, both already placed by the region. One kill, level 1-5, and the reward is two portions off her own pot: roast meat, which the recipe's own notes say she does not consider cooking. Kept away from the bog and from every Halda node."
+title: One Hen Short
+summary: Tam's count will not close, and the fox by the granary wall is the reason. She wants the number to stop moving.
+track: side
+giver_ref: npc.cairnwold.tam_crowden
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Ask Tam what the count is doing.
+    params: { npc_ref: npc.cairnwold.tam_crowden, nodes: [hen_ask] }
+    next: [o_fox]
+  - id: o_fox
+    type: kill_creature
+    description: Deal with the fox behind the granary.
+    params: { creature_ref: creature.beast.red_fox, count: 1 }
+    next: [o_tell]
+  - id: o_tell
+    type: talk_to
+    description: Tell Tam the count can be trusted again.
+    params: { npc_ref: npc.cairnwold.tam_crowden, nodes: [hen_counted] }
+rewards:
+  - { kind: xp, amount: 70 }
+  - { kind: currency, amount: 14 }
+  - { kind: item, item_ref: item.consumable.roast_meat, count: 2 }
+  - { kind: relationship, npc_ref: npc.cairnwold.tam_crowden, dimension: trust, amount: 4 }

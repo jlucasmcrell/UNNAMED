@@ -218,6 +218,15 @@ nodes:
       - id: story_doors
         text: How do you tell which door an old record means?
         next: story_doors
+      - id: page
+        text: "There's a page cut out of the lodge book."
+        conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.a_page_of_winter, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.cairnwold.a_page_of_winter }]
+        next: page_ask
+      - id: page_back
+        text: "Tam counted that winter. Eleven in, one burial, roof raised."
+        conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.a_page_of_winter, objective: o_tell, is: active }]
+        next: page_kept
   primer:
     text: "Ah - now. Behind you, top shelf, the cupboard with the warped door. Nobody's opened it since we buried Wenna, and Wenna was the last of us who could make sense of what's in it. There's a primer - three small workings, one to strike, one to brace, one to mend. Take it. A book on a shelf is a promise nobody's keeping."
     choices:
@@ -366,6 +375,27 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.wenna }]
+        next: again
+  page_ask:
+    text: "\"Here.\" He turns the book so you can see the four cut ends where the thread was. \"That winter's gone. New roof on the long lodge, everyone in the basin at the raising, and not one line to say it. Someone cut it out neat, which is worse than torn.\" He sets it down carefully. \"I don't want the winter back. It happened; I was there. I want it written, and the only other soul who counted it was Tam.\""
+    choices:
+      - id: take
+        text: "I'll ask Tam."
+        next: again
+      - id: ask
+        text: "Why does a missing page matter?"
+        next: page_why
+  page_why:
+    text: "\"A Kal would tell you a wall doesn't care whether it's written down. Durn has told me exactly that, twice.\" He touches the cut edge. \"He's right about walls. But a lodge is not a wall. If it isn't in the book, then in forty years nobody can prove it happened, and then it didn't.\""
+    choices:
+      - id: back
+        text: "Then we'll prove it."
+        next: again
+  page_kept:
+    text: "\"Eleven in, one burial, roof raised in the second week.\" He writes it out in his slow, square hand, and reads it back aloud the way he read your name. Then he blots it, and sits back. \"There. Now it happened twice - once where it happened, and once where it can be found.\""
+    choices:
+      - id: back
+        text: "It happened twice."
         next: again
 
 barks:

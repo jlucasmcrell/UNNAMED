@@ -68,6 +68,19 @@ nodes:
         conditions: [{ kind: visited, node: tell_gorge, not: true }]
         consequences: [{ command: tell_lore, lore_ref: lore.the_gorge }]
         next: tell_gorge
+      - id: hen
+        text: "Something's taking your hens."
+        conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.one_hen_short, is: available }]
+        consequences: [{ command: start_quest, quest_ref: quest.cairnwold.one_hen_short }]
+        next: hen_ask
+      - id: hen_back
+        text: "Settled. You can count it now."
+        conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.one_hen_short, objective: o_tell, is: active }]
+        next: hen_counted
+      - id: the_page
+        text: "Berrin's lost a page. It's the raising winter."
+        conditions: [{ kind: quest_state, quest_ref: quest.cairnwold.a_page_of_winter, objective: o_tam, is: active }]
+        next: the_page
       - id: work
         text: "Is there anything you're short of?"
         next: work
@@ -225,6 +238,33 @@ nodes:
       - id: back
         text: "I will remember it."
         consequences: [{ command: tell_lore, lore_ref: lore.halda_crowden }]
+        next: again
+  hen_ask:
+    text: "\"Eleven hens this morning. Eleven. There were twelve on Tuesday, and I have counted the yard twice, which is once more than the yard deserves.\" She points east with the knife, not looking. \"Something's been at them. It'll be the fox that lives under the granary wall. I don't want it killed for being a fox. I want it not here, and I want it settled, not argued.\""
+    choices:
+      - id: take
+        text: "I'll settle it."
+        next: again
+      - id: ask
+        text: "How do you know it's a fox?"
+        next: hen_fox
+  hen_fox:
+    text: "\"Because a fox leaves the feathers and takes the hen, and a boar takes the wall as well.\" She cuts a notch while she says it. \"It isn't the hen I mind. It's that the number won't hold still. I can count around a bad winter. I can't count around a moving one.\""
+    choices:
+      - id: back
+        text: "Then I'll stop it moving."
+        next: again
+  hen_counted:
+    text: "\"Twelve. Twelve, and the wall's still standing.\" She cuts two notches, and then, after a moment, a third, which is not a hen. \"That's the fox. That's the yard. And that's you, coming back when you said you would.\" She digs two portions out of the pot with a spoon and holds them out on a cloth. \"It isn't cooking. It'll do.\""
+    choices:
+      - id: back
+        text: "It'll do."
+        next: again
+  the_page:
+    text: "\"The raising winter.\" She does not need to look it up. \"Eleven in, and one buried - old Corra, and she'd have liked the fuss. Roof went up in the second week, because I fed the raising and I know what it took out of the sacks.\" A pause, and then, flatly: \"Tell him eleven. Tell him Corra. And tell him if he writes it down wrong, I'll know.\""
+    choices:
+      - id: back
+        text: "Eleven, and Corra. I'll tell him."
         next: again
 
 barks:

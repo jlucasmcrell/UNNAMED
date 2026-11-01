@@ -1,0 +1,36 @@
+id: quest.ashen_hollow.a_fair_price_for_a_night
+kind: quest
+schema: 1
+display_key: quest.ashen_hollow.a_fair_price_for_a_night.name
+tags: [quest]
+notes: "A side quest for Renn Vale (people.veth), about the Orenth he cannot walk out to. Crossing is lethal work and the first thing it takes is memory - 'No Orenth can say which Pacha their line began in, because the knowledge is what crossing takes first' (RACES.md 'Orenth - the walkers'), and MYTHOLOGY.md Part 3 has the Orenth trading with the Veth while the Veth hire them. Tavar overpaid for a night at the waystation and cannot remember having done it; Renn keeps the second payment on his shelf and will not take a third, and neither of them will cross the Foldscar's own barrier to settle it - the Veth keeps the house, the walker stops a breath short of the door. So the player buys oil, carries it out to the fold and leaves it where he will find it - the objective watches the walking and the flask, because the build has no drop-item verb and no container at the fold (see the owner question in the FINISHED note). The fold is an existing location and the oil an existing item; nobody new is placed and nothing new is drawn."
+title: A Fair Price for a Night
+summary: Renn is owed nothing and has been paid twice, and the man who overpaid cannot remember doing it. Neither of them will cross the fold.
+track: side
+giver_ref: npc.ashen_hollow.renn_vale
+entry_objective: o_ask
+objectives:
+  - id: o_ask
+    type: talk_to
+    description: Hear Renn out about the payment he is holding.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [debt_ask] }
+    next: [o_oil]
+  - id: o_oil
+    type: acquire_item
+    description: Find a flask of lamp oil - Kera sells it, and the lamp is what the walker remembers.
+    params: { item_ref: item.material.lamp_oil, count: 1 }
+    next: [o_leave]
+  - id: o_leave
+    type: explore_location
+    description: Carry it out to the Foldscar and leave it where he will find it.
+    params: { location_ref: location.foldscar, within_m: 30 }
+    next: [o_told]
+  - id: o_told
+    type: talk_to
+    description: Tell Renn it is done.
+    params: { npc_ref: npc.ashen_hollow.renn_vale, nodes: [debt_left] }
+rewards:
+  - { kind: xp, amount: 60 }
+  - { kind: currency, amount: 12 }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.renn_vale, dimension: trust, amount: 3 }
+  - { kind: relationship, npc_ref: npc.ashen_hollow.tavar_orr, dimension: respect, amount: 2 }
