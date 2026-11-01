@@ -42,6 +42,7 @@ public partial class SettingsPanel : CanvasLayer
         ["companion_order"] = "Companions: follow or wait", ["first_person"] = "First person, and back", ["shoulder_swap"] = "Change shoulder",
         ["inventory"] = "Inventory", ["character"] = "Character", ["skills"] = "Skills", ["journal"] = "Journal", ["map"] = "Map", ["party"] = "Party", ["chat"] = "Chat", ["help"] = "Controls and help",
         ["saves"] = "Saves", ["quicksave"] = "Save now",
+        ["screenshot"] = "Screenshot to the screenshots folder", ["record_clip"] = "Start / stop a local video clip with game sound",
         ["dialogue_skip"] = "Skip a line, or hold to fast-forward", ["reply_1"] = "Answer 1", ["reply_2"] = "Answer 2", ["reply_3"] = "Answer 3", ["reply_4"] = "Answer 4", ["reply_5"] = "Answer 5",
         ["reply_6"] = "Answer 6", ["reply_7"] = "Answer 7", ["reply_8"] = "Answer 8", ["reply_9"] = "Answer 9",
     };
@@ -356,6 +357,7 @@ public partial class SettingsPanel : CanvasLayer
     private void Controls(ControlPrefs controls)
     {
         var page = Page("Controls", "choose a key's box, then press the new key");
+        page.AddChild(UiKit.Caption("Video clips stay in the screenshots folder. A clip ends at 2 GB or when the window size changes.", HudStyle.Ash));
         page.AddChild(UiKit.Words("Escape stops listening; Backspace clears the box. Escape itself always opens the menu and closes screens.", 16, HudStyle.Muted));
         var bindings = SettingsStore.Bindings();
         if (_conflict is { } waiting)

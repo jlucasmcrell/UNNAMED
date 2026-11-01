@@ -1,0 +1,25 @@
+{
+  "warm_seconds": 8,
+  "shots": [
+    {
+      "name": "waystone_orbit",
+      "fps": 30,
+      "seconds": 6,
+      "preroll": 15,
+      "settle_seconds": 1,
+      "format": "png",
+      "hour": 16.5,
+      "camera": {"mode": "orbit", "centre": [427, 1.2, 758], "radius": 12, "height": 3, "from_deg": 285, "to_deg": 325, "fov": 45}
+    },
+    {
+      "name": "ashen_overhead",
+      "fps": 30,
+      "seconds": 6,
+      "preroll": 15,
+      "settle_seconds": 1,
+      "format": "png",
+      "hour": 16.5,
+      "camera": {"mode": "keys", "from": {"pos": [410, 38, 780], "aim": [450, 0, 738]}, "to": {"pos": [445, 38, 792], "aim": [450, 0, 738]}, "fov": 52}
+    }
+  ]
+}

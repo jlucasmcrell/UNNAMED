@@ -325,6 +325,11 @@ public partial class Main : Node3D
         if (!harness && DisplayServer.GetName() != "headless")
             _loading = new Ui.LoadingScreen(GetViewport());
         _unattended = _loading is null || OS.GetCmdlineArgs().Contains("--quit-after");
+        if (_options.ContainsKey("--mkt-plan"))
+        {
+            _ = Capture.FilmTiming.RenderFps(System.Environment.GetCommandLineArgs());
+            if (!_options.ContainsKey("--mkt-out")) throw new ArgumentException("--mkt-plan requires --mkt-out");
+        }
         Settings.SettingsStore.Load(persist: !harness);
         if (harness)
         {
@@ -458,7 +463,7 @@ public partial class Main : Node3D
             && File.Exists(Path.Combine(contentRoot, "C1_REVIEW_FIXTURE.txt"));
         bool verify = _options.ContainsKey("--playthrough-verify");
         bool scripted = !c1Review && (playthrough is not null || _flags.Contains("--smoke") || _options.ContainsKey("--connected-check") || _flags.Contains("--input-check") || _flags.Contains("--perf")
-                        || _options.ContainsKey("--ui-shots")
+                        || _options.ContainsKey("--ui-shots") || _options.ContainsKey("--mkt-plan")
                         || _options.ContainsKey("--delta-shots") || _options.ContainsKey("--layout-check") || _options.ContainsKey("--survey")
                         || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                         || _options.ContainsKey("--visual-audit") || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
@@ -485,7 +490,7 @@ public partial class Main : Node3D
         bool fixedWorld = _options.ContainsKey("--playthrough") || _options.ContainsKey("--delta-shots")
                           || _options.ContainsKey("--showcase") || _options.ContainsKey("--visual-audit")
                           || _options.ContainsKey("--visual-audit-ab") || _options.ContainsKey("--audio-audition")
-                          || _options.ContainsKey("--survey")
+                          || _options.ContainsKey("--survey") || _options.ContainsKey("--mkt-plan")
                           || _options.ContainsKey("--connected-check")
                           || _options.ContainsKey("--shot") || _options.ContainsKey("--shot-actions") || _options.ContainsKey("--d2-review") || _options.ContainsKey("--stand") || _options.ContainsKey("--barrowworks-review") || _options.ContainsKey("--frontier-perf")
                           || _flags.Contains("--perf")
@@ -495,7 +500,7 @@ public partial class Main : Node3D
         if (scripted && !verify && !showcaseContinues && _options.ContainsKey("--pet-review"))
             InstallPetReview();   // the review world first: every spawner is replaced, so nothing may walk in later
         if (scripted && !verify && !showcaseContinues && !_options.ContainsKey("--pet-review"))
-            _session.NewGame(DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
+            _session.NewGame(_options.ContainsKey("--mkt-plan") ? FilmCharacter() : DefaultCharacter, fixedWorld ? Playthrough.Seed : 0);
         GD.Print($"UNNAMED boot: content {_session.Content.Version} ({_session.Content.Hash[..19]}...), region {_session.Setup.Layout.Id}, " +
                  $"{_session.Setup.Layout.CellKeys.Length} cells");
 
@@ -753,6 +758,13 @@ public partial class Main : Node3D
         {
             _inputCheck = new InputCheck(_session, _controller, _camera, () => Modal, slot => LoadChosen(slot, SaveCopy.Current), _dialogue, _inventory,
                 _character, _saves);
+        }
+        else if (_options.TryGetValue("--mkt-plan", out string? filmPlan))
+        {
+            SizeForCapture();
+            HoldCaptureFocus();
+            _film = new MarketingFilm(this, filmPlan, _options.GetValueOrDefault("--mkt-out")
+                ?? throw new ArgumentException("--mkt-plan requires --mkt-out"));
         }
         else if (_options.TryGetValue("--showcase", out string? showcase))
         {
@@ -1317,6 +1329,7 @@ public partial class Main : Node3D
 
     public override void _Process(double delta)
     {
+        UpdateClipRecording();
         ApplyMetaHumanReviewInputs();
         if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
             ResumeShots(resumeShots);
@@ -1417,6 +1430,18 @@ public partial class Main : Node3D
             }
             if (_inputCheck.Reading)
                 ReadInput();
+        }
+        else if (_film is not null)
+        {
+            try
+            {
+                if (_film.Update(delta) is { } filmCode)
+                {
+                    CaptureQuit.At(this, filmCode);
+                    return;
+                }
+            }
+            catch (Exception e) { CannotStart("The film capture failed. See the capture log.", e); return; }
         }
         else if (_shots is not null)
         {
@@ -1737,6 +1762,8 @@ public partial class Main : Node3D
     /// <summary>What the run heard, for the harnesses: how much of the sound set played, and any family the mapping asked for that the set lacks.</summary>
     public override void _ExitTree()
     {
+        _clipRecorder?.Dispose();
+        _film?.Dispose();
         FinishOpeningReview();
         // The other half of a capture harness's question: this line is written on every orderly shutdown - a window close, or the game quitting
         // itself - so a run whose log lacks it was killed from outside, and one whose log has it but no close request quit itself.
@@ -2157,7 +2184,7 @@ public partial class Main : Node3D
                     or "--front-shots" or "--creator-shots" or "--creator-people" or "--load-order" or "--barrowworks-review" or "--anim-states" or "--frontier-perf" or "--frontier-point" or "--frontier-hide"
                     or "--camp-review" or "--mpfb-shots" or "--ds-shots" or "--enter" or "--settle" or "--inn-shots" or "--lore-shots" or "--pet-shots"
                     or "--anim-person" or "--anim-compare" or "--anim-phase" or "--anim-gear" or "--anim-body" or "--sedge-services-review" or "--sedge-combat-review" or "--sedge-life-review" or "--sedge-boat-review" or "--sedge-return-services"
-                    or "--stealth-review" or "--stealth-probe" or "--stealth-beats" or "--stealth-hud"
+                    or "--stealth-review" or "--stealth-probe" or "--stealth-beats" or "--stealth-hud" or "--mkt-plan" or "--mkt-out"
             or "--stealth-runtime-video" or "--stealth-guard" or "--stealth-area" or "--stealth-areas"
                 && i + 1 < arguments.Length)
                 _options[arguments[i]] = arguments[++i];

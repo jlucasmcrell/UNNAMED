@@ -176,6 +176,8 @@ public partial class Main
             CloseInventory();
         if (Input.IsActionJustPressed("screenshot"))
             TakeScreenshot();
+        if (Input.IsActionJustPressed("record_clip"))
+            ToggleClipRecording();
         if (_developer && Input.IsActionJustPressed("debug_overlay"))
             _hud.DebugVisible = _hollow.DebugVisible = !_hud.DebugVisible;
         if (_developer && Input.IsActionJustPressed("quest_debug"))
@@ -462,6 +464,7 @@ public partial class Main
         Bind("report_problem", Key.F8);
         Bind("hide_interface", Key.F10);
         Bind("screenshot", Key.F12);
+        Bind("record_clip", Key.F11);
         Bind("saves", Key.L);
         Bind("release_mouse", Key.Escape);
         Bind("free_cursor", Key.Z); // Hold only; Alt remains action-bar scrolling.
