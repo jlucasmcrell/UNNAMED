@@ -18,6 +18,10 @@ namespace UNNAMED.Presentation.Art;
 /// </summary>
 public sealed class TextureCache
 {
+    private const string CompressedMetadata = "otherreach_validated_compressed_image";
+    internal static bool KnownCompressed(Texture2D texture) => texture.GetMeta(CompressedMetadata, false).AsBool();
+    internal static void MarkCompressed(Texture2D texture) => texture.SetMeta(CompressedMetadata, true);
+
     /// <summary>Packages must never silently expand a missing/stale large cache entry into an RGBA upload.</summary>
     public static void RequireCompressed(Texture2D texture, string source)
     {
@@ -26,9 +30,11 @@ public sealed class TextureCache
         // is that a cache entry served for a 2K+ texture must be BC-compressed, so B-012/B-013 still fail in packaged builds.
         if (OS.GetEnvironment("OTHERREACH_TEXTURE_AUDIT") == "0"
             || Math.Max(texture.GetWidth(), texture.GetHeight()) < 2048) return;
+        if (KnownCompressed(texture)) return;
         using var image = texture.GetImage();
         if (image is not null && !image.IsCompressed())
             throw new InvalidDataException("Packaged texture >=2K is uncompressed: " + source);
+        if (image?.IsCompressed() == true) MarkCompressed(texture);
     }
     public const string Folder = "texture_cache";
     private const string ManifestName = "manifest.json";
@@ -210,6 +216,7 @@ public sealed class TextureCache
             {
                 var upload = _buildNative ? image : WithinSize(image, maxSize);
                 texture = ImageTexture.CreateFromImage(upload);
+                if (upload.IsCompressed()) MarkCompressed(texture);
                 if (retain) CompressedBytes += upload.GetDataSize(); // Scoped player maps are not retained in this cache.
                 if (upload != image)
                     upload.Dispose();

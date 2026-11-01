@@ -52,6 +52,17 @@ public sealed class ArtLibrary
     public Godot.Collections.Dictionary MetaHumanResources { get; } = new();
 
     private readonly Dictionary<string, PackedScene?> _scenes = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _sourceHashes = new(StringComparer.OrdinalIgnoreCase);
+
+    // Like the packed scenes, source files are immutable for this ArtLibrary's lifetime.
+    internal string SourceSha256(string path)
+    {
+        path = Path.GetFullPath(path);
+        if (!_sourceHashes.TryGetValue(path, out string? hash))
+            _sourceHashes[path] = hash = Godot.FileAccess.GetSha256(path);
+        return hash;
+    }
+
     private readonly Dictionary<string, Animation?> _clips = new(StringComparer.Ordinal);
     private readonly Dictionary<string, SkeletonRest?> _clipRests = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ClipInfo?> _clipInfo = new(StringComparer.Ordinal);

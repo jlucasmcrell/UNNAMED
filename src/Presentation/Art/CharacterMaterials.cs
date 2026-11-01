@@ -269,11 +269,16 @@ public static class CharacterMaterials
 
     private static Texture2D CoverageMips(string key, Texture2D source, float cutoff)
     {
+        if (TextureCache.KnownCompressed(source)) return source;
         using var cachedImage = source.GetImage();
-        if (cachedImage.IsCompressed()) return source; // Keep the signed GPU-compressed coverage chain.
+        if (cachedImage.IsCompressed())
+        {
+            TextureCache.MarkCompressed(source);
+            return source; // Keep the signed GPU-compressed coverage chain without another readback.
+        }
         if (_coverageMips.TryGetValue(key, out var made))
             return made;
-        var image = (Image)source.GetImage().Duplicate();
+        using var image = (Image)cachedImage.Duplicate();
         if (image.IsCompressed())
             image.Decompress();
         image.ClearMipmaps();

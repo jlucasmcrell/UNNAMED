@@ -541,14 +541,17 @@ public static class PeopleAppearance
     /// </summary>
     private static Color? MeanColour(Texture2D texture)
     {
-        if (texture.GetImage() is not { } image || image.IsEmpty())
+        const string key = "otherreach_dye_mean_colour";
+        if (texture.HasMeta(key)) return texture.GetMeta(key).AsColor();
+        using var image = texture.GetImage();
+        if (image is null || image.IsEmpty())
             return null;
         int level = 0;
         while (level < image.GetMipmapCount() && Math.Min(image.GetWidth(), image.GetHeight()) >> (level + 1) >= 64)
             level++;
         var data = image.GetData();
         int end = level < image.GetMipmapCount() ? (int)image.GetMipmapOffset(level + 1) : data.Length;
-        var small = Image.CreateFromData(Math.Max(1, image.GetWidth() >> level), Math.Max(1, image.GetHeight() >> level), false, image.GetFormat(),
+        using var small = Image.CreateFromData(Math.Max(1, image.GetWidth() >> level), Math.Max(1, image.GetHeight() >> level), false, image.GetFormat(),
             data[(int)image.GetMipmapOffset(level)..end]);
         if (small.IsCompressed())
             small.Decompress();
@@ -565,7 +568,10 @@ public static class PeopleAppearance
                     continue;
                 r += c.R; g += c.G; b += c.B; n++;
             }
-        return n == 0 ? null : new Color(r / n, g / n, b / n);
+        if (n == 0) return null;
+        var mean = new Color(r / n, g / n, b / n);
+        texture.SetMeta(key, mean);
+        return mean;
     }
 
     private static Material Tinted(Material original, Swatch tone)

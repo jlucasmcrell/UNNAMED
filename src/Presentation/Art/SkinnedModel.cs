@@ -60,8 +60,10 @@ public sealed partial class SkinnedModel : Node3D
     public static SkinnedModel? Create(ArtLibrary art, string assetId, IReadOnlyDictionary<string, string> clips, string? owner = null,
         IReadOnlyDictionary<string, string>? nativeStates = null)
     {
+        ulong began = Time.GetTicksMsec();
         if (art.Rigged(assetId) is not { } model)
             return null;
+        ulong importedAt = Time.GetTicksMsec();
         if (ArtLibrary.Find<Skeleton3D>(model) is not { } skeleton)
         {
             art.Report(assetId, "its rigged file holds no skeleton", assetId);
@@ -81,6 +83,7 @@ public sealed partial class SkinnedModel : Node3D
         int upgraded = CharacterMaterials.Upgrade(model, out int zoneNamed, HumanEye.Load(art, assetId),
             nativeHumGen: art.RiggedFile(assetId, "native_materials.json") is not null);
         HumGenMaterials.Apply(model, art, assetId);        HumGenMouth.Apply(model, art, assetId);
+        ulong materials = Time.GetTicksMsec();
         // SAY WHICH OF THE THREE REASONS IT IS, not the one this used to assume. See CharacterMaterials.Upgrade's
         // second parameter: a single-atlas model with no zone names at all is NORMAL and was being reported as a
         // name mismatch every run, which is how the creatures came to read as broken rather than as out of scope.
@@ -119,7 +122,7 @@ public sealed partial class SkinnedModel : Node3D
                 art.Coverage.Resolved("clip", $"{owner}:{state}", clipId);
         }
         if (IsComparisonBody(assetId))
-            figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
+            figure.ComparisonClips(art, assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
         // Finish state selection before AnimationPlayer/FootPlants cache lookups and add per-state contact method tracks.
         if (nativeStates is not null)
             foreach (var (state, native) in nativeStates) figure.Alias(library, state, native);
@@ -137,6 +140,9 @@ public sealed partial class SkinnedModel : Node3D
         figure.FindOutfits(model);
         figure.SetOutfit("base");
         if (owner=="player") figure._closeTextures=HumGenCloseupTextures.Create(model,art,assetId);
+        ulong finished = Time.GetTicksMsec();
+        if (finished - began >= 100)
+            GD.Print($"UNNAMED figure build: {assetId}, import={importedAt - began} ms, materials={materials - importedAt} ms, animation/setup={finished - materials} ms");
         return figure;
     }
 
@@ -183,7 +189,7 @@ public sealed partial class SkinnedModel : Node3D
     private static string ComparisonMotionFolder => VisualOptions.ComparisonCast == "humgen" ? "HumGenMotion" : "MPFBMotion";
 
     // Every clip in these libraries was retargeted onto this exact body offline; only node paths are copied here.
-    private void ComparisonClips(string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
+    private void ComparisonClips(ArtLibrary art, string assetId, AnimationLibrary library, string skeletonPath, string? bodyPath)
     {
         // Production HumGen motion stays in its installed payload, outside the public source repository.
         // The old resource fallback is for explicit reference casts only.
@@ -199,7 +205,7 @@ public sealed partial class SkinnedModel : Node3D
                 ? externalMotion
                 : $"res://Art/{ComparisonMotionFolder}/{assetId}_motion.res")
             ?? throw new InvalidDataException("comparison motion library missing: " + assetId);
-        if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != Godot.FileAccess.GetSha256(bodyPath))
+        if (bodyPath is null || motion.GetMeta("target_body_sha256").AsString() != art.SourceSha256(bodyPath))
             throw new InvalidDataException("comparison motion library target body differs: " + assetId);
         if (VisualOptions.ComparisonCast == "humgen")
             Ui.Models.HumGenMotionPolicy.Validate(motion.GetAnimationList().Select(name => name.ToString()),

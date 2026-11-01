@@ -10,7 +10,7 @@ internal static class HumGenIdentityWeights
         if (art.RiggedFile(id, "identity_weights.json") is not { } path) return;
         using var json = JsonDocument.Parse(File.ReadAllText(path));
         string body = art.RiggedFile(id, id + "_rigged.glb") ?? throw new InvalidDataException(id);
-        if (json.RootElement.GetProperty("target_body_sha256").GetString() != Godot.FileAccess.GetSha256(body))
+        if (json.RootElement.GetProperty("target_body_sha256").GetString() != art.SourceSha256(body))
             throw new InvalidDataException("Identity defaults target another body: " + id);
         var meshes = model.FindChildren("*", nameof(MeshInstance3D), true, false)
             .OfType<MeshInstance3D>().ToDictionary(m => m.Name.ToString());
