@@ -1,0 +1,7 @@
+NEXT PACKAGE CMB16 candidate; Claude visual verdict pending.
+
+MERGE character_payload/mocap_motion/*.res into the existing complete HumGen character root. This subset contains FOUR bodies only; never replace the root or point the game at this subset as a complete character library. Each library retains all49 accepted prior clips and adds8 actions; PRESERVED_NATIVE_MOTION01.json records the key-for-key audit.
+
+MERGE primary/rigged (two legacy frontier shirt overrides plus contact sidecars) and primary/animation (one exact42-joint wolf standing stumble). Preserve all existing body files and unrelated parts. MERGE texture_cache/manifest.json ENTRIES BY KEY into the existing manifest, copying the18 relative DDS files alongside it. Do not replace a complete manifest. Embedded original shirt texture streams remain byte-identical; added native morphs alone provide floor contact.
+
+Merge visual/cmb16-animations code and targeted bindings together with this art delta. Preserve systems/shove-trip-disarm domain clocks. Existing native clip playback/hook routes are used; no body rest change, generative art, synthesized motion, or animation timing change in domain.

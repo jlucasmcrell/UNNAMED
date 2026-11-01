@@ -980,7 +980,8 @@
     "ability.creature.wolf_grey_alpha_heavy_1": "creature.c1_wolf.sweep_left",
     "ability.creature.wolf_grey_alpha_heavy_2": "creature.c1_wolf.sweep_right",
     "ability.creature.wolf_grey_alpha_rush_1": "creature.c1_wolf.pounce_1",
-    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2"
+    "ability.creature.wolf_grey_alpha_rush_2": "creature.c1_wolf.pounce_2",
+    "stumble": "creature.cmb16_wolf.stumble_left"
    },
    "voice": "grey_wolf",
    "flesh": "fur",
@@ -1025,7 +1026,8 @@
     "ability.creature.wolf_grey_heavy_1": "creature.c1_wolf.sweep_left",
     "ability.creature.wolf_grey_heavy_2": "creature.c1_wolf.sweep_right",
     "ability.creature.wolf_grey_rush_1": "creature.c1_wolf.pounce_1",
-    "ability.creature.wolf_grey_rush_2": "creature.c1_wolf.pounce_2"
+    "ability.creature.wolf_grey_rush_2": "creature.c1_wolf.pounce_2",
+    "stumble": "creature.cmb16_wolf.stumble_left"
    },
    "voice": "grey_wolf",
    "flesh": "fur",

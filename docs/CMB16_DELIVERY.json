@@ -1,0 +1,110 @@
+{
+  "status": "DELIVERY_CANDIDATE_FINAL_HAND_VIEW_AND_CLAUDE_VERDICT_PENDING",
+  "recorded": "2026-10-31T22:29:52.433948-04:00",
+  "branch": "visual/cmb16-animations",
+  "portable_delta": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\portable_candidate01",
+  "preserved_motion": {
+    "reports": [
+      {
+        "body": "humgen_creator_female",
+        "new_clips": 8,
+        "payload_sha256": "a86987df7d46fab44c07dab2abd5680be90b4ee89b6bab5abe6288baa835ee9f",
+        "preserved_clips": 49,
+        "preserved_keys": 106336
+      },
+      {
+        "body": "humgen_creator_male",
+        "new_clips": 8,
+        "payload_sha256": "cfa863d80f2f91d75c5f537946879e9ac578062777b60d4db41261cf0e998dba",
+        "preserved_clips": 49,
+        "preserved_keys": 107252
+      },
+      {
+        "body": "humgen_player_ada_f",
+        "new_clips": 8,
+        "payload_sha256": "0a0cb8c8e61f739fb163b1c8c825848a701813e1fab50b3cf7275dc154c225ac",
+        "preserved_clips": 49,
+        "preserved_keys": 98429
+      },
+      {
+        "body": "humgen_player_mateo_m",
+        "new_clips": 8,
+        "payload_sha256": "8a59bd871ee00cf3fc8566222718bd22ee091417b0fe9a06befba8c1cbfd1610",
+        "preserved_clips": 49,
+        "preserved_keys": 106941
+      }
+    ],
+    "status": "PASS"
+  },
+  "pickup_cpu": {
+    "female": {
+      "inventory_pickup": {
+        "status": "PASS",
+        "pickedInstance": 532257186479,
+        "everGrasped": true,
+        "contactError": 3.1701602e-05,
+        "art_problems": {},
+        "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+      },
+      "native_socket_finger_pose": {
+        "authored": false,
+        "best_angle": 0.001381068,
+        "samples": 468,
+        "scope": "Read-only modifier observes actual local finger poses before Skeleton3D restores them; compares with actual native socket closed-finger pose."
+      },
+      "exit": {
+        "exit": 0,
+        "seconds": 36.49633370000811,
+        "watchdog_seconds": 180
+      }
+    },
+    "male": {
+      "inventory_pickup": {
+        "status": "PASS",
+        "pickedInstance": 523482698822,
+        "everGrasped": true,
+        "contactError": 0.0005866192,
+        "art_problems": {},
+        "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+      },
+      "native_socket_finger_pose": {
+        "authored": false,
+        "best_angle": 0.001381068,
+        "samples": 470,
+        "scope": "Read-only modifier observes actual local finger poses before Skeleton3D restores them; compares with actual native socket closed-finger pose."
+      },
+      "exit": {
+        "exit": 0,
+        "seconds": 32.80606450000778,
+        "watchdog_seconds": 180
+      }
+    }
+  },
+  "evidence_root": "C:\\Otherreach_External_Assets\\NEXT_SYSTEMS_VISUALS\\cmb16",
+  "evidence": [
+    "creator_native02: both current Creator bodies, six source actions and actual early/late prone-hit timing",
+    "cloth_contact_ada02 + cloth_contact_mateo03: source-preserving legacy native shirt floor contact",
+    "control_timing01: actual authoritative Footing clock and source weapon release",
+    "wolf_control02: actual production creature stumble hook, standing side-hit/weight-shift read for Claude",
+    "pickup_native13: final original-time same-prop drop/reach/grasp view (pending at this receipt)"
+  ],
+  "hooks": [
+    "ControlResolved: landed non-prone shove\u2192stumble, disarm\u2192weapon_drop",
+    "Current authoritative Footing controls fall/idle/rise over the original20 ticks",
+    "DamageDealt while prone\u2192additive recorded upper-body recoil over current fall/idle/rise; no recovery extension",
+    "Ground\u2192carried item move\u2192recorded reach plus native arm/wrist IK; same grounded prop remains until measured wrist/socket contact"
+  ],
+  "scope": "Native owned recorded motion on unchanged exact target rigs. Four motion targets: current Creator female/male and legacy Ada/Mateo. Standing wolf stumble on unchanged42-joint adult/alpha rig. No learned synthesis, body rest edits or domain clock changes.",
+  "checks": {
+    "control_motion_tests": "1/1",
+    "native_timing_and_cloth_lod_gates": "Existing named receipts in CMB16_CREATOR_NATIVE_GATES.json and cloth/timing reviews; both current bodies and legacy floor contacts pass",
+    "native_pickup": "Both current bodies clean native CPU exit0, actual prop identity/contact and original socket finger pose measured"
+  },
+  "limitations": [
+    "Claude visual verdict pending; no producer self-PASS or RC merge.",
+    "Neutral native source/production-hook fixtures, not played full-world/AI combat, all terrain or performance acceptance.",
+    "Wolf is a native standing side-hit/weight-shift cue; only stumble_left is bound, no creature prone fall/rise assets delivered.",
+    "Only the four named motion targets are certified; unrelated character libraries must remain installed.",
+    "Previous fixed hand-camera views did not establish a runtime hand defect; tentative UseAuthored change was reverted."
+  ]
+}
