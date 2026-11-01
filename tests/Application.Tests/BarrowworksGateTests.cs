@@ -15,7 +15,7 @@ public class BarrowworksGateTests
 {
     // Integrated frontier overlay: approved NPC migration, C1 creatures, C2 inn and accepted creature batches A/B.
     // Keep the full-file guard, alongside the semantic option-off checks below; line endings are normalised.
-    private const string SnapshotOverlaySha256 = "3a9bf6a1b28217f6bae8823ac369c04e2396db691e3b132ebc2ffff3d1ca2880"; // Accepted C1 creature bindings, C2 inn additions, Batch B rework constructs, D10 variant clips, the Build 2 area/water/jetty content, the restored D20 bindings (B-019), the Steps (content/the-steps) and the owner-visual fixes (B-005 pilings, boss looks, the Matriarch, B-018's dead ash out of the living pool), the boss roster (boss-phases, boss-encounters) and the Steps' north quay over the integrated public overlay, plus the native Custodian index-bone weak-point cue and the Matriarch's re-body (e78db0c8); ring keys remain gated.
+    private const string SnapshotOverlaySha256 = "025fc5be94e0c31c021cf5d4d370bbf7b700198630a8be6b8d9cdbef4c72c4b2"; // Accepted C1 creature bindings, C2 inn additions, Batch B rework constructs, D10 variant clips, the Build 2 area/water/jetty content, the restored D20 bindings (B-019), the Steps (content/the-steps) and the owner-visual fixes (B-005 pilings, boss looks, the Matriarch, B-018's dead ash out of the living pool), the boss roster (boss-phases, boss-encounters) and the Steps' north quay over the integrated public overlay, plus the native Custodian index-bone weak-point cue and the Matriarch's re-body (e78db0c8); ring keys remain gated.
 
     private static string Overlay => Path.Combine(Harness.RepoRoot(), "content", "_art_bindings.json");
 
