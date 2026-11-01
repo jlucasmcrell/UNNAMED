@@ -6593,14 +6593,14 @@
    "spell.warding.hush_the_sting": "hush_the_sting",
    "spell.vital.ember_mend": "ember_mend",
    "spell.vital.clear_the_dead_weight": "clear_the_dead_weight",
-   "spell.force.keen_note": "impulse_bolt",
-   "spell.force.rime_pin": "impulse_bolt",
-   "spell.force.salt_arc": "impulse_bolt",
-   "spell.vital.set_the_bone": "mending_thread",
-   "spell.vital.wake_the_nerve": "mending_thread",
-   "spell.warding.loose_the_root": "brace_ward",
-   "spell.warding.quiet_seal": "brace_ward",
-   "spell.warding.tripwire_sigil": "brace_ward"
+   "spell.force.keen_note": "keen_note",
+   "spell.force.rime_pin": "rime_pin",
+   "spell.force.salt_arc": "salt_arc",
+   "spell.vital.set_the_bone": "set_the_bone",
+   "spell.vital.wake_the_nerve": "wake_the_nerve",
+   "spell.warding.quiet_seal": "quiet_seal",
+   "spell.warding.tripwire_sigil": "tripwire_sigil",
+   "spell.warding.loose_the_root": "loose_the_root"
   },
   "switches": {
    "switch.stone_north": "sfx.amb.foldscar.stone_resonance.01",

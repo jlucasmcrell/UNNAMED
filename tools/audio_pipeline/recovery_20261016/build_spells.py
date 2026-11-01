@@ -31,6 +31,7 @@ ICE = '2of5/Alexander Kopeikin - 100 kHz Designed Ice'
 EMOTION = '2of5/Alexander Kopeikin - Emotion and Magic'
 FANTASY = '2of5/Epic Stock Media - Fantasy Game 2 - Sound Kit for Enchanted Realms'
 ORGANIC = '2of5/CB_Sounddesign - Applicable Sounds - Organic UI and Building Games SFX'
+CHRISTMAS = '1of5/344 Audio - Christmas Vol. 1'
 
 # take -> (pack dir, file, window start, window length, filter, filter args, pitch semitones, target LUFS, ceiling dBTP)
 TAKES = {
@@ -55,6 +56,28 @@ TAKES = {
     'weight_lift': (ELEMENTAL, 'WINDDsgn_Wind, Rush, Whoosh, Long x5 01_344 Audio_Elemental Palette Designed Vol 1.wav',
                     0.02, 1.00, 'bp', (200, 7000), 0.0),
     'weight_gone': (EMOTION, 'magic, energy flow, astral travel-015.wav', 0.48, 1.60, 'lp', 8000, 0.0),
+    # the eight first-hour workings (systems/p2-magic): every window sits clear of the six above, or filters the same file into
+    # something else on purpose - the electric hiss of Hush the Sting against the charge and the strike of Salt Arc.
+    'note_cast': (FANTASY, 'MAGAngl_Magic Light Spell Enchantment Potion Effect Tonal Bright 03_ESM_FG2.wav', 3.30, 1.10, 'hp', 200, 0.0),
+    'note_flight': (FANTASY, 'UIAlert_Collect Scifi Futuristic Electronic Bass Burst Sweep Heavy 04_ESM_FG2.wav', 0.00, 0.31, 'bp', (600, 6000), 5.0),
+    'note_impact': (CHRISTMAS, 'MAGMisc_Magic Christmas Bells 2_344 Audio_Christmas.wav', 0.30, 1.00, 'hp', 400, 0.0),
+    'rime_cast': (ICE, 'ice, surface cracking, fissure, fast, hard-003.wav', 0.32, 1.10, 'lp', 9000, 0.0),
+    'rime_flight': (MUTATION, 'GLASMvmt_Whoosh Glass Crystal Fragments Sharp Shards Dry 05_ESM_EMWI.wav', 0.90, 1.00, 'bp', (600, 7000), 3.0),
+    'rime_impact': (ICE, 'ice, crack, ice block snapping-001.wav', 2.50, 0.70, 'hp', 150, 0.0),
+    'arc_cast': (MUTATION, 'ELECMisc_Impact Electric Tonal Deep Movement Motion Hiss Glitch 01_ESM_EMWI.wav', 0.00, 1.30, 'hp', 150, 0.0),
+    'arc_flight': (MUTATION, 'ELECMisc_Impact Electric Tonal Deep Movement Motion Hiss Glitch 01_ESM_EMWI.wav', 2.70, 0.99, 'bp', (900, 9000), 0.0),
+    'arc_impact': (MUTATION, 'ELECMisc_Impact Electric Tonal Deep Movement Motion Hiss Glitch 01_ESM_EMWI.wav', 1.55, 1.20, 'lp', 5000, 0.0),
+    'bone_cast': (ORGANIC, 'GAMEMisc_Magic Creation 23_CB Sounddesign_APPlicable Sounds.wav', 1.80, 1.10, 'lp', 6000, 0.0),
+    'bone_set': (EMOTION, 'magic, energy flow, astonishment-001.wav', 4.00, 1.60, 'hp', 120, 0.0),
+    'nerve_cast': (EMOTION, 'magic, drone, tension, spellbound, evanescence-002.wav', 5.00, 1.30, 'bp', (150, 2500), 0.0),
+    'nerve_wake': (MUTATION, 'WATRImpt_Impact Water Deep Submerge Bubble Drown Ship Hit 05_ESM_EMWI.wav', 0.04, 1.20, 'lp', 3000, 0.0),
+    'seal_cast': (EMOTION, 'magic, drone, tension, spellbound, evanescence-002.wav', 9.00, 1.20, 'lp', 1800, 0.0),
+    'seal_set': (FANTASY, 'CLOTHFlp_Action Inventory Open Flip Cloth Canvas Bag Slide Light 02_ESM_FG2.wav', 0.00, 0.69, 'lp', 3000, -5.0),
+    'sigil_cast': (FANTASY, 'GAMEMisc_Source Card Tarot Deck Generic Neutral Dry Heavy Shuffle 01_ESM_FG2.wav', 0.60, 0.90, 'hp', 300, 0.0),
+    'sigil_set': (ELEMENTAL, 'METLMisc_Metal, Slow Whoosh, Rattle, Pass By x4 01_344 Audio_Elemental Palette Designed Vol 1.wav',
+                  0.06, 0.66, 'hp', 400, 0.0),
+    'root_cast': (EMOTION, 'magic, drone, tension, spellbound, evanescence-002.wav', 12.00, 1.20, 'bp', (300, 3000), 0.0),
+    'root_loosed': (MUTATION, 'GLASMvmt_Whoosh Glass Crystal Fragments Sharp Shards Dry 05_ESM_EMWI.wav', 1.60, 1.00, 'lp', 3500, 0.0),
 }
 
 # (audio id, take, role, target LUFS, ceiling dBTP)
@@ -77,6 +100,25 @@ FILES = [
     ('sfx.magic.hush_the_sting.activate.01', 'venom_hiss', 'Hush the Sting lifting the venom: a hiss and a glitch leaving the blood', -21.0, -6.0),
     ('sfx.magic.clear_the_dead_weight.cast.01', 'weight_lift', 'Clear the Dead Weight gathering: a rush of air under a fallen body', -21.5, -6.0),
     ('sfx.magic.clear_the_dead_weight.resolve.01', 'weight_gone', 'Clear the Dead Weight lifting: the weakened state travelling off', -22.0, -6.0),
+    ('sfx.magic.keen_note.cast.01', 'note_cast', 'Keen Note struck at the air: a bright tone, felt rather than seen', -22.0, -6.0),
+    ('sfx.magic.keen_note.travel.01', 'note_flight', 'Keen Note crossing the gap: a thin note on the air', -23.0, -5.0),
+    ('sfx.magic.keen_note.impact.01', 'note_impact', 'Keen Note landing: the concussion of a struck bell against a body', -19.0, -1.5),
+    ('sfx.magic.rime_pin.cast.01', 'rime_cast', 'Rime Pin gathering: a hard crack racing along a surface', -22.0, -6.0),
+    ('sfx.magic.rime_pin.travel.01', 'rime_flight', 'Rime Pin in flight: one cold shard through the air', -23.0, -9.0),
+    ('sfx.magic.rime_pin.impact.01', 'rime_impact', 'Rime Pin landing: ice snapping into a body', -19.0, -0.5),
+    ('sfx.magic.salt_arc.cast.01', 'arc_cast', 'Salt Arc gathering: the crackle of a charged gap', -21.5, -6.0),
+    ('sfx.magic.salt_arc.travel.01', 'arc_flight', 'Salt Arc jumping between two points of air', -23.0, -5.0),
+    ('sfx.magic.salt_arc.impact.01', 'arc_impact', 'Salt Arc landing: the strike at the far point', -19.0, -1.0),
+    ('sfx.magic.set_the_bone.cast.01', 'bone_cast', 'Set the Bone gathering: a hand laid over a wound', -22.0, -3.0),
+    ('sfx.magic.set_the_bone.resolve.01', 'bone_set', 'Set the Bone setting: the mending holding the caster together', -22.0, -6.0),
+    ('sfx.magic.wake_the_nerve.cast.01', 'nerve_cast', 'Wake the Nerve gathering: a drone pulling a body back', -22.0, -6.0),
+    ('sfx.magic.wake_the_nerve.activate.01', 'nerve_wake', 'Wake the Nerve lifting sleep and a held body: one deep breath taken', -20.5, -3.0),
+    ('sfx.magic.quiet_seal.cast.01', 'seal_cast', 'Quiet Seal drawing: the air going quiet around a body', -22.5, -8.0),
+    ('sfx.magic.quiet_seal.activate.01', 'seal_set', 'Quiet Seal closing: a soft fold of cloth settling over the sound', -23.0, -4.0),
+    ('sfx.magic.tripwire_sigil.cast.01', 'sigil_cast', 'Tripwire Sigil drawn: dry lines laid one after another', -22.0, -1.5),
+    ('sfx.magic.tripwire_sigil.activate.01', 'sigil_set', 'Tripwire Sigil set: the rune snapping shut to wait', -22.5, -3.0),
+    ('sfx.magic.loose_the_root.cast.01', 'root_cast', 'Loose the Root reading the ward already on the caster', -22.0, -6.0),
+    ('sfx.magic.loose_the_root.resolve.01', 'root_loosed', 'Loose the Root unpicked: the containment letting go', -21.5, -6.0),
 ]
 
 

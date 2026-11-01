@@ -41,6 +41,21 @@ public class SpellSoundBindingTests
         return spells;
     }
 
+    /// <summary>Each spell and how it reaches its target, which decides the moments it must be heard at.</summary>
+    private static List<(string Id, string Targeting)> Workings()
+    {
+        var workings = new List<(string, string)>();
+        foreach (string path in Directory.GetFiles(Repository.File("content", "spells"), "*.yaml", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(path);
+            var id = Regex.Match(text, @"^id:\s*(spell\.[a-z0-9_.]+)\s*$", RegexOptions.Multiline);
+            var targeting = Regex.Match(text, @"^targeting:\s*([a-z_]+)\s*$", RegexOptions.Multiline);
+            if (id.Success)
+                workings.Add((id.Groups[1].Value, targeting.Success ? targeting.Groups[1].Value : ""));
+        }
+        return workings;
+    }
+
     private static HashSet<string> Delivered(string artRoot)
     {
         var ids = new HashSet<string>(StringComparer.Ordinal);
@@ -60,7 +75,7 @@ public class SpellSoundBindingTests
     public void EverySpell_HasACastSoundBound()
     {
         var spells = Spells();
-        Assert.True(spells.Count >= 9, $"only {spells.Count} spells were read from content/spells: the sweep is looking in the wrong place");
+        Assert.True(spells.Count >= 16, $"only {spells.Count} spells were read from content/spells: the sweep is looking in the wrong place");
         var bound = Bound();
         var silent = spells.Where(spell => !bound.ContainsKey(spell) || bound[spell].Length == 0).ToList();
         Assert.True(silent.Count == 0, "spells with no formula sound bound in art_bindings.json audio.formulas: " + string.Join(", ", silent));
@@ -90,5 +105,44 @@ public class SpellSoundBindingTests
         }
         Assert.True(absent.Count == 0,
             "bound working sounds with nothing delivered to hear: " + string.Join(", ", absent.OrderBy(id => id, StringComparer.Ordinal)));
+    }
+
+    /// <summary>
+    /// A working that throws something is heard three times: gathering in the hand, crossing the gap, and landing. A working kept on the
+    /// caster is heard once as it opens - cast, or activation for the ward that has no cast - and once as it settles.
+    /// </summary>
+    [Fact]
+    public void EveryWorking_IsHeardAtEachMomentItsTargetingHas()
+    {
+        if (ArtRoot() is not { } artRoot)
+            return;
+        var delivered = Delivered(artRoot);
+        var bound = Bound();
+        var absent = new List<string>();
+        foreach (var (spell, targeting) in Workings())
+        {
+            if (!bound.TryGetValue(spell, out string? stem))
+                continue;   // EverySpell_HasACastSoundBound says so once, in its own words
+            bool Heard(string moment) => delivered.Contains($"sfx.magic.{stem}.{moment}");
+            var missing = targeting switch
+            {
+                "projectile" => new[] { "cast", "travel", "impact" }.Where(moment => !Heard(moment)).ToList(),
+                "self" => MissingForASelfWorking(Heard),
+                _ => [],
+            };
+            if (missing.Count > 0)
+                absent.Add($"{spell} ({targeting}) -> {string.Join(", ", missing)} of sfx.magic.{stem}");
+        }
+        Assert.True(absent.Count == 0, "workings heard at only some of their moments: " + string.Join("; ", absent));
+    }
+
+    private static List<string> MissingForASelfWorking(Func<string, bool> heard)
+    {
+        var missing = new List<string>();
+        if (!heard("cast") && !heard("activate"))
+            missing.Add("one of cast/activate");
+        if (!new[] { "activate", "resolve", "end" }.Any(heard))
+            missing.Add("one of activate/resolve/end");
+        return missing;
     }
 }
