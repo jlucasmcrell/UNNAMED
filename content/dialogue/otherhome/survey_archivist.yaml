@@ -8,7 +8,7 @@ participants: [npc.otherhome.survey_archivist]
 root_node: greet
 nodes:
   greet:
-    text: "\"You're standing on a measurement.\" He does not look up from the plate. \"Third terrace, eighteen metres above mean water, and the wall has said so for two hundred years. Oren Tesk. The Long Survey. Mind the wet course - it reads dry.\""
+    text: "\"You're standing on a measurement.\" He does not look up from the plate. \"Third terrace, eighteen metres above mean water, and the wall has said so for two hundred years. Oren Tesk. The Long Survey.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -39,7 +39,7 @@ nodes:
         conditions: [{ kind: quest_state, quest_ref: quest.otherhome.ledger_stops, is: active }]
         next: ledger
   cistern:
-    text: "\"The cistern ledger stops eleven days in. Same hand every day before that, and then it is not the winter's hand and it is not the rain's.\" He turns the plate face down. \"A record does not end. It is ended, and someone ended it. The court it measures is where the pack hunts, and I am not built for the undercity.\""
+    text: "\"The cistern ledger stops eleven days in. Same hand before that, and then it is not the winter's.\" He turns the plate face down. \"A record does not end. It is ended. And the court it measures is where the pack hunts.\""
     choices:
       - id: go
         text: "I'll go down and read it for you."
@@ -51,7 +51,7 @@ nodes:
         text: "I'll leave you to it."
         next: again
   ledger:
-    text: "\"Depth drawn, the date, and who drew it - and the last page short. You went down for a page and came back with one. Good.\" He writes your name at the foot of it. \"Now the Survey has it, and the Survey keeps what it is given. That is the whole of my religion, and it is cheaper than yours.\""
+    text: "\"Depth drawn, the date, and who drew it - and the last page short. Good.\" He writes your name at the foot of it. \"Now the Survey has it. We keep what we are given; that is the whole of my religion.\""
     choices:
       - id: back
         text: "Then it's yours."

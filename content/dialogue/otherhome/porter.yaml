@@ -34,7 +34,7 @@ nodes:
         conditions: [{ kind: quest_state, quest_ref: quest.otherhome.week_is_the_fee, objective: o_count, is: active }]
         next: landing
   landing:
-    text: "\"Count's easy. What came up the slips and what went back down again, and the difference is what we argue about.\" He taps the slate. \"Iron's short two billets and nobody signed for the missing pair. I'd tell the Exchange myself, but I'm not paid to be believed - you I'd believe.\""
+    text: "\"Count's easy: what came up the slips and what went back down, and the difference is what we argue about.\" He taps the slate. \"Iron's short two billets and nobody signed for the pair. You I'd believe.\""
     choices:
       - id: back
         text: "Two billets short. I'll tell her."

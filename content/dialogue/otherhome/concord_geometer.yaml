@@ -49,13 +49,13 @@ nodes:
           - { command: start_quest, quest_ref: quest.otherhome.what_the_ground_did }
         next: reading
   reading:
-    text: "\"The plate says when the terraces last moved. The margin, in a hand older than mine, says the movement was the Gate's and not the ground's.\" She sets two fingers on the wall. \"I can measure a wall. I cannot measure a ring from a terrace. Take a sighting at the mouth and bring it back, and I will know whether to thank you or rewrite the plate.\""
+    text: "\"The plate says when the terraces last moved. The margin, in an older hand, says the movement was the Gate's and not the ground's.\" She sets two fingers on the wall. \"I can measure a wall. Take a sighting at the mouth.\""
     choices:
       - id: take
         text: "I'll take the sighting."
         next: again
   measured:
-    text: "\"Then the ground is where I left it and the ring is not where the plate put it.\" She is quiet a moment. \"That is either very good news or a sentence I will be writing for a hundred years.\" She is pleased, in the way of someone cataloguing a large problem. \"Thank you. I will need another reader for the next plate.\""
+    text: "\"Then the ground is where I left it and the ring is not where the plate put it.\" She is quiet. \"That is either very good news or a sentence I'll be writing for a hundred years. Thank you.\""
     choices:
       - id: back
         text: "Find me when you do."

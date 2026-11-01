@@ -8,7 +8,7 @@ participants: [npc.otherhome.exchange_clerk]
 root_node: greet
 nodes:
   greet:
-    text: "\"Sena Varr, Tidepearl Exchange.\" She does not stop ruling the column. \"The tariff is posted. Fish by the barrel, timber by the length, iron by the billet, and the week is the fee. Hold out what you've got and I'll tell you what it's worth.\""
+    text: "\"Sena Varr, Tidepearl Exchange. The tariff is posted: fish by the barrel, timber by the length, iron by the billet. The week is the fee. Hold out what you've got.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -44,13 +44,13 @@ nodes:
       - id: leave
         text: "Later."
   tariff:
-    text: "\"Last week's week, in a hand that isn't mine, against the iron.\" She squares the tariff. \"I'd rather not argue about it later. Arguing is expensive.\" A tap on the column. \"Take it to the Assize for a witness, then get Tess's count of what actually landed. Then it's a fact, and facts are cheap.\""
+    text: "\"Last week's week, in a hand that isn't mine, against the iron.\" She squares it. \"I'd rather not argue later; arguing is expensive. Take it to the Assize for a witness, then get Tess's count of what landed.\""
     choices:
       - id: take
         text: "Witness, count, bring it back."
         next: again
   posted:
-    text: "\"Witnessed, and counted, and the line is mine again.\" She rules it once, flat. \"A merchant who hides a charge has to argue about it later. A merchant who posts it argues once, in writing, and charges for the copy.\" Coin on the counter. \"The week's goodwill. I'll remember you at the counter.\""
+    text: "\"Witnessed, counted, and the line is mine again.\" She rules it once, flat. \"A merchant who hides a charge argues about it later. I'd rather argue once, in writing, and charge for the copy.\" Coin on the counter."
     once: true
     next_if_exhausted: again
     choices:

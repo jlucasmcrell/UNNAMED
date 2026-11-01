@@ -27,7 +27,7 @@ nodes:
     text: "\"Billet first. You don't make a spear out of impatience.\" She sets the tongs in your hand and closes your fingers round them, hard. \"That's the whole of it. The rest is how long you're willing to be wrong about the heat.\""
     next: again
   chain_fit:
-    text: "\"Two billets, and one of them has been in the sea.\" She turns it, finds the sound side, and sets it down anyway. \"It will go in the chain. Floats are new and the splice is honest, which is all a chain needs to be believed.\" She looks up. \"Tell the sergeant that. It will be the best news in the rota.\""
+    text: "\"Two billets, and one of them's been in the sea.\" She turns it, finds the sound side, sets it down anyway. \"It'll go in the chain. Floats new, splice honest - all a chain needs to be believed.\""
     choices:
       - id: give
         text: "Here they are - two billets."

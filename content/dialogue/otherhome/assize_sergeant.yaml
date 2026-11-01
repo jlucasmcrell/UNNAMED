@@ -57,13 +57,13 @@ nodes:
         text: "What's on the other side of it?"
         next: again
   chain:
-    text: "\"It has.\" The shaft comes down once, and stays down. \"When that chain is down, every hull that crosses the line is a forfeit I have to argue, and I am not paid to argue. Dema mends iron. Two billets and she'll set it.\" A nod at the mouth. \"Then walk the line out to the ring and tell me it holds.\""
+    text: "\"It has.\" The shaft comes down once and stays down. \"While that chain is down, every hull that crosses the line is a forfeit I have to argue. Dema mends iron: two billets. Then walk the line and tell me it holds.\""
     choices:
       - id: take
         text: "Two billets to the smith, then the line."
         next: again
   line:
-    text: "\"Held, is it.\" It is the closest thing to pleasure the rota allows. \"Then the line is a line again and the Assize thanks you. Dormancy is not licence - the terms say it twice - and a line nobody can cross is the whole of what I am for.\" Coin, counted out. \"The forfeit. It has been in my coat since the last hull.\""
+    text: "\"Held, is it.\" It is the closest thing to pleasure the rota allows. \"Dormancy is not licence - the terms say it twice - and a line nobody can cross is the whole of what I am for.\" Coin, counted out."
     choices:
       - id: back
         text: "Then it's held."
