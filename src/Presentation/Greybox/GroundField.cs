@@ -86,6 +86,16 @@ public sealed class GroundField
     /// <summary>The ground with the authored water bodies cut into it, for the terrain mesh the camera collides with.</summary>
     public float Carved(float x, float z, float ground) => _shores.Length == 0 ? ground : WaterShore.Carved(_shores, x, z, ground);
 
+    /// <summary>Depth over the drawn bed, using the water surface's own shoreline test, rather than sea level.</summary>
+    public float WaterDepth(float x, float z, float ground)
+    {
+        float depth = 0;
+        foreach (var shore in _shores)
+            if (new Vector2(x, z).DistanceSquaredTo(shore.Centre) <= shore.Extent * shore.Extent)
+                depth = MathF.Max(depth, shore.DepthAt(x, z, ground));
+        return depth;
+    }
+
     /// <summary>Rise per metre across a metre.</summary>
     public float Slope(float x, float z)
     {

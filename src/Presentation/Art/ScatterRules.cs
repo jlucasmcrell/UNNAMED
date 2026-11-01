@@ -109,6 +109,10 @@ public sealed record OtherworldField(IReadOnlyList<GroundPoint> Calm, GroundPoin
 public sealed record ScatterRules(float ChunkM, float PathWidthM, float NeverBelowM, float NeverSlope,
     IReadOnlyDictionary<string, IReadOnlyList<ScatterPath>> Paths, IReadOnlyList<ScatterKind> Kinds, IReadOnlyList<string> Problems)
 {
+    /// <summary>Every kind needs dry, sufficiently level ground; water depth is measured from the drawn shoreline's bed.</summary>
+    public bool AllowsGround(float height, float slope, float waterDepth) =>
+        height >= NeverBelowM && slope <= NeverSlope && waterDepth <= 0;
+
     /// <summary>The strangeness field, or null when the rules name none.</summary>
     public OtherworldField? Otherworld { get; init; }
 

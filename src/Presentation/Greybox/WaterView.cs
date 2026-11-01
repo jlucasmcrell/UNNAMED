@@ -257,7 +257,7 @@ public static class WaterView
     private static void Put(WaterShore shore, Func<float, float, float> ground, SurfaceTool tool, List<Vector3> points, Vector2 at,
         float inset, float rapids)
     {
-        float depth = MathF.Max(0f, shore.Level - ground(at.X, at.Y));
+        float depth = shore.DepthAt(ground(at.X, at.Y));
         float shoreMix = GroundField.SmoothStep(0f, shore.BandDepth, depth) * GroundField.SmoothStep(0f, 0.5f, inset);
         tool.SetColor(new Color(rapids, shoreMix, Math.Clamp(depth / shore.Depth, 0f, 1f), 1f));
         tool.SetNormal(Vector3.Up);

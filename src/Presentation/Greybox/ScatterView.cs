@@ -508,7 +508,8 @@ public partial class ScatterView : Node3D
     /// <summary>1 in the open, 0 inside a footprint, thinning over a metre or two outside one; 0 on a path (for most kinds), under water, on a steep slope.</summary>
     private float Clear(float x, float z, float margin, bool offPath, float path)
     {
-        if (_ground.Height(x, z) < _rules.NeverBelowM || _ground.Slope(x, z) > _rules.NeverSlope)
+        float height = _ground.Height(x, z);
+        if (!_rules.AllowsGround(height, _ground.Slope(x, z), _ground.WaterDepth(x, z, height)))
             return 0;
         float k = GroundField.SmoothStep(0.2f, 0.2f + 2.2f * margin, Field(_building, x, z));
         k = Math.Min(k, GroundField.SmoothStep(0.05f, 0.05f + 0.9f * margin, Field(_box, x, z)));

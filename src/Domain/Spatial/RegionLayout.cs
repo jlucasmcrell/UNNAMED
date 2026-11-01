@@ -69,6 +69,9 @@ public sealed record BarrierSite(string Key, string FlagId, Blocker Footprint, s
 /// </summary>
 public sealed record LocationSite(string Id, long XMm, long ZMm, long DiscoveryRadiusMm, long DiscoveryXp)
 {
+    /// <summary>Settled ground that wild creatures avoid, independent of the map's discovery/reveal radius.</summary>
+    public Blocker? SettlementFootprint { get; init; }
+
     /// <summary>How much ground round the place the map shows once it is discovered (its <c>map.reveals_radius_m</c>).</summary>
     public long RevealRadiusMm { get; init; }
 }

@@ -415,6 +415,7 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 var member = site.Members[i];
                 var definition = Setup.Creatures[member.CreatureId];
                 var role = Setup.Roles.GetValueOrDefault(member.RoleId) ?? new CreatureRole(member.RoleId, UnawareBehaviour.Hold);
+                var settled = Wildlife(definition, role) ? Settlements(site.Space).ToArray() : Array.Empty<Blocker>();
                 string key = $"{site.Key}#{i}";
                 // Taken as a pet (spec 43): the wild animal does not stand here again, and the empty slot is the player's own doing.
                 if (TamedAway?.Invoke(key) == true)
@@ -422,18 +423,28 @@ internal sealed class CreatureSystem : IAbstractAdvance
                 var scale = ScaleOf();
                 var channel = RngChannel.Open(State.World.WorldSeed, cell, "spawn", key);
                 var others = State.Creatures.Values.Select(c => (Blocker)new CircleBlocker(c.Key, c.HomeXMm, c.HomeZMm, c.Definition.RadiusMm, 0)).ToList();
+                others.AddRange(settled);
                 (long x, long z) = (site.XMm, site.ZMm);
                 for (uint sample = 0; sample < 32; sample += 2)
                 {
                     double angle = channel.UInt64(sample) / SampleScale * 2 * Math.PI;
                     double distance = Math.Sqrt(channel.UInt64(sample + 1) / SampleScale) * site.RadiusMm;
                     long cx = site.XMm + (long)Math.Round(Math.Sin(angle) * distance), cz = site.ZMm + (long)Math.Round(Math.Cos(angle) * distance);
+                    // Old spawners may stand on settled ground. Keep their animals outside it at birth too.
+                    foreach (var town in settled)
+                        if (town.Separation(cx, cz, definition.RadiusMm + 1) is { } push)
+                        {
+                            cx += (long)Math.Round(push.Dx);
+                            cz += (long)Math.Round(push.Dz);
+                        }
                     if (Kinematics.IsClear(cx, cz, definition.RadiusMm, space, others, site.Space.IsExterior ? 0 : 1800))
                     {
                         (x, z) = (cx, cz);
                         break;
                     }
                 }
+                if (settled.Any(t => t.Separation(x, z, definition.RadiusMm) is not null))
+                    throw new InvalidOperationException($"{site.Key}: no clear wildlife spawn outside the settlement footprint");
                 int facing = (int)(channel.UInt64(40) % 360_000);
                 var body = new Body(x, space.HeightAtMm(x, z), z, facing);
                 var state = new CreatureState(Identity(key, 0), key, site, definition, role, x, z, facing, 0, CreatureCondition.Alive, body,
@@ -473,7 +484,12 @@ internal sealed class CreatureSystem : IAbstractAdvance
                             : ActionState.Idle,
                     };
                 }
+                // A save from before the exclusion can contain a living wolf in town.
+                bool displaced = state.Alive && settled.Any(t => t.Separation(state.Body.XMm, state.Body.ZMm, definition.RadiusMm) is not null);
+                if (displaced)
+                    state = AtHome(state);
                 State.SetCreature(_owner, state);
+                if (displaced) Save(state);
                 // A carcass is a node only the running game holds: a body loaded as a corpse lies where it fell again, still to be skinned.
                 if (state.Condition == CreatureCondition.Corpse && definition.CarcassRef is { } carcass)
                     _context.Dispatch(new LeaveCarcassCommand(CarcassKey(state), carcass, state.Body.XMm, state.Body.ZMm));
@@ -941,6 +957,11 @@ internal sealed class CreatureSystem : IAbstractAdvance
         };
         if (control == ControlKind.Roots)
             next = next with { Body = next.Body with { XMm=c.Body.XMm, YMm=c.Body.YMm, ZMm=c.Body.ZMm } };
+        // Collision resolves in doubles, then rounds to millimetres. Do not let rounding or another body's push
+        // leave even an edge of a wild creature across the settled boundary.
+        if (Wildlife(c.Definition, c.Role) && Settlements(c.Site.Space)
+            .Any(t => t.Separation(next.Body.XMm, next.Body.ZMm, c.Definition.RadiusMm) is not null))
+            next = next with { Body = c.Body };
         // Acting changes its mind too - it arrives, gives up, gets home; those are announced like what it perceives.
         if (next.Mind != c.Mind)
             _context.Events.Publish(new CreatureNoticed(next.Id, next.Key, next.Mind, tick));
@@ -2270,7 +2291,14 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private const long GridMm = 16_000;
 
-    private Dictionary<(SpaceId, long, long), WalkSpace>? _near;
+    private Dictionary<(SpaceId, long, long, bool), WalkSpace>? _near;
+
+    // Yard animals keep their authored yards; wild beasts and grazers keep out of settled ground.
+    private static bool Wildlife(CreatureDefinition definition, CreatureRole role) =>
+        definition.Family is "beast" or "grazer" && role.Id != "yard_fowl";
+
+    private IEnumerable<Blocker> Settlements(SpaceId space) => _context.Setup.LayoutFor(space).Locations
+        .Select(l => l.SettlementFootprint).OfType<Blocker>();
 
     /// <summary>
     /// The walk space round a body, holding only the region's structures within a grid square of it (16 m): what a body that moves at
@@ -2280,12 +2308,13 @@ internal sealed class CreatureSystem : IAbstractAdvance
     private WalkSpace SpaceNear(CreatureState creature, Body body)
     {
         var space = _context.Setup.SpaceFor(creature.Site.Space);
-        var square = (creature.Site.Space, Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient);
-        _near ??= new Dictionary<(SpaceId, long, long), WalkSpace>();
+        bool wildlife = Wildlife(creature.Definition, creature.Role);
+        var square = (creature.Site.Space, Math.DivRem(body.XMm, GridMm).Quotient, Math.DivRem(body.ZMm, GridMm).Quotient, wildlife);
+        _near ??= new Dictionary<(SpaceId, long, long, bool), WalkSpace>();
         if (_near.TryGetValue(square, out var near))
             return near;
         long x0 = (square.Item2 - 1) * GridMm, z0 = (square.Item3 - 1) * GridMm, x1 = (square.Item2 + 2) * GridMm, z1 = (square.Item3 + 2) * GridMm;
-        var blockers = space.Blockers.Where(b => b switch
+        var blockers = space.Blockers.Concat(wildlife ? Settlements(creature.Site.Space) : Enumerable.Empty<Blocker>()).Where(b => b switch
         {
             BoxBlocker box => box.MaxXMm >= x0 && box.MinXMm <= x1 && box.MaxZMm >= z0 && box.MinZMm <= z1,
             CircleBlocker round => round.CenterXMm + round.RadiusMm >= x0 && round.CenterXMm - round.RadiusMm <= x1

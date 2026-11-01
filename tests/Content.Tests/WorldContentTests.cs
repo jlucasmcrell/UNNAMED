@@ -6,6 +6,22 @@ namespace UNNAMED.Content.Tests;
 /// <summary>The region layout from content, and the WLD lint that refuses a broken one before the game boots.</summary>
 public class WorldContentTests
 {
+    [Fact]
+    public void SettledFootprintsCoverTheTownsWithoutUsingTheMapRevealRadius()
+    {
+        var loader = Load(Path.Combine(RepoPaths.Root(), "content"));
+        Blocker Town(string region, string location) => WorldContent.BuildLayout(loader, region).Locations
+            .Single(l => l.Id == location).SettlementFootprint!;
+        var steps = Town("region.otherhome", "location.salt_steps");
+        Assert.Equal(0, steps.DistanceTo(1612_000, 782_000)); // Market aisle, far from the discovery anchor.
+        Assert.True(steps.DistanceTo(1300_000, 700_000) > 0); // The wild northern shore is not the town.
+        var hollow = Town("region.starting_frontier", "location.outpost");
+        Assert.Equal(0, hollow.DistanceTo(427_000, 758_000)); // Public Waystone.
+        Assert.True(hollow.DistanceTo(476_000, 762_000) > 2_000); // Old Grey's court remains outside town.
+        Assert.Equal(0, Town("region.starting_frontier", "location.cairnwold.village").DistanceTo(972_000, 670_000));
+        Assert.Equal(0, Town("region.sedge_levels", "location.sedge_tollpiles").DistanceTo(5000_000, 1080_000));
+    }
+
     private static ContentLoader Load(string root)
     {
         var loader = new ContentLoader();

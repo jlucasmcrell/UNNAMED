@@ -15,6 +15,8 @@ anchor:
   - 0.0
   - 745.0
 kind_of_place: settlement
+# The houses, forge, yard and Waystone; the Old Grey court to the north-east remains wild ground.
+settlement_footprint: { hull_m: [[407, 700], [488, 700], [488, 740], [460, 758], [436, 765], [407, 765]] }
 discovery:
   methods:
   - visited

@@ -74,7 +74,9 @@ internal sealed class Arena
         var (ox, oz) = origin ?? Harness.HollowOf(rules);
         var spawns = creatures.Select((w, i) => new SpawnSite($"spawn.test.{(w.DefId == Wolf ? "wolf" : "creature")}_{i}", (long)((w.X + ox) * 1000),
             (long)((w.Z + oz) * 1000), 0, ImmutableArray.Create(new SpawnMember(w.DefId, w.Role))) { RespawnTicks = respawnTicks }).ToImmutableArray();
-        var setup = keepSpawns ? rules : rules with { Combat = rules.Combat with { Spawns = spawns } };
+        // An artificial combat arena may place wolves in a town's coordinates. Real-spawn tests retain settled ground.
+        var setup = keepSpawns ? rules : rules with { Combat = rules.Combat with { Spawns = spawns },
+            Layout = rules.Layout with { Locations = rules.Layout.Locations.Select(l => l with { SettlementFootprint = null }).ToImmutableArray() } };
         var fresh = Simulation.NewCharacter(setup, EntityId.NewId(EntityKind.Character), "Wanderer", 7);
         long x = (long)((player.X + ox) * 1000), z = (long)((player.Z + oz) * 1000);
         var record = new PlayerRecord(fresh.Id, fresh.Name, x, setup.Layout.Space.Terrain.HeightAtMm(x, z), z, fresh.AppearanceSeed, fresh.Inventory,
