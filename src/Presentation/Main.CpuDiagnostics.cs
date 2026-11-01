@@ -25,6 +25,7 @@ public partial class Main
             "native-static-controls" => new NativeStaticPolicyControls(),
             "texture-controls" => new TextureMemoizationControls(),
             "character-profile" => new CharacterCreationProfile(),
+            "character-dependencies" => new PackageDependenciesGate(),
             _ => null,
         };
         if (diagnostic is null)

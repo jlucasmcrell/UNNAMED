@@ -16,6 +16,11 @@ if ($Tag -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$') { throw "Bad release tag: $Ta
 $here = Split-Path $MyInvocation.MyCommand.Path
 $game = "$OutRoot\$Label\game"; $parts = "$OutRoot\$Label\parts"
 if (-not (Test-Path "$game\Otherreach.exe")) { throw "$game is not an assembled folder; run build_playtest.ps1 first" }
+& "$here\check_package_dependencies.ps1" -Package $game -Receipt "$OutRoot\$Label\logs\bound_package_dependencies_before_pack.json"
+$qualityGate = "$game\quality_gate\character_quality_gate.json"
+if (-not (Test-Path -LiteralPath $qualityGate)) { throw 'Missing played packaged-game character quality gate; do not pack this build' }
+python "$here\check_character_quality.py" $game --verify-verdict $qualityGate --out "$OutRoot\$Label\logs\character_quality_pack_check.json"
+if ($LASTEXITCODE -ne 0) { throw 'The played character quality verdict is failed/stale/preflight-only; do not pack this build' }
 if (Test-Path $parts) { throw "$parts already exists" }
 if ((Get-PSDrive D).Free -lt 25GB) { throw 'D: has under 25 GB free' }
 New-Item -ItemType Directory $parts | Out-Null

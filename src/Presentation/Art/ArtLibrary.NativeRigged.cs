@@ -8,7 +8,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class ArtLibrary
 {
     // Change when the raw import/material policy changes. Runtime appearance is never cached here.
-    private const string NativeRiggedVersion = "v2";
+    private const string NativeRiggedVersion = "v3";
     internal int NativeRiggedHits { get; private set; }
     private readonly Dictionary<string, Dictionary<string, string>> _nativeTextureSignatures = new(StringComparer.OrdinalIgnoreCase);
     private HashSet<string>? _nativeStaticSources;

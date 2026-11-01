@@ -55,6 +55,9 @@ Remove-Item -Recurse -Force "$out\export"
 
 "--- content"
 Robo "$ExportWorktree\content" "$game\content" '/XF *.before_* _forest_patch_probe.json'
+# Audit the actual exported character catalogue, including legacy saved appearances.
+Copy-Item -LiteralPath "$ExportWorktree\src\Presentation\Art\humgen_cast.json" -Destination "$game\content\_quality_humgen_cast.json"
+Copy-Item -LiteralPath "$ExportWorktree\src\Presentation\Art\humgen_creator.json" -Destination "$game\content\_quality_humgen_creator.json"
 
 "--- primary"
 Robo "$AssetBase\primary" "$game\primary"
@@ -112,6 +115,9 @@ Set-Content "$game\VERSION.txt" "build $Label`ncommit $sha" -Encoding ascii
 New-Item -ItemType Directory -Force "$game\saves" | Out-Null
 
 "--- verify"
+& "$here\check_package_dependencies.ps1" -Package $game -Receipt "$game\content\_quality_bound_dependencies.json"
+python "$here\check_character_quality.py" $game --preflight --out "$logs\character_quality_preflight.json"
+if ($LASTEXITCODE -ne 0) { throw 'Native character quality contract failed; do not ship this package' }
 python "$here\approved_player_bodies.py" $game --verify
 if ($LASTEXITCODE -ne 0) { throw 'Approved body verification failed; do not ship this package' }
 # B-002: a >=2K source with no signed cache entry makes the game refuse to boot, and the export's own
@@ -145,6 +151,7 @@ Remove-Item -Recurse -Force "$out\load_order_profile" -ErrorAction SilentlyConti
 
 $after = [ordered]@{ total = Size $game; exe = (Get-Item "$game\Otherreach.exe").Length; fallback = Size "$game\fallback"; primary = Size "$game\primary"; content = Size "$game\content" }
 $report = [ordered]@{
+    status = 'ASSEMBLED_AWAITING_PLAYED_CHARACTER_QUALITY_GATE'
     label = $Label; commit = $sha; assetBase = $AssetBase; fileCount = (Get-ChildItem $game -Recurse -File).Count
     before = $before; after = $after
     savedBytes = [ordered]@{ total = $before.total - $after.total; fallbackDropped = $before.fallback - $after.fallback; fallbackShadowedByPrimary = $shadowed; fallbackOrphanTextureCache = [long]$orphanBytes }

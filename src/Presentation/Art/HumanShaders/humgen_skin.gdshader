@@ -29,10 +29,10 @@ uniform sampler2D native_rough_spec_cavity : filter_linear_mipmap;
 uniform vec2 native_specular_range = vec2(0.073, 0.7);
 uniform vec3 native_sss_radius = vec3(1., .2, .1);
 uniform float native_sss_scale = .01;
-// Owner Gate A review: matte satin and slightly less peach, preserving the native maps.
-uniform float native_saturation = .88;
-uniform float native_roughness_floor = .45;
-uniform float native_specular_scale = .65;
+// Preserve the source skin response; creator colour controls remain separate.
+uniform float native_saturation = 1.;
+uniform float native_roughness_floor = 0.;
+uniform float native_specular_scale = 1.;
 // HumGen's creator values remain live over its native texture set.  These are
 // deliberately colour corrections, never a replacement skin texture.
 uniform float native_tone = 1.0;

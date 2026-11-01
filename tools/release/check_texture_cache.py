@@ -115,7 +115,9 @@ def collect(root, records):
                             roles[source] = 'cutout' if key == 'baseColorTexture' and cutout else role
                     textures(child, cutout)
             for material in doc.get('materials', []):
-                textures(material, material.get('alphaMode') == 'MASK')
+                native_hair = rel.startswith('rigged/humgen_') and any(
+                    name in material.get('name', '').lower() for name in ('haircards', 'haircap'))
+                textures(material, material.get('alphaMode') == 'MASK' and not native_hair)
             for index, image in enumerate(doc['images']):
                 if index not in roles:
                     continue
@@ -178,6 +180,8 @@ def check(game, receipt, prepare=False):
         reason = None
         if not entry or entry.get('size') != file.stat().st_size or entry.get('sig') != signatures[file]:
             reason = 'missing/stale source signature'
+        elif record['key'].startswith('rigged/humgen_') and '#' in record['key'] and entry.get('role') != record['role']:
+            reason = 'wrong native material mip treatment'
         else:
             dds = root/'texture_cache'/entry['dds']
             if not dds.is_file():

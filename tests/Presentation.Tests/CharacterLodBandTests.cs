@@ -29,10 +29,18 @@ public class CharacterLodBandTests
         Assert.Equal(2, CharacterLodBand.Select(40, 0, true));
         Assert.Equal(0, CharacterLodBand.Select(19, 0, true));
         Assert.Equal(1, CharacterLodBand.Select(21, 0, true));
-        Assert.Equal(1, CharacterLodBand.Select(17, 1, true));
+        Assert.Equal(0, CharacterLodBand.Select(17, 1, true));
         Assert.Equal(0, CharacterLodBand.Select(15, 1, true));
         Assert.Equal(3, CharacterLodBand.Select(100, 0, true));
         Assert.Equal(0, CharacterLodBand.Select(100, 3, true, closeUp: true));
         Assert.Equal(1, CharacterLodBand.Select(16, 0, false));
     }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void EnteringNearRangeAlwaysRestoresNativeDetail(int previous) =>
+        Assert.Equal(0, CharacterLodBand.Select(18, previous, ultra: true));
 }

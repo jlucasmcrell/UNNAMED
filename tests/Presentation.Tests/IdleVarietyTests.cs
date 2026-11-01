@@ -7,15 +7,19 @@ public class IdleVarietyTests
     {
         var a = new IdleVariety("renn"); var b = new IdleVariety("sel");
         Assert.NotEqual(a.StartPhase, b.StartPhase);
-        bool Has(string clip) => clip == "idle_look";
+        bool Has(string clip) => clip == "idle_observe";
         var clip = a.Step(30, "merchant", Has, _ => 2);
-        Assert.Equal("idle_look", clip);
+        Assert.Equal("idle_observe", clip);
         Assert.Equal("idle", a.Step(3, "merchant", Has, _ => 2));
         a.Interrupt();
         Assert.Equal("idle", a.Step(.1, "merchant", Has, _ => 2));
     }
     [Fact]
     public void MissingClipsKeepTheNativeIdle() => Assert.Equal("idle", new IdleVariety("a").Step(30, "guard", _ => false, _ => 1));
+
+    [Fact]
+    public void TheLegacyLookAliasDoesNotCountAsAnActivity() =>
+        Assert.Equal("idle", new IdleVariety("a").Step(30, "merchant", clip => clip == "idle_look", _ => 2.5));
 
     [Fact]
     public void DistinctMocapReplacesTheLegacyAlias_AndActivitiesDoNotRepeat()

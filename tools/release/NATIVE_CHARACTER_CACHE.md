@@ -17,7 +17,7 @@ in bounded batches to avoid retaining the entire depot in one process. Verify
 the same list in a fresh process by omitting `--build`; every model must report
 a native cache hit. The exported EXE can run that verification scene too.
 
-The artifact is `primary/character_native/<engine>/v2/<model>_rigged.glb.scn`
+The artifact is `primary/character_native/<engine>/v3/<model>_rigged.glb.scn`
 or the corresponding fallback path, beside its `.proof.json`. Bundled resources
 have no external dependencies; immutable textures are shared by DDS identity
 and mip policy after loading. Each proof pins the source GLB, compiled scene
@@ -67,3 +67,5 @@ not select it. The static policy stamp is static-template-v2. Source parity
 must use native-raw-profile --reference-model-levels on the original source
 root, then --require-native on the derivative root. NativeStaticPolicyControls
 checks synthetic building LOD0-3 against real ModelLevels, not the cache helper.
+
+The full native quality restoration uses raw cache policy v3 because its hair/material import policy changes. Rebuild character artifacts from the restored full sources; the v2 loading-only cache remains for the unchanged-art performance candidate.

@@ -34,6 +34,32 @@ def fit(points,body):
     total=np.zeros((weld.max()+1,3));np.add.at(total,weld,offsets)
     return (total/np.bincount(weld)[:,None])[weld]
 
+def lining_offsets(points,faces,delta,lining):
+    # glTF splits/reorders vertices at UV and normal seams. Transfer the outer
+    # shell displacement on its actual triangles, preserving the 3mm lining.
+    # Degenerate exported triangles may win a nearest-point query but have no
+    # barycentric coordinates. Keep every delivered face; exclude only those
+    # zero-area triangles from this displacement lookup.
+    points64=np.asarray(points,dtype=np.float64)
+    valid=[face for face in faces if np.dot(np.cross(points64[face[1]]-points64[face[0]],points64[face[2]]-points64[face[0]]),
+        np.cross(points64[face[1]]-points64[face[0]],points64[face[2]]-points64[face[0]]))>1e-24]
+    assert valid,'Native outer shell has no nondegenerate triangles'
+    surface=tree(points,valid)
+    result=[]
+    for point in lining:
+        hit,_,face,distance=surface.find_nearest(Vector(point))
+        assert hit is not None and distance<.0031,'Native lining is farther than its authored 3mm offset'
+        a,b,c=valid[face]
+        ab,ac=points64[b]-points64[a],points64[c]-points64[a]
+        normal=np.cross(ab,ac);area2=np.dot(normal,normal)
+        at=np.asarray(hit,dtype=np.float64)-points64[a]
+        v=np.dot(np.cross(at,ac),normal)/area2
+        w=np.dot(np.cross(ab,at),normal)/area2
+        result.append((1-v-w)*delta[a]+v*delta[b]+w*delta[c])
+    result=np.asarray(result)
+    assert np.isfinite(result).all(),'Non-finite native lining displacement'
+    return result
+
 def main(body_file,part_file,refit):
     body,part=Glb(body_file),Glb(part_file)
     bm=next(m for m in body.doc['meshes'] if m['name'].endswith('_Body_LOD0'))
@@ -49,11 +75,11 @@ def main(body_file,part_file,refit):
             index=p['attributes']['POSITION'];pos=part.accessor(index)
             delta=fit(pos,bt) if refit else np.zeros_like(pos)
             pairs=[(index,pos+delta)]
-            if lining:
+            if lining and refit:
                 li=lining['primitives'][surface]['attributes']['POSITION'];lp=part.accessor(li)
-                assert len(lp)==len(pos) and np.max(np.linalg.norm(lp-pos,axis=1))<.0031,'Lining order/clearance differs'
-                pairs.append((li,lp+delta))
+                pairs.append((li,lp+lining_offsets(pos,triangles(part,p),delta,lp)))
             for accessor,values in pairs:
+                assert np.isfinite(values).all(),'Non-finite native garment positions: '+name
                 if accessor in written:continue
                 written.add(accessor);a=part.doc['accessors'][accessor];v=part.doc['bufferViews'][a['bufferView']]
                 assert a['type']=='VEC3' and a['componentType']==5126 and 'sparse' not in a
@@ -70,7 +96,7 @@ def main(body_file,part_file,refit):
     assert np.array_equal(old[~allowed],new[~allowed]),'Non-position payload changed'
     before=hashlib.sha256(Path(part_file).read_bytes()).hexdigest()
     if refit:
-        encoded=json.dumps(part.doc,separators=(',',':')).encode();encoded+=b' '*(-len(encoded)%4)
+        encoded=json.dumps(part.doc,separators=(',',':'),allow_nan=False).encode();encoded+=b' '*(-len(encoded)%4)
         cooked=struct.pack('<III',0x46546c67,2,28+len(encoded)+len(binary))+struct.pack('<II',len(encoded),0x4e4f534a)+encoded+struct.pack('<II',len(binary),0x004e4942)+binary
         Path(part_file).write_bytes(cooked)
     # Use the delivered LOD0 outer shell and the delivered body's own UV0.

@@ -18,6 +18,7 @@ namespace UNNAMED.Presentation.Art;
 public sealed partial class SkinnedCreature : CreatureBody
 {
     private SkinnedModel _model = null!;
+    private FaceDriver? _face;
     public string? ClipState => _model.Current;
     private readonly Label3D _mark = new()
     {
@@ -55,12 +56,15 @@ public sealed partial class SkinnedCreature : CreatureBody
             throw new InvalidDataException("Creature scale must be finite and positive: " + definition.Id);
         model.Scale *= look.UniformScale;
         size *= look.UniformScale;
-        var creature = new SkinnedCreature { _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
+        var creature = new SkinnedCreature { QualityActorId = individual, _model = model, _walkPace = Pace("walk", WalkPace) * size, _runPace = Pace("run", RunPace) * size,
             _clips = look.Clips.Keys.Concat(look.NativeStates.Keys).ToHashSet(StringComparer.Ordinal) };
         foreach (var move in definition.Moves.Where(a => a.IsCharge)) creature._charges.Add(move.Source);
         creature.AddChild(model);
         if (look.Model.StartsWith("humgen_", StringComparison.Ordinal))
         {
+            creature._face = FaceDriver.Attach(model, individual)
+                ?? throw new InvalidDataException("Native humanoid creature facial set missing: " + look.Model);
+            creature.AddChild(creature._face);
             foreach (var mesh in model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>())
                 mesh.Layers |= MHCharacters.MetaHumanFigure.FillLayer;
             var left = BodyModifiers.Grip(model.Skeleton, "hand_l");
@@ -221,6 +225,12 @@ public sealed partial class SkinnedCreature : CreatureBody
 
     public override void Pose(CreatureView creature, float alpha, double delta)
     {
+        if (_face is not null)
+        {
+            _face.SetProcess(creature.Alive);
+            foreach (var modifier in _model.Skeleton.GetChildren().OfType<SkeletonModifier3D>().Where(m => m is HumGenEyes or HumGenJaw))
+                modifier.Active = creature.Alive;
+        }
         if (creature.Condition == CreatureCondition.Gone)
         {
             Visible = false;

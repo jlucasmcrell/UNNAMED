@@ -5,6 +5,32 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>Inputs glTF cannot carry from HumGen's native skin and layered eyes.</summary>
 internal static class HumGenMaterials
 {
+    internal static void PrepareHair(BaseMaterial3D material)
+    {
+        if ((material.ResourceName.Contains("HairCards", StringComparison.OrdinalIgnoreCase)
+                || material.ResourceName.Contains("Haircap", StringComparison.OrdinalIgnoreCase))
+            && material.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
+            material.Transparency = BaseMaterial3D.TransparencyEnum.AlphaHash;
+    }
+
+    // A people's pigment may change, but every native strand input still lights it.
+    internal static void BindGroom(ShaderMaterial target, BaseMaterial3D source)
+    {
+        target.SetShaderParameter("strand_atlas", source.AlbedoTexture);
+        target.SetShaderParameter("native_opacity", source.AlbedoColor.A);
+        target.SetShaderParameter("use_native_normal", source.NormalEnabled && source.NormalTexture is not null);
+        if (source.NormalTexture is { } normal) target.SetShaderParameter("strand_normal", normal);
+        target.SetShaderParameter("native_normal_scale", source.NormalScale);
+        target.SetShaderParameter("use_native_roughness", source.RoughnessTexture is not null);
+        if (source.RoughnessTexture is { } roughness) target.SetShaderParameter("strand_roughness_map", roughness);
+        target.SetShaderParameter("strand_roughness", source.Roughness);
+        target.SetShaderParameter("specular_amount", source.MetallicSpecular);
+        target.SetShaderParameter("native_metallic", source.Metallic);
+        target.SetShaderParameter("directional", source.AnisotropyEnabled && source.AnisotropyFlowmap is not null);
+        target.SetShaderParameter("strand_anisotropy", source.Anisotropy);
+        if (source.AnisotropyFlowmap is { } flow) target.SetShaderParameter("strand_flow", flow);
+    }
+
     public static void Apply(Node model, ArtLibrary art, string id)
     {
         if (art.RiggedFile(id, "native_materials.json") is not { } path) return;
@@ -56,19 +82,16 @@ internal static class HumGenMaterials
                 || source.ResourceName.Contains("Haircap", StringComparison.OrdinalIgnoreCase))
             {
                 var hair = (BaseMaterial3D)source.Duplicate();
-                // Keep the native atlas and strand colour; recover fine brow coverage
-                // after the native alpha bake rather than painting a replacement brow.
-                if (mesh.Name.ToString().Contains("Eyebrow", StringComparison.OrdinalIgnoreCase))
-                {
-                    var colour = hair.AlbedoColor;
-                    hair.AlbedoColor = new Color(colour.R, colour.G, colour.B, colour.A * 1.15f);
-                }
-                if (hair.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor)
-                    hair.Transparency = BaseMaterial3D.TransparencyEnum.AlphaHash;
+                // Preserve native atlas coverage and colour. Alpha hashing is
+                // temporally filtered by the world and creator viewports.
+                PrepareHair(hair);
                 string suffix = System.Text.RegularExpressions.Regex.Match(mesh.Name, "_LOD([0-9]+)$") is { Success: true } level && level.Groups[1].Value != "0"
                     ? "_lod" + level.Groups[1].Value : "";
-                string flow = "hair_flow" + suffix;
-                if (data.TryGetProperty(flow, out _) && source.ResourceName.Contains("_HairCards", StringComparison.OrdinalIgnoreCase))
+                string flow = (source.ResourceName.Contains("FaceHairCards", StringComparison.OrdinalIgnoreCase) ? "face_hair_flow" : "hair_flow") + suffix;
+                // A standalone beard export names its sole native groom hair_flow.
+                if (!data.TryGetProperty(flow, out _) && source.ResourceName.Contains("FaceHairCards", StringComparison.OrdinalIgnoreCase))
+                    flow = "hair_flow" + suffix;
+                if (data.TryGetProperty(flow, out _) && source.ResourceName.Contains("HairCards", StringComparison.OrdinalIgnoreCase))
                 {
                     hair.AnisotropyEnabled = true; hair.Anisotropy = .75f;
                     hair.AnisotropyFlowmap = Map(flow, "data");

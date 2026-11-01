@@ -389,12 +389,6 @@ public static class PeopleAppearance
                 if (garment is not null)
                 {
                     var dyed = Dyed(original, garment switch { "shirt" => shirt, "trousers" => trousers, _ => LookSwatches.Boots });
-                    // The rubber's gloss gives the boots away even in leather brown.
-                    if (garment == "boots" && dyed is BaseMaterial3D leather)
-                    {
-                        leather.RoughnessTexture = null;
-                        leather.Roughness = .75f;
-                    }
                     mesh.SetSurfaceOverrideMaterial(surface, dyed);
                     continue;
                 }
@@ -404,16 +398,21 @@ public static class PeopleAppearance
                     || mesh.Name.ToString().Contains("Eyelash", StringComparison.OrdinalIgnoreCase));
                 // The shared cap and brows stay pale, independently of the white hair lengths.
                 var swatch = isSkin ? skin : faceHair ? new Swatch("Pale brows", .88f, .9f, .92f) : hair;
-                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : siann && isHair ? original : Dyed(original, swatch, lift: siann ? .06f : .4f);
+                var drawn = swatch is null ? original : isSkin ? Tinted(original, swatch) : siann && isHair ? original : Dyed(original, swatch, lift: 0);
                 if (siann && isHair && drawn is BaseMaterial3D whiteHair
                     && GD.Load<Shader>("res://Art/siann_white_hair.gdshader") is { } whiteShader)
                 {
+                    // These bodies already carry the native platinum bake. Keep its
+                    // pigment, alpha, normal, roughness and directional reflection.
+                    if (model.FindChildren("*", "", true, false).OfType<SkinnedModel>()
+                        .Any(body => body.Name.ToString().StartsWith("humgen_race_siann_", StringComparison.Ordinal)))
+                    {
+                        mesh.SetSurfaceOverrideMaterial(surface, original);
+                        continue;
+                    }
                     var white = new ShaderMaterial { Shader = whiteShader, ResourceName = original.ResourceName, NextPass = whiteHair.NextPass };
-                    white.SetShaderParameter("strand_atlas", whiteHair.AlbedoTexture);
                     white.SetShaderParameter("strand_colour", new Color(swatch?.R ?? 1f, swatch?.G ?? 1f, swatch?.B ?? 1f));
-                    white.SetShaderParameter("strand_roughness", faceHair ? .6f : .35f);
-                    white.SetShaderParameter("directional", whiteHair.AnisotropyEnabled && whiteHair.AnisotropyFlowmap is not null);
-                    if (whiteHair.AnisotropyFlowmap is { } flow) white.SetShaderParameter("strand_flow", flow);
+                    HumGenMaterials.BindGroom(white, whiteHair);
                     drawn = white;
                 }
                 // A Kal's stone as the creator sets it, on the stone skin KalStone gave the body.
@@ -515,7 +514,7 @@ public static class PeopleAppearance
     /// The garment in <paramref name="cloth"/>'s colour, its weave kept: the albedo scaled (in linear light) by what takes the texture's mean
     /// colour to the cloth's, the mean read from the texture's smallest mip so nothing large is decompressed.
     /// </summary>
-    private static Material Dyed(Material original, Swatch cloth, float lift = .2f)
+    internal static Material Dyed(Material original, Swatch cloth, float lift = .2f)
     {
         if (original.Duplicate() is not BaseMaterial3D copy)
             return original;

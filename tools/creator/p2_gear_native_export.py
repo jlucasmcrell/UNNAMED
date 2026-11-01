@@ -33,7 +33,7 @@ def export_candidate(human,row,work,creator,sex,source,solver,adjusted,fit_audit
         settings.shape_keys.lod0_only=False
         valid=[k for k in human.keys.all_livekeys if livekey_group(k)=='body' and Path(get_prefs().filepath,k.path).stat().st_size]
         settings.shape_keys.keep['body']=[name for k in valid for name in (k.name,f'{k.category[0]}_{{{k.subcategory}}}_{k.name}' if k.subcategory else f'{k.category[0]}_{k.name}')]
-        settings.lods=[QualitySettings(body='original',clothing='original',eyes='original',teeth='original',haircards='ultra'),QualitySettings(body='lower_face',clothing='original'),QualitySettings(body='quarter',clothing='original'),QualitySettings(body='quarter',clothing='original')]
+        settings.lods=[QualitySettings(body='original',clothing='original',eyes='original',teeth='original',haircards='ultra',bones_per_vertex=8),QualitySettings(body='lower_face',clothing='original',bones_per_vertex=8),QualitySettings(body='quarter',clothing='original',bones_per_vertex=8),QualitySettings(body='quarter',clothing='original',bones_per_vertex=8)]
         settings.scripts.enabled=True
         hook='keep_humgen_headwear_keys.py' if row['slot']=='head' else 'keep_humgen_clothing_keys.py'
         hooks=authoring/'export_hooks';hooks.mkdir(exist_ok=True)
@@ -58,7 +58,7 @@ def export_candidate(human,row,work,creator,sex,source,solver,adjusted,fit_audit
     for mesh in meshes:mesh.select_set(True)
     bpy.context.view_layer.objects.active=copy.objects.rig;bpy.context.view_layer.update()
     destination=folder/(identifier+'_rigged.glb')
-    bpy.ops.export_scene.gltf(filepath=str(destination),export_format='GLB',use_selection=True,export_animations=False,export_morph=True,export_skins=True,export_yup=True)
+    bpy.ops.export_scene.gltf(filepath=str(destination),export_format='GLB',use_selection=True,export_animations=False,export_morph=True,export_skins=True,export_yup=True,export_all_influences=True,export_influence_nb=8)
     target_path=creator/'game/primary/rigged'/base/(base+'_rigged.glb')
     target,exported=Glb(target_path),Glb(destination)
     assert target.names.keys()==exported.names.keys(),'Native joint vocabulary changed'
@@ -72,6 +72,7 @@ def export_candidate(human,row,work,creator,sex,source,solver,adjusted,fit_audit
         contract['replaces_creator_sweater']=True
     if fit_audit:contract['fit_audit']=fit_audit
     contract['export_hook_sha256']={p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in hooks.glob('*.py')}
+    contract['native_quality']=settings.lods[0].to_dict()
     (folder/'creator_part.json').write_text(json.dumps(contract,indent=2))
     (folder/'native_materials.json').write_text('{}')
     layer={'legs':1,'chest':2,'feet':3,'hands':4,'head':5,'cloak':6}[row['slot']]

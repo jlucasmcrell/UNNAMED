@@ -115,6 +115,8 @@ public static partial class Outfit
                 mesh.Transform = Transform3D.Identity;
                 mesh.Skeleton = new NodePath("..");
                 mesh.SetMeta(OwnedGarment, id);
+                mesh.SetMeta("quality_part_id", id);
+                mesh.SetMeta("quality_part_source", art.RiggedFile(id, id + "_rigged.glb") ?? "");
                 if (native)
                 {
                     using var target = JsonDocument.Parse(File.ReadAllText(contract!));

@@ -1,4 +1,5 @@
 import json, struct, tempfile
+import io
 from pathlib import Path
 from PIL import Image
 from check_texture_cache import check, signature
@@ -51,6 +52,35 @@ with tempfile.TemporaryDirectory() as directory:
     assert check(game, receipt) == 1, 'a fixed-name map beside an asset is checked too'
     entry_for(primary, f'rigged/{hair.name}/{beside.name}', beside)
     assert check(game, receipt) == 0, 'both loose maps are signed now'
+
+    # Native hair renders with opacity hashing, so its signed cache must contain
+    # ordinary colour mips, rather than a scissor cutoff's rescaled coverage.
+    stream = io.BytesIO()
+    Image.new('RGBA', (2048, 2048), (40, 30, 20, 120)).save(stream, format='PNG')
+    png = stream.getvalue()
+    document = {'asset': {'version': '2.0'}, 'buffers': [{'byteLength': len(png)}],
+                'bufferViews': [{'buffer': 0, 'byteOffset': 0, 'byteLength': len(png)}],
+                'images': [{'bufferView': 0, 'mimeType': 'image/png'}], 'textures': [{'source': 0}],
+                'materials': [{'name': 'Native_HairCards', 'alphaMode': 'MASK',
+                               'pbrMetallicRoughness': {'baseColorTexture': {'index': 0}}}]}
+    encoded = json.dumps(document).encode()
+    encoded += b' ' * (-len(encoded) % 4)
+    binary = png + b'\x00' * (-len(png) % 4)
+    glb = hair / (hair.name + '_rigged.glb')
+    glb.write_bytes(struct.pack('<III', 0x46546c67, 2, 28 + len(encoded) + len(binary))
+                    + struct.pack('<II', len(encoded), 0x4e4f534a) + encoded
+                    + struct.pack('<II', len(binary), 0x004e4942) + binary)
+    key = f'rigged/{hair.name}/{glb.name}#0'
+    entry_for(primary, key, glb)
+    manifest_file = primary / 'texture_cache/manifest.json'
+    manifest = json.loads(manifest_file.read_text())
+    manifest['entries'][key]['role'] = 'cutout'
+    manifest_file.write_text(json.dumps(manifest))
+    assert check(game, receipt) == 1, 'a valid source signature must not conceal the wrong hair mip chain'
+    assert any(f['reason'] == 'wrong native material mip treatment' for f in json.loads(receipt.read_text())['failures'])
+    manifest['entries'][key]['role'] = 'color'
+    manifest_file.write_text(json.dumps(manifest))
+    assert check(game, receipt) == 0, 'native hashed hair uses averaged opacity'
 
     try:
         check(Path(directory) / 'no-art-here', receipt)

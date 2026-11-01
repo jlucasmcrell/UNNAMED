@@ -1,4 +1,4 @@
-﻿// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
+// UNNAMED Presentation - boot, the frame loop, and input (ARCHITECTURE.md Â§2, Â§8.1; D-11)
 // Godot presentation only: this file renders state and submits commands; it never writes state.
 
 using Godot;
@@ -1318,6 +1318,7 @@ public partial class Main : Node3D
 
     public override void _Process(double delta)
     {
+        ObserveCharacterQuality(delta);
         ApplyMetaHumanReviewInputs();
         if (_options.GetValueOrDefault("--resume-shots") is { } resumeShots && _session is not null)
             ResumeShots(resumeShots);

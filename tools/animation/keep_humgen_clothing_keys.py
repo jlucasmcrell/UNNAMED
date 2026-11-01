@@ -17,6 +17,10 @@ def main(context,human,include_face:bool=False):
     base=native._shape(native._shaped_co(human),native._body(human))
     deltas=[(key,(coords(key.data)-coords(body.data.shape_keys.reference_key.data))@matrix[:3,:3].T) for key in source]
     for obj in list(human.clothing.outfit.objects) + list(human.clothing.footwear.objects):
+        # Native rigid accessories can start without any corrective keys.
+        # They still need a basis before the native fit field adds body controls.
+        if obj.data.shape_keys is None:
+            obj.shape_key_add(name='Basis',from_mix=False)
         transform=native._rig_matrix(obj,human.objects.rig)
         original=coords(obj.data.shape_keys.reference_key.data)
         at=native._transformed(original,transform)

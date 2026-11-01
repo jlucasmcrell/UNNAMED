@@ -5,6 +5,7 @@ namespace UNNAMED.Presentation.Art;
 /// <summary>Paid native teeth/tongue atlases on their original UVs, shared by all HumGen bodies.</summary>
 public static class HumGenMouth
 {
+    internal static string[] RequiredMaps => ["TeethTongueSet_C_2K.png", "TeethTongueSet_N_2K.png", "TeethTongueSet_ROUGH_2K.png"];
     public static void Apply(Node model, ArtLibrary art, string assetId)
     {
         if (!assetId.StartsWith("humgen_", StringComparison.Ordinal)) return;

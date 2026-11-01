@@ -60,6 +60,45 @@ def check_native(base, records):
         assert actual == record['sha256'], f'Unapproved character bytes: {relative}'
 
 
+def check_quality_restoration(base, delivery):
+    """Verify source lineage for native-detail restoration; visual acceptance belongs to the played package gate."""
+    def inside(relative):
+        path = (base / relative).resolve()
+        assert path.is_relative_to(base.resolve()) and path.is_file(), f'Missing/external native proof: {relative}'
+        return path
+    source = inside(delivery['baseline_manifest'])
+    assert hashlib.sha256(source.read_bytes()).hexdigest() == delivery['baseline_sha256'], 'Changed source approval manifest'
+    baseline = json.loads(source.read_text(encoding='utf-8-sig'))
+    assert baseline['kind'] == 'accepted_native_character_delivery', 'Restoration needs the accepted native source lineage'
+    files = dict(baseline['files'])
+    for model, replacement in delivery['restorations'].items():
+        body_source, motion_source = replacement['source_body'], replacement['source_motion']
+        proof = json.loads(inside(replacement['rig_proof']).read_text(encoding='utf-8-sig'))
+        motion = json.loads(inside(replacement['motion_proof']).read_text(encoding='utf-8-sig'))
+        assert proof['old_sha256'] == files[body_source]['sha256'], f'Wrong accepted body source: {model}'
+        assert proof['new_sha256'] == delivery['files'][replacement['body']]['sha256'], f'Wrong restored body: {model}'
+        assert proof['same_parents'] and proof['joints'] >= 59 and proof['maximum_rest_error'] < 1e-5, f'Native rig changed: {model}'
+        assert motion['status'] == 'PASS' and motion['unchanged_keys'] > 0 and motion['states'] >= 49, f'Unproven native motion: {model}'
+        assert motion['original_motion_sha256'] == files[motion_source]['sha256'], f'Wrong accepted motion source: {model}'
+        final_motion_sha = motion['new_motion_sha256']
+        if replacement.get('motion_additions_proof'):
+            additions = json.loads(inside(replacement['motion_additions_proof']).read_text(encoding='utf-8-sig'))
+            assert additions['status'] == 'PASS' and additions['body_sha256'] == proof['new_sha256'], f'Wrong supplement target: {model}'
+            assert additions['original_sha256'] == final_motion_sha, f'Wrong supplement baseline: {model}'
+            assert additions['original_states'] == motion['states'] and additions['unchanged_keys'] == motion['unchanged_keys'], f'Existing motion changed by supplement: {model}'
+            assert set(additions['added_states']) == {'swim', 'tread'} and additions['states'] == motion['states'] + 2, f'Unexpected motion supplement: {model}'
+            final_motion_sha = additions['output_sha256']
+        assert final_motion_sha == delivery['files'][replacement['motion']]['sha256'], f'Wrong restored motion: {model}'
+        del files[body_source]
+        del files[motion_source]
+    # Every untouched accepted body/motion remains pinned. Only the proved restoration pairs may change.
+    for relative, record in files.items():
+        assert delivery['files'].get(relative) == record, f'Unproved character delivery change: {relative}'
+    expected = set(files) | {r[key] for r in delivery['restorations'].values() for key in ('body', 'motion')}
+    assert set(delivery['files']) == expected, 'Unexpected character files in restoration delivery'
+    check_native(base, delivery['files'])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('asset_base', type=Path)
@@ -80,6 +119,10 @@ def main():
                                 source_sha256=hashlib.sha256(path.read_bytes()).hexdigest(), node_poses=poses(document))
     else:
         delivery = json.loads(manifest.read_text())
+        if delivery.get('kind') == 'native_quality_restoration_delivery':
+            check_quality_restoration(base, delivery)
+            print(f"NATIVE_CHARACTER_SOURCE_LINEAGE_VERIFIED {len(delivery['files'])}; packaged visual quality verdict still required")
+            return
         if delivery.get('kind') == 'accepted_native_character_delivery':
             check_native(base, delivery['files'])
             print(f"APPROVED_NATIVE_CHARACTER_FILES {len(delivery['files'])}; verified")

@@ -28,9 +28,9 @@ public sealed class IdleVariety
             _left = 3 + _random.NextDouble() * 7;
             return _clip;
         }
-        // The legacy idle_look aliases idle. Use it only for bodies without the
-        // distinct mocap observation; duplicated labels are not extra variety.
-        string looking = has("idle_observe") ? "idle_observe" : "idle_look";
+        // idle_look is an alias of idle in the production payload. Only a
+        // distinct authored observation take counts as another activity.
+        const string looking = "idle_observe";
         string[] wanted = role?.Contains("guard", StringComparison.OrdinalIgnoreCase) == true
             ? ["idle_foldarms", "idle_foldarms", looking, "idle_shift"]
             : ["idle_shift", looking, "idle_foldarms"];

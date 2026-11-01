@@ -110,12 +110,13 @@ public sealed class TextureCache
     /// </summary>
     public Texture2D? For(string key, string source, Func<Image?> image, string role)
     {
+        if (role == "albedo") role = "color";
         if (_root is null)
             return null;
         var info = new FileInfo(source);
         if (!info.Exists)
             return null;
-        if (_entries.TryGetValue(key, out var entry) && entry.Size == info.Length && entry.Sig == Signature(source)
+        if (_entries.TryGetValue(key, out var entry) && entry.Role == role && entry.Size == info.Length && entry.Sig == Signature(source)
             && Load(entry.Dds, BaseMaximum(key, entry.Role)) is { } cached)
         {
             Hits++;
@@ -148,15 +149,6 @@ public sealed class TextureCache
     // Native HumGen maps retain source detail; the normal cache/compression/mip pipeline still applies.
     private static int BaseMaximum(string key, string role) => key.StartsWith("rigged/humgen_", StringComparison.Ordinal)
         ? int.MaxValue : VisualOptions.TextureMaxSize(key, role);
-    // Close-up maps live only on the figure using them; never retain their 4K upload in the scene cache.
-    public Texture2D Scoped(string key, string source, int maximum)
-    {
-        var info = new FileInfo(source);
-        if (!info.Exists || !_entries.TryGetValue(key, out var entry) || entry.Size != info.Length || entry.Sig != Signature(source))
-            throw new InvalidDataException("Missing signed close-up texture: " + source);
-        return Load(entry.Dds, maximum, false) ?? throw new InvalidDataException("Close-up DDS did not load: " + source);
-    }
-
     /// <summary>A mip-chained BC7 copy of <paramref name="picture"/> in the cache, named by its content; null when it cannot be made.</summary>
     private string? Compress(Image picture, string role)
     {

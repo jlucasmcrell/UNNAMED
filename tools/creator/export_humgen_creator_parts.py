@@ -99,6 +99,7 @@ def complete_correctives(human, tag):
         print('CREATOR_CLOTH_FAILED', repr(failure), flush=True)
         traceback.print_exc()
         (work / 'correctives_failure.txt').write_text(traceback.format_exc(), encoding='utf-8')
+        raise
 
 
 # How much hair hangs below the skull decides how much of it moves (brief D12).
@@ -286,7 +287,7 @@ for collection, kind, tag in parts:
                      and Path(get_prefs().filepath, key.path).stat().st_size]
             settings.shape_keys.keep['body'] = [name for key in valid for name in (key.name,
                 f'{key.category[0]}_{{{key.subcategory}}}_{key.name}' if key.subcategory else f'{key.category[0]}_{key.name}')]
-            settings.lods = [QualitySettings(body='original', eyes='original', teeth='original', haircards='ultra'),
+            settings.lods = [QualitySettings(body='original', clothing='original', eyes='original', teeth='original', haircards='ultra', bones_per_vertex=8),
                              QualitySettings(body='lower_face', eyes='medium', teeth='medium', haircards='medium'),
                              QualitySettings(body='quarter', eyes='low', teeth='low', haircards='low'),
                              QualitySettings(body='quarter', eyes='low', teeth='low', haircards='haircap_only')]
@@ -305,6 +306,7 @@ for collection, kind, tag in parts:
             for image in bpy.data.images:
                 if image.source == 'GENERATED' and image.has_data: image.pack()
             bpy.ops.wm.save_as_mainfile(filepath=str(source_scene), compress=True)
+            (source_scene.parent / 'export_settings.json').write_text(json.dumps(settings.to_dict(), indent=2))
             folder.mkdir(parents=True, exist_ok=True)
             flow = {}
             for level, copy in enumerate(copies):
@@ -345,7 +347,8 @@ for collection, kind, tag in parts:
             bpy.context.view_layer.objects.active = copy.objects.rig
             destination = folder / (identifier + '_rigged.glb')
             bpy.ops.export_scene.gltf(filepath=str(destination), export_format='GLB', use_selection=True,
-                                      export_animations=False, export_morph=True, export_skins=True, export_yup=True)
+                                      export_animations=False, export_morph=True, export_skins=True, export_yup=True,
+                                      export_all_influences=True, export_influence_nb=8)
             if not tag:
                 subprocess.run(['python', str(tools / 'fix_humgen_lod_materials.py'), str(destination), str(destination)], check=True)
             target = Glb(work / 'game/primary/rigged' / base / (base + '_rigged.glb'))
@@ -363,6 +366,7 @@ for collection, kind, tag in parts:
                                 destination, option['id'] == 'outfit.period.robe')
             (folder / 'creator_part.json').write_text(json.dumps(dict(kind=kind, option=option['id'], target_base=base,
                 target_body_sha256=identity['target_body_sha256'], source=path, native_meshes=[obj.name for obj in meshes],
+                native_quality=settings.lods[0].to_dict(),
                 **({'hair_chains': chains} if chains else {})), indent=2))
             print('NATIVE_PART_DONE', identifier, len(meshes), flush=True)
 print('NATIVE_PARTS_COMPLETE', flush=True)

@@ -1086,6 +1086,11 @@ public sealed partial class ArtLibrary
                     // Keep imported opacity before whole-plant foliage treatment changes it.
                     if (!material.HasMeta("otherreach_source_transparency"))
                         material.SetMeta("otherreach_source_transparency", (int)material.Transparency);
+                    // Choose the native hair mode BEFORE building its mip chain. Hashed
+                    // transparency averages strand opacity; scissor coverage mips instead
+                    // rescale that opacity toward a hard cutoff and change the groom.
+                    if (assetId.StartsWith("humgen_", StringComparison.Ordinal))
+                        HumGenMaterials.PrepareHair(material);
                     // A file's baked occlusion is drawn UNLESS THIS MODEL IS ON THE FLAGGED LIST. The reason it used
                     // to be off for everything: "the generated and scanned models' occlusion channels are black over
                     // whole islands (the rim boulder over 57 % of its surface, a third of the models likewise:
@@ -1208,7 +1213,7 @@ public sealed partial class ArtLibrary
     /// <summary>How the texture cache treats a map: colour (and whether alpha-tested), a normal map, or data (roughness, occlusion...).</summary>
     private static string Role(BaseMaterial3D material, BaseMaterial3D.TextureParam param) => param switch
     {
-        BaseMaterial3D.TextureParam.Albedo => material.Transparency is BaseMaterial3D.TransparencyEnum.AlphaScissor or BaseMaterial3D.TransparencyEnum.AlphaHash
+        BaseMaterial3D.TextureParam.Albedo => material.Transparency == BaseMaterial3D.TransparencyEnum.AlphaScissor
             ? "cutout" : "color",
         BaseMaterial3D.TextureParam.Emission => "color",
         BaseMaterial3D.TextureParam.Normal => "normal",
@@ -1447,9 +1452,6 @@ public sealed partial class ArtLibrary
         _maps[id] = maps;
         return maps;
     }
-
-    internal Texture2D ScopedTexture(string path, int maximum) =>
-        CacheFor(path).Scoped(TextureCache.Key(Path.GetRelativePath(WorkspaceOf(path), path)), path, maximum);
 
     /// <summary>A map file as a texture, through the texture cache (<paramref name="role"/> as TextureCache takes it); null when it will not load.</summary>
     public Texture2D? Texture(string path, string role)

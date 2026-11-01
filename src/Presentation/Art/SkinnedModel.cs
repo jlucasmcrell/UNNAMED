@@ -24,9 +24,6 @@ public sealed partial class SkinnedModel : Node3D
     private Godot.Collections.Dictionary _contacts = new();
     private AnimationPlayer _player = null!;
     private HumGenLods? _humgenLods;
-    private HumGenCloseupTextures? _closeTextures;
-    private bool? _reviewCloseTextures;
-    internal void ReviewCloseTextures(bool? enabled) { _reviewCloseTextures=enabled; _closeTextures?.Update((enabled??true) && _humgenLods?.Level==0 && IsVisibleInTree()); }
     internal void ReviewAllLods(bool all) => _humgenLods?.ReviewAllLevels(all);
 
     /// <summary>Show or hide one of the body's own meshes so its level of detail stays exclusive (HumGen bodies choose it each band).</summary>
@@ -71,9 +68,10 @@ public sealed partial class SkinnedModel : Node3D
             return null;
         }
         var figure = new SkinnedModel { Name = assetId, Skeleton = skeleton };
+        figure.SetMeta("quality_source_file", art.RiggedFile(assetId, assetId + "_rigged.glb") ?? "");
+        figure.SetMeta("quality_native_materials_file", art.RiggedFile(assetId, "native_materials.json") ?? "");
         figure.AddChild(model);
         HumGenIdentityWeights.Apply(model, art, assetId);
-        WearFrontier(art, assetId, model, skeleton);
         // THE RETURN VALUE IS THE ONLY EVIDENCE THIS FIRES, AND IT WAS BEING THROWN AWAY. CharacterMaterials matches a
         // surface material to a zone by the END of its name - _skin, _cloth, _leather, _eye and so on - and applies
         // what glTF cannot say, which for skin is subsurface scattering at 0.22 with the skin mode on and for the eye
@@ -135,50 +133,15 @@ public sealed partial class SkinnedModel : Node3D
         if(figure.HasFootPlantEvents)plants.Connect("planted",Callable.From<string,string,double>((clip,side,seconds)=>figure.FootPlanted?.Invoke(clip,side,seconds)));
         else plants.Free();
         // Keep the opt-in interior's local player continuous through space changes; NPC visibility throttling remains.
-        if (levels >= 4 && !(VisualOptions.Barrowworks && owner == "player"))
+        if (levels >= 4 && !(VisualOptions.Barrowworks && owner == "player")
+            && !(assetId.StartsWith("humgen_", StringComparison.Ordinal) && VisualOptions.Tier == "ultra"))
             figure.Throttle();
         figure.FindOutfits(model);
         figure.SetOutfit("base");
-        if (owner=="player") figure._closeTextures=HumGenCloseupTextures.Create(model,art,assetId);
         ulong finished = Time.GetTicksMsec();
         if (finished - began >= 100)
             GD.Print($"UNNAMED figure build: {assetId}, import={importedAt - began} ms, materials={materials - importedAt} ms, animation/setup={finished - materials} ms");
         return figure;
-    }
-
-    // Attach before material/LOD/face discovery: the native base (including its teeth and identity) stays intact.
-    private static void WearFrontier(ArtLibrary art, string assetId, Node3D model, Skeleton3D target)
-    {
-        string? outfitId = assetId switch
-        {
-            "humgen_player_ada_f" => "humgen_frontier_ada_f",
-            "humgen_player_mateo_m" => "humgen_frontier_mateo_m",
-            _ => null
-        };
-        if (outfitId is null) return;
-        var outfit = art.Rigged(outfitId) ?? throw new InvalidDataException("Default frontier outfit missing: " + outfitId);
-        var source = ArtLibrary.Find<Skeleton3D>(outfit) ?? throw new InvalidDataException("Frontier skeleton missing");
-        if (source.GetBoneCount() != target.GetBoneCount()) throw new InvalidDataException("Frontier bone count differs");
-        for (int i = 0; i < target.GetBoneCount(); i++)
-            if (source.GetBoneName(i) != target.GetBoneName(i))
-                throw new InvalidDataException("Frontier native bone order differs");
-        string[] originals = assetId.EndsWith("ada_f", StringComparison.Ordinal)
-            ? new[] { "Chinos_Female", "Garden_Boots_Female", "Sweater_1_Female" }
-            : new[] { "Skinny_Jeans_Male", "Garden_Boots_Male", "TSHIRT_Male" };
-        var old = model.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>()
-            .Where(mesh => originals.Any(part => mesh.Name.ToString().Contains("_" + part + "_LOD", StringComparison.Ordinal))).ToArray();
-        var garments = outfit.FindChildren("*", nameof(MeshInstance3D), true, false).OfType<MeshInstance3D>().ToArray();
-        if (old.Length != 12 || garments.Length != 12) throw new InvalidDataException("Expected three native four-LOD garments");
-        foreach (var mesh in old) { mesh.GetParent().RemoveChild(mesh); mesh.Free(); }
-        foreach (var mesh in garments)
-        {
-            mesh.Owner = null;
-            mesh.GetParent().RemoveChild(mesh);
-            target.AddChild(mesh);
-            mesh.Skeleton = mesh.GetPathTo(target);
-        }
-        outfit.Free();
-        GD.Print($"UNNAMED frontier default: {assetId}, {garments.Length} native garment LOD meshes; base body unchanged");
     }
 
     /// <summary>Whether this body is a comparison cast's export, which brings its own clips and no bound outfit.</summary>
@@ -199,6 +162,7 @@ public sealed partial class SkinnedModel : Node3D
                 OS.HasFeature("template") ? System.IO.Path.GetDirectoryName(OS.GetExecutablePath())! : ProjectSettings.GlobalizePath("res://"), "humgen_characters")
             : UNNAMED.Presentation.MHCharacters.MetaHumanFigure.AssetRoot;
         string externalMotion = System.IO.Path.Combine(payloadRoot, "mocap_motion", assetId + "_motion.res");
+        SetMeta("quality_motion_file", externalMotion);
         if (humgen && !System.IO.File.Exists(externalMotion))
             throw new FileNotFoundException("HumGen exact-target motion payload is missing", externalMotion);
         var motion = GD.Load<AnimationLibrary>(System.IO.File.Exists(externalMotion)
@@ -343,13 +307,9 @@ public sealed partial class SkinnedModel : Node3D
         AddChild(_seen);
     }
 
-    public override void _Notification(int what) { if(what==NotificationDisabled) _closeTextures?.Update(false); }
-    public override void _ExitTree() => _closeTextures?.Update(false);
-
     public override void _Process(double delta)
     {
         _humgenLods?.Update(GetViewport().GetCamera3D() is { } eye ? eye.GlobalPosition.DistanceTo(GlobalPosition) : 0f);
-        _closeTextures?.Update((_reviewCloseTextures??true) && _humgenLods?.Level==0 && IsVisibleInTree());
         if (!_throttled)
             return;
         _owed += delta;

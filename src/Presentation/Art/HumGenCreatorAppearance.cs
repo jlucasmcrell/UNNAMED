@@ -321,6 +321,8 @@ public sealed partial class HumGenCreatorAppearance : Node
         string manifest = art.RiggedFile("humgen_creator_materials", face + "/materials.json")
             ?? throw new InvalidDataException("Native preset materials missing: " + face);
         using var document = JsonDocument.Parse(File.ReadAllText(manifest));
+        _body?.SetMeta("quality_preset", face);
+        _body?.SetMeta("quality_preset_source", manifest);
         var parts = document.RootElement.GetProperty("parts");
         var preset = _data.Preset(face);
         foreach (var (mesh, _) in _meshes)
@@ -331,6 +333,7 @@ public sealed partial class HumGenCreatorAppearance : Node
             string materialName = Exported(mesh, surface);
             string part = parts.EnumerateObject().Select(p => p.Name).FirstOrDefault(p =>
                 materialName.EndsWith("_" + p, StringComparison.OrdinalIgnoreCase)) ?? "";
+            if (materialName.EndsWith("_Eyes", StringComparison.OrdinalIgnoreCase)) part = "EyesInner";
             if (!parts.TryGetProperty(part, out var entry)) continue;
             var maps = entry.GetProperty("maps");
             Texture2D? Map(string name, string role) => maps.TryGetProperty(name, out var relative)
@@ -439,11 +442,9 @@ public sealed partial class HumGenCreatorAppearance : Node
             // White hair at every age, the brows and lashes an ash a tone darker than it.
             bool cap = !face && name.EndsWith("_Haircap", StringComparison.OrdinalIgnoreCase);
             var pearl = new ShaderMaterial { Shader = GD.Load<Shader>(cap ? "res://Art/siann_white_hair.gdshader" : "res://Art/siann_groom.gdshader"), ResourceName = groom.ResourceName };
-            pearl.SetShaderParameter("strand_atlas", groom.AlbedoTexture);
             if (cap)
             {
                 pearl.SetShaderParameter("strand_colour", new Vector3(1f, 1f, 1f));
-                pearl.SetShaderParameter("strand_roughness", .6f);
                 pearl.SetShaderParameter("grain_range", new Vector2(.6f, .96f));
             }
             else if (face) pearl.SetShaderParameter("strand_colour", new Color(.6f, .59f, .56f));
@@ -451,8 +452,8 @@ public sealed partial class HumGenCreatorAppearance : Node
             {
                 pearl.SetShaderParameter("strand_colour", new Color(1f, 1f, 1f));
                 pearl.SetShaderParameter("grain_range", new Vector2(.62f, 1f));
-                pearl.SetShaderParameter("strand_roughness", .35f);
             }
+            HumGenMaterials.BindGroom(pearl, groom);
             mesh.SetSurfaceOverrideMaterial(surface, pearl);
             return;
         }
@@ -477,10 +478,7 @@ public sealed partial class HumGenCreatorAppearance : Node
         var swatch = kind == "boots" ? LookSwatches.Boots
             : LookSwatches.Cloth(kind == "trousers" ? LookSwatches.Trousers : LookSwatches.Shirts, look.Sliders.TryGetValue(
                 kind == "trousers" ? LookSwatches.TrouserSlider : LookSwatches.ShirtSlider, out int index) ? index : null);
-        var dyed = (BaseMaterial3D)garment.Duplicate();
-        dyed.AlbedoTexture = null;
-        dyed.AlbedoColor = new Color(swatch.R, swatch.G, swatch.B, dyed.AlbedoColor.A);
-        mesh.SetSurfaceOverrideMaterial(surface, dyed);
+        mesh.SetSurfaceOverrideMaterial(surface, PeopleAppearance.Dyed(garment, swatch, lift: 0));
     }
 
     private void Parts(Node model, ArtLibrary art, string id, CharacterAppearance look, string people, string sex)
@@ -522,11 +520,12 @@ public sealed partial class HumGenCreatorAppearance : Node
             var removed = body.Skeleton.GetChildren().OfType<MeshInstance3D>().Where(m => m.HasMeta("creator_part_kind")
                 && m.GetMeta("creator_part_kind").AsString() == choice.ToString()).ToArray();
             var added = new List<MeshInstance3D>();
-            // A part this build does not hold yet is not drawn: the body keeps its own native
-            // groom rather than the preview failing on an asset an export batch has not written.
-            if (asset is not null && art.RiggedFile(asset, "creator_part.json") is { } contractPath)
+            string? contractPath = asset is null ? null : art.RiggedFile(asset, "creator_part.json");
+            if (asset is not null && contractPath is null)
+                throw new FileNotFoundException("Selected native character part is missing: " + asset);
+            if (asset is not null)
             {
-                using var part = JsonDocument.Parse(File.ReadAllText(contractPath));
+                using var part = JsonDocument.Parse(File.ReadAllText(contractPath!));
                 using var identity = JsonDocument.Parse(File.ReadAllText(art.RiggedFile(id, "identity_weights.json")!));
                 if (part.RootElement.GetProperty("target_base").GetString() != id || part.RootElement.GetProperty("target_body_sha256").GetString()
                     != identity.RootElement.GetProperty("target_body_sha256").GetString()) throw new InvalidDataException("Native part targets another body: " + asset);
@@ -551,6 +550,8 @@ public sealed partial class HumGenCreatorAppearance : Node
                     mesh.Transform = Transform3D.Identity;
                     mesh.Skeleton = new NodePath("..");
                     mesh.SetMeta("creator_part_kind", choice.ToString());
+                    mesh.SetMeta("quality_part_id", asset);
+                    mesh.SetMeta("quality_part_source", art.RiggedFile(asset, asset + "_rigged.glb") ?? "");
                 }
                 source.Free();
             }

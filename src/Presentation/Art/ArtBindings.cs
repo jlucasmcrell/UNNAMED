@@ -338,6 +338,14 @@ public sealed class ArtBindings
         }
     }
 
+    /// <summary>External world-map records the bindings require, including worn surfaces on bound props.</summary>
+    public IEnumerable<string> WorldMaterials() => Terrain.Values
+        .Concat(Cliffs is { } cliffs ? [cliffs] : Array.Empty<string>())
+        .Concat(_structures.Values.Concat(_optionStructures.SelectMany(o => o.Looks.Values))
+            .Concat(_buildings.Values).Concat(Doors.Values).Concat(Containers.Values).Concat(Nodes.Values).Concat(Stations.Values)
+            .Concat(GroundItems.Values).Concat(_prefixes.Select(p => p.Item3))
+            .Select(p => p.Surface).OfType<string>()).Distinct();
+
     public static ArtBindings Load(string resourcePath)
         => LoadWithOverlay(resourcePath, null);
 

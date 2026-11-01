@@ -35,11 +35,15 @@ public sealed partial class FaceDriver : Node
     // or a clip that tips the head down rolls the eyes up under the lids to hold a level target.
     private int _headBone = -1;
     private Vector3 _headAxis;
-    public int NativeEyeBindings { get; private set; }
+    private HumGenEyes? _nativeEyes;
+    public int NativeEyeBindings => _nativeEyes?.BoundCount ?? 0;
     public bool NativeJawBound { get; private set; }
     public void Gaze(Vector3? localDirection) => _gaze = localDirection;
     public float BlinkWeight => _weights.GetValueOrDefault("eyeBlinkLeft");
     public float JawWeight => _weights.GetValueOrDefault("jawOpen");
+    internal int ChannelBindings => _meshes.Sum(m => m.Index.Count);
+    internal string[] BoundChannels => _meshes.SelectMany(m => m.Index.Keys)
+        .Select(name => name.StartsWith("arkit:", StringComparison.Ordinal) ? name[6..] : name).Distinct().Order().ToArray();
     public bool GentleRest { get; set; }
     private float _restingLid = .17f;
     public Func<(double Position, double Duration, float Jaw)?>? RecordedSpeech { get; set; }
@@ -165,8 +169,9 @@ public sealed partial class FaceDriver : Node
             driver.Free();
             return null;
         }
-        if (model is Node3D body && ArtLibrary.Find<Skeleton3D>(model) is { } rig
-            && rig.GetBoneCount() == 59 && rig.FindBone("Hips") >= 0 && rig.FindBone("Jaw") >= 0)
+        if (model is SkinnedModel body && body.Name.ToString().StartsWith("humgen_", StringComparison.Ordinal)
+            && ArtLibrary.Find<Skeleton3D>(model) is { } rig
+            && new[] { "Hips", "Head", "Jaw", "LeftEye", "RightEye" }.All(name => rig.FindBone(name) >= 0))
         {
             driver._nativeRig = rig;
             driver._nativeBody = body;
@@ -197,8 +202,8 @@ public sealed partial class FaceDriver : Node
         rig.AddChild(new HumGenSpeechNod { Name = "SpeechNod", Body = body,
             Pitch = () => JawWeight * .07f * Mathf.Sin((float)_expressionTime * 2.7f) });
         var eyes = new HumGenEyes { Name = "FACSEyes", Body = body, WorldTarget = () => _eyeTarget.GlobalPosition };
+        _nativeEyes = eyes;
         rig.AddChild(eyes);
-        NativeEyeBindings = eyes.BoundCount;
     }
 
     private void UpdateNativeEyes(Vector2 look)

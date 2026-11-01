@@ -39,15 +39,24 @@ public partial class Main
         : ProjectSettings.GlobalizePath("user://screenshots");
 
     /// <summary>The last frame, at the window's full size, as <c>otherreach_NNNN.png</c>; the toast comes after, so it is never in the picture.</summary>
-    private void TakeScreenshot()
+    private bool _screenshotPending;
+    private async void TakeScreenshot()
     {
-        Directory.CreateDirectory(ScreenshotsFolder);
-        int next = Directory.EnumerateFiles(ScreenshotsFolder, "otherreach_*.png")
-            .Select(f => int.TryParse(Path.GetFileNameWithoutExtension(f)["otherreach_".Length..], out int n) ? n : 0)
-            .DefaultIfEmpty(0).Max() + 1;
-        string file = Path.Combine(ScreenshotsFolder, $"otherreach_{next:D4}.png");
-        var error = GetViewport().GetTexture().GetImage().SavePng(file);
-        _hud.Toast(error == Error.Ok ? $"Screenshot saved: {Path.GetFileName(file)}" : $"The screenshot could not be saved ({error})", 2);
+        if (_screenshotPending) return;
+        _screenshotPending = true;
+        try
+        {
+            Directory.CreateDirectory(ScreenshotsFolder);
+            int next = Directory.EnumerateFiles(ScreenshotsFolder, "otherreach_*.png")
+                .Select(f => int.TryParse(Path.GetFileNameWithoutExtension(f)["otherreach_".Length..], out int n) ? n : 0)
+                .DefaultIfEmpty(0).Max() + 1;
+            string file = Path.Combine(ScreenshotsFolder, $"otherreach_{next:D4}.png");
+            await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+            var error = GetViewport().GetTexture().GetImage().SavePng(file);
+            if (error == Error.Ok) RecordQualityScreenshot(file);
+            _hud.Toast(error == Error.Ok ? $"Screenshot saved: {Path.GetFileName(file)}" : $"The screenshot could not be saved ({error})", 2);
+        }
+        finally { _screenshotPending = false; }
     }
 
     /// <summary>The interface hidden, for a clear view or a picture: the HUD and the hint line, until the key is pressed again.</summary>
