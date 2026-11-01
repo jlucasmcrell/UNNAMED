@@ -63,7 +63,7 @@ public sealed partial class ArtLibrary
                         + "|" + p.Value.GetProperty("role").GetString()))))), StringComparer.Ordinal);
             _nativeTextureSignatures[workspace] = signatures;
         }
-        string stamp = "native-rigged-" + NativeRiggedVersion + (NativeStaticSelected(path) ? " static-template-v1" : "") + " " + Engine.GetVersionInfo()["string"].AsString()
+        string stamp = "native-rigged-" + NativeRiggedVersion + (NativeStaticSelected(path) ? " static-template-v2" : "") + " " + Engine.GetVersionInfo()["string"].AsString()
             + " " + SourceSha256(path) + " " + signatures.GetValueOrDefault(relative, "untextured");
         if (OS.GetEnvironment("UNNAMED_AO_ALL_OFF") == "1") stamp += " ao-off";
         if (OS.GetEnvironment("UNNAMED_BUILDING_OCCLUSION") == "0") stamp += " no-occluders";

@@ -15,6 +15,8 @@ public partial class NativeRawSceneProfile : Node
             if (DisplayServer.GetName() != "headless") throw new InvalidOperationException("CPU profile requires --headless");
             string[] args = OS.GetCmdlineUserArgs();
             string root = Path.GetFullPath(args[0]);
+            bool referenceModelLevels = args.Contains("--reference-model-levels");
+            if (referenceModelLevels && args.Contains("--require-native")) throw new InvalidDataException("Reference must exercise the original ModelLevels path");
             VisualOptions.Parse("tier=ultra,people=humgen,body=none,textures=cache");
             ArtLibrary.FallbackRoot = Path.Combine(root, "fallback");
             var art = new ArtLibrary(Path.Combine(root, "primary"), useTextureCache: true);
@@ -24,7 +26,18 @@ public partial class NativeRawSceneProfile : Node
             {
                 int before = art.NativeRiggedHits;
                 var watch = Stopwatch.StartNew();
-                var model = path.Contains('/') || path.Contains('\\') ? art.NativeStaticSource(path, requireSelected: args.Contains("--require-native")) : art.Rigged(path);
+                Node3D? model;
+                if (referenceModelLevels)
+                {
+                    string id = Path.GetFileName(Path.GetDirectoryName(path))!;
+                    string stem = Path.GetFileNameWithoutExtension(path);
+                    int level = stem == id ? 0 : int.Parse(stem[(id.Length + 4)..]);
+                    var levels = art.ModelLevels(id);
+                    if (level >= levels.Count) throw new InvalidDataException("Original ModelLevels did not provide " + path);
+                    model = levels[level];
+                    foreach (var other in levels.Where(node => node != model)) other.Free();
+                }
+                else model = path.Contains('/') || path.Contains('\\') ? art.NativeStaticSource(path, requireSelected: args.Contains("--require-native")) : art.Rigged(path);
                 if (model is null) throw new InvalidDataException("Raw scene missing: " + path);
                 double milliseconds = watch.Elapsed.TotalMilliseconds;
                 int hits = art.NativeRiggedHits - before;
@@ -37,7 +50,7 @@ public partial class NativeRawSceneProfile : Node
                 art.ReleaseModels(path.Contains('/') || path.Contains('\\') ? Path.GetFileNameWithoutExtension(path) : path);
             }
             File.WriteAllText(args[2], JsonSerializer.Serialize(new { status = "PASS", development_only = true,
-                gpu = false, packaged = OS.HasFeature("template"), rows, artProblems = art.Problems }));
+                gpu = false, packaged = OS.HasFeature("template"), referenceModelLevels, rows, artProblems = art.Problems }));
             CaptureQuit.At(this);
         }
         catch (Exception error) { GD.PushError(error.ToString()); CaptureQuit.At(this, 1); }
