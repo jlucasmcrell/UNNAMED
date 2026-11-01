@@ -13,7 +13,7 @@ work_hours: [6, 19]
 anchors:
   home: {position_m: [1402.38, 604.32], facing_deg: 180}
   work: {position_m: [1404.0, 612.0], facing_deg: 180}
-  quay: {position_m: [1348.0, 476.0], facing_deg: 270}
+  quay: {position_m: [1349.4, 476.9], facing_deg: 270}
   cistern: {position_m: [1520.0, 700.0], facing_deg: 0}
 schedule:
   - {hours: [6, 9], at: quay}
