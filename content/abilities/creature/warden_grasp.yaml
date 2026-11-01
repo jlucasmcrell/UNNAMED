@@ -7,9 +7,9 @@ name: Grasp
 notes: "The warden's short grasp at its own feet: it plants, a hand draws back, and closes where the tell began. A short reach for its size and a long recovery reward stepping aside toward the open back."
 class: creature
 range_m: 2.6
-windup_s: 0.9
+windup_s: 0.55
 active_s: 0.2
-recovery_s: 1.3
+recovery_s: 0.9
 commit_facing: true
 cost: { stamina: 0 }
 payload:

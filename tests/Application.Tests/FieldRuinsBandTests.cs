@@ -126,6 +126,10 @@ public class FieldRuinsBandTests(ITestOutputHelper output)
         output.WriteLine($"gate warden, level-5 sword from behind: median {median:0.00} s ({seconds.Min():0.00}-{seconds.Max():0.00}); " +
                          $"damage taken median {Median(taken.Select(t => (double)t).ToList()):0}");
         Assert.InRange(median, 40, 60);   // the boss measures 46-52 s from behind; the construct it replaced was tuned to 30-60
+        // A fight, not a ceremony: standing behind it wins, but the warden lands blows while it lasts.
+        double dealt = Median(taken.Select(t => (double)t).ToList());
+        Assert.True(dealt >= 15, $"gate warden: {dealt:0} damage taken from behind - the fight cost nothing");
+        Assert.All(taken, damage => Assert.True(damage > 0, "gate warden: a world where the boss never landed a blow"));
     }
 
     /// <summary>The TTK table's character: a level-L body with its L-1 points in Might and the Rusted Sword in hand.</summary>
