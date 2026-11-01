@@ -8,7 +8,7 @@ participants: [npc.cairnwold.mara_ling]
 root_node: greet
 nodes:
   greet:
-    text: "Mind the rope, it's wet through - which, if you're wondering, is the only thing round here that is. Mara. You'll be wanting water. Everyone does, and I've less of it every week."
+    text: "Mind the rope, it's wet through — which, if you're wondering, is the only thing round here that is. Mara. You'll be wanting water. Everyone does, and it wants watching this year."
     once: true
     next_if_exhausted: again
     choices:
@@ -91,7 +91,7 @@ nodes:
           is: satisfied
           objective: o_moss
   complaint:
-    text: "The well's forty feet of good stone and it has never once run low, and this spring it comes up brown at the end of the rope. Everyone says the well. I'd stake my life on that well. It's where the water comes FROM - north-east, the low ground, the moss that never drains. Something up there has changed. And before you ask: no, I'm not walking it alone. I'm stubborn, not daft."
+    text: "\"The well's forty feet of good stone and it's never once run low — and this spring it comes up brown at the end of the rope. Everyone says the well. I'd stake my life on that well.\" She jerks her chin north-east. \"It's where the water comes from. Low ground, the moss that never drains. Something up there has changed. And no, I'm not walking it alone. I'm stubborn, not daft.\""
     # NOT `once`. The loader refused this file with QST001 and it was right: this node is where the errand is offered,
     # so a character who heard her out and then walked away would have spent the line and lost the quest for good.
     # She is a woman with one thing on her mind and she will say it again.
@@ -105,7 +105,7 @@ nodes:
       - id: later
         text: "Another day."
   errand:
-    text: "Good. Up into the moss, and bring me back three ashbloom - the grey leaf; it grows where the ground's wettest. If the bloom's wrong I'll know it from the bloom, and then we'll know how much trouble we're in. Take the long way round the walls. The near way's bog, and I'm not fishing you out."
+    text: "\"Up into the moss. Three ashbloom — the grey leaf, where the ground's wettest. If the bloom's wrong I'll know from the bloom, and then we'll know how much trouble we're in.\" She points round the wall. \"Long way. The near way's bog, and I'm not fishing you out.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -128,8 +128,7 @@ nodes:
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
   story_lights:
-    text: Everyone says the well. Want to test it? Follow the wet edge in the Sinking Moss. The lights are clearer at night. In daylight, compare
-      the damp plant with the dry bank in shade. You don't need me standing beside you to look.
+    text: "\"Everyone says the well. Want to test it? Follow the wet edge in the Sinking Moss. The lights are clearer at night; in daylight, put a damp plant beside a dry bank in shade and look at both.\" She turns back to the rope. \"You don't need me standing next to you to look.\""
     choices:
     - id: back
       text: I'll take the long bank round.

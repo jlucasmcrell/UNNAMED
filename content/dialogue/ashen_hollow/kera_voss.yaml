@@ -8,7 +8,12 @@ participants: [npc.ashen_hollow.kera_voss]
 root_node: greet
 nodes:
   greet:
-    text: "\"Ha - mind the anvil, it bites. Kera. Come here, let me look at you.\" She takes your hand and turns it over like a horseshoe she's thinking of buying. \"Good long bones. Not one callus. New iron, you are - never been near a fire.\""
+    text: "\"Ha — mind the anvil, it bites. Kera. Come here, let me look at you.\" She takes your hand and turns it over like a horseshoe she's thinking of buying. \"Good long bones. Not one callus. New iron, you are — never been near a fire.\""
+    variants:
+      # A Kal is broad, short and dense (RACES.md), and a Kal who has never worked a fire is the joke: the same
+      # look-over, told with the bones it actually has.
+      - conditions: [{ kind: people, people_ref: people.kal }]
+        text: "\"Ha — mind the anvil, it bites. Kera. Here — let me look at you.\" She takes your hand and turns it over like a horseshoe she's thinking of buying. \"Good thick bones. Not one callus. You've never been at a fire in your life, have you?\""
     once: true
     next_if_exhausted: again
     choices:
@@ -251,13 +256,13 @@ nodes:
         - command: start_quest
           quest_ref: quest.story.lantern_ledger
   grip:
-    text: "\"A Kal with a Kal tool, and your wings folded like a borrowed coat. Whose line are you?\" She doesn't wait for the answer. She takes the tool and closes her own hand round it, and goes quiet, which she never does. \"Ottra. That's Ottra Brannock's grip - thumb high, always, like she was holding it back from the work. She kept the joints of the old Brannock hold, in the crags south of Cairnwold. Nobody's lived in it since before your grandmother, but a hold's a hold; somebody keeps it.\" She turns the handle over. \"She died with one open. The lintel over the mouth. I know because she told me she'd finish it in the spring, and there wasn't one. That's yours now, new iron. Whoever your line is, you're carrying Ottra's grip; the book will put you under her. A Kal doesn't call a thing made until it's finished.\""
+    text: "\"A Kal with a Kal tool, and your wings folded like a borrowed coat. Whose line are you?\" She takes the tool, closes her hand round it, and goes quiet — which she never does. \"Ottra. Ottra Brannock. Thumb high, always, like she was holding it back from the work.\" She turns the handle over. \"She kept the joints of the Brannock hold, south of Cairnwold. Nobody's lived in it since before your grandmother. She died with one open — the lintel over the mouth. Told me she'd finish it in the spring. There wasn't one.\" She hands it back. \"That's yours now, new iron. You're carrying Ottra's grip; the book will put you under her.\""
     choices:
       - id: back
         text: "Then I'll go and look at it."
         next: again
   joint_choice:
-    text: "\"Carted east. Sold.\" She sets the hammer down very carefully, the way you'd set down something you wanted to throw. \"The Ondrek buy stone. They pay fair, they're polite about it, and they say it was never anyone. Polite right up until your grandmother's a doorstep. Maybe they believe it. The hold doesn't care what they believe; it's open over the mouth, and it's failing.\" She breathes out. \"Two ways, and neither of them clean. We finish it - new iron, a cramp across the gap, the joint closed in our hands the way it should have been. Or you go east after the stone that was in it, and the joint stays open till you're back.\""
+    text: "\"Carted east. Sold.\" She sets the hammer down very carefully, the way you'd set down something you wanted to throw. \"The Ondrek buy stone. They pay fair, they're polite, and they say it was never anyone. Polite right up until your grandmother's a doorstep.\" She breathes out. \"Two ways, neither clean. We close it — new iron, a cramp across the gap. Or you go east after the stone, and it stays open till you're back.\""
     choices:
       - id: finish
         text: "Finish it. Here's the iron - two ingots, for the cramp."
@@ -278,7 +283,7 @@ nodes:
           - { kind: quest_state, quest_ref: quest.heritage.unfinished_joint, objective: o_trace, is: active }
         next: stone_traced
   joint_finished:
-    text: "The cramp comes out of the fire the colour of a sunset, and she walks it to the crags with you and sets it herself, your hand on the tool and hers over yours. Coming down off the ledge she throws her wings open and drops like a dropped anvil that has changed its mind, slowly, swearing the whole way. \"There. Not mended - finished. The stone that went is gone, and the hold holds without it.\" She doesn't look at the gap where it was. \"Come back to the forge. Ottra's tool wants another name on it.\""
+    text: "The cramp comes out of the fire the colour of a sunset, and the two of you walk it up to the crags. Coming down off the ledge she throws her wings open and drops like a dropped anvil that has changed its mind — slowly, and swearing the whole way. \"There. Not mended — finished. The stone that went is gone, and the hold holds without it.\" She doesn't look at the gap where it was. \"Come back to the forge. Ottra's tool wants another name on it.\""
     choices:
       - id: back
         text: "I'll come."
@@ -303,7 +308,7 @@ nodes:
         next: again
   # o_offer accepts either of these, so a character who comes back a second time still starts the quest.
   barrowworks:
-    text: "She puts the hammer down, which she does not often. \"Service ring. Thirteen rooms under the Ashen Hollow, and a sealed door the strata never shut.\" She looks at you the way she looks at a weld. \"They built it to gauge something and never finished the job - the readings are cut into its walls, or so the notice says. I want to know what it measures. And I want to know what you think we should do about the thing that measures it. The way in is under the hill. Go on - I'll want your bones the right shape when you come back out.\""
+    text: "She puts the hammer down, which she does not often. \"Thirteen rooms under the hollow and a sealed door the strata never shut. They built it to measure something and never finished the job — the readings are cut into the walls.\" She looks at you the way she looks at a weld. \"I want to know what it measures. And I want your own mind about the thing that measures it. Way in's under the hill.\" She picks the hammer back up. \"Come back with your bones the right shape.\""
     once: true
     next_if_exhausted: barrowworks_again
     choices:
@@ -365,12 +370,12 @@ nodes:
         text: "The joints. Right."
         next: again
   praised:
-    text: "She sights down the shaft, flexes it against the anvil horn, raps the socket with a knuckle. \"Ha! Straight. Point holds. Socket's snug. That's made well, new iron - and I don't say made well about my own cousins.\""
+    text: "She sights down the shaft, flexes it against the anvil horn, raps the socket with a knuckle. \"Ha! Straight. Point holds. Socket's snug.\" She holds it out. \"That's made well. I don't say made well about my own cousins.\" She nods at the forge. \"Now bring me the next one.\""
     once: true
     next_if_exhausted: again
     choices:
       - id: back
-        text: "Don't thank me. Bring me the next one."
+        text: "I'll bring you the next one."
         next: again
   judged:
     text: "Hm. It'll hold. Mostly. See here - the socket's loose, you hurried the quench. Don't be sorry, be slower. The next one'll be better. They always are, if you're paying attention."
@@ -485,8 +490,7 @@ nodes:
       text: I'll keep looking.
       next: again
   story_ledger:
-    text: Ha! That's a cut edge. Look at the spacing, new iron. Worked out? No. Someone shut it. That's a maker's cut. Not the same as knowing the
-      maker.
+    text: "\"Ha! That's a cut edge — look at the spacing. It wasn't worked out. It was shut. Someone closed it on purpose.\" She taps the fragment. \"That's a maker's cut. Which tells you there was a maker. It doesn't tell you who.\""
     choices:
     - id: compare
       text: I can see the join. I cannot date it.
@@ -495,8 +499,7 @@ nodes:
       text: I want to compare it with the face again.
       next: again
   story_ledger_read:
-    text: Order of the Lantern. An incomplete list, and a lantern-forge east. Keep the reading separate from the theory. Sel can compare it with
-      the other records when those are reachable.
+    text: "\"Order of the Lantern. That's a name, and there's an incomplete list to go with it, and a forge east.\" She hands it back. \"Keep what it says separate from what you think it means. Sel can weigh it against her records.\""
     choices:
     - id: back
       text: I'll keep looking.
@@ -508,7 +511,7 @@ nodes:
         text: "I'll try it at the anvil."
         next: again
   tell_kal:
-    text: "The smith Kera Voss says it plainly, over her own hammer. Ask about the wings and she will tell you they fold, that they are not for flying — not in this air, and not with her supper in her — and that they are good for coming down off a roof slow. Ask her about the Foldscar and the warmth goes out of her. A Kal caught when a world turns does not die, she says; it sets, stone all the way through, standing where it stood, and the ring out there is a world half-turning all day long. She will make you anything you like to carry out to it. She will not carry herself. That is the whole of the Kal condition in two answers: a people who hold their dead as stone, and who know exactly what a turn would make of them."
+    text: "\"They fold. They're not for flying — not in this air, not with my supper in me. They're for coming down off a roof slowly.\" She turns the billet. \"Ask me about the Foldscar and I'll go quiet, and that's an answer too.\""
     choices:
       - id: back
         text: "I will remember it."

@@ -8,7 +8,7 @@ participants: [npc.ashen_hollow.renn_vale]
 root_node: greet
 nodes:
   greet:
-    text: "Off the road in one piece. Good - I've only the one spare bed, and it's for people in one piece. I'm Renn Vale. I keep this waystation, such as it is, and such as Kera's left of the roof. Take this torch; the cave road is dark. It goes in your off hand. Kera keeps cheap bedroll and fire kits if you mean to sleep out."
+    text: "Off the road in one piece. Good — I've the one spare bed, and it's for people in one piece. I'm Renn Vale. I keep this waystation, such as it is, and such as Kera's left of the roof.\" He holds out a torch. \"Cave road's dark. That goes in your off hand. Kera sells cheap bedrolls if you mean to sleep out."
     once: true
     next_if_exhausted: again
     choices:
@@ -239,7 +239,7 @@ nodes:
         consequences: [{ command: tell_lore, lore_ref: lore.quiet_folk }]
         next: again
   farewell:
-    text: "He opens the book, finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round and holds out the pen. \"That's this stretch of the road. Berrin knows the Rim Stone's rite; wake it before you head east. Write yourself in properly: name, road, where you're bound. And thank you. The roofs are dry, the stones are quiet and nobody I liked got eaten. I'll call that a season.\""
+    text: "He finds your line and reads it back to himself. \"Blackvein. The Foldscar. Durn's seam. Mara's bog.\" He looks up. \"Most of my guests manage the privy.\" He turns the book round. \"Berrin knows the Rim Stone's rite — wake it before you go east. Name, road, where you're bound.\" He holds out the pen. \"And thank you. Roofs are dry, stones are quiet, nobody I liked got eaten. I'll call that a season.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -274,7 +274,7 @@ nodes:
         text: "Thank you, keeper."
         next: again
   place:
-    text: "Ashen Hollow. A stop on the old road between the quarry and the woods: a bed, a meal and a roof, in that order of reliability. Kera has the smithy up by the waystone. Sel keeps her books at the survey table east of here, where she can watch the Foldscar. The Foldscar has not yet thought of anything to do about it."
+    text: "Ashen Hollow. A stop on the old road between the quarry and the woods: bed, meal, roof, in that order of reliability. Kera's forge is up by the waystone — that's your road, that stone. Sel keeps her books east of here, where she can watch the Foldscar.\" He looks that way. \"The Foldscar hasn't thought of anything to do about it yet."
     choices:
       - id: back
         text: "Bed, meal, roof. I'll take the second one now."
@@ -296,7 +296,7 @@ nodes:
         text: "Not tonight."
         next: again
   shelf_news:
-    text: "And came back carrying ore. Then you've met what walks down there and you're still breathing, which puts you ahead of a fair few of my guests. Kera will want that iron. She'll also want to tell you what's wrong with it."
+    text: "\"Ore, and you came back up with it.\" He takes one and turns it. \"Then you've met what walks down there. Still breathing, which puts you ahead of a fair few of my guests.\" He hands it back. \"Kera'll want that iron. She'll also want to tell you what's wrong with it.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -310,13 +310,13 @@ nodes:
         text: "It will."
         next: again
   personal:
-    text: "\"I started with a bed, a meal and a roof to keep sound. Apparently that makes me a steward.\" He wipes his hands on the cloth at his belt, though they are clean. \"Everyone who comes through goes in the book - name, road, where they're bound. Most are bound somewhere. The ones who aren't, I find something for. We Veth keep things. Roads. Promises. People who turn up. You're not the first to sit there lost. There's a Kal in the book asked me the way back to a mountain that isn't there.\""
+    text: "\"I started with a bed, a meal and a roof to keep sound. Apparently that makes me a steward.\" He wipes his hands on the cloth at his belt, though they are clean. \"Everyone goes in the book — name, road, where they're bound. Most are bound somewhere. The ones who aren't, I find something for.\" He turns the page. \"There's a Kal in here asked me the way back to a mountain that isn't there.\""
     choices:
       - id: back
         text: "I'll try to be bound somewhere."
         next: again
   tally:
-    text: "He turns it over once and doesn't need to again. \"A trapper's tally. Halda Crowden's - she notched one for every hide, so nobody at Cairnwold could argue her count. She's in my book: Halda, the north slope, bound for her snares. Two winters back. Nobody's written the other half.\" He sets it on the counter between you. \"Her sister Tam keeps the granary at Cairnwold, and counts everyone up the west road because of it. Or you keep it, and walk Halda's line - the snares are still out on the slope, and they don't know she's gone. Either's honest. Only one of them is kind.\""
+    text: "He turns it over once and doesn't need to again. \"A trapper's tally. Halda Crowden's — she notched one for every hide, so nobody at Cairnwold could argue her count. She's in my book: Halda, the north slope, bound for her snares. Two winters back. Nobody's written the other half.\" He sets it on the counter between you. \"Her sister Tam keeps the granary at Cairnwold, and counts everyone up the west road because of it. Take it to her, or keep it and walk Halda's line — the snares are still out, and they don't know she's gone.\" He sets it down. \"Either's honest. Only one of them is kind.\""
     choices:
       - id: keep
         text: "I'll keep it, and walk her line."
@@ -350,7 +350,7 @@ nodes:
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
   notices:
-    text: "The Wayhold posts what the road needs and I read it out, since half the road can't. Wolves, timber, the roof. Three wolves off the road and the Wayhold pays. Six lengths of timber and so do I, out of the same purse. It all goes back up in the morning whether anyone's done it or not. Pick one, traveller."
+    text: "The Wayhold posts what the road needs. I read it out — half the road can't.\" He taps the board. \"Wolves: three off the road, the Wayhold pays. Timber: six lengths, I pay, same purse. It all comes down in the morning whether it's done or not.\" He steps back. \"Pick one."
     choices:
       - id: take_wolves
         text: "I'll take the wolf bounty."
@@ -469,7 +469,7 @@ nodes:
       text: I'll keep looking.
       next: again
   tell_ashen_hollow:
-    text: "The steward's account, Renn Vale's, for anyone who asks what this place is: a stop on the old road between the quarry and the woods - a bed, a meal and a roof, in that order of reliability. The book by the door has every guest's name in it, their road and where they were bound, and he will read a line back to you if you think you have been misremembered. He keeps the roofs dry and the stone quiet and counts a season good if nobody he liked got eaten. When he says the hollow has not yet thought of anything to do about the Foldscar, he means that he has, and that there is nothing in the waystation's hands to do it with."
+    text: "\"A bed, a meal and a roof, in that order of reliability.\" He squares the ledger. \"Everyone who stops writes their name and their road in that book, and I read it back if they think they've been misremembered. I count a season good if nobody I liked got eaten.\" A pause. \"I've thought about the Foldscar. I've nothing to think it with.\""
     choices:
       - id: back
         text: "I will remember it."
@@ -477,7 +477,7 @@ nodes:
         next: again
 
   tell_veth:
-    text: "The steward of the waystation puts it in his own words, to anyone who writes a name in his book. We Veth keep things, he says — roads, promises, people who turn up. He does not call it faith and he does not need to: keeping is the act itself, a duty carried the way another people carries a prayer. The book by his door holds every guest's name and road, and he will read a line back to you if you think you have been misremembered. That is the whole of his people's religion in one ledger, and it asks nothing of the dead and nothing of any maker. It only asks that the thing be written, and that the writing be kept."
+    text: "\"We Veth keep things. Roads. Promises. People who turn up.\" He blots a line. \"We don't call it faith. Faith asks something of you. This only asks that a thing be written down, and that the writing be kept.\" A shrug. \"It's not much of a religion, but it's got the books right.\""
     choices:
       - id: back
         text: "I will remember it."
@@ -485,7 +485,7 @@ nodes:
         next: again
 
   tell_wayhold:
-    text: "The steward explains how it runs, in his deadpan, to anyone who asks after the notices. The Wayhold posts what the road needs, and he reads it out, since half the road cannot; three wolves off the road and the Wayhold pays, six lengths of timber and so does he, out of the same purse, and it all goes back up in the morning whether anyone has done the work or not. When he pays, he is careful to say it is from the Wayhold and not from him — he only holds the purse. And when the accounts go east, the roadwarden at the Vessmere stone is the one who takes the Wayhold's letter, keep it dry. The order, in short, is the road's memory and the road's hand."
+    text: "\"The Wayhold says what the road needs. I read it out — half the road can't read it themselves.\" He taps the board. \"Three wolves off the road, the Wayhold pays. Six lengths of timber, I pay, out of the same purse. The notices go back up in the morning whether anyone's done the work or not.\" He looks at you. \"So. Pick one.\""
     choices:
       - id: back
         text: "I will remember it."
@@ -501,7 +501,7 @@ nodes:
         next: again
 
   tell_folded_note_p2:
-    text: "Renn Vale reads it in a few flat words: Berrin Garth, Cairnwold lodge, the rest has been rubbed away, and why it was rubbed away is still the traveller's business. He does not try to fill the gap in, and he sends the traveller on to Berrin's door with the note as it is. Berrin himself, when he is shown it, will not fill the rubbed part in either — it is his name, he says, and it is still his, but the missing part stays missing. The note assigns no one a past; it only points to a person and a door, and leaves the rest unwritten."
+    text: "\"Berrin Garth. Cairnwold lodge.\" He turns it over. \"Someone's rubbed the rest of it out, and I don't know who, and I'm not going to invent it for you.\" He hands it back. \"A note that points at a man and a door. That's what you've got.\""
     choices:
       - id: back
         text: "I will remember it."

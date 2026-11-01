@@ -16,9 +16,9 @@ rival:
   taunts:
     met:
       - "You'll be the one Renn keeps writing in that book. Jessa. I take the postings you're slow on."
-      - "We've not met and you're already behind. Jessa Vane. Ask anyone who counts."
+      - "We've not met and you're already behind. Jessa Vane — ask Tam, she's counted you twice."
     beaten:
-      - "Taken. You were still asking directions; I asked a goat and it was quicker."
+      - "Taken. You were still asking directions. I asked a goat — it kept the answers in a book, which is more than you did."
       - "That one's mine. I'd apologise, but I did the walking."
     bested:
       - "Yours. I'll tell Renn you did it and I'll tell it worse than it was."

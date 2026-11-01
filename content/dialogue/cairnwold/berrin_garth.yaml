@@ -202,7 +202,7 @@ nodes:
       - id: leave
         text: "Later."
       - id: story_note
-        text: Renn read your name on this note.
+        text: "Renn says your name is on this note."
         next: story_note
         conditions:
         - kind: has_item
@@ -239,7 +239,7 @@ nodes:
         text: "I will."
         next: again
   walls:
-    text: "Mortar wants lime, lime wants a kiln, and a kiln wants a man with nothing else to do all summer - and nobody here has ever had that summer. Drystone wants a winter and two good hands, so drystone is what we have. These walls aren't old. They're patient. There's a difference, and it's most of what this village is."
+    text: "\"Mortar wants lime, lime wants a kiln, and a kiln wants a man with nothing else to do all summer.\" He pats the wall. \"Nobody here's ever had that summer. Drystone wants a winter and two good hands, so drystone's what we've got.\" A nod. \"These walls aren't old. They're patient. There's a difference, and it's most of what this village is.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -247,7 +247,7 @@ nodes:
         text: "A kiln, a lime-man and a free summer. No wonder it's stone."
         next: again
   granary:
-    text: "On staddles, aye - stone legs, with a flat cap-stone on every one. A mouse runs up the leg, meets the cap, hangs there upside down thinking about its choices, and drops off. Not a pretty answer. It's kept grain dry for two hundred years, so it's the right one. Tam will tell you exactly how many years. Tam will tell you exactly how many of anything."
+    text: "\"On staddles — stone legs with a flat cap on every one. Mouse runs up the leg, meets the cap, hangs there upside down thinking about its choices, and drops off.\" He shrugs. \"Not a pretty answer. Kept grain dry two hundred years, so it's the right one. Tam'll tell you exactly how many years. Tam'll tell you exactly how many of anything.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -280,7 +280,7 @@ nodes:
         text: "That's oddly reassuring."
         next: again
   rim_stone:
-    text: "\"The Rim Stone? Oh, it's a Waystone right enough - or it was. Cold since before my grandfather, and he was cold before most things.\" He counts on his fingers, then starts again. \"It's in the lodge book. Old Corra had it: 'Three hands and a name.' And then not another word on it for forty years, which was very like her. Three times with the flat of your hand - one after another, mind, it's not a dance - and then you tell it its name. The Rim Stone. As if you're reminding it.\" He lowers his hand. \"Nobody's tried in my time. Nobody here has ever wanted to be anywhere it went.\""
+    text: "\"The Rim Stone? It's a Waystone right enough — or it was. Cold since before my grandfather, and he was cold before most things.\" He opens the book. \"Old Corra had it: 'Three hands and a name.' Then not another word on it for forty years, which was very like her.\" He spreads a palm. \"Three times flat, one after another — it's not a dance — then tell it its name. As if you're reminding it.\" He closes the book. \"Nobody's tried it in my time. Nobody here has ever wanted to be anywhere it went.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -288,7 +288,7 @@ nodes:
         text: "Three hands and a name. I'll remember."
         next: again
   personal:
-    text: "Keeps me? Ha. Nothing keeps me - I keep it. That's a Veth joke; it's funnier if you're Veth. Someone has to remember why the doors are where they are, and Tam counts what comes in, and I remember who brought it. Only... I've started writing things down twice. Don't tell Tam. She'll want to count them. \"A Kal smith came through with a broken wing and stayed the winter. Best work we ever had. Worst flier - and he'd tell you that himself.\""
+    text: "\"Keeps me? Ha. Nothing keeps me — I keep it. That's a Veth joke, and it's funnier if you're Veth.\" He turns a page. \"Someone has to remember why the doors are where they are. Tam counts what comes in; I remember who brought it. Only lately I've started writing things down twice.\" A beat. \"Don't tell Tam. She'll want to count them.\" He taps the book. \"We had a Kal here one winter, wing broke on the ridge. Best work we ever had out of that forge, and the worst flier I've ever seen. He'd agree with me — he's in the book.\""
     choices:
       - id: back
         text: "Your secret's safe."
@@ -302,9 +302,7 @@ nodes:
       text: I'll keep looking.
       next: again
   story_records:
-    text: Now then, the two old entries... roughly two hundred years apart, and both before you. The light's like what they wrote. Like isn't the
-      same as certain. We've weathered it before, and that comforts me, and then I look at the mark beside your day and... no, I won't rub that
-      out to make a better story.
+    text: "\"Two old entries in this book, roughly two hundred years apart, and both before you.\" He runs a finger down the page. \"The light's like what they wrote. Like isn't the same as certain. We've weathered it before, which comforts me.\" A pause. \"Then I see the mark beside your day, and — no. I'll not rub that out to make a tidier story.\""
     choices:
     - id: back
       text: I'll keep looking.
@@ -324,7 +322,7 @@ nodes:
         consequences: [{ command: tell_lore, lore_ref: lore.the_spill }]
         next: again
   crag_stone:
-    text: "A hold. ... Well, that would explain the crags, wouldn't it - a line, not a scatter. I always said it wasn't us. Let me look. ... Here, my grandmother's hand: 'One dressed stone from the crag face, fit for a lintel, carted east and sold to the stone-buyers, the year the beck froze.' Cairnwold took it, and sold it on, and wrote it down, and never thought on it since. The Ondrek, that'll be. They pay fair, and they say it was never anyone. I don't know who's right. I only know we did it, and it's in the book. ... You climbed up there? Not flew? Shame. I've always wanted to see one of you try it. Don't ask me to your funerals, mind - your lot take a week over a burial, and I'd only cry at the wrong bits."
+    text: "\"A hold. … Well. That'd explain the crags — a line, not a scatter. I always said it wasn't us.\" He turns pages. \"Here, my grandmother's hand: one dressed stone from the crag face, fit for a lintel, carted east and sold to the stone-buyers, the year the beck froze.\" He sits back. \"So we took it, and sold it, and wrote it down, and never thought on it again.\" A look. \"You climbed up? Not flew?\" He grins. \"Shame. I've always wanted to see one of you try it. Don't ask me to your funerals, mind — your lot take a week over a burial, and I'd only cry at the wrong bits.\""
     choices:
       - id: back
         text: "Thank you, Berrin."
@@ -337,7 +335,7 @@ nodes:
         text: "Three tenders."
         next: again
   tell_cairnwold:
-    text: "Berrin Garth keeps the lodge and remembers why every part of the village is the way it is, and he will tell you, warmly and at length. The walls are drystone, he says, because mortar wants lime and lime wants a kiln and a kiln wants a man with a whole summer, and nobody here has ever had a summer like that — drystone wants a winter and two good hands. The granary stands on staddles, stone legs with a flat cap on each, so a mouse climbs up and hangs there thinking about its choices. And if you ask what is older than the village, he points at the crag line on the south edge — put there by somebody, or something, and not by the village — and the cut in the east where the beck leaves, which is only water and time. We built between the two, he says, walled it, and called it home."
+    text: "\"Four things you should know about Cairnwold, and I'll say them once. Walls are drystone because mortar wants a lime kiln and a free summer, and nobody here's ever had that summer. Granary's on staddles — a mouse climbs the leg, meets the cap, thinks about it, drops off. The crags are older than us. And the beck cut the east side before any of it.\" He sits back. \"That's the village. Everything older than us doesn't care that we're here.\""
     choices:
       - id: back
         text: "I will remember it."
@@ -345,7 +343,7 @@ nodes:
         next: again
 
   tell_rim_stone_p2:
-    text: "Berrin Garth keeps the lodge book, and in it is the Rim Stone's rite. It is a Waystone, he says, or it was - cold since before his grandfather. Old Corra set it down as three hands and a name, and then wrote not another word on it for forty years. The rite is simple: three times with the flat of the hand, one after another, and then you tell the stone its name, as if reminding it. Nobody in the village has tried it in his time. Nobody here, he says, has ever wanted to be anywhere it went."
+    text: "\"Three hands and a name.\" That's all Old Corra wrote in my book about the Rim Stone, and then nothing for forty years.\" He holds up a palm. \"Three times flat — one after another, it's not a dance — then you tell it its name. Like you're reminding it.\" He lowers his hand. \"Nobody's tried it in my time. Nobody here has ever wanted to be anywhere it went.\""
     choices:
       - id: back
         text: "I will remember it."
@@ -353,7 +351,7 @@ nodes:
         next: again
 
   tell_folded_note_p2:
-    text: "Renn Vale reads it in a few flat words: Berrin Garth, Cairnwold lodge, the rest has been rubbed away, and why it was rubbed away is still the traveller's business. He does not try to fill the gap in, and he sends the traveller on to Berrin's door with the note as it is. Berrin himself, when he is shown it, will not fill the rubbed part in either — it is his name, he says, and it is still his, but the missing part stays missing. The note assigns no one a past; it only points to a person and a door, and leaves the rest unwritten."
+    text: "\"My name. Still mine, last I checked. The rest of it's been rubbed out, and I'm not the one who rubbed it. I'll not fill a gap in to make a tidier story for you. Ask the man who wrote the note.\""
     choices:
       - id: back
         text: "I will remember it."

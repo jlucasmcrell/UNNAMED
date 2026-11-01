@@ -190,7 +190,7 @@ nodes:
         text: "You will."
         next: again
   billet_paid:
-    text: "He turns the billet over once. \"Hinge.\" Coin on the anvil's edge."
+    text: "He turns it over once. \"Hinge.\" He puts coin on the anvil's edge. \"Don't bring a soft one and expect a hinge.\""
     choices:
       - id: back
         text: "A hinge, then."

@@ -30,7 +30,7 @@ nodes:
       - id: leave
         text: "Just passing."
   again:
-    text: "Oh - you again. Good. That's you in, and out, and in. I like a number that comes back. \"I count what comes off the moor. A Kal counts what the moor is made of. We're both counting, and neither of us is getting anywhere.\""
+    text: "Oh — you again. Good. That's you in, and out, and in: I like a number that comes back.\" She nods at the moor. \"I count what comes off it. A Kal counts what it's made of. Neither of us is getting anywhere."
     choices:
       - id: moor
         text: "About the moor."
@@ -92,7 +92,7 @@ nodes:
         text: "Walk, don't run."
         next: again
   moor:
-    text: "\"Boar in the birch, mostly - eleven this year, and worse in the autumn when the mast is down. Strays along the old line by the crags. Dogs gone wild, Durn says. Something that was never a dog, I say, because I've watched them run and they don't run like dogs. And up in the moss there are lights some nights. I don't count those. I tried. They won't keep still to be counted, and they don't add up when they do. Keep to the walls after dark and you'll be fine.\" A pause. \"Mostly.\""
+    text: "\"Boar in the birch — eleven this year, worse in autumn when the mast is down. Strays along the old line by the crags. Durn says dogs gone wild. Something that was never a dog, say I: I've watched them run.\" She glances up the slope. \"Lights in the moss some nights. I don't count those. I tried — they won't keep still, and they don't add up when they do.\" A pause. \"Keep to the walls after dark. Mostly.\""
     once: true
     next_if_exhausted: again
     choices:
@@ -100,7 +100,7 @@ nodes:
         text: "I will keep to the walls."
         next: again
   count:
-    text: "\"Sacks, mostly. Sixty-two in, as of this morning. Mice, none, thank the staddles. People up the west road and people down it.\" The knife stops on the stick. \"My sister went up the north slope the winter before last, after the wolves. Halda. She trapped up there. I counted her out.\" She turns the stick over in her hands. \"So I count. That's all it is. It's a granary thing.\""
+    text: "\"Sacks, mostly. Sixty-two in, as of this morning. Mice, none, thank the staddles. People up the west road and people down it.\" The knife stops. \"My sister went up the north slope the winter before last. Halda. I counted her out.\" She turns the stick over. \"So I count. That's all it is. It's a granary thing.\""
     choices:
       - id: sorry
         text: "I'm sorry."
@@ -150,7 +150,7 @@ nodes:
         next: again
 # Said in passing, unprompted, when the character comes near (the bark patch): each line while its conditions hold.
   work:
-    text: "Short of - sorry, yes, I know exactly. Meat for the lodge pot, two portions, from anything with legs, though not - well. Small hides for the loft, two, before the cold, and I'd like them before, not after, after's no good. And you can cook what you catch, you know. There's a fire by the south wall. It isn't cooking. It'll do."
+    text: "\"Short of — sorry. Yes. I know exactly.\" She counts it off. \"Meat for the lodge pot, two portions. Anything with legs — though not the hens. There are five. There were six.\" A beat. \"Small hides for the loft, two, before the cold, and before, not after; after's no good.\" She points. \"Fire by the south wall. You can cook what you catch. It isn't cooking. It'll do.\""
     choices:
       - id: take_pot
         text: "I'll bring meat for the pot."
@@ -198,7 +198,7 @@ nodes:
         text: "Hare or fox."
         next: again
   counted:
-    text: "One, two. Counted. And again - one, two. Counted twice. Here, that's yours, I counted that too."
+    text: "\"One, two. Counted. And again — one, two. Counted twice.\" She writes the number, then holds out the coin. \"Here. That's yours. I counted it too.\""
     choices:
       - id: back
         text: "Thanks, Tam."
