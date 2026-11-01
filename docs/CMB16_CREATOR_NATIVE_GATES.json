@@ -1,0 +1,2665 @@
+{
+  "status": "IN_PROGRESS_NATIVE_CPU_GATES_PASS_RENDERED_CREATOR_REVIEW_DUE",
+  "recorded": "2026-10-31T20:16:24.814658-04:00",
+  "preservation": {
+    "reports": [
+      {
+        "body": "humgen_creator_female",
+        "new_clips": 8,
+        "payload_sha256": "a86987df7d46fab44c07dab2abd5680be90b4ee89b6bab5abe6288baa835ee9f",
+        "preserved_clips": 49,
+        "preserved_keys": 106336
+      },
+      {
+        "body": "humgen_creator_male",
+        "new_clips": 8,
+        "payload_sha256": "cfa863d80f2f91d75c5f537946879e9ac578062777b60d4db41261cf0e998dba",
+        "preserved_clips": 49,
+        "preserved_keys": 107252
+      }
+    ],
+    "status": "PASS"
+  },
+  "bodies": {
+    "humgen_creator_female": {
+      "target": {
+        "source": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\primary\\rigged\\humgen_creator_female\\humgen_creator_female_rigged.glb",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "bodies": [
+          {
+            "asset": "/Game/HumGenMotion/Targets/humgen_creator_female_263bce1c/humgen_creator_female_rigged/SkeletalMeshes/humgen_creator_female_Body_LOD3.humgen_creator_female_Body_LOD3",
+            "bones": [
+              {
+                "name": "Root",
+                "parent": "None"
+              },
+              {
+                "name": "Hips",
+                "parent": "Root"
+              },
+              {
+                "name": "LeftUpperLeg",
+                "parent": "Hips"
+              },
+              {
+                "name": "LeftLowerLeg",
+                "parent": "LeftUpperLeg"
+              },
+              {
+                "name": "LeftFoot",
+                "parent": "LeftLowerLeg"
+              },
+              {
+                "name": "LeftToes",
+                "parent": "LeftFoot"
+              },
+              {
+                "name": "RightUpperLeg",
+                "parent": "Hips"
+              },
+              {
+                "name": "RightLowerLeg",
+                "parent": "RightUpperLeg"
+              },
+              {
+                "name": "RightFoot",
+                "parent": "RightLowerLeg"
+              },
+              {
+                "name": "RightToes",
+                "parent": "RightFoot"
+              },
+              {
+                "name": "Spine",
+                "parent": "Hips"
+              },
+              {
+                "name": "Chest",
+                "parent": "Spine"
+              },
+              {
+                "name": "UpperChest",
+                "parent": "Chest"
+              },
+              {
+                "name": "LeftBreast",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "LeftShoulder",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "LeftUpperArm",
+                "parent": "LeftShoulder"
+              },
+              {
+                "name": "LeftLowerArm",
+                "parent": "LeftUpperArm"
+              },
+              {
+                "name": "LeftHand",
+                "parent": "LeftLowerArm"
+              },
+              {
+                "name": "LeftIndexProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftIndexIntermediate",
+                "parent": "LeftIndexProximal"
+              },
+              {
+                "name": "LeftIndexDistal",
+                "parent": "LeftIndexIntermediate"
+              },
+              {
+                "name": "LeftLittleProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftLittleIntermediate",
+                "parent": "LeftLittleProximal"
+              },
+              {
+                "name": "LeftLittleDistal",
+                "parent": "LeftLittleIntermediate"
+              },
+              {
+                "name": "LeftMiddleProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftMiddleIntermediate",
+                "parent": "LeftMiddleProximal"
+              },
+              {
+                "name": "LeftMiddleDistal",
+                "parent": "LeftMiddleIntermediate"
+              },
+              {
+                "name": "LeftRingProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftRingIntermediate",
+                "parent": "LeftRingProximal"
+              },
+              {
+                "name": "LeftRingDistal",
+                "parent": "LeftRingIntermediate"
+              },
+              {
+                "name": "LeftThumbMetacarpal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftThumbProximal",
+                "parent": "LeftThumbMetacarpal"
+              },
+              {
+                "name": "LeftThumbDistal",
+                "parent": "LeftThumbProximal"
+              },
+              {
+                "name": "Neck",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "Head",
+                "parent": "Neck"
+              },
+              {
+                "name": "Jaw",
+                "parent": "Head"
+              },
+              {
+                "name": "LeftEye",
+                "parent": "Head"
+              },
+              {
+                "name": "RightEye",
+                "parent": "Head"
+              },
+              {
+                "name": "UpperJaw",
+                "parent": "Head"
+              },
+              {
+                "name": "RightBreast",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "RightShoulder",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "RightUpperArm",
+                "parent": "RightShoulder"
+              },
+              {
+                "name": "RightLowerArm",
+                "parent": "RightUpperArm"
+              },
+              {
+                "name": "RightHand",
+                "parent": "RightLowerArm"
+              },
+              {
+                "name": "RightIndexProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightIndexIntermediate",
+                "parent": "RightIndexProximal"
+              },
+              {
+                "name": "RightIndexDistal",
+                "parent": "RightIndexIntermediate"
+              },
+              {
+                "name": "RightLittleProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightLittleIntermediate",
+                "parent": "RightLittleProximal"
+              },
+              {
+                "name": "RightLittleDistal",
+                "parent": "RightLittleIntermediate"
+              },
+              {
+                "name": "RightMiddleProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightMiddleIntermediate",
+                "parent": "RightMiddleProximal"
+              },
+              {
+                "name": "RightMiddleDistal",
+                "parent": "RightMiddleIntermediate"
+              },
+              {
+                "name": "RightRingProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightRingIntermediate",
+                "parent": "RightRingProximal"
+              },
+              {
+                "name": "RightRingDistal",
+                "parent": "RightRingIntermediate"
+              },
+              {
+                "name": "RightThumbMetacarpal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightThumbProximal",
+                "parent": "RightThumbMetacarpal"
+              },
+              {
+                "name": "RightThumbDistal",
+                "parent": "RightThumbProximal"
+              }
+            ],
+            "rig": "/Game/HumGenMotion/Targets/humgen_creator_female_263bce1c/IK_humgen_creator_female_Body_LOD3.IK_humgen_creator_female_Body_LOD3",
+            "root": "Hips",
+            "chains": [
+              {
+                "name": "Spine",
+                "start": "Spine",
+                "end": "Spine",
+                "goal": "None"
+              },
+              {
+                "name": "Neck",
+                "start": "Neck",
+                "end": "Neck",
+                "goal": "None"
+              },
+              {
+                "name": "Head",
+                "start": "Head",
+                "end": "Head",
+                "goal": "None"
+              },
+              {
+                "name": "LeftLeg",
+                "start": "LeftFoot",
+                "end": "LeftFoot",
+                "goal": "LeftFootIK"
+              },
+              {
+                "name": "LeftClavicle",
+                "start": "LeftShoulder",
+                "end": "LeftShoulder",
+                "goal": "None"
+              },
+              {
+                "name": "LeftArm",
+                "start": "LeftHand",
+                "end": "LeftHand",
+                "goal": "LeftHandIK"
+              },
+              {
+                "name": "RightLeg",
+                "start": "RightFoot",
+                "end": "RightFoot",
+                "goal": "RightFootIK"
+              },
+              {
+                "name": "RightClavicle",
+                "start": "RightShoulder",
+                "end": "RightShoulder",
+                "goal": "None"
+              },
+              {
+                "name": "RightArm",
+                "start": "RightHand",
+                "end": "RightHand",
+                "goal": "RightHandIK"
+              }
+            ]
+          }
+        ],
+        "ik_api": {
+          "add_new_goal": "x.add_new_goal(goal_name, bone_name) -> Name\r\nAdd a new Goal associated with the given Bone. GoalName must be unique. Bones can have multiple Goals (rare).\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    bone_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "add_retarget_chain": "x.add_retarget_chain(chain_name, start_bone_name, end_bone_name, goal_name) -> Name\r\nAdd a new chain with the given Chain and Bone names. Returns newly created chain name (uniquified).\nNote: only the ChainName is required here, all else can be set later.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    start_bone_name (Name): \r\n    end_bone_name (Name): \r\n    goal_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "add_solver": "x.add_solver(ik_rig_solver_type) -> int32\r\nAdd a new solver of the given type to the bottom of the stack. Returns the stack index.\nThe type here is the full package path of the UStruct type. For example: /Script/IKRig.FullBodyIKSolver\r\n\r\nArgs:\r\n    ik_rig_solver_type (str): \r\n\r\nReturns:\r\n    int32:",
+          "apply_auto_generated_retarget_definition": "x.apply_auto_generated_retarget_definition() -> bool\r\nAnalyse the skeleton to see if it matches a known template and automatically generates all retarget chains and sets the pelvis\nReturns true if a matching skeletal template was found and the retarget definition for it was applied.\r\n\r\nReturns:\r\n    bool:",
+          "connect_goal_to_solver": "x.connect_goal_to_solver(goal_name, solver_index) -> bool\r\nConnect the given Goal to the given Solver. This creates an \"Effector\" with settings specific to this Solver.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "disconnect_goal_from_solver": "x.disconnect_goal_from_solver(goal_to_remove, solver_index) -> bool\r\nDisconnect the given Goal from the given Solver. This removes the Effector that associates the Goal with the Solver.\r\n\r\nArgs:\r\n    goal_to_remove (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "does_solver_have_custom_goal_settings": "x.does_solver_have_custom_goal_settings(goal_name, solver_index) -> bool\r\nreturns true if the goal has custom settings for the given solver\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "get_all_goals": "x.get_all_goals() -> Array[IKRigEffectorGoal]\r\nGet access to the list of Goals.\r\n\r\nReturns:\r\n    Array[IKRigEffectorGoal]:",
+          "get_bone_for_goal": "x.get_bone_for_goal(goal_name) -> Name\r\nThe the Bone associated with the given Goal.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_goal": "x.get_goal(goal_name) -> IKRigEffectorGoal\r\nGet read-write access to the Goal with the given name.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    IKRigEffectorGoal:",
+          "get_goal_name_for_bone": "x.get_goal_name_for_bone(bone_name) -> Name\r\nGet the Goal associated with the given Bone (may be NAME_None)\r\n\r\nArgs:\r\n    bone_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_goal_settings_for_solver": "x.get_goal_settings_for_solver(goal_name, solver_index) -> Object\r\nGet Goal Settings for Solver\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    Object:",
+          "get_index_of_solver": "x.get_index_of_solver(controller) -> int32\r\nGet the index for a given solver in the stack\nThe input here is a solver controller (as returned by GetSolverController())\r\n\r\nArgs:\r\n    controller (IKRigSolverControllerBase): \r\n\r\nReturns:\r\n    int32:",
+          "get_num_solvers": "x.get_num_solvers() -> int32\r\nGet the number of solvers in the stack.\r\n\r\nReturns:\r\n    int32:",
+          "get_retarget_chain_end_bone": "x.get_retarget_chain_end_bone(chain_name) -> Name\r\nGet the Start Bone name for the given Chain.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_retarget_chain_goal": "x.get_retarget_chain_goal(chain_name) -> Name\r\nGet the Goal name for the given Chain.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_retarget_chain_start_bone": "x.get_retarget_chain_start_bone(chain_name) -> Name\r\nGet the End Bone name for the given Chain.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_retarget_chains": "x.get_retarget_chains() -> Array[BoneChain]\r\nGet read-only access to the list of Chains.\r\n\r\nReturns:\r\n    Array[BoneChain]:",
+          "get_retarget_root": "x.get_retarget_root() -> Name\r\nGet the name of the Pelvis Bone of the retargeting (can only be one).\r\n\r\nReturns:\r\n    Name:",
+          "get_root_motion_bone": "x.get_root_motion_bone() -> Name\r\nGet the bone used to store root motion for the skeleton (could be different from the root of the hierarchy).\r\n\r\nReturns:\r\n    Name:",
+          "get_solver_controller": "x.get_solver_controller(solver_index) -> IKRigSolverControllerBase\r\nGet a controller to customize the settings for a given solver in the stack\r\n\r\nArgs:\r\n    solver_index (int32): \r\n\r\nReturns:\r\n    IKRigSolverControllerBase:",
+          "get_solver_enabled": "x.get_solver_enabled(solver_index) -> bool\r\nGet enabled status of the given solver.\r\n\r\nArgs:\r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "is_goal_connected_to_any_solver": "x.is_goal_connected_to_any_solver(goal_name) -> bool\r\nReturns true if the given Goal is connected to ANY solver. False otherwise.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "is_goal_connected_to_solver": "x.is_goal_connected_to_solver(goal_name, solver_index) -> bool\r\nReturns true if the given Goal is connected to the given Solver. False otherwise.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "move_solver_in_stack": "x.move_solver_in_stack(solver_to_move_index, target_solver_index) -> bool\r\nMove the solver at the given index to the target index.\r\n\r\nArgs:\r\n    solver_to_move_index (int32): \r\n    target_solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "remove_goal": "x.remove_goal(goal_name) -> bool\r\nRemove the Goal by name.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "remove_retarget_chain": "x.remove_retarget_chain(chain_name) -> bool\r\nRemove a Chain with the given name. Returns true if a Chain was removed.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "remove_solver": "x.remove_solver(solver_index) -> bool\r\nRemove the solver at the given stack index.\r\n\r\nArgs:\r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "rename_goal": "x.rename_goal(old_name, potential_new_name) -> Name\r\nRename a Goal. Returns new name, which may be different after being sanitized. Returns NAME_None if this fails.\r\n\r\nArgs:\r\n    old_name (Name): \r\n    potential_new_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "rename_retarget_chain": "x.rename_retarget_chain(chain_name, new_chain_name) -> Name\r\nRenamed the given Chain. Returns the new name (same as old if unsuccessful).\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    new_chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "set_goal_bone": "x.set_goal_bone(goal_name, new_bone_name) -> bool\r\nThe the Bone that the given Goal should be parented to / associated with.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    new_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_chain_end_bone": "x.set_retarget_chain_end_bone(chain_name, end_bone_name) -> bool\r\nSet the End Bone for the given Chain. Returns true if operation was successful.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    end_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_chain_goal": "x.set_retarget_chain_goal(chain_name, goal_name) -> bool\r\nSet the Goal for the given Chain. Returns true if operation was successful.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    goal_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_chain_start_bone": "x.set_retarget_chain_start_bone(chain_name, start_bone_name) -> bool\r\nSet the Start Bone for the given Chain. Returns true if operation was successful.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    start_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_root": "x.set_retarget_root(root_bone_name) -> bool\r\nSet the Pelvis Bone of the retargeting (can only be one).\r\n\r\nArgs:\r\n    root_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_root_motion_bone": "x.set_root_motion_bone(root_bone_name) -> bool\r\nSet the bone used to store root motion for the skeleton (could be different from the root of the hierarchy).\r\n\r\nArgs:\r\n    root_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_solver_enabled": "x.set_solver_enabled(solver_index, is_enabled) -> bool\r\nSet enabled/disabled status of the given solver.\r\n\r\nArgs:\r\n    solver_index (int32): \r\n    is_enabled (bool): \r\n\r\nReturns:\r\n    bool:"
+        },
+        "export_api": {
+          "bake_material_inputs": "<GLTFMaterialBakeMode.USE_MESH_DATA: 2>",
+          "default_level_of_detail": "0",
+          "default_material_bake_filter": "<TextureFilter.TF_TRILINEAR: 2>",
+          "default_material_bake_size": "<Struct 'GLTFMaterialBakeSize' (0x0000021501B7D300) {x: 1024, y: 1024, auto_detect: True}>",
+          "default_material_bake_tiling": "<TextureAddress.TA_WRAP: 0>",
+          "export_animation_sequences": "True",
+          "export_clear_coat_materials": "True",
+          "export_cloth_materials": "True",
+          "export_level_sequences": "True",
+          "export_material_variants": "<GLTFMaterialVariantMode.USE_MESH_DATA: 2>",
+          "export_preview_mesh": "True",
+          "export_proxy_materials": "True",
+          "export_specular_glossiness_materials": "True",
+          "export_thin_translucent_materials": "False",
+          "export_unlit_materials": "True",
+          "export_vertex_skin_weights": "True",
+          "make_skinned_meshes_root": "True",
+          "use_importer_material_mapping": "True",
+          "use_mesh_quantization": "False"
+        },
+        "status": "DONE",
+        "minutes": 1.8546999999998661
+      },
+      "retarget": {
+        "clips": [
+          {
+            "state": "shove",
+            "source": "ual1/Push_Loop",
+            "source_asset": "/Game/HumGenSources/ual1/UAL1_Standard/SkeletalMeshes/UAL1_StandardPush_Loop.UAL1_StandardPush_Loop",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/ual1/HG_humgen_creator_female_UAL1_StandardPush_Loop.HG_humgen_creator_female_UAL1_StandardPush_Loop",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\shove.glb",
+            "seconds": 2.6666667461395264,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "stumble",
+            "source": "ual2/Hit_Knockback",
+            "source_asset": "/Game/HumGenSources/ual2/UAL2_Standard/SkeletalMeshes/UAL2_StandardHit_Knockback.UAL2_StandardHit_Knockback",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/ual2/HG_humgen_creator_female_UAL2_StandardHit_Knockback.HG_humgen_creator_female_UAL2_StandardHit_Knockback",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\stumble.glb",
+            "seconds": 0.8333333134651184,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "prone_fall",
+            "source": "fal/anim_Stand_To_Prone",
+            "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Stand_To_Prone.anim_Stand_To_Prone",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/fal/HG_humgen_creator_female_anim_Stand_To_Prone.HG_humgen_creator_female_anim_Stand_To_Prone",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_fall.glb",
+            "seconds": 2.5,
+            "source_rate_scale": 1.2999999523162842
+          },
+          {
+            "state": "prone_idle",
+            "source": "fal/anim_Prone_Idle",
+            "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Prone_Idle.anim_Prone_Idle",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/fal/HG_humgen_creator_female_anim_Prone_Idle.HG_humgen_creator_female_anim_Prone_Idle",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_idle.glb",
+            "seconds": 1.0,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "prone_rise",
+            "source": "fal/anim_Prone_To_Stand",
+            "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Prone_To_Stand.anim_Prone_To_Stand",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/fal/HG_humgen_creator_female_anim_Prone_To_Stand.HG_humgen_creator_female_anim_Prone_To_Stand",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_rise.glb",
+            "seconds": 2.5,
+            "source_rate_scale": 1.2000000476837158
+          },
+          {
+            "state": "prone_hit",
+            "source": "cmu_control_units02_90_16/90_16_metres_source_preview_Anim",
+            "source_asset": "/Game/HumGenSources/cmu_control_units02_90_16/90_16_metres_source_preview/SkeletalMeshes/90_16_metres_source_preview_Anim.90_16_metres_source_preview_Anim",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/cmu_control_units02_90_16/HG_humgen_creator_female_90_16_metres_source_preview_Anim.HG_humgen_creator_female_90_16_metres_source_preview_Anim",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_hit.glb",
+            "seconds": 6.0333333015441895,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "weapon_pickup",
+            "source": "cmu_control_pickup03_26_09/26_09_metres_source_preview_Anim",
+            "source_asset": "/Game/HumGenSources/cmu_control_pickup03_26_09/26_09_metres_source_preview/SkeletalMeshes/26_09_metres_source_preview_Anim.26_09_metres_source_preview_Anim",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/cmu_control_pickup03_26_09/HG_humgen_creator_female_26_09_metres_source_preview_Anim.HG_humgen_creator_female_26_09_metres_source_preview_Anim",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\weapon_pickup.glb",
+            "seconds": 6.166666507720947,
+            "source_rate_scale": 1.0
+          }
+        ],
+        "target_id": "humgen_creator_female",
+        "selection_sha256": "a22e6a37d7b37695c68422944f4ab7389b1b046dac50861e519d7c8fb2682271",
+        "retargeter_script_sha256": "ae048dd3ee24cddc29a0f1987de111a99dbd051cc77ac5dff945425f55c5287e",
+        "target": "/Game/HumGenMotion/Targets/humgen_creator_female_263bce1c/humgen_creator_female_rigged/SkeletalMeshes/humgen_creator_female_Body_LOD3.humgen_creator_female_Body_LOD3",
+        "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "bones": [
+          {
+            "name": "Root",
+            "parent": "None"
+          },
+          {
+            "name": "Hips",
+            "parent": "Root"
+          },
+          {
+            "name": "LeftUpperLeg",
+            "parent": "Hips"
+          },
+          {
+            "name": "LeftLowerLeg",
+            "parent": "LeftUpperLeg"
+          },
+          {
+            "name": "LeftFoot",
+            "parent": "LeftLowerLeg"
+          },
+          {
+            "name": "LeftToes",
+            "parent": "LeftFoot"
+          },
+          {
+            "name": "RightUpperLeg",
+            "parent": "Hips"
+          },
+          {
+            "name": "RightLowerLeg",
+            "parent": "RightUpperLeg"
+          },
+          {
+            "name": "RightFoot",
+            "parent": "RightLowerLeg"
+          },
+          {
+            "name": "RightToes",
+            "parent": "RightFoot"
+          },
+          {
+            "name": "Spine",
+            "parent": "Hips"
+          },
+          {
+            "name": "Chest",
+            "parent": "Spine"
+          },
+          {
+            "name": "UpperChest",
+            "parent": "Chest"
+          },
+          {
+            "name": "LeftBreast",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "LeftShoulder",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "LeftUpperArm",
+            "parent": "LeftShoulder"
+          },
+          {
+            "name": "LeftLowerArm",
+            "parent": "LeftUpperArm"
+          },
+          {
+            "name": "LeftHand",
+            "parent": "LeftLowerArm"
+          },
+          {
+            "name": "LeftIndexProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftIndexIntermediate",
+            "parent": "LeftIndexProximal"
+          },
+          {
+            "name": "LeftIndexDistal",
+            "parent": "LeftIndexIntermediate"
+          },
+          {
+            "name": "LeftLittleProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftLittleIntermediate",
+            "parent": "LeftLittleProximal"
+          },
+          {
+            "name": "LeftLittleDistal",
+            "parent": "LeftLittleIntermediate"
+          },
+          {
+            "name": "LeftMiddleProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftMiddleIntermediate",
+            "parent": "LeftMiddleProximal"
+          },
+          {
+            "name": "LeftMiddleDistal",
+            "parent": "LeftMiddleIntermediate"
+          },
+          {
+            "name": "LeftRingProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftRingIntermediate",
+            "parent": "LeftRingProximal"
+          },
+          {
+            "name": "LeftRingDistal",
+            "parent": "LeftRingIntermediate"
+          },
+          {
+            "name": "LeftThumbMetacarpal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftThumbProximal",
+            "parent": "LeftThumbMetacarpal"
+          },
+          {
+            "name": "LeftThumbDistal",
+            "parent": "LeftThumbProximal"
+          },
+          {
+            "name": "Neck",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "Head",
+            "parent": "Neck"
+          },
+          {
+            "name": "Jaw",
+            "parent": "Head"
+          },
+          {
+            "name": "LeftEye",
+            "parent": "Head"
+          },
+          {
+            "name": "RightEye",
+            "parent": "Head"
+          },
+          {
+            "name": "UpperJaw",
+            "parent": "Head"
+          },
+          {
+            "name": "RightBreast",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "RightShoulder",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "RightUpperArm",
+            "parent": "RightShoulder"
+          },
+          {
+            "name": "RightLowerArm",
+            "parent": "RightUpperArm"
+          },
+          {
+            "name": "RightHand",
+            "parent": "RightLowerArm"
+          },
+          {
+            "name": "RightIndexProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightIndexIntermediate",
+            "parent": "RightIndexProximal"
+          },
+          {
+            "name": "RightIndexDistal",
+            "parent": "RightIndexIntermediate"
+          },
+          {
+            "name": "RightLittleProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightLittleIntermediate",
+            "parent": "RightLittleProximal"
+          },
+          {
+            "name": "RightLittleDistal",
+            "parent": "RightLittleIntermediate"
+          },
+          {
+            "name": "RightMiddleProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightMiddleIntermediate",
+            "parent": "RightMiddleProximal"
+          },
+          {
+            "name": "RightMiddleDistal",
+            "parent": "RightMiddleIntermediate"
+          },
+          {
+            "name": "RightRingProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightRingIntermediate",
+            "parent": "RightRingProximal"
+          },
+          {
+            "name": "RightRingDistal",
+            "parent": "RightRingIntermediate"
+          },
+          {
+            "name": "RightThumbMetacarpal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightThumbProximal",
+            "parent": "RightThumbMetacarpal"
+          },
+          {
+            "name": "RightThumbDistal",
+            "parent": "RightThumbProximal"
+          }
+        ],
+        "target_chains": [
+          {
+            "name": "Spine",
+            "start": "Spine",
+            "end": "UpperChest",
+            "goal": "None"
+          },
+          {
+            "name": "Neck",
+            "start": "Neck",
+            "end": "Neck",
+            "goal": "None"
+          },
+          {
+            "name": "Head",
+            "start": "Head",
+            "end": "Head",
+            "goal": "None"
+          },
+          {
+            "name": "LeftLeg",
+            "start": "LeftUpperLeg",
+            "end": "LeftFoot",
+            "goal": "LeftFootIK"
+          },
+          {
+            "name": "LeftClavicle",
+            "start": "LeftShoulder",
+            "end": "LeftShoulder",
+            "goal": "None"
+          },
+          {
+            "name": "LeftArm",
+            "start": "LeftUpperArm",
+            "end": "LeftHand",
+            "goal": "LeftHandIK"
+          },
+          {
+            "name": "RightLeg",
+            "start": "RightUpperLeg",
+            "end": "RightFoot",
+            "goal": "RightFootIK"
+          },
+          {
+            "name": "RightClavicle",
+            "start": "RightShoulder",
+            "end": "RightShoulder",
+            "goal": "None"
+          },
+          {
+            "name": "RightArm",
+            "start": "RightUpperArm",
+            "end": "RightHand",
+            "goal": "RightHandIK"
+          },
+          {
+            "name": "LeftFoot",
+            "start": "LeftToes",
+            "end": "LeftToes",
+            "goal": "None"
+          },
+          {
+            "name": "RightFoot",
+            "start": "RightToes",
+            "end": "RightToes",
+            "goal": "None"
+          }
+        ],
+        "solvers": 0,
+        "source_chains": {
+          "ual1": [
+            {
+              "name": "Spine",
+              "start": "spine_01",
+              "end": "spine_03",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "neck_01",
+              "end": "neck_01",
+              "goal": "None"
+            },
+            {
+              "name": "Head",
+              "start": "Head",
+              "end": "Head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "thigh_l",
+              "end": "foot_l",
+              "goal": "LeftFootIK"
+            },
+            {
+              "name": "LeftFoot",
+              "start": "ball_l",
+              "end": "ball_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftClavicle",
+              "start": "clavicle_l",
+              "end": "clavicle_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "upperarm_l",
+              "end": "hand_l",
+              "goal": "LeftHandIK"
+            },
+            {
+              "name": "LeftThumb",
+              "start": "thumb_01_l",
+              "end": "thumb_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndex",
+              "start": "index_01_l",
+              "end": "index_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddle",
+              "start": "middle_01_l",
+              "end": "middle_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRing",
+              "start": "ring_01_l",
+              "end": "ring_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinky",
+              "start": "pinky_01_l",
+              "end": "pinky_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "thigh_r",
+              "end": "foot_r",
+              "goal": "RightFootIK"
+            },
+            {
+              "name": "RightFoot",
+              "start": "ball_r",
+              "end": "ball_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightClavicle",
+              "start": "clavicle_r",
+              "end": "clavicle_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "upperarm_r",
+              "end": "hand_r",
+              "goal": "RightHandIK"
+            },
+            {
+              "name": "RightThumb",
+              "start": "thumb_01_r",
+              "end": "thumb_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndex",
+              "start": "index_01_r",
+              "end": "index_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddle",
+              "start": "middle_01_r",
+              "end": "middle_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRing",
+              "start": "ring_01_r",
+              "end": "ring_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinky",
+              "start": "pinky_01_r",
+              "end": "pinky_03_r",
+              "goal": "None"
+            }
+          ],
+          "ual2": [
+            {
+              "name": "Spine",
+              "start": "spine_01",
+              "end": "spine_03",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "neck_01",
+              "end": "neck_01",
+              "goal": "None"
+            },
+            {
+              "name": "Head",
+              "start": "Head",
+              "end": "Head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "thigh_l",
+              "end": "foot_l",
+              "goal": "LeftFootIK"
+            },
+            {
+              "name": "LeftFoot",
+              "start": "ball_l",
+              "end": "ball_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftClavicle",
+              "start": "clavicle_l",
+              "end": "clavicle_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "upperarm_l",
+              "end": "hand_l",
+              "goal": "LeftHandIK"
+            },
+            {
+              "name": "LeftThumb",
+              "start": "thumb_01_l",
+              "end": "thumb_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndex",
+              "start": "index_01_l",
+              "end": "index_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddle",
+              "start": "middle_01_l",
+              "end": "middle_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRing",
+              "start": "ring_01_l",
+              "end": "ring_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinky",
+              "start": "pinky_01_l",
+              "end": "pinky_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "thigh_r",
+              "end": "foot_r",
+              "goal": "RightFootIK"
+            },
+            {
+              "name": "RightFoot",
+              "start": "ball_r",
+              "end": "ball_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightClavicle",
+              "start": "clavicle_r",
+              "end": "clavicle_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "upperarm_r",
+              "end": "hand_r",
+              "goal": "RightHandIK"
+            },
+            {
+              "name": "RightThumb",
+              "start": "thumb_01_r",
+              "end": "thumb_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndex",
+              "start": "index_01_r",
+              "end": "index_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddle",
+              "start": "middle_01_r",
+              "end": "middle_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRing",
+              "start": "ring_01_r",
+              "end": "ring_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinky",
+              "start": "pinky_01_r",
+              "end": "pinky_03_r",
+              "goal": "None"
+            }
+          ],
+          "fal": [
+            {
+              "name": "Spine",
+              "start": "spine_01",
+              "end": "spine_05",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "neck_01",
+              "end": "neck_02",
+              "goal": "None"
+            },
+            {
+              "name": "Head",
+              "start": "Head",
+              "end": "Head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "thigh_l",
+              "end": "foot_l",
+              "goal": "LeftFootIK"
+            },
+            {
+              "name": "LeftFoot",
+              "start": "ball_l",
+              "end": "ball_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftClavicle",
+              "start": "clavicle_l",
+              "end": "clavicle_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "upperarm_l",
+              "end": "hand_l",
+              "goal": "LeftHandIK"
+            },
+            {
+              "name": "LeftThumb",
+              "start": "thumb_01_l",
+              "end": "thumb_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndex",
+              "start": "index_01_l",
+              "end": "index_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddle",
+              "start": "middle_01_l",
+              "end": "middle_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRing",
+              "start": "ring_01_l",
+              "end": "ring_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinky",
+              "start": "pinky_01_l",
+              "end": "pinky_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndexMetacarpal",
+              "start": "index_metacarpal_l",
+              "end": "index_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddleMetacarpal",
+              "start": "middle_metacarpal_l",
+              "end": "middle_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRingMetacarpal",
+              "start": "ring_metacarpal_l",
+              "end": "ring_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinkyMetacarpal",
+              "start": "pinky_metacarpal_l",
+              "end": "pinky_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "thigh_r",
+              "end": "foot_r",
+              "goal": "RightFootIK"
+            },
+            {
+              "name": "RightFoot",
+              "start": "ball_r",
+              "end": "ball_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightClavicle",
+              "start": "clavicle_r",
+              "end": "clavicle_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "upperarm_r",
+              "end": "hand_r",
+              "goal": "RightHandIK"
+            },
+            {
+              "name": "RightThumb",
+              "start": "thumb_01_r",
+              "end": "thumb_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndex",
+              "start": "index_01_r",
+              "end": "index_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddle",
+              "start": "middle_01_r",
+              "end": "middle_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRing",
+              "start": "ring_01_r",
+              "end": "ring_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinky",
+              "start": "pinky_01_r",
+              "end": "pinky_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndexMetacarpal",
+              "start": "index_metacarpal_r",
+              "end": "index_metacarpal_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddleMetacarpal",
+              "start": "middle_metacarpal_r",
+              "end": "middle_metacarpal_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRingMetacarpal",
+              "start": "ring_metacarpal_r",
+              "end": "ring_metacarpal_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinkyMetacarpal",
+              "start": "pinky_metacarpal_r",
+              "end": "pinky_metacarpal_r",
+              "goal": "None"
+            }
+          ],
+          "cmu_control_units02_90_16": [
+            {
+              "name": "Spine",
+              "start": "abdomen",
+              "end": "chest",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "Neck",
+              "end": "head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "lShldr",
+              "end": "lHand",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "rShldr",
+              "end": "rHand",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "lThigh",
+              "end": "lFoot",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "rThigh",
+              "end": "rFoot",
+              "goal": "None"
+            }
+          ],
+          "cmu_control_pickup03_26_09": [
+            {
+              "name": "Spine",
+              "start": "abdomen",
+              "end": "chest",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "Neck",
+              "end": "head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "lShldr",
+              "end": "lHand",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "rShldr",
+              "end": "rHand",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "lThigh",
+              "end": "lFoot",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "rThigh",
+              "end": "rFoot",
+              "goal": "None"
+            }
+          ]
+        },
+        "status": "DONE",
+        "current": "weapon_pickup",
+        "source_root_calibration_cm": {
+          "cmu_control_units02_90_16": 79.2863149173887,
+          "cmu_control_pickup03_26_09": 79.2863149173887
+        },
+        "minutes": 0.18828333333318975
+      },
+      "timing": {
+        "status": "NATIVE_TIMING_REQUIRES_REVIEW",
+        "evidence": [
+          {
+            "scenario": "early_hit",
+            "risingDuringHit": true,
+            "stoodOnTime": true,
+            "modifierObserved": true,
+            "clothActive": false,
+            "clothReset": true,
+            "frames": 119
+          },
+          {
+            "scenario": "rising_hit",
+            "risingDuringHit": true,
+            "stoodOnTime": true,
+            "modifierObserved": true,
+            "clothActive": false,
+            "clothReset": true,
+            "frames": 118
+          },
+          {
+            "scenario": "weapon_drop",
+            "risingDuringHit": false,
+            "stoodOnTime": false,
+            "modifierObserved": false,
+            "clothActive": false,
+            "clothReset": true,
+            "frames": 119
+          }
+        ],
+        "art_problems": {},
+        "scope": "Actual Footing.Tick and production figure stance/reaction. Native source stage, not landed combat or accepted cloth fit."
+      },
+      "timing_exit": {
+        "exit": 0,
+        "seconds": 23.40402429999085
+      },
+      "pickup": {
+        "status": "PASS",
+        "pickedInstance": 410521705174,
+        "everGrasped": true,
+        "contactError": 2.527237e-05,
+        "art_problems": {},
+        "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+      },
+      "pickup_exit": {
+        "exit": 0,
+        "seconds": 40.6171187999862
+      },
+      "motion_source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\character_payload01\\mocap_motion\\humgen_creator_female_motion.res"
+    },
+    "humgen_creator_male": {
+      "target": {
+        "source": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\primary\\rigged\\humgen_creator_male\\humgen_creator_male_rigged.glb",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "bodies": [
+          {
+            "asset": "/Game/HumGenMotion/Targets/humgen_creator_male_ce3a99e1/humgen_creator_male_rigged/SkeletalMeshes/humgen_creator_male_Body_LOD3.humgen_creator_male_Body_LOD3",
+            "bones": [
+              {
+                "name": "Root",
+                "parent": "None"
+              },
+              {
+                "name": "Hips",
+                "parent": "Root"
+              },
+              {
+                "name": "LeftUpperLeg",
+                "parent": "Hips"
+              },
+              {
+                "name": "LeftLowerLeg",
+                "parent": "LeftUpperLeg"
+              },
+              {
+                "name": "LeftFoot",
+                "parent": "LeftLowerLeg"
+              },
+              {
+                "name": "LeftToes",
+                "parent": "LeftFoot"
+              },
+              {
+                "name": "RightUpperLeg",
+                "parent": "Hips"
+              },
+              {
+                "name": "RightLowerLeg",
+                "parent": "RightUpperLeg"
+              },
+              {
+                "name": "RightFoot",
+                "parent": "RightLowerLeg"
+              },
+              {
+                "name": "RightToes",
+                "parent": "RightFoot"
+              },
+              {
+                "name": "Spine",
+                "parent": "Hips"
+              },
+              {
+                "name": "Chest",
+                "parent": "Spine"
+              },
+              {
+                "name": "UpperChest",
+                "parent": "Chest"
+              },
+              {
+                "name": "LeftBreast",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "LeftShoulder",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "LeftUpperArm",
+                "parent": "LeftShoulder"
+              },
+              {
+                "name": "LeftLowerArm",
+                "parent": "LeftUpperArm"
+              },
+              {
+                "name": "LeftHand",
+                "parent": "LeftLowerArm"
+              },
+              {
+                "name": "LeftIndexProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftIndexIntermediate",
+                "parent": "LeftIndexProximal"
+              },
+              {
+                "name": "LeftIndexDistal",
+                "parent": "LeftIndexIntermediate"
+              },
+              {
+                "name": "LeftLittleProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftLittleIntermediate",
+                "parent": "LeftLittleProximal"
+              },
+              {
+                "name": "LeftLittleDistal",
+                "parent": "LeftLittleIntermediate"
+              },
+              {
+                "name": "LeftMiddleProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftMiddleIntermediate",
+                "parent": "LeftMiddleProximal"
+              },
+              {
+                "name": "LeftMiddleDistal",
+                "parent": "LeftMiddleIntermediate"
+              },
+              {
+                "name": "LeftRingProximal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftRingIntermediate",
+                "parent": "LeftRingProximal"
+              },
+              {
+                "name": "LeftRingDistal",
+                "parent": "LeftRingIntermediate"
+              },
+              {
+                "name": "LeftThumbMetacarpal",
+                "parent": "LeftHand"
+              },
+              {
+                "name": "LeftThumbProximal",
+                "parent": "LeftThumbMetacarpal"
+              },
+              {
+                "name": "LeftThumbDistal",
+                "parent": "LeftThumbProximal"
+              },
+              {
+                "name": "Neck",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "Head",
+                "parent": "Neck"
+              },
+              {
+                "name": "Jaw",
+                "parent": "Head"
+              },
+              {
+                "name": "LeftEye",
+                "parent": "Head"
+              },
+              {
+                "name": "RightEye",
+                "parent": "Head"
+              },
+              {
+                "name": "UpperJaw",
+                "parent": "Head"
+              },
+              {
+                "name": "RightBreast",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "RightShoulder",
+                "parent": "UpperChest"
+              },
+              {
+                "name": "RightUpperArm",
+                "parent": "RightShoulder"
+              },
+              {
+                "name": "RightLowerArm",
+                "parent": "RightUpperArm"
+              },
+              {
+                "name": "RightHand",
+                "parent": "RightLowerArm"
+              },
+              {
+                "name": "RightIndexProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightIndexIntermediate",
+                "parent": "RightIndexProximal"
+              },
+              {
+                "name": "RightIndexDistal",
+                "parent": "RightIndexIntermediate"
+              },
+              {
+                "name": "RightLittleProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightLittleIntermediate",
+                "parent": "RightLittleProximal"
+              },
+              {
+                "name": "RightLittleDistal",
+                "parent": "RightLittleIntermediate"
+              },
+              {
+                "name": "RightMiddleProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightMiddleIntermediate",
+                "parent": "RightMiddleProximal"
+              },
+              {
+                "name": "RightMiddleDistal",
+                "parent": "RightMiddleIntermediate"
+              },
+              {
+                "name": "RightRingProximal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightRingIntermediate",
+                "parent": "RightRingProximal"
+              },
+              {
+                "name": "RightRingDistal",
+                "parent": "RightRingIntermediate"
+              },
+              {
+                "name": "RightThumbMetacarpal",
+                "parent": "RightHand"
+              },
+              {
+                "name": "RightThumbProximal",
+                "parent": "RightThumbMetacarpal"
+              },
+              {
+                "name": "RightThumbDistal",
+                "parent": "RightThumbProximal"
+              }
+            ],
+            "rig": "/Game/HumGenMotion/Targets/humgen_creator_male_ce3a99e1/IK_humgen_creator_male_Body_LOD3.IK_humgen_creator_male_Body_LOD3",
+            "root": "Hips",
+            "chains": [
+              {
+                "name": "Spine",
+                "start": "Spine",
+                "end": "Spine",
+                "goal": "None"
+              },
+              {
+                "name": "Neck",
+                "start": "Neck",
+                "end": "Neck",
+                "goal": "None"
+              },
+              {
+                "name": "Head",
+                "start": "Head",
+                "end": "Head",
+                "goal": "None"
+              },
+              {
+                "name": "LeftLeg",
+                "start": "LeftFoot",
+                "end": "LeftFoot",
+                "goal": "LeftFootIK"
+              },
+              {
+                "name": "LeftClavicle",
+                "start": "LeftShoulder",
+                "end": "LeftShoulder",
+                "goal": "None"
+              },
+              {
+                "name": "LeftArm",
+                "start": "LeftHand",
+                "end": "LeftHand",
+                "goal": "LeftHandIK"
+              },
+              {
+                "name": "RightLeg",
+                "start": "RightFoot",
+                "end": "RightFoot",
+                "goal": "RightFootIK"
+              },
+              {
+                "name": "RightClavicle",
+                "start": "RightShoulder",
+                "end": "RightShoulder",
+                "goal": "None"
+              },
+              {
+                "name": "RightArm",
+                "start": "RightHand",
+                "end": "RightHand",
+                "goal": "RightHandIK"
+              }
+            ]
+          }
+        ],
+        "ik_api": {
+          "add_new_goal": "x.add_new_goal(goal_name, bone_name) -> Name\r\nAdd a new Goal associated with the given Bone. GoalName must be unique. Bones can have multiple Goals (rare).\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    bone_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "add_retarget_chain": "x.add_retarget_chain(chain_name, start_bone_name, end_bone_name, goal_name) -> Name\r\nAdd a new chain with the given Chain and Bone names. Returns newly created chain name (uniquified).\nNote: only the ChainName is required here, all else can be set later.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    start_bone_name (Name): \r\n    end_bone_name (Name): \r\n    goal_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "add_solver": "x.add_solver(ik_rig_solver_type) -> int32\r\nAdd a new solver of the given type to the bottom of the stack. Returns the stack index.\nThe type here is the full package path of the UStruct type. For example: /Script/IKRig.FullBodyIKSolver\r\n\r\nArgs:\r\n    ik_rig_solver_type (str): \r\n\r\nReturns:\r\n    int32:",
+          "apply_auto_generated_retarget_definition": "x.apply_auto_generated_retarget_definition() -> bool\r\nAnalyse the skeleton to see if it matches a known template and automatically generates all retarget chains and sets the pelvis\nReturns true if a matching skeletal template was found and the retarget definition for it was applied.\r\n\r\nReturns:\r\n    bool:",
+          "connect_goal_to_solver": "x.connect_goal_to_solver(goal_name, solver_index) -> bool\r\nConnect the given Goal to the given Solver. This creates an \"Effector\" with settings specific to this Solver.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "disconnect_goal_from_solver": "x.disconnect_goal_from_solver(goal_to_remove, solver_index) -> bool\r\nDisconnect the given Goal from the given Solver. This removes the Effector that associates the Goal with the Solver.\r\n\r\nArgs:\r\n    goal_to_remove (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "does_solver_have_custom_goal_settings": "x.does_solver_have_custom_goal_settings(goal_name, solver_index) -> bool\r\nreturns true if the goal has custom settings for the given solver\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "get_all_goals": "x.get_all_goals() -> Array[IKRigEffectorGoal]\r\nGet access to the list of Goals.\r\n\r\nReturns:\r\n    Array[IKRigEffectorGoal]:",
+          "get_bone_for_goal": "x.get_bone_for_goal(goal_name) -> Name\r\nThe the Bone associated with the given Goal.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_goal": "x.get_goal(goal_name) -> IKRigEffectorGoal\r\nGet read-write access to the Goal with the given name.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    IKRigEffectorGoal:",
+          "get_goal_name_for_bone": "x.get_goal_name_for_bone(bone_name) -> Name\r\nGet the Goal associated with the given Bone (may be NAME_None)\r\n\r\nArgs:\r\n    bone_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_goal_settings_for_solver": "x.get_goal_settings_for_solver(goal_name, solver_index) -> Object\r\nGet Goal Settings for Solver\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    Object:",
+          "get_index_of_solver": "x.get_index_of_solver(controller) -> int32\r\nGet the index for a given solver in the stack\nThe input here is a solver controller (as returned by GetSolverController())\r\n\r\nArgs:\r\n    controller (IKRigSolverControllerBase): \r\n\r\nReturns:\r\n    int32:",
+          "get_num_solvers": "x.get_num_solvers() -> int32\r\nGet the number of solvers in the stack.\r\n\r\nReturns:\r\n    int32:",
+          "get_retarget_chain_end_bone": "x.get_retarget_chain_end_bone(chain_name) -> Name\r\nGet the Start Bone name for the given Chain.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_retarget_chain_goal": "x.get_retarget_chain_goal(chain_name) -> Name\r\nGet the Goal name for the given Chain.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_retarget_chain_start_bone": "x.get_retarget_chain_start_bone(chain_name) -> Name\r\nGet the End Bone name for the given Chain.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "get_retarget_chains": "x.get_retarget_chains() -> Array[BoneChain]\r\nGet read-only access to the list of Chains.\r\n\r\nReturns:\r\n    Array[BoneChain]:",
+          "get_retarget_root": "x.get_retarget_root() -> Name\r\nGet the name of the Pelvis Bone of the retargeting (can only be one).\r\n\r\nReturns:\r\n    Name:",
+          "get_root_motion_bone": "x.get_root_motion_bone() -> Name\r\nGet the bone used to store root motion for the skeleton (could be different from the root of the hierarchy).\r\n\r\nReturns:\r\n    Name:",
+          "get_solver_controller": "x.get_solver_controller(solver_index) -> IKRigSolverControllerBase\r\nGet a controller to customize the settings for a given solver in the stack\r\n\r\nArgs:\r\n    solver_index (int32): \r\n\r\nReturns:\r\n    IKRigSolverControllerBase:",
+          "get_solver_enabled": "x.get_solver_enabled(solver_index) -> bool\r\nGet enabled status of the given solver.\r\n\r\nArgs:\r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "is_goal_connected_to_any_solver": "x.is_goal_connected_to_any_solver(goal_name) -> bool\r\nReturns true if the given Goal is connected to ANY solver. False otherwise.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "is_goal_connected_to_solver": "x.is_goal_connected_to_solver(goal_name, solver_index) -> bool\r\nReturns true if the given Goal is connected to the given Solver. False otherwise.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "move_solver_in_stack": "x.move_solver_in_stack(solver_to_move_index, target_solver_index) -> bool\r\nMove the solver at the given index to the target index.\r\n\r\nArgs:\r\n    solver_to_move_index (int32): \r\n    target_solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "remove_goal": "x.remove_goal(goal_name) -> bool\r\nRemove the Goal by name.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "remove_retarget_chain": "x.remove_retarget_chain(chain_name) -> bool\r\nRemove a Chain with the given name. Returns true if a Chain was removed.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "remove_solver": "x.remove_solver(solver_index) -> bool\r\nRemove the solver at the given stack index.\r\n\r\nArgs:\r\n    solver_index (int32): \r\n\r\nReturns:\r\n    bool:",
+          "rename_goal": "x.rename_goal(old_name, potential_new_name) -> Name\r\nRename a Goal. Returns new name, which may be different after being sanitized. Returns NAME_None if this fails.\r\n\r\nArgs:\r\n    old_name (Name): \r\n    potential_new_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "rename_retarget_chain": "x.rename_retarget_chain(chain_name, new_chain_name) -> Name\r\nRenamed the given Chain. Returns the new name (same as old if unsuccessful).\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    new_chain_name (Name): \r\n\r\nReturns:\r\n    Name:",
+          "set_goal_bone": "x.set_goal_bone(goal_name, new_bone_name) -> bool\r\nThe the Bone that the given Goal should be parented to / associated with.\r\n\r\nArgs:\r\n    goal_name (Name): \r\n    new_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_chain_end_bone": "x.set_retarget_chain_end_bone(chain_name, end_bone_name) -> bool\r\nSet the End Bone for the given Chain. Returns true if operation was successful.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    end_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_chain_goal": "x.set_retarget_chain_goal(chain_name, goal_name) -> bool\r\nSet the Goal for the given Chain. Returns true if operation was successful.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    goal_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_chain_start_bone": "x.set_retarget_chain_start_bone(chain_name, start_bone_name) -> bool\r\nSet the Start Bone for the given Chain. Returns true if operation was successful.\r\n\r\nArgs:\r\n    chain_name (Name): \r\n    start_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_retarget_root": "x.set_retarget_root(root_bone_name) -> bool\r\nSet the Pelvis Bone of the retargeting (can only be one).\r\n\r\nArgs:\r\n    root_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_root_motion_bone": "x.set_root_motion_bone(root_bone_name) -> bool\r\nSet the bone used to store root motion for the skeleton (could be different from the root of the hierarchy).\r\n\r\nArgs:\r\n    root_bone_name (Name): \r\n\r\nReturns:\r\n    bool:",
+          "set_solver_enabled": "x.set_solver_enabled(solver_index, is_enabled) -> bool\r\nSet enabled/disabled status of the given solver.\r\n\r\nArgs:\r\n    solver_index (int32): \r\n    is_enabled (bool): \r\n\r\nReturns:\r\n    bool:"
+        },
+        "export_api": {
+          "bake_material_inputs": "<GLTFMaterialBakeMode.USE_MESH_DATA: 2>",
+          "default_level_of_detail": "0",
+          "default_material_bake_filter": "<TextureFilter.TF_TRILINEAR: 2>",
+          "default_material_bake_size": "<Struct 'GLTFMaterialBakeSize' (0x0000026A35498740) {x: 1024, y: 1024, auto_detect: True}>",
+          "default_material_bake_tiling": "<TextureAddress.TA_WRAP: 0>",
+          "export_animation_sequences": "True",
+          "export_clear_coat_materials": "True",
+          "export_cloth_materials": "True",
+          "export_level_sequences": "True",
+          "export_material_variants": "<GLTFMaterialVariantMode.USE_MESH_DATA: 2>",
+          "export_preview_mesh": "True",
+          "export_proxy_materials": "True",
+          "export_specular_glossiness_materials": "True",
+          "export_thin_translucent_materials": "False",
+          "export_unlit_materials": "True",
+          "export_vertex_skin_weights": "True",
+          "make_skinned_meshes_root": "True",
+          "use_importer_material_mapping": "True",
+          "use_mesh_quantization": "False"
+        },
+        "status": "DONE",
+        "minutes": 1.6973999999999554
+      },
+      "retarget": {
+        "clips": [
+          {
+            "state": "shove",
+            "source": "ual1/Push_Loop",
+            "source_asset": "/Game/HumGenSources/ual1/UAL1_Standard/SkeletalMeshes/UAL1_StandardPush_Loop.UAL1_StandardPush_Loop",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/ual1/HG_humgen_creator_male_UAL1_StandardPush_Loop.HG_humgen_creator_male_UAL1_StandardPush_Loop",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\shove.glb",
+            "seconds": 2.6666667461395264,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "stumble",
+            "source": "ual2/Hit_Knockback",
+            "source_asset": "/Game/HumGenSources/ual2/UAL2_Standard/SkeletalMeshes/UAL2_StandardHit_Knockback.UAL2_StandardHit_Knockback",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/ual2/HG_humgen_creator_male_UAL2_StandardHit_Knockback.HG_humgen_creator_male_UAL2_StandardHit_Knockback",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\stumble.glb",
+            "seconds": 0.8333333134651184,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "prone_fall",
+            "source": "fal/anim_Stand_To_Prone",
+            "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Stand_To_Prone.anim_Stand_To_Prone",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/fal/HG_humgen_creator_male_anim_Stand_To_Prone.HG_humgen_creator_male_anim_Stand_To_Prone",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\prone_fall.glb",
+            "seconds": 2.5,
+            "source_rate_scale": 1.2999999523162842
+          },
+          {
+            "state": "prone_idle",
+            "source": "fal/anim_Prone_Idle",
+            "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Prone_Idle.anim_Prone_Idle",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/fal/HG_humgen_creator_male_anim_Prone_Idle.HG_humgen_creator_male_anim_Prone_Idle",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\prone_idle.glb",
+            "seconds": 1.0,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "prone_rise",
+            "source": "fal/anim_Prone_To_Stand",
+            "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Prone_To_Stand.anim_Prone_To_Stand",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/fal/HG_humgen_creator_male_anim_Prone_To_Stand.HG_humgen_creator_male_anim_Prone_To_Stand",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\prone_rise.glb",
+            "seconds": 2.5,
+            "source_rate_scale": 1.2000000476837158
+          },
+          {
+            "state": "prone_hit",
+            "source": "cmu_control_units02_90_16/90_16_metres_source_preview_Anim",
+            "source_asset": "/Game/HumGenSources/cmu_control_units02_90_16/90_16_metres_source_preview/SkeletalMeshes/90_16_metres_source_preview_Anim.90_16_metres_source_preview_Anim",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/cmu_control_units02_90_16/HG_humgen_creator_male_90_16_metres_source_preview_Anim.HG_humgen_creator_male_90_16_metres_source_preview_Anim",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\prone_hit.glb",
+            "seconds": 6.0333333015441895,
+            "source_rate_scale": 1.0
+          },
+          {
+            "state": "weapon_pickup",
+            "source": "cmu_control_pickup03_26_09/26_09_metres_source_preview_Anim",
+            "source_asset": "/Game/HumGenSources/cmu_control_pickup03_26_09/26_09_metres_source_preview/SkeletalMeshes/26_09_metres_source_preview_Anim.26_09_metres_source_preview_Anim",
+            "asset": "/Game/HumGenMotion/Motion/humgen_creator_male/Clips/cmu_control_pickup03_26_09/HG_humgen_creator_male_26_09_metres_source_preview_Anim.HG_humgen_creator_male_26_09_metres_source_preview_Anim",
+            "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_male\\weapon_pickup.glb",
+            "seconds": 6.166666507720947,
+            "source_rate_scale": 1.0
+          }
+        ],
+        "target_id": "humgen_creator_male",
+        "selection_sha256": "a22e6a37d7b37695c68422944f4ab7389b1b046dac50861e519d7c8fb2682271",
+        "retargeter_script_sha256": "ae048dd3ee24cddc29a0f1987de111a99dbd051cc77ac5dff945425f55c5287e",
+        "target": "/Game/HumGenMotion/Targets/humgen_creator_male_ce3a99e1/humgen_creator_male_rigged/SkeletalMeshes/humgen_creator_male_Body_LOD3.humgen_creator_male_Body_LOD3",
+        "body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "bones": [
+          {
+            "name": "Root",
+            "parent": "None"
+          },
+          {
+            "name": "Hips",
+            "parent": "Root"
+          },
+          {
+            "name": "LeftUpperLeg",
+            "parent": "Hips"
+          },
+          {
+            "name": "LeftLowerLeg",
+            "parent": "LeftUpperLeg"
+          },
+          {
+            "name": "LeftFoot",
+            "parent": "LeftLowerLeg"
+          },
+          {
+            "name": "LeftToes",
+            "parent": "LeftFoot"
+          },
+          {
+            "name": "RightUpperLeg",
+            "parent": "Hips"
+          },
+          {
+            "name": "RightLowerLeg",
+            "parent": "RightUpperLeg"
+          },
+          {
+            "name": "RightFoot",
+            "parent": "RightLowerLeg"
+          },
+          {
+            "name": "RightToes",
+            "parent": "RightFoot"
+          },
+          {
+            "name": "Spine",
+            "parent": "Hips"
+          },
+          {
+            "name": "Chest",
+            "parent": "Spine"
+          },
+          {
+            "name": "UpperChest",
+            "parent": "Chest"
+          },
+          {
+            "name": "LeftBreast",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "LeftShoulder",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "LeftUpperArm",
+            "parent": "LeftShoulder"
+          },
+          {
+            "name": "LeftLowerArm",
+            "parent": "LeftUpperArm"
+          },
+          {
+            "name": "LeftHand",
+            "parent": "LeftLowerArm"
+          },
+          {
+            "name": "LeftIndexProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftIndexIntermediate",
+            "parent": "LeftIndexProximal"
+          },
+          {
+            "name": "LeftIndexDistal",
+            "parent": "LeftIndexIntermediate"
+          },
+          {
+            "name": "LeftLittleProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftLittleIntermediate",
+            "parent": "LeftLittleProximal"
+          },
+          {
+            "name": "LeftLittleDistal",
+            "parent": "LeftLittleIntermediate"
+          },
+          {
+            "name": "LeftMiddleProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftMiddleIntermediate",
+            "parent": "LeftMiddleProximal"
+          },
+          {
+            "name": "LeftMiddleDistal",
+            "parent": "LeftMiddleIntermediate"
+          },
+          {
+            "name": "LeftRingProximal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftRingIntermediate",
+            "parent": "LeftRingProximal"
+          },
+          {
+            "name": "LeftRingDistal",
+            "parent": "LeftRingIntermediate"
+          },
+          {
+            "name": "LeftThumbMetacarpal",
+            "parent": "LeftHand"
+          },
+          {
+            "name": "LeftThumbProximal",
+            "parent": "LeftThumbMetacarpal"
+          },
+          {
+            "name": "LeftThumbDistal",
+            "parent": "LeftThumbProximal"
+          },
+          {
+            "name": "Neck",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "Head",
+            "parent": "Neck"
+          },
+          {
+            "name": "Jaw",
+            "parent": "Head"
+          },
+          {
+            "name": "LeftEye",
+            "parent": "Head"
+          },
+          {
+            "name": "RightEye",
+            "parent": "Head"
+          },
+          {
+            "name": "UpperJaw",
+            "parent": "Head"
+          },
+          {
+            "name": "RightBreast",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "RightShoulder",
+            "parent": "UpperChest"
+          },
+          {
+            "name": "RightUpperArm",
+            "parent": "RightShoulder"
+          },
+          {
+            "name": "RightLowerArm",
+            "parent": "RightUpperArm"
+          },
+          {
+            "name": "RightHand",
+            "parent": "RightLowerArm"
+          },
+          {
+            "name": "RightIndexProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightIndexIntermediate",
+            "parent": "RightIndexProximal"
+          },
+          {
+            "name": "RightIndexDistal",
+            "parent": "RightIndexIntermediate"
+          },
+          {
+            "name": "RightLittleProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightLittleIntermediate",
+            "parent": "RightLittleProximal"
+          },
+          {
+            "name": "RightLittleDistal",
+            "parent": "RightLittleIntermediate"
+          },
+          {
+            "name": "RightMiddleProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightMiddleIntermediate",
+            "parent": "RightMiddleProximal"
+          },
+          {
+            "name": "RightMiddleDistal",
+            "parent": "RightMiddleIntermediate"
+          },
+          {
+            "name": "RightRingProximal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightRingIntermediate",
+            "parent": "RightRingProximal"
+          },
+          {
+            "name": "RightRingDistal",
+            "parent": "RightRingIntermediate"
+          },
+          {
+            "name": "RightThumbMetacarpal",
+            "parent": "RightHand"
+          },
+          {
+            "name": "RightThumbProximal",
+            "parent": "RightThumbMetacarpal"
+          },
+          {
+            "name": "RightThumbDistal",
+            "parent": "RightThumbProximal"
+          }
+        ],
+        "target_chains": [
+          {
+            "name": "Spine",
+            "start": "Spine",
+            "end": "UpperChest",
+            "goal": "None"
+          },
+          {
+            "name": "Neck",
+            "start": "Neck",
+            "end": "Neck",
+            "goal": "None"
+          },
+          {
+            "name": "Head",
+            "start": "Head",
+            "end": "Head",
+            "goal": "None"
+          },
+          {
+            "name": "LeftLeg",
+            "start": "LeftUpperLeg",
+            "end": "LeftFoot",
+            "goal": "LeftFootIK"
+          },
+          {
+            "name": "LeftClavicle",
+            "start": "LeftShoulder",
+            "end": "LeftShoulder",
+            "goal": "None"
+          },
+          {
+            "name": "LeftArm",
+            "start": "LeftUpperArm",
+            "end": "LeftHand",
+            "goal": "LeftHandIK"
+          },
+          {
+            "name": "RightLeg",
+            "start": "RightUpperLeg",
+            "end": "RightFoot",
+            "goal": "RightFootIK"
+          },
+          {
+            "name": "RightClavicle",
+            "start": "RightShoulder",
+            "end": "RightShoulder",
+            "goal": "None"
+          },
+          {
+            "name": "RightArm",
+            "start": "RightUpperArm",
+            "end": "RightHand",
+            "goal": "RightHandIK"
+          },
+          {
+            "name": "LeftFoot",
+            "start": "LeftToes",
+            "end": "LeftToes",
+            "goal": "None"
+          },
+          {
+            "name": "RightFoot",
+            "start": "RightToes",
+            "end": "RightToes",
+            "goal": "None"
+          }
+        ],
+        "solvers": 0,
+        "source_chains": {
+          "ual1": [
+            {
+              "name": "Spine",
+              "start": "spine_01",
+              "end": "spine_03",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "neck_01",
+              "end": "neck_01",
+              "goal": "None"
+            },
+            {
+              "name": "Head",
+              "start": "Head",
+              "end": "Head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "thigh_l",
+              "end": "foot_l",
+              "goal": "LeftFootIK"
+            },
+            {
+              "name": "LeftFoot",
+              "start": "ball_l",
+              "end": "ball_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftClavicle",
+              "start": "clavicle_l",
+              "end": "clavicle_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "upperarm_l",
+              "end": "hand_l",
+              "goal": "LeftHandIK"
+            },
+            {
+              "name": "LeftThumb",
+              "start": "thumb_01_l",
+              "end": "thumb_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndex",
+              "start": "index_01_l",
+              "end": "index_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddle",
+              "start": "middle_01_l",
+              "end": "middle_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRing",
+              "start": "ring_01_l",
+              "end": "ring_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinky",
+              "start": "pinky_01_l",
+              "end": "pinky_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "thigh_r",
+              "end": "foot_r",
+              "goal": "RightFootIK"
+            },
+            {
+              "name": "RightFoot",
+              "start": "ball_r",
+              "end": "ball_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightClavicle",
+              "start": "clavicle_r",
+              "end": "clavicle_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "upperarm_r",
+              "end": "hand_r",
+              "goal": "RightHandIK"
+            },
+            {
+              "name": "RightThumb",
+              "start": "thumb_01_r",
+              "end": "thumb_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndex",
+              "start": "index_01_r",
+              "end": "index_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddle",
+              "start": "middle_01_r",
+              "end": "middle_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRing",
+              "start": "ring_01_r",
+              "end": "ring_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinky",
+              "start": "pinky_01_r",
+              "end": "pinky_03_r",
+              "goal": "None"
+            }
+          ],
+          "ual2": [
+            {
+              "name": "Spine",
+              "start": "spine_01",
+              "end": "spine_03",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "neck_01",
+              "end": "neck_01",
+              "goal": "None"
+            },
+            {
+              "name": "Head",
+              "start": "Head",
+              "end": "Head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "thigh_l",
+              "end": "foot_l",
+              "goal": "LeftFootIK"
+            },
+            {
+              "name": "LeftFoot",
+              "start": "ball_l",
+              "end": "ball_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftClavicle",
+              "start": "clavicle_l",
+              "end": "clavicle_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "upperarm_l",
+              "end": "hand_l",
+              "goal": "LeftHandIK"
+            },
+            {
+              "name": "LeftThumb",
+              "start": "thumb_01_l",
+              "end": "thumb_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndex",
+              "start": "index_01_l",
+              "end": "index_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddle",
+              "start": "middle_01_l",
+              "end": "middle_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRing",
+              "start": "ring_01_l",
+              "end": "ring_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinky",
+              "start": "pinky_01_l",
+              "end": "pinky_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "thigh_r",
+              "end": "foot_r",
+              "goal": "RightFootIK"
+            },
+            {
+              "name": "RightFoot",
+              "start": "ball_r",
+              "end": "ball_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightClavicle",
+              "start": "clavicle_r",
+              "end": "clavicle_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "upperarm_r",
+              "end": "hand_r",
+              "goal": "RightHandIK"
+            },
+            {
+              "name": "RightThumb",
+              "start": "thumb_01_r",
+              "end": "thumb_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndex",
+              "start": "index_01_r",
+              "end": "index_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddle",
+              "start": "middle_01_r",
+              "end": "middle_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRing",
+              "start": "ring_01_r",
+              "end": "ring_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinky",
+              "start": "pinky_01_r",
+              "end": "pinky_03_r",
+              "goal": "None"
+            }
+          ],
+          "fal": [
+            {
+              "name": "Spine",
+              "start": "spine_01",
+              "end": "spine_05",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "neck_01",
+              "end": "neck_02",
+              "goal": "None"
+            },
+            {
+              "name": "Head",
+              "start": "Head",
+              "end": "Head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "thigh_l",
+              "end": "foot_l",
+              "goal": "LeftFootIK"
+            },
+            {
+              "name": "LeftFoot",
+              "start": "ball_l",
+              "end": "ball_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftClavicle",
+              "start": "clavicle_l",
+              "end": "clavicle_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "upperarm_l",
+              "end": "hand_l",
+              "goal": "LeftHandIK"
+            },
+            {
+              "name": "LeftThumb",
+              "start": "thumb_01_l",
+              "end": "thumb_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndex",
+              "start": "index_01_l",
+              "end": "index_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddle",
+              "start": "middle_01_l",
+              "end": "middle_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRing",
+              "start": "ring_01_l",
+              "end": "ring_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinky",
+              "start": "pinky_01_l",
+              "end": "pinky_03_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftIndexMetacarpal",
+              "start": "index_metacarpal_l",
+              "end": "index_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftMiddleMetacarpal",
+              "start": "middle_metacarpal_l",
+              "end": "middle_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftRingMetacarpal",
+              "start": "ring_metacarpal_l",
+              "end": "ring_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "LeftPinkyMetacarpal",
+              "start": "pinky_metacarpal_l",
+              "end": "pinky_metacarpal_l",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "thigh_r",
+              "end": "foot_r",
+              "goal": "RightFootIK"
+            },
+            {
+              "name": "RightFoot",
+              "start": "ball_r",
+              "end": "ball_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightClavicle",
+              "start": "clavicle_r",
+              "end": "clavicle_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "upperarm_r",
+              "end": "hand_r",
+              "goal": "RightHandIK"
+            },
+            {
+              "name": "RightThumb",
+              "start": "thumb_01_r",
+              "end": "thumb_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndex",
+              "start": "index_01_r",
+              "end": "index_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddle",
+              "start": "middle_01_r",
+              "end": "middle_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRing",
+              "start": "ring_01_r",
+              "end": "ring_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinky",
+              "start": "pinky_01_r",
+              "end": "pinky_03_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightIndexMetacarpal",
+              "start": "index_metacarpal_r",
+              "end": "index_metacarpal_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightMiddleMetacarpal",
+              "start": "middle_metacarpal_r",
+              "end": "middle_metacarpal_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightRingMetacarpal",
+              "start": "ring_metacarpal_r",
+              "end": "ring_metacarpal_r",
+              "goal": "None"
+            },
+            {
+              "name": "RightPinkyMetacarpal",
+              "start": "pinky_metacarpal_r",
+              "end": "pinky_metacarpal_r",
+              "goal": "None"
+            }
+          ],
+          "cmu_control_units02_90_16": [
+            {
+              "name": "Spine",
+              "start": "abdomen",
+              "end": "chest",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "Neck",
+              "end": "head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "lShldr",
+              "end": "lHand",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "rShldr",
+              "end": "rHand",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "lThigh",
+              "end": "lFoot",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "rThigh",
+              "end": "rFoot",
+              "goal": "None"
+            }
+          ],
+          "cmu_control_pickup03_26_09": [
+            {
+              "name": "Spine",
+              "start": "abdomen",
+              "end": "chest",
+              "goal": "None"
+            },
+            {
+              "name": "Neck",
+              "start": "Neck",
+              "end": "head",
+              "goal": "None"
+            },
+            {
+              "name": "LeftArm",
+              "start": "lShldr",
+              "end": "lHand",
+              "goal": "None"
+            },
+            {
+              "name": "RightArm",
+              "start": "rShldr",
+              "end": "rHand",
+              "goal": "None"
+            },
+            {
+              "name": "LeftLeg",
+              "start": "lThigh",
+              "end": "lFoot",
+              "goal": "None"
+            },
+            {
+              "name": "RightLeg",
+              "start": "rThigh",
+              "end": "rFoot",
+              "goal": "None"
+            }
+          ]
+        },
+        "status": "DONE",
+        "current": "weapon_pickup",
+        "source_root_calibration_cm": {
+          "cmu_control_units02_90_16": 79.2863149173887,
+          "cmu_control_pickup03_26_09": 79.2863149173887
+        },
+        "minutes": 0.03698333333353124
+      },
+      "timing": {
+        "status": "NATIVE_TIMING_REQUIRES_REVIEW",
+        "evidence": [
+          {
+            "scenario": "early_hit",
+            "risingDuringHit": true,
+            "stoodOnTime": true,
+            "modifierObserved": true,
+            "clothActive": false,
+            "clothReset": true,
+            "frames": 119
+          },
+          {
+            "scenario": "rising_hit",
+            "risingDuringHit": true,
+            "stoodOnTime": true,
+            "modifierObserved": true,
+            "clothActive": false,
+            "clothReset": true,
+            "frames": 118
+          },
+          {
+            "scenario": "weapon_drop",
+            "risingDuringHit": false,
+            "stoodOnTime": false,
+            "modifierObserved": false,
+            "clothActive": false,
+            "clothReset": true,
+            "frames": 119
+          }
+        ],
+        "art_problems": {},
+        "scope": "Actual Footing.Tick and production figure stance/reaction. Native source stage, not landed combat or accepted cloth fit."
+      },
+      "timing_exit": {
+        "exit": 0,
+        "seconds": 24.758582399997977
+      },
+      "pickup": {
+        "status": "PASS",
+        "pickedInstance": 411410897512,
+        "everGrasped": true,
+        "contactError": 0.00058012584,
+        "art_problems": {},
+        "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+      },
+      "pickup_exit": {
+        "exit": 0,
+        "seconds": 39.5008921000117
+      },
+      "motion_source": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\character_payload01\\mocap_motion\\humgen_creator_male_motion.res"
+    }
+  },
+  "rejected_fixture": "cpu_creator_*01 waited for FramePostDraw in headless mode, stopped only the two verified own PIDs; corrected CPU fixture uses ProcessFrame and clean *02 receipts above. No old attempt claimed as a pass.",
+  "limitations": [
+    "Current Creator rendered source/timing/drop-pickup review still due",
+    "Neutral native fixtures; no landed AI control or full-world acceptance claim",
+    "Wolf source clips remain unbound; staged production stumble CPU check exists but rendered review still due",
+    "Portable final asset delta and native cloth/motion subset publication remain due",
+    "No FINISHED or self-awarded Claude art verdict"
+  ]
+}
