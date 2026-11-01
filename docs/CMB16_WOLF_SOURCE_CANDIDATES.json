@@ -139,5 +139,7 @@
     "exit": 0,
     "seconds": 3.7223477000079583
   },
-  "rejected": "Raw-centimetre generic-retarget test was unbounded and rejected. Second fixture passed source bounds but aborted in teardown. Third fixture explicitly frees the detached probe model before constructing the drawn model and exits0. No production ArtLibrary change made."
+  "rejected": "Raw-centimetre generic-retarget test was unbounded and rejected. Second fixture passed source bounds but aborted in teardown. Third fixture explicitly frees the detached probe model before constructing the drawn model and exits0. No production ArtLibrary change made.",
+  "final_delivery": "CMB16_DELIVERY.json",
+  "receipt_scope": "Historic source/gate receipt; final delivered subset and latest rendered evidence are described in CMB16_DELIVERY.json. Earlier unbound candidates are not additional installation requirements."
 }

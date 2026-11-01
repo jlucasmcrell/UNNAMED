@@ -1,6 +1,6 @@
 {
-  "status": "DELIVERY_CANDIDATE_FINAL_HAND_VIEW_AND_CLAUDE_VERDICT_PENDING",
-  "recorded": "2026-10-31T22:29:52.433948-04:00",
+  "status": "DELIVERED_FOR_CLAUDE_VISUAL_VERDICT",
+  "recorded": "2026-10-31T22:34:37.232265-04:00",
   "branch": "visual/cmb16-animations",
   "portable_delta": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\portable_candidate01",
   "preserved_motion": {
@@ -86,7 +86,7 @@
     "cloth_contact_ada02 + cloth_contact_mateo03: source-preserving legacy native shirt floor contact",
     "control_timing01: actual authoritative Footing clock and source weapon release",
     "wolf_control02: actual production creature stumble hook, standing side-hit/weight-shift read for Claude",
-    "pickup_native13: final original-time same-prop drop/reach/grasp view (pending at this receipt)"
+    "pickup_native13: both final original-time same-prop drop/reach/grasp views, producer inspected; camera limitations in PROOF.json"
   ],
   "hooks": [
     "ControlResolved: landed non-prone shove\u2192stumble, disarm\u2192weapon_drop",
@@ -98,7 +98,8 @@
   "checks": {
     "control_motion_tests": "1/1",
     "native_timing_and_cloth_lod_gates": "Existing named receipts in CMB16_CREATOR_NATIVE_GATES.json and cloth/timing reviews; both current bodies and legacy floor contacts pass",
-    "native_pickup": "Both current bodies clean native CPU exit0, actual prop identity/contact and original socket finger pose measured"
+    "native_pickup": "Both current bodies clean native CPU exit0, actual prop identity/contact and original socket finger pose measured",
+    "public_build": "Release0errors/23existing warnings"
   },
   "limitations": [
     "Claude visual verdict pending; no producer self-PASS or RC merge.",
@@ -106,5 +107,148 @@
     "Wolf is a native standing side-hit/weight-shift cue; only stumble_left is bound, no creature prone fall/rise assets delivered.",
     "Only the four named motion targets are certified; unrelated character libraries must remain installed.",
     "Previous fixed hand-camera views did not establish a runtime hand defect; tentative UseAuthored change was reverted."
-  ]
+  ],
+  "pickup_native": {
+    "status": "PRODUCER_INSPECTED_CONTACT_AND_GRASP_VIEWS_CLAUDE_VERDICT_REQUESTED",
+    "bodies": {
+      "female": {
+        "native": {
+          "status": "NATIVE_PICKUP_CONTACT_REQUIRES_REVIEW",
+          "pickedInstance": 451307116672,
+          "everGrasped": true,
+          "contactError": 0.0004805913,
+          "art_problems": {},
+          "scope": "Actual GameSession inventory commands and production DrawGroundItemMove; native prop stays on the ground until measured hand contact, then the same native object attaches by its authored grip socket. Neutral floor and current native Creator body/clothes, no landed disarm/full-world acceptance."
+        },
+        "grip": {
+          "authored": false,
+          "best_angle": 0.001381068,
+          "samples": 84,
+          "scope": "Read-only modifier observes actual local finger poses before Skeleton3D restores them; compares with actual native socket closed-finger pose."
+        },
+        "native_exit": {
+          "exit": 0,
+          "seconds": 42.47343389999878,
+          "lease_seconds": 43.7227053999959
+        },
+        "cpu_native": {
+          "status": "PASS",
+          "pickedInstance": 532257186479,
+          "everGrasped": true,
+          "contactError": 3.1701602e-05,
+          "art_problems": {},
+          "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+        },
+        "cpu_grip": {
+          "authored": false,
+          "best_angle": 0.001381068,
+          "samples": 468,
+          "scope": "Read-only modifier observes actual local finger poses before Skeleton3D restores them; compares with actual native socket closed-finger pose."
+        },
+        "original_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_hand_outside_female13",
+        "launch": {
+          "pid": 17420,
+          "parent_pid": 39320,
+          "args": [
+            "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\host_hand_outside13\\Otherreach.exe",
+            "--resolution",
+            "1920x1080",
+            "--windowed"
+          ],
+          "assemblies": {
+            "UNNAMED.Application.dll": "af0a7d2b571435d018c5e08c9919d72e74053533f0df3c2bf7e19bed8af727e4",
+            "UNNAMED.Content.dll": "4d1bb7b6c4b0e5ff6d94912261ca2d155ec514aebb09bc5749482a5aada254bb",
+            "UNNAMED.Domain.dll": "dd7b0389bd8337e26e670f34aceea6acc1a2f570a51a96213243767195eb7cc1",
+            "UNNAMED.EntityRegistry.dll": "1bfd26780bcc80cea80e300e2cc5e973e2b6a8ac432e0c2f7fd208c08e117bda",
+            "UNNAMED.Persistence.dll": "7e2d2d7de51c1076a9c49326457a0289632e916f2eb4bdac9e1dc34d2a8c1957",
+            "UNNAMED.Presentation.dll": "f4bb65fa82a42fbcc14889f447c3ef04ba84b3fe0fa615a4744c8da26886d64d",
+            "UNNAMED.World.dll": "45f7269f8eb196959a56d8d3addd024bb2be30f67615946181d9f63f7d3e451f"
+          },
+          "garment_glb_sha256": {},
+          "scope": "Native production visual paths in neutral fixtures; per-case scope in complete.json. Not played world/performance/release acceptance."
+        }
+      },
+      "male": {
+        "native": {
+          "status": "NATIVE_PICKUP_CONTACT_REQUIRES_REVIEW",
+          "pickedInstance": 451961428146,
+          "everGrasped": true,
+          "contactError": 3.0577125e-05,
+          "art_problems": {},
+          "scope": "Actual GameSession inventory commands and production DrawGroundItemMove; native prop stays on the ground until measured hand contact, then the same native object attaches by its authored grip socket. Neutral floor and current native Creator body/clothes, no landed disarm/full-world acceptance."
+        },
+        "grip": {
+          "authored": false,
+          "best_angle": 0.001381068,
+          "samples": 74,
+          "scope": "Read-only modifier observes actual local finger poses before Skeleton3D restores them; compares with actual native socket closed-finger pose."
+        },
+        "native_exit": {
+          "exit": 0,
+          "seconds": 38.57124879999901,
+          "lease_seconds": 82.29602639999939
+        },
+        "cpu_native": {
+          "status": "PASS",
+          "pickedInstance": 523482698822,
+          "everGrasped": true,
+          "contactError": 0.0005866192,
+          "art_problems": {},
+          "scope": "Actual GameSession drop and pickup commands; actual DrawGroundItemMove, native prop identity retained through reach and hand attachment; measured native IK contact. Neutral scene, not full-world acceptance."
+        },
+        "cpu_grip": {
+          "authored": false,
+          "best_angle": 0.001381068,
+          "samples": 470,
+          "scope": "Read-only modifier observes actual local finger poses before Skeleton3D restores them; compares with actual native socket closed-finger pose."
+        },
+        "original_frames": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_hand_outside_male13",
+        "launch": {
+          "pid": 5616,
+          "parent_pid": 39320,
+          "args": [
+            "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\host_hand_outside13\\Otherreach.exe",
+            "--resolution",
+            "1920x1080",
+            "--windowed"
+          ],
+          "assemblies": {
+            "UNNAMED.Application.dll": "af0a7d2b571435d018c5e08c9919d72e74053533f0df3c2bf7e19bed8af727e4",
+            "UNNAMED.Content.dll": "4d1bb7b6c4b0e5ff6d94912261ca2d155ec514aebb09bc5749482a5aada254bb",
+            "UNNAMED.Domain.dll": "dd7b0389bd8337e26e670f34aceea6acc1a2f570a51a96213243767195eb7cc1",
+            "UNNAMED.EntityRegistry.dll": "1bfd26780bcc80cea80e300e2cc5e973e2b6a8ac432e0c2f7fd208c08e117bda",
+            "UNNAMED.Persistence.dll": "7e2d2d7de51c1076a9c49326457a0289632e916f2eb4bdac9e1dc34d2a8c1957",
+            "UNNAMED.Presentation.dll": "f4bb65fa82a42fbcc14889f447c3ef04ba84b3fe0fa615a4744c8da26886d64d",
+            "UNNAMED.World.dll": "45f7269f8eb196959a56d8d3addd024bb2be30f67615946181d9f63f7d3e451f"
+          },
+          "garment_glb_sha256": {},
+          "scope": "Native production visual paths in neutral fixtures; per-case scope in complete.json. Not played world/performance/release acceptance."
+        }
+      }
+    },
+    "scope": "Real inventory drop/pickup commands, same native prop and wrist/socket checks on unchanged production code; existing short-sleeve wardrobe and native posed-hand-normal review camera/fill. Camera cannot confer art acceptance. No landed disarm, all-world route, terrain or performance claim. Collected but unequipped prop ends with action as ordinary inventory truth; no invented auto-equip.",
+    "rejected_diagnostics": [
+      "Probe06 wrongly required MPFB authored finger poses on a native HumGen body; rejected test assumption, not a runtime defect or passing test.",
+      "The tentative UseAuthored code change was fully reverted; probe09/13 exercise original production code.",
+      "Fixed downward views09/10 foreshorten the hand; palm12 could place the camera inside the torso. These views do not establish a hand deformation or visual acceptance."
+    ],
+    "camera_limits": "Contact camera follows actual posed palm normal, flipped outward from torso. It can look upward from below the floor/garment hems; this proves the grip view, not ordinary game-camera clothing clearance. Full-body Office source/timing views remain in creator_native02. No runtime finger defect established; no hand code change made."
+  },
+  "native_hand_gpu_lease": {
+    "results": [
+      {
+        "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_hand_outside_female13",
+        "exit": 0,
+        "seconds": 42.47343389999878,
+        "lease_seconds": 43.7227053999959
+      },
+      {
+        "output": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\native_hand_outside_male13",
+        "exit": 0,
+        "seconds": 38.57124879999901,
+        "lease_seconds": 82.29602639999939
+      }
+    ],
+    "lease_seconds": 82.29781379998894
+  }
 }

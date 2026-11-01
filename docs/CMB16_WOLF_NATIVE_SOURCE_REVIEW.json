@@ -188,5 +188,7 @@
     "stumble_left.mp4": "bf355e93e585146b498ab63c1a181dd8e6cba044deede634bb07a5aeb8de0cc0",
     "stumble_right.mp4": "ac211781bad1c9c33d2239b95cce4fc3662da3f1847efa61bbc9cd68730a2466",
     "WOLF_NATIVE_SOURCE_CONTACT.jpg": "22b8d22b47396b79d129520d63efe44ba71e687d9344df61de91117ea27286c8"
-  }
+  },
+  "final_delivery": "CMB16_DELIVERY.json",
+  "receipt_scope": "Historic source/gate receipt; final delivered subset and latest rendered evidence are described in CMB16_DELIVERY.json. Earlier unbound candidates are not additional installation requirements."
 }

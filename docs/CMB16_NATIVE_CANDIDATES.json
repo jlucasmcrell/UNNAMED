@@ -85,5 +85,7 @@
     }
   ],
   "superseded_by": "CMB16_CURRENT_SOURCE_REVIEW.json",
-  "warning": "This original inventory retained pre-native candidates. It is historical, unbound and not the active reviewed payload."
+  "warning": "This original inventory retained pre-native candidates. It is historical, unbound and not the active reviewed payload.",
+  "final_delivery": "CMB16_DELIVERY.json",
+  "receipt_scope": "Historic source/gate receipt; final delivered subset and latest rendered evidence are described in CMB16_DELIVERY.json. Earlier unbound candidates are not additional installation requirements."
 }

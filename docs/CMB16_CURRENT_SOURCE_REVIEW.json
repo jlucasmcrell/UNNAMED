@@ -286,5 +286,7 @@
       "sha256": "172953df982f6210c7a4e785bf00686d47d93212ac94ff032ec50e61b13574e7"
     }
   ],
-  "scope": "Current exact-target49 baseline plus7 supplementary candidates, only Ada source reviewed in native stage. Target Mat/family bindings, dedicated drop/pickup contact, ordinary control/timing, garment floor contact remain outstanding. No direct install or finished claim."
+  "scope": "Current exact-target49 baseline plus7 supplementary candidates, only Ada source reviewed in native stage. Target Mat/family bindings, dedicated drop/pickup contact, ordinary control/timing, garment floor contact remain outstanding. No direct install or finished claim.",
+  "final_delivery": "CMB16_DELIVERY.json",
+  "receipt_scope": "Historic source/gate receipt; final delivered subset and latest rendered evidence are described in CMB16_DELIVERY.json. Earlier unbound candidates are not additional installation requirements."
 }

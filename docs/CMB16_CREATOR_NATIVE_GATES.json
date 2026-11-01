@@ -2749,5 +2749,7 @@
     "Wolf source clips remain unbound; staged production stumble CPU check exists but rendered review still due",
     "Portable final asset delta and native cloth/motion subset publication remain due",
     "No FINISHED or self-awarded Claude art verdict"
-  ]
+  ],
+  "final_delivery": "CMB16_DELIVERY.json",
+  "receipt_scope": "Historic source/gate receipt; final delivered subset and latest rendered evidence are described in CMB16_DELIVERY.json. Earlier unbound candidates are not additional installation requirements."
 }
