@@ -54,3 +54,16 @@ Keep primary and fallback character_native payloads plus their proof JSON.
 NativeRawSceneProfile compares full raw geometry, morphs, skin binds, texture
 formats/mips/bytes and occluder data between source and cache in fresh exported
 processes. This is CPU development evidence, never character acceptance.
+
+Release templates can disable positional scene-path overrides. Use the normal
+Main entry point with the allowlisted headless diagnostic dispatcher instead:
+
+    Otherreach.exe --headless --audio-driver Dummy -- --cpu-diagnostic=native-cache ASSETBASE MODEL_IDS_JSON RECEIPT_JSON [--build]
+
+Other CPU routes: native-raw-profile, native-static-controls, texture-controls,
+character-profile. They preserve each diagnostic's remaining arguments. A route
+requires headless and enters before content/gameplay boot; normal launches do
+not select it. The static policy stamp is static-template-v2. Source parity
+must use native-raw-profile --reference-model-levels on the original source
+root, then --require-native on the derivative root. NativeStaticPolicyControls
+checks synthetic building LOD0-3 against real ModelLevels, not the cache helper.

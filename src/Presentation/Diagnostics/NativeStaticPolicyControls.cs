@@ -13,7 +13,7 @@ public partial class NativeStaticPolicyControls : Node
         {
             if (DisplayServer.GetName() != "headless" || !OS.HasFeature("template"))
                 throw new InvalidOperationException("Static policy controls require a headless exported template");
-            string receipt = Path.GetFullPath(OS.GetCmdlineUserArgs()[0]);
+            string receipt = Path.GetFullPath(CpuDiagnostic.Arguments()[0]);
             string fixture = Path.Combine(Path.GetDirectoryName(receipt)!, "static-policy-" + Guid.NewGuid().ToString("N"));
             string primary = Path.Combine(fixture, "primary"), id = "bld_synthetic_native_policy";
             string folder = Path.Combine(primary, "ready", id);

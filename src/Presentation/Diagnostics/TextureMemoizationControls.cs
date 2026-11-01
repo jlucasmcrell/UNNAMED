@@ -49,7 +49,7 @@ public partial class TextureMemoizationControls : Node
                     throw new InvalidDataException("Body hash cache escaped its ArtLibrary lifetime");
             }
             finally { File.Delete(file); }
-            File.WriteAllText(OS.GetCmdlineUserArgs()[0], JsonSerializer.Serialize(new { status = "PASS", development_only = true,
+            File.WriteAllText(CpuDiagnostic.Arguments()[0], JsonSerializer.Serialize(new { status = "PASS", development_only = true,
                 compressed_audit_reads = signed.Reads, dye_mean_reads = raw.Reads - before, uncompressed_rejected = refused,
                 same_dye_output = first.AlbedoColor == second.AlbedoColor, source_hash_scope = "per ArtLibrary", root_isolation = true }));
             GD.Print("TEXTURE_MEMOIZATION_CONTROLS_PASS");

@@ -12,7 +12,7 @@ public partial class NativeSceneCacheGate : Node
         try
         {
             if (DisplayServer.GetName() != "headless") throw new InvalidOperationException("Native cache gate requires --headless");
-            string[] args = OS.GetCmdlineUserArgs();
+            string[] args = CpuDiagnostic.Arguments();
             string root = Path.GetFullPath(args[0]);
             bool build = args.Contains("--build");
             string[] models = JsonSerializer.Deserialize<string[]>(File.ReadAllText(args[1]))

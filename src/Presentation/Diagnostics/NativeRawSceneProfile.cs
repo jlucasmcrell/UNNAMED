@@ -13,7 +13,7 @@ public partial class NativeRawSceneProfile : Node
         try
         {
             if (DisplayServer.GetName() != "headless") throw new InvalidOperationException("CPU profile requires --headless");
-            string[] args = OS.GetCmdlineUserArgs();
+            string[] args = CpuDiagnostic.Arguments();
             string root = Path.GetFullPath(args[0]);
             bool referenceModelLevels = args.Contains("--reference-model-levels");
             if (referenceModelLevels && args.Contains("--require-native")) throw new InvalidDataException("Reference must exercise the original ModelLevels path");

@@ -15,7 +15,7 @@ public partial class CharacterCreationProfile : Node
         try
         {
             if (DisplayServer.GetName() != "headless") throw new InvalidOperationException("CPU profile requires --headless");
-            string[] args = OS.GetCmdlineUserArgs();
+            string[] args = CpuDiagnostic.Arguments();
             string package = Path.GetFullPath(args[0]);
             VisualOptions.Parse("tier=ultra,people=humgen,body=none,textures=cache");
             OS.SetEnvironment("OTHERREACH_CHARACTER_ROOT", Path.Combine(package, "humgen_characters"));

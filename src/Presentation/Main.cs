@@ -259,6 +259,7 @@ public partial class Main : Node3D
         // Whatever stops the game starting is said to the player, with where the log is, rather than leaving a blank window (M-07).
         try
         {
+            if (TryStartCpuDiagnostic()) return;
             // Isolated fresh-character lane: enter before content/art boot can load retired character outputs.
             if (OS.GetCmdlineUserArgs().Contains("--mh-slice", StringComparer.Ordinal))
             {
