@@ -20,4 +20,4 @@ at:
 level_band:
 - 6
 - 6
-encounter_recovery: { min_x_m: 531, min_z_m: 626, max_x_m: 551, max_z_m: 646, safe_x_m: 541, safe_z_m: 650 }
+encounter_recovery: { min_x_m: 528, min_z_m: 628, max_x_m: 546, max_z_m: 644, safe_x_m: 541, safe_z_m: 650 }

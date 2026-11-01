@@ -38,6 +38,107 @@ public class BossCourtPlacesTests
         return places;
     }
 
+    /// <summary>
+    /// The node refs a quest's own items come from, placed only a few times in the world: the spots a quest sends a player to. A
+    /// timber stand or a woundmoss patch grows everywhere and a court will always stand over one; these do not.
+    /// </summary>
+    private static IReadOnlyList<(string Name, double X, double Z)> QuestGatherSpots()
+    {
+        var content = Path.Combine(Harness.RepoRoot(), "content");
+        var wanted = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(content, "quests"), "*.yaml", SearchOption.AllDirectories))
+            foreach (Match match in Regex.Matches(File.ReadAllText(file), @"item_ref: (item\.\S+)"))
+                wanted.Add(match.Groups[1].Value);
+        Assert.NotEmpty(wanted);
+
+        // Which item each node ref provides, through its resource.
+        var nodeItems = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal);
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(content, "nodes"), "*.yaml", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file).Replace("\r", "");
+            var id = Regex.Match(text, @"^id: (\S+)$", RegexOptions.Multiline).Groups[1].Value;
+            var resource = Regex.Match(text, @"resource_ref: (\S+)").Groups[1].Value;
+            if (id.Length == 0 || resource.Length == 0)
+                continue;
+            string resourceFile = Directory.EnumerateFiles(Path.Combine(content, "resources"), "*.yaml", SearchOption.AllDirectories)
+                .FirstOrDefault(path => File.ReadAllText(path).Contains($"id: {resource}", StringComparison.Ordinal));
+            if (resourceFile is null)
+                continue;
+            nodeItems[id] = Regex.Matches(File.ReadAllText(resourceFile), @"item_ref: (item\.\S+)")
+                .Select(match => match.Groups[1].Value).ToHashSet(StringComparer.Ordinal);
+        }
+
+        var regionRoot = Path.Combine(content, "regions");
+        var placements = new List<(string Name, string Ref, double X, double Z)>();
+        foreach (string file in Directory.EnumerateFiles(regionRoot, "*.yaml", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file).Replace("\r", "");
+            foreach (Match match in Regex.Matches(text,
+                         @"- name: (\S+)\n\s*node_ref: (\S+)\n\s*position_m:\n\s*-\s*([\d.]+)\n\s*-\s*([\d.]+)"))
+                placements.Add((match.Groups[1].Value, match.Groups[2].Value,
+                    double.Parse(match.Groups[3].Value), double.Parse(match.Groups[4].Value)));
+        }
+        Assert.NotEmpty(placements);
+
+        // A spot is the quest's own when the node says so: its own notes name the quest that sends a player to it (the ashbloom
+        // patch says "where Mara sends the player for What The Bog Kept"). Timber, meat, pelts and iron name no quest.
+        var titles = Directory.EnumerateFiles(Path.Combine(content, "quests"), "*.yaml", SearchOption.AllDirectories)
+            .Select(path => File.ReadAllText(path))
+            .SelectMany(text => Regex.Matches(text, @"^title: (\S.*)$", RegexOptions.Multiline).Select(match => match.Groups[1].Value.Trim()))
+            .Where(title => title.Length > 0)
+            .ToList();
+        Assert.NotEmpty(titles);
+
+        var questRefs = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(content, "nodes"), "*.yaml", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file).Replace("\r", "");
+            var id = Regex.Match(text, @"^id: (\S+)$", RegexOptions.Multiline).Groups[1].Value;
+            var notes = Regex.Match(text, @"^notes: (.*)$", RegexOptions.Multiline).Groups[1].Value;
+            if (id.Length > 0 && titles.Any(title => notes.Contains(title, StringComparison.OrdinalIgnoreCase)))
+                questRefs.Add(id);
+        }
+        var spots = placements
+            .Where(p => questRefs.Contains(p.Ref))
+            .Select(p => (p.Name, p.X, p.Z))
+            .ToList();
+        Assert.Contains(spots, spot => spot.Name == "bog_ashbloom_2");
+        return spots;
+    }
+
+    [Fact]
+    public void NoBossCourt_OverlapsAQuestsOwnGatherSpots()
+    {
+        var spots = QuestGatherSpots();
+        var problems = new List<string>();
+        int courts = 0;
+
+        foreach (var (region, barrowworks) in new[]
+                 {
+                     ("region.starting_frontier", false), ("region.barrowworks", true), ("region.sedge_levels", false),
+                     ("region.den_gorge_cave", false), ("region.still_field", false),
+                 })
+        {
+            using var profile = new TempProfile();
+            using var session = Harness.Boot(profile, region, barrowworks: barrowworks);
+            foreach (var site in session.Setup.Combat.Spawns.Where(s => s.Key.StartsWith("spawn.boss.", StringComparison.Ordinal)))
+            {
+                if (site.Recovery is not { } court)
+                    continue;
+                courts++;
+                foreach (var (name, x, z) in spots)
+                {
+                    if (x * 1000 >= court.MinXMm && x * 1000 <= court.MaxXMm && z * 1000 >= court.MinZMm && z * 1000 <= court.MaxZMm)
+                        problems.Add($"{site.Key} ({region}) court {court.MinXMm / 1000:0},{court.MinZMm / 1000:0}-" +
+                                     $"{court.MaxXMm / 1000:0},{court.MaxZMm / 1000:0} holds the gather spot {name} at {x:0},{z:0}");
+                }
+            }
+        }
+
+        Assert.True(courts >= 8, $"found {courts} boss courts to check");
+        Assert.Empty(problems);
+    }
+
     /// <summary>The point a new character opens their eyes at, from the frontier's own content.</summary>
     private static (double X, double Z) NewGameSpawn()
     {
@@ -104,14 +205,23 @@ public class BossCourtPlacesTests
     }
 
     [Fact]
-    public void TheUnpaid_IsHeldOutOfPlaytestTwo_WithItsCourtStillInTheSinkingMoss()
+    public void TheUnpaid_StandsInTheSinkingMoss_AwayFromTheBogsGatherSpots()
     {
-        // Held (coordinator, 2026-11-01): the court covers the bog ashbloom of What the Bog Kept. Its data stays for its return.
-        string text = File.ReadAllText(Path.Combine(Harness.RepoRoot(), "content", "spawns", "bosses", "the_unpaid.yaml"));
-        Assert.Contains("- held_unopened_region", text);
-        Assert.Contains("encounter_recovery: { min_x_m: 1040.0, min_z_m: 760.0, max_x_m: 1060.0, max_z_m: 780.0", text);
+        // Back in the next update (the hold was its court sitting on What The Bog Kept's ashbloom): in the moss, spawned, and clear.
+        string text = File.ReadAllText(Path.Combine(Harness.RepoRoot(), "content", "spawns", "bosses", "the_unpaid.yaml"))
+            .Replace("\r", "");
+        Assert.DoesNotContain("held_unopened_region", text);
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile);
-        Assert.DoesNotContain(session.Setup.Combat.Spawns, s => s.Key == "spawn.boss.cairnwold.the_unpaid");
+        var site = session.Setup.Combat.Spawns.Single(s => s.Key == "spawn.boss.cairnwold.the_unpaid");
+        // The bog anchors at (1050, 770): the bull is in the moss, not in Ashen Hollow's yard.
+        Assert.InRange(site.XMm / 1000.0, 1010, 1090);
+        Assert.InRange(site.ZMm / 1000.0, 740, 800);
+        Assert.NotNull(site.Recovery);
+
+        var spots = QuestGatherSpots();
+        Assert.DoesNotContain(spots, spot =>
+            spot.X * 1000 >= site.Recovery!.MinXMm && spot.X * 1000 <= site.Recovery.MaxXMm &&
+            spot.Z * 1000 >= site.Recovery.MinZMm && spot.Z * 1000 <= site.Recovery.MaxZMm);
     }
 }

@@ -5,9 +5,6 @@ display_key: spawn.boss.cairnwold.the_unpaid.name
 tags:
 - spawn
 - boss
-# Held out of Playtest 2 (coordinator, 2026-11-01): its court lies on the bog ashbloom the Cairnwold quest sends a first-hour player to.
-# The Unpaid returns in the next update.
-- held_unopened_region
 notes: "D19 (canon/BOSSES.md 3.1): the Barrowback bull that has been in the bog since before the village's oldest wall - a beast with a grudge and a long memory. P1 charge-and-wheel, a charge that stops dead then turns; P2 it goes into the moss, and the ground becomes the mechanic: the bog pulls, and the drystone causeway is the only safe ground. FIELD, band 7."
 region_ref: region.starting_frontier
 creatures:
@@ -18,7 +15,7 @@ creatures:
   role: territorial
 at:
   position_m:
-  - 1050.0
+  - 1030.0
   - 770.0
   radius_m: 2
 level_band:
@@ -28,4 +25,4 @@ respawn:
   kind: timer
   window_ticks: 12000
 tier_hint: A
-encounter_recovery: { min_x_m: 1040.0, min_z_m: 760.0, max_x_m: 1060.0, max_z_m: 780.0, safe_x_m: 1050.0, safe_z_m: 754.0 }
+encounter_recovery: { min_x_m: 1020.0, min_z_m: 760.0, max_x_m: 1040.0, max_z_m: 780.0, safe_x_m: 1030.0, safe_z_m: 754.0 }
