@@ -286,7 +286,9 @@
     "requirements": {
       "attribute.might": 9
     },
-    "draw_time": 1.0,
+    "draw_time": 0.95,
+    "sneak_multiplier": 2.25,
+    "shot_noise_m": 6,
     "ammo_item_ref": "item.ammo.arrow_rough",
     "skill_ref": "skill.bow",
     "durability_max": 200,
