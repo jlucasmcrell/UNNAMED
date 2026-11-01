@@ -36,6 +36,28 @@ public sealed partial class SkinnedFigure : Figure
     private ArtBindings _bindings = null!;
     private PersonArt _person = null!;
     private WornOutfit? _worn;
+    private string? _reviewGarment;
+    internal void ReviewNativeGarment(string garment)
+    {
+        if (_reviewGarment == garment) return;
+        Outfit.Clear(_model);
+        var garments = new List<string> { garment };
+        using (var contract = System.Text.Json.JsonDocument.Parse(File.ReadAllText(_art.RiggedFile(garment, "creator_part.json")
+            ?? throw new InvalidDataException("Native review contract missing: " + garment))))
+        {
+            if (contract.RootElement.GetProperty("slot").GetString() == "feet")
+            {
+                int at = garment.IndexOf("__", StringComparison.Ordinal);
+                string underlayer = garment[..at] + "_underlayer" + garment[at..];
+                if (_art.RiggedFile(underlayer, "creator_part.json") is null) throw new InvalidDataException("Native boot underlayer missing: " + underlayer);
+                garments.Add(underlayer);
+            }
+        }
+        if (Outfit.Dress(_art, _model, ModelId, garments) != garments.Count)
+            throw new InvalidDataException("Native review garment did not load: " + garment);
+        CharacterMaterials.ShareLodBox(_model.Skeleton);
+        _reviewGarment = garment;
+    }
     private BoneAttachment3D? _hand;
     private BoneAttachment3D? _offHand;
     private Node3D? _held;

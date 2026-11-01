@@ -703,7 +703,11 @@ public sealed class ArtBindings
                 OffGrip = null,
                 Outfit = Array.Empty<string>(),
                 OutfitBody = null,
-                EquipmentOutfits = new Dictionary<string, string[]>(),
+                EquipmentOutfits = VisualOptions.ComparisonCast == "humgen"
+                    ? look.EquipmentOutfits.Where(entry => entry.Value.Length > 0
+                        && entry.Value.All(id => id.Contains("__humgen_creator_", StringComparison.Ordinal)))
+                        .ToDictionary(entry => entry.Key, entry => entry.Value, StringComparer.Ordinal)
+                    : new Dictionary<string, string[]>(),
                 UniformScale = VisualOptions.ComparisonCast == "humgen" ? 1f : look.UniformScale * worn.Scale,
             };
             swapped++;

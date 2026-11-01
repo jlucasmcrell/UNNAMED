@@ -412,3 +412,33 @@ sections:
         url: "https://www.blenderkit.com/asset-gallery-detail/3e92cb0c-1b46-4d92-a4de-080794a1e75d/"
       - text: "These gear icons were rendered from the credited source models. No source gear was fed to a generative model."
 # P2_GEAR_CREDITS_END
+
+
+# P2_ARMOUR_CREDITS_BEGIN
+  - id: playtest2_armour
+    title: "Road armour"
+    entries:
+      - binds: [gear_ward_closed_helm__humgen_creator_female, gear_ward_closed_helm__humgen_creator_male]
+        text: "Ward Closed Helm original source: Mercenary by Fghdd42. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/mercenary-69439353368d4a99b358f7211a82d9c2"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_ward_closed_helm__humgen_creator_female, gear_ward_closed_helm__humgen_creator_male]
+        text: "Ward Closed Helm adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-heavy-armor-metahuman-rigged-38758fc7c96847d78dd5f6da4c3db1db"
+      - binds: [gear_river_open_helm__humgen_creator_female, gear_river_open_helm__humgen_creator_male]
+        text: "River Open Helm original source: Fantasy scaled armor by nordwar. CC BY 4.0. Individual extraction, native HumGen fit/weights/layering, LODs, source-derived PBR and rendered icons for Otherreach."
+        url: "https://sketchfab.com/3d-models/fantasy-scaled-armor-c592ef6e41b346bca2e7de9109388276"
+      - text: "Source licence: CC BY 4.0"
+        url: "https://creativecommons.org/licenses/by/4.0/"
+      - binds: [gear_river_open_helm__humgen_creator_female, gear_river_open_helm__humgen_creator_male]
+        text: "River Open Helm adaptation by DevonLux. CC BY 4.0. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://sketchfab.com/3d-models/5-piece-scalemail-armor-metahuman-rigged-33858247654b47e68d26d6fdf070ca7f"
+      - binds: [gear_open_road_barbute__humgen_creator_female, gear_open_road_barbute__humgen_creator_male]
+        text: "Open Road Barbute source model by Kasit Studio. BlenderKit Royalty Free License. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://www.blenderkit.com/asset-gallery-detail/82d97bf7-0b50-42e4-97ae-4b6fa4fa7bbf/"
+      - binds: [gear_old_ward_greathelm__humgen_creator_female, gear_old_ward_greathelm__humgen_creator_male]
+        text: "Old Ward Kettle Helm source model by reza bendokht. BlenderKit Royalty Free License. Native fit and rendered inventory icon; original real art, no generative processing."
+        url: "https://www.blenderkit.com/asset-gallery-detail/b82fc5e7-0cb2-475f-95ca-6dccce9abfc2/"
+      - text: "Fitted boot backing trousers derive from the owned HumGen Office/New Intern outfit for the corresponding current Creator body. Source geometry and material attribution remains with HumGen3D. Explicit source-vertex layer masks; no body mesh or source art sent to a generative model."
+# P2_ARMOUR_CREDITS_END

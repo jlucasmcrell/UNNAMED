@@ -8,9 +8,10 @@ def coords(data):
     data.foreach_get('co',result)
     return result.reshape((-1,3))
 
-def main(context,human):
+def main(context,human,include_face:bool=False):
     body=human.objects.body
-    source=[key for key in body.data.shape_keys.key_blocks if key.name.startswith(('b_','s_'))]
+    prefixes=('f_','b_','s_') if include_face else ('b_','s_')
+    source=[key for key in body.data.shape_keys.key_blocks if key.name.startswith(prefixes)]
     if not source:return
     matrix=native._rig_matrix(body,human.objects.rig)
     base=native._shape(native._shaped_co(human),native._body(human))

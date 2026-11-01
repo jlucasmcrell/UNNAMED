@@ -278,8 +278,8 @@
     "weight": 1.2,
     "value_base": 28,
     "damage": [
-      8,
-      10
+      9,
+      9
     ],
     "damage_type": "physical_pierce",
     "hands": "two",
@@ -300,7 +300,9 @@
     },
     "review_id": "W09",
     "era": "Primitive / ancient",
-    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED"
+    "release_status": "BOUND_NATIVE_HELD_AND_LOD_VERIFIED",
+    "sneak_multiplier": 2.0,
+    "shot_noise_m": 6
   },
   {
     "id": "item.weapon.red_grip_hunting_knife",
@@ -701,7 +703,7 @@
     },
     "review_id": "A07",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
   },
   {
     "id": "item.armor.quilted_ward_breeches",
@@ -875,7 +877,7 @@
     },
     "review_id": "A13",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
   },
   {
     "id": "item.armor.river_lame_breeches",
@@ -1049,7 +1051,7 @@
     },
     "review_id": "A21",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
   },
   {
     "id": "item.armor.sealed_brass_gauntlets",
@@ -1088,7 +1090,7 @@
     "tags": [
       "item"
     ],
-    "name": "Old Ward Greathelm",
+    "name": "Old Ward Kettle Helm",
     "notes": "Old protection kept serviceable with new straps and careful repairs.",
     "category": "armor",
     "item_class": "ordinary",
@@ -1107,7 +1109,7 @@
     },
     "review_id": "A23",
     "era": "Medieval / renaissance",
-    "release_status": "DEFERRED_UNFITTED_NOT_BOUND"
+    "release_status": "BOUND_NATIVE_NORMAL_EQUIPMENT_VERIFIED"
   },
   {
     "id": "item.weapon.notched_road_axe",

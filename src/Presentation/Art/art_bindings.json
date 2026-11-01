@@ -140,7 +140,19 @@
      "item.armor.smith_gloves": [
       "frontier_smith_gloves__mh_veth_m"
      ],
-     "item.armor.cloak": []
+     "item.armor.cloak": [],
+     "item.armor.ward_closed_helm": [
+      "gear_ward_closed_helm__humgen_creator_female"
+     ],
+     "item.armor.river_open_helm": [
+      "gear_river_open_helm__humgen_creator_female"
+     ],
+     "item.armor.open_road_barbute": [
+      "gear_open_road_barbute__humgen_creator_female"
+     ],
+     "item.armor.old_ward_greathelm": [
+      "gear_old_ward_greathelm__humgen_creator_female"
+     ]
     }
    }
   },
@@ -224,7 +236,19 @@
      "item.armor.smith_gloves": [
       "frontier_smith_gloves__mh_veth_m"
      ],
-     "item.armor.cloak": []
+     "item.armor.cloak": [],
+     "item.armor.ward_closed_helm": [
+      "gear_ward_closed_helm__humgen_creator_female"
+     ],
+     "item.armor.river_open_helm": [
+      "gear_river_open_helm__humgen_creator_female"
+     ],
+     "item.armor.open_road_barbute": [
+      "gear_open_road_barbute__humgen_creator_female"
+     ],
+     "item.armor.old_ward_greathelm": [
+      "gear_old_ward_greathelm__humgen_creator_female"
+     ]
     }
    }
   },
@@ -308,7 +332,19 @@
      "item.armor.smith_gloves": [
       "frontier_smith_gloves__mh_veth_m"
      ],
-     "item.armor.cloak": []
+     "item.armor.cloak": [],
+     "item.armor.ward_closed_helm": [
+      "gear_ward_closed_helm__humgen_creator_female"
+     ],
+     "item.armor.river_open_helm": [
+      "gear_river_open_helm__humgen_creator_female"
+     ],
+     "item.armor.open_road_barbute": [
+      "gear_open_road_barbute__humgen_creator_female"
+     ],
+     "item.armor.old_ward_greathelm": [
+      "gear_old_ward_greathelm__humgen_creator_female"
+     ]
     }
    }
   },
@@ -392,7 +428,19 @@
      "item.armor.smith_gloves": [
       "frontier_smith_gloves__mh_veth_f"
      ],
-     "item.armor.cloak": []
+     "item.armor.cloak": [],
+     "item.armor.ward_closed_helm": [
+      "gear_ward_closed_helm__humgen_creator_female"
+     ],
+     "item.armor.river_open_helm": [
+      "gear_river_open_helm__humgen_creator_female"
+     ],
+     "item.armor.open_road_barbute": [
+      "gear_open_road_barbute__humgen_creator_female"
+     ],
+     "item.armor.old_ward_greathelm": [
+      "gear_old_ward_greathelm__humgen_creator_female"
+     ]
     }
    }
   }
@@ -1180,7 +1228,19 @@
     "item.armor.smith_gloves": [
      "frontier_smith_gloves__mh_veth_m"
     ],
-    "item.armor.cloak": []
+    "item.armor.cloak": [],
+    "item.armor.ward_closed_helm": [
+     "gear_ward_closed_helm__humgen_creator_female"
+    ],
+    "item.armor.river_open_helm": [
+     "gear_river_open_helm__humgen_creator_female"
+    ],
+    "item.armor.open_road_barbute": [
+     "gear_open_road_barbute__humgen_creator_female"
+    ],
+    "item.armor.old_ward_greathelm": [
+     "gear_old_ward_greathelm__humgen_creator_female"
+    ]
    },
    "clips": {
     "idle": "player.mh.idle",
@@ -6536,7 +6596,11 @@
   "item.weapon.wood_grip_knife": "ui.item.wood_grip_knife",
   "item.weapon.carving_knife": "ui.item.carving_knife",
   "item.weapon.double_bit_axe": "ui.item.double_bit_axe",
-  "item.weapon.notched_road_axe": "ui.item.notched_road_axe"
+  "item.weapon.notched_road_axe": "ui.item.notched_road_axe",
+  "item.armor.ward_closed_helm": "ui.item.ward_closed_helm",
+  "item.armor.river_open_helm": "ui.item.river_open_helm",
+  "item.armor.open_road_barbute": "ui.item.open_road_barbute",
+  "item.armor.old_ward_greathelm": "ui.item.old_ward_greathelm"
  },
  "effects": {
   "cast_charge": "vfx.magic.cast_charge",

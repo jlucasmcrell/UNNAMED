@@ -5,6 +5,21 @@ namespace UNNAMED.Presentation.Tests;
 public class WornOutfitTests
 {
     [Fact]
+    public void BootBackingIsReplacedByRealLegArmour_AndReturnsOnUnequip()
+    {
+        var equipment = new Dictionary<string, string[]>
+        {
+            ["boots"] = new[] { "native_boots" },
+            ["under:boots"] = new[] { "tucked_native_trousers" },
+            ["greaves"] = new[] { "native_greaves" },
+        };
+        var boots = new WornOutfit(Feet: "boots");
+        Assert.Equal(new[] { "tucked_native_trousers", "native_boots" }, boots.Garments(Array.Empty<string>(), equipment));
+        Assert.Equal(new[] { "native_greaves", "native_boots" }, (boots with { Legs = "greaves" }).Garments(Array.Empty<string>(), equipment));
+        Assert.Equal(new[] { "tucked_native_trousers", "native_boots" }, (boots with { Legs = "unbound_legacy_trousers" }).Garments(Array.Empty<string>(), equipment));
+        Assert.Empty(new WornOutfit().Garments(Array.Empty<string>(), equipment));
+    }
+    [Fact]
     public void LayeredBodySetReplacesLooseLayers_WhileOtherEquipmentRemainsIndependent()
     {
         var equipment=new Dictionary<string,string[]>

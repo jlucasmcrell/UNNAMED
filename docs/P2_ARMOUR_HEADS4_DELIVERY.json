@@ -1,0 +1,415 @@
+{
+  "status": "FOUR_CLAUDE_FIT_APPROVED_NORMAL_ITEM_VERIFIED",
+  "items": [
+    "A07",
+    "A13",
+    "A21",
+    "A23"
+  ],
+  "bodies": [
+    "humgen_creator_female",
+    "humgen_creator_male"
+  ],
+  "files": [
+    {
+      "path": "primary\\gear_icon_receipts.json",
+      "bytes": 759,
+      "sha256": "a3df3b06e0805faa44d3aa0ffd7150cb790353e6312baf17a6cfeaf8b75dbcb2"
+    },
+    {
+      "path": "primary\\manifests\\ui_icons.json",
+      "bytes": 1635,
+      "sha256": "56a85f43b8923f7990e0c4d663c6b7fadc63ed1b48100f534d6b0f7bc353c881"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_female\\body_coverage.json",
+      "bytes": 412447,
+      "sha256": "3d82f8a0c4ef703713372c71fb28005088bde1761a4fe3270db559f7c6e3be64"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_female\\body_coverage.png",
+      "bytes": 3287,
+      "sha256": "08ef113deee0bbe8effbdbedc992de39acb3fe20f612ac31fd13eb7e70f136bf"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_female\\creator_part.json",
+      "bytes": 1454,
+      "sha256": "b1d30a8a7f0eabffe29dc57df0e7f76a59e7ea4044503d04cf24246963b157d5"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_female\\gear_old_ward_greathelm__humgen_creator_female_garment.json",
+      "bytes": 198,
+      "sha256": "dec2f238c1e6f9ab34bcc245edb3116605de705d62443aca7877d44c14a4e214"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_female\\gear_old_ward_greathelm__humgen_creator_female_rigged.glb",
+      "bytes": 102114312,
+      "sha256": "2d38dab7a7b0ec3374cc9d120f5a40bffd9032dce483681e651f39ae3cce102c"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_female\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_male\\body_coverage.json",
+      "bytes": 428186,
+      "sha256": "d56b2634b97fb5d37aa9d92ee80cdfb372a34f8416e7d8dcd5dcd36417a03e74"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_male\\body_coverage.png",
+      "bytes": 3373,
+      "sha256": "78e9d8d4bf59aec8978a244a7ed35b93437ed4523f971121f007fbbea95c7a8e"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_male\\creator_part.json",
+      "bytes": 1444,
+      "sha256": "5308b7c77c7f547e756e82d715fe10c437a4c072dc0ce08cd2188c6f264e28c7"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_male\\gear_old_ward_greathelm__humgen_creator_male_garment.json",
+      "bytes": 198,
+      "sha256": "3067ece360a8b4b7634544ecb47f4fb4ba5cadf8f816ca5096658230e13bab25"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_male\\gear_old_ward_greathelm__humgen_creator_male_rigged.glb",
+      "bytes": 102930588,
+      "sha256": "c44b5aafb9011d00cfd2396fb231b5982911e6800979134221fc7f6a9f4cc566"
+    },
+    {
+      "path": "primary\\rigged\\gear_old_ward_greathelm__humgen_creator_male\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_female\\body_coverage.json",
+      "bytes": 537722,
+      "sha256": "d61f5f8bf83a759a6c099be10073700385649cdab1acca8f5e6594857a6cfe04"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_female\\body_coverage.png",
+      "bytes": 3632,
+      "sha256": "d433d223ffaabd9662ada358ad482ea1fb399453c04ad64e7960d6cc25b44ab4"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_female\\creator_part.json",
+      "bytes": 1200,
+      "sha256": "073a21404d3393561b18026a1cd1e4069073c2c22442486f0a8607ee2dbd3537"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_female\\gear_open_road_barbute__humgen_creator_female_garment.json",
+      "bytes": 197,
+      "sha256": "fd9135b2fc77972d483f15272a1c39ff4b2b47e83dbdab3a76e6023a6f211279"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_female\\gear_open_road_barbute__humgen_creator_female_rigged.glb",
+      "bytes": 11052032,
+      "sha256": "796a519f2b041019d2e902d6c287de6f8baaa2b066ddb345ef1a0dfb44829ac4"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_female\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_male\\body_coverage.json",
+      "bytes": 569241,
+      "sha256": "30388d3dabb663ffe9f35b7154fabb47909864a895065b4a58e110e1135452ec"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_male\\body_coverage.png",
+      "bytes": 3769,
+      "sha256": "834f5b183db6416f36d762a9cd7f6790a9368389b3db6fbeb0a2acc453a8423b"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_male\\creator_part.json",
+      "bytes": 1432,
+      "sha256": "b52b09b4d9802adb94439ef60cadb02ba2524b971079ad243719db6a1f82ffa7"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_male\\gear_open_road_barbute__humgen_creator_male_garment.json",
+      "bytes": 197,
+      "sha256": "1676d976c25f93f6669837642d88282c9e2388829491093ac4664a9525ccaa4b"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_male\\gear_open_road_barbute__humgen_creator_male_rigged.glb",
+      "bytes": 11219832,
+      "sha256": "db6c867609d5c8063298a2a8240eda67968f4edd0832fc0e5659f9a142dfbe55"
+    },
+    {
+      "path": "primary\\rigged\\gear_open_road_barbute__humgen_creator_male\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_female\\body_coverage.json",
+      "bytes": 407589,
+      "sha256": "c6c16e497b55199ff167921adbf619fccb25f64726f519dcbc9d6a94f0a6bfaf"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_female\\body_coverage.png",
+      "bytes": 3681,
+      "sha256": "c4b396ce4266b323f67fb7d589c6fff44b6a7dd762a2462e33634c79bd059502"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_female\\creator_part.json",
+      "bytes": 1419,
+      "sha256": "a5a167168e32313a6b2f3b77850e1b553b473a16fd429a0e03ae3eda0b757759"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_female\\gear_river_open_helm__humgen_creator_female_garment.json",
+      "bytes": 195,
+      "sha256": "8a1705745156b9a0b95ba851213a8cab4ad21d8bdbf822e7db7c03e0bd40c7f5"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_female\\gear_river_open_helm__humgen_creator_female_rigged.glb",
+      "bytes": 23607056,
+      "sha256": "dc18a677ef7b7da9cde0e504fd109de0c434adccbfb4d685d2c0f5fefbfb8e5b"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_female\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_male\\body_coverage.json",
+      "bytes": 456104,
+      "sha256": "bb8c742cd0a7511113ae2b3650918384587fd1fb7b4c05f344b91573ab0fdd09"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_male\\body_coverage.png",
+      "bytes": 3962,
+      "sha256": "84b3a2745e2c1c7d64b30f21a2dfd13e7728ad088babfcdd2fc3004977a74315"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_male\\creator_part.json",
+      "bytes": 1409,
+      "sha256": "111f8753e64b5008694a9c2bf6d885734d4d8548b0b65dde012edf60b2df247e"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_male\\gear_river_open_helm__humgen_creator_male_garment.json",
+      "bytes": 195,
+      "sha256": "8456089deefb2a44bb176b299eb2ab07b9ddf5a9fe4423c03b28375a72cc2d80"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_male\\gear_river_open_helm__humgen_creator_male_rigged.glb",
+      "bytes": 23762128,
+      "sha256": "99be3533dbbcc0d9a82d9281a6bb8ef7694f11772a9f23a00b6749e329860897"
+    },
+    {
+      "path": "primary\\rigged\\gear_river_open_helm__humgen_creator_male\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_female\\body_coverage.json",
+      "bytes": 531973,
+      "sha256": "a211207c087c69c12ab728e2de77f81615ec7ce223504a4233c0cf4020b755e5"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_female\\body_coverage.png",
+      "bytes": 3896,
+      "sha256": "77e6703991f704a45adf9ce1ffa9a2d1283577809429cd0e3c7f08924eb417ea"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_female\\creator_part.json",
+      "bytes": 1431,
+      "sha256": "6356ea4180320e472c611adc50d48c1835c2179d5db3ff34b2799bab1b8e8e98"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_female\\gear_ward_closed_helm__humgen_creator_female_garment.json",
+      "bytes": 196,
+      "sha256": "9c8f0acd05bcd67627ccc59ea5991a8d2eaf55dbf054a125eac7a8907b1c0e83"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_female\\gear_ward_closed_helm__humgen_creator_female_rigged.glb",
+      "bytes": 30972372,
+      "sha256": "88ff9e1e4314706e3b1a3f0bc8b7b044e4dac7516829c0fa9b38e03d8c532bc0"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_female\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_male\\body_coverage.json",
+      "bytes": 554073,
+      "sha256": "9d4c1283423c9425f42e8d8d0c0ea060674325f87f0bee4c7e7b4f22595f57ab"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_male\\body_coverage.png",
+      "bytes": 3911,
+      "sha256": "a73910caee5ebe7683c15e0aaf7348ef8ef2c50e5a5a3a831785ff1ceb300b0f"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_male\\creator_part.json",
+      "bytes": 1421,
+      "sha256": "440495557e15c29139b5604353b3e8d9674fa8b054c1ebcef8f6b1777a6eca99"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_male\\gear_ward_closed_helm__humgen_creator_male_garment.json",
+      "bytes": 196,
+      "sha256": "b40cc2f772b8354cd493246ff96075d8ac7dd603a3fa506b4194e70000fa15b8"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_male\\gear_ward_closed_helm__humgen_creator_male_rigged.glb",
+      "bytes": 30977728,
+      "sha256": "735293732cb753af654ed619eabb7c92742c478368a3fa6a8b88caefc4054dda"
+    },
+    {
+      "path": "primary\\rigged\\gear_ward_closed_helm__humgen_creator_male\\native_materials.json",
+      "bytes": 2,
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    {
+      "path": "primary\\texture_cache\\04f8751e73a78e08a4ba3a50.color.dds",
+      "bytes": 1398276,
+      "sha256": "0579c9ec0387c734986e476b52d91d2abf287c484c16a51d18651dc6a4127f29"
+    },
+    {
+      "path": "primary\\texture_cache\\0bbf1a7921954f3099a0ae0b.data.dds",
+      "bytes": 5592580,
+      "sha256": "fded1ec09a746a4345d5149d32d236c5a079adb3e411fdb63b521a6e0cf08f14"
+    },
+    {
+      "path": "primary\\texture_cache\\0c6906a3e0769ba2ae05acfc.color.dds",
+      "bytes": 87556,
+      "sha256": "8e0c1988da247dfb15aa66a077faf5e5c6eaa784bc90f63cc49f17b744d43fc8"
+    },
+    {
+      "path": "primary\\texture_cache\\348a2da22a6db530cc6ad03d.color.dds",
+      "bytes": 22020,
+      "sha256": "5696736c4017f9afceeb3e48df72fd811621bd7850ac35f81b914ced4b57bc64"
+    },
+    {
+      "path": "primary\\texture_cache\\3e417c4fd1a2e0fd0e95500f.color.dds",
+      "bytes": 87556,
+      "sha256": "782d322cf33c5d6eca3491d06206b8ec7c2ec3d515b1d0cbbde70fb641527da5"
+    },
+    {
+      "path": "primary\\texture_cache\\41f1b2a9a7d4faa9e0882250.color.dds",
+      "bytes": 5592580,
+      "sha256": "a50edbe74c5d00aa19c6d379b3b8682f1950669b09c0480eb055bbf9a0fe8b56"
+    },
+    {
+      "path": "primary\\texture_cache\\4571a45562870efcbcbaacbe.color.dds",
+      "bytes": 1398276,
+      "sha256": "2f760fab7a16d0a272daed290cf9fcc02399f896a6396b0a9b0bd0004b40154f"
+    },
+    {
+      "path": "primary\\texture_cache\\4a9a5212ffcfb0dac22bf46d.color.dds",
+      "bytes": 5592580,
+      "sha256": "a98f03e152804557658def3c45d3159b287b56e7f8518cdaa54b345565330ea3"
+    },
+    {
+      "path": "primary\\texture_cache\\53092a9225cb45cefe66fe9f.color.dds",
+      "bytes": 22369796,
+      "sha256": "3df3ed194ad923daacbcf1915d8985d0a0a23ec017b08f00282656f80dac311d"
+    },
+    {
+      "path": "primary\\texture_cache\\570a015ef1a9060d40dab1ed.color.dds",
+      "bytes": 87556,
+      "sha256": "c9c847ce1d5491b43ecb762bbf2425def157a13e249f34dbcaaa43dff631e195"
+    },
+    {
+      "path": "primary\\texture_cache\\5a19280b6fa1f6a7846dff36.normal.dds",
+      "bytes": 22369796,
+      "sha256": "ea6a0276afddb42d0a0a3b8f524c35854079044369720f0985d5c410de72c9c6"
+    },
+    {
+      "path": "primary\\texture_cache\\69c4f6999aa3fdd36ad2ac6c.normal.dds",
+      "bytes": 5592580,
+      "sha256": "a1dea649f34f3323a0396456ef3166c036248cc9d1bf0fe0f8a71edf23f62a11"
+    },
+    {
+      "path": "primary\\texture_cache\\70eaa293488ca7b57c89e88d.color.dds",
+      "bytes": 22020,
+      "sha256": "ea4572c92b8aa58105365eb7dee7922d37c29ee6fa1028f07af6a744a9c3797d"
+    },
+    {
+      "path": "primary\\texture_cache\\773cb26cf466522f4b5bb334.color.dds",
+      "bytes": 22020,
+      "sha256": "579dd024f50a7cb15f92d3a599ec8cc7a8a812e29e9b861ac89104bb54d933c2"
+    },
+    {
+      "path": "primary\\texture_cache\\7bf09a7beb88b7126083ee7b.normal.dds",
+      "bytes": 5592580,
+      "sha256": "0282e97b271191fbdb7cb7d755a6f7d393de43b657d786cda80f02eb745001ed"
+    },
+    {
+      "path": "primary\\texture_cache\\828d3b3b0740494818d8d2ab.data.dds",
+      "bytes": 22369796,
+      "sha256": "51ad8b4b8b152ec50d03168a67155f18f2a0c8cdc7d79cbac8267429f92ae14d"
+    },
+    {
+      "path": "primary\\texture_cache\\9766b6a9bc1cb5668e6badb5.data.dds",
+      "bytes": 1398276,
+      "sha256": "ba744920bbcfd755428d4b58d4bee7cdcc4af1300f04c6fff0a16dfe04d76b32"
+    },
+    {
+      "path": "primary\\texture_cache\\c624e89c567862629a855e75.color.dds",
+      "bytes": 22020,
+      "sha256": "7e0ed42b83181c27f4e1cd987e4491df81282b98b60c1b873157a9be550bc0bf"
+    },
+    {
+      "path": "primary\\texture_cache\\e02825faf43b9095876e908d.color.dds",
+      "bytes": 87556,
+      "sha256": "e82df34a15036cc6266cc6abec7af05c6839eb8653452c583cdf6b8b1938f609"
+    },
+    {
+      "path": "primary\\texture_cache\\e0ac79a9bb1208e073e943c4.data.dds",
+      "bytes": 5592580,
+      "sha256": "cafe74a88e968edfcb829623a49b3bfda82539bf96700ae41dff1b1483c9357c"
+    },
+    {
+      "path": "primary\\texture_cache\\f13583ebd642ee286154b45f.normal.dds",
+      "bytes": 1398276,
+      "sha256": "a951cce29dc6844969b43483d5b82da8e5d1cfee040bf859f4b0e3051b0b9eba"
+    },
+    {
+      "path": "primary\\texture_cache\\manifest.json",
+      "bytes": 8768,
+      "sha256": "70f89d52aca6453b62898eed60f68255292abd5fa53440bc03248f9f24654c9e"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_old_ward_greathelm_128.png",
+      "bytes": 15441,
+      "sha256": "9c5034bf14fd63e376e6d076341898ee97b94b691d0b7c67c184ca1941e7561b"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_old_ward_greathelm_256.png",
+      "bytes": 56297,
+      "sha256": "30cf92865125905da7ab8f6a34c493ede520497779bcc69dd4c47a9ad3041a35"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_open_road_barbute_128.png",
+      "bytes": 10915,
+      "sha256": "9908d419e9c664241e95fa1cb720b73e3777b3f5ebc14ac13bbe67653a523641"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_open_road_barbute_256.png",
+      "bytes": 32823,
+      "sha256": "d119005471413647e84afa4f14441b0d00a0e5d319ff13aa8f942d0bd2ed3966"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_river_open_helm_128.png",
+      "bytes": 18360,
+      "sha256": "1c3908057d15146173eabff2924ea2a521be768b9221b5ad1c4ecdaf19361ea9"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_river_open_helm_256.png",
+      "bytes": 70073,
+      "sha256": "b29298c8ac560073e088499711ef4f1e3682662c5af2ff68e0e021a4d2e67f2f"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_ward_closed_helm_128.png",
+      "bytes": 15451,
+      "sha256": "49178a7739a0d43d30666347eb77ea00637f07a313f53cd98231b59e5b78fa32"
+    },
+    {
+      "path": "primary\\ui\\icons\\ui_item_ward_closed_helm_256.png",
+      "bytes": 47286,
+      "sha256": "672d4f21cd7020a32ae6e5a0cedf1e631a22d830453f4a10cba669ca50d8984c"
+    }
+  ]
+}
