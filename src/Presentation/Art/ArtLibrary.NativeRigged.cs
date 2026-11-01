@@ -121,7 +121,9 @@ public sealed partial class ArtLibrary
         if (expected is not null && !string.Equals(expected, Path.GetFullPath(actual), StringComparison.OrdinalIgnoreCase))
             throw new InvalidDataException("Native static source is shadowed: " + expected);
         if (requireSelected && !NativeStaticSelected(actual)) throw new InvalidDataException("Native static source is not selected: " + relative);
-        return Instance(Path.GetFileName(Path.GetDirectoryName(relative))!, relative.Replace('/', Path.DirectorySeparatorChar));
+        // ModelLevels uses the level filename as semantic ID; retaining _lod1-3
+        // matters because authored far levels must not acquire building occluders.
+        return Instance(Path.GetFileNameWithoutExtension(relative), relative.Replace('/', Path.DirectorySeparatorChar));
     }
 
     private static IEnumerable<BaseMaterial3D> NativeRiggedMaterials(Node root) => root
