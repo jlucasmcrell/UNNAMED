@@ -46,7 +46,7 @@ public sealed record LoadCost(int Scenes, double SceneMs, int ModelTextures, dou
 /// under <c>materials/&lt;id&gt;/</c>. Each file is loaded once and instanced after. Nothing here repairs an asset: one that is missing or
 /// will not load is recorded against its ID (<see cref="Problems"/>) and its caller draws the greybox.
 /// </summary>
-public sealed class ArtLibrary
+public sealed partial class ArtLibrary
 {
     /// <summary>Immutable native scenes/textures shared within this world's MetaHuman instances.</summary>
     public Godot.Collections.Dictionary MetaHumanResources { get; } = new();
@@ -62,7 +62,6 @@ public sealed class ArtLibrary
             _sourceHashes[path] = hash = Godot.FileAccess.GetSha256(path);
         return hash;
     }
-
     private readonly Dictionary<string, Animation?> _clips = new(StringComparer.Ordinal);
     private readonly Dictionary<string, SkeletonRest?> _clipRests = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ClipInfo?> _clipInfo = new(StringComparer.Ordinal);
@@ -111,10 +110,10 @@ public sealed class ArtLibrary
         _nativeSceneRoot = sceneCachePrefix is not null && FallbackRoot is not null
             ? Path.Combine(FallbackRoot, "barrowworks_native", Engine.GetVersionInfo()["string"].AsString(), SceneCacheFormat) : null;
         Cache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? root : null, BuildTextureCache,
-            _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
+            _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache && _nativeSceneRoot is not null);
         if (FallbackRoot is not null && !string.Equals(root, FallbackRoot, StringComparison.OrdinalIgnoreCase))
             _fallbackCache = new TextureCache(useTextureCache || VisualOptions.All.GetValueOrDefault("textures") == "cache" || BuildTextureCache ? FallbackRoot : null,
-                BuildTextureCache, _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache);
+                BuildTextureCache, _nativeSceneRoot is not null ? Path.Combine(_nativeSceneRoot, "textures") : null, buildSceneCache && _nativeSceneRoot is not null);
         // Build-only cache in the owned depot, never its primary texture-cache junction. Normal play loads the
         // shared BC7 resources referenced by the native scenes; no extra texture dictionary retains the interior.
         _interiorBuildCache = buildSceneCache && _nativeSceneRoot is not null && FallbackRoot is not null
@@ -733,6 +732,14 @@ public sealed class ArtLibrary
         }
         ulong started = Time.GetTicksUsec();
         string? stamp = null;
+        bool riggedNative = NativeRiggedEligible(path);
+        if (riggedNative && TryNativeRigged(path) is { } riggedCached)
+        {
+            _sceneCount++;
+            _sceneMs += (Time.GetTicksUsec() - started) / 1000.0;
+            GD.Print($"UNNAMED native rigged scene: {Path.GetFileName(path)} {(Time.GetTicksUsec() - started) / 1000.0:0} ms");
+            return riggedCached;
+        }
         if (_nativeSceneRoot is not null && _sceneCachePrefix is not null && id.StartsWith(_sceneCachePrefix, StringComparison.Ordinal))
         {
             // Keep the full-source proof without allocating every GLB on the large-object heap at portal entry.
@@ -811,6 +818,7 @@ public sealed class ArtLibrary
             Problem(id, $"the loaded scene would not pack ({error})");
             return null;
         }
+        if (riggedNative && _buildSceneCache) SaveNativeRigged(packed, path);
         if (stamp is not null && _buildSceneCache)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(native)!);
@@ -917,7 +925,8 @@ public sealed class ArtLibrary
         var ended = _prefetchEnded.Token;
         // A line relative to a workspace (a shipped order, see LoadOrder) is found the way the build will find it, so its key is the
         // build's own path string.
-        var queue = paths.Select(p => Path.IsPathRooted(p) ? p : At(p) ?? "").Where(p => File.Exists(p) && !_ahead.ContainsKey(p))
+        var queue = paths.Select(p => Path.IsPathRooted(p) ? p : At(p) ?? "").Where(p => File.Exists(p) && !_ahead.ContainsKey(p)
+                && !(NativeRiggedEligible(p) && File.Exists(NativeRiggedFile(p))))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .Select(p => (Path: p, Done: _ahead[p] = new TaskCompletionSource<Parsed>(TaskCreationOptions.RunContinuationsAsynchronously))).ToList();
         Task.Run(async () =>

@@ -21,6 +21,20 @@ public sealed class TextureCache
     private const string CompressedMetadata = "otherreach_validated_compressed_image";
     internal static bool KnownCompressed(Texture2D texture) => texture.GetMeta(CompressedMetadata, false).AsBool();
     internal static void MarkCompressed(Texture2D texture) => texture.SetMeta(CompressedMetadata, true);
+    internal static string NativeDds(Texture2D texture) => texture.GetMeta("otherreach_native_dds", "").AsString();
+    internal Texture2D ShareNative(Texture2D texture)
+    {
+        string name = NativeDds(texture);
+        if (name.Length == 0) throw new InvalidDataException("Native scene texture has no signed DDS source");
+        int maximum = texture.GetMeta("otherreach_native_maximum", int.MaxValue).AsInt32();
+        string key = name + "@" + maximum;
+        Hits++;
+        if (_loaded.TryGetValue(key, out var shared) && shared is not null) return shared;
+        _loaded[key] = texture;
+        CompressedBytes += new FileInfo(Path.Combine(_root!, Folder, name)).Length - 148;
+        return texture;
+    }
+
 
     /// <summary>Packages must never silently expand a missing/stale large cache entry into an RGBA upload.</summary>
     public static void RequireCompressed(Texture2D texture, string source)
@@ -204,6 +218,8 @@ public sealed class TextureCache
         {
             // Reuse the same external texture as native model scenes, including their LODs.
             _loaded[loadedKey] = shared;
+            shared.SetMeta("otherreach_native_dds", name);
+            shared.SetMeta("otherreach_native_maximum", maxSize);
             CompressedBytes += new FileInfo(path).Length - 148; // BC7 DDS/DX10 header.
             return shared;
         }
@@ -216,6 +232,8 @@ public sealed class TextureCache
             {
                 var upload = _buildNative ? image : WithinSize(image, maxSize);
                 texture = ImageTexture.CreateFromImage(upload);
+                texture.SetMeta("otherreach_native_dds", name);
+                texture.SetMeta("otherreach_native_maximum", maxSize);
                 if (upload.IsCompressed()) MarkCompressed(texture);
                 if (retain) CompressedBytes += upload.GetDataSize(); // Scoped player maps are not retained in this cache.
                 if (upload != image)

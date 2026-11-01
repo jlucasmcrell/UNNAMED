@@ -24,6 +24,7 @@
   <ItemGroup>
     <Compile Include="..\..\src\Presentation\Art\CharacterLodBand.cs" Link="Linked\CharacterLodBand.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtRecords.cs" Link="Linked\ArtRecords.cs" />
+    <Compile Include="..\..\src\Presentation\Art\NativeSceneProof.cs" Link="Linked\NativeSceneProof.cs" />
     <Compile Include="..\..\src\Presentation\Ui\AssetWorkspace.cs" Link="Linked\AssetWorkspace.cs" />
     <Compile Include="..\..\src\Presentation\Art\ArtCoverage.cs" Link="Linked\ArtCoverage.cs" />
     <Compile Include="..\..\src\Presentation\Art\ScatterRules.cs" Link="Linked\ScatterRules.cs" />

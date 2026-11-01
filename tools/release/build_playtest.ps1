@@ -73,7 +73,7 @@ if (Test-Path $scatterPath) {
 "--- fallback"
 # Only ArtLibrary reads the fallback, through ready\, rigged\, animation\ready\ and materials\ (and their texture_cache). Audio, clips, manifests,
 # rigs, sockets, sky, ui, vfx and the animation source/review folders are read from primary only. A file the primary also holds is never reached.
-$fallbackKept = 'ready', 'rigged', 'materials', 'animation\ready', 'texture_cache'
+$fallbackKept = 'ready', 'rigged', 'materials', 'animation\ready', 'texture_cache', 'character_native'
 foreach ($dir in $fallbackKept) { if (Test-Path "$AssetBase\fallback\$dir") { Robo "$AssetBase\fallback\$dir" "$game\fallback\$dir" } }
 $shadowed = 0L; $fallbackRoot = "$game\fallback\"
 foreach ($file in Get-ChildItem "$game\fallback" -Recurse -File -Force | Where-Object { $_.FullName -notlike "${fallbackRoot}texture_cache\*" }) {

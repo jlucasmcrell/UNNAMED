@@ -5,7 +5,7 @@ import os
 from pathlib import Path
 import shutil
 
-IMMUTABLE={'.dds','.glb','.res','.png','.jpg','.jpeg','.webp','.exr','.hdr','.wav','.ogg'}
+IMMUTABLE={'.dds','.glb','.res','.scn','.png','.jpg','.jpeg','.webp','.exr','.hdr','.wav','.ogg'}
 
 
 def developer_file(relative):
