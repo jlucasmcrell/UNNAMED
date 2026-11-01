@@ -53,22 +53,16 @@ public static class Terrain3DView
     /// A region's ground palette belongs to the region - the terrain is what a place looks like underfoot - and the
     /// shared root's <c>terrain_cells.json</c> is one region's answer that every other region was inheriting.
     /// </summary>
-    private static string? RegionPaletteRoot(string? assetRoot, string regionId)
+    private static string? RegionPaletteFile(ArtLibrary art, string regionId, string file)
     {
-        if (assetRoot is null || regionId.Length == 0)
-            return assetRoot;
         string slug = regionId.StartsWith("region.", StringComparison.Ordinal) ? regionId["region.".Length..] : regionId;
-        string candidate = Path.Combine(assetRoot, "regions", slug);
-        return Directory.Exists(candidate) ? candidate : assetRoot;
+        return (slug.Length > 0 ? art.At(Path.Combine("regions", slug, file)) : null) ?? art.At(file);
     }
 
-    private static (string Id, float UvScale, Color Tint)[] ResolveLayers(string? assetRoot, out string? why)
+    private static (string Id, float UvScale, Color Tint)[] ResolveLayers(string? path, out string? why)
     {
         why = null;
-        if (assetRoot is null)
-            return DefaultLayers;
-        string path = Path.Combine(assetRoot, "terrain_layers.json");
-        if (!File.Exists(path))
+        if (path is null)
             return DefaultLayers;
         try
         {
@@ -99,13 +93,10 @@ public static class Terrain3DView
     /// strongly. Null (with a reason, when there was a file and it was wrong) means the region named none, and
     /// Ashen Hollow's own arrangement stands exactly as it was.
     /// </summary>
-    private static CellPalette? ResolveCellPalette(string? assetRoot, out string? why)
+    private static CellPalette? ResolveCellPalette(string? path, out string? why)
     {
         why = null;
-        if (assetRoot is null)
-            return null;
-        string path = Path.Combine(assetRoot, "terrain_cells.json");
-        if (!File.Exists(path))
+        if (path is null)
             return null;
         try
         {
@@ -168,14 +159,14 @@ public static class Terrain3DView
         // the contract the blending below depends on. Resolved here and threaded down, never a static.
         // A region may also fill the nine slots itself beside its palette (the Steps lay cobble where the moor wears a peat trail);
         // without its own terrain_layers.json it takes the shared root's.
-        string? regionRoot = RegionPaletteRoot(art.Root, regionId);
-        var slots = ResolveLayers(regionRoot is not null && File.Exists(Path.Combine(regionRoot, "terrain_layers.json")) ? regionRoot : art.Root,
-            out string? layerWhy);
-        var palette = ResolveCellPalette(regionRoot, out string? paletteWhy);
+        string? layerPath = RegionPaletteFile(art, regionId ?? "", "terrain_layers.json");
+        string? palettePath = RegionPaletteFile(art, regionId ?? "", "terrain_cells.json");
+        var slots = ResolveLayers(layerPath, out string? layerWhy);
+        var palette = ResolveCellPalette(palettePath, out string? paletteWhy);
         if (paletteWhy is not null)
             GD.PushWarning($"UNNAMED terrain cells: {paletteWhy}");
         if (palette is not null)
-            GD.Print($"UNNAMED terrain cells: the region's own ground palette from {art.Root}");
+            GD.Print($"UNNAMED terrain cells: the region's own ground palette from {palettePath}");
         if (layerWhy is not null)
             GD.PushWarning($"UNNAMED terrain layers: {layerWhy}");
         var layers = new List<GodotObject>();
@@ -689,12 +680,12 @@ public static class Terrain3DView
 
     private static GodotObject? TextureAsset(string id, float uvScale, Color tint, ArtLibrary art)
     {
-        var assetRoot = art.Root;
-        if (assetRoot is null)
+        string? albedoPath = art.At(Path.Combine("materials", id, id + "_albedo_height.png"));
+        string? normalPath = art.At(Path.Combine("materials", id, id + "_normal_rough.png"));
+        if (albedoPath is null || normalPath is null)
             return null;
-        string folder = Path.Combine(assetRoot, "materials", id);
-        var albedo = art.Texture(Path.Combine(folder, id + "_albedo_height.png"), "color");
-        var normal = art.Texture(Path.Combine(folder, id + "_normal_rough.png"), "normal");
+        var albedo = art.Texture(albedoPath, "color");
+        var normal = art.Texture(normalPath, "normal");
         if (albedo is null || normal is null)
             return null;
         var asset = ClassDB.Instantiate("Terrain3DTextureAsset").AsGodotObject();

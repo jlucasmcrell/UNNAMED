@@ -21,6 +21,11 @@ func _run() -> void:
 	while scene.get_node_or_null("Creator") == null:
 		await create_timer(1).timeout
 	await create_timer(4).timeout
+	var terrains := scene.find_children("*", "Terrain3D", true, false)
+	if terrains.size() != 1:
+		push_error("B034 FAILED: intended Terrain3D renderer is not active")
+		quit(1)
+		return
 	var rig: Node3D
 	for node in scene.find_children("*", "Node3D", true, false):
 		if node.get_script() != null and node.get_script().resource_path == "res://Player/CameraRig.cs":
@@ -52,7 +57,6 @@ func _run() -> void:
 	camera.global_position = centre + Vector3(sin(deg_to_rad(220.0)) * 3.6, .5, cos(deg_to_rad(220.0)) * 3.6)
 	camera.look_at(centre)
 	await shot("03_report_room_pose_shared")
-	var terrains := scene.find_children("*", "Terrain3D", true, false)
 	for terrain in terrains:
 		terrain.call("set_camera", camera)
 	await shot("04_diagnostic_terrain_camera_bound")
@@ -63,6 +67,8 @@ func _run() -> void:
 	game_camera.make_current()
 	for terrain in terrains:
 		terrain.call("set_camera", game_camera)
+	# Let the normal queued quest cards finish; keep the production HUD and every room object visible.
+	await create_timer(25).timeout
 	await shot("06_game_camera_after")
 	var arm: SpringArm3D = game_camera.get_parent()
 	var camera_record := {"position":str(game_camera.global_position), "basis":str(game_camera.global_basis), "fov":game_camera.fov, "spring_length":arm.spring_length, "hit_length":arm.get_hit_length(), "occlusion":root.use_occlusion_culling}

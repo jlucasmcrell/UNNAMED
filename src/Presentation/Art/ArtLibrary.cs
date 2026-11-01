@@ -134,7 +134,7 @@ public sealed class ArtLibrary
     }
 
     /// <summary>Where <paramref name="relative"/> actually lies, or null when no workspace holds it.</summary>
-    private string? At(string relative)
+    internal string? At(string relative)
     {
         foreach (string workspace in Workspaces)
         {
