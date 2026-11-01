@@ -394,3 +394,23 @@ Nothing from Sonniss, Cosmos, Kenney or OpenGameArt was fed to any AI model.
    Epic Stock Media - Fantasy Game 2 - Sound Kit for Enchanted Realms / GAMEMisc_Source Card Tarot Deck Generic Neutral Dry Heavy Shuffle 01_ESM_FG2.wav  ->  sfx.magic.tripwire_sigil
    Epic Stock Media - Fantasy Game 2 - Sound Kit for Enchanted Realms / MAGAngl_Magic Light Spell Enchantment Potion Effect Tonal Bright 03_ESM_FG2.wav  ->  sfx.magic.holdfast, sfx.magic.keen_note
    Epic Stock Media - Fantasy Game 2 - Sound Kit for Enchanted Realms / UIAlert_Collect Scifi Futuristic Electronic Bass Burst Sweep Heavy 04_ESM_FG2.wav  ->  sfx.magic.keen_note
+
+== Water SFX (swimming)
+   licence: Cosmos Premium subscription terms (post-subscription rights unconfirmed, see ASSET_DECISIONS); owner rule: no AI/ML use
+   licence: Sonniss GDC 2026 licence: royalty-free, commercial use, no attribution; no redistribution as a library; owner rule: no AI/ML use
+   Cut from the library at one window, filtered and levelled to the movement mix: wading ankle-deep -30 LUFS momentary max,
+   knee-deep -28, a stroke -26, treading -29, entering -22, leaving -24, the underwater bed -30 as a stereo loop; PCM_24.
+   Leartes Cosmos Premium (Sounds) / Landing on Puddle (WW2_Landing_Puddle) / A_WW2_Landing_Puddle_001.wav  ->  sfx.player.water.exit
+   Leartes Cosmos Premium (Sounds) / Pouring Loop (PAD_Pouring_Loop) / A_Pouring_Loop.wav  ->  sfx.player.water.exit
+   Leartes Cosmos Premium (Sounds) / Running on Puddle (WW2_Run_Puddle) / A_WW2_Run_Puddle_001.wav  ->  sfx.player.wade.knee_deep
+   Leartes Cosmos Premium (Sounds) / Running on Puddle (WW2_Run_Puddle) / A_WW2_Run_Puddle_003.wav  ->  sfx.player.wade.knee_deep
+   Leartes Cosmos Premium (Sounds) / Running on Puddle (WW2_Run_Puddle) / A_WW2_Run_Puddle_005.wav  ->  sfx.player.wade.knee_deep
+   Leartes Cosmos Premium (Sounds) / Running on Puddle (WW2_Run_Puddle) / A_WW2_Run_Puddle_007.wav  ->  sfx.player.wade.knee_deep
+   Leartes Cosmos Premium (Sounds) / Spear Fishing (Spear fishing) / Survival SFX - spearfishing2.wav  ->  sfx.player.water.enter
+   Leartes Cosmos Premium (Sounds) / Walking on Puddle (WW2_Walking_Puddle) / A_WW2_Walk_Puddle_001.wav  ->  sfx.player.wade.shallow
+   Leartes Cosmos Premium (Sounds) / Walking on Puddle (WW2_Walking_Puddle) / A_WW2_Walk_Puddle_002.wav  ->  sfx.player.wade.shallow
+   Leartes Cosmos Premium (Sounds) / Walking on Puddle (WW2_Walking_Puddle) / A_WW2_Walk_Puddle_003.wav  ->  sfx.player.wade.shallow
+   Leartes Cosmos Premium (Sounds) / Walking on Puddle (WW2_Walking_Puddle) / A_WW2_Walk_Puddle_004.wav  ->  sfx.player.wade.shallow
+   Sonniss #GameAudioGDC 2026 bundle / Epic Stock Media - Elemental Mutation Whooshes and Impacts / WATRImpt_Impact Water Deep Submerge Bubble Drown Ship Hit 05_ESM_EMWI.wav  ->  sfx.player.water.enter
+   Sonniss #GameAudioGDC 2026 bundle / Epic Stock Media - Public Spaces - Storms Lakes Parks and Rural Nature Exteriors / WATRLap_Summer Tennessee Lake Dock Water Ripples Wake Wave Gentle 05 Distant_ESM_CPS.wav  ->  sfx.player.swim.tread
+   Sonniss #GameAudioGDC 2026 bundle / Just Sound Effects - Highlands of Norway / WATRLap_Small Waves sloshing onto Rock Slabs at huge Glacial Lake _JSE_HoN_Quad.wav  ->  sfx.player.swim.stroke, sfx.water.underwater.bed

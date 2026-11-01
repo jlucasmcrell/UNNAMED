@@ -6988,7 +6988,21 @@
    "switch.stone_southeast": "sfx.amb.foldscar.stone_resonance.01",
    "switch.foldscar_heart": "sfx.amb.foldscar.stone_resonance.01"
   },
-  "forge_station": "forge"
+  "forge_station": "forge",
+  "water": {
+   "states": {
+    "wade": "sfx.player.wade.shallow",
+    "swim": "sfx.player.swim.stroke",
+    "tread": "sfx.player.swim.tread",
+    "enter_water": "sfx.player.water.enter",
+    "exit_water": "sfx.player.water.exit"
+   },
+   "wade_depths": {
+    "shallow": "sfx.player.wade.shallow",
+    "knee_deep": "sfx.player.wade.knee_deep"
+   },
+   "underwater_bed": "sfx.water.underwater.bed"
+  }
  },
  "resident_people": {
   "people.constructed": [

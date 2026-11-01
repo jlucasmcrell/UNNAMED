@@ -255,6 +255,18 @@ public sealed class ArtBindings
     /// <summary>The footstep surface of a worn path or road (<c>audio.path_surface</c>), heard on the path whatever its cell's ground; none, the cell's.</summary>
     public string? PathSurface { get; private init; }
 
+    /// <summary>
+    /// What the player's movement sounds like in water (<c>audio.water.states</c>), by the movement state the game names: wade, swim,
+    /// tread, enter_water, exit_water. A wade's own sound depends on the depth, which is <see cref="WaterDepths"/>.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> WaterStates { get; private init; } = new Dictionary<string, string>();
+
+    /// <summary>How deep a wade is, and what it sounds like there (<c>audio.water.wade_depths</c>): shallow, knee_deep.</summary>
+    public IReadOnlyDictionary<string, string> WaterDepths { get; private init; } = new Dictionary<string, string>();
+
+    /// <summary>The bed heard with the head under water (<c>audio.water.underwater_bed</c>), a looping wash; null, silence.</summary>
+    public string? UnderwaterBed { get; private init; }
+
     /// <summary>The bed heard inside a building (<c>audio.interior_bed</c>), in place of the cell's.</summary>
     public string? InteriorBed { get; private init; }
 
@@ -502,6 +514,9 @@ public sealed class ArtBindings
                 ForgeStation = Text(audio, "forge_station"),
                 PathSurface = Text(audio, "path_surface"),
                 InteriorBed = Text(audio, "interior_bed"),
+                WaterStates = audio.ValueKind == JsonValueKind.Object ? Strings(Nested(audio, "water"), "states") : new Dictionary<string, string>(),
+                WaterDepths = audio.ValueKind == JsonValueKind.Object ? Strings(Nested(audio, "water"), "wade_depths") : new Dictionary<string, string>(),
+                UnderwaterBed = audio.ValueKind == JsonValueKind.Object ? Text(Nested(audio, "water"), "underwater_bed") : null,
 
                 AmbiencePlaces = audio.ValueKind == JsonValueKind.Object && audio.TryGetProperty("ambience", out var ambience)
                     && ambience.TryGetProperty("places", out var ambiencePlaces)
@@ -877,6 +892,10 @@ public sealed class ArtBindings
 
     private static string? Text(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) && value.ValueKind == JsonValueKind.String ? value.GetString() : null;
+
+    /// <summary>The object a nested block hangs under (<c>audio.water</c>), or an undefined element when the file has none.</summary>
+    private static JsonElement Nested(JsonElement e, string name) =>
+        e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var value) ? value : default;
 
     private static Dictionary<string, string> Strings(JsonElement e, string name) =>
         e.ValueKind == JsonValueKind.Object && e.TryGetProperty(name, out var map) && map.ValueKind == JsonValueKind.Object
