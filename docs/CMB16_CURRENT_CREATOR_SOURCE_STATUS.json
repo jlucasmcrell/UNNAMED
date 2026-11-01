@@ -1,0 +1,1226 @@
+{
+  "status": "IN_PROGRESS_CURRENT_CREATOR_RETARGET_SOURCE_NOT_RENDERED",
+  "body": "humgen_creator_female",
+  "retarget": {
+    "clips": [
+      {
+        "state": "shove",
+        "source": "ual1/Push_Loop",
+        "source_asset": "/Game/HumGenSources/ual1/UAL1_Standard/SkeletalMeshes/UAL1_StandardPush_Loop.UAL1_StandardPush_Loop",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/ual1/HG_humgen_creator_female_UAL1_StandardPush_Loop.HG_humgen_creator_female_UAL1_StandardPush_Loop",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\shove.glb",
+        "seconds": 2.6666667461395264,
+        "source_rate_scale": 1.0
+      },
+      {
+        "state": "stumble",
+        "source": "ual2/Hit_Knockback",
+        "source_asset": "/Game/HumGenSources/ual2/UAL2_Standard/SkeletalMeshes/UAL2_StandardHit_Knockback.UAL2_StandardHit_Knockback",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/ual2/HG_humgen_creator_female_UAL2_StandardHit_Knockback.HG_humgen_creator_female_UAL2_StandardHit_Knockback",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\stumble.glb",
+        "seconds": 0.8333333134651184,
+        "source_rate_scale": 1.0
+      },
+      {
+        "state": "prone_fall",
+        "source": "fal/anim_Stand_To_Prone",
+        "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Stand_To_Prone.anim_Stand_To_Prone",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/fal/HG_humgen_creator_female_anim_Stand_To_Prone.HG_humgen_creator_female_anim_Stand_To_Prone",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_fall.glb",
+        "seconds": 2.5,
+        "source_rate_scale": 1.2999999523162842
+      },
+      {
+        "state": "prone_idle",
+        "source": "fal/anim_Prone_Idle",
+        "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Prone_Idle.anim_Prone_Idle",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/fal/HG_humgen_creator_female_anim_Prone_Idle.HG_humgen_creator_female_anim_Prone_Idle",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_idle.glb",
+        "seconds": 1.0,
+        "source_rate_scale": 1.0
+      },
+      {
+        "state": "prone_rise",
+        "source": "fal/anim_Prone_To_Stand",
+        "source_asset": "/Game/FreeAnimationLibrary/Animations/UnarmedProne/anim_Prone_To_Stand.anim_Prone_To_Stand",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/fal/HG_humgen_creator_female_anim_Prone_To_Stand.HG_humgen_creator_female_anim_Prone_To_Stand",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_rise.glb",
+        "seconds": 2.5,
+        "source_rate_scale": 1.2000000476837158
+      },
+      {
+        "state": "prone_hit",
+        "source": "cmu_control_units02_90_16/90_16_metres_source_preview_Anim",
+        "source_asset": "/Game/HumGenSources/cmu_control_units02_90_16/90_16_metres_source_preview/SkeletalMeshes/90_16_metres_source_preview_Anim.90_16_metres_source_preview_Anim",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/cmu_control_units02_90_16/HG_humgen_creator_female_90_16_metres_source_preview_Anim.HG_humgen_creator_female_90_16_metres_source_preview_Anim",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\prone_hit.glb",
+        "seconds": 6.0333333015441895,
+        "source_rate_scale": 1.0
+      },
+      {
+        "state": "weapon_pickup",
+        "source": "cmu_control_pickup03_26_09/26_09_metres_source_preview_Anim",
+        "source_asset": "/Game/HumGenSources/cmu_control_pickup03_26_09/26_09_metres_source_preview/SkeletalMeshes/26_09_metres_source_preview_Anim.26_09_metres_source_preview_Anim",
+        "asset": "/Game/HumGenMotion/Motion/humgen_creator_female/Clips/cmu_control_pickup03_26_09/HG_humgen_creator_female_26_09_metres_source_preview_Anim.HG_humgen_creator_female_26_09_metres_source_preview_Anim",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\cmb16\\creator_targets01\\clips\\humgen_creator_female\\weapon_pickup.glb",
+        "seconds": 6.166666507720947,
+        "source_rate_scale": 1.0
+      }
+    ],
+    "target_id": "humgen_creator_female",
+    "selection_sha256": "a22e6a37d7b37695c68422944f4ab7389b1b046dac50861e519d7c8fb2682271",
+    "retargeter_script_sha256": "ae048dd3ee24cddc29a0f1987de111a99dbd051cc77ac5dff945425f55c5287e",
+    "target": "/Game/HumGenMotion/Targets/humgen_creator_female_263bce1c/humgen_creator_female_rigged/SkeletalMeshes/humgen_creator_female_Body_LOD3.humgen_creator_female_Body_LOD3",
+    "body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+    "bones": [
+      {
+        "name": "Root",
+        "parent": "None"
+      },
+      {
+        "name": "Hips",
+        "parent": "Root"
+      },
+      {
+        "name": "LeftUpperLeg",
+        "parent": "Hips"
+      },
+      {
+        "name": "LeftLowerLeg",
+        "parent": "LeftUpperLeg"
+      },
+      {
+        "name": "LeftFoot",
+        "parent": "LeftLowerLeg"
+      },
+      {
+        "name": "LeftToes",
+        "parent": "LeftFoot"
+      },
+      {
+        "name": "RightUpperLeg",
+        "parent": "Hips"
+      },
+      {
+        "name": "RightLowerLeg",
+        "parent": "RightUpperLeg"
+      },
+      {
+        "name": "RightFoot",
+        "parent": "RightLowerLeg"
+      },
+      {
+        "name": "RightToes",
+        "parent": "RightFoot"
+      },
+      {
+        "name": "Spine",
+        "parent": "Hips"
+      },
+      {
+        "name": "Chest",
+        "parent": "Spine"
+      },
+      {
+        "name": "UpperChest",
+        "parent": "Chest"
+      },
+      {
+        "name": "LeftBreast",
+        "parent": "UpperChest"
+      },
+      {
+        "name": "LeftShoulder",
+        "parent": "UpperChest"
+      },
+      {
+        "name": "LeftUpperArm",
+        "parent": "LeftShoulder"
+      },
+      {
+        "name": "LeftLowerArm",
+        "parent": "LeftUpperArm"
+      },
+      {
+        "name": "LeftHand",
+        "parent": "LeftLowerArm"
+      },
+      {
+        "name": "LeftIndexProximal",
+        "parent": "LeftHand"
+      },
+      {
+        "name": "LeftIndexIntermediate",
+        "parent": "LeftIndexProximal"
+      },
+      {
+        "name": "LeftIndexDistal",
+        "parent": "LeftIndexIntermediate"
+      },
+      {
+        "name": "LeftLittleProximal",
+        "parent": "LeftHand"
+      },
+      {
+        "name": "LeftLittleIntermediate",
+        "parent": "LeftLittleProximal"
+      },
+      {
+        "name": "LeftLittleDistal",
+        "parent": "LeftLittleIntermediate"
+      },
+      {
+        "name": "LeftMiddleProximal",
+        "parent": "LeftHand"
+      },
+      {
+        "name": "LeftMiddleIntermediate",
+        "parent": "LeftMiddleProximal"
+      },
+      {
+        "name": "LeftMiddleDistal",
+        "parent": "LeftMiddleIntermediate"
+      },
+      {
+        "name": "LeftRingProximal",
+        "parent": "LeftHand"
+      },
+      {
+        "name": "LeftRingIntermediate",
+        "parent": "LeftRingProximal"
+      },
+      {
+        "name": "LeftRingDistal",
+        "parent": "LeftRingIntermediate"
+      },
+      {
+        "name": "LeftThumbMetacarpal",
+        "parent": "LeftHand"
+      },
+      {
+        "name": "LeftThumbProximal",
+        "parent": "LeftThumbMetacarpal"
+      },
+      {
+        "name": "LeftThumbDistal",
+        "parent": "LeftThumbProximal"
+      },
+      {
+        "name": "Neck",
+        "parent": "UpperChest"
+      },
+      {
+        "name": "Head",
+        "parent": "Neck"
+      },
+      {
+        "name": "Jaw",
+        "parent": "Head"
+      },
+      {
+        "name": "LeftEye",
+        "parent": "Head"
+      },
+      {
+        "name": "RightEye",
+        "parent": "Head"
+      },
+      {
+        "name": "UpperJaw",
+        "parent": "Head"
+      },
+      {
+        "name": "RightBreast",
+        "parent": "UpperChest"
+      },
+      {
+        "name": "RightShoulder",
+        "parent": "UpperChest"
+      },
+      {
+        "name": "RightUpperArm",
+        "parent": "RightShoulder"
+      },
+      {
+        "name": "RightLowerArm",
+        "parent": "RightUpperArm"
+      },
+      {
+        "name": "RightHand",
+        "parent": "RightLowerArm"
+      },
+      {
+        "name": "RightIndexProximal",
+        "parent": "RightHand"
+      },
+      {
+        "name": "RightIndexIntermediate",
+        "parent": "RightIndexProximal"
+      },
+      {
+        "name": "RightIndexDistal",
+        "parent": "RightIndexIntermediate"
+      },
+      {
+        "name": "RightLittleProximal",
+        "parent": "RightHand"
+      },
+      {
+        "name": "RightLittleIntermediate",
+        "parent": "RightLittleProximal"
+      },
+      {
+        "name": "RightLittleDistal",
+        "parent": "RightLittleIntermediate"
+      },
+      {
+        "name": "RightMiddleProximal",
+        "parent": "RightHand"
+      },
+      {
+        "name": "RightMiddleIntermediate",
+        "parent": "RightMiddleProximal"
+      },
+      {
+        "name": "RightMiddleDistal",
+        "parent": "RightMiddleIntermediate"
+      },
+      {
+        "name": "RightRingProximal",
+        "parent": "RightHand"
+      },
+      {
+        "name": "RightRingIntermediate",
+        "parent": "RightRingProximal"
+      },
+      {
+        "name": "RightRingDistal",
+        "parent": "RightRingIntermediate"
+      },
+      {
+        "name": "RightThumbMetacarpal",
+        "parent": "RightHand"
+      },
+      {
+        "name": "RightThumbProximal",
+        "parent": "RightThumbMetacarpal"
+      },
+      {
+        "name": "RightThumbDistal",
+        "parent": "RightThumbProximal"
+      }
+    ],
+    "target_chains": [
+      {
+        "name": "Spine",
+        "start": "Spine",
+        "end": "UpperChest",
+        "goal": "None"
+      },
+      {
+        "name": "Neck",
+        "start": "Neck",
+        "end": "Neck",
+        "goal": "None"
+      },
+      {
+        "name": "Head",
+        "start": "Head",
+        "end": "Head",
+        "goal": "None"
+      },
+      {
+        "name": "LeftLeg",
+        "start": "LeftUpperLeg",
+        "end": "LeftFoot",
+        "goal": "LeftFootIK"
+      },
+      {
+        "name": "LeftClavicle",
+        "start": "LeftShoulder",
+        "end": "LeftShoulder",
+        "goal": "None"
+      },
+      {
+        "name": "LeftArm",
+        "start": "LeftUpperArm",
+        "end": "LeftHand",
+        "goal": "LeftHandIK"
+      },
+      {
+        "name": "RightLeg",
+        "start": "RightUpperLeg",
+        "end": "RightFoot",
+        "goal": "RightFootIK"
+      },
+      {
+        "name": "RightClavicle",
+        "start": "RightShoulder",
+        "end": "RightShoulder",
+        "goal": "None"
+      },
+      {
+        "name": "RightArm",
+        "start": "RightUpperArm",
+        "end": "RightHand",
+        "goal": "RightHandIK"
+      },
+      {
+        "name": "LeftFoot",
+        "start": "LeftToes",
+        "end": "LeftToes",
+        "goal": "None"
+      },
+      {
+        "name": "RightFoot",
+        "start": "RightToes",
+        "end": "RightToes",
+        "goal": "None"
+      }
+    ],
+    "solvers": 0,
+    "source_chains": {
+      "ual1": [
+        {
+          "name": "Spine",
+          "start": "spine_01",
+          "end": "spine_03",
+          "goal": "None"
+        },
+        {
+          "name": "Neck",
+          "start": "neck_01",
+          "end": "neck_01",
+          "goal": "None"
+        },
+        {
+          "name": "Head",
+          "start": "Head",
+          "end": "Head",
+          "goal": "None"
+        },
+        {
+          "name": "LeftLeg",
+          "start": "thigh_l",
+          "end": "foot_l",
+          "goal": "LeftFootIK"
+        },
+        {
+          "name": "LeftFoot",
+          "start": "ball_l",
+          "end": "ball_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftClavicle",
+          "start": "clavicle_l",
+          "end": "clavicle_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftArm",
+          "start": "upperarm_l",
+          "end": "hand_l",
+          "goal": "LeftHandIK"
+        },
+        {
+          "name": "LeftThumb",
+          "start": "thumb_01_l",
+          "end": "thumb_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftIndex",
+          "start": "index_01_l",
+          "end": "index_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftMiddle",
+          "start": "middle_01_l",
+          "end": "middle_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftRing",
+          "start": "ring_01_l",
+          "end": "ring_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftPinky",
+          "start": "pinky_01_l",
+          "end": "pinky_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "RightLeg",
+          "start": "thigh_r",
+          "end": "foot_r",
+          "goal": "RightFootIK"
+        },
+        {
+          "name": "RightFoot",
+          "start": "ball_r",
+          "end": "ball_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightClavicle",
+          "start": "clavicle_r",
+          "end": "clavicle_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightArm",
+          "start": "upperarm_r",
+          "end": "hand_r",
+          "goal": "RightHandIK"
+        },
+        {
+          "name": "RightThumb",
+          "start": "thumb_01_r",
+          "end": "thumb_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightIndex",
+          "start": "index_01_r",
+          "end": "index_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightMiddle",
+          "start": "middle_01_r",
+          "end": "middle_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightRing",
+          "start": "ring_01_r",
+          "end": "ring_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightPinky",
+          "start": "pinky_01_r",
+          "end": "pinky_03_r",
+          "goal": "None"
+        }
+      ],
+      "ual2": [
+        {
+          "name": "Spine",
+          "start": "spine_01",
+          "end": "spine_03",
+          "goal": "None"
+        },
+        {
+          "name": "Neck",
+          "start": "neck_01",
+          "end": "neck_01",
+          "goal": "None"
+        },
+        {
+          "name": "Head",
+          "start": "Head",
+          "end": "Head",
+          "goal": "None"
+        },
+        {
+          "name": "LeftLeg",
+          "start": "thigh_l",
+          "end": "foot_l",
+          "goal": "LeftFootIK"
+        },
+        {
+          "name": "LeftFoot",
+          "start": "ball_l",
+          "end": "ball_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftClavicle",
+          "start": "clavicle_l",
+          "end": "clavicle_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftArm",
+          "start": "upperarm_l",
+          "end": "hand_l",
+          "goal": "LeftHandIK"
+        },
+        {
+          "name": "LeftThumb",
+          "start": "thumb_01_l",
+          "end": "thumb_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftIndex",
+          "start": "index_01_l",
+          "end": "index_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftMiddle",
+          "start": "middle_01_l",
+          "end": "middle_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftRing",
+          "start": "ring_01_l",
+          "end": "ring_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftPinky",
+          "start": "pinky_01_l",
+          "end": "pinky_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "RightLeg",
+          "start": "thigh_r",
+          "end": "foot_r",
+          "goal": "RightFootIK"
+        },
+        {
+          "name": "RightFoot",
+          "start": "ball_r",
+          "end": "ball_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightClavicle",
+          "start": "clavicle_r",
+          "end": "clavicle_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightArm",
+          "start": "upperarm_r",
+          "end": "hand_r",
+          "goal": "RightHandIK"
+        },
+        {
+          "name": "RightThumb",
+          "start": "thumb_01_r",
+          "end": "thumb_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightIndex",
+          "start": "index_01_r",
+          "end": "index_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightMiddle",
+          "start": "middle_01_r",
+          "end": "middle_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightRing",
+          "start": "ring_01_r",
+          "end": "ring_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightPinky",
+          "start": "pinky_01_r",
+          "end": "pinky_03_r",
+          "goal": "None"
+        }
+      ],
+      "fal": [
+        {
+          "name": "Spine",
+          "start": "spine_01",
+          "end": "spine_05",
+          "goal": "None"
+        },
+        {
+          "name": "Neck",
+          "start": "neck_01",
+          "end": "neck_02",
+          "goal": "None"
+        },
+        {
+          "name": "Head",
+          "start": "Head",
+          "end": "Head",
+          "goal": "None"
+        },
+        {
+          "name": "LeftLeg",
+          "start": "thigh_l",
+          "end": "foot_l",
+          "goal": "LeftFootIK"
+        },
+        {
+          "name": "LeftFoot",
+          "start": "ball_l",
+          "end": "ball_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftClavicle",
+          "start": "clavicle_l",
+          "end": "clavicle_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftArm",
+          "start": "upperarm_l",
+          "end": "hand_l",
+          "goal": "LeftHandIK"
+        },
+        {
+          "name": "LeftThumb",
+          "start": "thumb_01_l",
+          "end": "thumb_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftIndex",
+          "start": "index_01_l",
+          "end": "index_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftMiddle",
+          "start": "middle_01_l",
+          "end": "middle_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftRing",
+          "start": "ring_01_l",
+          "end": "ring_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftPinky",
+          "start": "pinky_01_l",
+          "end": "pinky_03_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftIndexMetacarpal",
+          "start": "index_metacarpal_l",
+          "end": "index_metacarpal_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftMiddleMetacarpal",
+          "start": "middle_metacarpal_l",
+          "end": "middle_metacarpal_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftRingMetacarpal",
+          "start": "ring_metacarpal_l",
+          "end": "ring_metacarpal_l",
+          "goal": "None"
+        },
+        {
+          "name": "LeftPinkyMetacarpal",
+          "start": "pinky_metacarpal_l",
+          "end": "pinky_metacarpal_l",
+          "goal": "None"
+        },
+        {
+          "name": "RightLeg",
+          "start": "thigh_r",
+          "end": "foot_r",
+          "goal": "RightFootIK"
+        },
+        {
+          "name": "RightFoot",
+          "start": "ball_r",
+          "end": "ball_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightClavicle",
+          "start": "clavicle_r",
+          "end": "clavicle_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightArm",
+          "start": "upperarm_r",
+          "end": "hand_r",
+          "goal": "RightHandIK"
+        },
+        {
+          "name": "RightThumb",
+          "start": "thumb_01_r",
+          "end": "thumb_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightIndex",
+          "start": "index_01_r",
+          "end": "index_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightMiddle",
+          "start": "middle_01_r",
+          "end": "middle_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightRing",
+          "start": "ring_01_r",
+          "end": "ring_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightPinky",
+          "start": "pinky_01_r",
+          "end": "pinky_03_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightIndexMetacarpal",
+          "start": "index_metacarpal_r",
+          "end": "index_metacarpal_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightMiddleMetacarpal",
+          "start": "middle_metacarpal_r",
+          "end": "middle_metacarpal_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightRingMetacarpal",
+          "start": "ring_metacarpal_r",
+          "end": "ring_metacarpal_r",
+          "goal": "None"
+        },
+        {
+          "name": "RightPinkyMetacarpal",
+          "start": "pinky_metacarpal_r",
+          "end": "pinky_metacarpal_r",
+          "goal": "None"
+        }
+      ],
+      "cmu_control_units02_90_16": [
+        {
+          "name": "Spine",
+          "start": "abdomen",
+          "end": "chest",
+          "goal": "None"
+        },
+        {
+          "name": "Neck",
+          "start": "Neck",
+          "end": "head",
+          "goal": "None"
+        },
+        {
+          "name": "LeftArm",
+          "start": "lShldr",
+          "end": "lHand",
+          "goal": "None"
+        },
+        {
+          "name": "RightArm",
+          "start": "rShldr",
+          "end": "rHand",
+          "goal": "None"
+        },
+        {
+          "name": "LeftLeg",
+          "start": "lThigh",
+          "end": "lFoot",
+          "goal": "None"
+        },
+        {
+          "name": "RightLeg",
+          "start": "rThigh",
+          "end": "rFoot",
+          "goal": "None"
+        }
+      ],
+      "cmu_control_pickup03_26_09": [
+        {
+          "name": "Spine",
+          "start": "abdomen",
+          "end": "chest",
+          "goal": "None"
+        },
+        {
+          "name": "Neck",
+          "start": "Neck",
+          "end": "head",
+          "goal": "None"
+        },
+        {
+          "name": "LeftArm",
+          "start": "lShldr",
+          "end": "lHand",
+          "goal": "None"
+        },
+        {
+          "name": "RightArm",
+          "start": "rShldr",
+          "end": "rHand",
+          "goal": "None"
+        },
+        {
+          "name": "LeftLeg",
+          "start": "lThigh",
+          "end": "lFoot",
+          "goal": "None"
+        },
+        {
+          "name": "RightLeg",
+          "start": "rThigh",
+          "end": "rFoot",
+          "goal": "None"
+        }
+      ]
+    },
+    "status": "DONE",
+    "current": "weapon_pickup",
+    "source_root_calibration_cm": {
+      "cmu_control_units02_90_16": 79.2863149173887,
+      "cmu_control_pickup03_26_09": 79.2863149173887
+    },
+    "minutes": 0.18828333333318975
+  },
+  "compile": {
+    "body": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\primary\\rigged\\humgen_creator_female\\humgen_creator_female_rigged.glb",
+    "bones": 59,
+    "clips": [
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "R",
+              "time": 1.72256733912118
+            },
+            {
+              "side": "L",
+              "time": 2.50103527122403
+            }
+          ],
+          "floor_m": 0.0581988543272018,
+          "head_height_above_hips_m": 0.480798095464706,
+          "length": 2.66666674613953,
+          "pace": 0.283258646726608,
+          "phase": 2.50103527122403,
+          "raw_events": [
+            {
+              "side": "R",
+              "time": 1.72256733912118
+            },
+            {
+              "side": "L",
+              "time": 2.50103527122403
+            }
+          ],
+          "shoulder_heading_degrees": -3.73602071623068,
+          "stance_velocity_xz": [
+            0.000656194344628602,
+            -0.289137423038483
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 2.66666674613953,
+        "source_rate_scale": 1.0,
+        "state": "shove",
+        "tracks": 31
+      },
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "R",
+              "time": 0.733333263397217
+            },
+            {
+              "side": "L",
+              "time": 0.749999928474426
+            }
+          ],
+          "floor_m": 0.0107335671782494,
+          "head_height_above_hips_m": 0.277136236429214,
+          "length": 0.833333253860474,
+          "pace": 0.619986474514008,
+          "phase": 0.749999928474426,
+          "raw_events": [
+            {
+              "side": "R",
+              "time": 0.733333263397217
+            },
+            {
+              "side": "L",
+              "time": 0.749999928474426
+            }
+          ],
+          "shoulder_heading_degrees": -0.669916825220206,
+          "stance_velocity_xz": [
+            -0.25458437204361,
+            0.449440807104111
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 0.833333253860474,
+        "source_rate_scale": 1.0,
+        "state": "stumble",
+        "tracks": 29
+      },
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "L",
+              "time": 0.0
+            },
+            {
+              "side": "R",
+              "time": 0.0
+            }
+          ],
+          "floor_m": 0.100807458162308,
+          "head_height_above_hips_m": 0.178076162934303,
+          "length": 1.92307699361497,
+          "pace": 0.657130360603333,
+          "phase": 0.0,
+          "raw_events": [
+            {
+              "side": "L",
+              "time": 0.0
+            },
+            {
+              "side": "R",
+              "time": 0.0
+            }
+          ],
+          "shoulder_heading_degrees": 1.88650666224678,
+          "stance_velocity_xz": [
+            0.00896246917545795,
+            -0.117445774376392
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 1.92307699361497,
+        "source_rate_scale": 1.29999995231628,
+        "state": "prone_fall",
+        "tracks": 32
+      },
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "R",
+              "time": 0.133333333333333
+            },
+            {
+              "side": "L",
+              "time": 0.2
+            }
+          ],
+          "floor_m": 0.157497897744179,
+          "head_height_above_hips_m": 0.21607032418251,
+          "length": 1.0,
+          "pace": 0.0,
+          "phase": 0.2,
+          "raw_events": [
+            {
+              "side": "R",
+              "time": 0.133333333333333
+            },
+            {
+              "side": "L",
+              "time": 0.2
+            }
+          ],
+          "shoulder_heading_degrees": 3.32214045145402,
+          "stance_velocity_xz": [
+            -2.31224870361757e-08,
+            4.62449847304924e-08
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 1.0,
+        "source_rate_scale": 1.0,
+        "state": "prone_idle",
+        "tracks": 30
+      },
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "R",
+              "time": 1.81666659447882
+            },
+            {
+              "side": "L",
+              "time": 1.88333325849639
+            }
+          ],
+          "floor_m": 0.100845336914063,
+          "head_height_above_hips_m": 0.173684656620026,
+          "length": 2.08333325054911,
+          "pace": 0.611532688140869,
+          "phase": 1.88333325849639,
+          "raw_events": [
+            {
+              "side": "R",
+              "time": 1.81666659447882
+            },
+            {
+              "side": "L",
+              "time": 1.88333325849639
+            }
+          ],
+          "shoulder_heading_degrees": 1.91705886608155,
+          "stance_velocity_xz": [
+            -0.00878518167883158,
+            0.126092910766602
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 2.08333325054911,
+        "source_rate_scale": 1.20000004768372,
+        "state": "prone_rise",
+        "tracks": 32
+      },
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "L",
+              "time": 0.0
+            },
+            {
+              "side": "R",
+              "time": 0.0
+            },
+            {
+              "side": "R",
+              "time": 2.11666648822595
+            },
+            {
+              "side": "R",
+              "time": 2.59999978081298
+            },
+            {
+              "side": "L",
+              "time": 2.66666644185946
+            }
+          ],
+          "floor_m": 0.128452748060226,
+          "head_height_above_hips_m": 0.411160409450531,
+          "length": 6.03333282470703,
+          "pace": 0.488100320100784,
+          "phase": 0.0,
+          "raw_events": [
+            {
+              "side": "L",
+              "time": 0.0
+            },
+            {
+              "side": "R",
+              "time": 0.0
+            },
+            {
+              "side": "R",
+              "time": 2.11666648822595
+            },
+            {
+              "side": "R",
+              "time": 2.59999978081298
+            },
+            {
+              "side": "L",
+              "time": 2.66666644185946
+            }
+          ],
+          "shoulder_heading_degrees": -29.2498565317228,
+          "stance_velocity_xz": [
+            0.00276242033578455,
+            -0.278154164552689
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 6.03333282470703,
+        "source_rate_scale": 1.0,
+        "state": "prone_hit",
+        "tracks": 33
+      },
+      {
+        "excluded_fingers_error_degrees": 0.0,
+        "measurements": {
+          "events": [
+            {
+              "side": "R",
+              "time": 2.06666666666667
+            },
+            {
+              "side": "L",
+              "time": 2.16666666666667
+            }
+          ],
+          "floor_m": 0.0978271961212158,
+          "head_height_above_hips_m": 0.458898276090622,
+          "length": 3.1,
+          "pace": 0.324064075946808,
+          "phase": 2.16666666666667,
+          "raw_events": [
+            {
+              "side": "R",
+              "time": 2.06666666666667
+            },
+            {
+              "side": "L",
+              "time": 2.16666666666667
+            }
+          ],
+          "shoulder_heading_degrees": -72.4493807267425,
+          "stance_velocity_xz": [
+            -0.0875305309891701,
+            -0.000675175164360553
+          ]
+        },
+        "rest_basis_error": 1.47819519042969e-05,
+        "rest_position_error_m": 4.43756135837248e-07,
+        "seconds": 3.1,
+        "source_rate_scale": 1.0,
+        "state": "weapon_pickup",
+        "tracks": 33
+      }
+    ],
+    "weapon_pickup_contact": {
+      "fraction": 0.419354838709677,
+      "hand": [
+        0.595609545707703,
+        -0.104163855314255,
+        0.433646351099014
+      ]
+    }
+  },
+  "scope": "Exact current native creator target;49existing states preserved during merge,8additional states including offline release. Native ordinary footing/prop/clothing/created-body rendered acceptance remains due. Male target/retarget completed and compiling separately. Original Ada/Mateo source/prop/clock evidence is not a creator-body certificate."
+}

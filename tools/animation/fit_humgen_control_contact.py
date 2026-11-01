@@ -41,7 +41,7 @@ def lowest(parts, pose):
 
 
 def fit(manifest):
-    body, body_parts = surfaces(manifest['body'], False)
+    body, body_parts = surfaces(manifest.get('contact_body', manifest['body']), False)
     boots, boot_parts = surfaces(manifest['footwear'], True)
     _, garment_parts = surfaces(manifest['footwear'], False)
     assert body_parts and boot_parts
@@ -50,7 +50,7 @@ def fit(manifest):
     for entry in manifest['clips']:
         if not entry.get('contact_fit'):
             continue
-        assert entry['contact_fit'] in ('feet', 'body')
+        assert entry['contact_fit'] in ('feet', 'body', 'skin')
         clip = Glb(entry['path'])
         assert max(np.max(np.abs(rest[n] - clip.globals()[n])) for n in rest) < .0001
         animation = clip.doc['animations'][0]
@@ -61,12 +61,17 @@ def fit(manifest):
         first = entry.get('start_seconds', 0) * rate
         last = entry.get('end_seconds', times[-1] / rate) * rate
         times = sorted(set([first, last] + [t for t in times if first < t < last]))
-        parts = boot_parts if entry['contact_fit'] == 'feet' else body_parts + garment_parts
-        samples = [[t, -lowest(parts, clip.globals(t))] for t in times]
+        parts = (boot_parts if entry['contact_fit'] == 'feet' else
+                 body_parts + boot_parts if entry['contact_fit'] == 'skin' else body_parts + garment_parts)
+        clearance = .008 if entry['contact_fit'] == 'skin' else 0
+        samples = [[t, clearance-lowest(parts, clip.globals(t))] for t in times]
         assert all(np.isfinite(offset) and abs(offset) < .5 for _, offset in samples)
         entry['root_height_samples'] = samples
         entry['contact_fit_proof'] = {
             'body_sha256': hashlib.sha256(Path(manifest['body']).read_bytes()).hexdigest(),
+            'contact_body_sha256': hashlib.sha256(Path(manifest.get('contact_body', manifest['body'])).read_bytes()).hexdigest(),
+            'mode': entry['contact_fit'],
+            'clearance_m': clearance,
             'footwear_sha256': hashlib.sha256(Path(manifest['footwear']).read_bytes()).hexdigest(),
             'transport_sha256': hashlib.sha256(Path(entry['path']).read_bytes()).hexdigest(),
             'min_offset_m': min(offset for _, offset in samples),

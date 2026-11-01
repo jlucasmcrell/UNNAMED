@@ -1,0 +1,1231 @@
+{
+  "status": "IN_PROGRESS_CLOTH_CONTACT_NATIVE_REVIEW_REQUEST",
+  "source": {
+    "status": "NATIVE_SOURCE_REVIEW_ONLY",
+    "body": "humgen_player_ada_f",
+    "bones": 59,
+    "evidence": [
+      {
+        "clip": "shove",
+        "length": 0.6,
+        "frames": 40
+      },
+      {
+        "clip": "prone_fall",
+        "length": 1.9230769936149668,
+        "frames": 74
+      },
+      {
+        "clip": "prone_idle",
+        "length": 1,
+        "frames": 43
+      },
+      {
+        "clip": "prone_rise",
+        "length": 2.083333250549108,
+        "frames": 86
+      },
+      {
+        "clip": "weapon_pickup",
+        "length": 3.0999999999999996,
+        "frames": 100
+      },
+      {
+        "clip": "weapon_drop",
+        "length": 0.4,
+        "frames": 33
+      }
+    ],
+    "art_problems": {},
+    "scope": "Native59-bone target and original frontier wardrobe/materials. Neutral floor, direct source clips; no held prop, creature, ordinary control or 1-second footing-clock acceptance."
+  },
+  "source_exit": {
+    "exit": 0,
+    "lease_seconds": 36.731129500010866
+  },
+  "source_inputs": {
+    "private_source_sha256": "b87f5c0c7ac5d108d11e2a3e125410ad2948310b611737e70cb5cba433585908",
+    "assemblies": {
+      "UNNAMED.Application.dll": "ec4c1e4c61b57c758210e36b4980739f96882a3adaa3788ef1dc74ed75e0ffe8",
+      "UNNAMED.Content.dll": "af4f3fdca0599eb77703e8e2c4ff8566e240754e3292448493d2b830fab49bcc",
+      "UNNAMED.Domain.dll": "48888a5480fad3ac156d9445416bc765583b93fbe258b7d4dd3f3a4bfe6dad0d",
+      "UNNAMED.EntityRegistry.dll": "3072e73ee1e6670860e72610957171186df8fa0341bbf112a323e68f6c4475ba",
+      "UNNAMED.Persistence.dll": "b7a857c70de8b0e973ae21ab1c8b05196a0964442e144e26581a8111186a64e8",
+      "UNNAMED.Presentation.dll": "f1c3c69faa11a0359392baa4be0c448b18a66984ca7700598c19482c0d2f3204",
+      "UNNAMED.World.dll": "b1ce4ccf5c7b535b96aa369dbcd95d06a506f2add7765085c5c4dd9e961f492c"
+    },
+    "scope": "Native source/clothing fixture with floor grid/shadows and actual bone readback; no per-frame idle request."
+  },
+  "timing": {
+    "status": "NATIVE_TIMING_REQUIRES_REVIEW",
+    "evidence": [
+      {
+        "scenario": "early_hit",
+        "risingDuringHit": true,
+        "stoodOnTime": true,
+        "modifierObserved": true,
+        "clothActive": true,
+        "clothReset": true,
+        "frames": 62
+      },
+      {
+        "scenario": "rising_hit",
+        "risingDuringHit": true,
+        "stoodOnTime": true,
+        "modifierObserved": true,
+        "clothActive": true,
+        "clothReset": true,
+        "frames": 60
+      },
+      {
+        "scenario": "weapon_drop",
+        "risingDuringHit": false,
+        "stoodOnTime": false,
+        "modifierObserved": false,
+        "clothActive": false,
+        "clothReset": true,
+        "frames": 53
+      }
+    ],
+    "art_problems": {},
+    "scope": "Actual Footing.Tick and production figure stance/reaction. Native source stage, not landed combat or accepted cloth fit."
+  },
+  "timing_exit": {
+    "exit": 0,
+    "lease_seconds": 25.698622399999294
+  },
+  "original_art_preserved": {
+    "status": "PASS",
+    "source_sha256": "836eec4ee7b57ee073dcb944a660bb862409a50061a82c29431c133b5b736878",
+    "output_sha256": "1427aaa0e9256e0dc26490e7f36cad95d96a5cd22af425d2bee81e18c16049f5",
+    "original_binary_bytes_preserved": 31518192,
+    "original_binary_sha256": "d0a7b84c383ee7d579976da89b28671aca1e22d8e11aec36ee74e17f69864d5d",
+    "native_skins_exact": true,
+    "original_node_hierarchy_rest_exact": true,
+    "original_images_materials_exact": true,
+    "scope": "Exact native source preservation audit, not rendered cloth or all-terrain acceptance."
+  },
+  "correctives": {
+    "status": "OFFLINE_CONTACT_CANDIDATE_REQUIRES_NATIVE_REVIEW",
+    "source": "D:\\Otherreach_Scratch\\visual_bug_package_20261030\\fallback\\rigged\\humgen_frontier_ada_f\\humgen_frontier_ada_f_rigged.glb",
+    "source_sha256": "836eec4ee7b57ee073dcb944a660bb862409a50061a82c29431c133b5b736878",
+    "output_sha256": "1427aaa0e9256e0dc26490e7f36cad95d96a5cd22af425d2bee81e18c16049f5",
+    "clips": {
+      "prone_fall": [
+        {
+          "seconds": 0.0,
+          "target": "cmb_floor_prone_fall_00"
+        },
+        {
+          "seconds": 0.16025641613458058,
+          "target": "cmb_floor_prone_fall_01"
+        },
+        {
+          "seconds": 0.32051283226916116,
+          "target": "cmb_floor_prone_fall_02"
+        },
+        {
+          "seconds": 0.4807692484037417,
+          "target": "cmb_floor_prone_fall_03"
+        },
+        {
+          "seconds": 0.6410256645383223,
+          "target": "cmb_floor_prone_fall_04"
+        },
+        {
+          "seconds": 0.8012820806729029,
+          "target": "cmb_floor_prone_fall_05"
+        },
+        {
+          "seconds": 0.9615384968074834,
+          "target": "cmb_floor_prone_fall_06"
+        },
+        {
+          "seconds": 1.1217949129420641,
+          "target": "cmb_floor_prone_fall_07"
+        },
+        {
+          "seconds": 1.2820513290766447,
+          "target": "cmb_floor_prone_fall_08"
+        },
+        {
+          "seconds": 1.4423077452112252,
+          "target": "cmb_floor_prone_fall_09"
+        },
+        {
+          "seconds": 1.6025641613458057,
+          "target": "cmb_floor_prone_fall_10"
+        },
+        {
+          "seconds": 1.7628205774803865,
+          "target": "cmb_floor_prone_fall_11"
+        },
+        {
+          "seconds": 1.9230769936149668,
+          "target": "cmb_floor_prone_fall_12"
+        }
+      ],
+      "prone_idle": [
+        {
+          "seconds": 0.0,
+          "target": "cmb_floor_prone_idle_00"
+        },
+        {
+          "seconds": 0.16666666666666666,
+          "target": "cmb_floor_prone_idle_01"
+        },
+        {
+          "seconds": 0.3333333333333333,
+          "target": "cmb_floor_prone_idle_02"
+        },
+        {
+          "seconds": 0.5,
+          "target": "cmb_floor_prone_idle_03"
+        },
+        {
+          "seconds": 0.6666666666666666,
+          "target": "cmb_floor_prone_idle_04"
+        },
+        {
+          "seconds": 0.8333333333333333,
+          "target": "cmb_floor_prone_idle_05"
+        },
+        {
+          "seconds": 1.0,
+          "target": "cmb_floor_prone_idle_06"
+        }
+      ],
+      "prone_rise": [
+        {
+          "seconds": 0.0,
+          "target": "cmb_floor_prone_rise_00"
+        },
+        {
+          "seconds": 0.17361110421242565,
+          "target": "cmb_floor_prone_rise_01"
+        },
+        {
+          "seconds": 0.3472222084248513,
+          "target": "cmb_floor_prone_rise_02"
+        },
+        {
+          "seconds": 0.520833312637277,
+          "target": "cmb_floor_prone_rise_03"
+        },
+        {
+          "seconds": 0.6944444168497026,
+          "target": "cmb_floor_prone_rise_04"
+        },
+        {
+          "seconds": 0.8680555210621282,
+          "target": "cmb_floor_prone_rise_05"
+        },
+        {
+          "seconds": 1.041666625274554,
+          "target": "cmb_floor_prone_rise_06"
+        },
+        {
+          "seconds": 1.2152777294869797,
+          "target": "cmb_floor_prone_rise_07"
+        },
+        {
+          "seconds": 1.3888888336994052,
+          "target": "cmb_floor_prone_rise_08"
+        },
+        {
+          "seconds": 1.5624999379118307,
+          "target": "cmb_floor_prone_rise_09"
+        },
+        {
+          "seconds": 1.7361110421242565,
+          "target": "cmb_floor_prone_rise_10"
+        },
+        {
+          "seconds": 1.9097221463366825,
+          "target": "cmb_floor_prone_rise_11"
+        },
+        {
+          "seconds": 2.083333250549108,
+          "target": "cmb_floor_prone_rise_12"
+        }
+      ]
+    },
+    "targets": [
+      "cmb_floor_prone_fall_00",
+      "cmb_floor_prone_fall_01",
+      "cmb_floor_prone_fall_02",
+      "cmb_floor_prone_fall_03",
+      "cmb_floor_prone_fall_04",
+      "cmb_floor_prone_fall_05",
+      "cmb_floor_prone_fall_06",
+      "cmb_floor_prone_fall_07",
+      "cmb_floor_prone_fall_08",
+      "cmb_floor_prone_fall_09",
+      "cmb_floor_prone_fall_10",
+      "cmb_floor_prone_fall_11",
+      "cmb_floor_prone_fall_12",
+      "cmb_floor_prone_idle_00",
+      "cmb_floor_prone_idle_01",
+      "cmb_floor_prone_idle_02",
+      "cmb_floor_prone_idle_03",
+      "cmb_floor_prone_idle_04",
+      "cmb_floor_prone_idle_05",
+      "cmb_floor_prone_idle_06",
+      "cmb_floor_prone_rise_00",
+      "cmb_floor_prone_rise_01",
+      "cmb_floor_prone_rise_02",
+      "cmb_floor_prone_rise_03",
+      "cmb_floor_prone_rise_04",
+      "cmb_floor_prone_rise_05",
+      "cmb_floor_prone_rise_06",
+      "cmb_floor_prone_rise_07",
+      "cmb_floor_prone_rise_08",
+      "cmb_floor_prone_rise_09",
+      "cmb_floor_prone_rise_10",
+      "cmb_floor_prone_rise_11",
+      "cmb_floor_prone_rise_12"
+    ],
+    "reports": [
+      {
+        "target": "cmb_floor_prone_fall_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.24259002451777484,
+        "maximum_displacement": 0.0019507214449524996,
+        "edge_strain_p95": 0.0004935140169036062
+      },
+      {
+        "target": "cmb_floor_prone_fall_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.2424207990757596,
+        "maximum_displacement": 0.0019704751909037648,
+        "edge_strain_p95": 0.0002571745989626782
+      },
+      {
+        "target": "cmb_floor_prone_fall_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.2424207990757596,
+        "maximum_displacement": 0.002380019312758206,
+        "edge_strain_p95": 0.0003143966259819829
+      },
+      {
+        "target": "cmb_floor_prone_fall_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.2424207990757596,
+        "maximum_displacement": 0.002380019312758206,
+        "edge_strain_p95": 0.0003143966259819829
+      },
+      {
+        "target": "cmb_floor_prone_fall_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.18866424884301958,
+        "maximum_displacement": 0.0019482599990830862,
+        "edge_strain_p95": 0.0004962285961893178
+      },
+      {
+        "target": "cmb_floor_prone_fall_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.1885931551069936,
+        "maximum_displacement": 0.001967826403022355,
+        "edge_strain_p95": 0.00025001833505167154
+      },
+      {
+        "target": "cmb_floor_prone_fall_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.1885931551069936,
+        "maximum_displacement": 0.002366129640564972,
+        "edge_strain_p95": 0.00031894631707678477
+      },
+      {
+        "target": "cmb_floor_prone_fall_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.1885931551069936,
+        "maximum_displacement": 0.002366129640564972,
+        "edge_strain_p95": 0.00031894631707678477
+      },
+      {
+        "target": "cmb_floor_prone_fall_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.09587424522393594,
+        "maximum_displacement": 0.002569766940496652,
+        "edge_strain_p95": 0.000626132731872681
+      },
+      {
+        "target": "cmb_floor_prone_fall_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.0958405122166778,
+        "maximum_displacement": 0.0019481868405328076,
+        "edge_strain_p95": 0.00023985321286532622
+      },
+      {
+        "target": "cmb_floor_prone_fall_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.0958405122166778,
+        "maximum_displacement": 0.0024108472789052893,
+        "edge_strain_p95": 0.0003385430178455494
+      },
+      {
+        "target": "cmb_floor_prone_fall_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.0958405122166778,
+        "maximum_displacement": 0.0024108472789052893,
+        "edge_strain_p95": 0.0003385430178455494
+      },
+      {
+        "target": "cmb_floor_prone_fall_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.07432868899512826,
+        "maximum_displacement": 0.008272490087803796,
+        "edge_strain_p95": 0.0024409819659391104
+      },
+      {
+        "target": "cmb_floor_prone_fall_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.0742842602659695,
+        "maximum_displacement": 0.011661877668242409,
+        "edge_strain_p95": 0.0018155863668198042
+      },
+      {
+        "target": "cmb_floor_prone_fall_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.0742842602659695,
+        "maximum_displacement": 0.0019094180922023755,
+        "edge_strain_p95": 0.00025856937776671526
+      },
+      {
+        "target": "cmb_floor_prone_fall_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.0742842602659695,
+        "maximum_displacement": 0.0019094180922023755,
+        "edge_strain_p95": 0.00025856937776671526
+      },
+      {
+        "target": "cmb_floor_prone_fall_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.2193600691068744,
+        "maximum_displacement": 0.02582147665045472,
+        "edge_strain_p95": 0.011117805091515274
+      },
+      {
+        "target": "cmb_floor_prone_fall_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.2194509951977837,
+        "maximum_displacement": 0.017349298359925373,
+        "edge_strain_p95": 0.008799436217812663
+      },
+      {
+        "target": "cmb_floor_prone_fall_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.22032569548701442,
+        "maximum_displacement": 0.013122602788592699,
+        "edge_strain_p95": 0.004074076967368944
+      },
+      {
+        "target": "cmb_floor_prone_fall_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.22032569548701442,
+        "maximum_displacement": 0.013122602788592699,
+        "edge_strain_p95": 0.004074076967368944
+      },
+      {
+        "target": "cmb_floor_prone_fall_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.12141990487339893,
+        "maximum_displacement": 0.030437016787673864,
+        "edge_strain_p95": 0.015995511350941783
+      },
+      {
+        "target": "cmb_floor_prone_fall_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.12190729190541275,
+        "maximum_displacement": 0.024298677469965023,
+        "edge_strain_p95": 0.012253485663962399
+      },
+      {
+        "target": "cmb_floor_prone_fall_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.12367294461600323,
+        "maximum_displacement": 0.01807893753237932,
+        "edge_strain_p95": 0.005739134312124915
+      },
+      {
+        "target": "cmb_floor_prone_fall_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.12367294461600323,
+        "maximum_displacement": 0.01807893753237932,
+        "edge_strain_p95": 0.005739134312124915
+      },
+      {
+        "target": "cmb_floor_prone_fall_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.07345193383062598,
+        "maximum_displacement": 0.030235868044139438,
+        "edge_strain_p95": 0.01826861279766448
+      },
+      {
+        "target": "cmb_floor_prone_fall_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.07335800931167039,
+        "maximum_displacement": 0.0248860809244557,
+        "edge_strain_p95": 0.014334689909461804
+      },
+      {
+        "target": "cmb_floor_prone_fall_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.07319310169548723,
+        "maximum_displacement": 0.020770409027391686,
+        "edge_strain_p95": 0.006807862168324851
+      },
+      {
+        "target": "cmb_floor_prone_fall_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.07319310169548723,
+        "maximum_displacement": 0.020770409027391686,
+        "edge_strain_p95": 0.006807862168324851
+      },
+      {
+        "target": "cmb_floor_prone_fall_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.06906239660067609,
+        "maximum_displacement": 0.016756406903598555,
+        "edge_strain_p95": 0.010637712798987415
+      },
+      {
+        "target": "cmb_floor_prone_fall_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.06896555874255317,
+        "maximum_displacement": 0.01500390696816611,
+        "edge_strain_p95": 0.007344916362508892
+      },
+      {
+        "target": "cmb_floor_prone_fall_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.06882033056887177,
+        "maximum_displacement": 0.010103874318733004,
+        "edge_strain_p95": 0.005866453721867693
+      },
+      {
+        "target": "cmb_floor_prone_fall_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.06882033056887177,
+        "maximum_displacement": 0.010103874318733004,
+        "edge_strain_p95": 0.005866453721867693
+      },
+      {
+        "target": "cmb_floor_prone_fall_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.05729285249152197,
+        "maximum_displacement": 0.0038769805535325635,
+        "edge_strain_p95": 0.001555881960757687
+      },
+      {
+        "target": "cmb_floor_prone_fall_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.05719750178486535,
+        "maximum_displacement": 0.0019139112527772235,
+        "edge_strain_p95": 0.0003389459381776927
+      },
+      {
+        "target": "cmb_floor_prone_fall_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.057036481615154566,
+        "maximum_displacement": 0.0026640932822131545,
+        "edge_strain_p95": 0.00027844755041412923
+      },
+      {
+        "target": "cmb_floor_prone_fall_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.057036481615154566,
+        "maximum_displacement": 0.0026640932822131545,
+        "edge_strain_p95": 0.00027844755041412923
+      },
+      {
+        "target": "cmb_floor_prone_fall_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.04377411104841822,
+        "maximum_displacement": 0.0021434614899614696,
+        "edge_strain_p95": 0.000641673250139483
+      },
+      {
+        "target": "cmb_floor_prone_fall_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.043686349569440536,
+        "maximum_displacement": 0.0019156921310197208,
+        "edge_strain_p95": 0.00026775742837713523
+      },
+      {
+        "target": "cmb_floor_prone_fall_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.04346483000644141,
+        "maximum_displacement": 0.0027279153327708413,
+        "edge_strain_p95": 0.0002701606404065247
+      },
+      {
+        "target": "cmb_floor_prone_fall_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.04346483000644141,
+        "maximum_displacement": 0.0027279153327708413,
+        "edge_strain_p95": 0.0002701606404065247
+      },
+      {
+        "target": "cmb_floor_prone_fall_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.037814887887377135,
+        "maximum_displacement": 0.0019042077785038994,
+        "edge_strain_p95": 0.0004389669341864355
+      },
+      {
+        "target": "cmb_floor_prone_fall_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.03773402031575496,
+        "maximum_displacement": 0.00192694319869211,
+        "edge_strain_p95": 0.00020554873776030777
+      },
+      {
+        "target": "cmb_floor_prone_fall_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.03745518755264035,
+        "maximum_displacement": 0.002686083859739893,
+        "edge_strain_p95": 0.0002716972269018729
+      },
+      {
+        "target": "cmb_floor_prone_fall_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.03745518755264035,
+        "maximum_displacement": 0.002686083859739893,
+        "edge_strain_p95": 0.0002716972269018729
+      },
+      {
+        "target": "cmb_floor_prone_fall_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05854094217228803,
+        "edge_strain_p95": 0.003283753335613887
+      },
+      {
+        "target": "cmb_floor_prone_fall_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.058876383051419866,
+        "edge_strain_p95": 0.004349279870271045
+      },
+      {
+        "target": "cmb_floor_prone_fall_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05860951149911339,
+        "edge_strain_p95": 0.00393796901537985
+      },
+      {
+        "target": "cmb_floor_prone_fall_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05860951149911339,
+        "edge_strain_p95": 0.00393796901537985
+      },
+      {
+        "target": "cmb_floor_prone_fall_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11158606704217883,
+        "edge_strain_p95": 0.015393143337139325
+      },
+      {
+        "target": "cmb_floor_prone_fall_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.10929234624600315,
+        "edge_strain_p95": 0.018030663145561177
+      },
+      {
+        "target": "cmb_floor_prone_fall_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11255944135660184,
+        "edge_strain_p95": 0.021079618839529905
+      },
+      {
+        "target": "cmb_floor_prone_fall_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11255944135660184,
+        "edge_strain_p95": 0.021079618839529905
+      },
+      {
+        "target": "cmb_floor_prone_idle_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1116034072269773,
+        "edge_strain_p95": 0.015364818768888905
+      },
+      {
+        "target": "cmb_floor_prone_idle_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.1093061394647372,
+        "edge_strain_p95": 0.01802666388655097
+      },
+      {
+        "target": "cmb_floor_prone_idle_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_idle_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11258485113520256,
+        "edge_strain_p95": 0.021080025339454203
+      },
+      {
+        "target": "cmb_floor_prone_rise_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11158606704218123,
+        "edge_strain_p95": 0.015393145649907175
+      },
+      {
+        "target": "cmb_floor_prone_rise_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.10929234624592728,
+        "edge_strain_p95": 0.018030663021998128
+      },
+      {
+        "target": "cmb_floor_prone_rise_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11255944135555154,
+        "edge_strain_p95": 0.021079618836950104
+      },
+      {
+        "target": "cmb_floor_prone_rise_00",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.11255944135555154,
+        "edge_strain_p95": 0.021079618836950104
+      },
+      {
+        "target": "cmb_floor_prone_rise_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05854107092340596,
+        "edge_strain_p95": 0.0032837529572343036
+      },
+      {
+        "target": "cmb_floor_prone_rise_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05887651251466215,
+        "edge_strain_p95": 0.0043492768249026766
+      },
+      {
+        "target": "cmb_floor_prone_rise_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05860964649561305,
+        "edge_strain_p95": 0.003937966164697826
+      },
+      {
+        "target": "cmb_floor_prone_rise_01",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.004,
+        "maximum_displacement": 0.05860964649561305,
+        "edge_strain_p95": 0.003937966164697826
+      },
+      {
+        "target": "cmb_floor_prone_rise_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.037814843324362996,
+        "maximum_displacement": 0.001904207778397318,
+        "edge_strain_p95": 0.00043896696055678586
+      },
+      {
+        "target": "cmb_floor_prone_rise_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.0377339757074068,
+        "maximum_displacement": 0.0019269431967378437,
+        "edge_strain_p95": 0.00020554875240561495
+      },
+      {
+        "target": "cmb_floor_prone_rise_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.037455143096450705,
+        "maximum_displacement": 0.0026860838538978696,
+        "edge_strain_p95": 0.0002716972098121266
+      },
+      {
+        "target": "cmb_floor_prone_rise_02",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.037455143096450705,
+        "maximum_displacement": 0.0026860838538978696,
+        "edge_strain_p95": 0.0002716972098121266
+      },
+      {
+        "target": "cmb_floor_prone_rise_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.04377406434069489,
+        "maximum_displacement": 0.0021434614997599133,
+        "edge_strain_p95": 0.0006416732660321924
+      },
+      {
+        "target": "cmb_floor_prone_rise_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.04368630284570266,
+        "maximum_displacement": 0.0019156921288933644,
+        "edge_strain_p95": 0.00026775674123715696
+      },
+      {
+        "target": "cmb_floor_prone_rise_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.04346478323662126,
+        "maximum_displacement": 0.0027279153121644033,
+        "edge_strain_p95": 0.00027016059291953257
+      },
+      {
+        "target": "cmb_floor_prone_rise_03",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.04346478323662126,
+        "maximum_displacement": 0.0027279153121644033,
+        "edge_strain_p95": 0.00027016059291953257
+      },
+      {
+        "target": "cmb_floor_prone_rise_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.057292813112972685,
+        "maximum_displacement": 0.0038769786540251766,
+        "edge_strain_p95": 0.0015558818529449949
+      },
+      {
+        "target": "cmb_floor_prone_rise_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.057197462389597,
+        "maximum_displacement": 0.0019139112552629463,
+        "edge_strain_p95": 0.00033894567526191464
+      },
+      {
+        "target": "cmb_floor_prone_rise_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.05703644216380438,
+        "maximum_displacement": 0.002664093312546465,
+        "edge_strain_p95": 0.0002784475651453899
+      },
+      {
+        "target": "cmb_floor_prone_rise_04",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.05703644216380438,
+        "maximum_displacement": 0.002664093312546465,
+        "edge_strain_p95": 0.0002784475651453899
+      },
+      {
+        "target": "cmb_floor_prone_rise_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.06906204950527889,
+        "maximum_displacement": 0.016756420605516003,
+        "edge_strain_p95": 0.010637715636336814
+      },
+      {
+        "target": "cmb_floor_prone_rise_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.06896521161675598,
+        "maximum_displacement": 0.015003911044187617,
+        "edge_strain_p95": 0.007344917924333783
+      },
+      {
+        "target": "cmb_floor_prone_rise_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.06881998347349219,
+        "maximum_displacement": 0.010103984354096405,
+        "edge_strain_p95": 0.005866463646454201
+      },
+      {
+        "target": "cmb_floor_prone_rise_05",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.06881998347349219,
+        "maximum_displacement": 0.010103984354096405,
+        "edge_strain_p95": 0.005866463646454201
+      },
+      {
+        "target": "cmb_floor_prone_rise_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.07345192727850008,
+        "maximum_displacement": 0.03023588075895194,
+        "edge_strain_p95": 0.01826861082069811
+      },
+      {
+        "target": "cmb_floor_prone_rise_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.07335800277128682,
+        "maximum_displacement": 0.024886091576339746,
+        "edge_strain_p95": 0.014334677040584968
+      },
+      {
+        "target": "cmb_floor_prone_rise_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.0731930949004514,
+        "maximum_displacement": 0.02077041711867489,
+        "edge_strain_p95": 0.0068078799383858735
+      },
+      {
+        "target": "cmb_floor_prone_rise_06",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.0731930949004514,
+        "maximum_displacement": 0.02077041711867489,
+        "edge_strain_p95": 0.0068078799383858735
+      },
+      {
+        "target": "cmb_floor_prone_rise_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.12141990789077023,
+        "maximum_displacement": 0.03043702476291363,
+        "edge_strain_p95": 0.01599548448183502
+      },
+      {
+        "target": "cmb_floor_prone_rise_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.12190729307307466,
+        "maximum_displacement": 0.024298682775389924,
+        "edge_strain_p95": 0.012253421534059915
+      },
+      {
+        "target": "cmb_floor_prone_rise_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.12367294412673097,
+        "maximum_displacement": 0.018078942851568334,
+        "edge_strain_p95": 0.005739134701279135
+      },
+      {
+        "target": "cmb_floor_prone_rise_07",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.12367294412673097,
+        "maximum_displacement": 0.018078942851568334,
+        "edge_strain_p95": 0.005739134701279135
+      },
+      {
+        "target": "cmb_floor_prone_rise_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.2193602006989347,
+        "maximum_displacement": 0.02582149446552603,
+        "edge_strain_p95": 0.011117842412606336
+      },
+      {
+        "target": "cmb_floor_prone_rise_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.2194511213127639,
+        "maximum_displacement": 0.01734931193484893,
+        "edge_strain_p95": 0.008799453984872342
+      },
+      {
+        "target": "cmb_floor_prone_rise_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.22032581844346258,
+        "maximum_displacement": 0.013122614016477649,
+        "edge_strain_p95": 0.004074082166180392
+      },
+      {
+        "target": "cmb_floor_prone_rise_08",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.22032581844346258,
+        "maximum_displacement": 0.013122614016477649,
+        "edge_strain_p95": 0.004074082166180392
+      },
+      {
+        "target": "cmb_floor_prone_rise_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.07432876996271273,
+        "maximum_displacement": 0.008272509445247982,
+        "edge_strain_p95": 0.0024410066568529352
+      },
+      {
+        "target": "cmb_floor_prone_rise_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.07428434121182421,
+        "maximum_displacement": 0.011661900650803053,
+        "edge_strain_p95": 0.0018155907118181875
+      },
+      {
+        "target": "cmb_floor_prone_rise_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.07428434121182421,
+        "maximum_displacement": 0.0019094181111551408,
+        "edge_strain_p95": 0.00025856946622528906
+      },
+      {
+        "target": "cmb_floor_prone_rise_09",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.07428434121182421,
+        "maximum_displacement": 0.0019094181111551408,
+        "edge_strain_p95": 0.00025856946622528906
+      },
+      {
+        "target": "cmb_floor_prone_rise_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.09587426130574536,
+        "maximum_displacement": 0.0025697671213861044,
+        "edge_strain_p95": 0.0006261326217231693
+      },
+      {
+        "target": "cmb_floor_prone_rise_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.09584052826830367,
+        "maximum_displacement": 0.0019481868336104233,
+        "edge_strain_p95": 0.00023985327204032445
+      },
+      {
+        "target": "cmb_floor_prone_rise_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.09584052826830367,
+        "maximum_displacement": 0.002410847290379555,
+        "edge_strain_p95": 0.00033854308889309505
+      },
+      {
+        "target": "cmb_floor_prone_rise_10",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.09584052826830367,
+        "maximum_displacement": 0.002410847290379555,
+        "edge_strain_p95": 0.00033854308889309505
+      },
+      {
+        "target": "cmb_floor_prone_rise_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.1886642840283206,
+        "maximum_displacement": 0.0019482600012019117,
+        "edge_strain_p95": 0.0004962286185732348
+      },
+      {
+        "target": "cmb_floor_prone_rise_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.18859319017758466,
+        "maximum_displacement": 0.0019678264035918242,
+        "edge_strain_p95": 0.00025001832145061793
+      },
+      {
+        "target": "cmb_floor_prone_rise_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.18859319017758466,
+        "maximum_displacement": 0.002366129631879147,
+        "edge_strain_p95": 0.00031894626316897323
+      },
+      {
+        "target": "cmb_floor_prone_rise_11",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.18859319017758466,
+        "maximum_displacement": 0.002366129631879147,
+        "edge_strain_p95": 0.00031894626316897323
+      },
+      {
+        "target": "cmb_floor_prone_rise_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD0",
+        "min_y": 0.24259002609808455,
+        "maximum_displacement": 0.0019507214439557713,
+        "edge_strain_p95": 0.0004935141713777952
+      },
+      {
+        "target": "cmb_floor_prone_rise_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD1",
+        "min_y": 0.24242080065606933,
+        "maximum_displacement": 0.001970475188625947,
+        "edge_strain_p95": 0.0002571746083241454
+      },
+      {
+        "target": "cmb_floor_prone_rise_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD2",
+        "min_y": 0.24242080065606933,
+        "maximum_displacement": 0.0023800193100278915,
+        "edge_strain_p95": 0.00031439672997954897
+      },
+      {
+        "target": "cmb_floor_prone_rise_12",
+        "mesh": "ada_frontier_final_Frontier_Shirt_LOD3",
+        "min_y": 0.24242080065606933,
+        "maximum_displacement": 0.0023800193100278915,
+        "edge_strain_p95": 0.00031439672997954897
+      }
+    ],
+    "scope": "Added classical cloth contact morphs; source base mesh, maps, UVs and native59-joint binds preserved. No rendered fit acceptance."
+  },
+  "limitations": [
+    "Native Ada/frontier source stage and flat floor only, not all-terrain/created-body/ordinary combat acceptance.",
+    "Six direct clips have no held prop. Separate pickup_contact02 proves actual same-prop transfer; native_cloth01 proves actual Footing.Tick/production reaction with early and late hits and corrective reset.",
+    "All original binary bytes, maps/UVs/binds, original fitting morphs retained. Added classical contact morphs; only whole-pose Root Y fits native untrimmed skin plus footwear with8mm clearance.",
+    "Current creator-body equipment/motion route is being verified separately before final binding."
+  ],
+  "files": {
+    "CLOTH_CONTACT_NATIVE_ADA.jpg": "892f6b8cdbf7f24978dcafb7a13cbb2d52b905ef44b4ebe04b1bffe96c0f8743",
+    "prone_fall.mp4": "069ef9d5c38db45004f422afe6b2b20470d2dcf0c5c88d7b6243a3362bc4310d",
+    "prone_idle.mp4": "e69e1b2124a0069be9dd39173033415be36ade434757a9413d1af25aab7eabb1",
+    "prone_rise.mp4": "96ade5cd163f024f939af269b0d5a937ba3c5490f0390a6336315aace510c789",
+    "shove.mp4": "6dbc7dd97a495ee193076b44536abe911af6f923144af3d962f7fe976193160c",
+    "weapon_drop.mp4": "000b123284c4b55ad6c0517a912aac3e9c44741ce3c62f48e56495f0dd1d230c",
+    "weapon_pickup.mp4": "f5998fbf6b9a399b61995706851e8ba2f03395f70833a873c960ecbf68708263"
+  }
+}

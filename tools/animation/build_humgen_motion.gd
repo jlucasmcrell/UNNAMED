@@ -187,7 +187,6 @@ func build() -> void:
     for key in range(animation.track_get_key_count(track)-1,-1,-1): animation.track_remove_key(track,key)
     for key in keys: animation.track_insert_key(track,key[0],key[1],key[2])
   if entry.has("root_height_samples"):
-   assert(is_equal_approx(source_rate,1.0),"Contact-fit sample times require original playback rate")
    var fit: Array=entry.root_height_samples
    assert(fit.size()>=2)
    var fitted=false
@@ -195,7 +194,9 @@ func build() -> void:
     if animation.track_get_path(track).get_subname(0)=="Root" and animation.track_get_type(track)==Animation.TYPE_POSITION_3D:
      for key in animation.track_get_key_count(track):
       var value: Vector3=animation.track_get_key_value(track,key)
-      value.y+=root_height(fit,animation.track_get_key_time(track,key))
+      var at=animation.track_get_key_time(track,key)
+      var raw_at=((animation.length-at) if source_rate<0 else at)*absf(source_rate)
+      value.y+=root_height(fit,raw_at)
       animation.track_set_key_value(track,key,value)
      fitted=true
    assert(fitted,"Control transport has no native Root position track")

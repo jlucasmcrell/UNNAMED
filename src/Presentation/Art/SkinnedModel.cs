@@ -137,6 +137,7 @@ public sealed partial class SkinnedModel : Node3D
         }
         if (IsComparisonBody(assetId))
             figure.ComparisonClips(assetId, library, skeletonPath, art.RiggedFile(assetId, assetId + "_rigged.glb"));
+        ClothContact.Bind(figure, art, assetId, library);
         // Finish state selection before AnimationPlayer/FootPlants cache lookups and add per-state contact method tracks.
         if (nativeStates is not null)
             foreach (var (state, native) in nativeStates) figure.Alias(library, state, native);
