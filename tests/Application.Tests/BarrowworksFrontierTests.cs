@@ -23,6 +23,10 @@ public class BarrowworksFrontierTests
             // The people standing in this space are walked round, as a player walks round the watch at her post.
             .Concat(simulation.Npcs.Where(n => n.Space == layout.SpaceId)
                 .Select(n => (Blocker)new CircleBlocker(n.Id, n.Body.XMm, n.Body.ZMm, simulation.Setup.Movement.BodyRadiusMm, 0)))
+            // Creatures too: a living body stands in the room, and a character walks round it rather than into it.
+            .Concat(simulation.Creatures.Where(c => c.Alive)
+                .Select(c => (Blocker)new CircleBlocker(c.Id, c.Body.XMm, c.Body.ZMm,
+                    simulation.Setup.Combat.Creatures[c.DefId].RadiusMm, 0)))
             .ToArray();
         var body = simulation.Player.Body;
         var start = ((int)Math.Round(body.XMm / 1000.0), (int)Math.Round(body.ZMm / 1000.0));
@@ -37,7 +41,7 @@ public class BarrowworksFrontierTests
             {
                 var next = (point.X + dx, point.Z + dz);
                 if (parents.ContainsKey(next) || !Kinematics.IsClear(next.Item1 * 1000L, next.Item2 * 1000L,
-                        simulation.Setup.Movement.BodyRadiusMm, layout.Space, closed, 1800))
+                        simulation.Setup.Movement.BodyRadiusMm, layout.Space, closed, 500))
                     continue;
                 parents[next] = point;
                 queue.Enqueue(next);
@@ -48,7 +52,8 @@ public class BarrowworksFrontierTests
         for (var at = end; at is { } step; at = parents[step]) path.Add(step);
         path.Reverse();
         foreach (var point in path)
-            Assert.True(arena.WalkTo(point.X - arena.Origin.X, point.Z - arena.Origin.Z, 50), $"blocked at {point} in {layout.Id}");
+            Assert.True(arena.WalkTo(point.X - arena.Origin.X, point.Z - arena.Origin.Z, 50),
+                $"blocked at {point} in {layout.Id}: {arena.Near(point.X, point.Z)}");
     }
 
     internal static void Work(Arena arena, string key)

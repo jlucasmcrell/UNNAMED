@@ -148,6 +148,20 @@ internal sealed class Arena
         return false;
     }
 
+    /// <summary>What is standing near a point, for a walk that failed to reach it.</summary>
+    public string Near(double x, double z)
+    {
+        long xMm = (long)((x + Origin.X) * 1000), zMm = (long)((z + Origin.Z) * 1000);
+        var near = Simulation.Creatures
+            .Select(c => (What: $"creature {c.Key}", Distance: Math.Abs(c.Body.XMm - xMm) + Math.Abs(c.Body.ZMm - zMm)))
+            .Concat(Simulation.Npcs.Select(n => (What: $"npc {n.Id}", Distance: Math.Abs(n.Body.XMm - xMm) + Math.Abs(n.Body.ZMm - zMm))))
+            .Where(item => item.Distance < 3_000)
+            .OrderBy(item => item.Distance)
+            .Select(item => $"{item.What} at {item.Distance}mm");
+        var body = Simulation.Player.Body;
+        return $"player at {body.XMm},{body.ZMm} health={Simulation.Combat.Health}/{Simulation.Combat.MaxHealth} defeated={Simulation.Combat.Defeated} phase={Simulation.Combat.Phase}; near {string.Join(", ", near)}";
+    }
+
     /// <summary>Fight one creature the simplest competent way: face it, close to reach, swing or shoot whenever free.</summary>
     public int Fight(CreatureView target, int maxTicks, bool stayPut = false)
     {

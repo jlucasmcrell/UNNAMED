@@ -2362,9 +2362,25 @@ internal sealed class CreatureSystem : IAbstractAdvance
 
     private static bool Arrived(CreatureState c, long xMm, long zMm) => Distance(c.Body.XMm, c.Body.ZMm, xMm, zMm) <= 700;
 
-    /// <summary>Whether a place lies in the ground it will go after something in: its territory if it keeps one, else its leash.</summary>
+    /// <summary>
+    /// How far inside its court a creature stops: its body is a blocker, so a keeper that walks to the court's edge stands in the way
+    /// out of the room it was posted to.
+    /// </summary>
+    private const long CourtMarginMm = 1_000;
+
+    /// <summary>Whether a place lies in the ground it will go after something in: its court, its territory if it keeps one, else its leash.</summary>
     private bool Keeps(CreatureState c, long xMm, long zMm) =>
-        Distance(xMm, zMm, c.HomeXMm, c.HomeZMm) <= (c.Role.TerritoryMm > 0 ? c.Role.TerritoryMm : C.LeashMm);
+        KeepsToItsCourt(c, xMm, zMm)
+        && Distance(xMm, zMm, c.HomeXMm, c.HomeZMm) <= (c.Role.TerritoryMm > 0 ? c.Role.TerritoryMm : C.LeashMm);
+
+    /// <summary>
+    /// A creature that holds a court - an encounter's arena - goes after nothing outside it: the court, less a margin so the body
+    /// never stands in the threshold. Creatures without a court are unaffected.
+    /// </summary>
+    private static bool KeepsToItsCourt(CreatureState c, long xMm, long zMm) =>
+        c.Site.Recovery is not { } court
+        || xMm >= court.MinXMm + CourtMarginMm && xMm <= court.MaxXMm - CourtMarginMm
+           && zMm >= court.MinZMm + CourtMarginMm && zMm <= court.MaxZMm - CourtMarginMm;
 
     /// <summary>The body turned towards a facing by at most its turn rate for one tick.</summary>
     private Body Turn(CreatureState c, int towardMdeg)

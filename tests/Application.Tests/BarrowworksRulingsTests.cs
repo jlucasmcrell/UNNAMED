@@ -4,6 +4,9 @@
 // only an actual defeat is durable.
 
 using System.Collections.Immutable;
+using UNNAMED.Domain;
+using UNNAMED.Domain.Items;
+using UNNAMED.Domain.Progression;
 using UNNAMED.Domain.Spatial;
 using UNNAMED.World;
 using UNNAMED.World.Runtime;
@@ -103,8 +106,32 @@ public class BarrowworksRulingsTests
     }
 
     /// <summary>The ring in its own region, the character a step south of the Custodian in the court.</summary>
-    private static Arena InTheCourt(GameSession session, SimulationSetup rules) =>
-        Arena.OpenCreatures(session, rules, (50, 102), 0, [], keepSpawns: true, origin: (0, 0));
+    private static Arena InTheCourt(GameSession session, SimulationSetup rules, Func<PlayerRecord, PlayerRecord>? change = null) =>
+        Arena.OpenCreatures(session, rules, (50, 102), 0, [], change, keepSpawns: true, origin: (0, 0));
+
+    /// <summary>
+    /// A body that could be in the ring at all: level 5, with the frontier's hide kit - what the court's own table measures. A level-1
+    /// character cannot walk out from under a keeper that now hits for thirty-odd a blow, and the walk-out test is about the reset.
+    /// </summary>
+    private static PlayerRecord CourtGoer(PlayerRecord fresh)
+    {
+        var inventory = fresh.Inventory.ToList();
+        var equipment = new List<KeyValuePair<EquipSlot, EntityId>>();
+        foreach (var (piece, slot) in new[] { "item.armor.hide_vest", "item.armor.hide_cap", "item.armor.hide_boots" }
+                     .Zip(new[] { EquipSlot.Chest, EquipSlot.Head, EquipSlot.Feet }))
+        {
+            var entry = Arena.Stack(piece, 1);
+            inventory.Add(entry);
+            equipment.Add(KeyValuePair.Create(slot, entry.ItemId));
+        }
+        var progression = fresh.Progression with
+        {
+            Level = 5,
+            Allocation = ImmutableSortedDictionary.CreateRange(new[] { KeyValuePair.Create(CharacterAttribute.Might, 4) }),
+        };
+        return new PlayerRecord(fresh.Id, fresh.Name, fresh.XMm, fresh.YMm, fresh.ZMm, fresh.AppearanceSeed, inventory, progression,
+            fresh.FacingMdeg, fresh.Discoveries, equipment, fresh.Currency, fresh.Effects);
+    }
 
     private static CreatureView Boss(Arena arena) => arena.Simulation.Creatures.Single(c => c.DefId == Custodian);
 
@@ -147,7 +174,7 @@ public class BarrowworksRulingsTests
     {
         using var profile = new TempProfile();
         using var session = Harness.Boot(profile, "region.barrowworks", barrowworks: true);
-        var arena = InTheCourt(session, session.Setup);
+        var arena = InTheCourt(session, session.Setup, CourtGoer);
         Wound(arena);
         var recovery = session.Setup.Combat.Spawns.Single(s => s.Key == "spawn.barrowworks.ring_custodian").Recovery!;
         BarrowworksFrontierTests.Walk(arena, (x, z) => z < recovery.MinZMm - 2_000);
