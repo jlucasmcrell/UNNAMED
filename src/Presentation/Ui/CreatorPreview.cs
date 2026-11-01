@@ -22,7 +22,8 @@ public sealed partial class CreatorPreview : TextureRect
 
     private readonly SubViewport _viewport = new()
     {
-        Name = "Set", OwnWorld3D = true, Msaa3D = Viewport.Msaa.Msaa4X, ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Smaa, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
+        // HumGen alpha-hashed hair needs temporal filtering; a SubViewport does not inherit the game's TAA.
+        Name = "Set", OwnWorld3D = true, Msaa3D = Viewport.Msaa.Msaa4X, ScreenSpaceAA = Viewport.ScreenSpaceAAEnum.Smaa, UseTaa = true, RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled,
         Size = new Vector2I(1920, 1080),
     };
 

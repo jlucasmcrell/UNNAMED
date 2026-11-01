@@ -1,0 +1,20 @@
+{
+  "warm_seconds": 45,
+  "shots": [
+    {
+      "name": "frontier_forge_game_camera",
+      "hour": 17.6,
+      "seconds": 5,
+      "preroll": 30,
+      "settle_seconds": 8,
+      "hud": true,
+      "camera": {
+        "mode": "gameplay",
+        "yaw": -140,
+        "yaw_to": -110,
+        "pitch": -0.3,
+        "distance": 3.5
+      }
+    }
+  ]
+}
