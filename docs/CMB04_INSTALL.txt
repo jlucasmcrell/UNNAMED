@@ -1,0 +1,33 @@
+NEXT PACKAGE: visual/armour-gaps. Claude visual verdict pending.
+
+Portable art delta:
+E:\Otherreach_Scratch\codex_systems_visuals_20261031\armour\portable_candidate04
+
+Merge primary/rigged's 32 new gap_* garment folders into the existing primary
+art root. Preserve all existing body, wardrobe, hair and unrelated art files.
+Copy the six DDS files into the existing texture_cache directory, then MERGE
+the 30 manifest entries BY KEY. Never replace a complete texture-cache manifest.
+All references in this subset are relative; original source image dimensions
+are retained, with ordinary BC7 block padding and native mipmaps.
+
+Merge the visual branch's targeted item bindings and native layering support.
+The female suffix in shared bindings is resolved to the actual native target
+body's sex at runtime; each part's exact body SHA contract is checked before
+wearing. A missing/incompatible target must not be fitted onto another rig.
+
+All16 items use ordinary item IDs and WearEquipment slots. These pieces opt
+into preserve_underlayers=true and covers_hair=false; default gear behaviour
+remains unchanged. Do not discard these flags when reconciling the gear lane's
+new replaces_creator_sweater support for COMPLETE chest tops. Gap pieces retain
+the sweater, undershirt, trousers and hair. No body cuts or hide_regions masks.
+
+All32 original native authoring files, saved HumGen library presets and hashes
+are pinned in docs/CMB04_DELIVERY.json. Those source/preset paths are authoring
+receipts, not extra game installation roots. Core59 target rests are unchanged;
+only declared native cloth helper bones are appended for besagews/veil drift.
+
+The native review uses the two current Creator bodies with accepted Office and
+Pirate Boots parts. It covers source motion, native fitting controls, equipment
+visibility, four real LOD bands and unequip restoration. It does not certify all
+identities, a played inventory/save route or world performance. Review evidence
+and Claude's verdict must travel with the delivery; no producer self-PASS.

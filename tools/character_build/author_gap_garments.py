@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 from scipy.spatial.transform import Rotation
 from scipy.spatial import cKDTree
+from scipy.ndimage import gaussian_filter
 
 from glb import Glb
 
@@ -194,6 +195,15 @@ class Garment:
         assert movement < .20
         points[:, 2] += movement
         self.positions = points.tolist()
+
+    def front_at(self, x, y):
+        """The real outer garment's forward envelope at this horizontal/vertical location."""
+        reference=getattr(self,'fit_reference',self)
+        reference.fit_surface([x,y,0])
+        if not hasattr(reference,'front_tree'):
+            reference.front_tree=cKDTree(reference.surface_points[:,:2])
+        _,near=reference.front_tree.query([x,y],k=min(16,len(reference.surface_points)))
+        return float(reference.surface_points[np.atleast_1d(near),2].max())
 
     def save(self, destination, layer):
         doc = {'asset': {'version': '2.0', 'generator': 'OTHERREACH original CMB04 garment authoring'},
@@ -384,17 +394,22 @@ def voiders(g):
 
 
 def bevor(g):
-    neck = g.point('Neck')
-    # An open-backed jaw cup; the short front throat plate clears the rotating mandible.
-    rows = []
-    for y, rx, rz, arc in [(-.022,.100,.124,.78),(-.018,.097,.126,.80),(.008,.089,.126,.83),
-                           (.038,.085,.129,.85),(.064,.082,.130,.82),(.070,.084,.132,.82),
-                           (.066,.087,.133,.82),(.035,.091,.132,.85),(.004,.095,.130,.83),(-.022,.100,.124,.78)]:
-        rows.append([(neck+[rx*math.sin(a),y+.015*(1-math.cos(a)),rz*math.cos(a)]).tolist()
-                     for a in np.linspace(-arc,arc,129)])
-    g.grid(rows,0,[('UpperChest',1)])
+    neck,head=g.point('Neck'),g.point('Head');centre=(neck[1]+head[1])*.5-.005
+    rows=[]
+    # A shallow articulated jaw cup; fit its actual front to the collar rather
+    # than projecting a throat bib onto the sweater below it.
+    for y,rx,depth in [(-.028,.074,0),(-.025,.080,0),(.004,.093,0),(.023,.096,0),(.027,.094,0),
+                       (.025,.092,-.002),(.002,.089,-.002),(-.026,.073,-.002)]:
+        row=[]
+        for angle in np.linspace(-.95,.95,129):
+            x=rx*math.sin(angle);height=centre+y+.009*(1-math.cos(angle))
+            z=max(head[2]+.095+.014*math.cos(angle),g.front_at(x,height)+.007)+depth
+            row.append([x,height,z])
+        rows.append(row)
+    g.grid(rows,0,[('Head',1)])
     for sign in [-1,1]:
-        g.torus(neck+[sign*.071,.008,.102],.003,.0014,[('UpperChest',1)],1,axis='z',segments=20)
+        x=sign*.070;y=centre-.010;z=max(head[2]+.107,g.front_at(x,y)+.009)
+        g.torus([x,y,z],.0027,.0011,[('Head',1)],1,axis='z',segments=20)
 
 
 def mail_collar(g, curtain=False):
@@ -598,14 +613,14 @@ def whispergorget(g):
     g.materials=exotic_materials();neck=g.point('Neck')
     for layer in range(3):
         rows=[]
-        for y,rx,rz in [(-.055,.195,.192),(-.029,.170,.175),(.004,.127,.145),(.030,.106,.134),(.052,.105,.133)]:
-            rows.append([(neck+[rx*math.cos(a),y-layer*.003,(rz+layer*.0018)*math.sin(a)*(.78 if math.sin(a)<0 else 1)]).tolist()
+        for y,rx,rz in [(.023,.092,.106),(.026,.093,.107),(.047,.088,.103),(.063,.085,.100)]:
+            rows.append([(neck+[(rx+layer*.0012)*math.cos(a),y-layer*.0015,(rz+layer*.0012)*math.sin(a)]).tolist()
                          for a in np.linspace(0,2*math.pi,129)])
-        g.grid(rows,0,[('UpperChest',1)])
+        g.grid(rows,0,[('Neck',1)])
     # Fine recessed-looking seams: dark non-emissive threads, without fasteners.
-    for a in np.linspace(0,2*math.pi,25)[:-1]:
-        g.grid([[(neck+[rx*math.cos(a+w),y,rz*math.sin(a+w)*(.78 if math.sin(a+w)<0 else 1)]).tolist() for w in [-.001,.001]]
-                for rx,rz,y in [(.195,.194,-.054),(.172,.177,-.028),(.129,.147,.005),(.108,.136,.031)]],1,[('UpperChest',1)])
+    for a in np.linspace(0,2*math.pi,17)[:-1]:
+        g.grid([[(neck+[rx*math.cos(a+w),y,rz*math.sin(a+w)]).tolist() for w in [-.0007,.0007]]
+                for rx,rz,y in [(.095,.109,.024),(.091,.106,.046),(.088,.103,.062)]],1,[('Neck',1)])
 
 
 def jointward_mesh(g):
@@ -662,41 +677,67 @@ def jointward_mesh(g):
 def veil_collar(g):
     g.materials=exotic_materials();head=g.point('Head');neck=g.point('Neck')
     g.materials[2]['pbrMetallicRoughness']['baseColorFactor']=[1,1,1,1]
+    # The cloth follows this body's actual face envelope, including its nose;
+    # a constant plane either floats at the cheeks or intersects the nose.
+    g.fit_surface(head)
+    face_tree=cKDTree(g.surface_points[:,:2])
+    def face_front(x,y):
+        _,near=face_tree.query([x,y],k=min(24,len(g.surface_points)))
+        return float(g.surface_points[np.atleast_1d(near),2].max())
     for chain,x in enumerate([-.085,0,.085]):
         parent='Head'
         for segment in range(4):
-            point=np.array([x,head[1]+.065-segment*.070,head[2]+.180+segment*.009])
+            y=head[1]+.065-segment*.070
+            point=np.array([x,y,face_front(x,y)+.020])
             name=f'cloth_gap_veil_{chain}_{segment}';g.secondary_bone(name,parent,point);parent=name
     g.chains['cloth_gap_veil']={'stiffness':.82,'drag':.72,'gravity':.025,'radius':.004,'idle_drift':.06}
     rows=[]
     for row in range(49):
         t=row/48
-        rows.append([[x,head[1]+.065-t*(.210-.023*(abs(x)/.095)**2),head[2]+.180+t*.027+.006*math.cos(x/.17*math.pi*16)*(t*.8+.2)] for x in np.linspace(-.095,.095,97)])
+        rows.append([[x*(1-.10*t),head[1]+.065-t*(.210-.045*(abs(x)/.095)**2),head[2]+.135+t*.012+.0025*math.cos(x/.19*math.pi*8)*(t*.8+.2)] for x in np.linspace(-.095,.095,97)])
+    cloth=np.asarray(rows)
+    for row in range(len(cloth)):
+        for column in range(len(cloth[row])):
+            x,y,_=cloth[row,column];cloth[row,column,2]=face_front(x,y)+.020
+    smooth=gaussian_filter(cloth[:,:,2],sigma=3,mode='nearest')
+    smooth+=max(0,float(np.max(cloth[:,:,2]-smooth)))
+    cloth[:,:,2]=smooth
+    rows=cloth.tolist()
     def binding(point):
         horizontal=float(np.clip((point[0]+.085)/.085,0,2));left=min(1,int(horizontal));blend=horizontal-left
         vertical=float(np.clip((head[1]+.065-point[1])/.07,0,3));top=min(2,int(vertical));lower=vertical-top
         return [(f'cloth_gap_veil_{chain}_{segment}',float(weight)) for chain,cw in [(left,1-blend),(left+1,blend)] for segment,sw in [(top,1-lower),(top+1,lower)] if (weight:=cw*sw)>0]
     g.grid(rows,2,binding)
     for side in [-1,1]:
-        g.grid([[[side*x,head[1]+.065+w,head[2]+z] for w in [-.003,.003]]
-                for x,z in [(.095,.180),(.105,.070),(.102,-.020),(.085,-.065)]],2,[('Head',1)])
-    g.grid([[(neck+[.106*math.cos(a),y,.132*math.sin(a)]).tolist() for a in np.linspace(0,2*math.pi,97)] for y in [-.025,-.020,.010,.014]],0,[('UpperChest',1)])
+        edge_z=rows[0][0 if side<0 else -1][2]-head[2]
+        g.grid([[[side*x,head[1]+height+w,head[2]+z] for w in [-.005,.005]]
+                for x,z,height in [(.095,edge_z,.065),(.106,.095,.069),(.110,.025,.072),(.102,-.020,.065),(.085,-.065,.055)]],2,[('Head',1)])
+    g.grid([[(neck+[.090*math.cos(a),y,.100*math.sin(a)]).tolist() for a in np.linspace(0,2*math.pi,97)] for y in [-.025,-.020,.010,.014]],2,[('Neck',1)])
     g.uv=(np.asarray(g.uv)*.38).tolist()
 
 
 def phase_laminate(g):
-    g.materials=exotic_materials();chest=g.point('Chest')
+    g.materials=exotic_materials();chest=g.point('UpperChest')
     # Two real, closely spaced substances produce view-dependent edge separation.
     # Closely spaced matte ceramic and graphite shells; no emission or violet.
     g.materials[1]['pbrMetallicRoughness'].update(baseColorFactor=[.38,.39,.36,1],metallicFactor=.08,roughnessFactor=.67)
     for layer in range(2):
         rows=[]
-        for y in np.linspace(-.100,.140,49):
-            through=(y+.100)/.240
-            width=.122+.035*math.sin(through*math.pi)-layer*.004
-            rows.append([(chest+[x+layer*.004,y,.170+.022*(1-(x/.17)**2)+layer*.008]).tolist()
-                         for x in np.linspace(-width,width,97)])
-        g.grid(rows,0 if layer else 1,[('Chest',1)])
+        for y in np.linspace(-.130,.120,49):
+            through=(y+.130)/.250
+            width=.105+.050*math.sin(through*math.pi)-layer*.002
+            row=[]
+            for x in np.linspace(-width,width,97):
+                at=x+layer*.002;height=chest[1]+y
+                row.append([at,height,g.front_at(at,height)+.008+layer*.004])
+            rows.append(row)
+        points=np.asarray(rows)
+        # A formed shell follows the broad wardrobe surface, rather than every
+        # discrete shirt vertex. Keep the measured clearance after smoothing.
+        smooth=gaussian_filter(points[:,:,2],sigma=3,mode='nearest')
+        smooth+=max(0,float(np.max(points[:,:,2]-smooth)))
+        points[:,:,2]=smooth
+        g.grid(points.tolist(),0 if layer else 1,lambda point:[('Chest',1-float(np.clip((point[1]-chest[1]+.13)/.25,0,1))),('UpperChest',float(np.clip((point[1]-chest[1]+.13)/.25,0,1)))])
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -738,10 +779,8 @@ def main():
         if hasattr(garment,'mailkit') and part!='jointward_mesh':
             garment.materials=exotic_materials()
             garment.materials[0]={'name':'Original four-in-one steel','pbrMetallicRoughness':{'baseColorFactor':[1,1,1,1],'metallicFactor':.94,'roughnessFactor':1},'doubleSided':True}
-        if args.underlayer and part in ['bevor','aventail','couters','poleyns','faulds','groin_guard','sabatons','gauntlets']:
+        if args.underlayer and part in ['aventail','couters','poleyns','faulds','groin_guard','sabatons','gauntlets']:
             garment.clear_underlayer(cuff_only=part=='gauntlets')
-        if args.underlayer and part=='phase_laminate':
-            garment.clear_front()
         report['garments'].append(garment.save(args.out, layer))
     assert hashlib.sha256(args.body.read_bytes()).hexdigest() == source_hash
     (args.out/(args.body_id+'_gap_authoring.json')).write_text(json.dumps(report, indent=2))

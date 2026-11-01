@@ -1,0 +1,828 @@
+{
+  "status": "DELIVERY_CANDIDATE_NATIVE_CPU_PASS_FINAL_RENDERED_VERDICT_PENDING",
+  "recorded": "2026-10-31T22:24:54.196025-04:00",
+  "branch": "visual/armour-gaps",
+  "portable_delta": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\portable_candidate04",
+  "sources": [
+    {
+      "identifier": "gap_aventail__humgen_creator_female",
+      "item": "item.armor.aventail",
+      "slot": "head",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_aventail__humgen_creator_female\\gap_aventail__humgen_creator_female_rigged.glb",
+      "glb_sha256": "3b2ce9de7d32d28968c6cb508017185465e72db373124f8e85259728ccf6efec",
+      "contract_sha256": "f8a2fda600253c8e3f685da9e74fe1c727fb1b8b2c477eefb0ccefb1df14f4d8",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_aventail__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_aventail__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_aventail__humgen_creator_female.blend",
+        "sha256": "3a406d9b12db17fa5a30e279be63de83930d4a46e0ec7297e392b6eba7a65a3c",
+        "owned_optimizer_pids": [
+          38576
+        ],
+        "source_blend_sha256": "d55ffbb339d6715fbe744ffec61f8d0ae05efc595c0d6a98dfde58b04e08f5d5",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_aventail__humgen_creator_male",
+      "item": "item.armor.aventail",
+      "slot": "head",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_aventail__humgen_creator_male\\gap_aventail__humgen_creator_male_rigged.glb",
+      "glb_sha256": "cdbf13d36da30e958e85309a71a7e970e4caf382fe9458be96312004d8c7ef63",
+      "contract_sha256": "28bfa7d6d5e9425b92abb0903264e1088b6c5f8e29600e8cc543da9791fc6a10",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_aventail__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_aventail__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_aventail__humgen_creator_male.blend",
+        "sha256": "adc52fde2605944992cf95acffc5698255b6f81c70d82cc255558f19a362a255",
+        "owned_optimizer_pids": [
+          52328
+        ],
+        "source_blend_sha256": "fd1c2c16287ba5758cbe71e9689fd27e94d844ae641ce8e6eaa9f2f3256aab11",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_besagews__humgen_creator_female",
+      "item": "item.armor.besagews",
+      "slot": "chest",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_besagews__humgen_creator_female\\gap_besagews__humgen_creator_female_rigged.glb",
+      "glb_sha256": "e95a627977a50d6927586432654c1a6f5c5c09fd903d7fec274ec09dbf6b1a8f",
+      "contract_sha256": "97a4f1e0bc9f2673e418ad9ee6d67123e83865c459ee5360800f469b6ff22152",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_besagews__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_besagews__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_besagews__humgen_creator_female.blend",
+        "sha256": "941de7e95c433332fdf48e267b83919781690cdaca6c2e6c9e143ac137017974",
+        "owned_optimizer_pids": [
+          49568
+        ],
+        "source_blend_sha256": "66aeee81de60d9be9861ce4e5937c56b9340414500aacf2dc7a5e58bc18b5564",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_besagews__humgen_creator_male",
+      "item": "item.armor.besagews",
+      "slot": "chest",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_besagews__humgen_creator_male\\gap_besagews__humgen_creator_male_rigged.glb",
+      "glb_sha256": "4e1bf647a11f076e4aa195a040ac8f132b6aa2a98e0d6d694c801bb10403d7e4",
+      "contract_sha256": "58857c5e9d1d35726b145a4d237143927661187bcaa64774e46fd532080f86d4",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_besagews__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_besagews__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_besagews__humgen_creator_male.blend",
+        "sha256": "6e46cea30ef5076d912b2b18aa28c8828d304370c2a1e60ce324b1a53c2ff3ca",
+        "owned_optimizer_pids": [
+          42416
+        ],
+        "source_blend_sha256": "47089238383aac481f5062fd592688c628413d021d08800bc4ae882d79027876",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_bevor__humgen_creator_female",
+      "item": "item.armor.bevor",
+      "slot": "head",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\primary\\rigged\\gap_bevor__humgen_creator_female\\gap_bevor__humgen_creator_female_rigged.glb",
+      "glb_sha256": "19fa631ed355380777de0ed1d98e97b06d065de2a5c4f53699abb5c1cdcc615a",
+      "contract_sha256": "cc62c031544e3303a8193d5a7658af13d256f021714a4268b65ce0bcb15761f2",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\sources\\gap_bevor__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_bevor__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library04\\outfits\\female\\Otherreach_CMB04_20261031\\gap_bevor__humgen_creator_female.blend",
+        "sha256": "0c91607a2c18ff5e2309387d0bc21cb326a4c984b7a3045af0ecfb39c197604d",
+        "owned_optimizer_pids": [
+          48120
+        ],
+        "source_blend_sha256": "c2059715f1dc0c7617a1fc4700e4b39cd97ae3c6c7d6da0bfc9fdde9a8dece2a",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_bevor__humgen_creator_male",
+      "item": "item.armor.bevor",
+      "slot": "head",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\primary\\rigged\\gap_bevor__humgen_creator_male\\gap_bevor__humgen_creator_male_rigged.glb",
+      "glb_sha256": "b98b36e0e63f80220727e993850ccc1cd85d199eddc4957c9baa169fbd7146eb",
+      "contract_sha256": "56e4649afff19da1c39649322eb71bf46659c6350c306649b9432bf24c9aa070",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\sources\\gap_bevor__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_bevor__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library04\\outfits\\male\\Otherreach_CMB04_20261031\\gap_bevor__humgen_creator_male.blend",
+        "sha256": "143e8c77e00c7c011376903f30916f2685d7ddd51eb3a56bfa3c70dbb469e1fa",
+        "owned_optimizer_pids": [
+          5648
+        ],
+        "source_blend_sha256": "ff7b4bab7863e9c341fc01be3c711ac8742964a0b3ddbd0053a28d9e0250b1bb",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_couters__humgen_creator_female",
+      "item": "item.armor.couters",
+      "slot": "hands",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_couters__humgen_creator_female\\gap_couters__humgen_creator_female_rigged.glb",
+      "glb_sha256": "396fcd5e7f3d4db0a6313233fc385afcc05addbe317a198c5e7e69a91f5943c1",
+      "contract_sha256": "c5c9fa0976a4ca75a72ffed026de12d6a13e7e236050da31a1acacc097360914",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_couters__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_couters__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_couters__humgen_creator_female.blend",
+        "sha256": "a1761cc48a07c9a04e2ed4d6b4a6d68e8cad4c5b8d4541f5c0135a4d00252680",
+        "owned_optimizer_pids": [
+          55792
+        ],
+        "source_blend_sha256": "82da0085b7ab7dae47b2dc56e76aeeb998f8b584304b0f97b5e8c0d46535d472",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_couters__humgen_creator_male",
+      "item": "item.armor.couters",
+      "slot": "hands",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_couters__humgen_creator_male\\gap_couters__humgen_creator_male_rigged.glb",
+      "glb_sha256": "dc0e5a7b25157966bbcb73e650812114d469354c971c0af006d1509583e307e5",
+      "contract_sha256": "54e5f66d9e7e107313811a7df64be9ac7763776f54ba78c66c152aede869ce2b",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_couters__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_couters__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_couters__humgen_creator_male.blend",
+        "sha256": "50b7a21b62a44ae097ca4853285a4ca017d37645a0cc3fb690ad3587ff7b7470",
+        "owned_optimizer_pids": [
+          13476
+        ],
+        "source_blend_sha256": "1d188921a755060ce8f2f260ebcc8219fa34afe64a28add39fc1859fbdb66845",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_faulds__humgen_creator_female",
+      "item": "item.armor.faulds",
+      "slot": "legs",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_faulds__humgen_creator_female\\gap_faulds__humgen_creator_female_rigged.glb",
+      "glb_sha256": "5aebfc2eae76721f5e2c2006f87d57728d787cac918e95bb41f7acb55be381d1",
+      "contract_sha256": "5ad74852ac1528e86446b1c929a65c24ca17e827ff06c01dfe45544c1831d0dc",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_faulds__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_faulds__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_faulds__humgen_creator_female.blend",
+        "sha256": "9bf5eafcef5c4f23358b645663cfff0a3f261871575dac4596082746a2606c2e",
+        "owned_optimizer_pids": [
+          54084
+        ],
+        "source_blend_sha256": "a33dfffa2c64cd890bb0073aecee3ca55f0e0986f79800c475dc9682f93a9c20",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_faulds__humgen_creator_male",
+      "item": "item.armor.faulds",
+      "slot": "legs",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_faulds__humgen_creator_male\\gap_faulds__humgen_creator_male_rigged.glb",
+      "glb_sha256": "111cfdebcec1d1c77640f8feb009352959ba3c45bce98d88e94d0ebe25e8e630",
+      "contract_sha256": "512ebc05aa602e4a27e5e08b7b262854943346b38a0ad7d2868f4f4a5f51f050",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_faulds__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_faulds__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_faulds__humgen_creator_male.blend",
+        "sha256": "bca5242ca6376c0e0932be2828e5fe8a2118967c304556988a75179b4e98e48b",
+        "owned_optimizer_pids": [
+          51300
+        ],
+        "source_blend_sha256": "eacc22698a957445bf42e1786ea0256e771970d5da6273f990766a44709f5cd9",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_gauntlets__humgen_creator_female",
+      "item": "item.armor.gauntlets",
+      "slot": "hands",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_gauntlets__humgen_creator_female\\gap_gauntlets__humgen_creator_female_rigged.glb",
+      "glb_sha256": "1767002ba4d228400a3578a375e88f41ae15c66a1e3e11ed636e243c752502cd",
+      "contract_sha256": "fe2c2ff4d7d4501eaefa17d81cd66e58975e1ad87eb7473e10ca7345eebd02dc",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_gauntlets__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_gauntlets__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_gauntlets__humgen_creator_female.blend",
+        "sha256": "efd138db9efa20b8811322c408bcb7c0740b75081ccbef85a9fd853e3685d07b",
+        "owned_optimizer_pids": [
+          37680
+        ],
+        "source_blend_sha256": "ae6fe24cee06614cb773de0a3088cf679bf4759f12a2b31f58bbb5ee037861c1",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_gauntlets__humgen_creator_male",
+      "item": "item.armor.gauntlets",
+      "slot": "hands",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_gauntlets__humgen_creator_male\\gap_gauntlets__humgen_creator_male_rigged.glb",
+      "glb_sha256": "444ee508ad74d859fec0808f449fd7ceaed6c17a3561ea8c7b14ce0d831b480f",
+      "contract_sha256": "1c6114d82e6e08e8657a86852368575fb42a3db9bb7f4005b0268d09a30a75d9",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_gauntlets__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_gauntlets__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_gauntlets__humgen_creator_male.blend",
+        "sha256": "f51db92ab651e7a4b4e0ff0cae25e199f13ef3edbf6bb50460bfbc973b53913a",
+        "owned_optimizer_pids": [
+          24236
+        ],
+        "source_blend_sha256": "aadffd127883020bdebfeaed3db6b6fc137826a2c1c5d4b832c1a541329ee420",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_gorget__humgen_creator_female",
+      "item": "item.armor.gorget",
+      "slot": "head",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gorget_probe01\\primary\\rigged\\gap_gorget__humgen_creator_female\\gap_gorget__humgen_creator_female_rigged.glb",
+      "glb_sha256": "91a7616e2221e6403d0678d10dd687433b4e1045c334b35a935fefea1387eb2c",
+      "contract_sha256": "fbaf7f28e7f796fa9bd340c0d9dba5b413bd6a1ec68e426f95db1d8d394943ee",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gorget_probe01\\sources\\gap_gorget__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_gorget__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_gorget__humgen_creator_female.blend",
+        "sha256": "07bfb59a01c07604fe86931b9211f273dc7c8accb71509ad8bdf8d3333fc03b8",
+        "owned_optimizer_pids": [
+          34400
+        ],
+        "source_blend_sha256": "14fd75bdb8d7bd147bf56b498f99bfb937db1f25bd8aa2256b2706fdc8a1efdf",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_gorget__humgen_creator_male",
+      "item": "item.armor.gorget",
+      "slot": "head",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gorget_probe01\\primary\\rigged\\gap_gorget__humgen_creator_male\\gap_gorget__humgen_creator_male_rigged.glb",
+      "glb_sha256": "c12e43da32108af6020b2dff23294e33201f5338573559eea142d5e3d7d6f51f",
+      "contract_sha256": "51dd196d2894275ccabeadd3e77cc0b67cdd7b8f79d46a43bb87de117e60b584",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gorget_probe01\\sources\\gap_gorget__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_gorget__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_gorget__humgen_creator_male.blend",
+        "sha256": "0c2e632660f4125418cee6c7ee6e285efd1d7790579d04c4632642a26e9d2708",
+        "owned_optimizer_pids": [
+          52988
+        ],
+        "source_blend_sha256": "c89f8a0332be40173101d7fc88024dfa79e7ddc2196507f002bb6e26afd112fd",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_groin_guard__humgen_creator_female",
+      "item": "item.armor.groin_guard",
+      "slot": "legs",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_groin_guard__humgen_creator_female\\gap_groin_guard__humgen_creator_female_rigged.glb",
+      "glb_sha256": "a20752ce450d6d21c255e8770abf1e5ed25088b098c6153151802a4a79433d06",
+      "contract_sha256": "7290cb8f3a3c517dd80f2518ad638c6478ebb02e79539fbd88d8463e503a7f41",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_groin_guard__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_groin_guard__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_groin_guard__humgen_creator_female.blend",
+        "sha256": "39e99f6d1893071a97b921807b8882d0dfa3a43a086d39160dad1ea1c6f73a02",
+        "owned_optimizer_pids": [
+          35224
+        ],
+        "source_blend_sha256": "cc238d3a09c254df3c73933671d435b49994dc520d0b757ab93df91ffb7e480e",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_groin_guard__humgen_creator_male",
+      "item": "item.armor.groin_guard",
+      "slot": "legs",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_groin_guard__humgen_creator_male\\gap_groin_guard__humgen_creator_male_rigged.glb",
+      "glb_sha256": "d138519bde7a2a08ef1c4a6fd638a07b92eec5e51d4d0b64ea5548054ab89053",
+      "contract_sha256": "f15b0b7e532ab5fe7ffa4d494a12be188efcdd05b1ab6766794672ab5a5c62b6",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_groin_guard__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_groin_guard__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_groin_guard__humgen_creator_male.blend",
+        "sha256": "62ae9f1077e69713a5e50c285943d8c884a7b11d627333ffb0add1577525f263",
+        "owned_optimizer_pids": [
+          50232
+        ],
+        "source_blend_sha256": "5d63f9c6e4a9fb74944887d0eae19b546457ac40da596919fc1cc0a361bfc989",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_jointward_mesh__humgen_creator_female",
+      "item": "item.armor.jointward_mesh",
+      "slot": "hands",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_jointward_mesh__humgen_creator_female\\gap_jointward_mesh__humgen_creator_female_rigged.glb",
+      "glb_sha256": "e0ee62d9ef014ed0fb7bf7dc6a4a01a090ccaea2c4c88905846240b4500114a3",
+      "contract_sha256": "f2a6a2f1521bec3c08dfb9b2ab96f7c0767465b32976badf9632acf4fbdf91c8",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_jointward_mesh__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_jointward_mesh__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_jointward_mesh__humgen_creator_female.blend",
+        "sha256": "fa1f396768a125aa3d578fce616fdcd031afa986a5557feeeb32b450e414b633",
+        "owned_optimizer_pids": [
+          51048
+        ],
+        "source_blend_sha256": "5cc289a033d84982d4feb616af91dd0ae9a28ccf0efe69f17905cad5815dd38f",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_jointward_mesh__humgen_creator_male",
+      "item": "item.armor.jointward_mesh",
+      "slot": "hands",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_jointward_mesh__humgen_creator_male\\gap_jointward_mesh__humgen_creator_male_rigged.glb",
+      "glb_sha256": "58e6b7244af6b230fb41c8574e576490dd50d1358be0965fc37738050dba032e",
+      "contract_sha256": "48ed34b095946e72bc2d664ccd5f94d4dac61a73e2cc22f613969cc881af4f3d",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_jointward_mesh__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_jointward_mesh__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_jointward_mesh__humgen_creator_male.blend",
+        "sha256": "e7445365f1da5540cb1c1be08d0d99fe18c77fd95b85f97281af256a0ce9de8e",
+        "owned_optimizer_pids": [
+          22360
+        ],
+        "source_blend_sha256": "33d1980bd3f3a2360fa121de50d14fb1d62846b14fafb5e4c43632cc45dc6480",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_mail_standard__humgen_creator_female",
+      "item": "item.armor.mail_standard",
+      "slot": "head",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_mail_standard__humgen_creator_female\\gap_mail_standard__humgen_creator_female_rigged.glb",
+      "glb_sha256": "c3b6be994f39c24dcc684d7979b02bb5afffcf7e08d8a99bc4075d5471de502e",
+      "contract_sha256": "2c22086898754606323507e7d93bed8cb9908d1e45c24e336e54ff85fd69504a",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_mail_standard__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_mail_standard__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_mail_standard__humgen_creator_female.blend",
+        "sha256": "e861b2f9e4f305658c5401b7f1984bdf56d437d9d1a769b51ece197148542d06",
+        "owned_optimizer_pids": [
+          17344
+        ],
+        "source_blend_sha256": "873712daca59d17d984865356c661b90da0f122ebbcfa558b32c181a441c3615",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_mail_standard__humgen_creator_male",
+      "item": "item.armor.mail_standard",
+      "slot": "head",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_mail_standard__humgen_creator_male\\gap_mail_standard__humgen_creator_male_rigged.glb",
+      "glb_sha256": "441ed90112d4fa9f6a7b380f3a509fba59a7ba95f507fd965749b1eaece7f044",
+      "contract_sha256": "7ba226dd191c74be9e6d538234ab1718c37a0d397989625fa814eafe556c4761",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_mail_standard__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_mail_standard__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_mail_standard__humgen_creator_male.blend",
+        "sha256": "7f66e9c21872ed018114ca7b0276e6c863cc5d714cce31b3dd838e60419f0bb3",
+        "owned_optimizer_pids": [
+          54688
+        ],
+        "source_blend_sha256": "74b36ad8d62ce148fe4167d682e96b9a13c67b3c836b5ce53d8daa570d566c85",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_phase_laminate__humgen_creator_female",
+      "item": "item.armor.phase_laminate",
+      "slot": "chest",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\primary\\rigged\\gap_phase_laminate__humgen_creator_female\\gap_phase_laminate__humgen_creator_female_rigged.glb",
+      "glb_sha256": "8bc399c380c0cd11e1985e473d1cf45b736a92a5961b2584d5b86340d3bb240b",
+      "contract_sha256": "c3621cfe13a702139092cf77435fffa7230b9e1949f934dc0e557de91a8546e1",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\sources\\gap_phase_laminate__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_phase_laminate__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library04\\outfits\\female\\Otherreach_CMB04_20261031\\gap_phase_laminate__humgen_creator_female.blend",
+        "sha256": "a9308e674bfc49304ac8101c42b7bec3437c3b8aab4072d38d830954efb04c94",
+        "owned_optimizer_pids": [
+          54020
+        ],
+        "source_blend_sha256": "fbc02d584ad9b8fdfaf57a62e5c54cd4eb5822cc1e68bfd0dd131e654424f441",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_phase_laminate__humgen_creator_male",
+      "item": "item.armor.phase_laminate",
+      "slot": "chest",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\primary\\rigged\\gap_phase_laminate__humgen_creator_male\\gap_phase_laminate__humgen_creator_male_rigged.glb",
+      "glb_sha256": "cc1e27d46f5c7950c705635e6904700106193010db1517913b899725afe0e36b",
+      "contract_sha256": "64b2a0ba1a02868bd41089cb7e738b961e14acd17d3025565add17790e8708d5",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement05\\native_gap01\\sources\\gap_phase_laminate__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_phase_laminate__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library04\\outfits\\male\\Otherreach_CMB04_20261031\\gap_phase_laminate__humgen_creator_male.blend",
+        "sha256": "33fbbe71722599b1104d9105f8cfd9dbaf18c72159dc6dec96699ca156791988",
+        "owned_optimizer_pids": [
+          50172
+        ],
+        "source_blend_sha256": "4dcbd54c12764adc4862d4e6ca472252242c0e3a684718867b5695945c990112",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_poleyns__humgen_creator_female",
+      "item": "item.armor.poleyns",
+      "slot": "legs",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_poleyns__humgen_creator_female\\gap_poleyns__humgen_creator_female_rigged.glb",
+      "glb_sha256": "0cab108c54b5d4e8a1449f46b56797c495f60a195ad77f89fe8a3c71f9212040",
+      "contract_sha256": "b439eced94d3d5c77ab600bbea843e7dcfefe4b4c4cb30b9af04db2930d0fbe8",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_poleyns__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_poleyns__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\female\\Otherreach_CMB04_20261031\\gap_poleyns__humgen_creator_female.blend",
+        "sha256": "2719b7497797fb5eecfdbf7ed5d790fe49e99486a8513b190519ceec2d0719cd",
+        "owned_optimizer_pids": [
+          4748
+        ],
+        "source_blend_sha256": "ec6d50c508b65dad703899437f90544f9f0c907cec610dbaa9c3de3aff57d4ca",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_poleyns__humgen_creator_male",
+      "item": "item.armor.poleyns",
+      "slot": "legs",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_poleyns__humgen_creator_male\\gap_poleyns__humgen_creator_male_rigged.glb",
+      "glb_sha256": "3f09d954ce865b2d992f7b3183bb9f7290a664c97c772eabdd6679238c1d6b3a",
+      "contract_sha256": "b83631e4d8d6e2092c3c9f4bf0563133152046058e2acd3be83b61eb71f0d5c3",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_poleyns__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_poleyns__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\outfits\\male\\Otherreach_CMB04_20261031\\gap_poleyns__humgen_creator_male.blend",
+        "sha256": "6697f9a0040d12eeba47dfda848e342fb7a04c32c5074fd4f74be75a1243b276",
+        "owned_optimizer_pids": [
+          51712
+        ],
+        "source_blend_sha256": "f9ce8c0ae20eb5bbde3a419e424f30007c134d6307b40060afd11336dfedb67c",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_sabatons__humgen_creator_female",
+      "item": "item.armor.sabatons",
+      "slot": "feet",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_sabatons__humgen_creator_female\\gap_sabatons__humgen_creator_female_rigged.glb",
+      "glb_sha256": "01d3df4ed6de9a3c150f83982c4be302a7d60e0935634b83a03904e0175ae23b",
+      "contract_sha256": "9eb279f4d84d00dfe111725193e5217b2e1dfc007994373a7999fa206e109ea4",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_sabatons__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_sabatons__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\footwear\\female\\Otherreach_CMB04_20261031\\gap_sabatons__humgen_creator_female.blend",
+        "sha256": "ce10ed7115aa27fa9db74d6e4357e3c86adea11af182ea8c916f89100e4f08fe",
+        "owned_optimizer_pids": [
+          52584
+        ],
+        "source_blend_sha256": "32fe21487fd6db30279f4d834b9dc78cbea2c91cb91299a6254bad3b92c24194",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_sabatons__humgen_creator_male",
+      "item": "item.armor.sabatons",
+      "slot": "feet",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\primary\\rigged\\gap_sabatons__humgen_creator_male\\gap_sabatons__humgen_creator_male_rigged.glb",
+      "glb_sha256": "c2112628f31e59f281d531eae7da2b13b1c3d2c7fcd5c40a9de4b7a3ddf15380",
+      "contract_sha256": "5411b6bb2969b77f9b6fbea87e06c3a46b43d79fb520b9e814f3ad8ed31e9625",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\native_gap01\\sources\\gap_sabatons__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_sabatons__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library02\\footwear\\male\\Otherreach_CMB04_20261031\\gap_sabatons__humgen_creator_male.blend",
+        "sha256": "ba283e7b555f9e3a2ca42ec318e48e5c41f0b65165e9f08f013697cf4a75e5f5",
+        "owned_optimizer_pids": [
+          37076
+        ],
+        "source_blend_sha256": "ad895888e9ca887ab5965eb8f49cab14c178a1ceb6bbf2c48c3d860d5de3b9a4",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_veil_collar__humgen_creator_female",
+      "item": "item.armor.veil_collar",
+      "slot": "head",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_female\\gap_veil_collar__humgen_creator_female_rigged.glb",
+      "glb_sha256": "bc6ba6120c81a4bc7019ea97c319228ebfb38d635f379b9914d9d1641c2e3958",
+      "contract_sha256": "d38a892ae17109106e2f63fd63b583d3c3493ff727c4d2ed4b7961533000849a",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\sources\\gap_veil_collar__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_veil_collar__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library05\\outfits\\female\\Otherreach_CMB04_20261031\\gap_veil_collar__humgen_creator_female.blend",
+        "sha256": "2ea8f3c647a9a71b73bc1df667ea847a66f5559c1cc0f3b59de72be32721a03b",
+        "owned_optimizer_pids": [
+          18812
+        ],
+        "source_blend_sha256": "461d1b7e5080018c51130f200758f7071d1ed5618a2cb74b64cc773679dc99ef",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_veil_collar__humgen_creator_male",
+      "item": "item.armor.veil_collar",
+      "slot": "head",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\primary\\rigged\\gap_veil_collar__humgen_creator_male\\gap_veil_collar__humgen_creator_male_rigged.glb",
+      "glb_sha256": "3f916649d8310db3e720ef3a8e598809b2a57321e2ee3944e62629a5615d73d6",
+      "contract_sha256": "01ee22e9edc43123c58e60b84a648fc7b2af6874f282639cb4c633d4aac922fb",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\native_gap01\\sources\\gap_veil_collar__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_veil_collar__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library05\\outfits\\male\\Otherreach_CMB04_20261031\\gap_veil_collar__humgen_creator_male.blend",
+        "sha256": "45f8185a01f0d99fba00ccaab05f6521b9bacc487bf0124685743755924ffcdd",
+        "owned_optimizer_pids": [
+          15128
+        ],
+        "source_blend_sha256": "96cca2a7d2418825d815081012094dbe45526424c37bae26bc0dc67d39cac190",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_voiders__humgen_creator_female",
+      "item": "item.armor.voiders",
+      "slot": "chest",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\voider_seam02\\native_gap01\\primary\\rigged\\gap_voiders__humgen_creator_female\\gap_voiders__humgen_creator_female_rigged.glb",
+      "glb_sha256": "3ed94bdd656c48942f8c1f99ddc1493012c328a7c4826f2e961eea21a74c6b3d",
+      "contract_sha256": "1b5aed14c076fa2aab93d0d64b67f9231c850a0f94a290b76c8a81c133822a76",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\voider_seam02\\native_gap01\\sources\\gap_voiders__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_voiders__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library03\\outfits\\female\\Otherreach_CMB04_20261031\\gap_voiders__humgen_creator_female.blend",
+        "sha256": "1d144ebf0cf4a6c3292abcce967c9aa56940c7ea94b1251de428642bcfdcbdd8",
+        "owned_optimizer_pids": [
+          31288
+        ],
+        "source_blend_sha256": "f0893dc2d0c47905590a334cc4c8f6c475b46e3748a266530838d5908e914216",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_voiders__humgen_creator_male",
+      "item": "item.armor.voiders",
+      "slot": "chest",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\voider_seam02\\native_gap01\\primary\\rigged\\gap_voiders__humgen_creator_male\\gap_voiders__humgen_creator_male_rigged.glb",
+      "glb_sha256": "643e0a95c1e20a5ec0f97d9cdb0f7142f4052e327cc9332e66013fc1841d7567",
+      "contract_sha256": "6e319434acf0106465c34007d1f9b0811b8f9ed0e11f847a9827689b1ab49e98",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\voider_seam02\\native_gap01\\sources\\gap_voiders__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_voiders__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library03\\outfits\\male\\Otherreach_CMB04_20261031\\gap_voiders__humgen_creator_male.blend",
+        "sha256": "5437de11f79feb1e27897d4e9a255f63e92494673e435a3afb33dfff546d501a",
+        "owned_optimizer_pids": [
+          31804
+        ],
+        "source_blend_sha256": "5a00261083ef1b210f99af8e3192394d3fe86219771196cfca25907b7591b5f1",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_whispergorget__humgen_creator_female",
+      "item": "item.armor.whispergorget",
+      "slot": "head",
+      "target": "humgen_creator_female",
+      "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_gap01\\primary\\rigged\\gap_whispergorget__humgen_creator_female\\gap_whispergorget__humgen_creator_female_rigged.glb",
+      "glb_sha256": "7affcda2dacfbafc0e5ab3e16c57c0152a1bcc09c3b8a6634604bf424bc6f192",
+      "contract_sha256": "5b83542335d81d6d19d3c4a4b30141e23159b1e41d1a91e9479d7583c1c7c49c",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_gap01\\sources\\gap_whispergorget__humgen_creator_female\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_whispergorget__humgen_creator_female",
+        "target_body_sha256": "263bce1c3508ce9a53d24e027c63a636662eff725cf0831cc5ea393ceaafb6d7",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library04\\outfits\\female\\Otherreach_CMB04_20261031\\gap_whispergorget__humgen_creator_female.blend",
+        "sha256": "c4fcf7d0f76a7be16778dff258d4b6f0261e7b7027aaa590d8b66e322241941e",
+        "owned_optimizer_pids": [
+          37148
+        ],
+        "source_blend_sha256": "a33da6be29b5f36781f525e0fb5fdec274218c821e5b4d8467709735e8259b3f",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    },
+    {
+      "identifier": "gap_whispergorget__humgen_creator_male",
+      "item": "item.armor.whispergorget",
+      "slot": "head",
+      "target": "humgen_creator_male",
+      "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+      "glb": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_gap01\\primary\\rigged\\gap_whispergorget__humgen_creator_male\\gap_whispergorget__humgen_creator_male_rigged.glb",
+      "glb_sha256": "827f508f3a66e51fb852c4af80a2ee8ab76d5c44a84d5bd7e8c159720627cbda",
+      "contract_sha256": "d1c6824c8b4956e472ef09f4cd8da6e20fcddd2722ed4bbe4e76efe6938b5477",
+      "native_authoring": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement03\\native_gap01\\sources\\gap_whispergorget__humgen_creator_male\\native_outfit.blend",
+      "native_library": {
+        "method": "HumGen clothing.save_to_library; exact authored sex; native optimizer completed",
+        "identifier": "gap_whispergorget__humgen_creator_male",
+        "target_body_sha256": "ce3a99e1c84d00116f7e6f94aa58c276a19268ca470f0494e5bcd67b7485ff28",
+        "path": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\humgen_native_library04\\outfits\\male\\Otherreach_CMB04_20261031\\gap_whispergorget__humgen_creator_male.blend",
+        "sha256": "7304ad803e10fa1c274278e37500df2f3d0a8de2fddee54018ea83b33c07b358",
+        "owned_optimizer_pids": [
+          18792
+        ],
+        "source_blend_sha256": "45f5db34dbb1d86793e1ea8c5906e78530969e781c9273833e0cf49f9862a007",
+        "source_blend_unchanged": true,
+        "blender_preferences_saved": false,
+        "status": "NATIVE_AUTHORING_LIBRARY_NOT_GAME_APPROVAL"
+      }
+    }
+  ],
+  "cpu": {
+    "female": {
+      "public_all16": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\cpu_final_binding_female07",
+      "final_face_fitted_veil": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\cpu_female08"
+    },
+    "male": {
+      "public_all16": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\cpu_final_binding_male07",
+      "final_face_fitted_veil": "E:\\Otherreach_Scratch\\codex_systems_visuals_20261031\\armour\\refinement07\\cpu_male08"
+    }
+  },
+  "checks": {
+    "worn_outfit_tests": "3/3",
+    "sparse_glb_accessor_test": "PASS; strided dense + sparse overlay + implicit zero base; source bytes unchanged"
+  },
+  "scope": "Original conventionally authored garment meshes. Native HumGen outfit/footwear authoring, save_to_library and optimizer, four original geometry LODs, exact59 target rests and native fitting controls. Body, hair and all normal underlayers retained; no body cuts. Optional append-only declared cloth helpers for besagews and veil. Source-resolution owned maps and original CPU Cycles four-in-one mail bake; no generative art or motion service.",
+  "limitations": [
+    "Only current Creator female and male garment target contracts certified; no all-identity fit claim.",
+    "Normal item bindings and production WearEquipment in neutral fixtures, not played inventory/save route or full-world performance acceptance.",
+    "Claude owns visual verdict; producer does not self-PASS or merge RC."
+  ]
+}

@@ -4445,6 +4445,51 @@
           "item.armor.cloak": [],
           "item.armor.gorget": [
             "gap_gorget__humgen_creator_female"
+          ],
+          "item.armor.bevor": [
+            "gap_bevor__humgen_creator_female"
+          ],
+          "item.armor.aventail": [
+            "gap_aventail__humgen_creator_female"
+          ],
+          "item.armor.mail_standard": [
+            "gap_mail_standard__humgen_creator_female"
+          ],
+          "item.armor.voiders": [
+            "gap_voiders__humgen_creator_female"
+          ],
+          "item.armor.besagews": [
+            "gap_besagews__humgen_creator_female"
+          ],
+          "item.armor.couters": [
+            "gap_couters__humgen_creator_female"
+          ],
+          "item.armor.poleyns": [
+            "gap_poleyns__humgen_creator_female"
+          ],
+          "item.armor.faulds": [
+            "gap_faulds__humgen_creator_female"
+          ],
+          "item.armor.groin_guard": [
+            "gap_groin_guard__humgen_creator_female"
+          ],
+          "item.armor.sabatons": [
+            "gap_sabatons__humgen_creator_female"
+          ],
+          "item.armor.gauntlets": [
+            "gap_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.whispergorget": [
+            "gap_whispergorget__humgen_creator_female"
+          ],
+          "item.armor.jointward_mesh": [
+            "gap_jointward_mesh__humgen_creator_female"
+          ],
+          "item.armor.veil_collar": [
+            "gap_veil_collar__humgen_creator_female"
+          ],
+          "item.armor.phase_laminate": [
+            "gap_phase_laminate__humgen_creator_female"
           ]
         }
       }
@@ -4532,6 +4577,51 @@
           "item.armor.cloak": [],
           "item.armor.gorget": [
             "gap_gorget__humgen_creator_female"
+          ],
+          "item.armor.bevor": [
+            "gap_bevor__humgen_creator_female"
+          ],
+          "item.armor.aventail": [
+            "gap_aventail__humgen_creator_female"
+          ],
+          "item.armor.mail_standard": [
+            "gap_mail_standard__humgen_creator_female"
+          ],
+          "item.armor.voiders": [
+            "gap_voiders__humgen_creator_female"
+          ],
+          "item.armor.besagews": [
+            "gap_besagews__humgen_creator_female"
+          ],
+          "item.armor.couters": [
+            "gap_couters__humgen_creator_female"
+          ],
+          "item.armor.poleyns": [
+            "gap_poleyns__humgen_creator_female"
+          ],
+          "item.armor.faulds": [
+            "gap_faulds__humgen_creator_female"
+          ],
+          "item.armor.groin_guard": [
+            "gap_groin_guard__humgen_creator_female"
+          ],
+          "item.armor.sabatons": [
+            "gap_sabatons__humgen_creator_female"
+          ],
+          "item.armor.gauntlets": [
+            "gap_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.whispergorget": [
+            "gap_whispergorget__humgen_creator_female"
+          ],
+          "item.armor.jointward_mesh": [
+            "gap_jointward_mesh__humgen_creator_female"
+          ],
+          "item.armor.veil_collar": [
+            "gap_veil_collar__humgen_creator_female"
+          ],
+          "item.armor.phase_laminate": [
+            "gap_phase_laminate__humgen_creator_female"
           ]
         }
       }
@@ -4619,6 +4709,51 @@
           "item.armor.cloak": [],
           "item.armor.gorget": [
             "gap_gorget__humgen_creator_female"
+          ],
+          "item.armor.bevor": [
+            "gap_bevor__humgen_creator_female"
+          ],
+          "item.armor.aventail": [
+            "gap_aventail__humgen_creator_female"
+          ],
+          "item.armor.mail_standard": [
+            "gap_mail_standard__humgen_creator_female"
+          ],
+          "item.armor.voiders": [
+            "gap_voiders__humgen_creator_female"
+          ],
+          "item.armor.besagews": [
+            "gap_besagews__humgen_creator_female"
+          ],
+          "item.armor.couters": [
+            "gap_couters__humgen_creator_female"
+          ],
+          "item.armor.poleyns": [
+            "gap_poleyns__humgen_creator_female"
+          ],
+          "item.armor.faulds": [
+            "gap_faulds__humgen_creator_female"
+          ],
+          "item.armor.groin_guard": [
+            "gap_groin_guard__humgen_creator_female"
+          ],
+          "item.armor.sabatons": [
+            "gap_sabatons__humgen_creator_female"
+          ],
+          "item.armor.gauntlets": [
+            "gap_gauntlets__humgen_creator_female"
+          ],
+          "item.armor.whispergorget": [
+            "gap_whispergorget__humgen_creator_female"
+          ],
+          "item.armor.jointward_mesh": [
+            "gap_jointward_mesh__humgen_creator_female"
+          ],
+          "item.armor.veil_collar": [
+            "gap_veil_collar__humgen_creator_female"
+          ],
+          "item.armor.phase_laminate": [
+            "gap_phase_laminate__humgen_creator_female"
           ]
         }
       }

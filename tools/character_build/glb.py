@@ -11,7 +11,8 @@ WIDTH = {"SCALAR": 1, "VEC2": 2, "VEC3": 3, "VEC4": 4, "MAT4": 16}
 
 class Glb:
     def __init__(self, path):
-        raw = open(path, "rb").read()
+        with open(path, "rb") as source:
+            raw = source.read()
         length = struct.unpack_from("<I", raw, 12)[0]
         self.doc = json.loads(raw[20:20 + length])
         at = 20 + length
@@ -28,7 +29,20 @@ class Glb:
         return np.ndarray((acc["count"], width), dtype=dtype, buffer=self.bin, offset=start, strides=(stride, dtype.itemsize))
 
     def read(self, index):
-        return np.array(self._view(index), dtype=np.float64)
+        acc = self.doc['accessors'][index]
+        width = WIDTH[acc['type']]
+        values = (np.array(self._view(index), dtype=np.float64) if 'bufferView' in acc
+                  else np.zeros((acc['count'], width), dtype=np.float64))
+        if 'sparse' in acc:
+            sparse = acc['sparse']
+            def packed(part, dtype, columns):
+                view = self.doc['bufferViews'][part['bufferView']]
+                offset = view.get('byteOffset', 0) + part.get('byteOffset', 0)
+                return np.frombuffer(self.bin, dtype=dtype, count=sparse['count']*columns,
+                                     offset=offset).reshape(sparse['count'], columns)
+            indices = packed(sparse['indices'], COMPONENT[sparse['indices']['componentType']], 1).ravel()
+            values[indices] = packed(sparse['values'], COMPONENT[acc['componentType']], width)
+        return values
 
     def write(self, index, values):
         view = self._view(index)
