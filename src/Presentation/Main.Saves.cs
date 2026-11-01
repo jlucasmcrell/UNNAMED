@@ -125,6 +125,7 @@ public partial class Main
     {
         StopOpening();
         UseBody();
+        _drawnClothes = null;
         if (_startCamera is not null)
         {
             _startCamera.QueueFree();

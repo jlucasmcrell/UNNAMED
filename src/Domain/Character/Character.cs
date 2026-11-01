@@ -290,6 +290,8 @@ public sealed record CharacterSetup(
     ImmutableSortedDictionary<string, PeopleDefinition> Peoples,
     ImmutableSortedDictionary<string, CallDefinition> Calls)
 {
+    public WardrobeSetup Wardrobe { get; init; } = WardrobeSetup.Empty;
+
     public static readonly CharacterSetup None = new(
         ImmutableSortedDictionary.Create<string, PeopleDefinition>(StringComparer.Ordinal),
         ImmutableSortedDictionary.Create<string, CallDefinition>(StringComparer.Ordinal));

@@ -22,6 +22,10 @@ public class ProgressionContentTests : IDisposable
                          .Where(f => Path.GetFileName(f) is not ("inventory.yaml" or "damage_constants.yaml" or "npc_life.yaml" or "adventurers.yaml")))
                 File.Copy(file, Path.Combine(_root, dir, Path.GetFileName(file)));
         }
+        // The wardrobe config names its four real dye items; keep those definitions with the copied config.
+        Directory.CreateDirectory(Path.Combine(_root, "items"));
+        foreach (string file in Directory.EnumerateFiles(Path.Combine(RepoPaths.Root(), "content", "items", "material"), "dye_*.yaml"))
+            File.Copy(file, Path.Combine(_root, "items", Path.GetFileName(file)));
     }
 
     public void Dispose() => Directory.Delete(_root, recursive: true);

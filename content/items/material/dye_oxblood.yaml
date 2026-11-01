@@ -1,0 +1,12 @@
+id: item.material.dye_oxblood
+kind: item
+schema: 1
+display_key: item.material.dye_oxblood.name
+tags: [item, cloth_dye]
+name: Oxblood Cloth Dye
+notes: A deep red dye steeped from cinder sacs. Apply to a shirt or trousers in the wardrobe; one pot dyes one region.
+category: material
+stack_max: 20
+weight: 0.1
+value_base: 6
+rarity: common

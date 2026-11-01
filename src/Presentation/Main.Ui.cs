@@ -62,6 +62,9 @@ public partial class Main
         _help = new HelpPanel { Name = "Help", DeveloperKeys = _developer, Hints = () => _session.Hints.Values, Files = $"Saves: {profile}\nThe log, to send with a problem report: {LogPath}" };
         GD.Print($"UNNAMED files: saves in {profile}; the log at {LogPath}");
         AddChild(_help);
+        _wardrobe = new WardrobePanel { Name = "Wardrobe" };
+        _wardrobe.Bind(_session, _art, _bindings, () => _avatarModel);
+        AddChild(_wardrobe);
         _effectsPanel = new EffectsPanel { Name = "Effects" };
         _effectsPanel.Bind(_session);
         AddChild(_effectsPanel);
@@ -319,12 +322,14 @@ public partial class Main
         new("You", "Character", "character", "panel.character", FromMenu(() => Show(_character))),
         new("You", "Skills", "skills", "panel.skills", FromMenu(() => ShowSkills(null))),
         new("You", "Inventory", "inventory", "panel.inventory", FromMenu(() => OpenInventory(null))),
+        new("You", "Wardrobe and dyes", null, "panel.character", FromMenu(() => Show(_wardrobe))),
         new("You", "Effects", null, "panel.effects", FromMenu(() => Show(_effectsPanel))),
         new("The world", "Journal", "journal", "panel.journal", FromMenu(() => Show(_journal))),
         new("The world", "Map", "map", "panel.map", FromMenu(() => Show(_map))),
         new("The world", "Party", "party", "panel.companions", FromMenu(() => ShowParty(null))),
         new("The world", "Chat", "chat", "panel.chat", FromMenu(() => _chat.Open())),
         new("The world", "Reputation", null, "panel.reputation", FromMenu(() => Show(_reputation))),
+        new("System", "Photo mode", "photo_mode", "panel.settings", () => BeginPhotoMode()),
         new("System", "Save and load", "saves", "panel.saves", FromMenu(() => _saves.OpenInGame())),
         new("System", "Settings", null, "panel.settings", FromMenu(() => _settings.Open())),
         new("System", "Credits", null, "panel.credits", FromMenu(() => _credits.Visible = true)),
@@ -342,12 +347,13 @@ public partial class Main
 
     /// <summary>The management screen open, if any: one at a time.</summary>
     private CanvasLayer? Screen =>
-        new CanvasLayer[] { _menu, _inventory, _loot, _character, _skills, _journal, _reading, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire, _report }
+        new CanvasLayer[] { _wardrobe, _menu, _inventory, _loot, _character, _skills, _journal, _reading, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _waystones, _map, _settings, _credits, _help, _saves, _chat, _hire, _report }
             .FirstOrDefault(s => s.Visible);
 
     /// <summary>Close whatever management screen is open, back to play.</summary>
     private void CloseScreens()
     {
+        EndPhotoMode();
         if (_openedFromMenu is { } opened)
             UiKit.SheetOf(opened)?.CloseWord("Close");
         _openedFromMenu = null;
@@ -358,7 +364,7 @@ public partial class Main
         _waystones.Close();
         _settings.Close();
         _hire.Close();
-        foreach (var screen in new CanvasLayer[] { _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits, _chat, _report })
+        foreach (var screen in new CanvasLayer[] { _wardrobe, _menu, _character, _skills, _journal, _effectsPanel, _companionsPanel, _reputation, _awaySheet, _map, _credits, _chat, _report })
             screen.Visible = false;
     }
 

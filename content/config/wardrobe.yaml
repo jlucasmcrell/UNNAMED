@@ -1,0 +1,63 @@
+id: config.wardrobe
+kind: config
+schema: 1
+display_key: config.wardrobe.name
+tags: [config]
+notes: Cosmetic HumGen garments; never equipment or a source of stats. Existing saved appearance fields keep clothes and dyes.
+default_statures:
+  people.veth: 1750
+  people.orenth: 1750
+  people.kal: 1620
+  people.siann: 1470
+  people.mor: 1750
+  people.constructed: 2200
+  people.vaskaal: 2350
+  people.ondrek: 2300
+outfits:
+  - { id: outfit.casual.relaxed_weekday, name: "Relaxed Weekday", bodies: f, dye_regions: 3 }
+  - { id: outfit.casual.skinny_look, name: "Skinny Look", bodies: mf, dye_regions: 3 }
+  - { id: outfit.casual.smart_casual, name: "Smart Casual", bodies: mf, dye_regions: 3 }
+  - { id: outfit.casual.stylish_casual, name: "Stylish Casual", bodies: mf, dye_regions: 3 }
+  - { id: outfit.casual.weekend_warrior, name: "Weekend Warrior", bodies: mf, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.ceo, name: "CEO", bodies: f, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.dress, name: "Dress", bodies: f, dye_regions: 0 }
+  - { id: outfit.extra_outfits_pack.flight_suit, name: "Flight Suit", bodies: mf, dye_regions: 0 }
+  - { id: outfit.extra_outfits_pack.kimono, name: "Kimono", bodies: f, dye_regions: 0 }
+  - { id: outfit.extra_outfits_pack.lab_tech, name: "Lab Tech", bodies: mf, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.pirate, name: "Pirate", bodies: mf, dye_regions: 0 }
+  - { id: outfit.extra_outfits_pack.presentation, name: "Presentation", bodies: f, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.springtime, name: "Springtime", bodies: f, dye_regions: 1 }
+  - { id: outfit.extra_outfits_pack.tip_top, name: "Tip Top", bodies: f, dye_regions: 1 }
+  - { id: outfit.office.new_intern, name: "New Intern", bodies: mf, dye_regions: 3 }
+  - { id: outfit.office.open_suit, name: "Open Suit", bodies: mf, dye_regions: 3 }
+  - { id: outfit.office.pantsuit, name: "Pantsuit", bodies: f, dye_regions: 3 }
+  - { id: outfit.office.relaxed_dresscode, name: "Relaxed Dresscode", bodies: mf, dye_regions: 3 }
+  - { id: outfit.office.stock_exchange, name: "Stock Exchange", bodies: mf, dye_regions: 3 }
+  - { id: outfit.office.summer_lawyer, name: "Summer Lawyer", bodies: mf, dye_regions: 3 }
+  - { id: outfit.summer.bbq_barbara, name: "BBQ Barbara", bodies: f, dye_regions: 3 }
+  - { id: outfit.summer.beach_day, name: "Beach Day", bodies: mf, dye_regions: 3 }
+  - { id: outfit.summer.office_excursion, name: "Office Excursion", bodies: mf, dye_regions: 3 }
+  - { id: outfit.winter.frosty_evening, name: "Frosty Evening", bodies: mf, dye_regions: 3 }
+  - { id: outfit.casual.casual_weekday, name: "Casual Weekday", bodies: m, dye_regions: 3 }
+  - { id: outfit.casual.relaxed_office, name: "Relaxed Office", bodies: m, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.bomber_look, name: "Bomber look", bodies: m, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.golf_day, name: "Golf Day", bodies: m, dye_regions: 2 }
+  - { id: outfit.extra_outfits_pack.on_the_road, name: "On the road", bodies: m, dye_regions: 3 }
+  - { id: outfit.extra_outfits_pack.relaxed_fit, name: "Relaxed Fit", bodies: m, dye_regions: 3 }
+  - { id: outfit.office.suit_n_tie, name: "Suit N Tie", bodies: m, dye_regions: 3 }
+  - { id: outfit.summer.bbq_barry, name: "BBQ Barry", bodies: m, dye_regions: 3 }
+  - { id: outfit.period.robe, name: "Scholar's wool robe", bodies: mf, dye_regions: 0 }
+footwear:
+  - { id: footwear.extra_outfits_pack.pirate_boots, name: "Pirate Boots", bodies: mf }
+  - { id: footwear.office.leather_dress_shoe, name: "Leather Dress Shoe", bodies: mf }
+  - { id: footwear.office.suede_dress_shoe, name: "Suede Dress Shoe", bodies: mf }
+  - { id: footwear.outdoor.garden_boot, name: "Garden Boot", bodies: mf }
+  - { id: footwear.sneakers.leather_sneakers, name: "Leather Sneakers", bodies: mf }
+  - { id: footwear.sneakers.suede_sneakers, name: "Suede Sneakers", bodies: mf }
+  - { id: footwear.sports.running_shoe_1, name: "Running Shoe 1", bodies: mf }
+  - { id: footwear.sports.running_shoe_2, name: "Running Shoe 2", bodies: mf }
+dyes:
+  - { item_ref: item.material.dye_oxblood, shirt: 1, trousers: 2 }
+  - { item_ref: item.material.dye_moss, shirt: 2, trousers: 3 }
+  - { item_ref: item.material.dye_ochre, shirt: 3, trousers: 4 }
+  - { item_ref: item.material.dye_slate, shirt: 4, trousers: 5 }

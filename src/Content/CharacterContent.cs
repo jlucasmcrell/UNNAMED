@@ -34,6 +34,7 @@ public static class CharacterContent
         Try(() => BuildCalls(loader), "calls", errors);
         Try(() => BuildBodies(loader), "bodies", errors);
         Try(() => BuildOrigins(loader), "config.origins", errors);
+        Try(() => WardrobeContent.Build(loader), "config.wardrobe", errors);
         if (peoples is not null && loader.GetByKind("call").Count > 0 && !peoples.Values.Any(p => p.Playable))
             errors.Add(Error("calls: the pack defines Calls but no playable people to make a character from"));
         return errors;
@@ -45,6 +46,7 @@ public static class CharacterContent
         Bodies = BuildBodies(loader),
         Abilities = BuildPeopleAbilities(loader),
         Origins = BuildOrigins(loader),
+        Wardrobe = WardrobeContent.Build(loader),
     };
 
     /// <summary>The origins a character can come from; empty for a pack without <c>config.origins</c>.</summary>

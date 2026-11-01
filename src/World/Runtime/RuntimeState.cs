@@ -114,6 +114,9 @@ public enum StateSlice
     /// <summary>The character's saved gear sets (named outfits of the equipment). Saved with the player.</summary>
     GearSets,
 
+    /// <summary>The cosmetic part of the saved character identity. Owned by the wardrobe.</summary>
+    Appearance,
+
     /// <summary>Each past or present party member's progression, gear and belongings (WP15b). Saved with the player.</summary>
     PartySheets,
 
@@ -193,6 +196,7 @@ internal sealed class RuntimeState
         QuickBar = player.QuickBar;
         ExtraBars = player.ExtraBars;
         GearSets = player.GearSets;
+        Identity = player.Identity;
         Bags = player.Bags;
         QuickBarCleared = player.QuickBarCleared.ToImmutableSortedSet(StringComparer.Ordinal);
         HeldFamily = player.HeldFamily;
@@ -276,6 +280,13 @@ internal sealed class RuntimeState
 
     /// <summary>The character's gear sets, by place.</summary>
     public ImmutableArray<GearSet> GearSets { get; private set; }
+    public CharacterIdentity Identity { get; private set; }
+
+    public void SetAppearance(SliceOwner owner, CharacterAppearance appearance)
+    {
+        Require(owner, StateSlice.Appearance);
+        Identity = Identity with { Appearance = appearance };
+    }
 
     /// <summary>The bags equipped in the bag slots: the carried bag in each, or null (schema 33). Owned with the inventory.</summary>
     public ImmutableArray<EntityId?> Bags { get; private set; }

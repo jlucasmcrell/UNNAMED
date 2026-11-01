@@ -17,6 +17,7 @@ public partial class Main
     {
         if (_session?.Simulation is null || _scripted || _mhReviewDirectory is not null)
             return;
+        if (PhotoMouse(@event)) return;
         switch (@event)
         {
             case InputEventMouseMotion motion when Input.MouseMode == Input.MouseModeEnum.Captured && !Modal:
@@ -51,8 +52,8 @@ public partial class Main
         }
         if (_scripted || DisplayServer.GetName() == "headless")
             return;
-        var wanted = Modal || _session?.Simulation is { Combat: { Defeated:true,Downed:false },Camp:not null }
-            || Input.IsActionPressed("free_cursor") ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
+        var wanted = _photoCamera is null && (Modal || _session?.Simulation is { Combat: { Defeated:true,Downed:false },Camp:not null }
+            || Input.IsActionPressed("free_cursor")) ? Input.MouseModeEnum.Visible : Input.MouseModeEnum.Captured;
         if (Input.MouseMode != wanted)
             Input.MouseMode = wanted;
     }
@@ -92,6 +93,8 @@ public partial class Main
         // A key being bound in Settings is the binding: it opens no screen and moves no one.
         if (_settings.Capturing || _rcd3Driving)
             return;
+        if (_photoCamera is not null) { ReadPhotoInput(); return; }
+        if (!Modal && Input.IsActionJustPressed("photo_mode")) { BeginPhotoMode(); return; }
         var combat = _session.Simulation!.Combat;
         bool modal = Modal;
         // T keeps its normal chat meaning except on a quest card or a pointed/focused tracker row.
@@ -459,6 +462,7 @@ public partial class Main
         Bind("party", Key.O);
         Bind("auto_run", Key.Quoteleft);   // the owner's brief Â§23 and ruling 2026-10-18: auto-run on the tilde key
         Bind("quicksave", Key.F5);
+        Bind("photo_mode", Key.F6);
         Bind("report_problem", Key.F8);
         Bind("hide_interface", Key.F10);
         Bind("screenshot", Key.F12);

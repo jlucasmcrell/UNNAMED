@@ -405,3 +405,10 @@ sections:
         url: "https://www.blenderkit.com/asset-gallery-detail/3e92cb0c-1b46-4d92-a4de-080794a1e75d/"
       - text: "These gear icons were rendered from the credited source models. No source gear was fed to a generative model."
 # P2_GEAR_CREDITS_END
+
+  - id: wardrobe_and_dyes
+    title: "Wardrobe and cloth dyes"
+    entries:
+      - binds: [item_cloth_dye_pot]
+        text: "Ceramic Vase 01 by Poly Haven, CC0 1.0 Universal. Complete source mesh and authored 4K maps, scaled and repacked as a carried dye vessel. The dye icon is a native render of this model. Wardrobe garments use the credited native Human Generator library."
+        url: "https://polyhaven.com/a/ceramic_vase_01"

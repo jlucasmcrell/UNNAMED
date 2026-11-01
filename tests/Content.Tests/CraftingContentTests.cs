@@ -90,6 +90,7 @@ public class CraftingContentTests
         {
             "recipe.cooking.boil_water", "recipe.cooking.herb_tea", "recipe.cooking.herb_tea_ashbloom", "recipe.cooking.roast_meat", "recipe.cooking.torch", "recipe.cooking.trail_stew",
             "recipe.fletching.arrow_rough_timber", "recipe.fletching.arrows", "recipe.fletching.hunting_bow", "recipe.fletching.hunting_bow_silk",
+            "recipe.herbal.dye_moss", "recipe.herbal.dye_ochre", "recipe.herbal.dye_oxblood", "recipe.herbal.dye_slate",
             "recipe.herbal.salve_ember", "recipe.herbal.salve_ember_boneleaf", "recipe.herbal.salve_field", "recipe.herbal.salve_minor", "recipe.herbal.salve_minor_ashbloom",
             "recipe.herbal.salve_minor_boiled",
             "recipe.leatherwork.cloak", "recipe.leatherwork.hide_boots", "recipe.leatherwork.hide_boots_deer", "recipe.leatherwork.hide_cap", "recipe.leatherwork.hide_cap_fellhorn", "recipe.leatherwork.hide_cap_pelt",

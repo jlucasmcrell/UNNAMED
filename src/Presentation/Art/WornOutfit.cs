@@ -2,13 +2,14 @@
 namespace UNNAMED.Presentation.Art;
 
 public readonly record struct WornOutfit(string? Chest = null, string? Head = null, string? Feet = null,
-    string? Hands = null, string? Legs = null, string? Cloak = null)
+    string? Hands = null, string? Legs = null, string? Cloak = null, bool ClothesOnly = false)
 {
     public string? LegacyVariant => Chest is not null && Head is not null ? $"{Chest}_cap" : Chest ?? Head;
 
     /// <summary>Permanent underlayers plus the actual worn items' modular garments; shared backing is loaded once.</summary>
     public IReadOnlyList<string> Garments(IReadOnlyList<string> permanent, IReadOnlyDictionary<string, string[]> equipment)
     {
+        if (ClothesOnly) return Array.Empty<string>();
         // A layered torso/legs set is one authored mesh; individual head, foot,
         // hand and cloak pieces remain independent equipment regions.
         if (equipment.TryGetValue($"set:{Chest}|{Legs}", out var set))

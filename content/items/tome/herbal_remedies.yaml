@@ -4,7 +4,7 @@ schema: 1
 display_key: item.tome.herbal_remedies.name
 tags: [item]
 name: Herbal Remedies
-notes: A recipe book (WP3a, K2). Read once, it teaches two salves worked at the cookfire from ashbloom and boneleaf.
+notes: A field manual of salves and four earth dyes, all steeped over a cookfire from gathered materials.
 category: book
 item_class: ordinary
 stack_max: 1
@@ -15,3 +15,7 @@ use:
   grants:
     - { kind: recipe, ref: recipe.herbal.salve_minor_ashbloom }
     - { kind: recipe, ref: recipe.herbal.salve_ember_boneleaf }
+    - { kind: recipe, ref: recipe.herbal.dye_oxblood }
+    - { kind: recipe, ref: recipe.herbal.dye_moss }
+    - { kind: recipe, ref: recipe.herbal.dye_ochre }
+    - { kind: recipe, ref: recipe.herbal.dye_slate }

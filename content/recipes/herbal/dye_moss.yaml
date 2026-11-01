@@ -1,0 +1,17 @@
+id: recipe.herbal.dye_moss
+kind: recipe
+schema: 1
+display_key: recipe.herbal.dye_moss.name
+tags: [recipe]
+name: Moss Cloth Dye
+notes: Steep gathered materials over a cookfire, then bind the colour with bog-cotton lint.
+station: cookfire
+skill_ref: skill.herbalism
+complexity: 1
+inputs:
+  - { item_ref: item.material.herb_woundmoss, count: 2 }
+  - { item_ref: item.material.bog_cotton, count: 1 }
+  - { item_ref: item.material.boiled_water, count: 1 }
+outputs:
+  - { item_ref: item.material.dye_moss, count: 1, quality_roll: false }
+xp_award: { xp: 5 }

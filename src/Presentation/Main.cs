@@ -1679,6 +1679,7 @@ public partial class Main : Node3D
         }
         ulong drawStarted = _barrowworksReview is null && _frontierPerf is null ? 0 : Time.GetTicksUsec();
         Draw(frame.Alpha, delta);
+        DrawPhotoMode(delta);
         _barrowworksReview?.Phase("presentation", drawStarted);
         _frontierPerf?.Phase("drawing", drawStarted);
         UpdateMouse();
@@ -1864,7 +1865,7 @@ public partial class Main : Node3D
         _avatar.Hold(combat.Weapon.Source == "unarmed" ? null : combat.Weapon.Source);
         string? Worn(EquipSlot slot) => simulation.Player.Equipment.TryGetValue(slot, out var id)
             ? simulation.Player.Inventory.FirstOrDefault(e => e.ItemId == id)?.DefId : null;
-        _avatar.WearEquipment(new Art.WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
+        DressPlayer(new Art.WornOutfit(Worn(EquipSlot.Chest), Worn(EquipSlot.Head), Worn(EquipSlot.Feet),
             Worn(EquipSlot.Hands), Worn(EquipSlot.Legs), Worn(EquipSlot.Cloak)));
         // A torch or lantern in the off hand is a real light, from its own content, and not only a number in a tooltip (finding 25).
         // It reaches as far as its content says while it has fuel, and goes out when it has burned down (note 13).
@@ -1924,7 +1925,7 @@ public partial class Main : Node3D
                 interior: simulation.ActiveLayout.SpaceId != SpaceId.Exterior));
         if (!_innFreeCamera) _camera.Follow(_shots?.Viewpoint ?? _avatar.Position, delta);
         bool reviewCamera = _mhReviewDirectory is not null && GetViewport().GetCamera3D() != _camera.Camera;
-        _avatar.SetFirstPerson(!reviewCamera && _camera.EffectiveDistance < 0.4f);
+        _avatar.SetFirstPerson(_photoCamera is null && !reviewCamera && _camera.EffectiveDistance < 0.4f);
         // A conversation frames the speaker's face over the character's shoulder (not in first person).
         if (!_innFreeCamera)
             _talkCamera.Frame(simulation.Conversation is { } talk && !_camera.IsFirstPerson ? _npcs.HeadOf(talk.NpcId) : null,

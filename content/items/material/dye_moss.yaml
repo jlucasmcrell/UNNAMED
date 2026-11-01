@@ -1,0 +1,12 @@
+id: item.material.dye_moss
+kind: item
+schema: 1
+display_key: item.material.dye_moss.name
+tags: [item, cloth_dye]
+name: Moss Cloth Dye
+notes: A green cloth dye steeped from woundmoss. Apply to a shirt or trousers in the wardrobe; one pot dyes one region.
+category: material
+stack_max: 20
+weight: 0.1
+value_base: 6
+rarity: common

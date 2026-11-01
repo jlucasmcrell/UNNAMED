@@ -262,6 +262,7 @@ public sealed class Simulation
     private readonly MerchantSystem _merchants;
     private readonly QuickBarSystem _quickBar;
     private readonly GearSetSystem _gearSets;
+    private readonly WardrobeSystem _wardrobe;
     private readonly TeachingSystem _teaching;
     private readonly DurabilitySystem _durability;
     private readonly BurningLightsSystem _lights;
@@ -401,6 +402,7 @@ public sealed class Simulation
         _gearSets = new GearSetSystem(_context, _state.Claim(nameof(GearSetSystem), StateSlice.GearSets), player.Id,
             (command, tick) => _equipment.Handle(command, tick), (command, tick) => _equipment.Handle(command, tick),
             () => _state.PlayerCombat.Action.PhaseAt(WorldTick, setup.Combat.Constants).Phase != CombatPhase.Idle || _creatures.Views().Any(c => c.Alive && c.Hostile));
+        _wardrobe = new WardrobeSystem(_context, _state.Claim(nameof(WardrobeSystem), StateSlice.Appearance), player.Id);
         _teaching = new TeachingSystem(_context, player.Id, _dialogue.FactsOf, _npcs);
         _durability = new DurabilitySystem(_context, player.Id);
         _durability.Listen(bus);
@@ -643,7 +645,7 @@ public sealed class Simulation
     public PlayerView Player => new(_identity.Id, _identity.Name, _state.Body, _movement.Intent, _state.Progression,
         _context.PlayerStats(), _state.Discoveries.Values.ToImmutableArray(),
         _state.Inventory, _state.Equipment, _state.Currency, _inventory.CarriedGrams(),
-        _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _identity.Identity, Bags = _state.Bags };
+        _inventory.CarryLimitGrams(), _equipment.Armor()) { Identity = _state.Identity, Bags = _state.Bags };
 
     /// <summary>Every authored container and what it holds now.</summary>
     public ImmutableArray<ContainerView> Containers =>
@@ -1148,6 +1150,8 @@ public sealed class Simulation
                 BeginStoryCommand begin => _quests.Handle(begin, WorldTick),
                 ClaimBountyCommand claim => _quests.Handle(claim, WorldTick),
                 AssignQuickSlotCommand assign => _quickBar.Handle(assign, WorldTick),
+                ChangeWardrobeCommand change => _wardrobe.Handle(change, WorldTick),
+                ApplyClothDyeCommand dye => _wardrobe.Handle(dye, WorldTick),
                 SaveGearSetCommand save => _gearSets.Handle(save, WorldTick),
                 DeleteGearSetCommand delete => _gearSets.Handle(delete, WorldTick),
                 SwapGearSetCommand swap => _gearSets.Handle(swap, WorldTick),
@@ -1319,7 +1323,7 @@ public sealed class Simulation
             ReturnPoint = _state.ReturnPoint,
             RoadsWalked = _state.RoadsWalked.ToImmutableArray(),
             Deeds = _state.Deeds.Values.ToImmutableArray(),
-            Identity = _identity.Identity,   // as the creator made it: nothing in the world changes it
+            Identity = _state.Identity,   // Physical identity is fixed; wardrobe and dyes are live saved appearance.
             Crossing = _state.Crossing,
             // From LIVE state, not from _identity: a body moves between spaces during a run and its identity does
             // not, so a save that read these from the identity would record the exterior for a body standing inside.

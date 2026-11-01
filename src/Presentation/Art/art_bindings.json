@@ -6260,6 +6260,10 @@
  },
  "icons": {
   "item.consumable.salve_minor": "ui.item.restorative",
+  "item.material.dye_oxblood": "ui.item.cloth_dye",
+  "item.material.dye_moss": "ui.item.cloth_dye",
+  "item.material.dye_ochre": "ui.item.cloth_dye",
+  "item.material.dye_slate": "ui.item.cloth_dye",
   "item.weapon.hunting_bow": "ui.item.hunting_bow",
     "item.weapon.marksman_rifle": "ui.item.hunting_bow",
     "item.weapon.sleep_dart": "ui.item.hunting_bow",

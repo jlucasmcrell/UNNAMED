@@ -1,0 +1,14 @@
+Cloth dye vessel and native-rendered icon
+
+Ceramic Vase 01 by Poly Haven
+https://polyhaven.com/a/ceramic_vase_01
+CC0 1.0 Universal (Public Domain Dedication)
+https://polyhaven.com/license
+
+The complete 10,296-triangle source mesh and three authored 4K maps are retained.
+Otherreach repairs the recovered library's flattened texture paths in a staging
+copy, scales the vessel uniformly to 16 cm, moves the origin to its centre/base,
+and repacks it as glTF. The icon is rendered from that same model in Godot.
+No generated image art is used for this vessel, icon or wardrobe contact sheets.
+
+Wardrobe garments remain the separately credited owned Human Generator library.

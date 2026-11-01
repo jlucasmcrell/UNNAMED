@@ -1,0 +1,571 @@
+{
+  "status": "FINISHED_IMPLEMENTATION_VERDICT_REQUESTED_NEXT_PACKAGE_ONLY",
+  "base": "048e924d208528d3a2b456ec017b92c2aef9c525",
+  "features": {
+    "GEN-02": "F6/menu detached camera; mapped movement, E/Q height, Shift speed, wheel lens, F12 native shutter. HUD and AI labels hidden for photographs; real world simulation keeps running. Exits restore camera/head/interface; death/load/space changes end photo mode.",
+    "GEN-03": "Owned native wardrobe, outfits and footwear selected only from delivered matching-body parts. Appearance independent from actual equipped armour and stats. Four crafted earth dyes; one pot consumed per applied shirt/trouser region. Physical identity, heritage rights and saved equipment retained.",
+    "save_contract": "Existing schema39 appearance outfit/footwear/sliders keep all changes; no DTO or schema change.",
+    "art": "33 owned Human Generator outfit choices / 8 footwear choices, existing142native parts unchanged. New complete10296-triangle CC0 ceramic vessel, three authored4K maps byte-identical to source; native512icon. No generated image art."
+  },
+  "controls": {
+    "photo": "F6 or System Menu / Photo mode",
+    "wardrobe": "System Menu / You / Wardrobe and dyes",
+    "dye_learning": "Read Herbal Remedies (guaranteed longhouse shelf or existing bone-walker drop). Four recipes use gathered reagents, bog-cotton and boiled water at a cookfire."
+  },
+  "native_proof": {
+    "status": "FEATURE_ASSERTIONS_PASSED_WITH_VERIFIED_PRE_EXISTING_WORLD_DIMENSION_DIAGNOSTICS",
+    "raw_complete_sha256": "03896c24632d1e95d36a7cd3149ff0e7f099c972cb9a42a3157a81699a87950c",
+    "outer_runner_status": "Failed its broader all-world art-problems-empty postcondition. Raw FAILED.json and logs retained unedited.",
+    "native_process_exit": "GetTree.Quit(0) requested, complete.json and exit-tree/finished records written. OS return code was not persisted before the outer assertion failed; do not claim measured exit0.",
+    "gpu_lease_seconds": 264.388,
+    "live_world_assertions": [
+      {
+        "assertion": "live_world_detached_camera",
+        "sex": "m",
+        "before_tick": 236,
+        "after_tick": 257,
+        "camera_moved_m": 3.0565546,
+        "player_inventory_dyes_consumed": true,
+        "equipment_unchanged": true
+      },
+      {
+        "assertion": "live_world_detached_camera",
+        "sex": "f",
+        "before_tick": 561,
+        "after_tick": 582,
+        "camera_moved_m": 3.0946307,
+        "player_inventory_dyes_consumed": true,
+        "equipment_unchanged": true
+      }
+    ],
+    "baseline_world_diagnostics": {
+      "cw_dead_trunk_b at beam_woundmoss": "authored 3.97 x 3.43 m, 4.80 m thick; the world's beam_woundmoss is 6.00 x 0.80 m, 0.40 m thick from 1.30 m up; not rescaled",
+      "prop_cos_table_tavern_01 at survey_table": "authored 2.29 x 1.25 m, 0.89 m tall; the world's survey_table is 2.40 x 2.40 m, 0.90 m tall; not rescaled",
+      "rock_cos_den_west_a at den_rock_west": "authored 17.95 x 16.40 m, 7.41 m tall; the world's den_rock_west is 18.06 x 18.06 m, 7.35 m tall; not rescaled"
+    },
+    "baseline_asset_verification": [
+      {
+        "issue": "cw_dead_trunk_b at beam_woundmoss",
+        "model": "cw_dead_trunk_b",
+        "sha256": "8c40a10220d82e4173e1b6aaf6ceb44bd134280a473b08924b5c96c73e6c8386",
+        "unchanged_from_pre_feature_art_snapshot": true
+      },
+      {
+        "issue": "prop_cos_table_tavern_01 at survey_table",
+        "model": "prop_cos_table_tavern_01",
+        "sha256": "793fa2d4e1a3fb73682bb5639c2fde331e0703f1a0bb539e06f1994c3915ea84",
+        "unchanged_from_pre_feature_art_snapshot": true
+      },
+      {
+        "issue": "rock_cos_den_west_a at den_rock_west",
+        "model": "rock_cos_den_west_a",
+        "sha256": "f5c6d89ddfbd3329be3c5a55bba819a6d8af48b541e959b3963dac016bd8ccf2",
+        "unchanged_from_pre_feature_art_snapshot": true
+      }
+    ],
+    "baseline_world_data_and_structure_bindings_unchanged": true,
+    "new_feature_art_problems": [],
+    "scope": "Actual live Ashen Hollow standalone region, public wardrobe/photo features driven by private save/command/input fixture. Normal simulation delta frame loop kept running. No world geometry changed or hidden. Not a whole-world art or performance gate.",
+    "review": "Native frames require producer inspection and Claude verdict. World fit diagnostics concern unchanged trunk/table/rock assets, not the wardrobe, characters, photo camera or new dye vessel."
+  },
+  "native_assembly_receipt": {
+    "public_base": "048e924d208528d3a2b456ec017b92c2aef9c525",
+    "host": "D:\\Otherreach_Scratch\\codex_upgrades_finish_wt\\work\\row11\\proof_host_v3",
+    "assemblies": [
+      {
+        "file": "UNNAMED.Application.dll",
+        "sha256": "7665e6c05ea73aac9c521d9022f9f98d568b4929045440edaa0880d5c202a421"
+      },
+      {
+        "file": "UNNAMED.Content.dll",
+        "sha256": "28f22fc50f24a82bfc817319b7782f5e5f9fee11b36baa06fd79b532999bfa34"
+      },
+      {
+        "file": "UNNAMED.Domain.dll",
+        "sha256": "0cf632a5781a3a9d66ee3e1331799edef22b54f3c3b4de8f46f221270bc40361"
+      },
+      {
+        "file": "UNNAMED.EntityRegistry.dll",
+        "sha256": "03da8c650d2e16e7b25150e79c62fc9bd86774d36e728397d86f5ec6ad9e691a"
+      },
+      {
+        "file": "UNNAMED.Persistence.dll",
+        "sha256": "2b891d24c2d859581033dc957ca3a6c6e6d3a17c6069d845b8a95ccf21d26e55"
+      },
+      {
+        "file": "UNNAMED.Presentation.dll",
+        "sha256": "24561c44bf9fed9bc53829874ea7582abaf5f962be3b03b1166a97ce0bb0b400"
+      },
+      {
+        "file": "UNNAMED.World.dll",
+        "sha256": "e37b62eab34e9c849212ee082e9feba8a84131b8c2a164728a5f25e4db5e2146"
+      }
+    ],
+    "fixture_sha256": "cf61160391a5c06ffa6da975d8a38c93cbc44f80070f7051a2d1258e76307ec6",
+    "scope": "Private commands, save/load fixture and input driving the new public wardrobe/photo features. Normal delta-based simulation frame loop remains running."
+  },
+  "contact_sheets": [
+    {
+      "sheet": "docs\\reviews\\photo_wardrobe\\GEN02_PHOTO_MODE.jpg",
+      "sha256": "c952dbfde6b4a8e55fa4838829fe7ef443053b4c05ecff913ea3bce177618a0c",
+      "native_sources": [
+        {
+          "file": "m_06_photo_controls.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "6d6dda8dee7444effa5bf5ee21f51a68e454ac464f5a44f73181f4e5caf816ab"
+        },
+        {
+          "file": "f_06_photo_controls.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "6e73261235fe4fa7e0be1dd2294c159df6178c22abc4944616a7a18ae9132e37"
+        },
+        {
+          "file": "m_07_shutter_no_ui.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "f655e3d6b55938af6f435a4999f2658a7ec6c29085e2dd6a58d8768314c75e9d"
+        },
+        {
+          "file": "f_07_shutter_no_ui.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "029e8a3f35e43a7d64dacedd8fb4d171c799fa3767d351d58ba8f58514b39881"
+        }
+      ]
+    },
+    {
+      "sheet": "docs\\reviews\\photo_wardrobe\\GEN03_WARDROBE_DYES.jpg",
+      "sha256": "380fe61fb9cf9ea6a273a349996e6160d9e3836af9ed759f88a30f6841ef9e87",
+      "native_sources": [
+        {
+          "file": "m_02_work_clothes.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "107b54b67feb99356c60c3b642cbe32032cb09cca093f1671ca5c42e7ec8a0d6"
+        },
+        {
+          "file": "f_02_work_clothes.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "31576d77514ca0488c53b3db465aa4a30ce8dd52c6f6378b8b1a42306ed6726c"
+        },
+        {
+          "file": "m_03_dyed_moss.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "bba23ff8677aa7785ef772fbe5455e15c6953a40cd777007978d7613e86b1950"
+        },
+        {
+          "file": "f_03_dyed_moss.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "52b3f6364f13e978156708fc17bee5a08791ba3411f44ceadee32b02e57d3d9f"
+        },
+        {
+          "file": "m_03_dyed_ochre.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "ac0d6d5c9e2008a98256f744761d9232cc3334ea4576f2e8295b0b86257c59c2"
+        },
+        {
+          "file": "f_03_dyed_ochre.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "874689bed6a4b787b1ebf84453a437ea079252c74c88bf0bb621d4bf6bdfb620"
+        },
+        {
+          "file": "m_03_dyed_oxblood.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "0b6503a816e12fe5caa3c8f68002f664e3fa5a0895ddf29a26b95de562d32684"
+        },
+        {
+          "file": "f_03_dyed_oxblood.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "8336c963acf22953688bf5811865184df27d17d9df39181e9b40430d0222642c"
+        },
+        {
+          "file": "m_04_frontier.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "43a936596dc86064f974bc330bb0a7e232e85f73742d53d367fe806e777ace6a"
+        },
+        {
+          "file": "f_04_frontier.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "fab90d1e1bf3417bc02c5b6d7d3d8bb752b84d500454b086284ee88c33d5f267"
+        },
+        {
+          "file": "m_05_scholar.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "3cc01770466a74ec07afdd30246050d897ac31c20e78acb6d159fc58b6ad7f13"
+        },
+        {
+          "file": "f_05_scholar.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "627449c155f242b5fec716b2f6ce1d12fdfbae5b017b21b79412eab8c2c0a2e4"
+        },
+        {
+          "file": "m_08_wardrobe_screen.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "135dea1bcf9ee548af8c523992416b6b4b94067416b92e6fcf2438f39ca25a17"
+        },
+        {
+          "file": "f_08_wardrobe_screen.png",
+          "native_size": [
+            1920,
+            1080
+          ],
+          "sha256": "63476bc152e703d762bc53c346afb642c3691e3732e0162d15e13eb99f7809e3"
+        }
+      ]
+    }
+  ],
+  "producer_visual_review": "Both full contact sheets and native wardrobe screen inspected. Clothes, dye colour changes, frontier set and robe are readable on both native bodies. Shutter originals have no HUD/AI labels. Normal cave/world darkness and grass/terrain remain native; no retouching, geometry removal or image-generation pass. Submission is for Claude judgment, not self-acceptance.",
+  "checks": {
+    "public_presentation_build": "0 errors / 25 existing warnings after restoring public source",
+    "presentation_tests": "583/583",
+    "architecture_tests": "27/27",
+    "wardrobe_application_tests": "9/9: real manual/read/craft costs, invalid actions, unchanged stats/equipment/keepsakes, exact save/load and native face-selected fit",
+    "broader_application_checks": "83 other tests passed in filtered saves/GameSaveTests (owner Public1.1 included), character creation, crafting, items and gear sets. Initial one new fixture mismatch fixed with canonical worn inventory placement; nine current wardrobe tests pass. 92 unique relevant Application cases covered across those runs.",
+    "content_release_tests": "42/42: exact loaded IDs/recipe list/manual grants, progression config fixture, native wardrobe catalogue and credits. Assertions retained.",
+    "content_debug_corrections": "41/41 before final missing crafting-list retest in Release",
+    "full_content_debug_earlier_build": "Earlier full Debug run used old expected-list/fixture assertions. It was stopped after75minutes with four known failures, all corrected and retested in the passing42. Own testhost50648 verified by absolute worktree path and original dotnet command before stop. Full log/disposition retained; not claimed a green full-suite run.",
+    "lint": "1382 definitions / zero errors",
+    "new_vessel_cache": "PACKAGE_TEXTURE_CACHE_PASS 3; all three4096x4096 authored image streams match the owned source bytes"
+  },
+  "art_delivery": {
+    "root": "D:\\Otherreach_Scratch\\row11_photo_wardrobe_20261031\\delivery_v2",
+    "primary_files": [
+      {
+        "path": "ready/item_cloth_dye_pot/item_cloth_dye_pot.glb",
+        "bytes": 1635048,
+        "sha256": "50496a1fe7c540629a2699e3d66c862f333f3dc6c1b6f1df6d8a335649160cd0"
+      },
+      {
+        "path": "ready/item_cloth_dye_pot/provenance.json",
+        "bytes": 854,
+        "sha256": "142cac995ba49e0923aa09f1f9b1e4409afb48a4040eaa507d03d331e421178d"
+      },
+      {
+        "path": "texture_cache/32419e3160dc93e1e8602fe7.color.dds",
+        "bytes": 22369796,
+        "sha256": "ffaf2b2a1f18dc0507971caf9724e94bedd3a5630fc420f9de1b448978a1d116"
+      },
+      {
+        "path": "texture_cache/c557062291106492b7a6f438.data.dds",
+        "bytes": 22369796,
+        "sha256": "723e97057cd1fc6b9e6515a22eff30f5a255bea5b85d5656e584ce8166b4bbee"
+      },
+      {
+        "path": "texture_cache/fdf0ea992cee59a757d3fa1e.normal.dds",
+        "bytes": 22369796,
+        "sha256": "1044e680a26b2aa3f14d2c2a5631a11b05af43b5f048b6dc7ea9ce5a2652493e"
+      },
+      {
+        "path": "texture_cache/manifest.json",
+        "bytes": 797,
+        "sha256": "19ead9a05a4bc8d19533bbce0483b90ffbd218cb0872361557a8aaeb6be4f358"
+      }
+    ],
+    "install": [
+      "Copy relative primary files into target asset root.",
+      "Merge texture-cache manifest entries by key; never replace the global manifest.",
+      "The native icon is committed at src/Presentation/Art/Icons/cloth_dye.png and included by normal clean Godot import/export.",
+      "Apply this feature branch only after Claude next-package code/art review; not Playtest2."
+    ]
+  },
+  "review_limits": [
+    "Private staged save/command/input fixture; not a combat, performance or whole-world art acceptance gate.",
+    "Broader raw art-problems-empty postcondition failed on three verified unchanged trunk/table/rock dimension diagnostics. These are retained verbatim with baseline source/hash proof. No test failures or diagnostics were erased.",
+    "Native application requested quit0 and wrote complete/exit records; its OS return code was not persisted before outer assertion failure. Do not claim measured native exit0."
+  ],
+  "evidence_files": [
+    {
+      "path": "application-tests.log",
+      "bytes": 8080,
+      "sha256": "7cbd53ad65a30b5bc07fa0e06ce58c7908eee11e81962dd01e7c1ec34b027fc0"
+    },
+    {
+      "path": "architecture-tests.log",
+      "bytes": 1360,
+      "sha256": "717131763b98c8d1ce946892f8e575048aeea4dc4611b4e5c60dcfae8fcf07ea"
+    },
+    {
+      "path": "audit_native03.py",
+      "bytes": 3061,
+      "sha256": "1186f42cc942f07c9ca7baef1ac853f10bd091c0fadc4c4c7f1c27bf5708123b"
+    },
+    {
+      "path": "cloth_dye_native_icon.png",
+      "bytes": 23583,
+      "sha256": "304a30744a13622beb7a3d69cfbc25a238dcfb2f2506b5c7dad04037266c13f8"
+    },
+    {
+      "path": "complete.json",
+      "bytes": 22089,
+      "sha256": "03896c24632d1e95d36a7cd3149ff0e7f099c972cb9a42a3157a81699a87950c"
+    },
+    {
+      "path": "CONTACT_SHEETS_RECEIPT.json",
+      "bytes": 4304,
+      "sha256": "f69070c56f69866868d2e08005efc632adfaa20111a3701860166c79de9e6dcb"
+    },
+    {
+      "path": "content-corrections-v2.log",
+      "bytes": 7978,
+      "sha256": "6fd1b1c55138171ad9183d97e619d4e0f84a65ddf825021a56ea73e62cf251a3"
+    },
+    {
+      "path": "content-release.log",
+      "bytes": 7957,
+      "sha256": "e4502ca9a802f6405c2ad4908d4f3cc005ad3ffec7e0bfcb6b4d3e3b3971d916"
+    },
+    {
+      "path": "content-tests.log",
+      "bytes": 10501,
+      "sha256": "7b93565e5bd554a956763e635e2e6444df251c197ea3cc3dc09691497fe6fc92"
+    },
+    {
+      "path": "engine.log",
+      "bytes": 63300,
+      "sha256": "c5bdaea1c645e2ceb923e44a396f6dcde1501218b8750b861af02f5cc6bb2dbc"
+    },
+    {
+      "path": "f_01_equipment.png",
+      "bytes": 3747054,
+      "sha256": "7db7e36069174dacf83258f8730da79a967236c78b7096b7a0530ea78d2e716c"
+    },
+    {
+      "path": "f_02_work_clothes.png",
+      "bytes": 3662134,
+      "sha256": "31576d77514ca0488c53b3db465aa4a30ce8dd52c6f6378b8b1a42306ed6726c"
+    },
+    {
+      "path": "f_03_dyed_moss.png",
+      "bytes": 3655336,
+      "sha256": "52b3f6364f13e978156708fc17bee5a08791ba3411f44ceadee32b02e57d3d9f"
+    },
+    {
+      "path": "f_03_dyed_ochre.png",
+      "bytes": 3654020,
+      "sha256": "874689bed6a4b787b1ebf84453a437ea079252c74c88bf0bb621d4bf6bdfb620"
+    },
+    {
+      "path": "f_03_dyed_oxblood.png",
+      "bytes": 3677679,
+      "sha256": "8336c963acf22953688bf5811865184df27d17d9df39181e9b40430d0222642c"
+    },
+    {
+      "path": "f_04_frontier.png",
+      "bytes": 3668339,
+      "sha256": "fab90d1e1bf3417bc02c5b6d7d3d8bb752b84d500454b086284ee88c33d5f267"
+    },
+    {
+      "path": "f_05_scholar.png",
+      "bytes": 3661741,
+      "sha256": "627449c155f242b5fec716b2f6ce1d12fdfbae5b017b21b79412eab8c2c0a2e4"
+    },
+    {
+      "path": "f_06_photo_controls.png",
+      "bytes": 3585746,
+      "sha256": "6e73261235fe4fa7e0be1dd2294c159df6178c22abc4944616a7a18ae9132e37"
+    },
+    {
+      "path": "f_07_shutter_no_ui.png",
+      "bytes": 3592153,
+      "sha256": "029e8a3f35e43a7d64dacedd8fb4d171c799fa3767d351d58ba8f58514b39881"
+    },
+    {
+      "path": "f_08_wardrobe_screen.png",
+      "bytes": 2280497,
+      "sha256": "63476bc152e703d762bc53c346afb642c3691e3732e0162d15e13eb99f7809e3"
+    },
+    {
+      "path": "FAILED.json",
+      "bytes": 497,
+      "sha256": "2b02205406be8dfba3b5b0d82d3147ca366c4beee6311796efe65faedfcd8947"
+    },
+    {
+      "path": "FEATURE_SCOPE_AUDIT.json",
+      "bytes": 3007,
+      "sha256": "872120ebe3c5dad1aab8cca61b1b808cade8f1dd61a6b2dc29be173197fc1221"
+    },
+    {
+      "path": "FULL_DEBUG_RUN_DISPOSITION.json",
+      "bytes": 1261,
+      "sha256": "57e198c20ad3ff42e2f81eb421088921b5b352184efa36ac0c870bce2b27e8ce"
+    },
+    {
+      "path": "game.log",
+      "bytes": 56951,
+      "sha256": "c76e24faad71cbdbc6ba2dd0a18a1778883b4a8a055204240c57d15d2dd53bc8"
+    },
+    {
+      "path": "game.stderr",
+      "bytes": 7190,
+      "sha256": "b1661656fda1f664d4d42aced899f0c09228402fd9f4d03cb9ed6e141f9faa77"
+    },
+    {
+      "path": "GEN02_PHOTO_MODE.jpg",
+      "bytes": 1707209,
+      "sha256": "c952dbfde6b4a8e55fa4838829fe7ef443053b4c05ecff913ea3bce177618a0c"
+    },
+    {
+      "path": "GEN03_WARDROBE_DYES.jpg",
+      "bytes": 5619402,
+      "sha256": "380fe61fb9cf9ea6a273a349996e6160d9e3836af9ed759f88a30f6841ef9e87"
+    },
+    {
+      "path": "launch_owned.json",
+      "bytes": 1487,
+      "sha256": "a9da1bacf6bdc51e8cbca47bb8bc41ada2cec5315912a96545037458a21c14dc"
+    },
+    {
+      "path": "lint-final.log",
+      "bytes": 112,
+      "sha256": "36411a2330e946af8ad11ac2439cda228980356f1a284b9b0793b99e738cfe79"
+    },
+    {
+      "path": "m_01_equipment.png",
+      "bytes": 3750174,
+      "sha256": "779d0db4fc0c80db6c2b799b7eba938cd6f67e3556cdf29b5aeb24b5d3ac774b"
+    },
+    {
+      "path": "m_02_work_clothes.png",
+      "bytes": 3665316,
+      "sha256": "107b54b67feb99356c60c3b642cbe32032cb09cca093f1671ca5c42e7ec8a0d6"
+    },
+    {
+      "path": "m_03_dyed_moss.png",
+      "bytes": 3659992,
+      "sha256": "bba23ff8677aa7785ef772fbe5455e15c6953a40cd777007978d7613e86b1950"
+    },
+    {
+      "path": "m_03_dyed_ochre.png",
+      "bytes": 3696735,
+      "sha256": "ac0d6d5c9e2008a98256f744761d9232cc3334ea4576f2e8295b0b86257c59c2"
+    },
+    {
+      "path": "m_03_dyed_oxblood.png",
+      "bytes": 3678234,
+      "sha256": "0b6503a816e12fe5caa3c8f68002f664e3fa5a0895ddf29a26b95de562d32684"
+    },
+    {
+      "path": "m_04_frontier.png",
+      "bytes": 3621269,
+      "sha256": "43a936596dc86064f974bc330bb0a7e232e85f73742d53d367fe806e777ace6a"
+    },
+    {
+      "path": "m_05_scholar.png",
+      "bytes": 3584087,
+      "sha256": "3cc01770466a74ec07afdd30246050d897ac31c20e78acb6d159fc58b6ad7f13"
+    },
+    {
+      "path": "m_06_photo_controls.png",
+      "bytes": 3586359,
+      "sha256": "6d6dda8dee7444effa5bf5ee21f51a68e454ac464f5a44f73181f4e5caf816ab"
+    },
+    {
+      "path": "m_07_shutter_no_ui.png",
+      "bytes": 3611768,
+      "sha256": "f655e3d6b55938af6f435a4999f2658a7ec6c29085e2dd6a58d8768314c75e9d"
+    },
+    {
+      "path": "m_08_wardrobe_screen.png",
+      "bytes": 2293689,
+      "sha256": "135dea1bcf9ee548af8c523992416b6b4b94067416b92e6fcf2438f39ca25a17"
+    },
+    {
+      "path": "Main.private.hooked.cs.log",
+      "bytes": 134957,
+      "sha256": "363fba907aaa3fd92a3720d2e8d6ed07e1e426f6a0e645c1295c4a7a0d95c3bd"
+    },
+    {
+      "path": "Main.Row11Proof.private.cs",
+      "bytes": 9924,
+      "sha256": "cf61160391a5c06ffa6da975d8a38c93cbc44f80070f7051a2d1258e76307ec6"
+    },
+    {
+      "path": "make_contact_sheets.py",
+      "bytes": 3160,
+      "sha256": "e17d2e7fa3e771ce8be30233dd15408ac4c9d4dd83b7ac07097d11f7b0eded01"
+    },
+    {
+      "path": "pot-cache-v2.log",
+      "bytes": 110,
+      "sha256": "ab7c4e8db3121a8616a0d120fac38d676df4329bbed319f7c6af31c988341d31"
+    },
+    {
+      "path": "presentation-tests-final.log",
+      "bytes": 1298,
+      "sha256": "2d7a59083874aa06d0ba3a5d3fc6a9e04eade3fa5160d82a5fb23486204bc1b4"
+    },
+    {
+      "path": "private-build-v4.log",
+      "bytes": 22232,
+      "sha256": "56aa03e56f60d99aa17823c9446f5ae14c7a50570a58e8ace2d426049db1bed4"
+    },
+    {
+      "path": "PRIVATE_ASSEMBLY_V3.json",
+      "bytes": 1412,
+      "sha256": "82d026e2f37766f8cb9fd6d1cf5d0cc1e8a5f9f588f2d042334cd7221377e59d"
+    },
+    {
+      "path": "public-build-final-v4.log",
+      "bytes": 16346,
+      "sha256": "4c87bdaa1a0bc4dc5ffd234ebfb5af07c5a78b2c15fa8942ba6156ad7f81f50e"
+    },
+    {
+      "path": "run_native_proof.py",
+      "bytes": 4199,
+      "sha256": "0b421ef7ad5af18aad72746ca6e72ca013aa342f04000a53bbe36877d42c4a28"
+    },
+    {
+      "path": "wardrobe-tests-v4.log",
+      "bytes": 4821,
+      "sha256": "46bc86652610efe4a69c3e76ed6e5420fb60733f6e8702e6d8e7a7c649ee8805"
+    }
+  ]
+}

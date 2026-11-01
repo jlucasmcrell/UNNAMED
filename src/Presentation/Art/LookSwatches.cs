@@ -39,7 +39,12 @@ public static class LookSwatches
         new("Slate", .36f, .38f, .4f),
     };
 
-    public static readonly Swatch[] Trousers = { new("Brown", .33f, .25f, .18f), new("Charcoal", .2f, .2f, .21f) };
+    public static readonly Swatch[] Trousers =
+    {
+        new("Brown", .33f, .25f, .18f), new("Charcoal", .2f, .2f, .21f),
+        new("Oxblood", .42f, .14f, .13f), new("Moss", .36f, .4f, .24f),
+        new("Ochre", .66f, .5f, .25f), new("Slate", .36f, .38f, .4f),
+    };
 
     /// <summary>The interim boots are black rubber garden boots; they are always drawn as worn leather.</summary>
     public static readonly Swatch Boots = new("Leather", .3f, .2f, .13f);

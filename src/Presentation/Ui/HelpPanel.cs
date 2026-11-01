@@ -61,6 +61,7 @@ public partial class HelpPanel : CanvasLayer
                 ("Character", new[] { "character" }), ("Skills, and what you know", new[] { "skills" }), ("These controls", new[] { "help" }),
                 ("Report a problem", new[] { "report_problem" }), ("Hide the interface", new[] { "hide_interface" }),
                 ("Screenshot, to the screenshots folder", new[] { "screenshot" }),
+                ("Photo mode: detached camera; the world keeps running", new[] { "photo_mode" }),
             }),
         },
     };

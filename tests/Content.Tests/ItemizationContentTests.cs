@@ -115,7 +115,8 @@ public class ItemizationContentTests
         var teaches = MagicContent.Build(Game()).Teaches;
         Assert.Equal(new[] { "recipe.leatherwork.smith_gloves", "recipe.leatherwork.wool_trousers", "recipe.leatherwork.hide_boots" },
             teaches["item.tome.bench_patterns"]);
-        Assert.Equal(new[] { "recipe.herbal.salve_minor_ashbloom", "recipe.herbal.salve_ember_boneleaf" }, teaches["item.tome.herbal_remedies"]);
+        Assert.Equal(new[] { "recipe.herbal.salve_minor_ashbloom", "recipe.herbal.salve_ember_boneleaf",
+            "recipe.herbal.dye_oxblood", "recipe.herbal.dye_moss", "recipe.herbal.dye_ochre", "recipe.herbal.dye_slate" }, teaches["item.tome.herbal_remedies"]);
     }
 
     [Fact]

@@ -5,6 +5,13 @@ namespace UNNAMED.Presentation.Tests;
 public class WornOutfitTests
 {
     [Fact]
+    public void WardrobeClothesHideAllEquipmentLayers_IncludingDefaultUnderlayers()
+    {
+        var equipment = new Dictionary<string, string[]> { ["set:|"] = ["base_armour"], ["default:feet"] = ["boots"], ["helm"] = ["helmet"] };
+        Assert.Empty(new WornOutfit(Head: "helm", ClothesOnly: true).Garments(["permanent_armour"], equipment));
+        Assert.NotEmpty(new WornOutfit(Head: "helm").Garments(["permanent_armour"], equipment));
+    }
+    [Fact]
     public void LayeredBodySetReplacesLooseLayers_WhileOtherEquipmentRemainsIndependent()
     {
         var equipment=new Dictionary<string,string[]>

@@ -17833,6 +17833,22 @@
       "model": "item_salve_minor",
       "note": "Poly Haven CC0 ceramic pot."
     },
+    "item.material.dye_oxblood": {
+      "model": "item_cloth_dye_pot",
+      "note": "Owned Poly Haven CC0 ceramic_vase_01, complete mesh and authored 4K maps, scaled to a 16cm carried vessel."
+    },
+    "item.material.dye_moss": {
+      "model": "item_cloth_dye_pot",
+      "note": "Owned Poly Haven CC0 ceramic_vase_01, complete mesh and authored 4K maps, scaled to a 16cm carried vessel."
+    },
+    "item.material.dye_ochre": {
+      "model": "item_cloth_dye_pot",
+      "note": "Owned Poly Haven CC0 ceramic_vase_01, complete mesh and authored 4K maps, scaled to a 16cm carried vessel."
+    },
+    "item.material.dye_slate": {
+      "model": "item_cloth_dye_pot",
+      "note": "Owned Poly Haven CC0 ceramic_vase_01, complete mesh and authored 4K maps, scaled to a 16cm carried vessel."
+    },
     "item.consumable.salve_ember": {
       "model": "item_salve_ember",
       "tint": [

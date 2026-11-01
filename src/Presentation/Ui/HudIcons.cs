@@ -30,6 +30,8 @@ public sealed class HudIcons
     {
         if (key is null)
             return null;
+        if (_map.GetValueOrDefault(key) == "ui.item.cloth_dye")
+            return GD.Load<Texture2D>("res://Art/Icons/cloth_dye.png");
         if (CoatingIcon(key) is { } coating)
             return GD.Load<Texture2D>("res://Art/Icons/coating_" + coating + ".svg");
         if (!_map.TryGetValue(key, out string? id))
