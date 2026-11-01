@@ -601,8 +601,8 @@ public class NpcTests
         var session = Harness.Boot(profile);
         // Her shelf (with Playtest 2's fifteen weapons) outweighs and outnumbers a bare pack: a buyer who can carry it, so the test is about the shelf.
         var items = session.Setup.Items;
-        var setup = session.Setup with { Items = items with { Inventory = items.Inventory with { CarryBaseGrams = items.Inventory.CarryBaseGrams * 4, StackSlots = items.Inventory.StackSlots + 16 } } };
-        var arena = Arena.OpenCreatures(session, setup, AtKera, 0, Array.Empty<(string, double, double, string)>(), r => With(r, 5000));
+        var setup = session.Setup with { Items = items with { Inventory = items.Inventory with { CarryBaseGrams = items.Inventory.CarryBaseGrams * 10, StackSlots = items.Inventory.StackSlots + 48 } } };
+        var arena = Arena.OpenCreatures(session, setup, AtKera, 0, Array.Empty<(string, double, double, string)>(), r => With(r, 20000));
         int stacks = arena.Simulation.Wares(Kera)!.Wares.Length;
         // Authored stock lines may split into several stacks (e.g. sixty arrows).
         Assert.Equal(session.Setup.Items.Merchants[Wares].Stock.Sum(s =>
