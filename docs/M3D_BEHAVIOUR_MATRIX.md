@@ -61,7 +61,6 @@ Each alone on open ground in the neutral `roamer` role (with no route to walk, i
 | Spawner | At (x, z) m | Creatures, each in its role | Returns |
 |---|---|---|---|
 | spawn.boss.ashen_hollow.wayholder_trial | (472, 738) | The Gate Tender as sentinel | after 3.0 min |
-| spawn.boss.cairnwold.the_unpaid | (430, 770) | Barrowback as territorial | after 10.0 min |
 | spawn.boss.den_gorge.matriarch | (518, 765) | Hunting Spider Matriarch as sentinel | no |
 | spawn.boss.field_ruins.gate_warden.deep | (866, 762) | The Gate Warden as sentinel | no |
 | spawn.boss.foldscar.doubled_hart | (541, 636) | The Doubled Hart as sentinel | no |
