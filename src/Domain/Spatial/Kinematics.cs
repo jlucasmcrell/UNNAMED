@@ -646,7 +646,7 @@ public static class Kinematics
             foreach (var blocker in space.Blockers)
             {
                 // A structure on the ground within a step of the feet is walked up onto, not into; an overhang is never stepped.
-                if (Blocks(blocker, liftMm + (blocker.Climbable && blocker.ClearanceMm <= 0 ? stepMm : 0), heightMm))
+                if (Blocks(blocker, liftMm + (blocker.Climbable ? stepMm : 0), heightMm))
                     moved |= Push(blocker, ref x, ref z, tuck is { } t && blocker.HeightMm <= t.Below ? Math.Min(radius, t.Radius) : radius);
             }
             foreach (var blocker in dynamicBlockers)
